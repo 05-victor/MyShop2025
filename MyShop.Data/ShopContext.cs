@@ -18,6 +18,8 @@ namespace MyShop.Shared
 
         public DbSet<OrderItem> OrderItems { get; set; }  // Table "order_items"
 
+        public DbSet<User> Users { get; set; }            // Table "users"
+
         // Constructor
         public ShopContext(DbContextOptions<ShopContext> options) : base(options)
         {
