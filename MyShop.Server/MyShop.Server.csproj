@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="HotChocolate" Version="15.1.10" />
+    <PackageReference Include="HotChocolate.AspNetCore" Version="15.1.10" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.9" />
     <!-- Fix: Upgrade EF Core to match .NET 9.0 -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0" />

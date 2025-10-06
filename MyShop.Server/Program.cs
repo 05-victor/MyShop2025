@@ -1,6 +1,8 @@
 using MyShop.Shared;
 using MyShop.Data;
 using Microsoft.EntityFrameworkCore;
+using MyShop.Server.GraphQL.Queries;
+using MyShop.Server.GraphQL.Mutations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +15,12 @@ builder.Services.AddDbContext<ShopContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), 
                      b => b.MigrationsAssembly("MyShop.Data"))
             .UseSnakeCaseNamingConvention());
+
+// Add GraphQL with HotChocolate
+builder.Services
+    .AddGraphQLServer()
+    .AddQueryType<UserQueries>()
+    .AddMutationType<UserMutations>();
 
 var app = builder.Build();
 
@@ -27,5 +35,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Map GraphQL endpoint
+app.MapGraphQL();
 
 app.Run();
