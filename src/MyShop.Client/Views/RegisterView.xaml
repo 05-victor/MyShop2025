@@ -1,0 +1,199 @@
+<Page
+    x:Class="MyShop.Client.Views.RegisterView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <Grid>
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="450" MaxWidth="450">
+                <!-- Header -->
+                <TextBlock Text="Đăng Ký MyShop 2025" 
+                          Style="{StaticResource TitleTextBlockStyle}" 
+                          Margin="0,0,0,30" 
+                          HorizontalAlignment="Center"
+                          FontWeight="Bold"/>
+
+                <!-- Register Card -->
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="32">
+                    
+                    <StackPanel Spacing="16">
+                        <!-- Name Row (First Name and Last Name side by side) -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- First Name -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Tên" 
+                                          Margin="0,0,0,4" 
+                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBox Text="{x:Bind ViewModel.FirstName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        PlaceholderText="Nhập tên"
+                                        KeyDown="Input_KeyDown"/>
+                                <TextBlock Text="{x:Bind ViewModel.FirstNameError, Mode=OneWay}"
+                                          Foreground="{ThemeResource SystemErrorTextColor}"
+                                          FontSize="12"
+                                          Margin="0,2,0,0"
+                                          Visibility="{x:Bind ViewModel.FirstNameError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+                            </StackPanel>
+
+                            <!-- Last Name -->
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Họ" 
+                                          Margin="0,0,0,4" 
+                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBox Text="{x:Bind ViewModel.LastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        PlaceholderText="Nhập họ"
+                                        KeyDown="Input_KeyDown"/>
+                                <TextBlock Text="{x:Bind ViewModel.LastNameError, Mode=OneWay}"
+                                          Foreground="{ThemeResource SystemErrorTextColor}"
+                                          FontSize="12"
+                                          Margin="0,2,0,0"
+                                          Visibility="{x:Bind ViewModel.LastNameError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Email Input -->
+                        <StackPanel>
+                            <TextBlock Text="Email" 
+                                      Margin="0,0,0,4" 
+                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBox Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    PlaceholderText="Nhập địa chỉ email"
+                                    InputScope="EmailNameOrAddress"
+                                    KeyDown="Input_KeyDown"/>
+                            <TextBlock Text="{x:Bind ViewModel.EmailError, Mode=OneWay}"
+                                      Foreground="{ThemeResource SystemErrorTextColor}"
+                                      FontSize="12"
+                                      Margin="0,2,0,0"
+                                      Visibility="{x:Bind ViewModel.EmailError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+                        </StackPanel>
+
+                        <!-- Phone Input -->
+                        <StackPanel>
+                            <TextBlock Text="Số điện thoại" 
+                                      Margin="0,0,0,4" 
+                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBox Text="{x:Bind ViewModel.Phone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    PlaceholderText="Nhập số điện thoại"
+                                    InputScope="TelephoneNumber"
+                                    KeyDown="Input_KeyDown"/>
+                            <TextBlock Text="{x:Bind ViewModel.PhoneError, Mode=OneWay}"
+                                      Foreground="{ThemeResource SystemErrorTextColor}"
+                                      FontSize="12"
+                                      Margin="0,2,0,0"
+                                      Visibility="{x:Bind ViewModel.PhoneError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+                        </StackPanel>
+
+                        <!-- Username Input (Optional - can be auto-generated) -->
+                        <StackPanel>
+                            <TextBlock Text="Tên đăng nhập (tùy chọn)" 
+                                      Margin="0,0,0,4" 
+                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBox Text="{x:Bind ViewModel.Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    PlaceholderText="Để trống để sử dụng tên đầy đủ"
+                                    KeyDown="Input_KeyDown"/>
+                        </StackPanel>
+
+                        <!-- Password Row (Password and Confirm Password side by side) -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- Password Input -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Mật khẩu" 
+                                          Margin="0,0,0,4" 
+                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <PasswordBox x:Name="PasswordInput" 
+                                            PlaceholderText="Mật khẩu"
+                                            PasswordChanged="PasswordInput_PasswordChanged"
+                                            KeyDown="Input_KeyDown"/>
+                                <TextBlock Text="{x:Bind ViewModel.PasswordError, Mode=OneWay}"
+                                          Foreground="{ThemeResource SystemErrorTextColor}"
+                                          FontSize="12"
+                                          Margin="0,2,0,0"
+                                          Visibility="{x:Bind ViewModel.PasswordError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+                            </StackPanel>
+
+                            <!-- Confirm Password Input -->
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Xác nhận" 
+                                          Margin="0,0,0,4" 
+                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <PasswordBox x:Name="ConfirmPasswordInput" 
+                                            PlaceholderText="Nhập lại"
+                                            PasswordChanged="ConfirmPasswordInput_PasswordChanged"
+                                            KeyDown="Input_KeyDown"/>
+                                <TextBlock Text="{x:Bind ViewModel.ConfirmPasswordError, Mode=OneWay}"
+                                          Foreground="{ThemeResource SystemErrorTextColor}"
+                                          FontSize="12"
+                                          Margin="0,2,0,0"
+                                          Visibility="{x:Bind ViewModel.ConfirmPasswordError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Password Requirements -->
+                        <TextBlock Text="Mật khẩu phải có ít nhất 6 ký tự" 
+                                  FontSize="12"
+                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                  HorizontalAlignment="Center"/>
+
+                        <!-- Error Message -->
+                        <TextBlock Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" 
+                                  Foreground="{ThemeResource SystemErrorTextColor}" 
+                                  Visibility="{x:Bind ViewModel.ErrorMessage, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
+                                  TextWrapping="Wrap"
+                                  HorizontalAlignment="Center"
+                                  TextAlignment="Center"/>
+
+                        <!-- Register Button -->
+                        <Button HorizontalAlignment="Stretch"
+                                Command="{x:Bind ViewModel.AttemptRegisterCommand}"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Margin="0,8,0,0">
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+                                                 Width="16" Height="16"
+                                                 Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    <TextBlock Text="ĐĂNG KÝ"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+
+                        <!-- Navigate to Login -->
+                        <HyperlinkButton Content="Đã có tài khoản? Đăng nhập ngay" 
+                                        HorizontalAlignment="Center"
+                                        Command="{x:Bind ViewModel.NavigateToLoginCommand}"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- Loading Overlay -->
+            <Grid Background="#80000000" 
+                  Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16">
+                    <ProgressRing IsActive="True" Width="50" Height="50"/>
+                    <TextBlock Text="Đang đăng ký..." 
+                              Foreground="White" 
+                              HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</Page>
