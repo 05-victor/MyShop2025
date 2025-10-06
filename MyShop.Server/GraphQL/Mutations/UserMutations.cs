@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MyShop.Data.Entities;
-using MyShop.Server.GraphQL.DTOs;
 using MyShop.Shared;
+using MyShop.Shared.DTOs.User;
 
 namespace MyShop.Server.GraphQL.Mutations;
 

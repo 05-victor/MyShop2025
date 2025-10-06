@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MyShop.Data.Entities;
 using MyShop.Shared;
+using MyShop.Shared.DTOs.User;
 
 namespace MyShop.Server.GraphQL.Queries;
 
