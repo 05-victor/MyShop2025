@@ -29,38 +29,64 @@
                         <!-- Email Input -->
                         <StackPanel>
                             <TextBlock Text="Email / Tên đăng nhập" 
-                                      Margin="0,0,0,4" 
+                                      Margin="0,0,0,6" 
                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            <TextBox x:Name="EmailTextBox"
-                                    Text="{x:Bind ViewModel.Email, Mode=TwoWay}"
-                                    PlaceholderText="Nhập email hoặc tên đăng nhập"/>
+                            <TextBox x:Name="UsernameTextBox"
+                                    Text="{x:Bind ViewModel.Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    PlaceholderText="Nhập email hoặc tên đăng nhập"
+                                    InputScope="Default"
+                                    KeyDown="Input_KeyDown"
+                                    IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                    Background="{ThemeResource TextControlBackground}"
+                                    BorderThickness="1"
+                                    CornerRadius="4"/>
+                            <!-- Username Validation Error -->
+                            <TextBlock Text="{x:Bind ViewModel.UsernameError, Mode=OneWay}"
+                                      Foreground="{ThemeResource SystemErrorTextColor}"
+                                      FontSize="12"
+                                      Margin="0,2,0,0"
+                                      Visibility="{x:Bind ViewModel.UsernameError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
                         </StackPanel>
 
                         <!-- Password Input -->
                         <StackPanel>
                             <TextBlock Text="Mật khẩu" 
-                                      Margin="0,0,0,4" 
+                                      Margin="0,0,0,6" 
                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             <PasswordBox x:Name="PasswordInput" 
-                                        PlaceholderText="Nhập mật khẩu"/>
+                                        PlaceholderText="Nhập mật khẩu"
+                                        PasswordChanged="PasswordInput_PasswordChanged"
+                                        KeyDown="Input_KeyDown"
+                                        IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                        Background="{ThemeResource TextControlBackground}"
+                                        BorderThickness="1"
+                                        CornerRadius="4"/>
+                            <!-- Password Validation Error -->
+                            <TextBlock Text="{x:Bind ViewModel.PasswordError, Mode=OneWay}"
+                                      Foreground="{ThemeResource SystemErrorTextColor}"
+                                      FontSize="12"
+                                      Margin="0,2,0,0"
+                                      Visibility="{x:Bind ViewModel.PasswordError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
                         </StackPanel>
 
                         <!-- Error Message -->
                         <TextBlock Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" 
                                   Foreground="{ThemeResource SystemErrorTextColor}" 
                                   Visibility="{x:Bind ViewModel.ErrorMessage, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
-                                  TextWrapping="Wrap"/>
+                                  TextWrapping="Wrap"
+                                  HorizontalAlignment="Center"
+                                  TextAlignment="Center"/>
 
                         <!-- Login Button -->
                         <Button HorizontalAlignment="Stretch"
-                                Click="LoginButton_Click"
-                                IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                                Style="{StaticResource AccentButtonStyle}">
+                                Command="{x:Bind ViewModel.AttemptLoginCommand}"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Margin="0,8,0,0">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
                                                  Width="16" Height="16"
-                                                 Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}"/>
+                                                 Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     <TextBlock Text="ĐĂNG NHẬP"/>
                                 </StackPanel>
                             </Button.Content>
@@ -73,6 +99,17 @@
                     </StackPanel>
                 </Border>
             </StackPanel>
+
+            <!-- Loading Overlay -->
+            <Grid Background="#80000000" 
+                  Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16">
+                    <ProgressRing IsActive="True" Width="50" Height="50"/>
+                    <TextBlock Text="Đang đăng nhập..." 
+                              Foreground="White" 
+                              HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
         </Grid>
     </ScrollViewer>
 </Page>
