@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MyShop.Shared;
+using MyShop.Data;
 using MyShop.Shared.DTOs;
 using MyShop.Data.Entities;
 using BCrypt.Net;
@@ -31,7 +31,7 @@ namespace MyShop.Server.Controllers
         
         /// <summary>
         /// Khởi tạo một instance mới của class <see cref="AuthController"/>.
-        /// </summary>
+        /// </summary>  
         /// <param name="context">Database context để truy cập dữ liệu</param>
         public AuthController(ShopContext context)
         {
@@ -41,17 +41,17 @@ namespace MyShop.Server.Controllers
         /// <summary>
         /// Đăng ký tài khoản người dùng mới.
         /// </summary>
-        /// <param name="request">Thông tin đăng ký bao gồm username, email và password</param>
+        /// <param name="request">Thông tin đăng ký bao gồm username, email, password và sdt</param>
         /// <returns>
         /// ActionResult chứa AuthResponse với thông tin kết quả đăng ký.
         /// Trả về 200 OK nếu thành công, 400 BadRequest nếu có lỗi validation hoặc trùng lặp.
         /// </returns>
         /// <remarks>
         /// API này thực hiện các bước sau:
-        /// 1. Validate thông tin đầu vào (username, email, password không được rỗng)
+        /// 1. Validate thông tin đầu vào (username, email, password, sdt không được rỗng)
         /// 2. Kiểm tra xem email hoặc username đã tồn tại chưa
         /// 3. Mã hóa mật khẩu bằng BCrypt
-        /// 4. Tạo và lưu người dùng mới vào database
+        /// 4. Tạo và lưu người dùng mới vào database với UUID
         /// 5. Trả về thông tin người dùng và token đăng nhập
         /// </remarks>
         [HttpPost("register")]
@@ -60,16 +60,17 @@ namespace MyShop.Server.Controllers
             // Validate đầu vào
             if (string.IsNullOrWhiteSpace(request.Username) || 
                 string.IsNullOrWhiteSpace(request.Email) || 
-                string.IsNullOrWhiteSpace(request.Password))
+                string.IsNullOrWhiteSpace(request.Password) ||
+                string.IsNullOrWhiteSpace(request.Sdt))
             {
                 return BadRequest(new AuthResponse 
                 { 
-                    Success = false, 
-                    Message = "Vui lòng điền đầy đủ thông tin" 
+                    Success = false,
+                    Message = "Tất cả các trường đều bắt buộc."
                 });
             }
 
-            // Kiểm tra xem người dùng đã tồn tại chưa
+            // Kiểm tra xem email hoặc username đã tồn tại chưa
             var existingUser = await _context.Users
                 .FirstOrDefaultAsync(u => u.Email == request.Email || u.Username == request.Username);
             
@@ -77,105 +78,115 @@ namespace MyShop.Server.Controllers
             {
                 return BadRequest(new AuthResponse 
                 { 
-                    Success = false, 
-                    Message = "Email hoặc tên đăng nhập đã tồn tại" 
+                    Success = false,
+                    Message = "Email hoặc username đã tồn tại."
                 });
             }
 
             // Mã hóa mật khẩu
-            var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
-            // Tạo người dùng mới
-            var user = new User
+            // Tạo người dùng mới với UUID
+            var newUser = new User
             {
+                Id = Guid.NewGuid(),
                 Username = request.Username,
                 Email = request.Email,
-                PasswordHash = passwordHash,
-                CreatedAt = DateTime.UtcNow
+                Password = hashedPassword,
+                Sdt = request.Sdt,
+                CreatedAt = DateTime.UtcNow,
+                ActivateTrial = false,
+                Avatar = string.Empty
             };
 
-            _context.Users.Add(user);
+            _context.Users.Add(newUser);
             await _context.SaveChangesAsync();
+
+            // Tạo token đơn giản (trong tương lai nên dùng JWT)
+            var token = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{newUser.Id}:{DateTime.UtcNow.Ticks}"));
 
             return Ok(new AuthResponse
             {
                 Success = true,
-                Message = "Đăng ký thành công",
-                Token = "temp_token_" + user.Id, // Tạm thời dùng token đơn giản
+                Message = "Đăng ký thành công.",
+                Token = token,
                 User = new UserDto
                 {
-                    Id = user.Id,
-                    Username = user.Username,
-                    Email = user.Email,
-                    CreatedAt = user.CreatedAt
+                    Id = newUser.Id,
+                    Username = newUser.Username,
+                    Email = newUser.Email,
+                    Sdt = newUser.Sdt,
+                    CreatedAt = newUser.CreatedAt,
+                    ActivateTrial = newUser.ActivateTrial,
+                    Avatar = newUser.Avatar
                 }
             });
         }
 
         /// <summary>
-        /// Đăng nhập người dùng với email/username và mật khẩu.
+        /// Đăng nhập người dùng.
         /// </summary>
-        /// <param name="request">Thông tin đăng nhập bao gồm email/username và password</param>
+        /// <param name="request">Thông tin đăng nhập bao gồm username/email và password</param>
         /// <returns>
         /// ActionResult chứa AuthResponse với thông tin kết quả đăng nhập.
-        /// Trả về 200 OK nếu thành công, 400 BadRequest nếu thông tin không đúng.
+        /// Trả về 200 OK nếu thành công, 401 Unauthorized nếu thông tin không đúng.
         /// </returns>
-        /// <remarks>
-        /// API này thực hiện các bước sau:
-        /// 1. Validate thông tin đầu vào (email và password không được rỗng)
-        /// 2. Tìm người dùng theo email hoặc username
-        /// 3. Xác minh mật khẩu bằng BCrypt
-        /// 4. Trả về thông tin người dùng và token nếu đăng nhập thành công
-        /// 
-        /// Hỗ trợ đăng nhập bằng cả email và username trong trường Email.
-        /// </remarks>
         [HttpPost("login")]
         public async Task<ActionResult<AuthResponse>> Login(LoginRequest request)
         {
             // Validate đầu vào
-            if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+            if (string.IsNullOrWhiteSpace(request.UsernameOrEmail) || 
+                string.IsNullOrWhiteSpace(request.Password))
             {
                 return BadRequest(new AuthResponse 
                 { 
-                    Success = false, 
-                    Message = "Vui lòng nhập email và mật khẩu" 
+                    Success = false,
+                    Message = "Username/Email và mật khẩu đều bắt buộc."
                 });
             }
 
-            // Tìm người dùng theo email hoặc username
+            // Tìm user theo username hoặc email
             var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == request.Email || u.Username == request.Email);
+                .Include(u => u.Roles)
+                    .ThenInclude(r => r.Authorities)
+                .FirstOrDefaultAsync(u => u.Username == request.UsernameOrEmail || u.Email == request.UsernameOrEmail);
 
-            if (user == null)
+            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             {
-                return BadRequest(new AuthResponse 
+                return Unauthorized(new AuthResponse 
                 { 
-                    Success = false, 
-                    Message = "Email hoặc mật khẩu không đúng" 
+                    Success = false,
+                    Message = "Thông tin đăng nhập không đúng."
                 });
             }
 
-            // Xác minh mật khẩu
-            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-            {
-                return BadRequest(new AuthResponse 
-                { 
-                    Success = false, 
-                    Message = "Email hoặc mật khẩu không đúng" 
-                });
-            }
+            // Tạo token đơn giản (trong tương lai nên dùng JWT)
+            var token = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{user.Id}:{DateTime.UtcNow.Ticks}"));
 
             return Ok(new AuthResponse
             {
                 Success = true,
-                Message = "Đăng nhập thành công",
-                Token = "temp_token_" + user.Id, // Tạm thời dùng token đơn giản
+                Message = "Đăng nhập thành công.",
+                Token = token,
                 User = new UserDto
                 {
                     Id = user.Id,
                     Username = user.Username,
                     Email = user.Email,
-                    CreatedAt = user.CreatedAt
+                    Sdt = user.Sdt,
+                    CreatedAt = user.CreatedAt,
+                    ActivateTrial = user.ActivateTrial,
+                    Avatar = user.Avatar,
+                    Roles = user.Roles?.Select(r => new RoleDto
+                    {
+                        Name = r.Name,
+                        Description = r.Description,
+                        Authorities = r.Authorities?.Select(a => new AuthorityDto
+                        {
+                            Name = a.Name,
+                            Description = a.Description
+                        }).ToList() ?? new List<AuthorityDto>()
+                    }).ToList() ?? new List<RoleDto>()
                 }
             });
         }
@@ -198,7 +209,10 @@ namespace MyShop.Server.Controllers
         public async Task<ActionResult<UserDto>> GetCurrentUser()
         {
             // Tạm thời trả về user đầu tiên để test
-            var user = await _context.Users.FirstOrDefaultAsync();
+            var user = await _context.Users
+                .Include(u => u.Roles)
+                    .ThenInclude(r => r.Authorities)
+                .FirstOrDefaultAsync();
             
             if (user == null)
             {
@@ -210,7 +224,20 @@ namespace MyShop.Server.Controllers
                 Id = user.Id,
                 Username = user.Username,
                 Email = user.Email,
-                CreatedAt = user.CreatedAt
+                Sdt = user.Sdt,
+                CreatedAt = user.CreatedAt,
+                ActivateTrial = user.ActivateTrial,
+                Avatar = user.Avatar,
+                Roles = user.Roles?.Select(r => new RoleDto
+                {
+                    Name = r.Name,
+                    Description = r.Description,
+                    Authorities = r.Authorities?.Select(a => new AuthorityDto
+                    {
+                        Name = a.Name,
+                        Description = a.Description
+                    }).ToList() ?? new List<AuthorityDto>()
+                }).ToList() ?? new List<RoleDto>()
             });
         }
     }

@@ -8,10 +8,11 @@ namespace MyShop.Data.Entities
     /// </summary>
     /// <remarks>
     /// Entity này ánh xạ đến bảng Users trong database và chứa:
-    /// - Thông tin định danh (ID, Username, Email)
-    /// - Thông tin xác thực (PasswordHash)
-    /// - Metadata (CreatedAt, UpdatedAt)
-    /// - Navigation properties đến các entity liên quan (Orders)
+    /// - Thông tin định danh (Id, Username, Email, Sdt)
+    /// - Thông tin xác thực (Password)
+    /// - Thông tin bổ sung (Avatar, ActivateTrial)
+    /// - Metadata (CreatedAt)
+    /// - Navigation properties đến các entity liên quan (Orders, Roles)
     /// 
     /// Mật khẩu được lưu dưới dạng hash để đảm bảo bảo mật.
     /// </remarks>
@@ -20,9 +21,9 @@ namespace MyShop.Data.Entities
         /// <summary>
         /// Lấy hoặc đặt ID duy nhất của người dùng.
         /// </summary>
-        /// <value>Primary key tự động tăng của người dùng</value>
-        public int Id { get; set; }
-        
+        /// <value>UUID làm primary key của người dùng</value>
+        public Guid Id { get; set; } = Guid.NewGuid();
+
         /// <summary>
         /// Lấy hoặc đặt tên đăng nhập của người dùng.
         /// </summary>
@@ -30,16 +31,7 @@ namespace MyShop.Data.Entities
         [Required]
         [MaxLength(100)]
         public string Username { get; set; } = string.Empty;
-        
-        /// <summary>
-        /// Lấy hoặc đặt địa chỉ email của người dùng.
-        /// </summary>
-        /// <value>Chuỗi email tối đa 255 ký tự, bắt buộc và phải đúng định dạng email</value>
-        [Required]
-        [EmailAddress]
-        [MaxLength(255)]
-        public string Email { get; set; } = string.Empty;
-        
+
         /// <summary>
         /// Lấy hoặc đặt mật khẩu đã được mã hóa của người dùng.
         /// </summary>
@@ -49,20 +41,55 @@ namespace MyShop.Data.Entities
         /// Không bao giờ lưu mật khẩu dưới dạng plaintext.
         /// </remarks>
         [Required]
-        public string PasswordHash { get; set; } = string.Empty;
-        
+        public string Password { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Lấy hoặc đặt địa chỉ email của người dùng.
+        /// </summary>
+        /// <value>Chuỗi email tối đa 255 ký tự, bắt buộc và phải đúng định dạng email</value>
+        [Required]
+        [EmailAddress]
+        [MaxLength(255)]
+        public string Email { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Lấy hoặc đặt số điện thoại của người dùng.
+        /// </summary>
+        /// <value>Chuỗi số điện thoại tối đa 20 ký tự, bắt buộc</value>
+        [Required]
+        [MaxLength(20)]
+        public string Sdt { get; set; } = string.Empty;
+
         /// <summary>
         /// Lấy hoặc đặt thời gian tạo tài khoản.
         /// </summary>
         /// <value>DateTime khi tài khoản được tạo, mặc định là thời gian hiện tại (UTC)</value>
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        
+
         /// <summary>
-        /// Lấy hoặc đặt thời gian cập nhật tài khoản lần cuối.
+        /// Lấy hoặc đặt trạng thái kích hoạt thử nghiệm.
         /// </summary>
-        /// <value>DateTime khi tài khoản được cập nhật lần cuối, null nếu chưa cập nhật</value>
-        public DateTime? UpdatedAt { get; set; }
-        
+        /// <value>True nếu tài khoản được kích hoạt thử nghiệm, false nếu không</value>
+        public bool ActivateTrial { get; set; } = false;
+
+        /// <summary>
+        /// Lấy hoặc đặt đường dẫn đến ảnh đại diện của người dùng.
+        /// </summary>
+        /// <value>Chuỗi URL hoặc đường dẫn đến ảnh đại diện, mặc định là chuỗi rỗng</value>
+        [MaxLength(500)]
+        public string Avatar { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Lấy hoặc đặt danh sách vai trò của người dùng.
+        /// </summary>
+        /// <value>Collection chứa tất cả các Role mà người dùng được gán</value>
+        /// <remarks>
+        /// Navigation property đến entity Role.
+        /// Many-to-many relationship thông qua bảng trung gian.
+        /// Sử dụng Entity Framework để load dữ liệu liên quan.
+        /// </remarks>
+        public ICollection<Role> Roles { get; set; } = new List<Role>();
+
         /// <summary>
         /// Lấy hoặc đặt danh sách đơn hàng của người dùng.
         /// </summary>
