@@ -43,7 +43,7 @@ namespace MyShop.Server.Controllers
         /// </summary>
         /// <param name="request">Thông tin đăng ký bao gồm username, email, password và sdt</param>
         /// <returns>
-        /// ActionResult chứa AuthResponse với thông tin kết quả đăng ký.
+        /// ActionResult chứa RegisterResponse với thông tin kết quả đăng ký.
         /// Trả về 200 OK nếu thành công, 400 BadRequest nếu có lỗi validation hoặc trùng lặp.
         /// </returns>
         /// <remarks>
@@ -52,10 +52,10 @@ namespace MyShop.Server.Controllers
         /// 2. Kiểm tra xem email hoặc username đã tồn tại chưa
         /// 3. Mã hóa mật khẩu bằng BCrypt
         /// 4. Tạo và lưu người dùng mới vào database với UUID
-        /// 5. Trả về thông tin người dùng và token đăng nhập
+        /// 5. Trả về thông tin người dùng đã tạo
         /// </remarks>
         [HttpPost("register")]
-        public async Task<ActionResult<AuthResponse>> Register(RegisterRequest request)
+        public async Task<ActionResult<RegisterResponse>> Register(RegisterRequest request)
         {
             // Validate đầu vào
             if (string.IsNullOrWhiteSpace(request.Username) || 
@@ -63,7 +63,7 @@ namespace MyShop.Server.Controllers
                 string.IsNullOrWhiteSpace(request.Password) ||
                 string.IsNullOrWhiteSpace(request.Sdt))
             {
-                return BadRequest(new AuthResponse 
+                return BadRequest(new RegisterResponse 
                 { 
                     Success = false,
                     Message = "Tất cả các trường đều bắt buộc."
@@ -76,7 +76,7 @@ namespace MyShop.Server.Controllers
             
             if (existingUser != null)
             {
-                return BadRequest(new AuthResponse 
+                return BadRequest(new RegisterResponse 
                 { 
                     Success = false,
                     Message = "Email hoặc username đã tồn tại."
@@ -102,14 +102,10 @@ namespace MyShop.Server.Controllers
             _context.Users.Add(newUser);
             await _context.SaveChangesAsync();
 
-            // Tạo token đơn giản (trong tương lai nên dùng JWT)
-            var token = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{newUser.Id}:{DateTime.UtcNow.Ticks}"));
-
-            return Ok(new AuthResponse
+            return Ok(new RegisterResponse
             {
                 Success = true,
                 Message = "Đăng ký thành công.",
-                Token = token,
                 User = new UserInfo
                 {
                     Id = newUser.Id,
@@ -127,17 +123,17 @@ namespace MyShop.Server.Controllers
         /// </summary>
         /// <param name="request">Thông tin đăng nhập bao gồm username/email và password</param>
         /// <returns>
-        /// ActionResult chứa AuthResponse với thông tin kết quả đăng nhập.
+        /// ActionResult chứa LoginResponse với thông tin kết quả đăng nhập.
         /// Trả về 200 OK nếu thành công, 401 Unauthorized nếu thông tin không đúng.
         /// </returns>
         [HttpPost("login")]
-        public async Task<ActionResult<AuthResponse>> Login(LoginRequest request)
+        public async Task<ActionResult<LoginResponse>> Login(LoginRequest request)
         {
             // Validate đầu vào
             if (string.IsNullOrWhiteSpace(request.UsernameOrEmail) || 
                 string.IsNullOrWhiteSpace(request.Password))
             {
-                return BadRequest(new AuthResponse 
+                return BadRequest(new LoginResponse 
                 { 
                     Success = false,
                     Message = "Username/Email và mật khẩu đều bắt buộc."
@@ -152,7 +148,7 @@ namespace MyShop.Server.Controllers
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             {
-                return Unauthorized(new AuthResponse 
+                return Unauthorized(new LoginResponse 
                 { 
                     Success = false,
                     Message = "Thông tin đăng nhập không đúng."
@@ -162,7 +158,7 @@ namespace MyShop.Server.Controllers
             // Tạo token đơn giản (trong tương lai nên dùng JWT)
             var token = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{user.Id}:{DateTime.UtcNow.Ticks}"));
 
-            return Ok(new AuthResponse
+            return Ok(new LoginResponse
             {
                 Success = true,
                 Message = "Đăng nhập thành công.",

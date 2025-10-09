@@ -54,8 +54,12 @@ namespace MyShop.Server.Controllers
 
             return Ok(new AuthorityDto
             {
+                Id = Guid.NewGuid(), // Tạm thời generate ID vì entity không có
                 Name = authority.Name,
-                Description = authority.Description
+                Description = authority.Description,
+                Module = request.Module,
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true
             });
         }
 
@@ -70,8 +74,12 @@ namespace MyShop.Server.Controllers
 
             return Ok(authorities.Select(a => new AuthorityDto
             {
+                Id = Guid.NewGuid(), // Tạm thời generate ID vì entity không có
                 Name = a.Name,
-                Description = a.Description
+                Description = a.Description,
+                Module = null, // Entity không có Module field
+                CreatedAt = DateTime.UtcNow, // Entity không có CreatedAt field
+                IsActive = true // Entity không có IsActive field
             }));
         }
 
@@ -93,8 +101,12 @@ namespace MyShop.Server.Controllers
 
             return Ok(new AuthorityDto
             {
+                Id = Guid.NewGuid(), // Tạm thời generate ID vì entity không có
                 Name = authority.Name,
-                Description = authority.Description
+                Description = authority.Description,
+                Module = null, // Entity không có Module field
+                CreatedAt = DateTime.UtcNow, // Entity không có CreatedAt field
+                IsActive = true // Entity không có IsActive field
             });
         }
     }
