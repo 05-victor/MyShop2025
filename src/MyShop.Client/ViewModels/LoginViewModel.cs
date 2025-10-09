@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyShop.Client.Services;
 using MyShop.Client.Views;
+using MyShop.Shared.DTOs;
 
 namespace MyShop.Client.ViewModels
 {
@@ -69,8 +70,7 @@ namespace MyShop.Client.ViewModels
         private string _errorMessage = string.Empty;
 
         /// <summary>
-        /// Lấy hoặc đặt giá trị cho biết liệu có hoạt động dài hạn đang diễn ra (ví dụ: API call).
-        /// Khi true, UI nên hiển thị chỉ báo loading và vô hiệu hóa tương tác người dùng.
+        /// Lấy hoặc đặt trạng thái loading khi đang thực hiện đăng nhập.
         /// </summary>
         /// <value>True nếu đang loading, false nếu không</value>
         [ObservableProperty]
@@ -78,16 +78,7 @@ namespace MyShop.Client.ViewModels
         private bool _isLoading = false;
 
         /// <summary>
-        /// Lấy hoặc đặt giá trị cho biết liệu nút đăng nhập có nên được bật.
-        /// Button chỉ được bật khi form hợp lệ và không có tác vụ nào đang chạy.
-        /// </summary>
-        /// <value>True nếu được phép đăng nhập, false nếu không</value>
-        [ObservableProperty]
-        private bool _canLogin = true;
-
-        /// <summary>
         /// Lấy hoặc đặt thông báo lỗi cụ thể cho trường username.
-        /// Được sử dụng để hiển thị lỗi validation cụ thể cho từng trường trong UI.
         /// </summary>
         /// <value>Thông báo lỗi validation username</value>
         [ObservableProperty]
@@ -95,7 +86,6 @@ namespace MyShop.Client.ViewModels
 
         /// <summary>
         /// Lấy hoặc đặt thông báo lỗi cụ thể cho trường password.
-        /// Được sử dụng để hiển thị lỗi validation cụ thể cho từng trường trong UI.
         /// </summary>
         /// <value>Thông báo lỗi validation password</value>
         [ObservableProperty]
@@ -106,103 +96,45 @@ namespace MyShop.Client.ViewModels
         #region Constructor
 
         /// <summary>
-        /// Khởi tạo một instance mới của class <see cref="LoginViewModel"/>.
+        /// Khởi tạo một instance mới của LoginViewModel.
         /// </summary>
-        /// <param name="authService">Service xác thực để xử lý các hoạt động đăng nhập</param>
-        /// <param name="navigationService">Service để điều hướng giữa các trang</param>
-        /// <exception cref="ArgumentNullException">Được throw khi authService hoặc navigationService là null</exception>
+        /// <param name="authService">Service xử lý xác thực</param>
+        /// <param name="navigationService">Service xử lý điều hướng</param>
         public LoginViewModel(IAuthService authService, INavigationService navigationService)
         {
             _authService = authService ?? throw new ArgumentNullException(nameof(authService));
             _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
             
-            // Đăng ký sự kiện để cập nhật trạng thái khi có lỗi validation
-            ErrorsChanged += (s, e) => {
-                UpdateCanLogin();
-                UpdateErrorMessages();
-            };
-            
-            // Đăng ký sự kiện để cập nhật trạng thái khi IsLoading thay đổi
-            PropertyChanged += (s, e) => {
-                if (e.PropertyName == nameof(IsLoading))
-                {
-                    UpdateCanLogin();
-                }
-            };
+            // Đăng ký sự kiện để cập nhật error messages khi có lỗi validation
+            ErrorsChanged += (s, e) => UpdateErrorMessages();
         }
-
-        #endregion
-
-        #region Private Methods
-
-        /// <summary>
-        /// Cập nhật thuộc tính CanLogin dựa trên trạng thái validation hiện tại, trạng thái loading và giá trị đầu vào.
-        /// Phương thức này đảm bảo nút đăng nhập chỉ được bật khi tất cả các điều kiện được đáp ứng.
-        /// </summary>
-        private void UpdateCanLogin()
-        {
-            CanLogin = !HasErrors && !IsLoading && 
-                       !string.IsNullOrWhiteSpace(Username) && 
-                       !string.IsNullOrWhiteSpace(Password);
-        }
-
-        /// <summary>
-        /// Cập nhật các thuộc tính thông báo lỗi riêng lẻ cho các trường username và password.
-        /// Điều này cho phép UI hiển thị thông báo lỗi cụ thể cho từng trường.
-        /// </summary>
-        private void UpdateErrorMessages()
-        {
-            UsernameError = GetErrors(nameof(Username)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
-            PasswordError = GetErrors(nameof(Password)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
-        }
-
-        /// <summary>
-        /// Xác định liệu lệnh đăng nhập có thể thực thi được không.
-        /// Được sử dụng bởi RelayCommand để bật/tắt chức năng đăng nhập.
-        /// </summary>
-        /// <returns>True nếu có thể thử đăng nhập, false nếu không</returns>
-        private bool CanAttemptLogin => !HasErrors && !IsLoading && 
-                                       !string.IsNullOrWhiteSpace(Username) && 
-                                       !string.IsNullOrWhiteSpace(Password);
 
         #endregion
 
         #region Commands
 
         /// <summary>
-        /// Thử đăng nhập người dùng bằng thông tin đăng nhập được cung cấp một cách bất đồng bộ.
-        /// Validates form, gọi service xác thực, và điều hướng đến dashboard khi thành công.
+        /// Command để thực hiện đăng nhập.
         /// </summary>
-        /// <returns>Một task đại diện cho hoạt động đăng nhập bất đồng bộ</returns>
-        /// <remarks>
-        /// Phương thức này thực hiện các bước sau:
-        /// 1. Xóa bất kỳ thông báo lỗi hiện có nào
-        /// 2. Đặt trạng thái loading thành true
-        /// 3. Validates tất cả các thuộc tính
-        /// 4. Gọi service xác thực
-        /// 5. Điều hướng đến dashboard khi thành công hoặc hiển thị thông báo lỗi khi thất bại
-        /// 6. Reset trạng thái loading
-        /// </remarks>
         [RelayCommand(CanExecute = nameof(CanAttemptLogin))]
         private async Task AttemptLogin()
         {
-            ErrorMessage = string.Empty;
-            IsLoading = true;
-
             try
             {
-                // Validate tất cả các thuộc tính
-                ValidateAllProperties();
-                if (HasErrors)
-                {
-                    return;
-                }
+                IsLoading = true;
+                ErrorMessage = string.Empty;
 
-                var result = await _authService.LoginAsync(Username, Password);
-                
+                var loginRequest = new LoginRequest
+                {
+                    UsernameOrEmail = Username,
+                    Password = Password
+                };
+
+                var result = await _authService.LoginAsync(loginRequest);
+
                 if (result.Success)
                 {
-                    // TODO: Lưu token và thông tin người dùng
+                    // Đăng nhập thành công, chuyển đến dashboard
                     _navigationService.NavigateTo<DashboardView>();
                 }
                 else
@@ -212,7 +144,7 @@ namespace MyShop.Client.ViewModels
             }
             catch (Exception ex)
             {
-                ErrorMessage = "Lỗi đăng nhập: " + ex.Message;
+                ErrorMessage = $"Đã xảy ra lỗi: {ex.Message}";
             }
             finally
             {
@@ -221,8 +153,16 @@ namespace MyShop.Client.ViewModels
         }
 
         /// <summary>
-        /// Điều hướng đến trang đăng ký người dùng.
-        /// Lệnh này cho phép người dùng tạo tài khoản mới nếu họ chưa có.
+        /// Kiểm tra xem có thể thực hiện đăng nhập hay không.
+        /// </summary>
+        /// <returns>True nếu có thể đăng nhập, false nếu không</returns>
+        private bool CanAttemptLogin()
+        {
+            return !IsLoading && !HasErrors && !string.IsNullOrWhiteSpace(Username) && !string.IsNullOrWhiteSpace(Password);
+        }
+
+        /// <summary>
+        /// Command để chuyển đến trang đăng ký.
         /// </summary>
         [RelayCommand]
         private void NavigateToRegister()
@@ -232,28 +172,26 @@ namespace MyShop.Client.ViewModels
 
         #endregion
 
-        #region Property Change Handlers
+        #region Private Methods
 
         /// <summary>
-        /// Được gọi khi thuộc tính Username thay đổi.
-        /// Validates giá trị username mới và cập nhật trạng thái nút đăng nhập.
+        /// Xóa tất cả dữ liệu đầu vào và thông báo lỗi.
         /// </summary>
-        /// <param name="value">Giá trị username mới</param>
-        partial void OnUsernameChanged(string value)
+        public void ClearForm()
         {
-            ValidateProperty(value, nameof(Username));
-            UpdateCanLogin();
+            Username = string.Empty;
+            Password = string.Empty;
+            ErrorMessage = string.Empty;
+            ClearErrors();
         }
 
         /// <summary>
-        /// Được gọi khi thuộc tính Password thay đổi.
-        /// Validates giá trị password mới và cập nhật trạng thái nút đăng nhập.
+        /// Cập nhật các thông báo lỗi riêng lẻ cho từng trường.
         /// </summary>
-        /// <param name="value">Giá trị password mới</param>
-        partial void OnPasswordChanged(string value)
+        private void UpdateErrorMessages()
         {
-            ValidateProperty(value, nameof(Password));
-            UpdateCanLogin();
+            UsernameError = GetErrors(nameof(Username)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
+            PasswordError = GetErrors(nameof(Password)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
         }
 
         #endregion

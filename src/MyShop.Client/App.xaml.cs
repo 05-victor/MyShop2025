@@ -3,63 +3,77 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
 using MyShop.Client.Services;
 using MyShop.Client.ViewModels;
-using System.Net.Http;
+using System;
 
 namespace MyShop.Client {
     /// <summary>
-    /// Cung cấp hành vi cụ thể cho ứng dụng để bổ sung cho class Application mặc định.
+    /// Provides application-specific behavior to supplement the default Application class.
     /// </summary>
     public partial class App : Application {
-        private Window? _window;
-        public static IHost AppHost { get; private set; } = null!;
+        private IHost? _host;
 
         /// <summary>
-        /// Khởi tạo đối tượng ứng dụng singleton. Đây là dòng code đầu tiên được thực thi,
-        /// và do đó là tương đương logic của main() hoặc WinMain().
+        /// Gets the current <see cref="App"/> instance in use
+        /// </summary>
+        public new static App Current => (App)Application.Current;
+
+        /// <summary>
+        /// Gets the <see cref="IServiceProvider"/> instance to resolve application services.
+        /// </summary>
+        public IServiceProvider Services => _host?.Services ?? throw new InvalidOperationException("Services not initialized");
+
+        /// <summary>
+        /// Gets a service of the specified type from the dependency injection container.
+        /// </summary>
+        /// <typeparam name="T">The type of service to retrieve</typeparam>
+        /// <returns>The service instance</returns>
+        public static T GetService<T>() where T : class
+        {
+            return (T)Current.Services.GetRequiredService(typeof(T));
+        }
+
+        /// <summary>
+        /// Initializes the singleton application object.  This is the first line of authored code
+        /// executed, and as such is the logical equivalent of main() or WinMain().
         /// </summary>
         public App() {
-            InitializeComponent();
+            this.InitializeComponent();
+            ConfigureServices();
+        }
 
-            // TẠO HANDLER ĐỂ BỎ QUA VALIDATION CHỨNG CHỈ SSL (CHỈ DÀNH CHO PHÁT TRIỂN!)
-            var handler = new HttpClientHandler {
-                // Bỏ qua validation chứng chỉ server cho các chứng chỉ tự ký
-                ServerCertificateCustomValidationCallback =
-                    HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-            };
-
-            AppHost = Host.CreateDefaultBuilder()
+        /// <summary>
+        /// Configure dependency injection services
+        /// </summary>
+        private void ConfigureServices() {
+            var builder = Host.CreateDefaultBuilder()
                 .ConfigureServices((context, services) => {
-                    // Đăng ký HttpClient cho API calls với handler bỏ qua SSL
+                    // Register HttpClient
                     services.AddHttpClient<IAuthService, AuthService>(client => {
-                        client.BaseAddress = new Uri("https://localhost:7120/");
-                    })
-                    // Thêm cấu hình handler vào DI
-                    .ConfigurePrimaryHttpMessageHandler(() => handler);
+                        client.BaseAddress = new Uri("https://localhost:7051"); // Replace with your API base URL
+                        client.DefaultRequestHeaders.Add("User-Agent", "MyShop-Client");
+                    });
 
-                    // Đăng ký ViewModels
+                    // Register services
+                    services.AddSingleton<INavigationService, NavigationService>();
+                    
+                    // Register ViewModels
                     services.AddTransient<LoginViewModel>();
                     services.AddTransient<RegisterViewModel>();
                     services.AddTransient<DashboardViewModel>();
+                });
 
-                    // Đăng ký Navigation Service
-                    services.AddSingleton<INavigationService, NavigationService>();
-                })
-                .Build();
-
-            AppHost.Start();
+            _host = builder.Build();
         }
 
         /// <summary>
-        /// Được gọi khi ứng dụng được khởi chạy.
+        /// Invoked when the application is launched.
         /// </summary>
-        /// <param name="args">Chi tiết về yêu cầu khởi chạy và quá trình.</param>
-        protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args) {
-            _window = new MainWindow();
-            _window.Activate();
+        /// <param name="args">Details about the launch request and process.</param>
+        protected override void OnLaunched(LaunchActivatedEventArgs args) {
+            m_window = new MainWindow();
+            m_window.Activate();
         }
 
-        public static T GetService<T>() where T : class {
-            return AppHost.Services.GetRequiredService<T>();
-        }
+        private Window? m_window;
     }
 }

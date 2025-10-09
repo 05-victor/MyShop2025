@@ -110,14 +110,13 @@ namespace MyShop.Server.Controllers
                 Success = true,
                 Message = "Đăng ký thành công.",
                 Token = token,
-                User = new UserDto
+                User = new UserInfo
                 {
                     Id = newUser.Id,
                     Username = newUser.Username,
                     Email = newUser.Email,
                     Sdt = newUser.Sdt,
                     CreatedAt = newUser.CreatedAt,
-                    ActivateTrial = newUser.ActivateTrial,
                     Avatar = newUser.Avatar
                 }
             });
@@ -168,25 +167,14 @@ namespace MyShop.Server.Controllers
                 Success = true,
                 Message = "Đăng nhập thành công.",
                 Token = token,
-                User = new UserDto
+                User = new UserInfo
                 {
                     Id = user.Id,
                     Username = user.Username,
                     Email = user.Email,
                     Sdt = user.Sdt,
                     CreatedAt = user.CreatedAt,
-                    ActivateTrial = user.ActivateTrial,
-                    Avatar = user.Avatar,
-                    Roles = user.Roles?.Select(r => new RoleDto
-                    {
-                        Name = r.Name,
-                        Description = r.Description,
-                        Authorities = r.Authorities?.Select(a => new AuthorityDto
-                        {
-                            Name = a.Name,
-                            Description = a.Description
-                        }).ToList() ?? new List<AuthorityDto>()
-                    }).ToList() ?? new List<RoleDto>()
+                    Avatar = user.Avatar
                 }
             });
         }

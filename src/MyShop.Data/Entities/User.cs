@@ -67,37 +67,47 @@ namespace MyShop.Data.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         /// <summary>
-        /// Lấy hoặc đặt trạng thái kích hoạt thử nghiệm.
-        /// </summary>
-        /// <value>True nếu tài khoản được kích hoạt thử nghiệm, false nếu không</value>
-        public bool ActivateTrial { get; set; } = false;
-
-        /// <summary>
         /// Lấy hoặc đặt đường dẫn đến ảnh đại diện của người dùng.
         /// </summary>
-        /// <value>Chuỗi URL hoặc đường dẫn đến ảnh đại diện, mặc định là chuỗi rỗng</value>
-        [MaxLength(500)]
-        public string Avatar { get; set; } = string.Empty;
+        /// <value>Chuỗi đường dẫn đến ảnh đại diện, có thể null</value>
+        public string? Avatar { get; set; }
 
         /// <summary>
-        /// Lấy hoặc đặt danh sách vai trò của người dùng.
+        /// Lấy hoặc đặt trạng thái kích hoạt thử nghiệm.
         /// </summary>
-        /// <value>Collection chứa tất cả các Role mà người dùng được gán</value>
-        /// <remarks>
-        /// Navigation property đến entity Role.
-        /// Many-to-many relationship thông qua bảng trung gian.
-        /// Sử dụng Entity Framework để load dữ liệu liên quan.
-        /// </remarks>
-        public ICollection<Role> Roles { get; set; } = new List<Role>();
+        /// <value>True nếu được kích hoạt thử nghiệm, false nếu không</value>
+        public bool ActivateTrial { get; set; } = true;
 
         /// <summary>
-        /// Lấy hoặc đặt danh sách đơn hàng của người dùng.
+        /// Lấy hoặc đặt thời gian cập nhật gần nhất.
         /// </summary>
-        /// <value>Collection chứa tất cả đơn hàng mà người dùng đã tạo</value>
-        /// <remarks>
-        /// Navigation property đến entity Order.
-        /// Sử dụng Entity Framework để load dữ liệu liên quan.
-        /// </remarks>
-        public List<Order> Orders { get; set; } = new();
+        /// <value>DateTime khi tài khoản được cập nhật lần cuối, có thể null</value>
+        public DateTime? UpdatedAt { get; set; }
+
+        /// <summary>
+        /// Lấy hoặc đặt trạng thái kích hoạt tài khoản.
+        /// </summary>
+        /// <value>True nếu tài khoản được kích hoạt, false nếu không</value>
+        public bool IsActive { get; set; } = true;
+
+        /// <summary>
+        /// Lấy hoặc đặt thời gian đăng nhập lần cuối.
+        /// </summary>
+        /// <value>DateTime khi người dùng đăng nhập lần cuối, có thể null</value>
+        public DateTime? LastLoginAt { get; set; }
+
+        // Navigation Properties
+        
+        /// <summary>
+        /// Lấy hoặc đặt danh sách các đơn hàng của người dùng.
+        /// </summary>
+        /// <value>Collection các Order entities liên quan đến user này</value>
+        public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+
+        /// <summary>
+        /// Lấy hoặc đặt danh sách các vai trò của người dùng.
+        /// </summary>
+        /// <value>Collection các Role entities được gán cho user này</value>
+        public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
     }
 }
