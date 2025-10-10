@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿/*
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyShop.Data;
 using MyShop.Shared.DTOs;
@@ -127,3 +128,4 @@ namespace MyShop.Server.Controllers
         }
     }
 }
+*/

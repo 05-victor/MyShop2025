@@ -8,7 +8,7 @@ namespace MyShop.Data.Entities
     /// </summary>
     /// <remarks>
     /// Entity này ánh xạ đến bảng Users trong database và chứa:
-    /// - Thông tin định danh (Id, Username, Email, Sdt)
+    /// - Thông tin định danh (Id, Username, Email, PhoneNumber)
     /// - Thông tin xác thực (Password)
     /// - Thông tin bổ sung (Avatar, ActivateTrial)
     /// - Metadata (CreatedAt)
@@ -22,7 +22,7 @@ namespace MyShop.Data.Entities
         /// Lấy hoặc đặt ID duy nhất của người dùng.
         /// </summary>
         /// <value>UUID làm primary key của người dùng</value>
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public int Id { get; set; }
 
         /// <summary>
         /// Lấy hoặc đặt tên đăng nhập của người dùng.
@@ -58,7 +58,7 @@ namespace MyShop.Data.Entities
         /// <value>Chuỗi số điện thoại tối đa 20 ký tự, bắt buộc</value>
         [Required]
         [MaxLength(20)]
-        public string Sdt { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
 
         /// <summary>
         /// Lấy hoặc đặt thời gian tạo tài khoản.
@@ -84,30 +84,12 @@ namespace MyShop.Data.Entities
         /// <value>DateTime khi tài khoản được cập nhật lần cuối, có thể null</value>
         public DateTime? UpdatedAt { get; set; }
 
-        /// <summary>
-        /// Lấy hoặc đặt trạng thái kích hoạt tài khoản.
-        /// </summary>
-        /// <value>True nếu tài khoản được kích hoạt, false nếu không</value>
-        public bool IsActive { get; set; } = true;
-
-        /// <summary>
-        /// Lấy hoặc đặt thời gian đăng nhập lần cuối.
-        /// </summary>
-        /// <value>DateTime khi người dùng đăng nhập lần cuối, có thể null</value>
-        public DateTime? LastLoginAt { get; set; }
-
         // Navigation Properties
         
-        /// <summary>
-        /// Lấy hoặc đặt danh sách các đơn hàng của người dùng.
-        /// </summary>
-        /// <value>Collection các Order entities liên quan đến user này</value>
-        public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
-
         /// <summary>
         /// Lấy hoặc đặt danh sách các vai trò của người dùng.
         /// </summary>
         /// <value>Collection các Role entities được gán cho user này</value>
-        public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
+        public ICollection<Role> Roles { get; set; } = new List<Role>();
     }
 }

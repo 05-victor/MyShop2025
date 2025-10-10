@@ -1,0 +1,206 @@
+// Example HTTP requests with standardized ApiResponse format
+// Use with VS Code REST Client extension
+
+@baseUrl = https://localhost:5001
+@contentType = application/json
+
+### ================================================================
+### REGISTER - Success Response
+### ================================================================
+
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "john_doe",
+  "password": "SecurePass123",
+  "fullName": "John Doe",
+  "email": "john.doe@example.com",
+  "photo": ""
+}
+
+# Expected Response:
+# {
+#   "code": 200,
+#   "message": "User registered successfully",
+#   "result": {
+#     "id": 1,
+#     "username": "john_doe",
+#     "fullName": "John Doe",
+#     "email": "john.doe@example.com",
+#     "photo": "",
+#     "role": "user",
+#     "token": "",
+#     "message": "User registered successfully"
+#   },
+#   "success": true
+# }
+
+### ================================================================
+### REGISTER - Validation Error (Short Password)
+### ================================================================
+
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "test",
+  "password": "123",
+  "fullName": "Test User",
+  "email": "test@example.com",
+  "photo": ""
+}
+
+# Expected Response:
+# {
+#   "code": 400,
+#   "message": "Validation failed: Password must be at least 6 characters",
+#   "result": null,
+#   "success": false
+# }
+
+### ================================================================
+### REGISTER - Error (Duplicate User)
+### ================================================================
+
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "john_doe",
+  "password": "SecurePass123",
+  "fullName": "Another John",
+  "email": "another.john@example.com",
+  "photo": ""
+}
+
+# Expected Response:
+# {
+#   "code": 400,
+#   "message": "Username or email already exists",
+#   "result": null,
+#   "success": false
+# }
+
+### ================================================================
+### LOGIN - Success Response
+### ================================================================
+
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "john_doe",
+  "password": "SecurePass123"
+}
+
+# Expected Response:
+# {
+#   "code": 200,
+#   "message": "Login successful",
+#   "result": {
+#     "id": 1,
+#     "username": "john_doe",
+#     "fullName": "John Doe",
+#     "email": "john.doe@example.com",
+#     "photo": "",
+#     "role": "user",
+#     "token": "",
+#     "message": "Login successful"
+#   },
+#   "success": true
+# }
+
+### ================================================================
+### LOGIN - Unauthorized (Invalid Password)
+### ================================================================
+
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "john_doe",
+  "password": "WrongPassword"
+}
+
+# Expected Response:
+# {
+#   "code": 401,
+#   "message": "Invalid username or password",
+#   "result": null,
+#   "success": false
+# }
+
+### ================================================================
+### LOGIN - Validation Error (Missing Fields)
+### ================================================================
+
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "",
+  "password": ""
+}
+
+# Expected Response:
+# {
+#   "code": 400,
+#   "message": "Validation failed: Username is required, Password is required",
+#   "result": null,
+#   "success": false
+# }
+
+### ================================================================
+### GET ME - Unauthorized (No Authentication)
+### ================================================================
+
+GET {{baseUrl}}/api/v1/auth/me
+
+# Expected Response:
+# {
+#   "code": 401,
+#   "message": "Authentication required. This endpoint will be functional once authentication is implemented.",
+#   "result": null,
+#   "success": false
+# }
+
+### ================================================================
+### NOTES:
+### ================================================================
+# 
+# All responses now follow the standardized format:
+# {
+#   "code": <HTTP status code>,
+#   "message": "<human-readable message>",
+#   "result": <data or null>,
+#   "success": <true if 200-299, false otherwise>
+# }
+#
+# Benefits:
+# - Consistent structure across all endpoints
+# - Easy to parse on frontend
+# - Self-documenting with 'success' property
+# - Clear error messages
+# - HTTP status code included for debugging
+#
+# Frontend Usage Example (TypeScript):
+# 
+# const response = await fetch('/api/v1/auth/login', {
+#   method: 'POST',
+#   headers: { 'Content-Type': 'application/json' },
+#   body: JSON.stringify(credentials)
+# });
+# 
+# const apiResponse = await response.json();
+# 
+# if (apiResponse.success) {
+#   // Handle success
+#   console.log('Login successful:', apiResponse.result);
+#   localStorage.setItem('user', JSON.stringify(apiResponse.result));
+# } else {
+#   // Handle error
+#   alert(`Error: ${apiResponse.message}`);
+# }
+#
+### ================================================================

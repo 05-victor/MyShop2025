@@ -1,3 +1,4 @@
+/*
 using System.ComponentModel.DataAnnotations;
 
 namespace MyShop.Shared.DTOs
@@ -142,3 +143,4 @@ namespace MyShop.Shared.DTOs
         public UserInfo? User { get; set; }
     }
 }
+*/

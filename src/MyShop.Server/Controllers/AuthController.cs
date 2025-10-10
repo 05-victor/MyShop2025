@@ -1,228 +1,164 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MyShop.Data;
-using MyShop.Shared.DTOs;
-using MyShop.Data.Entities;
-using BCrypt.Net;
+using MyShop.Server.Services.Interfaces;
+using MyShop.Shared.DTOs.Common;
+using MyShop.Shared.DTOs.Requests;
+using MyShop.Shared.DTOs.Responses;
 
-namespace MyShop.Server.Controllers
+namespace MyShop.Server.Controllers;
+
+[ApiController]
+[Route("api/v1/[controller]")]
+public class AuthController : ControllerBase
 {
-    /// <summary>
-    /// Controller xử lý các hoạt động xác thực người dùng.
-    /// Cung cấp các API endpoint để đăng ký, đăng nhập và quản lý người dùng.
-    /// </summary>
-    /// <remarks>
-    /// Controller này cung cấp các API sau:
-    /// - POST /api/auth/register: Đăng ký tài khoản mới
-    /// - POST /api/auth/login: Đăng nhập với email/username và mật khẩu  
-    /// - GET /api/auth/me: Lấy thông tin người dùng hiện tại
-    /// 
-    /// Tất cả mật khẩu được mã hóa bằng BCrypt trước khi lưu vào database.
-    /// Hiện tại sử dụng token đơn giản, trong tương lai nên chuyển sang JWT.
-    /// </remarks>
-    [ApiController]
-    [Route("api/[controller]")]
-    public class AuthController : ControllerBase
+    private readonly IAuthService _authService;
+    private readonly ILogger<AuthController> _logger;
+
+    public AuthController(IAuthService authService, ILogger<AuthController> logger)
     {
-        /// <summary>
-        /// Database context để truy cập dữ liệu người dùng.
-        /// </summary>
-        private readonly ShopContext _context;
-        
-        /// <summary>
-        /// Khởi tạo một instance mới của class <see cref="AuthController"/>.
-        /// </summary>  
-        /// <param name="context">Database context để truy cập dữ liệu</param>
-        public AuthController(ShopContext context)
-        {
-            _context = context;
-        }
+        _authService = authService;
+        _logger = logger;
+    }
 
-        /// <summary>
-        /// Đăng ký tài khoản người dùng mới.
-        /// </summary>
-        /// <param name="request">Thông tin đăng ký bao gồm username, email, password và sdt</param>
-        /// <returns>
-        /// ActionResult chứa RegisterResponse với thông tin kết quả đăng ký.
-        /// Trả về 200 OK nếu thành công, 400 BadRequest nếu có lỗi validation hoặc trùng lặp.
-        /// </returns>
-        /// <remarks>
-        /// API này thực hiện các bước sau:
-        /// 1. Validate thông tin đầu vào (username, email, password, sdt không được rỗng)
-        /// 2. Kiểm tra xem email hoặc username đã tồn tại chưa
-        /// 3. Mã hóa mật khẩu bằng BCrypt
-        /// 4. Tạo và lưu người dùng mới vào database với UUID
-        /// 5. Trả về thông tin người dùng đã tạo
-        /// </remarks>
-        [HttpPost("register")]
-        public async Task<ActionResult<RegisterResponse>> Register(RegisterRequest request)
+    /// <summary>
+    /// Register a new user
+    /// </summary>
+    /// <param name="request">Registration details</param>
+    /// <returns>Standardized API response with user details</returns>
+    [HttpPost("register")]
+    [ProducesResponseType(typeof(ApiResponse<CreateUserResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<CreateUserResponse>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ApiResponse<CreateUserResponse>>> Register([FromBody] CreateUserRequest request)
+    {
+        if (!ModelState.IsValid)
         {
-            // Validate đầu vào
-            if (string.IsNullOrWhiteSpace(request.Username) || 
-                string.IsNullOrWhiteSpace(request.Email) || 
-                string.IsNullOrWhiteSpace(request.Password) ||
-                string.IsNullOrWhiteSpace(request.Sdt))
-            {
-                return BadRequest(new RegisterResponse 
-                { 
-                    Success = false,
-                    Message = "Tất cả các trường đều bắt buộc."
-                });
-            }
-
-            // Kiểm tra xem email hoặc username đã tồn tại chưa
-            var existingUser = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == request.Email || u.Username == request.Username);
+            var errors = string.Join(", ", ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage));
             
-            if (existingUser != null)
-            {
-                return BadRequest(new RegisterResponse 
-                { 
-                    Success = false,
-                    Message = "Email hoặc username đã tồn tại."
-                });
-            }
-
-            // Mã hóa mật khẩu
-            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
-
-            // Tạo người dùng mới với UUID
-            var newUser = new User
-            {
-                Id = Guid.NewGuid(),
-                Username = request.Username,
-                Email = request.Email,
-                Password = hashedPassword,
-                Sdt = request.Sdt,
-                CreatedAt = DateTime.UtcNow,
-                ActivateTrial = false,
-                Avatar = string.Empty
-            };
-
-            _context.Users.Add(newUser);
-            await _context.SaveChangesAsync();
-
-            return Ok(new RegisterResponse
-            {
-                Success = true,
-                Message = "Đăng ký thành công.",
-                User = new UserInfo
-                {
-                    Id = newUser.Id,
-                    Username = newUser.Username,
-                    Email = newUser.Email,
-                    Sdt = newUser.Sdt,
-                    CreatedAt = newUser.CreatedAt,
-                    Avatar = newUser.Avatar
-                }
-            });
+            return BadRequest(ApiResponse<CreateUserResponse>.ErrorResponse(
+                $"Validation failed: {errors}", 
+                400));
         }
 
-        /// <summary>
-        /// Đăng nhập người dùng.
-        /// </summary>
-        /// <param name="request">Thông tin đăng nhập bao gồm username/email và password</param>
-        /// <returns>
-        /// ActionResult chứa LoginResponse với thông tin kết quả đăng nhập.
-        /// Trả về 200 OK nếu thành công, 401 Unauthorized nếu thông tin không đúng.
-        /// </returns>
-        [HttpPost("login")]
-        public async Task<ActionResult<LoginResponse>> Login(LoginRequest request)
+        try
         {
-            // Validate đầu vào
-            if (string.IsNullOrWhiteSpace(request.UsernameOrEmail) || 
-                string.IsNullOrWhiteSpace(request.Password))
-            {
-                return BadRequest(new LoginResponse 
-                { 
-                    Success = false,
-                    Message = "Username/Email và mật khẩu đều bắt buộc."
-                });
-            }
+            var response = await _authService.RegisterAsync(request);
 
-            // Tìm user theo username hoặc email
-            var user = await _context.Users
-                .Include(u => u.Roles)
-                    .ThenInclude(r => r.Authorities)
-                .FirstOrDefaultAsync(u => u.Username == request.UsernameOrEmail || u.Email == request.UsernameOrEmail);
-
-            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
-            {
-                return Unauthorized(new LoginResponse 
-                { 
-                    Success = false,
-                    Message = "Thông tin đăng nhập không đúng."
-                });
-            }
-
-            // Tạo token đơn giản (trong tương lai nên dùng JWT)
-            var token = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{user.Id}:{DateTime.UtcNow.Ticks}"));
-
-            return Ok(new LoginResponse
-            {
-                Success = true,
-                Message = "Đăng nhập thành công.",
-                Token = token,
-                User = new UserInfo
-                {
-                    Id = user.Id,
-                    Username = user.Username,
-                    Email = user.Email,
-                    Sdt = user.Sdt,
-                    CreatedAt = user.CreatedAt,
-                    Avatar = user.Avatar
-                }
-            });
+            return Ok(ApiResponse<CreateUserResponse>.SuccessResponse(
+                response,
+                "User registered successfully",
+                200));
         }
-
-        /// <summary>
-        /// Lấy thông tin người dùng hiện tại.
-        /// </summary>
-        /// <returns>
-        /// ActionResult chứa UserDto với thông tin người dùng.
-        /// Trả về 200 OK nếu tìm thấy, 404 NotFound nếu không có người dùng nào.
-        /// </returns>
-        /// <remarks>
-        /// API này hiện tại chỉ trả về người dùng đầu tiên trong database để test.
-        /// Trong tương lai cần:
-        /// 1. Xác thực token từ request header
-        /// 2. Lấy user ID từ token đã decode
-        /// 3. Trả về thông tin người dùng tương ứng với token
-        /// </remarks>
-        [HttpGet("me")]
-        public async Task<ActionResult<UserDto>> GetCurrentUser()
+        catch (InvalidOperationException ex)
         {
-            // Tạm thời trả về user đầu tiên để test
-            var user = await _context.Users
-                .Include(u => u.Roles)
-                    .ThenInclude(r => r.Authorities)
-                .FirstOrDefaultAsync();
+            _logger.LogWarning(ex, "Registration failed: {Message}", ex.Message);
+            return BadRequest(ApiResponse<CreateUserResponse>.ErrorResponse(
+                ex.Message,
+                400));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in Register endpoint");
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                ApiResponse<CreateUserResponse>.ServerErrorResponse(
+                    "An error occurred while processing your request"));
+        }
+    }
+
+    /// <summary>
+    /// Login with username and password
+    /// </summary>
+    /// <param name="request">Login credentials</param>
+    /// <returns>Standardized API response with authentication details and token</returns>
+    [HttpPost("login")]
+    [ProducesResponseType(typeof(ApiResponse<LoginResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<LoginResponse>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<LoginResponse>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ApiResponse<LoginResponse>>> Login([FromBody] LoginRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            var errors = string.Join(", ", ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage));
             
+            return BadRequest(ApiResponse<LoginResponse>.ErrorResponse(
+                $"Validation failed: {errors}", 
+                400));
+        }
+
+        try
+        {
+            var response = await _authService.LoginAsync(request);
+
+            return Ok(ApiResponse<LoginResponse>.SuccessResponse(
+                response,
+                "Login successful",
+                200));
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning(ex, "Login failed: {Message}", ex.Message);
+            return Unauthorized(ApiResponse<LoginResponse>.UnauthorizedResponse(
+                ex.Message));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in Login endpoint");
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                ApiResponse<LoginResponse>.ServerErrorResponse(
+                    "An error occurred while processing your request"));
+        }
+    }
+
+    /// <summary>
+    /// Get current user profile (placeholder for authentication implementation)
+    /// </summary>
+    /// <returns>Standardized API response with current user details</returns>
+    [HttpGet("me")]
+    [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ApiResponse<UserInfoResponse>>> GetMe()
+    {
+        // TODO: When authentication is implemented, get userId from JWT token claims
+        // For now, this is a placeholder that returns empty/unauthorized
+
+        try
+        {
+            // Placeholder: In a real implementation, you would extract the userId from the JWT token
+            // Example: var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            
+            var userId = 0; // Placeholder - will be populated from JWT claims later
+            
+            if (userId == 0)
+            {
+                return Unauthorized(ApiResponse<UserInfoResponse>.UnauthorizedResponse(
+                    "Authentication required. This endpoint will be functional once authentication is implemented."));
+            }
+
+            var user = await _authService.GetMeAsync(userId);
+
             if (user == null)
             {
-                return NotFound("Không tìm thấy người dùng");
+                return NotFound(ApiResponse<UserInfoResponse>.NotFoundResponse(
+                    "User not found"));
             }
 
-            return Ok(new UserDto
-            {
-                Id = user.Id,
-                Username = user.Username,
-                Email = user.Email,
-                Sdt = user.Sdt,
-                CreatedAt = user.CreatedAt,
-                ActivateTrial = user.ActivateTrial,
-                Avatar = user.Avatar,
-                Roles = user.Roles?.Select(r => new RoleDto
-                {
-                    Name = r.Name,
-                    Description = r.Description,
-                    Authorities = r.Authorities?.Select(a => new AuthorityDto
-                    {
-                        Name = a.Name,
-                        Description = a.Description
-                    }).ToList() ?? new List<AuthorityDto>()
-                }).ToList() ?? new List<RoleDto>()
-            });
+            return Ok(ApiResponse<UserInfoResponse>.SuccessResponse(
+                user,
+                "User profile retrieved successfully",
+                200));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in GetMe endpoint");
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                ApiResponse<UserInfoResponse>.ServerErrorResponse(
+                    "An error occurred while processing your request"));
         }
     }
 }

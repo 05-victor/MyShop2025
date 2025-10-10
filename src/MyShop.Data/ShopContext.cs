@@ -70,29 +70,13 @@ namespace MyShop.Data
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Roles)
                 .WithMany(r => r.Users)
-                .UsingEntity<Dictionary<string, object>>(
-                    "UserRoles",
-                    j => j.HasOne<Role>().WithMany().HasForeignKey("RoleName"),
-                    j => j.HasOne<User>().WithMany().HasForeignKey("UserId"),
-                    j =>
-                    {
-                        j.HasKey("UserId", "RoleName");
-                        j.ToTable("UserRoles");
-                    });
+                .UsingEntity(j => j.ToTable("user_roles")); // Custom table name
 
             // Cấu hình many-to-many relationship Role-Authority
             modelBuilder.Entity<Role>()
                 .HasMany(r => r.Authorities)
                 .WithMany(a => a.Roles)
-                .UsingEntity<Dictionary<string, object>>(
-                    "RoleAuthorities",
-                    j => j.HasOne<Authority>().WithMany().HasForeignKey("AuthorityName"),
-                    j => j.HasOne<Role>().WithMany().HasForeignKey("RoleName"),
-                    j =>
-                    {
-                        j.HasKey("RoleName", "AuthorityName");
-                        j.ToTable("RoleAuthorities");
-                    });
+                .UsingEntity(j => j.ToTable("role_authorities")); // Custom table name
 
             // Cấu hình unique constraint cho User
             modelBuilder.Entity<User>()
@@ -104,20 +88,39 @@ namespace MyShop.Data
                 .IsUnique();
 
             // Cấu hình relationship Order-User
-            modelBuilder.Entity<Order>()
-                .HasOne<User>()
-                .WithMany(u => u.Orders)
-                .HasForeignKey("UserId")
-                .IsRequired(false);
+            //modelBuilder.Entity<Order>()
+            //    .HasOne<User>()
+            //    .WithMany(u => u.Orders)
+            //    .HasForeignKey("UserId")
+            //    .IsRequired(false);
+
+            // Seed roles
+            modelBuilder.Entity<Role>().HasData(
+                new Role { Name = "Admin" },
+                new Role { Name = "SalesAgent" }
+            );
+
+            // Seed authorities
+            modelBuilder.Entity<Authority>().HasData(
+                new Authority { Name = "POST" },
+                new Authority { Name = "DELETE" },
+                new Authority { Name = "ALL" }
+                //new Authority { Name = "ManageProducts" },
+                //new Authority { Name = "ManageOrders" },
+                //new Authority { Name = "ViewReports" }
+            );
+
+            //TODO: Seed role-authority relationships (have to explicitly create join table entity)
+
 
             // Cấu hình table names theo convention
-            modelBuilder.Entity<Category>().ToTable("Categories");
-            modelBuilder.Entity<Product>().ToTable("Products");
-            modelBuilder.Entity<Order>().ToTable("Orders");
-            modelBuilder.Entity<OrderItem>().ToTable("OrderItems");
-            modelBuilder.Entity<User>().ToTable("Users");
-            modelBuilder.Entity<Role>().ToTable("Roles");
-            modelBuilder.Entity<Authority>().ToTable("Authorities");
+            //modelBuilder.Entity<Category>().ToTable("Categories");
+            //modelBuilder.Entity<Product>().ToTable("Products");
+            //modelBuilder.Entity<Order>().ToTable("Orders");
+            //modelBuilder.Entity<OrderItem>().ToTable("OrderItems");
+            //modelBuilder.Entity<User>().ToTable("Users");
+            //modelBuilder.Entity<Role>().ToTable("Roles");
+            //modelBuilder.Entity<Authority>().ToTable("Authorities");
         }
     }
 }

@@ -1,3 +1,4 @@
+/*
 using System.ComponentModel.DataAnnotations;
 
 namespace MyShop.Shared.DTOs
@@ -47,3 +48,4 @@ namespace MyShop.Shared.DTOs
         public List<string> AuthorityNames { get; set; } = new List<string>();
     }
 }
+*/

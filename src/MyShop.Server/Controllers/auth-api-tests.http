@@ -1,0 +1,82 @@
+// Example HTTP requests for testing the Authentication API
+// You can use these in VS Code REST Client extension or similar tools
+
+@baseUrl = https://localhost:5001
+@contentType = application/json
+
+### 1. Register a new user
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "john_doe",
+  "password": "SecurePass123",
+  "fullName": "John Doe",
+  "email": "john.doe@example.com",
+  "photo": "https://example.com/photos/john.jpg"
+}
+
+### 2. Register another user
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "jane_smith",
+  "password": "JanePass456",
+  "fullName": "Jane Smith",
+  "email": "jane.smith@example.com",
+  "photo": ""
+}
+
+### 3. Login with valid credentials
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "john_doe",
+  "password": "SecurePass123"
+}
+
+### 4. Login with invalid credentials (should fail)
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "john_doe",
+  "password": "WrongPassword"
+}
+
+### 5. Get current user profile (placeholder - will return 401)
+GET {{baseUrl}}/api/auth/me
+
+### 6. Test validation - Missing required fields
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "test",
+  "password": "123"
+}
+
+### 7. Test validation - Invalid email format
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "testuser",
+  "password": "TestPass123",
+  "fullName": "Test User",
+  "email": "invalid-email"
+}
+
+### 8. Test duplicate username (should fail if user already exists)
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "john_doe",
+  "password": "AnotherPass123",
+  "fullName": "Another John",
+  "email": "another.john@example.com",
+  "photo": ""
+}

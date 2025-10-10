@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MyShop.Data.Migrations
 {
     [DbContext(typeof(ShopContext))]
-    [Migration("20251009113958_FixDatabase")]
-    partial class FixDatabase
+    [Migration("20251010155051_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,25 @@ namespace MyShop.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("AuthorityRole", b =>
+                {
+                    b.Property<string>("AuthoritiesName")
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("authorities_name");
+
+                    b.Property<string>("RolesName")
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("roles_name");
+
+                    b.HasKey("AuthoritiesName", "RolesName")
+                        .HasName("pk_role_authorities");
+
+                    b.HasIndex("RolesName")
+                        .HasDatabaseName("ix_role_authorities_roles_name");
+
+                    b.ToTable("role_authorities", (string)null);
+                });
 
             modelBuilder.Entity("MyShop.Data.Entities.Authority", b =>
                 {
@@ -40,7 +59,21 @@ namespace MyShop.Data.Migrations
                     b.HasKey("Name")
                         .HasName("pk_authorities");
 
-                    b.ToTable("Authorities", (string)null);
+                    b.ToTable("authorities", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Name = "POST"
+                        },
+                        new
+                        {
+                            Name = "DELETE"
+                        },
+                        new
+                        {
+                            Name = "ALL"
+                        });
                 });
 
             modelBuilder.Entity("MyShop.Data.Entities.Category", b =>
@@ -64,7 +97,7 @@ namespace MyShop.Data.Migrations
                     b.HasKey("CategoryId")
                         .HasName("pk_categories");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("categories", (string)null);
                 });
 
             modelBuilder.Entity("MyShop.Data.Entities.Order", b =>
@@ -84,17 +117,10 @@ namespace MyShop.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("final_price");
 
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
                     b.HasKey("OrderId")
                         .HasName("pk_orders");
 
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_orders_user_id");
-
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("orders", (string)null);
                 });
 
             modelBuilder.Entity("MyShop.Data.Entities.OrderItem", b =>
@@ -135,7 +161,7 @@ namespace MyShop.Data.Migrations
                     b.HasIndex("ProductId")
                         .HasDatabaseName("ix_order_items_product_id");
 
-                    b.ToTable("OrderItems", (string)null);
+                    b.ToTable("order_items", (string)null);
                 });
 
             modelBuilder.Entity("MyShop.Data.Entities.Product", b =>
@@ -179,7 +205,7 @@ namespace MyShop.Data.Migrations
                     b.HasIndex("CategoryId")
                         .HasDatabaseName("ix_products_category_id");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("products", (string)null);
                 });
 
             modelBuilder.Entity("MyShop.Data.Entities.Role", b =>
@@ -197,15 +223,27 @@ namespace MyShop.Data.Migrations
                     b.HasKey("Name")
                         .HasName("pk_roles");
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("roles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Name = "SalesAgent"
+                        });
                 });
 
             modelBuilder.Entity("MyShop.Data.Entities.User", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("ActivateTrial")
                         .HasColumnType("boolean")
@@ -225,24 +263,16 @@ namespace MyShop.Data.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("email");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<DateTime?>("LastLoginAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_login_at");
-
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("password");
 
-                    b.Property<string>("Sdt")
+                    b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
-                        .HasColumnName("sdt");
+                        .HasColumnName("phone_number");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -265,53 +295,43 @@ namespace MyShop.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_users_username");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("users", (string)null);
                 });
 
-            modelBuilder.Entity("RoleAuthorities", b =>
+            modelBuilder.Entity("RoleUser", b =>
                 {
-                    b.Property<string>("RoleName")
+                    b.Property<string>("RolesName")
                         .HasColumnType("character varying(100)")
-                        .HasColumnName("role_name");
+                        .HasColumnName("roles_name");
 
-                    b.Property<string>("AuthorityName")
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("authority_name");
+                    b.Property<int>("UsersId")
+                        .HasColumnType("integer")
+                        .HasColumnName("users_id");
 
-                    b.HasKey("RoleName", "AuthorityName")
-                        .HasName("pk_role_authorities");
-
-                    b.HasIndex("AuthorityName")
-                        .HasDatabaseName("ix_role_authorities_authority_name");
-
-                    b.ToTable("RoleAuthorities", (string)null);
-                });
-
-            modelBuilder.Entity("UserRoles", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.Property<string>("RoleName")
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("role_name");
-
-                    b.HasKey("UserId", "RoleName")
+                    b.HasKey("RolesName", "UsersId")
                         .HasName("pk_user_roles");
 
-                    b.HasIndex("RoleName")
-                        .HasDatabaseName("ix_user_roles_role_name");
+                    b.HasIndex("UsersId")
+                        .HasDatabaseName("ix_user_roles_users_id");
 
-                    b.ToTable("UserRoles", (string)null);
+                    b.ToTable("user_roles", (string)null);
                 });
 
-            modelBuilder.Entity("MyShop.Data.Entities.Order", b =>
+            modelBuilder.Entity("AuthorityRole", b =>
                 {
-                    b.HasOne("MyShop.Data.Entities.User", null)
-                        .WithMany("Orders")
-                        .HasForeignKey("UserId")
-                        .HasConstraintName("fk_orders_users_user_id");
+                    b.HasOne("MyShop.Data.Entities.Authority", null)
+                        .WithMany()
+                        .HasForeignKey("AuthoritiesName")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_role_authorities_authorities_authorities_name");
+
+                    b.HasOne("MyShop.Data.Entities.Role", null)
+                        .WithMany()
+                        .HasForeignKey("RolesName")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_role_authorities_roles_roles_name");
                 });
 
             modelBuilder.Entity("MyShop.Data.Entities.OrderItem", b =>
@@ -347,43 +367,21 @@ namespace MyShop.Data.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("RoleAuthorities", b =>
-                {
-                    b.HasOne("MyShop.Data.Entities.Authority", null)
-                        .WithMany()
-                        .HasForeignKey("AuthorityName")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_role_authorities_authorities_authority_name");
-
-                    b.HasOne("MyShop.Data.Entities.Role", null)
-                        .WithMany()
-                        .HasForeignKey("RoleName")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_role_authorities_roles_role_name");
-                });
-
-            modelBuilder.Entity("UserRoles", b =>
+            modelBuilder.Entity("RoleUser", b =>
                 {
                     b.HasOne("MyShop.Data.Entities.Role", null)
                         .WithMany()
-                        .HasForeignKey("RoleName")
+                        .HasForeignKey("RolesName")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_user_roles_roles_role_name");
+                        .HasConstraintName("fk_user_roles_roles_roles_name");
 
                     b.HasOne("MyShop.Data.Entities.User", null)
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_user_roles_users_user_id");
-                });
-
-            modelBuilder.Entity("MyShop.Data.Entities.User", b =>
-                {
-                    b.Navigation("Orders");
+                        .HasConstraintName("fk_user_roles_users_users_id");
                 });
 #pragma warning restore 612, 618
         }
