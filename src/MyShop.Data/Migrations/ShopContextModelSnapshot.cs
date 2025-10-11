@@ -75,12 +75,10 @@ namespace MyShop.Data.Migrations
 
             modelBuilder.Entity("MyShop.Data.Entities.Category", b =>
                 {
-                    b.Property<int>("CategoryId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("category_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CategoryId"));
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<string>("Description")
                         .HasColumnType("text")
@@ -91,7 +89,7 @@ namespace MyShop.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("name");
 
-                    b.HasKey("CategoryId")
+                    b.HasKey("Id")
                         .HasName("pk_categories");
 
                     b.ToTable("categories", (string)null);
@@ -99,12 +97,10 @@ namespace MyShop.Data.Migrations
 
             modelBuilder.Entity("MyShop.Data.Entities.Order", b =>
                 {
-                    b.Property<int>("OrderId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("order_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrderId"));
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -114,7 +110,7 @@ namespace MyShop.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("final_price");
 
-                    b.HasKey("OrderId")
+                    b.HasKey("Id")
                         .HasName("pk_orders");
 
                     b.ToTable("orders", (string)null);
@@ -122,19 +118,17 @@ namespace MyShop.Data.Migrations
 
             modelBuilder.Entity("MyShop.Data.Entities.OrderItem", b =>
                 {
-                    b.Property<int>("OrderItemId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("order_item_id");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrderItemId"));
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid")
                         .HasColumnName("order_id");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid")
                         .HasColumnName("product_id");
 
                     b.Property<int>("Quantity")
@@ -149,7 +143,7 @@ namespace MyShop.Data.Migrations
                         .HasColumnType("real")
                         .HasColumnName("unit_sale_price");
 
-                    b.HasKey("OrderItemId")
+                    b.HasKey("Id")
                         .HasName("pk_order_items");
 
                     b.HasIndex("OrderId")
@@ -163,15 +157,13 @@ namespace MyShop.Data.Migrations
 
             modelBuilder.Entity("MyShop.Data.Entities.Product", b =>
                 {
-                    b.Property<int>("ProductId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("product_id");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ProductId"));
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid")
                         .HasColumnName("category_id");
 
                     b.Property<int>("Count")
@@ -196,7 +188,7 @@ namespace MyShop.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("sku");
 
-                    b.HasKey("ProductId")
+                    b.HasKey("Id")
                         .HasName("pk_products");
 
                     b.HasIndex("CategoryId")
@@ -235,12 +227,10 @@ namespace MyShop.Data.Migrations
 
             modelBuilder.Entity("MyShop.Data.Entities.User", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("ActivateTrial")
                         .HasColumnType("boolean")
@@ -259,6 +249,10 @@ namespace MyShop.Data.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("email");
+
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_verified");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -301,8 +295,8 @@ namespace MyShop.Data.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("roles_name");
 
-                    b.Property<int>("UsersId")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("UsersId")
+                        .HasColumnType("uuid")
                         .HasColumnName("users_id");
 
                     b.HasKey("RolesName", "UsersId")

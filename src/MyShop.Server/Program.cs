@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using MyShop.Data.Repositories.Interfaces;
 using MyShop.Data.Repositories;
 using MyShop.Server.Services.Interfaces;
-using MyShop.Server.Services;
+using MyShop.Server.Services.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 

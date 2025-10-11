@@ -8,7 +8,7 @@ namespace MyShop.Data.Entities
 {
     public class Category
     {
-        public int CategoryId { get; set; }
+        public Guid Id { get; set; }
         public required string Name { get; set; }
         public string? Description { get; set; }
     }

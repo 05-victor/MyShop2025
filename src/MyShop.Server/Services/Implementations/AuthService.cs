@@ -4,7 +4,7 @@ using MyShop.Server.Services.Interfaces;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
 
-namespace MyShop.Server.Services;
+namespace MyShop.Server.Services.Implementations;
 
 public class AuthService : IAuthService
 {
@@ -36,6 +36,7 @@ public class AuthService : IAuthService
                 PhoneNumber = request.PhoneNumber,
                 Avatar = request.Avatar,
                 ActivateTrial = request.ActivateTrial,
+                IsVerified = false,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = null
             };
@@ -52,6 +53,7 @@ public class AuthService : IAuthService
                 PhoneNumber = createdUser.PhoneNumber,
                 Avatar = createdUser.Avatar,
                 ActivateTrial = createdUser.ActivateTrial,
+                IsVerified = createdUser.IsVerified,
                 CreatedAt = createdUser.CreatedAt,
                 RoleNames = createdUser.Roles.Select(r => r.Name).ToList()
             };
@@ -96,6 +98,7 @@ public class AuthService : IAuthService
                 PhoneNumber = user.PhoneNumber,
                 Avatar = user.Avatar,
                 ActivateTrial = user.ActivateTrial,
+                IsVerified = user.IsVerified,
                 CreatedAt = user.CreatedAt,
                 RoleNames = user.Roles.Select(r => r.Name).ToList(),
                 Token = string.Empty // TODO: Generate JWT token when authentication is implemented
@@ -129,6 +132,7 @@ public class AuthService : IAuthService
                 PhoneNumber = user.PhoneNumber,
                 Avatar = user.Avatar,
                 ActivateTrial = user.ActivateTrial,
+                IsVerified = user.IsVerified,
                 CreatedAt = user.CreatedAt,
                 UpdatedAt = user.UpdatedAt,
                 RoleNames = user.Roles.Select(r => r.Name).ToList()

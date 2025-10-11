@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -30,28 +29,26 @@ namespace MyShop.Data.Migrations
                 name: "categories",
                 columns: table => new
                 {
-                    category_id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
                     description = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_categories", x => x.category_id);
+                    table.PrimaryKey("pk_categories", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "orders",
                 columns: table => new
                 {
-                    order_id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     final_price = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_orders", x => x.order_id);
+                    table.PrimaryKey("pk_orders", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -70,8 +67,7 @@ namespace MyShop.Data.Migrations
                 name: "users",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     username = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     password = table.Column<string>(type: "text", nullable: false),
                     email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
@@ -79,6 +75,7 @@ namespace MyShop.Data.Migrations
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     avatar = table.Column<string>(type: "text", nullable: true),
                     activate_trial = table.Column<bool>(type: "boolean", nullable: false),
+                    is_verified = table.Column<bool>(type: "boolean", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
@@ -90,23 +87,22 @@ namespace MyShop.Data.Migrations
                 name: "products",
                 columns: table => new
                 {
-                    product_id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     sku = table.Column<string>(type: "text", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
                     import_price = table.Column<int>(type: "integer", nullable: false),
                     count = table.Column<int>(type: "integer", nullable: false),
                     description = table.Column<string>(type: "text", nullable: true),
-                    category_id = table.Column<int>(type: "integer", nullable: false)
+                    category_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_products", x => x.product_id);
+                    table.PrimaryKey("pk_products", x => x.id);
                     table.ForeignKey(
                         name: "fk_products_categories_category_id",
                         column: x => x.category_id,
                         principalTable: "categories",
-                        principalColumn: "category_id",
+                        principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -139,7 +135,7 @@ namespace MyShop.Data.Migrations
                 columns: table => new
                 {
                     roles_name = table.Column<string>(type: "character varying(100)", nullable: false),
-                    users_id = table.Column<int>(type: "integer", nullable: false)
+                    users_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -162,28 +158,27 @@ namespace MyShop.Data.Migrations
                 name: "order_items",
                 columns: table => new
                 {
-                    order_item_id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     quantity = table.Column<int>(type: "integer", nullable: false),
                     unit_sale_price = table.Column<float>(type: "real", nullable: false),
                     total_price = table.Column<int>(type: "integer", nullable: false),
-                    product_id = table.Column<int>(type: "integer", nullable: false),
-                    order_id = table.Column<int>(type: "integer", nullable: false)
+                    product_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    order_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_order_items", x => x.order_item_id);
+                    table.PrimaryKey("pk_order_items", x => x.id);
                     table.ForeignKey(
                         name: "fk_order_items_orders_order_id",
                         column: x => x.order_id,
                         principalTable: "orders",
-                        principalColumn: "order_id",
+                        principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "fk_order_items_products_product_id",
                         column: x => x.product_id,
                         principalTable: "products",
-                        principalColumn: "product_id",
+                        principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 

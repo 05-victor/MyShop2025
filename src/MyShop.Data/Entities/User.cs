@@ -22,7 +22,7 @@ namespace MyShop.Data.Entities
         /// Lấy hoặc đặt ID duy nhất của người dùng.
         /// </summary>
         /// <value>UUID làm primary key của người dùng</value>
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         /// <summary>
         /// Lấy hoặc đặt tên đăng nhập của người dùng.
@@ -77,6 +77,12 @@ namespace MyShop.Data.Entities
         /// </summary>
         /// <value>True nếu được kích hoạt thử nghiệm, false nếu không</value>
         public bool ActivateTrial { get; set; } = true;
+
+        /// <summary>
+        /// Lấy hoặc đặt trạng thái xác thực của người dùng.
+        /// </summary>
+        /// <value>True nếu người dùng đã xác thực, false nếu chưa</value>
+        public bool IsVerified { get; set; } = false;
 
         /// <summary>
         /// Lấy hoặc đặt thời gian cập nhật gần nhất.
