@@ -111,7 +111,11 @@ namespace MyShop.Data
             );
 
             //TODO: Seed role-authority relationships (have to explicitly create join table entity)
-
+            modelBuilder.Entity<RoleAuthorities>()
+                .HasData(
+                    new RoleAuthorities { RoleName = "Admin", AuthorityName = "ALL" },
+                    new RoleAuthorities { RoleName = "SalesAgent", AuthorityName = "POST" }
+                );
 
             // Cấu hình table names theo convention
             //modelBuilder.Entity<Category>().ToTable("Categories");
