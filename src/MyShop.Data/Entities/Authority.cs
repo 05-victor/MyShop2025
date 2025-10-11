@@ -39,6 +39,7 @@ namespace MyShop.Data.Entities
         /// Navigation property đến entity Role.
         /// Many-to-many relationship thông qua bảng trung gian.
         /// </remarks>
-        public ICollection<Role> Roles { get; set; } = new List<Role>();
+        // Add this property to fix CS1061
+        public ICollection<RoleAuthorities> RoleAuthorities { get; set; } = new List<RoleAuthorities>();
     }
 }

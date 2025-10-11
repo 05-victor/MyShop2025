@@ -40,8 +40,9 @@ namespace MyShop.Data.Entities
         /// Navigation property đến entity Authority.
         /// Many-to-many relationship thông qua bảng trung gian.
         /// </remarks>
-        public ICollection<Authority> Authorities { get; set; } = new List<Authority>();
-        
+        public ICollection<RoleAuthorities> RoleAuthorities { get; set; } = new List<RoleAuthorities>();
+
+
         /// <summary>
         /// Lấy hoặc đặt danh sách người dùng có vai trò này.
         /// </summary>
@@ -51,5 +52,13 @@ namespace MyShop.Data.Entities
         /// Many-to-many relationship thông qua bảng trung gian.
         /// </remarks>
         public ICollection<User> Users { get; set; } = new List<User>();
+
+        /// <summary>
+        /// Lấy hoặc đặt danh sách các quyền hạn thuộc vai trò này.
+        /// </summary>
+        /// <value>Collection chứa tất cả các RoleAuthorities thuộc vai trò này</value>
+        /// <remarks>
+        /// Thuộc tính này được thêm vào để khắc phục lỗi CS1061.
+        /// </remarks>
     }
 }

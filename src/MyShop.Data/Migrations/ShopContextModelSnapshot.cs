@@ -22,25 +22,6 @@ namespace MyShop.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("AuthorityRole", b =>
-                {
-                    b.Property<string>("AuthoritiesName")
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("authorities_name");
-
-                    b.Property<string>("RolesName")
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("roles_name");
-
-                    b.HasKey("AuthoritiesName", "RolesName")
-                        .HasName("pk_role_authorities");
-
-                    b.HasIndex("RolesName")
-                        .HasDatabaseName("ix_role_authorities_roles_name");
-
-                    b.ToTable("role_authorities", (string)null);
-                });
-
             modelBuilder.Entity("MyShop.Data.Entities.Authority", b =>
                 {
                     b.Property<string>("Name")
@@ -225,6 +206,37 @@ namespace MyShop.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("MyShop.Data.Entities.RoleAuthorities", b =>
+                {
+                    b.Property<string>("RoleName")
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("role_name");
+
+                    b.Property<string>("AuthorityName")
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("authority_name");
+
+                    b.HasKey("RoleName", "AuthorityName")
+                        .HasName("pk_role_authorities");
+
+                    b.HasIndex("AuthorityName")
+                        .HasDatabaseName("ix_role_authorities_authority_name");
+
+                    b.ToTable("role_authorities", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            RoleName = "Admin",
+                            AuthorityName = "ALL"
+                        },
+                        new
+                        {
+                            RoleName = "SalesAgent",
+                            AuthorityName = "POST"
+                        });
+                });
+
             modelBuilder.Entity("MyShop.Data.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -308,23 +320,6 @@ namespace MyShop.Data.Migrations
                     b.ToTable("user_roles", (string)null);
                 });
 
-            modelBuilder.Entity("AuthorityRole", b =>
-                {
-                    b.HasOne("MyShop.Data.Entities.Authority", null)
-                        .WithMany()
-                        .HasForeignKey("AuthoritiesName")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_role_authorities_authorities_authorities_name");
-
-                    b.HasOne("MyShop.Data.Entities.Role", null)
-                        .WithMany()
-                        .HasForeignKey("RolesName")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_role_authorities_roles_roles_name");
-                });
-
             modelBuilder.Entity("MyShop.Data.Entities.OrderItem", b =>
                 {
                     b.HasOne("MyShop.Data.Entities.Order", "Order")
@@ -358,6 +353,27 @@ namespace MyShop.Data.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("MyShop.Data.Entities.RoleAuthorities", b =>
+                {
+                    b.HasOne("MyShop.Data.Entities.Authority", "Authority")
+                        .WithMany("RoleAuthorities")
+                        .HasForeignKey("AuthorityName")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_role_authorities_authorities_authority_name");
+
+                    b.HasOne("MyShop.Data.Entities.Role", "Role")
+                        .WithMany("RoleAuthorities")
+                        .HasForeignKey("RoleName")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_role_authorities_roles_role_name");
+
+                    b.Navigation("Authority");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("RoleUser", b =>
                 {
                     b.HasOne("MyShop.Data.Entities.Role", null)
@@ -373,6 +389,16 @@ namespace MyShop.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_user_roles_users_users_id");
+                });
+
+            modelBuilder.Entity("MyShop.Data.Entities.Authority", b =>
+                {
+                    b.Navigation("RoleAuthorities");
+                });
+
+            modelBuilder.Entity("MyShop.Data.Entities.Role", b =>
+                {
+                    b.Navigation("RoleAuthorities");
                 });
 #pragma warning restore 612, 618
         }

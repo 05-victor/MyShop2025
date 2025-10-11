@@ -59,6 +59,11 @@ namespace MyShop.Data
         public DbSet<Authority> Authorities { get; set; }
 
         /// <summary>
+        /// DbSet cho entity RoleAuthorities - quản lý mối quan hệ giữa Role và Authority.
+        /// </summary>
+        public DbSet<RoleAuthorities> RoleAuthorities { get; set; }
+
+        /// <summary>
         /// Cấu hình model và relationships khi tạo database.
         /// </summary>
         /// <param name="modelBuilder">Builder để cấu hình model</param>
@@ -72,11 +77,11 @@ namespace MyShop.Data
                 .WithMany(r => r.Users)
                 .UsingEntity(j => j.ToTable("user_roles")); // Custom table name
 
-            // Cấu hình many-to-many relationship Role-Authority
-            modelBuilder.Entity<Role>()
-                .HasMany(r => r.Authorities)
-                .WithMany(a => a.Roles)
-                .UsingEntity(j => j.ToTable("role_authorities")); // Custom table name
+            // Cấu hình many-to-many relationship Role-Authority P/s: doesn't need because of explicit RoleAuthorities entity
+            //modelBuilder.Entity<Role>()
+            //    .HasMany(r => r.Authorities)
+            //    .WithMany(a => a.Roles)
+            //    .UsingEntity(j => j.ToTable("role_authorities")); // Custom table name
 
             // Cấu hình unique constraint cho User
             modelBuilder.Entity<User>()
@@ -111,6 +116,25 @@ namespace MyShop.Data
             );
 
             //TODO: Seed role-authority relationships (have to explicitly create join table entity)
+            // --- Relationship setup ---
+            modelBuilder.Entity<RoleAuthorities>()
+                .HasKey(ra => new { ra.RoleName, ra.AuthorityName });
+
+            modelBuilder.Entity<RoleAuthorities>()
+                .HasOne(ra => ra.Role)
+                .WithMany(r => r.RoleAuthorities)
+                .HasForeignKey(ra => ra.RoleName);
+
+            modelBuilder.Entity<RoleAuthorities>()
+                .HasOne(ra => ra.Authority)
+                .WithMany(a => a.RoleAuthorities)
+                .HasForeignKey(ra => ra.AuthorityName);
+
+            // Optional: rename the join table
+            modelBuilder.Entity<RoleAuthorities>()
+                .ToTable("role_authorities");
+
+            // Seed data for RoleAuthorities
             modelBuilder.Entity<RoleAuthorities>()
                 .HasData(
                     new RoleAuthorities { RoleName = "Admin", AuthorityName = "ALL" },

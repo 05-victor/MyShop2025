@@ -110,21 +110,21 @@ namespace MyShop.Data.Migrations
                 name: "role_authorities",
                 columns: table => new
                 {
-                    authorities_name = table.Column<string>(type: "character varying(100)", nullable: false),
-                    roles_name = table.Column<string>(type: "character varying(100)", nullable: false)
+                    role_name = table.Column<string>(type: "character varying(100)", nullable: false),
+                    authority_name = table.Column<string>(type: "character varying(100)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_role_authorities", x => new { x.authorities_name, x.roles_name });
+                    table.PrimaryKey("pk_role_authorities", x => new { x.role_name, x.authority_name });
                     table.ForeignKey(
-                        name: "fk_role_authorities_authorities_authorities_name",
-                        column: x => x.authorities_name,
+                        name: "fk_role_authorities_authorities_authority_name",
+                        column: x => x.authority_name,
                         principalTable: "authorities",
                         principalColumn: "name",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "fk_role_authorities_roles_roles_name",
-                        column: x => x.roles_name,
+                        name: "fk_role_authorities_roles_role_name",
+                        column: x => x.role_name,
                         principalTable: "roles",
                         principalColumn: "name",
                         onDelete: ReferentialAction.Cascade);
@@ -201,6 +201,15 @@ namespace MyShop.Data.Migrations
                     { "SalesAgent", null }
                 });
 
+            migrationBuilder.InsertData(
+                table: "role_authorities",
+                columns: new[] { "authority_name", "role_name" },
+                values: new object[,]
+                {
+                    { "ALL", "Admin" },
+                    { "POST", "SalesAgent" }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "ix_order_items_order_id",
                 table: "order_items",
@@ -217,9 +226,9 @@ namespace MyShop.Data.Migrations
                 column: "category_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_role_authorities_roles_name",
+                name: "ix_role_authorities_authority_name",
                 table: "role_authorities",
-                column: "roles_name");
+                column: "authority_name");
 
             migrationBuilder.CreateIndex(
                 name: "ix_user_roles_users_id",
