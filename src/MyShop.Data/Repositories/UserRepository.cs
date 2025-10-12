@@ -14,9 +14,11 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
-    public async Task<User?> GetByIdAsync(int id)
+    public async Task<User?> GetByIdAsync(Guid id)
     {
-        return await _context.Users.FindAsync(id);
+        return await _context.Users
+            .Include(u => u.Roles)
+            .FirstOrDefaultAsync(u => u.Id == id);
     }
 
     public async Task<User?> GetByUsernameAsync(string username)
@@ -58,7 +60,7 @@ public class UserRepository : IUserRepository
         return user;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(Guid id)
     {
         var user = await GetByIdAsync(id);
         if (user == null)

@@ -10,11 +10,13 @@
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="HotChocolate" Version="15.1.10" />
     <PackageReference Include="HotChocolate.AspNetCore" Version="15.1.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.9" />
     <!-- Fix: Upgrade EF Core to match .NET 9.0 -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.9" />
     <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
   </ItemGroup>
 
   <ItemGroup>

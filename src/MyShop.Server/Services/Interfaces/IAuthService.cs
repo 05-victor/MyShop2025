@@ -7,5 +7,5 @@ public interface IAuthService
 {
     Task<CreateUserResponse> RegisterAsync(CreateUserRequest request);
     Task<LoginResponse> LoginAsync(LoginRequest request);
-    Task<UserInfoResponse?> GetMeAsync(int userId);
+    Task<UserInfoResponse?> GetMeAsync(Guid userId);
 }
