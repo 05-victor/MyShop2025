@@ -28,5 +28,11 @@ namespace MyShop.Shared.DTOs.Requests
 
         public string? Avatar { get; set; }
         public bool ActivateTrial { get; set; } = true;
+        
+        /// <summary>
+        /// List of role names to assign to the user during registration.
+        /// If empty or null, no roles will be assigned.
+        /// </summary>
+        public List<string> RoleNames { get; set; } = new List<string>();
     }
 }

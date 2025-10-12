@@ -22,12 +22,14 @@ public class UserRepository : IUserRepository
     public async Task<User?> GetByUsernameAsync(string username)
     {
         return await _context.Users
+            .Include(u => u.Roles)
             .FirstOrDefaultAsync(u => u.Username == username);
     }
 
     public async Task<User?> GetByEmailAsync(string email)
     {
         return await _context.Users
+            .Include(u => u.Roles)
             .FirstOrDefaultAsync(u => u.Email == email);
     }
 
@@ -40,6 +42,12 @@ public class UserRepository : IUserRepository
     {
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
+        
+        // TODO: Why? Load the Roles navigation property after save
+        await _context.Entry(user)
+            .Collection(u => u.Roles)
+            .LoadAsync();
+        
         return user;
     }
 

@@ -36,9 +36,11 @@ builder.Services.AddDbContext<ShopContext>(options =>
 
 // Register Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
 // Register Services
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
 
 // Add GraphQL with HotChocolate
 //builder.Services
