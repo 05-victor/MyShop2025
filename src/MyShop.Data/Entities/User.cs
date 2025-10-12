@@ -97,5 +97,15 @@ namespace MyShop.Data.Entities
         /// </summary>
         /// <value>Collection các Role entities được gán cho user này</value>
         public ICollection<Role> Roles { get; set; } = new List<Role>();
+
+        /// <summary>
+        /// Lấy hoặc đặt danh sách các quyền hạn bị loại bỏ cho người dùng này.
+        /// </summary>
+        /// <value>Collection các RemovedAuthorities entries - quyền bị hạn chế cho user này</value>
+        /// <remarks>
+        /// Các quyền trong collection này sẽ bị loại bỏ khỏi quyền hiệu lực của user,
+        /// ngay cả khi user có các quyền đó thông qua role của mình.
+        /// </remarks>
+        public ICollection<RemovedAuthorities> RemovedAuthorities { get; set; } = new List<RemovedAuthorities>();
     }
 }

@@ -93,6 +93,7 @@ builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
 // Register Services
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserAuthorityService, UserAuthorityService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 

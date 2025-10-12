@@ -64,6 +64,11 @@ namespace MyShop.Data
         public DbSet<RoleAuthorities> RoleAuthorities { get; set; }
 
         /// <summary>
+        /// DbSet cho entity RemovedAuthorities - quản lý quyền hạn bị loại bỏ của từng user.
+        /// </summary>
+        public DbSet<RemovedAuthorities> RemovedAuthorities { get; set; }
+
+        /// <summary>
         /// Cấu hình model và relationships khi tạo database.
         /// </summary>
         /// <param name="modelBuilder">Builder để cấu hình model</param>
@@ -140,6 +145,25 @@ namespace MyShop.Data
                     new RoleAuthorities { RoleName = "Admin", AuthorityName = "ALL" },
                     new RoleAuthorities { RoleName = "SalesAgent", AuthorityName = "POST" }
                 );
+
+            // --- RemovedAuthorities Configuration ---
+            modelBuilder.Entity<RemovedAuthorities>()
+                .HasKey(ra => new { ra.UserId, ra.AuthorityName });
+
+            modelBuilder.Entity<RemovedAuthorities>()
+                .HasOne(ra => ra.User)
+                .WithMany(u => u.RemovedAuthorities)
+                .HasForeignKey(ra => ra.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RemovedAuthorities>()
+                .HasOne(ra => ra.Authority)
+                .WithMany()
+                .HasForeignKey(ra => ra.AuthorityName)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<RemovedAuthorities>()
+                .ToTable("removed_authorities");
 
             // Cấu hình table names theo convention
             //modelBuilder.Entity<Category>().ToTable("Categories");
