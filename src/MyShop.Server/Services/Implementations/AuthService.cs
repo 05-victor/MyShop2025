@@ -9,11 +9,13 @@ namespace MyShop.Server.Services.Implementations;
 public class AuthService : IAuthService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IJwtService _jwtService;
     private readonly ILogger<AuthService> _logger;
 
-    public AuthService(IUserRepository userRepository, ILogger<AuthService> logger)
+    public AuthService(IUserRepository userRepository, IJwtService jwtService, ILogger<AuthService> logger)
     {
         _userRepository = userRepository;
+        _jwtService = jwtService;
         _logger = logger;
     }
 
@@ -90,6 +92,9 @@ public class AuthService : IAuthService
 
             _logger.LogInformation("User logged in successfully: {Username}", user.Username);
 
+            // Generate JWT token
+            var token = _jwtService.GenerateAccessToken(user);
+
             return new LoginResponse
             {
                 Id = user.Id,
@@ -101,7 +106,7 @@ public class AuthService : IAuthService
                 IsVerified = user.IsVerified,
                 CreatedAt = user.CreatedAt,
                 RoleNames = user.Roles.Select(r => r.Name).ToList(),
-                Token = string.Empty // TODO: Generate JWT token when authentication is implemented
+                Token = token
             };
         }
         catch (Exception ex)
@@ -111,12 +116,10 @@ public class AuthService : IAuthService
         }
     }
 
-    public async Task<UserInfoResponse?> GetMeAsync(int userId)
+    public async Task<UserInfoResponse?> GetMeAsync(Guid userId)
     {
         try
         {
-            // TODO: This will be populated when authentication is implemented
-            // For now, return null as authentication is not yet implemented
             _logger.LogInformation("GetMe called for userId: {UserId}", userId);
             
             var user = await _userRepository.GetByIdAsync(userId);

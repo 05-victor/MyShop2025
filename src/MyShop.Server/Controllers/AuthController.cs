@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyShop.Server.Services.Interfaces;
 using MyShop.Shared.DTOs.Common;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
+using System.Security.Claims;
 
 namespace MyShop.Server.Controllers;
 
@@ -114,30 +116,26 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// Get current user profile (placeholder for authentication implementation)
+    /// Get current user profile
     /// </summary>
     /// <returns>Standardized API response with current user details</returns>
     [HttpGet("me")]
+    [Authorize]
     [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ApiResponse<UserInfoResponse>>> GetMe()
     {
-        // TODO: When authentication is implemented, get userId from JWT token claims
-        // For now, this is a placeholder that returns empty/unauthorized
-
         try
         {
-            // Placeholder: In a real implementation, you would extract the userId from the JWT token
-            // Example: var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            // Extract user ID from JWT token claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             
-            var userId = 0; // Placeholder - will be populated from JWT claims later
-            
-            if (userId == 0)
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
             {
                 return Unauthorized(ApiResponse<UserInfoResponse>.UnauthorizedResponse(
-                    "Authentication required. This endpoint will be functional once authentication is implemented."));
+                    "Invalid or missing user ID in token"));
             }
 
             var user = await _authService.GetMeAsync(userId);
