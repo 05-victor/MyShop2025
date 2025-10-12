@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyShop.Client.Services;
 using MyShop.Client.Views;
+using MyShop.Shared.DTOs;
 
 namespace MyShop.Client.ViewModels
 {
@@ -318,7 +319,15 @@ namespace MyShop.Client.ViewModels
                     ? Username 
                     : $"{FirstName} {LastName}";
 
-                var result = await _authService.RegisterAsync(finalUsername, Email, Password);
+                var registerRequest = new RegisterRequest
+                {
+                    Username = finalUsername,
+                    Email = Email,
+                    Password = Password,
+                    Sdt = Phone
+                };
+
+                var result = await _authService.RegisterAsync(registerRequest);
                 
                 if (result.Success)
                 {

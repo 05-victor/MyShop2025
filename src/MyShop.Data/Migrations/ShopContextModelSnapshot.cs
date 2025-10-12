@@ -3,7 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using MyShop.Shared;
+using MyShop.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -22,17 +22,46 @@ namespace MyShop.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("MyShop.Shared.Category", b =>
+            modelBuilder.Entity("MyShop.Data.Entities.Authority", b =>
                 {
-                    b.Property<int>("CategoryId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("category_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CategoryId"));
+                    b.Property<string>("Name")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
 
                     b.Property<string>("Description")
-                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
+
+                    b.HasKey("Name")
+                        .HasName("pk_authorities");
+
+                    b.ToTable("authorities", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Name = "POST"
+                        },
+                        new
+                        {
+                            Name = "DELETE"
+                        },
+                        new
+                        {
+                            Name = "ALL"
+                        });
+                });
+
+            modelBuilder.Entity("MyShop.Data.Entities.Category", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Description")
                         .HasColumnType("text")
                         .HasColumnName("description");
 
@@ -41,20 +70,18 @@ namespace MyShop.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("name");
 
-                    b.HasKey("CategoryId")
+                    b.HasKey("Id")
                         .HasName("pk_categories");
 
                     b.ToTable("categories", (string)null);
                 });
 
-            modelBuilder.Entity("MyShop.Shared.Order", b =>
+            modelBuilder.Entity("MyShop.Data.Entities.Order", b =>
                 {
-                    b.Property<int>("OrderId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("order_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrderId"));
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -64,27 +91,25 @@ namespace MyShop.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("final_price");
 
-                    b.HasKey("OrderId")
+                    b.HasKey("Id")
                         .HasName("pk_orders");
 
                     b.ToTable("orders", (string)null);
                 });
 
-            modelBuilder.Entity("MyShop.Shared.OrderItem", b =>
+            modelBuilder.Entity("MyShop.Data.Entities.OrderItem", b =>
                 {
-                    b.Property<int>("OrderItemId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("order_item_id");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrderItemId"));
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid")
                         .HasColumnName("order_id");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid")
                         .HasColumnName("product_id");
 
                     b.Property<int>("Quantity")
@@ -99,7 +124,7 @@ namespace MyShop.Data.Migrations
                         .HasColumnType("real")
                         .HasColumnName("unit_sale_price");
 
-                    b.HasKey("OrderItemId")
+                    b.HasKey("Id")
                         .HasName("pk_order_items");
 
                     b.HasIndex("OrderId")
@@ -111,17 +136,15 @@ namespace MyShop.Data.Migrations
                     b.ToTable("order_items", (string)null);
                 });
 
-            modelBuilder.Entity("MyShop.Shared.Product", b =>
+            modelBuilder.Entity("MyShop.Data.Entities.Product", b =>
                 {
-                    b.Property<int>("ProductId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("product_id");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ProductId"));
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid")
                         .HasColumnName("category_id");
 
                     b.Property<int>("Count")
@@ -129,7 +152,6 @@ namespace MyShop.Data.Migrations
                         .HasColumnName("count");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("description");
 
@@ -147,7 +169,7 @@ namespace MyShop.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("sku");
 
-                    b.HasKey("ProductId")
+                    b.HasKey("Id")
                         .HasName("pk_products");
 
                     b.HasIndex("CategoryId")
@@ -156,16 +178,158 @@ namespace MyShop.Data.Migrations
                     b.ToTable("products", (string)null);
                 });
 
-            modelBuilder.Entity("MyShop.Shared.OrderItem", b =>
+            modelBuilder.Entity("MyShop.Data.Entities.Role", b =>
                 {
-                    b.HasOne("MyShop.Shared.Order", "Order")
+                    b.Property<string>("Name")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
+
+                    b.HasKey("Name")
+                        .HasName("pk_roles");
+
+                    b.ToTable("roles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Name = "SalesAgent"
+                        });
+                });
+
+            modelBuilder.Entity("MyShop.Data.Entities.RoleAuthorities", b =>
+                {
+                    b.Property<string>("RoleName")
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("role_name");
+
+                    b.Property<string>("AuthorityName")
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("authority_name");
+
+                    b.HasKey("RoleName", "AuthorityName")
+                        .HasName("pk_role_authorities");
+
+                    b.HasIndex("AuthorityName")
+                        .HasDatabaseName("ix_role_authorities_authority_name");
+
+                    b.ToTable("role_authorities", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            RoleName = "Admin",
+                            AuthorityName = "ALL"
+                        },
+                        new
+                        {
+                            RoleName = "SalesAgent",
+                            AuthorityName = "POST"
+                        });
+                });
+
+            modelBuilder.Entity("MyShop.Data.Entities.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("ActivateTrial")
+                        .HasColumnType("boolean")
+                        .HasColumnName("activate_trial");
+
+                    b.Property<string>("Avatar")
+                        .HasColumnType("text")
+                        .HasColumnName("avatar");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("email");
+
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_verified");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("password");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("phone_number");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("username");
+
+                    b.HasKey("Id")
+                        .HasName("pk_users");
+
+                    b.HasIndex("Email")
+                        .IsUnique()
+                        .HasDatabaseName("ix_users_email");
+
+                    b.HasIndex("Username")
+                        .IsUnique()
+                        .HasDatabaseName("ix_users_username");
+
+                    b.ToTable("users", (string)null);
+                });
+
+            modelBuilder.Entity("RoleUser", b =>
+                {
+                    b.Property<string>("RolesName")
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("roles_name");
+
+                    b.Property<Guid>("UsersId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("users_id");
+
+                    b.HasKey("RolesName", "UsersId")
+                        .HasName("pk_user_roles");
+
+                    b.HasIndex("UsersId")
+                        .HasDatabaseName("ix_user_roles_users_id");
+
+                    b.ToTable("user_roles", (string)null);
+                });
+
+            modelBuilder.Entity("MyShop.Data.Entities.OrderItem", b =>
+                {
+                    b.HasOne("MyShop.Data.Entities.Order", "Order")
                         .WithMany()
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_order_items_orders_order_id");
 
-                    b.HasOne("MyShop.Shared.Product", "Product")
+                    b.HasOne("MyShop.Data.Entities.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -177,9 +341,9 @@ namespace MyShop.Data.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("MyShop.Shared.Product", b =>
+            modelBuilder.Entity("MyShop.Data.Entities.Product", b =>
                 {
-                    b.HasOne("MyShop.Shared.Category", "Category")
+                    b.HasOne("MyShop.Data.Entities.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -187,6 +351,54 @@ namespace MyShop.Data.Migrations
                         .HasConstraintName("fk_products_categories_category_id");
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("MyShop.Data.Entities.RoleAuthorities", b =>
+                {
+                    b.HasOne("MyShop.Data.Entities.Authority", "Authority")
+                        .WithMany("RoleAuthorities")
+                        .HasForeignKey("AuthorityName")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_role_authorities_authorities_authority_name");
+
+                    b.HasOne("MyShop.Data.Entities.Role", "Role")
+                        .WithMany("RoleAuthorities")
+                        .HasForeignKey("RoleName")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_role_authorities_roles_role_name");
+
+                    b.Navigation("Authority");
+
+                    b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("RoleUser", b =>
+                {
+                    b.HasOne("MyShop.Data.Entities.Role", null)
+                        .WithMany()
+                        .HasForeignKey("RolesName")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_roles_roles_roles_name");
+
+                    b.HasOne("MyShop.Data.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_roles_users_users_id");
+                });
+
+            modelBuilder.Entity("MyShop.Data.Entities.Authority", b =>
+                {
+                    b.Navigation("RoleAuthorities");
+                });
+
+            modelBuilder.Entity("MyShop.Data.Entities.Role", b =>
+                {
+                    b.Navigation("RoleAuthorities");
                 });
 #pragma warning restore 612, 618
         }

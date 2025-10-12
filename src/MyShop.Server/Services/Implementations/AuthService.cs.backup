@@ -1,0 +1,11 @@
+using MyShop.Data.Entities;
+using MyShop.Data.Repositories.Interfaces;
+using MyShop.Server.Services.Interfaces;
+using MyShop.Shared.DTOs.User;
+
+namespace MyShop.Server.Services;
+
+public class AuthService : IAuthService
+{
+    // ...existing code...
+}
