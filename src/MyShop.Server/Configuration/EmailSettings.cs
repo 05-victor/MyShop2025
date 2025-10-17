@@ -1,3 +1,5 @@
+using MyShop.Server.Services.Implementations;
+
 namespace MyShop.Server.Configuration
 {
     /// <summary>
@@ -6,12 +8,12 @@ namespace MyShop.Server.Configuration
     public class EmailSettings
     {
         /// <summary>
-        /// Brevo API endpoint for sending emails
+        /// Brevo API endpoint for sending emails (can be encoded in Base64)
         /// </summary>
         public string ApiEndpoint { get; set; } = "https://api.brevo.com/v3/smtp/email";
 
         /// <summary>
-        /// Brevo API key for authentication
+        /// Brevo API key for authentication (can be encoded in Base64)
         /// </summary>
         public string ApiKey { get; set; } = string.Empty;
 
@@ -29,5 +31,21 @@ namespace MyShop.Server.Configuration
         /// Directory path where email templates are stored
         /// </summary>
         public string TemplatesPath { get; set; } = "EmailTemplates";
+
+        /// <summary>
+        /// Get decoded API endpoint
+        /// </summary>
+        public string GetDecodedApiEndpoint()
+        {
+            return ConfigurationEncoder.Decode(ApiEndpoint);
+        }
+
+        /// <summary>
+        /// Get decoded API key
+        /// </summary>
+        public string GetDecodedApiKey()
+        {
+            return ConfigurationEncoder.Decode(ApiKey);
+        }
     }
 }
