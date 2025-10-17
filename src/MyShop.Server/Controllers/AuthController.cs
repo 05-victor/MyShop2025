@@ -159,27 +159,4 @@ public class AuthController : ControllerBase
                     "An error occurred while processing your request"));
         }
     }
-
-    // [HttpGet("roles")]
-    // [ProducesResponseType(typeof(ApiResponse<IEnumerable<RoleResponse>>), StatusCodes.Status200OK)]
-    // [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
-    // public async Task<ActionResult<ApiResponse<IEnumerable<RoleResponse>>>> GetRoles()
-    // {
-    //     try
-    //     {
-    //         var roles = await _authService.GetRolesAsync();
-
-    //         return Ok(ApiResponse<IEnumerable<RoleResponse>>.SuccessResponse(
-    //             roles,
-    //             "Roles retrieved successfully",
-    //             200));
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         _logger.LogError(ex, "Error in GetRoles endpoint");
-    //         return StatusCode(StatusCodes.Status500InternalServerError,
-    //             ApiResponse.ServerErrorResponse(
-    //                 "An error occurred while processing your request"));
-    //     }
-    // }
 }

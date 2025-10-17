@@ -40,9 +40,6 @@ namespace MyShop.Server.Services.Implementations
                     new(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new(ClaimTypes.Name, user.Username),
                     new(ClaimTypes.Email, user.Email),
-                    new("phone_number", user.PhoneNumber),
-                    new("is_verified", user.IsVerified.ToString().ToLower()),
-                    new("activate_trial", user.ActivateTrial.ToString().ToLower()),
                     new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
                    // new(JwtRegisteredClaimNames.Exp, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)

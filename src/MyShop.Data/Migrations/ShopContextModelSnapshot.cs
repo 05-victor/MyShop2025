@@ -178,6 +178,41 @@ namespace MyShop.Data.Migrations
                     b.ToTable("products", (string)null);
                 });
 
+            modelBuilder.Entity("MyShop.Data.Entities.Profile", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("address");
+
+                    b.Property<string>("Avatar")
+                        .HasColumnType("text")
+                        .HasColumnName("avatar");
+
+                    b.Property<string>("FullName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("full_name");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(15)
+                        .HasColumnType("character varying(15)")
+                        .HasColumnName("phone_number");
+
+                    b.HasKey("UserId")
+                        .HasName("pk_profiles");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_profiles_user_id");
+
+                    b.ToTable("profiles", (string)null);
+                });
+
             modelBuilder.Entity("MyShop.Data.Entities.RemovedAuthorities", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -278,14 +313,6 @@ namespace MyShop.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<bool>("ActivateTrial")
-                        .HasColumnType("boolean")
-                        .HasColumnName("activate_trial");
-
-                    b.Property<string>("Avatar")
-                        .HasColumnType("text")
-                        .HasColumnName("avatar");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -296,20 +323,30 @@ namespace MyShop.Data.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("email");
 
-                    b.Property<bool>("IsVerified")
+                    b.Property<bool>("IsEmailVerified")
                         .HasColumnType("boolean")
-                        .HasColumnName("is_verified");
+                        .HasColumnName("is_email_verified");
+
+                    b.Property<bool>("IsTrialActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_trial_active");
 
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("password");
 
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("phone_number");
+                    b.Property<Guid?>("ProfileId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("profile_id");
+
+                    b.Property<DateTime?>("TrialEndDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("trial_end_date");
+
+                    b.Property<DateTime?>("TrialStartDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("trial_start_date");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -387,6 +424,18 @@ namespace MyShop.Data.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("MyShop.Data.Entities.Profile", b =>
+                {
+                    b.HasOne("MyShop.Data.Entities.User", "User")
+                        .WithOne("Profile")
+                        .HasForeignKey("MyShop.Data.Entities.Profile", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_profiles_users_user_id");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("MyShop.Data.Entities.RemovedAuthorities", b =>
                 {
                     b.HasOne("MyShop.Data.Entities.Authority", "Authority")
@@ -458,6 +507,8 @@ namespace MyShop.Data.Migrations
 
             modelBuilder.Entity("MyShop.Data.Entities.User", b =>
                 {
+                    b.Navigation("Profile");
+
                     b.Navigation("RemovedAuthorities");
                 });
 #pragma warning restore 612, 618

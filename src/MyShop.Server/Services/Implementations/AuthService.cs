@@ -53,10 +53,6 @@ public class AuthService : IAuthService
                 Username = request.Username,
                 Password = BCrypt.Net.BCrypt.HashPassword(request.Password), // TODO: Hash password in production
                 Email = request.Email,
-                PhoneNumber = request.PhoneNumber,
-                Avatar = request.Avatar,
-                ActivateTrial = request.ActivateTrial,
-                IsVerified = false,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = null,
                 Roles = roles
@@ -73,10 +69,6 @@ public class AuthService : IAuthService
                 Id = createdUser.Id,
                 Username = createdUser.Username,
                 Email = createdUser.Email,
-                PhoneNumber = createdUser.PhoneNumber,
-                Avatar = createdUser.Avatar,
-                ActivateTrial = createdUser.ActivateTrial,
-                IsVerified = createdUser.IsVerified,
                 CreatedAt = createdUser.CreatedAt,
                 RoleNames = createdUser.Roles.Select(r => r.Name).ToList()
             };
@@ -121,10 +113,6 @@ public class AuthService : IAuthService
                 Id = user.Id,
                 Username = user.Username,
                 Email = user.Email,
-                PhoneNumber = user.PhoneNumber,
-                Avatar = user.Avatar,
-                ActivateTrial = user.ActivateTrial,
-                IsVerified = user.IsVerified,
                 CreatedAt = user.CreatedAt,
                 RoleNames = user.Roles.Select(r => r.Name).ToList(),
                 Token = token
@@ -153,10 +141,6 @@ public class AuthService : IAuthService
                 Id = user.Id,
                 Username = user.Username,
                 Email = user.Email,
-                PhoneNumber = user.PhoneNumber,
-                Avatar = user.Avatar,
-                ActivateTrial = user.ActivateTrial,
-                IsVerified = user.IsVerified,
                 CreatedAt = user.CreatedAt,
                 UpdatedAt = user.UpdatedAt,
                 RoleNames = user.Roles.Select(r => r.Name).ToList()
@@ -168,24 +152,4 @@ public class AuthService : IAuthService
             return null;
         }
     }
-
-    // Move to RoleService
-    // public async Task<IEnumerable<RoleResponse>> GetRolesAsync()
-    // {
-    //     try
-    //     {
-    //         var roles = await _roleRepository.GetAllAsync();
-
-    //         return roles.Select(r => new RoleResponse
-    //         {
-    //             Name = r.Name,
-    //             Description = r.Description
-    //         });
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         _logger.LogError(ex, "Error getting roles");
-    //         throw;
-    //     }
-    // }
 }

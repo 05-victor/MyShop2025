@@ -68,6 +68,8 @@ namespace MyShop.Data
         /// </summary>
         public DbSet<RemovedAuthorities> RemovedAuthorities { get; set; }
 
+        public DbSet<Profile> Profiles { get; set; }
+
         /// <summary>
         /// Cấu hình model và relationships khi tạo database.
         /// </summary>
@@ -96,6 +98,19 @@ namespace MyShop.Data
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
+
+            // Profile configuration
+            modelBuilder.Entity<Profile>(entity =>
+            {
+                entity.HasKey(e => e.UserId);
+                
+                entity.HasOne(p => p.User)
+                    .WithOne(u => u.Profile)
+                    .HasForeignKey<Profile>(p => p.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                    
+                entity.HasIndex(p => p.UserId).IsUnique();
+            });
 
             // Cấu hình relationship Order-User
             //modelBuilder.Entity<Order>()
