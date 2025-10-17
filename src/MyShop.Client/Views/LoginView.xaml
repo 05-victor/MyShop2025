@@ -27,7 +27,7 @@
 					  Margin="36 16 0 0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <!-- Placeholder cho image - có thể thay bằng logo thực tế -->
                     <Rectangle Fill="{ThemeResource SystemColorHighlightColorBrush}" Opacity="0.3"/>
-
+                    
                     <TextBlock Text="MyShop2025"
 							   HorizontalAlignment="Center"
 							   VerticalAlignment="Center"
@@ -193,8 +193,7 @@
 								Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
                             <StackPanel Orientation="Horizontal" Spacing="10">
                                 <!-- Placeholder cho Google icon -->
-                                <FontIcon Glyph="&#xE909;" FontFamily="Segoe MDL2 Assets" Width="16" Height="16"
-										  Foreground="{ThemeResource SystemColorHighlightColor}"/>
+                                <Image Source="/Assets/Google.png" Width="16" Height="16"/>
                                 <TextBlock Text="Sign in with Google" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
