@@ -1,4 +1,4 @@
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using MyShop.Client.Services;
 using MyShop.Client.Views;
@@ -84,7 +84,7 @@ namespace MyShop.Client
                 if (appWindow != null)
                 {
                     // Thiết lập kích thước mặc định
-                    appWindow.Resize(new Windows.Graphics.SizeInt32(800, 700));
+                    appWindow.Resize(new Windows.Graphics.SizeInt32(1200, 800));
 
                     // Thiết lập kích thước tối thiểu (nếu hỗ trợ)
                     if (appWindow.Presenter is OverlappedPresenter presenter)

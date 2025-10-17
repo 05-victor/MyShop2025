@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace MyShop.Shared.DTOs
 {
     /// <summary>
-    /// DTO cho thông tin vai trò.
+    /// DTO cho thï¿½ng tin vai trï¿½.
     /// </summary>
     public class RoleDto
     {
@@ -18,30 +18,30 @@ namespace MyShop.Shared.DTOs
     }
 
     /// <summary>
-    /// DTO cho vi?c t?o vai trò m?i.
+    /// DTO cho vi?c t?o vai trï¿½ m?i.
     /// </summary>
     public class CreateRoleRequest
     {
-        [Required(ErrorMessage = "Tên vai trò không ???c ?? tr?ng")]
-        [MaxLength(100, ErrorMessage = "Tên vai trò không ???c v??t quá 100 ký t?")]
+        [Required(ErrorMessage = "Tï¿½n vai trï¿½ khï¿½ng ???c ?? tr?ng")]
+        [MaxLength(100, ErrorMessage = "Tï¿½n vai trï¿½ khï¿½ng ???c v??t quï¿½ 100 kï¿½ t?")]
         public string Name { get; set; } = string.Empty;
         
-        [MaxLength(500, ErrorMessage = "Mô t? không ???c v??t quá 500 ký t?")]
+        [MaxLength(500, ErrorMessage = "Mï¿½ t? khï¿½ng ???c v??t quï¿½ 500 kï¿½ t?")]
         public string? Description { get; set; }
         
         public List<string> AuthorityNames { get; set; } = new List<string>();
     }
 
     /// <summary>
-    /// DTO cho vi?c c?p nh?t vai trò.
+    /// DTO cho vi?c c?p nh?t vai trï¿½.
     /// </summary>
     public class UpdateRoleRequest
     {
-        [Required(ErrorMessage = "Tên vai trò không ???c ?? tr?ng")]
-        [MaxLength(100, ErrorMessage = "Tên vai trò không ???c v??t quá 100 ký t?")]
+        [Required(ErrorMessage = "Tï¿½n vai trï¿½ khï¿½ng ???c ?? tr?ng")]
+        [MaxLength(100, ErrorMessage = "Tï¿½n vai trï¿½ khï¿½ng ???c v??t quï¿½ 100 kï¿½ t?")]
         public string Name { get; set; } = string.Empty;
         
-        [MaxLength(500, ErrorMessage = "Mô t? không ???c v??t quá 500 ký t?")]
+        [MaxLength(500, ErrorMessage = "Mï¿½ t? khï¿½ng ???c v??t quï¿½ 500 kï¿½ t?")]
         public string? Description { get; set; }
         
         public bool IsActive { get; set; } = true;

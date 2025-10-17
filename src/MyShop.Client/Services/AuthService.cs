@@ -1,10 +1,11 @@
+﻿using Microsoft.WindowsAppSDK.Runtime.Packages;
+using MyShop.Shared.DTOs;
 using System;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using MyShop.Shared.DTOs;
 
 namespace MyShop.Client.Services
 {
@@ -45,25 +46,41 @@ namespace MyShop.Client.Services
         /// <returns>Kết quả đăng nhập</returns>
         public async Task<LoginResponse> LoginAsync(LoginRequest request)
         {
-            try
-            {
+            try {
                 var response = await _httpClient.PostAsJsonAsync("api/auth/login", request, _jsonOptions);
-                
-                if (response.IsSuccessStatusCode)
-                {
+
+                if (response.IsSuccessStatusCode) {
                     var result = await response.Content.ReadFromJsonAsync<LoginResponse>(_jsonOptions);
                     return result ?? new LoginResponse { Success = false, Message = "Invalid response" };
                 }
-                else
-                {
+                else {
                     var errorContent = await response.Content.ReadAsStringAsync();
                     return new LoginResponse { Success = false, Message = $"Login failed: {errorContent}" };
                 }
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 return new LoginResponse { Success = false, Message = $"Network error: {ex.Message}" };
             }
+
+            //// --- MOCK ĐỂ VÀO DASHBOARD ---
+            //if (string.IsNullOrWhiteSpace(request.UsernameOrEmail) ||
+            //    string.IsNullOrWhiteSpace(request.Password)) {
+            //    return new LoginResponse {
+            //        Success = false,
+            //        Message = "Vui lòng điền đầy đủ thông tin"
+            //    };
+            //}
+
+            //// UNCOMMENT THIS SECTION WHEN YOU WANT TO TEST REAL SERVER CONNECTION
+            //// --- GIẢ LẬP THÀNH CÔNG CHO PHÁT TRIỂN/KIỂM THỬ ---
+            //// Điều này cho phép kiểm thử điều hướng mà không cần kết nối server
+            //await Task.Delay(500); // Mô phỏng độ trễ mạng
+            //return new LoginResponse {
+            //    Success = true,
+            //    Message = "Đăng nhập thành công"
+            //};
+
+            //// --- END MOCK ---
         }
 
         /// <summary>
