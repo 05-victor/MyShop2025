@@ -28,10 +28,10 @@ namespace MyShop.Server.Services.Implementations
             _httpClient = httpClient;
             _environment = environment;
 
-            // Configure HttpClient headers
+            // Configure HttpClient headers with decoded API key
             _httpClient.DefaultRequestHeaders.Clear();
             _httpClient.DefaultRequestHeaders.Add("accept", "application/json");
-            _httpClient.DefaultRequestHeaders.Add("api-key", _emailSettings.ApiKey);
+            _httpClient.DefaultRequestHeaders.Add("api-key", _emailSettings.GetDecodedApiKey());
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace MyShop.Server.Services.Implementations
 
                 _logger.LogInformation("Sending email to {Email} with subject: {Subject}", recipientEmail, subject);
 
-                var response = await _httpClient.PostAsync(_emailSettings.ApiEndpoint, content);
+                var response = await _httpClient.PostAsync(_emailSettings.GetDecodedApiEndpoint(), content);
 
                 if (response.IsSuccessStatusCode)
                 {
