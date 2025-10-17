@@ -11,6 +11,7 @@ using MyShop.Server.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,9 @@ builder.Services.AddOpenApi();
 
 // Configure JWT Settings
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+
+// Configure Email Settings
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 // Add CORS
 builder.Services.AddCors(options =>
@@ -48,6 +52,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+    options.MapInboundClaims = false; // Disable default claim mapping
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -57,7 +62,9 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = jwtSettings.Issuer,
         ValidAudience = jwtSettings.Audience,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
-        ClockSkew = TimeSpan.Zero // Remove default 5 minute clock skew
+        ClockSkew = TimeSpan.Zero, // Remove default 5 minute clock skew
+        NameClaimType = ClaimTypes.Name, // Set the Name claim type
+        RoleClaimType = ClaimTypes.Role // Set the Role claim type
     };
 
     // Configure JWT events for debugging
@@ -78,7 +85,16 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+
+// Add Authorization
+// add policy
+builder.Services.AddAuthorization(options =>{
+    options.AddPolicy("Manage", policy =>
+    {
+        policy.RequireClaim("authority", "ALL");
+        policy.RequireRole("Admin");
+    });
+});
 
 
 // Add DbContext
@@ -89,10 +105,17 @@ builder.Services.AddDbContext<ShopContext>(options =>
 
 // Register Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
 // Register Services
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserAuthorityService, UserAuthorityService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IEmailNotificationService, EmailNotificationService>();
+
+// Register HttpClient for EmailNotificationService
+builder.Services.AddHttpClient<IEmailNotificationService, EmailNotificationService>();
 
 // Add GraphQL with HotChocolate
 //builder.Services

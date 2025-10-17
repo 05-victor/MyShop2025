@@ -44,6 +44,12 @@ public class UserRepository : IUserRepository
     {
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
+        
+        // TODO: Why? Load the Roles navigation property after save
+        await _context.Entry(user)
+            .Collection(u => u.Roles)
+            .LoadAsync();
+        
         return user;
     }
 
