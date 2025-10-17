@@ -106,7 +106,7 @@ public class AuthService : IAuthService
             _logger.LogInformation("User logged in successfully: {Username}", user.Username);
 
             // Generate JWT token
-            var token = _jwtService.GenerateAccessToken(user);
+            var token = await _jwtService.GenerateAccessTokenAsync(user);
 
             return new LoginResponse
             {
