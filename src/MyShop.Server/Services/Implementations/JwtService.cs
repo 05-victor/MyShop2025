@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using MyShop.Data.Entities;
 using MyShop.Server.Configuration;
 using MyShop.Server.Services.Interfaces;
+using MyShop.Shared.DTOs.Responses;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -18,12 +19,14 @@ namespace MyShop.Server.Services.Implementations
         private readonly JwtSettings _jwtSettings;
         private readonly ILogger<JwtService> _logger;
         private readonly JwtSecurityTokenHandler _tokenHandler;
+        private readonly IUserAuthorityService _userAuthorityService;
 
-        public JwtService(IOptions<JwtSettings> jwtSettings, ILogger<JwtService> logger)
+        public JwtService(IOptions<JwtSettings> jwtSettings, ILogger<JwtService> logger, IUserAuthorityService userAuthorityService)
         {
             _jwtSettings = jwtSettings.Value;
             _logger = logger;
             _tokenHandler = new JwtSecurityTokenHandler();
+            _userAuthorityService = userAuthorityService;
         }
 
         /// <summary>
@@ -31,7 +34,7 @@ namespace MyShop.Server.Services.Implementations
         /// </summary>
         /// <param name="user">User entity to generate token for</param>
         /// <returns>JWT token string</returns>
-        public string GenerateAccessToken(User user)
+        public async Task<string> GenerateAccessTokenAsync(User user)
         {
             try
             {
@@ -40,19 +43,37 @@ namespace MyShop.Server.Services.Implementations
                     new(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new(ClaimTypes.Name, user.Username),
                     new(ClaimTypes.Email, user.Email),
-                    new("phone_number", user.PhoneNumber),
-                    new("is_verified", user.IsVerified.ToString().ToLower()),
-                    new("activate_trial", user.ActivateTrial.ToString().ToLower()),
                     new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
                    // new(JwtRegisteredClaimNames.Exp, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
                 };
 
+                /*
                 // Add role claims
                 foreach (var role in user.Roles)
                 {
                     claims.Add(new Claim(ClaimTypes.Role, role.Name));
                 }
+                */
+
+
+                EffectiveAuthoritiesResponse? effectiveAuthoritiesResponse = await _userAuthorityService.GetEffectiveAuthoritiesDetailAsync(user.Id);
+                // Add authority claims
+                if (effectiveAuthoritiesResponse != null)
+                {
+                    foreach (var authority in effectiveAuthoritiesResponse.EffectiveAuthorities)
+                    {
+                        claims.Add(new Claim("authority", authority));
+                    }
+
+                    // add role claims
+                    foreach(var roleName in effectiveAuthoritiesResponse.RoleNames)
+                    {
+                        claims.Add(new Claim(ClaimTypes.Role, roleName));
+                    }
+                }
+
+
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
                 var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

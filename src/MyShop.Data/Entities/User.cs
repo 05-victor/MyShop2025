@@ -8,7 +8,7 @@ namespace MyShop.Data.Entities
     /// </summary>
     /// <remarks>
     /// Entity này ánh xạ đến bảng Users trong database và chứa:
-    /// - Thông tin định danh (Id, Username, Email, PhoneNumber)
+    /// - Thông tin định danh (Id, Username, Email)
     /// - Thông tin xác thực (Password)
     /// - Thông tin bổ sung (Avatar, ActivateTrial)
     /// - Metadata (CreatedAt)
@@ -53,36 +53,25 @@ namespace MyShop.Data.Entities
         public string Email { get; set; } = string.Empty;
 
         /// <summary>
-        /// Lấy hoặc đặt số điện thoại của người dùng.
-        /// </summary>
-        /// <value>Chuỗi số điện thoại tối đa 20 ký tự, bắt buộc</value>
-        [Required]
-        [MaxLength(20)]
-        public string PhoneNumber { get; set; } = string.Empty;
-
-        /// <summary>
         /// Lấy hoặc đặt thời gian tạo tài khoản.
         /// </summary>
         /// <value>DateTime khi tài khoản được tạo, mặc định là thời gian hiện tại (UTC)</value>
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        /// <summary>
-        /// Lấy hoặc đặt đường dẫn đến ảnh đại diện của người dùng.
-        /// </summary>
-        /// <value>Chuỗi đường dẫn đến ảnh đại diện, có thể null</value>
-        public string? Avatar { get; set; }
 
         /// <summary>
         /// Lấy hoặc đặt trạng thái kích hoạt thử nghiệm.
         /// </summary>
         /// <value>True nếu được kích hoạt thử nghiệm, false nếu không</value>
-        public bool ActivateTrial { get; set; } = true;
+        public bool IsTrialActive { get; set; } = false;
+        public DateTime? TrialStartDate { get; set; }
+        public DateTime? TrialEndDate { get; set; }
 
         /// <summary>
         /// Lấy hoặc đặt trạng thái xác thực của người dùng.
         /// </summary>
         /// <value>True nếu người dùng đã xác thực, false nếu chưa</value>
-        public bool IsVerified { get; set; } = false;
+        public bool IsEmailVerified { get; set; } = false;
 
         /// <summary>
         /// Lấy hoặc đặt thời gian cập nhật gần nhất.
@@ -97,5 +86,18 @@ namespace MyShop.Data.Entities
         /// </summary>
         /// <value>Collection các Role entities được gán cho user này</value>
         public ICollection<Role> Roles { get; set; } = new List<Role>();
+
+        /// <summary>
+        /// Lấy hoặc đặt danh sách các quyền hạn bị loại bỏ cho người dùng này.
+        /// </summary>
+        /// <value>Collection các RemovedAuthorities entries - quyền bị hạn chế cho user này</value>
+        /// <remarks>
+        /// Các quyền trong collection này sẽ bị loại bỏ khỏi quyền hiệu lực của user,
+        /// ngay cả khi user có các quyền đó thông qua role của mình.
+        /// </remarks>
+        public ICollection<RemovedAuthorities> RemovedAuthorities { get; set; } = new List<RemovedAuthorities>();
+
+        public Guid? ProfileId { get; set; }
+        public Profile? Profile { get; set; }
     }
 }

@@ -13,7 +13,7 @@ namespace MyShop.Server.Services.Interfaces
         /// </summary>
         /// <param name="user">User entity to generate token for</param>
         /// <returns>JWT token string</returns>
-        string GenerateAccessToken(User user);
+        Task<string> GenerateAccessTokenAsync(User user);
 
         /// <summary>
         /// Generate a refresh token

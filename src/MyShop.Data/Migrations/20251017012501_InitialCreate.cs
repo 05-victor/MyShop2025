@@ -71,12 +71,13 @@ namespace MyShop.Data.Migrations
                     username = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     password = table.Column<string>(type: "text", nullable: false),
                     email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    phone_number = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    avatar = table.Column<string>(type: "text", nullable: true),
-                    activate_trial = table.Column<bool>(type: "boolean", nullable: false),
-                    is_verified = table.Column<bool>(type: "boolean", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    is_trial_active = table.Column<bool>(type: "boolean", nullable: false),
+                    trial_start_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    trial_end_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_email_verified = table.Column<bool>(type: "boolean", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    profile_id = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -127,6 +128,54 @@ namespace MyShop.Data.Migrations
                         column: x => x.role_name,
                         principalTable: "roles",
                         principalColumn: "name",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "profiles",
+                columns: table => new
+                {
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    avatar = table.Column<string>(type: "text", nullable: true),
+                    full_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    phone_number = table.Column<string>(type: "character varying(15)", maxLength: 15, nullable: true),
+                    address = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_profiles", x => x.user_id);
+                    table.ForeignKey(
+                        name: "fk_profiles_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "removed_authorities",
+                columns: table => new
+                {
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    authority_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    reason = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    removed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    removed_by = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_removed_authorities", x => new { x.user_id, x.authority_name });
+                    table.ForeignKey(
+                        name: "fk_removed_authorities_authorities_authority_name",
+                        column: x => x.authority_name,
+                        principalTable: "authorities",
+                        principalColumn: "name",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_removed_authorities_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -226,6 +275,17 @@ namespace MyShop.Data.Migrations
                 column: "category_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_profiles_user_id",
+                table: "profiles",
+                column: "user_id",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_removed_authorities_authority_name",
+                table: "removed_authorities",
+                column: "authority_name");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_role_authorities_authority_name",
                 table: "role_authorities",
                 column: "authority_name");
@@ -253,6 +313,12 @@ namespace MyShop.Data.Migrations
         {
             migrationBuilder.DropTable(
                 name: "order_items");
+
+            migrationBuilder.DropTable(
+                name: "profiles");
+
+            migrationBuilder.DropTable(
+                name: "removed_authorities");
 
             migrationBuilder.DropTable(
                 name: "role_authorities");
