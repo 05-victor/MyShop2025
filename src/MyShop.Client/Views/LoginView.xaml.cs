@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Navigation;
 using MyShop.Client.ViewModels;
 using System;
 using Windows.System;
@@ -16,6 +17,20 @@ namespace MyShop.Client.Views {
             this.InitializeComponent();
             ViewModel = App.Current.Services.GetRequiredService<LoginViewModel>();
             this.DataContext = ViewModel;
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e) {
+            base.OnNavigatedTo(e);
+            
+            // Reset form whenever navigating to login page
+            ViewModel.ClearForm();
+            
+            // Clear password box
+            if (PasswordInput != null) {
+                PasswordInput.Password = string.Empty;
+            }
+            
+            System.Diagnostics.Debug.WriteLine("[LoginView] Navigated to - Form cleared");
         }
 
         private void PasswordInput_PasswordChanged(object sender, RoutedEventArgs e) {

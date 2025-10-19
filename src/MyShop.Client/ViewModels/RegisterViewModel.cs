@@ -296,9 +296,34 @@ namespace MyShop.Client.ViewModels {
                     ClearForm();
                 }
                 else {
-                    ErrorMessage = response.Message;
-                    await _toastHelper.ShowErrorAsync(response.Message);
+                    // Handle registration failure with user-friendly messages
+                    var errorMsg = response.Message;
+                    
+                    if (string.IsNullOrWhiteSpace(errorMsg)) {
+                        errorMsg = "Registration failed. Please check your information and try again.";
+                    }
+                    
+                    ErrorMessage = errorMsg;
+                    await _toastHelper.ShowErrorAsync(errorMsg);
                 }
+            }
+            catch (ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadRequest) {
+                // 400 Bad Request - Validation or duplicate user
+                try {
+                    var errorContent = await ex.GetContentAsAsync<ApiResponse>();
+                    ErrorMessage = errorContent?.Message ?? "Invalid registration data. Please check your information.";
+                }
+                catch {
+                    ErrorMessage = "Invalid registration data. Please check your information.";
+                }
+                await _toastHelper.ShowErrorAsync(ErrorMessage);
+                System.Diagnostics.Debug.WriteLine($"[Register 400 Error] {ex.Message}");
+            }
+            catch (ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Conflict) {
+                // 409 Conflict - User already exists
+                ErrorMessage = "This email or username is already registered. Please use a different one.";
+                await _toastHelper.ShowErrorAsync(ErrorMessage);
+                System.Diagnostics.Debug.WriteLine($"[Register 409 Error] {ex.Message}");
             }
             catch (ApiException ex) when (ex.Content != null) {
                 try {
@@ -312,9 +337,21 @@ namespace MyShop.Client.ViewModels {
                 }
                 System.Diagnostics.Debug.WriteLine($"[Register API Error] {ex}");
             }
+            catch (System.Net.Http.HttpRequestException ex) {
+                // Network/Connection errors
+                ErrorMessage = "Cannot connect to server. Please check your internet connection and try again.";
+                await _toastHelper.ShowErrorAsync("Server connection failed. Please ensure the server is running.");
+                System.Diagnostics.Debug.WriteLine($"[Register Connection Error] {ex.Message}");
+            }
+            catch (TaskCanceledException ex) {
+                // Timeout errors
+                ErrorMessage = "Request timeout. Please try again.";
+                await _toastHelper.ShowErrorAsync(ErrorMessage);
+                System.Diagnostics.Debug.WriteLine($"[Register Timeout] {ex.Message}");
+            }
             catch (Exception ex) {
-                ErrorMessage = $"An error occurred: {ex.Message}";
-                await _toastHelper.ShowErrorAsync("n unexpected error occurred");
+                ErrorMessage = "An unexpected error occurred. Please try again later.";
+                await _toastHelper.ShowErrorAsync("An unexpected error occurred");
                 System.Diagnostics.Debug.WriteLine($"[Register Error] {ex}");
             }
             finally {

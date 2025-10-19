@@ -15,7 +15,7 @@
         <converters:BoolNegationConverter x:Key="BoolNegationConverter"/>
     </Page.Resources>
 
-    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
         <Grid MinWidth="800" MinHeight="600">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -42,284 +42,282 @@
                 <Border Background="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
 
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0 20 0 20">
-                    <Grid HorizontalAlignment="Center" VerticalAlignment="Top">
-                        <StackPanel MaxWidth="400" Spacing="12" Padding="20">
-                            <!-- Header -->
-                            <FontIcon Glyph="&#xE77B;" Foreground="{ThemeResource SystemColorHighlightColor}"
-                                      FontFamily="Segoe MDL2 Assets" FontSize="40"
-                                      HorizontalAlignment="Center" Margin="0 0 0 8"/>
-                            <TextBlock Text="Create an Account" FontSize="28"
-                                       FontWeight="SemiBold" Margin="0 0 0 4"
-                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}" 
-                                       TextAlignment="Center"/>
-                            <TextBlock Text="Sign up to get started with MyShop2025"
-                                       Foreground="{ThemeResource TextFillColorDisabledBrush}" FontSize="14"
-                                       FontWeight="Normal" Margin="0 0 0 16"
-                                       TextAlignment="Center"/>
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Top" Padding="0 20 0 20">
+                    <StackPanel MaxWidth="400" Spacing="12" Padding="20">
+                        <!-- Header -->
+                        <FontIcon Glyph="&#xE77B;" Foreground="{ThemeResource SystemColorHighlightColor}"
+                                  FontFamily="Segoe MDL2 Assets" FontSize="40"
+                                  HorizontalAlignment="Center" Margin="0 0 0 8"/>
+                        <TextBlock Text="Create an Account" FontSize="28"
+                                   FontWeight="SemiBold" Margin="0 0 0 4"
+                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}" 
+                                   TextAlignment="Center"/>
+                        <TextBlock Text="Sign up to get started with MyShop2025"
+                                   Foreground="{ThemeResource TextFillColorDisabledBrush}" FontSize="14"
+                                   FontWeight="Normal" Margin="0 0 0 16"
+                                   TextAlignment="Center"/>
 
-                            <!-- First Name -->
-                            <StackPanel Spacing="4">
-                                <TextBox x:Name="FirstNameTextBox"
-                                         PlaceholderText="Enter your first name"
-                                         Width="340"
-                                         HorizontalAlignment="Center"
-                                         Padding="12"
-                                         Text="{x:Bind ViewModel.FirstName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                         IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                                         Background="{ThemeResource TextControlBackground}"
-                                         BorderThickness="1"
-                                         CornerRadius="4"
-                                         KeyDown="Input_KeyDown">
-                                    <TextBox.Header>
-                                        <TextBlock Margin="0 0 0 4">
-                                            <Run Text="First Name" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="14"/>
-                                            <Run Text="*" Foreground="Red" FontSize="14"/>
-                                        </TextBlock>
-                                    </TextBox.Header>
-                                </TextBox>
-                                <TextBlock Text="{x:Bind ViewModel.FirstNameError, Mode=OneWay}"
-                                          Foreground="{ThemeResource SystemErrorTextColor}"
-                                          FontSize="12"
-                                          Margin="30 0 0 0"
-                                          Visibility="{x:Bind ViewModel.FirstNameError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
-                            </StackPanel>
-
-                            <!-- Last Name -->
-                            <StackPanel Spacing="4">
-                                <TextBox x:Name="LastNameTextBox"
-                                         PlaceholderText="Enter your last name"
-                                         Width="340"
-                                         HorizontalAlignment="Center"
-                                         Padding="12"
-                                         Text="{x:Bind ViewModel.LastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                         IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                                         Background="{ThemeResource TextControlBackground}"
-                                         BorderThickness="1"
-                                         CornerRadius="4"
-                                         KeyDown="Input_KeyDown">
-                                    <TextBox.Header>
-                                        <TextBlock Margin="0 0 0 4">
-                                            <Run Text="Last Name" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="14"/>
-                                            <Run Text="*" Foreground="Red" FontSize="14"/>
-                                        </TextBlock>
-                                    </TextBox.Header>
-                                </TextBox>
-                                <TextBlock Text="{x:Bind ViewModel.LastNameError, Mode=OneWay}"
-                                          Foreground="{ThemeResource SystemErrorTextColor}"
-                                          FontSize="12"
-                                          Margin="30 0 0 0"
-                                          Visibility="{x:Bind ViewModel.LastNameError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
-                            </StackPanel>
-
-                            <!-- Email -->
-                            <StackPanel Spacing="4">
-                                <TextBox x:Name="EmailTextBox"
-                                         PlaceholderText="Enter your email address"
-                                         Width="340"
-                                         HorizontalAlignment="Center"
-                                         Padding="12"
-                                         Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                         InputScope="EmailSmtpAddress"
-                                         IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                                         Background="{ThemeResource TextControlBackground}"
-                                         BorderThickness="1"
-                                         CornerRadius="4"
-                                         KeyDown="Input_KeyDown">
-                                    <TextBox.Header>
-                                        <TextBlock Margin="0 0 0 4">
-                                            <Run Text="Email" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="14"/>
-                                            <Run Text="*" Foreground="Red" FontSize="14"/>
-                                        </TextBlock>
-                                    </TextBox.Header>
-                                </TextBox>
-                                <TextBlock Text="{x:Bind ViewModel.EmailError, Mode=OneWay}"
-                                          Foreground="{ThemeResource SystemErrorTextColor}"
-                                          FontSize="12"
-                                          Margin="30 0 0 0"
-                                          Visibility="{x:Bind ViewModel.EmailError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
-                            </StackPanel>
-
-                            <!-- Phone Number -->
-                            <StackPanel Spacing="4">
-                                <TextBox x:Name="PhoneTextBox"
-                                         PlaceholderText="Enter your phone number"
-                                         Width="340"
-                                         HorizontalAlignment="Center"
-                                         Padding="12"
-                                         Text="{x:Bind ViewModel.Phone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                         InputScope="TelephoneNumber"
-                                         IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                                         Background="{ThemeResource TextControlBackground}"
-                                         BorderThickness="1"
-                                         CornerRadius="4"
-                                         KeyDown="Input_KeyDown">
-                                    <TextBox.Header>
-                                        <TextBlock Margin="0 0 0 4">
-                                            <Run Text="Phone Number" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="14"/>
-                                            <Run Text="*" Foreground="Red" FontSize="14"/>
-                                        </TextBlock>
-                                    </TextBox.Header>
-                                </TextBox>
-                                <TextBlock Text="{x:Bind ViewModel.PhoneError, Mode=OneWay}"
-                                          Foreground="{ThemeResource SystemErrorTextColor}"
-                                          FontSize="12"
-                                          Margin="30 0 0 0"
-                                          Visibility="{x:Bind ViewModel.PhoneError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
-                            </StackPanel>
-
-                            <!-- Username (Optional) -->
-                            <StackPanel Spacing="4">
-                                <TextBox x:Name="UsernameTextBox"
-                                         PlaceholderText="Leave blank to use full name"
-                                         Width="340"
-                                         HorizontalAlignment="Center"
-                                         Padding="12"
-                                         Text="{x:Bind ViewModel.Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                         IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                                         Background="{ThemeResource TextControlBackground}"
-                                         BorderThickness="1"
-                                         CornerRadius="4"
-                                         KeyDown="Input_KeyDown">
-                                    <TextBox.Header>
-                                        <TextBlock Margin="0 0 0 4">
-                                            <Run Text="Username (Optional)" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="14"/>
-                                        </TextBlock>
-                                    </TextBox.Header>
-                                </TextBox>
-                            </StackPanel>
-
-                            <!-- Password -->
-                            <StackPanel Spacing="4">
-                                <PasswordBox x:Name="PasswordInput"
-                                             PlaceholderText="Enter password (min 6 characters)"
-                                             Width="340"
-                                             HorizontalAlignment="Center"
-                                             Padding="12"
-                                             PasswordChanged="PasswordInput_PasswordChanged"
-                                             IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                                             Background="{ThemeResource TextControlBackground}"
-                                             BorderThickness="1"
-                                             CornerRadius="4"
-                                             KeyDown="Input_KeyDown">
-                                    <PasswordBox.Header>
-                                        <TextBlock Margin="0 0 0 4">
-                                            <Run Text="Password" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="14"/>
-                                            <Run Text="*" Foreground="Red" FontSize="14"/>
-                                        </TextBlock>
-                                    </PasswordBox.Header>
-                                </PasswordBox>
-                                <TextBlock Text="{x:Bind ViewModel.PasswordError, Mode=OneWay}"
-                                          Foreground="{ThemeResource SystemErrorTextColor}"
-                                          FontSize="12"
-                                          Margin="30 0 0 0"
-                                          Visibility="{x:Bind ViewModel.PasswordError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
-                            </StackPanel>
-
-                            <!-- Confirm Password -->
-                            <StackPanel Spacing="4">
-                                <PasswordBox x:Name="ConfirmPasswordInput"
-                                             PlaceholderText="Re-enter your password"
-                                             Width="340"
-                                             HorizontalAlignment="Center"
-                                             Padding="12"
-                                             PasswordChanged="ConfirmPasswordInput_PasswordChanged"
-                                             IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                                             Background="{ThemeResource TextControlBackground}"
-                                             BorderThickness="1"
-                                             CornerRadius="4"
-                                             KeyDown="Input_KeyDown">
-                                    <PasswordBox.Header>
-                                        <TextBlock Margin="0 0 0 4">
-                                            <Run Text="Confirm Password" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="14"/>
-                                            <Run Text="*" Foreground="Red" FontSize="14"/>
-                                        </TextBlock>
-                                    </PasswordBox.Header>
-                                </PasswordBox>
-                                <TextBlock Text="{x:Bind ViewModel.ConfirmPasswordError, Mode=OneWay}"
-                                          Foreground="{ThemeResource SystemErrorTextColor}"
-                                          FontSize="12"
-                                          Margin="30 0 0 0"
-                                          Visibility="{x:Bind ViewModel.ConfirmPasswordError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
-                            </StackPanel>
-
-                            <!-- Error Message -->
-                            <TextBlock Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
-                                       Foreground="{ThemeResource SystemErrorTextColor}" 
-                                       FontSize="13"
-                                       Margin="0 4 0 0" 
-                                       TextWrapping="Wrap"
-                                       TextAlignment="Center"
-                                       MaxWidth="340"
-                                       Visibility="{x:Bind ViewModel.ErrorMessage, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
-
-                            <!-- Register Button -->
-                            <Button x:Name="RegisterButton"
-                                    Width="340"
-                                    HorizontalAlignment="Center"
-                                    Margin="0 8 0 0"
-                                    Background="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                                    Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
-                                    Padding="12"
-                                    Command="{x:Bind ViewModel.AttemptRegisterCommand}"
-                                    Style="{StaticResource AccentButtonStyle}"
-                                    IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <ProgressRing Width="16" Height="16"
-                                                  IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
-                                                  Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                    <TextBlock Text="Register" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
-
-                            <!-- Divider -->
-                            <Grid VerticalAlignment="Center" Margin="0 12 0 8"
-                                  Width="340" HorizontalAlignment="Center">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Height="1" VerticalAlignment="Center" 
-                                        Background="{ThemeResource TextControlBorderBrush}"/>
-                                <TextBlock Grid.Column="1" Text="Or" 
-                                           Margin="12 0" Opacity="0.7" FontSize="12"/>
-                                <Border Grid.Column="2" Height="1" VerticalAlignment="Center" 
-                                        Background="{ThemeResource TextControlBorderBrush}"/>
-                            </Grid>
-
-							<!-- Google Login Button -->
-							<Button Width="340"
-									HorizontalAlignment="Center"
-									Padding="12"
-									Command="{x:Bind ViewModel.GoogleLoginCommand}"
-									IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-									Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-								<StackPanel Orientation="Horizontal" Spacing="10">
-									<Image Source="/Assets/Google.png" Width="16" Height="16"/>
-									<TextBlock Text="Sign in with Google" VerticalAlignment="Center"/>
-								</StackPanel>
-							</Button>
-
-							<!-- Link to Login -->
-                            <StackPanel Orientation="Horizontal" Spacing="4"
-                                        HorizontalAlignment="Center"
-                                        Margin="0 4 0 0">
-                                <TextBlock Text="Already have an account?" 
-                                           VerticalAlignment="Center"
-                                           FontSize="13"/>
-                                <HyperlinkButton VerticalAlignment="Center"
-                                                 Command="{x:Bind ViewModel.NavigateToLoginCommand}"
-                                                 Padding="4 0">
-                                    <TextBlock Text="Login here"
-                                               TextDecorations="Underline"
-                                               FontSize="13"
-                                               Foreground="{ThemeResource AccentTextFillColorTertiaryBrush}"/>
-                                </HyperlinkButton>
-                            </StackPanel>
+                        <!-- First Name -->
+                        <StackPanel Spacing="4">
+                            <TextBox x:Name="FirstNameTextBox"
+                                     PlaceholderText="Enter your first name"
+                                     Width="340"
+                                     HorizontalAlignment="Center"
+                                     Padding="12"
+                                     Text="{x:Bind ViewModel.FirstName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                     Background="{ThemeResource TextControlBackground}"
+                                     BorderThickness="1"
+                                     CornerRadius="4"
+                                     KeyDown="Input_KeyDown">
+                                <TextBox.Header>
+                                    <TextBlock Margin="0 0 0 4">
+                                        <Run Text="First Name" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="14"/>
+                                        <Run Text="*" Foreground="Red" FontSize="14"/>
+                                    </TextBlock>
+                                </TextBox.Header>
+                            </TextBox>
+                            <TextBlock Text="{x:Bind ViewModel.FirstNameError, Mode=OneWay}"
+                                      Foreground="{ThemeResource SystemErrorTextColor}"
+                                      FontSize="12"
+                                      Margin="30 0 0 0"
+                                      Visibility="{x:Bind ViewModel.FirstNameError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
                         </StackPanel>
-                    </Grid>
-                </ScrollViewer>
+
+                        <!-- Last Name -->
+                        <StackPanel Spacing="4">
+                            <TextBox x:Name="LastNameTextBox"
+                                     PlaceholderText="Enter your last name"
+                                     Width="340"
+                                     HorizontalAlignment="Center"
+                                     Padding="12"
+                                     Text="{x:Bind ViewModel.LastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                     Background="{ThemeResource TextControlBackground}"
+                                     BorderThickness="1"
+                                     CornerRadius="4"
+                                     KeyDown="Input_KeyDown">
+                                <TextBox.Header>
+                                    <TextBlock Margin="0 0 0 4">
+                                        <Run Text="Last Name" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="14"/>
+                                        <Run Text="*" Foreground="Red" FontSize="14"/>
+                                    </TextBlock>
+                                </TextBox.Header>
+                            </TextBox>
+                            <TextBlock Text="{x:Bind ViewModel.LastNameError, Mode=OneWay}"
+                                      Foreground="{ThemeResource SystemErrorTextColor}"
+                                      FontSize="12"
+                                      Margin="30 0 0 0"
+                                      Visibility="{x:Bind ViewModel.LastNameError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+                        </StackPanel>
+
+                        <!-- Email -->
+                        <StackPanel Spacing="4">
+                            <TextBox x:Name="EmailTextBox"
+                                     PlaceholderText="Enter your email address"
+                                     Width="340"
+                                     HorizontalAlignment="Center"
+                                     Padding="12"
+                                     Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     InputScope="EmailSmtpAddress"
+                                     IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                     Background="{ThemeResource TextControlBackground}"
+                                     BorderThickness="1"
+                                     CornerRadius="4"
+                                     KeyDown="Input_KeyDown">
+                                <TextBox.Header>
+                                    <TextBlock Margin="0 0 0 4">
+                                        <Run Text="Email" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="14"/>
+                                        <Run Text="*" Foreground="Red" FontSize="14"/>
+                                    </TextBlock>
+                                </TextBox.Header>
+                            </TextBox>
+                            <TextBlock Text="{x:Bind ViewModel.EmailError, Mode=OneWay}"
+                                      Foreground="{ThemeResource SystemErrorTextColor}"
+                                      FontSize="12"
+                                      Margin="30 0 0 0"
+                                      Visibility="{x:Bind ViewModel.EmailError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+                        </StackPanel>
+
+                        <!-- Phone Number -->
+                        <StackPanel Spacing="4">
+                            <TextBox x:Name="PhoneTextBox"
+                                     PlaceholderText="Enter your phone number"
+                                     Width="340"
+                                     HorizontalAlignment="Center"
+                                     Padding="12"
+                                     Text="{x:Bind ViewModel.Phone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     InputScope="TelephoneNumber"
+                                     IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                     Background="{ThemeResource TextControlBackground}"
+                                     BorderThickness="1"
+                                     CornerRadius="4"
+                                     KeyDown="Input_KeyDown">
+                                <TextBox.Header>
+                                    <TextBlock Margin="0 0 0 4">
+                                        <Run Text="Phone Number" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="14"/>
+                                        <Run Text="*" Foreground="Red" FontSize="14"/>
+                                    </TextBlock>
+                                </TextBox.Header>
+                            </TextBox>
+                            <TextBlock Text="{x:Bind ViewModel.PhoneError, Mode=OneWay}"
+                                      Foreground="{ThemeResource SystemErrorTextColor}"
+                                      FontSize="12"
+                                      Margin="30 0 0 0"
+                                      Visibility="{x:Bind ViewModel.PhoneError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+                        </StackPanel>
+
+                        <!-- Username (Optional) -->
+                        <StackPanel Spacing="4">
+                            <TextBox x:Name="UsernameTextBox"
+                                     PlaceholderText="Leave blank to use full name"
+                                     Width="340"
+                                     HorizontalAlignment="Center"
+                                     Padding="12"
+                                     Text="{x:Bind ViewModel.Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                     Background="{ThemeResource TextControlBackground}"
+                                     BorderThickness="1"
+                                     CornerRadius="4"
+                                     KeyDown="Input_KeyDown">
+                                <TextBox.Header>
+                                    <TextBlock Margin="0 0 0 4">
+                                        <Run Text="Username (Optional)" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="14"/>
+                                    </TextBlock>
+                                </TextBox.Header>
+                            </TextBox>
+                        </StackPanel>
+
+                        <!-- Password -->
+                        <StackPanel Spacing="4">
+                            <PasswordBox x:Name="PasswordInput"
+                                         PlaceholderText="Enter password (min 6 characters)"
+                                         Width="340"
+                                         HorizontalAlignment="Center"
+                                         Padding="12"
+                                         PasswordChanged="PasswordInput_PasswordChanged"
+                                         IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                         Background="{ThemeResource TextControlBackground}"
+                                         BorderThickness="1"
+                                         CornerRadius="4"
+                                         KeyDown="Input_KeyDown">
+                                <PasswordBox.Header>
+                                    <TextBlock Margin="0 0 0 4">
+                                        <Run Text="Password" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="14"/>
+                                        <Run Text="*" Foreground="Red" FontSize="14"/>
+                                    </TextBlock>
+                                </PasswordBox.Header>
+                            </PasswordBox>
+                            <TextBlock Text="{x:Bind ViewModel.PasswordError, Mode=OneWay}"
+                                      Foreground="{ThemeResource SystemErrorTextColor}"
+                                      FontSize="12"
+                                      Margin="30 0 0 0"
+                                      Visibility="{x:Bind ViewModel.PasswordError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+                        </StackPanel>
+
+                        <!-- Confirm Password -->
+                        <StackPanel Spacing="4">
+                            <PasswordBox x:Name="ConfirmPasswordInput"
+                                         PlaceholderText="Re-enter your password"
+                                         Width="340"
+                                         HorizontalAlignment="Center"
+                                         Padding="12"
+                                         PasswordChanged="ConfirmPasswordInput_PasswordChanged"
+                                         IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                         Background="{ThemeResource TextControlBackground}"
+                                         BorderThickness="1"
+                                         CornerRadius="4"
+                                         KeyDown="Input_KeyDown">
+                                <PasswordBox.Header>
+                                    <TextBlock Margin="0 0 0 4">
+                                        <Run Text="Confirm Password" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="14"/>
+                                        <Run Text="*" Foreground="Red" FontSize="14"/>
+                                    </TextBlock>
+                                </PasswordBox.Header>
+                            </PasswordBox>
+                            <TextBlock Text="{x:Bind ViewModel.ConfirmPasswordError, Mode=OneWay}"
+                                      Foreground="{ThemeResource SystemErrorTextColor}"
+                                      FontSize="12"
+                                      Margin="30 0 0 0"
+                                      Visibility="{x:Bind ViewModel.ConfirmPasswordError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+                        </StackPanel>
+
+                        <!-- Error Message -->
+                        <TextBlock Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                                   Foreground="{ThemeResource SystemErrorTextColor}" 
+                                   FontSize="13"
+                                   Margin="0 4 0 0" 
+                                   TextWrapping="Wrap"
+                                   TextAlignment="Center"
+                                   MaxWidth="340"
+                                   Visibility="{x:Bind ViewModel.ErrorMessage, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+
+                        <!-- Register Button -->
+                        <Button x:Name="RegisterButton"
+                                Width="340"
+                                HorizontalAlignment="Center"
+                                Margin="0 8 0 0"
+                                Background="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                                Padding="12"
+                                Command="{x:Bind ViewModel.AttemptRegisterCommand}"
+                                Style="{StaticResource AccentButtonStyle}"
+                                IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <ProgressRing Width="16" Height="16"
+                                              IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                                              Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                <TextBlock Text="Register" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Divider -->
+                        <Grid VerticalAlignment="Center" Margin="0 12 0 8"
+                              Width="340" HorizontalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Height="1" VerticalAlignment="Center" 
+                                    Background="{ThemeResource TextControlBorderBrush}"/>
+                            <TextBlock Grid.Column="1" Text="Or" 
+                                       Margin="12 0" Opacity="0.7" FontSize="12"/>
+                            <Border Grid.Column="2" Height="1" VerticalAlignment="Center" 
+                                    Background="{ThemeResource TextControlBorderBrush}"/>
+                        </Grid>
+
+                        <!-- Google Login Button -->
+                        <Button Width="340"
+                                HorizontalAlignment="Center"
+                                Padding="12"
+                                Command="{x:Bind ViewModel.GoogleLoginCommand}"
+                                IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <Image Source="/Assets/Google.png" Width="16" Height="16"/>
+                                <TextBlock Text="Sign in with Google" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Link to Login -->
+                        <StackPanel Orientation="Horizontal" Spacing="4"
+                                    HorizontalAlignment="Center"
+                                    Margin="0 4 0 0">
+                            <TextBlock Text="Already have an account?" 
+                                       VerticalAlignment="Center"
+                                       FontSize="13"/>
+                            <HyperlinkButton VerticalAlignment="Center"
+                                             Command="{x:Bind ViewModel.NavigateToLoginCommand}"
+                                             Padding="4 0">
+                                <TextBlock Text="Login here"
+                                           TextDecorations="Underline"
+                                           FontSize="13"
+                                           Foreground="{ThemeResource AccentTextFillColorTertiaryBrush}"/>
+                            </HyperlinkButton>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
             </Grid>
 
             <!-- Loading Overlay -->

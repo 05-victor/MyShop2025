@@ -2,6 +2,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Navigation;
 using MyShop.Client.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,6 +14,23 @@ namespace MyShop.Client.Views {
             this.InitializeComponent();
             ViewModel = App.Current.Services.GetRequiredService<RegisterViewModel>();
             this.DataContext = ViewModel;
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e) {
+            base.OnNavigatedTo(e);
+            
+            // Reset form whenever navigating to register page
+            ViewModel.ClearForm();
+            
+            // Clear password boxes
+            if (PasswordInput != null) {
+                PasswordInput.Password = string.Empty;
+            }
+            if (ConfirmPasswordInput != null) {
+                ConfirmPasswordInput.Password = string.Empty;
+            }
+            
+            System.Diagnostics.Debug.WriteLine("[RegisterView] Navigated to - Form cleared");
         }
 
         private void PasswordInput_PasswordChanged(object sender, RoutedEventArgs e) {

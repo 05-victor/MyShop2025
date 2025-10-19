@@ -127,9 +127,33 @@ namespace MyShop.Client.ViewModels {
                     ClearForm();
                 }
                 else {
-                    ErrorMessage = response.Message;
-                    await _toastHelper.ShowErrorAsync(response.Message);
+                    // Handle authentication failure
+                    var errorMsg = response.Message;
+                    
+                    // Make error messages more user-friendly
+                    if (response.Code == 401) {
+                        errorMsg = "Invalid username or password. Please try again.";
+                    } else if (string.IsNullOrWhiteSpace(errorMsg)) {
+                        errorMsg = "Login failed. Please check your credentials and try again.";
+                    }
+                    
+                    ErrorMessage = errorMsg;
+                    await _toastHelper.ShowErrorAsync(errorMsg);
+                    
+                    System.Diagnostics.Debug.WriteLine($"[Login Failed] Code: {response.Code}, Message: {errorMsg}");
                 }
+            }
+            catch (ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized) {
+                // 401 Unauthorized - Invalid credentials
+                ErrorMessage = "Invalid username or password. Please try again.";
+                await _toastHelper.ShowErrorAsync(ErrorMessage);
+                System.Diagnostics.Debug.WriteLine($"[Login 401 Error] {ex.Message}");
+            }
+            catch (ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound) {
+                // 404 Not Found - User doesn't exist
+                ErrorMessage = "Account not found. Please check your username or email.";
+                await _toastHelper.ShowErrorAsync(ErrorMessage);
+                System.Diagnostics.Debug.WriteLine($"[Login 404 Error] {ex.Message}");
             }
             catch (ApiException ex) when (ex.Content != null) {
                 try {
@@ -142,8 +166,20 @@ namespace MyShop.Client.ViewModels {
                 await _toastHelper.ShowErrorAsync(ErrorMessage);
                 System.Diagnostics.Debug.WriteLine($"[Login API Error] {ex}");
             }
+            catch (System.Net.Http.HttpRequestException ex) {
+                // Network/Connection errors
+                ErrorMessage = "Cannot connect to server. Please check your internet connection and try again.";
+                await _toastHelper.ShowErrorAsync("Server connection failed. Please ensure the server is running.");
+                System.Diagnostics.Debug.WriteLine($"[Login Connection Error] {ex.Message}");
+            }
+            catch (TaskCanceledException ex) {
+                // Timeout errors
+                ErrorMessage = "Request timeout. Please try again.";
+                await _toastHelper.ShowErrorAsync(ErrorMessage);
+                System.Diagnostics.Debug.WriteLine($"[Login Timeout] {ex.Message}");
+            }
             catch (Exception ex) {
-                ErrorMessage = $"An unexpected error occurred: {ex.Message}";
+                ErrorMessage = "An unexpected error occurred. Please try again later.";
                 await _toastHelper.ShowErrorAsync("An unexpected error occurred.");
                 System.Diagnostics.Debug.WriteLine($"[Login Error] {ex}");
             }
