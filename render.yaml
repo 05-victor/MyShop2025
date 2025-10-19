@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: myshop-server
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    region: oregon
+    branch: master
+    buildCommand: ""
+    startCommand: ""
+    healthCheckPath: /api/health
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://+:10000
+      - key: PORT
+        value: "10000"
+    # Environment variables - you'll need to set these in Render dashboard
+    # or uncomment and fill them in:
+    # - key: ConnectionStrings__DefaultConnection
+    #   value: "your-postgres-connection-string"
+    # - key: JwtSettings__SecretKey
+    #   value: "your-jwt-secret-key"
+    # - key: EmailSettings__ApiKey
+    #   value: "your-encoded-email-api-key"
