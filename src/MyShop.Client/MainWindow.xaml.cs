@@ -1,106 +1,52 @@
-﻿using Microsoft.UI.Xaml;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using MyShop.Client.Services;
+using MyShop.Client.Helpers;
 using MyShop.Client.Views;
-using Microsoft.UI.Windowing;
-using Microsoft.UI;
 using WinRT.Interop;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Windowing;
 
-namespace MyShop.Client 
-{
-    /// <summary>
-    /// Cửa sổ chính của ứng dụng MyShop Client.
-    /// Chứa Frame điều hướng và cấu hình các thuộc tính cửa sổ.
-    /// </summary>
-    public sealed partial class MainWindow : Window 
-    {
-        private Frame? _rootFrame;
+namespace MyShop.Client {
+    public sealed partial class MainWindow : Window {
+        public Frame RootFrame { get; private set; }
 
-        /// <summary>
-        /// Lấy Frame gốc của cửa sổ.
-        /// </summary>
-        public Frame RootFrame 
-        {
-            get
-            {
-                if (_rootFrame == null)
-                {
-                    _rootFrame = new Frame();
-                    this.Content = _rootFrame;
-                }
-                return _rootFrame;
-            }
-        }
-
-        /// <summary>
-        /// Khởi tạo một instance mới của MainWindow.
-        /// </summary>
-        public MainWindow() 
-        {
+        public MainWindow() {
             this.InitializeComponent();
             ConfigureWindow();
-            InitializeNavigation();
+
+            RootFrame = new Frame();
+            this.Content = RootFrame;
+
+            // Use Activated event instead of Content.Loaded
+            this.Activated += MainWindow_Activated;
+
+            // Logic điều hướng ban đầu đã được chuyển sang App.xaml.cs
         }
 
-        /// <summary>
-        /// Khởi tạo navigation service và điều hướng đến trang đăng nhập.
-        /// </summary>
-        private void InitializeNavigation()
-        {
-            try
-            {
-                var app = (App)Application.Current;
-                var navigationService = app.Services.GetService<INavigationService>();
+        private void MainWindow_Activated(object sender, WindowActivatedEventArgs args) {
+            // Only initialize ToastHelper once
+            if (args.WindowActivationState != WindowActivationState.Deactivated) {
+                var toastHelper = App.Current.Services.GetRequiredService<IToastHelper>();
+                if (this.Content?.XamlRoot != null) {
+                    toastHelper.Initialize(this.Content.XamlRoot);
+                }
                 
-                if (navigationService != null)
-                {
-                    navigationService.Initialize(RootFrame);
-                    navigationService.NavigateTo<LoginView>();
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine("NavigationService không được tìm thấy trong DI container");
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Lỗi khởi tạo navigation: {ex.Message}");
+                // Unsubscribe to avoid multiple initializations
+                this.Activated -= MainWindow_Activated;
             }
         }
 
-        /// <summary>
-        /// Cấu hình các thuộc tính của cửa sổ ứng dụng.
-        /// </summary>
-        private void ConfigureWindow() 
-        {
-            try
-            {
-                // Lấy AppWindow từ Window hiện tại
-                var hwnd = WindowNative.GetWindowHandle(this);
-                var windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
-                var appWindow = AppWindow.GetFromWindowId(windowId);
+        private void ConfigureWindow() {
+            // Cấu hình cửa sổ (kích thước, tiêu đề...)
+            var hwnd = WindowNative.GetWindowHandle(this);
+            var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
+            var appWindow = AppWindow.GetFromWindowId(windowId);
 
-                if (appWindow != null)
-                {
-                    // Thiết lập kích thước mặc định
-                    appWindow.Resize(new Windows.Graphics.SizeInt32(1200, 800));
-
-                    // Thiết lập kích thước tối thiểu (nếu hỗ trợ)
-                    if (appWindow.Presenter is OverlappedPresenter presenter)
-                    {
-                        presenter.IsResizable = true;
-                        presenter.IsMaximizable = true;
-                        presenter.IsMinimizable = true;
-                    }
-
-                    // Đặt tiêu đề cửa sổ
-                    this.Title = "MyShop - Ứng dụng quản lý bán hàng";
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Lỗi cấu hình cửa sổ: {ex.Message}");
+            this.Title = "MyShop2025 Sales Management";
+            if (appWindow.Presenter is OverlappedPresenter presenter) {
+                presenter.IsResizable = true;
+                presenter.IsMaximizable = true;
+                appWindow.Resize(new Windows.Graphics.SizeInt32(1200, 800));
             }
         }
     }

@@ -1,4 +1,4 @@
-using MyShop.Shared;
+﻿using MyShop.Shared;
 using MyShop.Data;
 using Microsoft.EntityFrameworkCore;
 //using MyShop.Server.GraphQL.Queries;
@@ -130,6 +130,25 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+// ✅ Add connection logging middleware
+app.Use(async (context, next) =>
+{
+    var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+    var connectionId = context.Connection.Id;
+    var clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+    
+    logger.LogInformation("✅ Client connected: {ConnectionId} from {ClientIP}", connectionId, clientIp);
+    
+    try
+    {
+        await next();
+    }
+    finally
+    {
+        logger.LogInformation("⚠️ Client disconnected: {ConnectionId} from {ClientIP}", connectionId, clientIp);
+    }
+});
 
 app.UseHttpsRedirection();
 

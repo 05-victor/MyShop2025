@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<!-- Views/DashboardView.xaml -->
 <Page
     x:Class="MyShop.Client.Views.DashboardView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -8,30 +8,27 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
-            <TextBlock Text="{x:Bind ViewModel.WelcomeMessage, Mode=OneWay}" 
-                      Style="{StaticResource HeaderTextBlockStyle}" 
-                      HorizontalAlignment="Center"
-                      TextAlignment="Center"/>
-            
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1"
-                    CornerRadius="8"
-                    Padding="40">
-                
-                <StackPanel Spacing="16">
-                    <FontIcon Glyph="&#xE10F;" FontSize="48" HorizontalAlignment="Center"/>
-                    <TextBlock Text="Dashboard" 
-                              Style="{StaticResource TitleTextBlockStyle}" 
-                              HorizontalAlignment="Center"/>
-                    <TextBlock Text="Chức năng dashboard sẽ được phát triển ở giai đoạn tiếp theo." 
-                              HorizontalAlignment="Center"
-                              TextAlignment="Center"
-                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                </StackPanel>
-            </Border>
-        </StackPanel>
-    </Grid>
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
+        <Grid Width="120" Height="120">
+            <Ellipse Fill="{ThemeResource AccentFillColorDefaultBrush}"/>
+            <TextBlock Text="{x:Bind ViewModel.UserInitial, Mode=OneWay}"
+                       FontSize="60"
+                       FontWeight="Bold"
+                       Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+        </Grid>
+
+        <TextBlock Text="{x:Bind ViewModel.CurrentUser.Username, Mode=OneWay, FallbackValue='Username'}" 
+                   FontSize="28" 
+                   FontWeight="SemiBold"
+                   HorizontalAlignment="Center"/>
+
+        <TextBlock Text="{x:Bind ViewModel.CurrentUser.Email, Mode=OneWay, FallbackValue='email@example.com'}" 
+                   FontSize="18" 
+                   HorizontalAlignment="Center"
+                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+
+        <Button Content="Logout" Command="{x:Bind ViewModel.LogoutCommand}" Margin="0,30,0,0"/>
+    </StackPanel>
 </Page>

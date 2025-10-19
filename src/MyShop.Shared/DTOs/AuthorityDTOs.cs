@@ -1,5 +1,4 @@
-﻿/*
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MyShop.Shared.DTOs
 {
@@ -51,4 +50,3 @@ namespace MyShop.Shared.DTOs
         public bool IsActive { get; set; } = true;
     }
 }
-*/

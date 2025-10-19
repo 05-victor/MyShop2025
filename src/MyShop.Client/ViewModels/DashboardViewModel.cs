@@ -1,38 +1,54 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using MyShop.Client.Helpers;
+using MyShop.Client.Views;
+using MyShop.Shared.DTOs.Responses;
+using System.Linq;
 
-namespace MyShop.Client.ViewModels
-{
-    /// <summary>
-    /// ViewModel cho trang Dashboard chính của ứng dụng.
-    /// Quản lý trạng thái và dữ liệu hiển thị trên trang dashboard.
-    /// </summary>
-    /// <remarks>
-    /// ViewModel này chứa logic hiển thị trang dashboard sau khi người dùng đăng nhập thành công.
-    /// Hiện tại chỉ hiển thị thông báo chào mừng, nhưng có thể mở rộng để hiển thị:
-    /// - Thông tin người dùng hiện tại
-    /// - Thống kê và biểu đồ
-    /// - Danh sách sản phẩm gần đây
-    /// - Menu điều hướng đến các chức năng khác
-    /// </remarks>
-    public partial class DashboardViewModel : ObservableObject
-    {
-        /// <summary>
-        /// Lấy hoặc đặt thông báo chào mừng hiển thị trên dashboard.
-        /// </summary>
-        /// <value>Chuỗi thông báo chào mừng, mặc định là thông báo MyShop 2025</value>
+namespace MyShop.Client.ViewModels {
+    public partial class DashboardViewModel : ObservableObject {
+        private readonly INavigationService _navigationService;
+
         [ObservableProperty]
-        private string _welcomeMessage = "Chào mừng đến với Dashboard MyShop 2025!";
+        private string _welcomeMessage = "Welcome to your Dashboard!";
 
-        /// <summary>
-        /// Khởi tạo một instance mới của class <see cref="DashboardViewModel"/>.
-        /// </summary>
-        /// <remarks>
-        /// Constructor này thiết lập trạng thái ban đầu cho dashboard.
-        /// Trong tương lai có thể thêm logic để load dữ liệu từ API.
-        /// </remarks>
-        public DashboardViewModel()
-        {
-            // Khởi tạo dữ liệu dashboard ở đây
+        // Thuộc tính để lưu trữ toàn bộ thông tin người dùng
+        [ObservableProperty]
+        private LoginResponse? _currentUser;
+
+        [ObservableProperty]
+        private string _userInitial = "?";
+
+        [ObservableProperty]
+        private bool _isAdmin = false;
+
+        public DashboardViewModel(INavigationService navigationService) {
+            _navigationService = navigationService;
+        }
+
+        // Phương thức này được gọi từ View để khởi tạo dữ liệu
+        public void Initialize(LoginResponse userData) {
+            CurrentUser = userData;
+            WelcomeMessage = $"Welcome back, {userData.Username}!";
+
+            if (!string.IsNullOrEmpty(userData.Username)) {
+                UserInitial = userData.Username[0].ToString().ToUpper();
+            }
+
+            IsAdmin = userData.RoleNames.Contains("Admin");
+            // Tại đây bạn có thể thêm logic để kiểm tra activateTrial, isVerified...
+        }
+
+        [RelayCommand]
+        private void Logout() {
+            // Xóa token đã lưu
+            CredentialHelper.RemoveToken();
+
+            // Xóa dữ liệu người dùng hiện tại
+            CurrentUser = null;
+
+            // Điều hướng về trang đăng nhập
+            _navigationService.NavigateTo(typeof(LoginView));
         }
     }
 }
