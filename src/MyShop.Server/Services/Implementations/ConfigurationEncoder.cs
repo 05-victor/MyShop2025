@@ -47,9 +47,11 @@ namespace MyShop.Server.Services.Implementations
         /// Generate encoded values for configuration
         /// Use this method to generate encoded values during development
         /// </summary>
+        /// 
+        /*
         public static void GenerateEncodedValues()
         {
-            var originalEndpoint = "https://api.brevo.com/v3/smtp/email";
+            var originalEndpoint = "your url";
             var encodedEndpoint = Encode(originalEndpoint);
             
             Console.WriteLine($"Original: {originalEndpoint}");
@@ -62,5 +64,6 @@ namespace MyShop.Server.Services.Implementations
             Console.WriteLine($"Original API Key: {originalApiKey}");
             Console.WriteLine($"Encoded API Key: {encodedApiKey}");
         }
+        */
     }
 }

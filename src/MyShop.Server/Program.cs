@@ -1,8 +1,6 @@
 ﻿using MyShop.Shared;
 using MyShop.Data;
 using Microsoft.EntityFrameworkCore;
-//using MyShop.Server.GraphQL.Queries;
-//using MyShop.Server.GraphQL.Mutations;
 using MyShop.Data.Repositories.Interfaces;
 using MyShop.Data.Repositories;
 using MyShop.Server.Services.Interfaces;
@@ -17,6 +15,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+
+// Add HttpContextAccessor for accessing HttpContext in services
+builder.Services.AddHttpContextAccessor();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -73,29 +74,32 @@ builder.Services.AddAuthentication(options =>
         OnAuthenticationFailed = context =>
         {
             var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-            logger.LogError("Authentication failed: {Message}", context.Exception.Message);
+            logger.LogError("❌ Authentication failed: {Message}", context.Exception.Message);
             return Task.CompletedTask;
         },
         OnTokenValidated = context =>
         {
             var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-            logger.LogDebug("Token validated for user: {User}", context.Principal?.Identity?.Name);
+            var username = context.Principal?.Identity?.Name;
+            logger.LogInformation("✅ Token validated for user: {User}", username);
+            
+            // Debug: Log all claims in the token
+            if (context.Principal != null)
+            {
+                logger.LogInformation("📋 Token claims:");
+                foreach (var claim in context.Principal.Claims)
+                {
+                    logger.LogInformation("  - {Type}: {Value}", claim.Type, claim.Value);
+                }
+            }
+            
             return Task.CompletedTask;
         }
     };
 });
 
-
 // Add Authorization
-// add policy
-builder.Services.AddAuthorization(options =>{
-    options.AddPolicy("Manage", policy =>
-    {
-        policy.RequireClaim("authority", "ALL");
-        policy.RequireRole("Admin");
-    });
-});
-
+builder.Services.AddAuthorization();
 
 // Add DbContext
 builder.Services.AddDbContext<ShopContext>(options =>
@@ -116,12 +120,6 @@ builder.Services.AddScoped<IEmailNotificationService, EmailNotificationService>(
 
 // Register HttpClient for EmailNotificationService
 builder.Services.AddHttpClient<IEmailNotificationService, EmailNotificationService>();
-
-// Add GraphQL with HotChocolate
-//builder.Services
-//    .AddGraphQLServer()
-//    .AddQueryType<UserQueries>()
-//    .AddMutationType<UserMutations>();
 
 var app = builder.Build();
 
@@ -155,13 +153,9 @@ app.UseHttpsRedirection();
 // Use CORS
 app.UseCors("AllowAll");
 
-// Use Authentication and Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-// Map GraphQL endpoint
-//app.MapGraphQL();
 
 app.Run();

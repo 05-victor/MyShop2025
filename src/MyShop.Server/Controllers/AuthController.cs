@@ -116,7 +116,7 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// Get current user profile
+    /// Get current user profile from JWT token
     /// </summary>
     /// <returns>Standardized API response with current user details</returns>
     [HttpGet("me")]
@@ -129,21 +129,12 @@ public class AuthController : ControllerBase
     {
         try
         {
-            // Extract user ID from JWT token claims
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
-            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
-            {
-                return Unauthorized(ApiResponse<UserInfoResponse>.UnauthorizedResponse(
-                    "Invalid or missing user ID in token"));
-            }
-
-            var user = await _authService.GetMeAsync(userId);
+            var user = await _authService.GetMeAsync();
 
             if (user == null)
             {
                 return NotFound(ApiResponse<UserInfoResponse>.NotFoundResponse(
-                    "User not found"));
+                    "User not found or invalid token"));
             }
 
             return Ok(ApiResponse<UserInfoResponse>.SuccessResponse(

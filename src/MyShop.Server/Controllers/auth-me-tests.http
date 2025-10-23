@@ -1,0 +1,122 @@
+### Auth API Tests - Get Current User Info
+### Base URL Configuration
+@host = https://localhost:7001
+@token = your_jwt_token_here
+
+### ============================================
+### 1. Register a new user
+### ============================================
+POST {{host}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "email": "testuser@example.com",
+  "password": "password123",
+  "sdt": "0123456789",
+  "activateTrial": true,
+  "roleNames": ["User"]
+}
+
+###
+
+### ============================================
+### 2. Login to get JWT token
+### ============================================
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "usernameOrEmail": "testuser@example.com",
+  "password": "password123"
+}
+
+###
+
+### ============================================
+### 3. Get Current User Info (Using JWT Token)
+### Copy token from login response and paste it above
+### ============================================
+GET {{host}}/api/v1/auth/me
+Authorization: Bearer {{token}}
+
+###
+
+### ============================================
+### 4. Test without token (Should fail with 401)
+### ============================================
+GET {{host}}/api/v1/auth/me
+
+###
+
+### ============================================
+### 5. Test with invalid token (Should fail with 401)
+### ============================================
+GET {{host}}/api/v1/auth/me
+Authorization: Bearer invalid_token_here
+
+###
+
+### ============================================
+### Complete Workflow Test
+### ============================================
+
+### Step 1: Register
+POST {{host}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "john_doe",
+  "email": "john@example.com",
+  "password": "secure123",
+  "sdt": "0987654321",
+  "avatar": "https://example.com/avatar.jpg",
+  "activateTrial": true,
+  "roleNames": ["User", "SalesAgent"]
+}
+
+### Step 2: Login and copy the token from response
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "usernameOrEmail": "john@example.com",
+  "password": "secure123"
+}
+
+### Step 3: Get user info with token
+### Replace {{token}} above with actual token from Step 2
+GET {{host}}/api/v1/auth/me
+Authorization: Bearer {{token}}
+
+###
+
+### ============================================
+### NOTES
+### ============================================
+# 1. Sau khi login ? Step 2, copy giá tr? "token" t? response
+# 2. Paste token vào @token ? ??u file
+# 3. G?i GET /api/v1/auth/me s? t? ??ng l?y userId t? token
+# 4. Không c?n truy?n userId trong request n?a
+# 5. Token s? expire sau 5 phút (theo c?u hình ExpiryInMinutes trong appsettings.json)
+
+### ============================================
+### Expected Response Format
+### ============================================
+# {
+#   "success": true,
+#   "message": "User profile retrieved successfully",
+#   "data": {
+#     "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+#     "username": "john_doe",
+#     "email": "john@example.com",
+#     "phoneNumber": "0987654321",
+#     "createdAt": "2025-01-18T00:45:00Z",
+#     "avatar": "https://example.com/avatar.jpg",
+#     "activateTrial": true,
+#     "isVerified": false,
+#     "updatedAt": null,
+#     "roleNames": ["User", "SalesAgent"]
+#   },
+#   "statusCode": 200
+# }
