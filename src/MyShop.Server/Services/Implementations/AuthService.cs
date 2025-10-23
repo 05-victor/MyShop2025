@@ -4,6 +4,7 @@ using MyShop.Server.Services.Interfaces;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
 using System.Linq;
+using System.Security.Claims;
 
 namespace MyShop.Server.Services.Implementations;
 
@@ -13,13 +14,20 @@ public class AuthService : IAuthService
     private readonly IJwtService _jwtService;
     private readonly IRoleRepository _roleRepository;
     private readonly ILogger<AuthService> _logger;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public AuthService(IUserRepository userRepository, IJwtService jwtService, IRoleRepository roleRepository, ILogger<AuthService> logger)
+    public AuthService(
+        IUserRepository userRepository, 
+        IJwtService jwtService, 
+        IRoleRepository roleRepository, 
+        ILogger<AuthService> logger,
+        IHttpContextAccessor httpContextAccessor)
     {
         _userRepository = userRepository;
         _jwtService = jwtService;
         _roleRepository = roleRepository;
         _logger = logger;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<CreateUserResponse> RegisterAsync(CreateUserRequest request)
@@ -169,7 +177,11 @@ public class AuthService : IAuthService
                 Id = user.Id,
                 Username = user.Username,
                 Email = user.Email,
+                PhoneNumber = user.Profile?.PhoneNumber ?? string.Empty,
                 CreatedAt = user.CreatedAt,
+                Avatar = user.Profile?.Avatar,
+                ActivateTrial = user.IsTrialActive,
+                IsVerified = user.IsEmailVerified,
                 UpdatedAt = user.UpdatedAt,
                 RoleNames = user.Roles.Select(r => r.Name).ToList()
             };
@@ -177,6 +189,47 @@ public class AuthService : IAuthService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting user profile");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Get current authenticated user info from JWT token
+    /// </summary>
+    public async Task<UserInfoResponse?> GetMeAsync()
+    {
+        try
+        {
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext == null)
+            {
+                _logger.LogWarning("❌ HttpContext is null");
+                return null;
+            }
+
+            // Log all claims for debugging
+            _logger.LogInformation("📋 All claims in token:");
+            foreach (var claim in httpContext.User.Claims)
+            {
+                _logger.LogInformation("  - {Type}: {Value}", claim.Type, claim.Value);
+            }
+
+            // Use InfoJwtService to extract user ID from JWT token
+            var userId = InfoJwtService.GetUserId(httpContext.User);
+            
+            if (userId == null)
+            {
+                _logger.LogWarning("❌ User ID not found in JWT token");
+                return null;
+            }
+
+            _logger.LogInformation("✅ GetMe called from JWT token for userId: {UserId}", userId);
+
+            return await GetMeAsync(userId.Value);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "❌ Error getting current user profile from token");
             return null;
         }
     }

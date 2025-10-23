@@ -67,7 +67,7 @@ namespace MyShop.Server.Services.Implementations
                     }
 
                     // add role claims
-                    foreach(var roleName in effectiveAuthoritiesResponse.RoleNames)
+                    foreach (var roleName in effectiveAuthoritiesResponse.RoleNames)
                     {
                         claims.Add(new Claim(ClaimTypes.Role, roleName));
                     }
@@ -176,62 +176,5 @@ namespace MyShop.Server.Services.Implementations
             }
         }
 
-        /// <summary>
-        /// Get user ID from JWT token claims
-        /// </summary>
-        /// <param name="claimsPrincipal">Claims principal from validated token</param>
-        /// <returns>User ID if found, null otherwise</returns>
-        public Guid? GetUserIdFromClaims(ClaimsPrincipal claimsPrincipal)
-        {
-            try
-            {
-                var userIdClaim = claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                
-                if (string.IsNullOrEmpty(userIdClaim))
-                {
-                    _logger.LogWarning("User ID claim not found in token");
-                    return null;
-                }
-
-                if (Guid.TryParse(userIdClaim, out var userId))
-                {
-                    return userId;
-                }
-
-                _logger.LogWarning("Invalid User ID format in token: {UserIdClaim}", userIdClaim);
-                return null;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error extracting user ID from claims");
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Get username from JWT token claims
-        /// </summary>
-        /// <param name="claimsPrincipal">Claims principal from validated token</param>
-        /// <returns>Username if found, null otherwise</returns>
-        public string? GetUsernameFromClaims(ClaimsPrincipal claimsPrincipal)
-        {
-            try
-            {
-                var username = claimsPrincipal.FindFirst(ClaimTypes.Name)?.Value;
-                
-                if (string.IsNullOrEmpty(username))
-                {
-                    _logger.LogWarning("Username claim not found in token");
-                    return null;
-                }
-
-                return username;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error extracting username from claims");
-                return null;
-            }
-        }
     }
 }

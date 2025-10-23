@@ -20,7 +20,7 @@
 ```
 
 ### Decoded Values:
-- **ApiEndpoint**: `https://api.brevo.com/v3/smtp/email`
+- **ApiEndpoint**: ``
 - **ApiKey**: `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`
 
 ## ??? How It Works
@@ -104,7 +104,7 @@ For production:
 var encoder = new ConfigurationEncoder();
 
 // Test endpoint
-var originalEndpoint = "https://api.brevo.com/v3/smtp/email";
+var originalEndpoint = "";
 var encoded = ConfigurationEncoder.Encode(originalEndpoint);
 var decoded = ConfigurationEncoder.Decode(encoded);
 

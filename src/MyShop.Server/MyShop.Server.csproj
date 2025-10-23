@@ -26,4 +26,10 @@
     <ProjectReference Include="..\MyShop.Plugins\MyShop.Plugins.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Attributes\" />
+    <Folder Include="Extensions\" />
+    <Folder Include="Middleware\" />
+  </ItemGroup>
+
 </Project>
