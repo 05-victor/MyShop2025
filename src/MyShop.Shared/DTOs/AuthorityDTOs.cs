@@ -1,10 +1,9 @@
-/*
-using System.ComponentModel.DataAnnotations;
+ï»¿using System.ComponentModel.DataAnnotations;
 
 namespace MyShop.Shared.DTOs
 {
     /// <summary>
-    /// DTO cho thông tin quy?n h?n.
+    /// DTO cho thï¿½ng tin quy?n h?n.
     /// </summary>
     public class AuthorityDto
     {
@@ -22,14 +21,14 @@ namespace MyShop.Shared.DTOs
     /// </summary>
     public class CreateAuthorityRequest
     {
-        [Required(ErrorMessage = "Tên quy?n h?n không ???c ?? tr?ng")]
-        [MaxLength(100, ErrorMessage = "Tên quy?n h?n không ???c v??t quá 100 ký t?")]
+        [Required(ErrorMessage = "Tï¿½n quy?n h?n khï¿½ng ???c ?? tr?ng")]
+        [MaxLength(100, ErrorMessage = "Tï¿½n quy?n h?n khï¿½ng ???c v??t quï¿½ 100 kï¿½ t?")]
         public string Name { get; set; } = string.Empty;
         
-        [MaxLength(500, ErrorMessage = "Mô t? không ???c v??t quá 500 ký t?")]
+        [MaxLength(500, ErrorMessage = "Mï¿½ t? khï¿½ng ???c v??t quï¿½ 500 kï¿½ t?")]
         public string? Description { get; set; }
         
-        [MaxLength(100, ErrorMessage = "Tên module không ???c v??t quá 100 ký t?")]
+        [MaxLength(100, ErrorMessage = "Tï¿½n module khï¿½ng ???c v??t quï¿½ 100 kï¿½ t?")]
         public string? Module { get; set; }
     }
 
@@ -38,17 +37,16 @@ namespace MyShop.Shared.DTOs
     /// </summary>
     public class UpdateAuthorityRequest
     {
-        [Required(ErrorMessage = "Tên quy?n h?n không ???c ?? tr?ng")]
-        [MaxLength(100, ErrorMessage = "Tên quy?n h?n không ???c v??t quá 100 ký t?")]
+        [Required(ErrorMessage = "Tï¿½n quy?n h?n khï¿½ng ???c ?? tr?ng")]
+        [MaxLength(100, ErrorMessage = "Tï¿½n quy?n h?n khï¿½ng ???c v??t quï¿½ 100 kï¿½ t?")]
         public string Name { get; set; } = string.Empty;
         
-        [MaxLength(500, ErrorMessage = "Mô t? không ???c v??t quá 500 ký t?")]
+        [MaxLength(500, ErrorMessage = "Mï¿½ t? khï¿½ng ???c v??t quï¿½ 500 kï¿½ t?")]
         public string? Description { get; set; }
         
-        [MaxLength(100, ErrorMessage = "Tên module không ???c v??t quá 100 ký t?")]
+        [MaxLength(100, ErrorMessage = "Tï¿½n module khï¿½ng ???c v??t quï¿½ 100 kï¿½ t?")]
         public string? Module { get; set; }
         
         public bool IsActive { get; set; } = true;
     }
 }
-*/

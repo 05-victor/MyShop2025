@@ -1,11 +1,10 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Linq;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
 
-namespace MyShop.Client.Converters
-{
+namespace MyShop.Client.Converters {
     /// <summary>
     /// Converter chuyển đổi string thành Visibility.
     /// Trả về Visible nếu string không null hoặc rỗng, ngược lại trả về Collapsed.
@@ -14,8 +13,7 @@ namespace MyShop.Client.Converters
     /// Converter này hữu ích để hiển thị/ẩn các control dựa trên việc có nội dung string hay không.
     /// Thường được sử dụng để hiển thị thông báo lỗi hoặc label khi có dữ liệu.
     /// </remarks>
-    public class StringToVisibilityConverter : IValueConverter
-    {
+    public class StringToVisibilityConverter : IValueConverter {
         /// <summary>
         /// Chuyển đổi giá trị string thành Visibility.
         /// </summary>
@@ -27,8 +25,7 @@ namespace MyShop.Client.Converters
         /// Visibility.Visible nếu string không null và không rỗng,
         /// ngược lại trả về Visibility.Collapsed
         /// </returns>
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
+        public object Convert(object value, Type targetType, object parameter, string language) {
             return string.IsNullOrEmpty(value as string) ? Visibility.Collapsed : Visibility.Visible;
         }
 
@@ -42,8 +39,7 @@ namespace MyShop.Client.Converters
         /// <param name="language">Ngôn ngữ culture</param>
         /// <returns>Không trả về giá trị nào</returns>
         /// <exception cref="NotImplementedException">Luôn được throw vì conversion ngược không được hỗ trợ</exception>
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
+        public object ConvertBack(object value, Type targetType, object parameter, string language) {
             throw new NotImplementedException();
         }
     }
@@ -56,8 +52,7 @@ namespace MyShop.Client.Converters
     /// Converter này hữu ích khi cần đảo ngược logic boolean trong binding.
     /// Thường được sử dụng để disable button khi IsLoading = true.
     /// </remarks>
-    public class BoolNegationConverter : IValueConverter
-    {
+    public class BoolNegationConverter : IValueConverter {
         /// <summary>
         /// Đảo ngược giá trị boolean.
         /// </summary>
@@ -66,8 +61,7 @@ namespace MyShop.Client.Converters
         /// <param name="parameter">Tham số converter (không được sử dụng)</param>
         /// <param name="language">Ngôn ngữ culture (không được sử dụng)</param>
         /// <returns>Giá trị boolean đã được đảo ngược</returns>
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
+        public object Convert(object value, Type targetType, object parameter, string language) {
             return !(bool)value;
         }
 
@@ -79,8 +73,7 @@ namespace MyShop.Client.Converters
         /// <param name="parameter">Tham số converter (không được sử dụng)</param>
         /// <param name="language">Ngôn ngữ culture (không được sử dụng)</param>
         /// <returns>Giá trị boolean đã được đảo ngược</returns>
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
+        public object ConvertBack(object value, Type targetType, object parameter, string language) {
             return !(bool)value;
         }
     }
@@ -93,8 +86,7 @@ namespace MyShop.Client.Converters
     /// Converter này là một trong những converter phổ biến nhất trong WPF/WinUI.
     /// Được sử dụng để hiển thị/ẩn control dựa trên điều kiện boolean.
     /// </remarks>
-    public class BoolToVisibilityConverter : IValueConverter
-    {
+    public class BoolToVisibilityConverter : IValueConverter {
         /// <summary>
         /// Chuyển đổi giá trị boolean thành Visibility.
         /// </summary>
@@ -106,8 +98,7 @@ namespace MyShop.Client.Converters
         /// Visibility.Visible nếu giá trị là true,
         /// Visibility.Collapsed nếu giá trị là false
         /// </returns>
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
+        public object Convert(object value, Type targetType, object parameter, string language) {
             return (bool)value ? Visibility.Visible : Visibility.Collapsed;
         }
 
@@ -122,8 +113,7 @@ namespace MyShop.Client.Converters
         /// true nếu Visibility là Visible,
         /// false nếu Visibility là Collapsed hoặc Hidden
         /// </returns>
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
+        public object ConvertBack(object value, Type targetType, object parameter, string language) {
             return (Visibility)value == Visibility.Visible;
         }
     }
@@ -137,8 +127,7 @@ namespace MyShop.Client.Converters
     /// Nó lấy lỗi đầu tiên từ danh sách và hiển thị dưới dạng string.
     /// Nếu không có lỗi nào, trả về chuỗi rỗng.
     /// </remarks>
-    public class ValidationErrorConverter : IValueConverter
-    {
+    public class ValidationErrorConverter : IValueConverter {
         /// <summary>
         /// Chuyển đổi collection validation errors thành string thông báo lỗi đầu tiên.
         /// </summary>
@@ -150,10 +139,8 @@ namespace MyShop.Client.Converters
         /// String chứa thông báo lỗi đầu tiên nếu có,
         /// ngược lại trả về chuỗi rỗng
         /// </returns>
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
-            if (value is IEnumerable errors)
-            {
+        public object Convert(object value, Type targetType, object parameter, string language) {
+            if (value is IEnumerable errors) {
                 var errorList = errors.Cast<object>().ToList();
                 return errorList.FirstOrDefault()?.ToString() ?? string.Empty;
             }
@@ -170,8 +157,7 @@ namespace MyShop.Client.Converters
         /// <param name="language">Ngôn ngữ culture</param>
         /// <returns>Không trả về giá trị nào</returns>
         /// <exception cref="NotImplementedException">Luôn được throw vì conversion ngược không được hỗ trợ</exception>
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
+        public object ConvertBack(object value, Type targetType, object parameter, string language) {
             throw new NotImplementedException();
         }
     }

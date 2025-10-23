@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MyShop.Data.Entities;
 using MyShop.Data.Repositories.Interfaces;
 using MyShop.Shared;
@@ -18,6 +18,7 @@ public class UserRepository : IUserRepository
     {
         return await _context.Users
             .Include(u => u.Roles)
+            .Include(u => u.Profile)
             .FirstOrDefaultAsync(u => u.Id == id);
     }
 
@@ -25,6 +26,7 @@ public class UserRepository : IUserRepository
     {
         return await _context.Users
             .Include(u => u.Roles)
+            .Include(u => u.Profile)
             .FirstOrDefaultAsync(u => u.Username == username);
     }
 
@@ -32,12 +34,15 @@ public class UserRepository : IUserRepository
     {
         return await _context.Users
             .Include(u => u.Roles)
+            .Include(u => u.Profile)
             .FirstOrDefaultAsync(u => u.Email == email);
     }
 
     public async Task<IEnumerable<User>> GetAllAsync()
     {
-        return await _context.Users.ToListAsync();
+        return await _context.Users
+            .Include(u => u.Profile)
+            .ToListAsync();
     }
 
     public async Task<User> CreateAsync(User user)
@@ -45,9 +50,13 @@ public class UserRepository : IUserRepository
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
         
-        // TODO: Why? Load the Roles navigation property after save
+        // Load navigation properties after save
         await _context.Entry(user)
             .Collection(u => u.Roles)
+            .LoadAsync();
+        
+        await _context.Entry(user)
+            .Reference(u => u.Profile)
             .LoadAsync();
         
         return user;

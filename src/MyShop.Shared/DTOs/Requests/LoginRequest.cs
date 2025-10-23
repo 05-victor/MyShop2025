@@ -1,17 +1,17 @@
-using System.ComponentModel.DataAnnotations;
+ï»¿using System.ComponentModel.DataAnnotations;
 
 namespace MyShop.Shared.DTOs.Requests
 {
     /// <summary>
-    /// DTO cho yêu c?u ??ng nh?p
+    /// DTO cho yï¿½u c?u ??ng nh?p
     /// </summary>
     public class LoginRequest
     {
-        [Required(ErrorMessage = "Tên ??ng nh?p ho?c email không ???c ?? tr?ng")]
+        [Required(ErrorMessage = "Tï¿½n ??ng nh?p ho?c email khï¿½ng ???c ?? tr?ng")]
         public string UsernameOrEmail { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "M?t kh?u không ???c ?? tr?ng")]
-        [MinLength(6, ErrorMessage = "M?t kh?u ph?i có ít nh?t 6 ký t?")]
+        [Required(ErrorMessage = "M?t kh?u khï¿½ng ???c ?? tr?ng")]
+        [MinLength(6, ErrorMessage = "M?t kh?u ph?i cï¿½ ï¿½t nh?t 6 kï¿½ t?")]
         public string Password { get; set; } = string.Empty;
     }
 }

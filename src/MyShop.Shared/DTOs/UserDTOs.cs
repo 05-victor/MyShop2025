@@ -1,10 +1,9 @@
-/*
-using System.ComponentModel.DataAnnotations;
+ï»¿using System.ComponentModel.DataAnnotations;
 
 namespace MyShop.Shared.DTOs
 {
     /// <summary>
-    /// DTO cho thông tin chi ti?t c?a ng??i dùng.
+    /// DTO cho thï¿½ng tin chi ti?t c?a ng??i dï¿½ng.
     /// </summary>
     public class UserDto
     {
@@ -22,21 +21,21 @@ namespace MyShop.Shared.DTOs
     }
 
     /// <summary>
-    /// DTO cho vi?c c?p nh?t thông tin ng??i dùng.
+    /// DTO cho vi?c c?p nh?t thï¿½ng tin ng??i dï¿½ng.
     /// </summary>
     public class UpdateUserRequest
     {
-        [Required(ErrorMessage = "Tên ??ng nh?p không ???c ?? tr?ng")]
-        [MaxLength(100, ErrorMessage = "Tên ??ng nh?p không ???c v??t quá 100 ký t?")]
+        [Required(ErrorMessage = "Tï¿½n ??ng nh?p khï¿½ng ???c ?? tr?ng")]
+        [MaxLength(100, ErrorMessage = "Tï¿½n ??ng nh?p khï¿½ng ???c v??t quï¿½ 100 kï¿½ t?")]
         public string Username { get; set; } = string.Empty;
         
-        [Required(ErrorMessage = "Email không ???c ?? tr?ng")]
-        [EmailAddress(ErrorMessage = "Email không ?úng ??nh d?ng")]
-        [MaxLength(255, ErrorMessage = "Email không ???c v??t quá 255 ký t?")]
+        [Required(ErrorMessage = "Email khï¿½ng ???c ?? tr?ng")]
+        [EmailAddress(ErrorMessage = "Email khï¿½ng ?ï¿½ng ??nh d?ng")]
+        [MaxLength(255, ErrorMessage = "Email khï¿½ng ???c v??t quï¿½ 255 kï¿½ t?")]
         public string Email { get; set; } = string.Empty;
         
-        [Required(ErrorMessage = "S? ?i?n tho?i không ???c ?? tr?ng")]
-        [MaxLength(20, ErrorMessage = "S? ?i?n tho?i không ???c v??t quá 20 ký t?")]
+        [Required(ErrorMessage = "S? ?i?n tho?i khï¿½ng ???c ?? tr?ng")]
+        [MaxLength(20, ErrorMessage = "S? ?i?n tho?i khï¿½ng ???c v??t quï¿½ 20 kï¿½ t?")]
         public string Sdt { get; set; } = string.Empty;
         
         public string? Avatar { get; set; }
@@ -44,4 +43,3 @@ namespace MyShop.Shared.DTOs
         public bool ActivateTrial { get; set; } = true;
     }
 }
-*/

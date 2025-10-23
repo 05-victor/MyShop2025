@@ -1,79 +1,157 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
-using MyShop.Client.Services;
-using MyShop.Client.ViewModels;
+using MyShop.Client.ApiServer;
+using MyShop.Client.Helpers;
+using MyShop.Client.Views.Auth;
+using MyShop.Client.Views.Dashboard;
+using MyShop.Shared.DTOs.Common;
+using MyShop.Shared.DTOs.Responses;
+using Refit;
 using System;
+using System.Threading.Tasks;
 
-namespace MyShop.Client {
-    /// <summary>
-    /// Provides application-specific behavior to supplement the default Application class.
-    /// </summary>
-    public partial class App : Application {
-        private IHost? _host;
-
-        /// <summary>
-        /// Gets the current <see cref="App"/> instance in use
-        /// </summary>
+namespace MyShop.Client
+{
+    public partial class App : Application
+    {
+        private readonly IHost _host;
         public new static App Current => (App)Application.Current;
+        public IServiceProvider Services => _host.Services;
 
-        /// <summary>
-        /// Gets the <see cref="IServiceProvider"/> instance to resolve application services.
-        /// </summary>
-        public IServiceProvider Services => _host?.Services ?? throw new InvalidOperationException("Services not initialized");
-
-        /// <summary>
-        /// Gets a service of the specified type from the dependency injection container.
-        /// </summary>
-        /// <typeparam name="T">The type of service to retrieve</typeparam>
-        /// <returns>The service instance</returns>
-        public static T GetService<T>() where T : class
+        public App()
         {
-            return (T)Current.Services.GetRequiredService(typeof(T));
-        }
-
-        /// <summary>
-        /// Initializes the singleton application object.  This is the first line of authored code
-        /// executed, and as such is the logical equivalent of main() or WinMain().
-        /// </summary>
-        public App() {
             this.InitializeComponent();
-            ConfigureServices();
-        }
-
-        /// <summary>
-        /// Configure dependency injection services
-        /// </summary>
-        private void ConfigureServices() {
-            var builder = Host.CreateDefaultBuilder()
+            _host = Host.CreateDefaultBuilder()
+                .ConfigureAppConfiguration((context, config) => {
+                    config.SetBasePath(AppContext.BaseDirectory);
+                    config.AddJsonFile("ApiServer/ApiConfig.json", optional: false, reloadOnChange: true);
+                })
                 .ConfigureServices((context, services) => {
-                    // Register HttpClient
-                    services.AddHttpClient<IAuthService, AuthService>(client => {
-                        client.BaseAddress = new Uri("https://localhost:7051"); // Replace with your API base URL
-                        client.DefaultRequestHeaders.Add("User-Agent", "MyShop-Client");
-                    });
+                    services.AddTransient<AuthHeaderHandler>();
 
-                    // Register services
+                    services.AddRefitClient<IAuthApi>()
+                        .ConfigureHttpClient(client => {
+                            var baseUrl = context.Configuration["BaseUrl"];
+                            if (string.IsNullOrEmpty(baseUrl))
+                            {
+                                throw new InvalidOperationException("BaseUrl is not configured in ApiConfig.json");
+                            }
+                            client.BaseAddress = new Uri(baseUrl);
+                        })
+                        .AddHttpMessageHandler<AuthHeaderHandler>();
+
                     services.AddSingleton<INavigationService, NavigationService>();
-                    
-                    // Register ViewModels
-                    services.AddTransient<LoginViewModel>();
-                    services.AddTransient<RegisterViewModel>();
-                    services.AddTransient<DashboardViewModel>();
-                });
+                    services.AddTransient<IToastHelper, ToastHelper>();
 
-            _host = builder.Build();
+                    // ViewModels
+                    services.AddTransient<MyShop.Client.ViewModels.Auth.LoginViewModel>();
+                    services.AddTransient<MyShop.Client.ViewModels.Auth.RegisterViewModel>();
+                    services.AddTransient<MyShop.Client.ViewModels.Dashboard.DashboardViewModel>();
+                    services.AddTransient<MyShop.Client.ViewModels.Dashboard.CustomerDashboardViewModel>();
+                    services.AddTransient<MyShop.Client.ViewModels.Dashboard.SalesmanDashboardViewModel>();
+                })
+                .Build();
         }
 
-        /// <summary>
-        /// Invoked when the application is launched.
-        /// </summary>
-        /// <param name="args">Details about the launch request and process.</param>
-        protected override void OnLaunched(LaunchActivatedEventArgs args) {
-            m_window = new MainWindow();
-            m_window.Activate();
+        protected override async void OnLaunched(LaunchActivatedEventArgs args)
+        {
+            try
+            {
+                var window = new MainWindow();
+
+                var navigationService = Services.GetRequiredService<INavigationService>();
+                navigationService.Initialize(window.RootFrame);
+
+                var token = CredentialHelper.GetToken();
+                bool isLoggedIn = false;
+
+                if (!string.IsNullOrEmpty(token))
+                {
+                    try
+                    {
+                        var authApi = Services.GetRequiredService<IAuthApi>();
+                        var response = await authApi.GetMeAsync();
+
+                        // Use correct MyShop.Shared.DTOs.Common.ApiResponse<UserInfoResponse> structure
+                        if (response is not null && response.Success && response.Result is not null)
+                        {
+                            var userInfo = response.Result;
+                            var loginData = new LoginResponse
+                            {
+                                Id = userInfo.Id,
+                                Username = userInfo.Username,
+                                Email = userInfo.Email,
+                                Token = token,
+                                RoleNames = userInfo.RoleNames,
+                                CreatedAt = userInfo.CreatedAt
+                            };
+                            var pageType = ChooseDashboardPage(userInfo.RoleNames);
+                            navigationService.NavigateTo(pageType, loginData);
+                            isLoggedIn = true;
+                        }
+                        else
+                        {
+                            CredentialHelper.RemoveToken();
+                        }
+                    }
+                    catch (ApiException ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"API Error on startup (token likely expired): {ex.StatusCode}");
+                        CredentialHelper.RemoveToken();
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"General Error on startup: {ex.Message}");
+                        CredentialHelper.RemoveToken();
+                    }
+                }
+
+                if (!isLoggedIn)
+                {
+                    navigationService.NavigateTo(typeof(LoginPage));
+                }
+
+                window.Activate();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CRITICAL ERROR in OnLaunched: {ex}");
+                // Show error dialog
+                var errorDialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+                {
+                    Title = "Application Error",
+                    Content = $"Failed to start application:\n\n{ex.Message}\n\n{ex.StackTrace}",
+                    CloseButtonText = "Exit"
+                };
+                
+                // We need a window to show the dialog, create a temporary one
+                var tempWindow = new MainWindow();
+                tempWindow.Activate();
+                errorDialog.XamlRoot = tempWindow.Content.XamlRoot;
+                await errorDialog.ShowAsync();
+                
+                Environment.Exit(1);
+            }
         }
 
-        private Window? m_window;
+        private static Type ChooseDashboardPage(System.Collections.Generic.IEnumerable<string> roleNames)
+        {
+            // Normalize roles to upper-case for comparison
+            var roles = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (roleNames != null)
+            {
+                foreach (var r in roleNames)
+                {
+                    if (!string.IsNullOrWhiteSpace(r)) roles.Add(r.Trim());
+                }
+            }
+
+            if (roles.Contains("ADMIN")) return typeof(DashboardPage);
+            if (roles.Contains("SALEMAN") || roles.Contains("SALESMAN")) return typeof(SalesmanDashboardPage);
+            // default customer
+            return typeof(CustomerDashboardPage);
+        }
     }
 }

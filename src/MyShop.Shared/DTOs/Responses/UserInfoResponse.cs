@@ -1,9 +1,10 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 
 namespace MyShop.Shared.DTOs.Responses
 {
     /// <summary>
-    /// DTO cho th�ng tin ng??i d�ng
+    /// DTO cho thông tin người dùng
     /// </summary>
     public class UserInfoResponse
     {

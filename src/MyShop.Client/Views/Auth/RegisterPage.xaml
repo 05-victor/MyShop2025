@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="MyShop.Client.Views.Auth.RegisterPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:MyShop.Client.Converters"
+    xmlns:viewmodels="using:MyShop.Client.ViewModels.Auth"
+    mc:Ignorable="d"
+    Background="{ThemeResource LayerFillColorDefaultBrush}">
+
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        <converters:BoolNegationConverter x:Key="BoolNegationConverter"/>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/> 
+        </Grid.ColumnDefinitions>
+
+        <!-- Left Side: Branding with Gradient Background -->
+        <Grid Grid.Column="0" Grid.ColumnSpan="1">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#10B981" Offset="0"/>
+                    <GradientStop Color="#059669" Offset="1"/>
+                </LinearGradientBrush>
+            </Grid.Background>
+            
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="24">
+                <Image Source="/Assets/StoreLogo.png" Width="120" Height="120" Stretch="Uniform"/>
+                <TextBlock Text="Join MyShop2025" 
+                           FontSize="48" 
+                           FontWeight="Bold" 
+                           Foreground="White"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="Start managing your shop efficiently" 
+                           FontSize="18" 
+                           Foreground="White"
+                           Opacity="0.9"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"
+                           MaxWidth="400"
+                           TextWrapping="Wrap"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Right Side: Register Form -->
+        <Grid Grid.Column="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel MaxWidth="420" 
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center"
+                           Spacing="14"
+                           Padding="48,32">
+
+                    <!-- Header -->
+                    <StackPanel Spacing="6" Margin="0,0,0,12">
+                        <TextBlock Text="Create Account" 
+                                  FontSize="32"
+                                  FontWeight="SemiBold"
+                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                        <TextBlock Text="Fill in the information below to get started" 
+                                  FontSize="14"
+                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                  TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <!-- Username Input -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Username" 
+                                  FontSize="14"
+                                  FontWeight="SemiBold"
+                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}">
+                            <Run Text="*" Foreground="#DC2626"/>
+                        </TextBlock>
+                        <TextBox PlaceholderText="Choose a unique username"
+                                Text="{x:Bind ViewModel.Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                Height="44"
+                                CornerRadius="8"
+                                BorderThickness="1"
+                                BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"/>
+                        <TextBlock Text="{x:Bind ViewModel.UsernameError, Mode=OneWay}"
+                                  Foreground="#DC2626" 
+                                  FontSize="12"
+                                  Visibility="{x:Bind ViewModel.UsernameError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+                    </StackPanel>
+
+                    <!-- Email Input -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Email Address" 
+                                  FontSize="14"
+                                  FontWeight="SemiBold"
+                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}">
+                            <Run Text="*" Foreground="#DC2626"/>
+                        </TextBlock>
+                        <TextBox PlaceholderText="your.email@example.com"
+                                Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                InputScope="EmailSmtpAddress"
+                                Height="44"
+                                CornerRadius="8"
+                                BorderThickness="1"
+                                BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"/>
+                        <TextBlock Text="{x:Bind ViewModel.EmailError, Mode=OneWay}"
+                                  Foreground="#DC2626" 
+                                  FontSize="12"
+                                  Visibility="{x:Bind ViewModel.EmailError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+                    </StackPanel>
+
+                    <!-- Phone Number Input -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Phone Number" 
+                                  FontSize="14"
+                                  FontWeight="SemiBold"
+                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}">
+                            <Run Text="*" Foreground="#DC2626"/>
+                        </TextBlock>
+                        <TextBox PlaceholderText="0123456789"
+                                Text="{x:Bind ViewModel.PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                InputScope="TelephoneNumber"
+                                Height="44"
+                                CornerRadius="8"
+                                BorderThickness="1"
+                                BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"/>
+                        <TextBlock Text="{x:Bind ViewModel.PhoneError, Mode=OneWay}"
+                                  Foreground="#DC2626" 
+                                  FontSize="12"
+                                  Visibility="{x:Bind ViewModel.PhoneError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+                    </StackPanel>
+
+                    <!-- Password Input -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Password" 
+                                  FontSize="14"
+                                  FontWeight="SemiBold"
+                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}">
+                            <Run Text="*" Foreground="#DC2626"/>
+                        </TextBlock>
+                        <PasswordBox x:Name="PasswordInput"
+                                    PlaceholderText="Create a strong password (min 6 chars)"
+                                    PasswordChanged="PasswordInput_PasswordChanged"
+                                    IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                    Height="44"
+                                    CornerRadius="8"
+                                    BorderThickness="1"
+                                    BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"/>
+                        <TextBlock Text="{x:Bind ViewModel.PasswordError, Mode=OneWay}"
+                                  Foreground="#DC2626" 
+                                  FontSize="12"
+                                  Visibility="{x:Bind ViewModel.PasswordError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+                    </StackPanel>
+
+                    <!-- Confirm Password Input -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Confirm Password" 
+                                  FontSize="14"
+                                  FontWeight="SemiBold"
+                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}">
+                            <Run Text="*" Foreground="#DC2626"/>
+                        </TextBlock>
+                        <PasswordBox x:Name="ConfirmPasswordInput"
+                                    PlaceholderText="Re-enter your password"
+                                    PasswordChanged="ConfirmPasswordInput_PasswordChanged"
+                                    IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                    Height="44"
+                                    CornerRadius="8"
+                                    BorderThickness="1"
+                                    BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"/>
+                        <TextBlock Text="{x:Bind ViewModel.ConfirmPasswordError, Mode=OneWay}"
+                                  Foreground="#DC2626" 
+                                  FontSize="12"
+                                  Visibility="{x:Bind ViewModel.ConfirmPasswordError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+                    </StackPanel>
+
+                    <!-- Role Selection -->
+                    <StackPanel Spacing="6" Margin="0,4,0,0">
+                        <TextBlock Text="Register as" 
+                                  FontSize="14"
+                                  FontWeight="SemiBold"
+                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                        <RadioButtons SelectedItem="{x:Bind ViewModel.SelectedRole, Mode=TwoWay}">
+                            <x:String>CUSTOMER</x:String>
+                            <x:String>SALEMAN</x:String>
+                        </RadioButtons>
+                    </StackPanel>
+
+                    <!-- Error Message -->
+                    <TextBlock Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                                Foreground="{ThemeResource SystemErrorTextColor}" 
+                                FontSize="13"
+                                Margin="0 4 0 0"
+                                TextWrapping="Wrap"
+                                TextAlignment="Center"
+                                MaxWidth="340"
+                                Visibility="{x:Bind ViewModel.ErrorMessage, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+
+                    <!-- Register Button -->
+                    <Button Command="{x:Bind ViewModel.AttemptRegisterCommand}"
+                           IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                           HorizontalAlignment="Stretch"
+                           Height="44"
+                           Margin="0,8,0,0"
+                           CornerRadius="8"
+                           FontSize="16"
+                           FontWeight="SemiBold">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource AccentButtonStyle}">
+                                <Setter Property="Background" Value="#10B981"/>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                            <ProgressRing Width="20" Height="20"
+                                         IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                                         Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                         Foreground="White"/>
+                            <TextBlock Text="Create Account" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Divider -->
+                    <Grid Margin="0,16,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Height="1" VerticalAlignment="Center" Background="{ThemeResource DividerStrokeColorDefaultBrush}"/>
+                        <TextBlock Grid.Column="1" Text="OR" Margin="16,0" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <Border Grid.Column="2" Height="1" VerticalAlignment="Center" Background="{ThemeResource DividerStrokeColorDefaultBrush}"/>
+                    </Grid>
+
+                    <!-- Google Sign-Up Button -->
+                    <Button Command="{x:Bind ViewModel.GoogleLoginCommand}"
+                            IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                            HorizontalAlignment="Stretch"
+                            Height="44"
+                            CornerRadius="8"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
+                            BorderThickness="1">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Image Source="/Assets/Google.png" Width="20" Height="20"/>
+                            <TextBlock Text="Sign up with Google" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Login Link -->
+                    <StackPanel Orientation="Horizontal" 
+                               HorizontalAlignment="Center"
+                               Spacing="6"
+                               Margin="0,12,0,0">
+                        <TextBlock Text="Already have an account?" 
+                                  FontSize="14"
+                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <HyperlinkButton Content="Login here"
+                                        Command="{x:Bind ViewModel.NavigateToLoginCommand}"
+                                        FontSize="14"
+                                        Padding="0"/>
+                    </StackPanel>
+
+                    <!-- Terms Notice -->
+                    <TextBlock TextWrapping="Wrap"
+                              FontSize="12"
+                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                              TextAlignment="Center"
+                              Margin="0,8,0,0">
+                        By creating an account, you agree to our 
+                        <Hyperlink>Terms of Service</Hyperlink> and 
+                        <Hyperlink>Privacy Policy</Hyperlink>
+                    </TextBlock>
+
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Loading Overlay -->
+            <Border Background="#80000000"
+                   Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel HorizontalAlignment="Center" 
+                           VerticalAlignment="Center" 
+                           Spacing="16">
+                    <ProgressRing IsActive="True" 
+                                 Width="48" 
+                                 Height="48"
+                                 Foreground="White"/>
+                    <TextBlock Text="Creating your account..." 
+                              FontSize="16"
+                              Foreground="White"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>
