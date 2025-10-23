@@ -113,7 +113,7 @@ public class ApiResponse : ApiResponse<object>
     /// <summary>
     /// Creates an error response without data
     /// </summary>
-    public static ApiResponse ErrorResponse(string message, int code = 400)
+    public static new ApiResponse ErrorResponse(string message, int code = 400)
     {
         return new ApiResponse
         {

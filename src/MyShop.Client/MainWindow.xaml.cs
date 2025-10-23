@@ -8,14 +8,12 @@ using Microsoft.UI.Windowing;
 
 namespace MyShop.Client {
     public sealed partial class MainWindow : Window {
-        public Frame RootFrame { get; private set; }
-
         public MainWindow() {
             this.InitializeComponent();
             ConfigureWindow();
 
-            RootFrame = new Frame();
-            this.Content = RootFrame;
+            // RootFrame is already defined in XAML with x:Name="RootFrame"
+            // No need to create it again here
 
             // Use Activated event instead of Content.Loaded
             this.Activated += MainWindow_Activated;
