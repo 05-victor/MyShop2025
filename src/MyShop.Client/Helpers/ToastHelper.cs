@@ -21,6 +21,22 @@ namespace MyShop.Client.Helpers {
             await ShowDialogAsync("Error", message);
         }
 
+        public async Task ShowInfoAsync(string message) {
+            await ShowDialogAsync("Information", message);
+        }
+
+        public void ShowSuccess(string message) {
+            _ = ShowSuccessAsync(message);
+        }
+
+        public void ShowError(string message) {
+            _ = ShowErrorAsync(message);
+        }
+
+        public void ShowInfo(string message) {
+            _ = ShowInfoAsync(message);
+        }
+
         private async Task ShowDialogAsync(string title, string content) {
             if (_xamlRoot is null) {
                 System.Diagnostics.Debug.WriteLine("ToastHelper not initialized with XamlRoot.");
