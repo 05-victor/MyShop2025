@@ -142,11 +142,11 @@ public class AuthService : IAuthService
                 Id = user.Id,
                 Username = user.Username,
                 Email = user.Email,
-                PhoneNumber = user.Profile?.PhoneNumber,
                 CreatedAt = user.CreatedAt,
-                Avatar = user.Profile?.Avatar,
-                ActivateTrial = user.IsTrialActive,
-                IsVerified = user.IsEmailVerified,
+                IsTrialActive = user.IsTrialActive,
+                TrialStartDate = user.TrialStartDate,
+                TrialEndDate = user.TrialEndDate,
+                IsEmailVerified = user.IsEmailVerified,
                 RoleNames = user.Roles.Select(r => r.Name).ToList(),
                 Token = token
             };
