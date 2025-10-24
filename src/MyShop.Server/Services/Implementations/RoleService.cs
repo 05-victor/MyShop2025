@@ -33,4 +33,25 @@ public class RoleService : IRoleService
             throw;
         }
     }
+
+    public async Task<RoleResponse?> GetRoleByNameAsync(string roleName)
+    {
+        try
+        {
+            var role = await _roleRepository.GetByNameAsync(roleName);
+            if (role == null) return null;
+
+            return new RoleResponse
+            {
+                Name = role.Name,
+                Description = role.Description
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting role by name: {RoleName}", roleName);
+            throw;
+        }
+    }
+
 }

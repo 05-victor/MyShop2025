@@ -65,7 +65,9 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
         ClockSkew = TimeSpan.Zero, // Remove default 5 minute clock skew
         NameClaimType = ClaimTypes.Name, // Set the Name claim type
-        RoleClaimType = ClaimTypes.Role // Set the Role claim type
+        //NameClaimType = "unique_name", // Match MapInboundClaims = false
+        //RoleClaimType = ClaimTypes.Role // Set the Role claim type
+        RoleClaimType = "role"         // Match MapInboundClaims = false
     };
 
     // Configure JWT events for debugging
@@ -112,6 +114,12 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
 // Register Services
+builder.Services.AddHttpClient<IUserService, UserService>();
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserAuthorityService, UserAuthorityService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
