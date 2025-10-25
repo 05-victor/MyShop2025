@@ -23,6 +23,7 @@ namespace MyShop.Server.Controllers
             _logger = logger;
         }
 
+        /*
         /// <summary>
         /// Send email using template with placeholder replacement
         /// </summary>
@@ -198,6 +199,7 @@ namespace MyShop.Server.Controllers
                         "An error occurred while sending bulk emails"));
             }
         }
+        */
 
         /// <summary>
         /// Quick send email - Simple API for common email sending scenarios
@@ -260,8 +262,10 @@ namespace MyShop.Server.Controllers
                         "An error occurred while sending email"));
             }
         }
+        
     }
 
+    
     #region Request/Response DTOs
 
     /// <summary>
@@ -367,4 +371,5 @@ namespace MyShop.Server.Controllers
     }
 
     #endregion
+    
 }

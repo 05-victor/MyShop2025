@@ -60,6 +60,31 @@ namespace MyShop.Server.Services.Implementations
         }
 
         /// <summary>
+        /// Send email using template with named placeholder replacement
+        /// </summary>
+        public async Task<bool> SendEmailAsync(string recipientEmail, string recipientName, string subject, string templatePath, Dictionary<string, string> placeholders)
+        {
+            try
+            {
+                // Read and process template with named placeholders
+                var htmlContent = await ReadAndProcessTemplateAsync(templatePath, placeholders);
+                if (string.IsNullOrEmpty(htmlContent))
+                {
+                    _logger.LogError("Failed to read or process template: {TemplatePath}", templatePath);
+                    return false;
+                }
+
+                // Send email with processed content
+                return await SendEmailAsync(recipientEmail, recipientName, subject, htmlContent);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending templated email to {Email}", recipientEmail);
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Send email with direct HTML content
         /// </summary>
         public async Task<bool> SendEmailAsync(string recipientEmail, string recipientName, string subject, string htmlContent)
@@ -190,6 +215,39 @@ namespace MyShop.Server.Services.Implementations
         }
 
         /// <summary>
+        /// Read template file and replace named placeholders with provided values
+        /// </summary>
+        private async Task<string> ReadAndProcessTemplateAsync(string templatePath, Dictionary<string, string> placeholders)
+        {
+            try
+            {
+                // Construct full path to template
+                var templatesDirectory = System.IO.Path.Combine(_environment.ContentRootPath, _emailSettings.TemplatesPath);
+                var fullTemplatePath = System.IO.Path.Combine(templatesDirectory, templatePath);
+
+                // Ensure template file exists
+                if (!File.Exists(fullTemplatePath))
+                {
+                    _logger.LogError("Template file not found: {TemplatePath}", fullTemplatePath);
+                    return string.Empty;
+                }
+
+                // Read template content
+                var templateContent = await File.ReadAllTextAsync(fullTemplatePath);
+
+                // Replace named placeholders {{KEY}} with provided values
+                var processedContent = ReplaceNamedPlaceholders(templateContent, placeholders);
+
+                return processedContent;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error reading template: {TemplatePath}", templatePath);
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
         /// Replace {{}} placeholders in template with provided values
         /// </summary>
         private string ReplacePlaceholders(string template, string[] values)
@@ -222,6 +280,28 @@ namespace MyShop.Server.Services.Implementations
             {
                 _logger.LogWarning("Template has {PlaceholderCount} placeholders but only {ValueCount} values provided",
                     matches.Count, values.Length);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Replace named {{KEY}} placeholders in template with provided values
+        /// </summary>
+        private string ReplaceNamedPlaceholders(string template, Dictionary<string, string> placeholders)
+        {
+            if (placeholders == null || placeholders.Count == 0)
+            {
+                return template;
+            }
+
+            var result = template;
+
+            // Replace each named placeholder
+            foreach (var placeholder in placeholders)
+            {
+                var pattern = $"{{{{{placeholder.Key}}}}}"; // Creates {{KEY}}
+                result = result.Replace(pattern, placeholder.Value);
             }
 
             return result;
