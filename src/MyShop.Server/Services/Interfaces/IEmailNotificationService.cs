@@ -19,6 +19,17 @@ namespace MyShop.Server.Services.Interfaces
         Task<bool> SendEmailAsync(string recipientEmail, string recipientName, string subject, string templatePath, string[] placeholderValues);
 
         /// <summary>
+        /// Send email using template with named placeholder replacement
+        /// </summary>
+        /// <param name="recipientEmail">Recipient email address</param>
+        /// <param name="recipientName">Recipient name</param>
+        /// <param name="subject">Email subject</param>
+        /// <param name="templatePath">Path to HTML template file (relative to templates directory)</param>
+        /// <param name="placeholders">Dictionary of placeholder names and their values (e.g., {"USERNAME": "John"})</param>
+        /// <returns>True if email sent successfully, false otherwise</returns>
+        Task<bool> SendEmailAsync(string recipientEmail, string recipientName, string subject, string templatePath, Dictionary<string, string> placeholders);
+
+        /// <summary>
         /// Send email with direct HTML content
         /// </summary>
         /// <param name="recipientEmail">Recipient email address</param>
