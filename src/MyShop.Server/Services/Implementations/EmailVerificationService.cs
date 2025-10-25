@@ -100,7 +100,7 @@ namespace MyShop.Server.Services.Implementations
                 var token = GenerateVerificationToken(userId.Value);
 
                 // Build verification URL
-                var baseUrl = _configuration["AppSettings:BaseUrl"] ?? "https://localhost:5228";
+                var baseUrl = _configuration["AppSettings:BaseUrl"] ?? "http://localhost:5228";
                 var verificationUrl = $"{baseUrl}/api/v1/email-verification/verify?token={token}";
 
                 // Prepare email placeholders

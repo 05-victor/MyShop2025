@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyShop.Server.Services.Implementations;
 using MyShop.Server.Services.Interfaces;
@@ -16,13 +16,16 @@ namespace MyShop.Server.Controllers
     {
         private readonly IEmailVerificationService _emailVerificationService;
         private readonly ILogger<EmailVerificationController> _logger;
+        private readonly IConfiguration _configuration;
 
         public EmailVerificationController(
             IEmailVerificationService emailVerificationService,
-            ILogger<EmailVerificationController> logger)
+            ILogger<EmailVerificationController> logger,
+            IConfiguration configuration)
         {
             _emailVerificationService = emailVerificationService;
             _logger = logger;
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -90,41 +93,48 @@ namespace MyShop.Server.Controllers
         /// <summary>
         /// Verifies a user's email address using the verification token from the URL.
         /// This endpoint is publicly accessible and called when user clicks the verification link.
+        /// Redirects to frontend success/error page based on verification result.
         /// </summary>
         /// <param name="token">The verification token from the email URL</param>
-        /// <returns>ActionResult indicating success or failure</returns>
-        /// <response code="200">Email verified successfully</response>
-        /// <response code="400">Invalid or expired token, or user not found</response>
-        /// <response code="500">Internal server error</response>
-        [HttpPost("verify")]
+        /// <returns>Redirect to frontend success or error page</returns>
+        /// <response code="302">Redirects to success or error page</response>
+        [HttpGet("verify")]
         [AllowAnonymous]
-        public async Task<ActionResult> VerifyEmail([FromQuery] string token, CancellationToken cancellationToken)
+        public async Task<IActionResult> VerifyEmail([FromQuery] string token, CancellationToken cancellationToken)
         {
+            // Get redirect URLs from configuration
+            var successUrl = _configuration["EmailVerification:SuccessRedirectUrl"] 
+                ?? "https://web-congrats-verify-email-myshop202.vercel.app/success";
+            var errorUrl = _configuration["EmailVerification:ErrorRedirectUrl"] 
+                ?? "https://web-congrats-verify-email-myshop202.vercel.app/error";
+
             try
             {
                 if (string.IsNullOrWhiteSpace(token))
                 {
-                    return BadRequest(new { message = "Verification token is required" });
+                    _logger.LogWarning("❌ Email verification attempt with empty token");
+                    return Redirect(errorUrl);
                 }
+
+                _logger.LogInformation("✅ Email verification attempt with token");
 
                 var result = await _emailVerificationService.VerifyEmailAsync(token, cancellationToken);
 
-                if (!result.IsSuccess)
+                if (result.IsSuccess)
                 {
-                    return BadRequest(new { message = result.Message });
+                    _logger.LogInformation("✅ Email verified successfully");
+                    return Redirect(successUrl);
                 }
-
-                // Return a success page or redirect to the client app
-                return Ok(new 
-                { 
-                    message = result.Message,
-                    success = true 
-                });
+                else
+                {
+                    _logger.LogWarning("⚠️ Email verification failed: {Message}", result.Message);
+                    return Redirect(errorUrl);
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in VerifyEmail endpoint");
-                return StatusCode(500, new { message = "An error occurred while verifying email" });
+                _logger.LogError(ex, "❌ Error in VerifyEmail endpoint");
+                return Redirect(errorUrl);
             }
         }
 
