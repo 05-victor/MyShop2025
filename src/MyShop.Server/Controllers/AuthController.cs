@@ -38,7 +38,7 @@ public class AuthController : ControllerBase
                 .SelectMany(v => v.Errors)
                 .Select(e => e.ErrorMessage));
             
-            return BadRequest(ApiResponse<CreateUserResponse>.ErrorResponse(
+            return BadRequest(ApiResponse.ErrorResponse(
                 $"Validation failed: {errors}", 
                 400));
         }
@@ -55,7 +55,7 @@ public class AuthController : ControllerBase
         catch (InvalidOperationException ex)
         {
             _logger.LogWarning(ex, "Registration failed: {Message}", ex.Message);
-            return BadRequest(ApiResponse<CreateUserResponse>.ErrorResponse(
+            return BadRequest(ApiResponse.ErrorResponse(
                 ex.Message,
                 400));
         }
@@ -63,7 +63,7 @@ public class AuthController : ControllerBase
         {
             _logger.LogError(ex, "Error in Register endpoint");
             return StatusCode(StatusCodes.Status500InternalServerError,
-                ApiResponse<CreateUserResponse>.ServerErrorResponse(
+                ApiResponse.ServerErrorResponse(
                     "An error occurred while processing your request"));
         }
     }
@@ -86,7 +86,7 @@ public class AuthController : ControllerBase
                 .SelectMany(v => v.Errors)
                 .Select(e => e.ErrorMessage));
             
-            return BadRequest(ApiResponse<LoginResponse>.ErrorResponse(
+            return BadRequest(ApiResponse.ErrorResponse(
                 $"Validation failed: {errors}", 
                 400));
         }
@@ -103,14 +103,14 @@ public class AuthController : ControllerBase
         catch (UnauthorizedAccessException ex)
         {
             _logger.LogWarning(ex, "Login failed: {Message}", ex.Message);
-            return Unauthorized(ApiResponse<LoginResponse>.UnauthorizedResponse(
+            return Unauthorized(ApiResponse.UnauthorizedResponse(
                 ex.Message));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error in Login endpoint");
             return StatusCode(StatusCodes.Status500InternalServerError,
-                ApiResponse<LoginResponse>.ServerErrorResponse(
+                ApiResponse.ServerErrorResponse(
                     "An error occurred while processing your request"));
         }
     }
@@ -133,7 +133,7 @@ public class AuthController : ControllerBase
 
             if (user == null)
             {
-                return NotFound(ApiResponse<UserInfoResponse>.NotFoundResponse(
+                return NotFound(ApiResponse.NotFoundResponse(
                     "User not found or invalid token"));
             }
 
@@ -146,7 +146,7 @@ public class AuthController : ControllerBase
         {
             _logger.LogError(ex, "Error in GetMe endpoint");
             return StatusCode(StatusCodes.Status500InternalServerError,
-                ApiResponse<UserInfoResponse>.ServerErrorResponse(
+                ApiResponse.ServerErrorResponse(
                     "An error occurred while processing your request"));
         }
     }

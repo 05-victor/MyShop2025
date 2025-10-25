@@ -69,7 +69,8 @@ namespace MyShop.Server.Services.Implementations
                     // add role claims
                     foreach (var roleName in effectiveAuthoritiesResponse.RoleNames)
                     {
-                        claims.Add(new Claim(ClaimTypes.Role, roleName));
+                        //claims.Add(new Claim(ClaimTypes.Role, roleName));
+                        claims.Add(new Claim("role", roleName)); // Use "role" directly
                     }
                 }
 

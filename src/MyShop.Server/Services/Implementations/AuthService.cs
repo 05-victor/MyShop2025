@@ -46,18 +46,25 @@ public class AuthService : IAuthService
 
             // Validate and fetch roles if provided
             var roles = new List<Role>();
-            if (request.RoleNames != null && request.RoleNames.Any())
+            //if (request.RoleNames != null && request.RoleNames.Any())
+            //{
+            //    foreach (var roleName in request.RoleNames)
+            //    {
+            //        var role = await _roleRepository.GetByNameAsync(roleName);
+            //        if (role == null)
+            //        {
+            //            throw new InvalidOperationException($"Role '{roleName}' does not exist");
+            //        }
+            //        roles.Add(role);
+            //    }
+            //}
+            var defaultRole = await _roleRepository.GetByNameAsync("User");
+
+            if (defaultRole == null)
             {
-                foreach (var roleName in request.RoleNames)
-                {
-                    var role = await _roleRepository.GetByNameAsync(roleName);
-                    if (role == null)
-                    {
-                        throw new InvalidOperationException($"Role '{roleName}' does not exist");
-                    }
-                    roles.Add(role);
-                }
+                throw new InvalidOperationException("Default role 'User' does not exist");
             }
+            roles.Add(defaultRole);
 
             // Create new user with Profile
             var user = new User
@@ -67,17 +74,7 @@ public class AuthService : IAuthService
                 Email = request.Email,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = null,
-                IsEmailVerified = false,
-                IsTrialActive = request.ActivateTrial,
-                TrialStartDate = request.ActivateTrial ? DateTime.UtcNow : null,
-                TrialEndDate = request.ActivateTrial ? DateTime.UtcNow.AddDays(15) : null,
-                Roles = roles,
-                Profile = new Profile
-                {
-                    PhoneNumber = request.Sdt,
-                    Avatar = request.Avatar,
-                    FullName = request.Username // Default to username
-                }
+                Roles = roles
             };
 
             var createdUser = await _userRepository.CreateAsync(user);
@@ -145,11 +142,11 @@ public class AuthService : IAuthService
                 Id = user.Id,
                 Username = user.Username,
                 Email = user.Email,
-                PhoneNumber = user.Profile?.PhoneNumber,
                 CreatedAt = user.CreatedAt,
-                Avatar = user.Profile?.Avatar,
-                ActivateTrial = user.IsTrialActive,
-                IsVerified = user.IsEmailVerified,
+                IsTrialActive = user.IsTrialActive,
+                TrialStartDate = user.TrialStartDate,
+                TrialEndDate = user.TrialEndDate,
+                IsEmailVerified = user.IsEmailVerified,
                 RoleNames = user.Roles.Select(r => r.Name).ToList(),
                 Token = token
             };
