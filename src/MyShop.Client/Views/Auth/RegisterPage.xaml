@@ -22,14 +22,15 @@
             <ColumnDefinition Width="1*"/> 
         </Grid.ColumnDefinitions>
 
-        <!-- Left Side: Branding with Gradient Background -->
+        <!-- Left Side: Branding with Mountain Background -->
         <Grid Grid.Column="0" Grid.ColumnSpan="1">
             <Grid.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop Color="#10B981" Offset="0"/>
-                    <GradientStop Color="#059669" Offset="1"/>
-                </LinearGradientBrush>
+                <ImageBrush ImageSource="/Assets/register-background.jpg" 
+                           Stretch="UniformToFill"/>
             </Grid.Background>
+            
+            <!-- Dark overlay for better text readability -->
+            <Border Background="#66000000"/>
             
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="24">
                 <Image Source="/Assets/StoreLogo.png" Width="120" Height="120" Stretch="Uniform"/>
