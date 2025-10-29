@@ -12,7 +12,7 @@ namespace MyShop.Client.Core.Strategies
 
         public Type GetDashboardPageType()
         {
-            return typeof(Views.Dashboard.DashboardPage);
+            return typeof(Views.Dashboard.AdminDashboardPage);
         }
 
         public bool CanAccessFeature(string featureName)

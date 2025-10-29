@@ -60,7 +60,7 @@ namespace MyShop.Client.Core.Config
                     // ===== ViewModels =====
                     services.AddTransient<ViewModels.Auth.LoginViewModel>();
                     services.AddTransient<ViewModels.Auth.RegisterViewModel>();
-                    services.AddTransient<ViewModels.Dashboard.DashboardViewModel>();
+                    services.AddTransient<ViewModels.Dashboard.AdminDashboardViewModel>();
                     services.AddTransient<ViewModels.Dashboard.CustomerDashboardViewModel>();
                     services.AddTransient<ViewModels.Dashboard.SalesmanDashboardViewModel>();
                 })
