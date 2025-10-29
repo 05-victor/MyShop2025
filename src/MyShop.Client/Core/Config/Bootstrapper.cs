@@ -1,0 +1,70 @@
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using MyShop.Client.ApiServer;
+using Refit;
+using MyShop.Client.Core.Config;
+using MyShop.Client.Core.Repositories.Implementations;
+using MyShop.Client.Core.Repositories.Interfaces;
+using MyShop.Client.Core.Services.Implementations;
+using MyShop.Client.Core.Services.Interfaces;
+using MyShop.Client.Core.Strategies;
+using MyShop.Client.Helpers;
+using System;
+
+namespace MyShop.Client.Core.Config
+{
+    /// <summary>
+    /// Centralized Dependency Injection configuration
+    /// Tách biệt DI logic khỏi App.xaml.cs
+    /// </summary>
+    public static class Bootstrapper
+    {
+        public static IHost CreateHost()
+        {
+            return Host.CreateDefaultBuilder()
+                .ConfigureAppConfiguration((context, config) =>
+                {
+                    config.SetBasePath(AppContext.BaseDirectory);
+                    config.AddJsonFile("ApiServer/ApiConfig.json", optional: false, reloadOnChange: true);
+                })
+                .ConfigureServices((context, services) =>
+                {
+                    // Load configuration vào AppConfig singleton
+                    AppConfig.Instance.LoadFromConfiguration(context.Configuration);
+
+                    // ===== HTTP & API Clients =====
+                    services.AddTransient<AuthHeaderHandler>();
+
+                    services.AddRefitClient<IAuthApi>()
+                        .ConfigureHttpClient(client =>
+                        {
+                            client.BaseAddress = new Uri(AppConfig.Instance.ApiBaseUrl);
+                            client.Timeout = TimeSpan.FromSeconds(AppConfig.Instance.RequestTimeoutSeconds);
+                        })
+                        .AddHttpMessageHandler<AuthHeaderHandler>();
+
+                    // ===== Repositories =====
+                    services.AddScoped<IAuthRepository, AuthRepository>();
+
+                    // ===== Services =====
+                    services.AddSingleton<INavigationService, NavigationService>();
+                    services.AddTransient<IToastHelper, ToastHelper>();
+
+                    // ===== Strategies =====
+                    services.AddSingleton<IRoleStrategy, AdminDashboardStrategy>();
+                    services.AddSingleton<IRoleStrategy, SalesmanDashboardStrategy>();
+                    services.AddSingleton<IRoleStrategy, CustomerDashboardStrategy>();
+                    services.AddSingleton<IRoleStrategyFactory, RoleStrategyFactory>();
+
+                    // ===== ViewModels =====
+                    services.AddTransient<ViewModels.Auth.LoginViewModel>();
+                    services.AddTransient<ViewModels.Auth.RegisterViewModel>();
+                    services.AddTransient<ViewModels.Dashboard.DashboardViewModel>();
+                    services.AddTransient<ViewModels.Dashboard.CustomerDashboardViewModel>();
+                    services.AddTransient<ViewModels.Dashboard.SalesmanDashboardViewModel>();
+                })
+                .Build();
+        }
+    }
+}
