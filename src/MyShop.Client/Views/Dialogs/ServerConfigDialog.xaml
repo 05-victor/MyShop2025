@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="MyShop.Client.Views.Dialogs.ServerConfigDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="⚙️ Configure Server"
+    PrimaryButtonText="Save"
+    CloseButtonText="Cancel"
+    DefaultButton="Primary"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
+
+    <StackPanel Spacing="16" MinWidth="400">
+        <TextBlock Text="Enter the server URL to connect to:" 
+                   TextWrapping="Wrap"
+                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+        
+        <StackPanel Spacing="8">
+            <TextBlock Text="Server URL" FontWeight="SemiBold"/>
+            <TextBox x:Name="ServerUrlTextBox"
+                     PlaceholderText="https://localhost:7120"
+                     Text="{x:Bind ServerUrl, Mode=TwoWay}"/>
+            <TextBlock Text="Example: https://localhost:7120 or http://192.168.1.100:5000" 
+                       FontSize="12"
+                       Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                       TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <Border Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                BorderBrush="{ThemeResource SystemFillColorAttentionBrush}"
+                BorderThickness="1"
+                CornerRadius="4"
+                Padding="12">
+            <StackPanel Spacing="4">
+                <TextBlock Text="💡 Quick Tips:" FontWeight="SemiBold" FontSize="13"/>
+                <TextBlock Text="• Make sure the server is running before connecting"
+                           FontSize="12" TextWrapping="Wrap"/>
+                <TextBlock Text="• Use https:// for secure connections"
+                           FontSize="12" TextWrapping="Wrap"/>
+                <TextBlock Text="• Check firewall settings if connection fails"
+                           FontSize="12" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+
+        <TextBlock x:Name="ValidationMessage"
+                   Text=""
+                   Foreground="{ThemeResource SystemErrorTextColor}"
+                   FontSize="12"
+                   TextWrapping="Wrap"
+                   Visibility="Collapsed"/>
+    </StackPanel>
+</ContentDialog>
