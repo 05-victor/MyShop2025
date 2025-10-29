@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using MyShop.Client.Models;
 using MyShop.Client.ViewModels.Dashboard;
-using MyShop.Shared.DTOs.Responses;
 
 namespace MyShop.Client.Views.Dashboard
 {
@@ -21,9 +21,9 @@ namespace MyShop.Client.Views.Dashboard
         {
             base.OnNavigatedTo(e);
 
-            if (e.Parameter is LoginResponse loginData)
+            if (e.Parameter is User user)
             {
-                ViewModel.Initialize(loginData);
+                ViewModel.Initialize(user);
             }
         }
     }

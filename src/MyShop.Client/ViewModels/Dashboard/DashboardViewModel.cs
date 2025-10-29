@@ -1,23 +1,22 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyShop.Client.Helpers;
+using MyShop.Client.Models;
+using MyShop.Client.ViewModels.Base;
 using MyShop.Client.Views.Auth;
-using MyShop.Shared.DTOs.Responses;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace MyShop.Client.ViewModels.Dashboard
 {
-    public partial class DashboardViewModel : ObservableObject
+    public partial class DashboardViewModel : BaseViewModel
     {
         private readonly INavigationService _navigationService;
         private readonly IToastHelper _toastHelper;
 
         [ObservableProperty]
-        private LoginResponse? _currentUser;
+        private User? _currentUser;
 
         [ObservableProperty]
         private bool _isLoading = false;
@@ -65,7 +64,7 @@ namespace MyShop.Client.ViewModels.Dashboard
             _toastHelper = toastHelper;
         }
 
-        public void Initialize(LoginResponse user)
+        public void Initialize(User user)
         {
             CurrentUser = user;
             WelcomeMessage = $"Welcome back, {user.Username}!";
@@ -74,7 +73,7 @@ namespace MyShop.Client.ViewModels.Dashboard
 
         private async void LoadDashboardDataAsync()
         {
-            IsLoading = true;
+            SetLoadingState(true);
 
             try
             {
@@ -139,11 +138,11 @@ namespace MyShop.Client.ViewModels.Dashboard
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading dashboard data: {ex.Message}");
-                _toastHelper.ShowError("Failed to load dashboard data");
+                SetError("Failed to load dashboard data", ex);
             }
             finally
             {
-                IsLoading = false;
+                SetLoadingState(false);
             }
         }
 

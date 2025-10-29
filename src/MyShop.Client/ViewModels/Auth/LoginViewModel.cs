@@ -1,21 +1,25 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MyShop.Client.ApiServer;
+using Microsoft.UI.Xaml.Controls;
+using MyShop.Client.Core.Repositories.Interfaces;
+using MyShop.Client.Core.Services.Interfaces;
 using MyShop.Client.Helpers;
+using MyShop.Client.ViewModels.Base;
 using MyShop.Client.Views.Auth;
-using MyShop.Client.Views.Dashboard;
-using MyShop.Shared.DTOs.Requests;
-using Refit;
+using MyShop.Client.Views.Dialogs;
 using System;
+using System.Net.Http;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace MyShop.Client.ViewModels.Auth
 {
-    public partial class LoginViewModel : ObservableObject
+    public partial class LoginViewModel : BaseViewModel
     {
-        private readonly IAuthApi _authApi;
+        private readonly IAuthRepository _authRepository;
         private readonly INavigationService _navigationService;
         private readonly IToastHelper _toastHelper;
+        private readonly IRoleStrategyFactory _roleStrategyFactory;
 
         [ObservableProperty]
         private string _username = string.Empty;
@@ -26,11 +30,7 @@ namespace MyShop.Client.ViewModels.Auth
         [ObservableProperty]
         private bool _isRememberMe = true;
 
-        [ObservableProperty]
-        private bool _isLoading = false;
-
-        [ObservableProperty]
-        private string _errorMessage = string.Empty;
+        // IsLoading đã được khai báo trong BaseViewModel, không cần khai báo lại
 
         [ObservableProperty]
         private string _usernameError = string.Empty;
@@ -38,25 +38,160 @@ namespace MyShop.Client.ViewModels.Auth
         [ObservableProperty]
         private string _passwordError = string.Empty;
 
+        public string LoginButtonText => IsLoading ? "Signing in..." : "Sign In";
+
         public LoginViewModel(
-            IAuthApi authApi,
+            IAuthRepository authRepository,
             INavigationService navigationService,
-            IToastHelper toastHelper)
+            IToastHelper toastHelper,
+            IRoleStrategyFactory roleStrategyFactory)
         {
-            _authApi = authApi;
+            _authRepository = authRepository;
             _navigationService = navigationService;
             _toastHelper = toastHelper;
+            _roleStrategyFactory = roleStrategyFactory;
+
+            // Notify LoginButtonText when IsLoading changes
+            PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(IsLoading))
+                {
+                    OnPropertyChanged(nameof(LoginButtonText));
+                }
+            };
         }
 
         [RelayCommand]
         private async Task AttemptLoginAsync()
         {
             // Clear previous errors
-            ErrorMessage = string.Empty;
+            ClearError();
             UsernameError = string.Empty;
             PasswordError = string.Empty;
 
             // Validation
+            if (!ValidateInput())
+            {
+                return;
+            }
+
+            // Hiện loading overlay ngay lập tức
+            SetLoadingState(true);
+
+            try
+            {
+
+                // Use repository thay vì gọi trực tiếp API
+                var result = await _authRepository.LoginAsync(Username.Trim(), Password);
+
+                if (result.IsSuccess && result.Data != null)
+                {
+                    var user = result.Data;
+
+                    // Save token if remember me is checked
+                    if (IsRememberMe)
+                    {
+                        CredentialHelper.SaveToken(user.Token);
+                    }
+
+                    // Show success message
+                    _toastHelper.ShowSuccess($"Welcome back, {user.Username}!");
+
+                    // Use strategy pattern để navigate đến đúng dashboard
+                    var primaryRole = user.GetPrimaryRole();
+                    var strategy = _roleStrategyFactory.GetStrategy(primaryRole);
+                    var pageType = strategy.GetDashboardPageType();
+                    
+                    _navigationService.NavigateTo(pageType, user);
+                }
+                else
+                {
+                    // Nếu lỗi mạng (repository đã bắt và đính kèm Exception), hiển thị dialog kết nối
+                    if (result.Exception is HttpRequestException || result.Exception is SocketException || result.Exception is TaskCanceledException)
+                    {
+                        await HandleConnectionErrorAsync();
+                    }
+                    else
+                    {
+                        // Repository đã handle hết exceptions và map thành error message
+                        SetError(result.ErrorMessage ?? "Login failed. Please try again.");
+                    }
+                }
+            }
+            catch (HttpRequestException httpEx)
+            {
+                System.Diagnostics.Debug.WriteLine($"Network Error: {httpEx.Message}");
+                // Show immediate inline error to guarantee UX baseline
+                SetError("Cannot connect to server. Please check your network connection and ensure the server is running.");
+                // Then offer richer UX dialog if possible
+                await HandleConnectionErrorAsync();
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Unexpected Error in LoginViewModel: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+                SetError("An unexpected error occurred. Please try again.");
+            }
+            finally
+            {
+                SetLoadingState(false);
+            }
+        }
+
+        private async Task HandleConnectionErrorAsync()
+        {
+            // Ensure a baseline inline message is visible
+            SetError("Cannot connect to server. Please check your network connection and ensure the server is running.");
+
+            var action = await _toastHelper.ShowConnectionErrorAsync(
+                "Cannot connect to server. Please check your network connection and ensure the server is running.");
+
+            switch (action)
+            {
+                case ConnectionErrorAction.Retry:
+                    // Retry login
+                    await AttemptLoginAsync();
+                    break;
+
+                case ConnectionErrorAction.ConfigureServer:
+                    // Show server config dialog
+                    await ShowServerConfigDialogAsync();
+                    break;
+
+                case ConnectionErrorAction.Cancel:
+                    // Keep the inline error message visible as a fallback
+                    break;
+            }
+        }
+
+        private async Task ShowServerConfigDialogAsync()
+        {
+            try
+            {
+                var dialog = new ServerConfigDialog();
+                
+                // Get XamlRoot from current window
+                var window = App.MainWindow;
+                if (window?.Content != null)
+                {
+                    dialog.XamlRoot = window.Content.XamlRoot;
+                    var result = await dialog.ShowAsync();
+
+                    if (result == ContentDialogResult.Primary)
+                    {
+                        _toastHelper.ShowSuccess("Server configuration saved! You may need to restart the app.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error showing server config dialog: {ex.Message}");
+                SetError("Failed to open server configuration dialog.");
+            }
+        }
+
+        private bool ValidateInput()
+        {
             bool isValid = true;
 
             if (string.IsNullOrWhiteSpace(Username))
@@ -76,75 +211,7 @@ namespace MyShop.Client.ViewModels.Auth
                 isValid = false;
             }
 
-            if (!isValid)
-            {
-                return;
-            }
-
-            IsLoading = true;
-
-            try
-            {
-                var request = new LoginRequest
-                {
-                    UsernameOrEmail = Username.Trim(),
-                    Password = Password
-                };
-
-                var response = await _authApi.LoginAsync(request);
-
-                if (response is not null && response.Success && response.Result != null)
-                {
-                    var loginData = response.Result;
-
-                    // Save token if remember me is checked
-                    if (IsRememberMe)
-                    {
-                        CredentialHelper.SaveToken(loginData.Token);
-                    }
-
-                    // Show success message
-                    _toastHelper.ShowSuccess($"Welcome back, {loginData.Username}!");
-
-                    // Navigate to role-specific dashboard
-                    var pageType = ChooseDashboardPage(loginData.RoleNames);
-                    _navigationService.NavigateTo(pageType, loginData);
-                }
-                else
-                {
-                    ErrorMessage = MapLoginError(response?.Code ?? 0, response?.Message);
-                }
-            }
-            catch (ApiException apiEx)
-            {
-                System.Diagnostics.Debug.WriteLine($"API Error: {apiEx.StatusCode} - {apiEx.Content}");
-                
-                if (apiEx.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-                {
-                    ErrorMessage = "Invalid username or password. Please try again.";
-                }
-                else if (apiEx.StatusCode == System.Net.HttpStatusCode.NotFound)
-                {
-                    ErrorMessage = "Account not found. Please check your username or email.";
-                }
-                else if (apiEx.StatusCode == System.Net.HttpStatusCode.BadRequest)
-                {
-                    ErrorMessage = "Invalid request. Please check your input.";
-                }
-                else
-                {
-                    ErrorMessage = "Network error. Please check your connection.";
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"General Error: {ex.Message}");
-                ErrorMessage = "An unexpected error occurred. Please try again.";
-            }
-            finally
-            {
-                IsLoading = false;
-            }
+            return isValid;
         }
 
         [RelayCommand]
@@ -183,47 +250,7 @@ namespace MyShop.Client.ViewModels.Auth
         [RelayCommand]
         private async Task ConfigureServer()
         {
-            try {
-                IsLoading = true;
-                ErrorMessage = string.Empty;
-
-                // TODO: Implement server configuration dialog
-                System.Diagnostics.Debug.WriteLine("Cấu hình Server clicked - cần implement chức năng");
-
-                // Tạm thời hiển thị thông báo
-                await Task.Delay(1000); // Simulate network call
-                ErrorMessage = "Server configuration feature coming soon!";
-            }
-            catch (Exception ex) {
-                ErrorMessage = $"Lỗi đăng nhập Server: {ex.Message}";
-            }
-            finally {
-                IsLoading = false;
-            }
-        }
-
-        private static System.Type ChooseDashboardPage(System.Collections.Generic.IEnumerable<string> roleNames)
-        {
-            var roles = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            if (roleNames != null)
-            {
-                foreach (var r in roleNames)
-                {
-                    if (!string.IsNullOrWhiteSpace(r)) roles.Add(r.Trim());
-                }
-            }
-
-            if (roles.Contains("ADMIN")) return typeof(MyShop.Client.Views.Dashboard.DashboardPage);
-            if (roles.Contains("SALEMAN") || roles.Contains("SALESMAN")) return typeof(MyShop.Client.Views.Dashboard.SalesmanDashboardPage);
-            return typeof(MyShop.Client.Views.Dashboard.CustomerDashboardPage);
-        }
-
-        private static string MapLoginError(int code, string? message)
-        {
-            if (code == 401) return "Invalid username or password. Please try again.";
-            if (code == 404) return "Account not found. Please check your username or email.";
-            if (!string.IsNullOrWhiteSpace(message)) return message!;
-            return "Login failed. Please try again.";
+            await ShowServerConfigDialogAsync();
         }
     }
 }

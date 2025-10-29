@@ -1,19 +1,20 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyShop.Client.Helpers;
+using MyShop.Client.Models;
+using MyShop.Client.ViewModels.Base;
 using MyShop.Client.Views.Auth;
-using MyShop.Shared.DTOs.Responses;
 using System.Threading.Tasks;
 
 namespace MyShop.Client.ViewModels.Dashboard
 {
-    public partial class SalesmanDashboardViewModel : ObservableObject
+    public partial class SalesmanDashboardViewModel : BaseViewModel
     {
         private readonly INavigationService _navigationService;
         private readonly IToastHelper _toastHelper;
 
         [ObservableProperty]
-        private LoginResponse? _currentUser;
+        private User? _currentUser;
 
         [ObservableProperty]
         private string _title = "Salesman Dashboard";
@@ -24,7 +25,7 @@ namespace MyShop.Client.ViewModels.Dashboard
             _toastHelper = toastHelper;
         }
 
-        public void Initialize(LoginResponse user)
+        public void Initialize(User user)
         {
             CurrentUser = user;
         }

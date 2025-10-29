@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:converters="using:MyShop.Client.Converters"
+    xmlns:converters="using:MyShop.Client.Views.Converters"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Auth"
     mc:Ignorable="d"
     Background="{ThemeResource LayerFillColorDefaultBrush}">
@@ -55,7 +55,7 @@
 
         <!-- Right Side: Login Form -->
         <Grid Grid.Column="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Canvas.ZIndex="0">
                 <StackPanel MaxWidth="400" 
                            HorizontalAlignment="Center" 
                            VerticalAlignment="Center"
@@ -160,7 +160,9 @@
                                          IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
                                          Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
                                          Foreground="White"/>
-                            <TextBlock Text="Sign In" VerticalAlignment="Center"/>
+                            <TextBlock Text="{x:Bind ViewModel.LoginButtonText, Mode=OneWay}" 
+                                      VerticalAlignment="Center"
+                                      Foreground="White"/>
                         </StackPanel>
                     </Button>
 
@@ -227,6 +229,7 @@
 
             <!-- Loading Overlay -->
             <Border Background="#80000000"
+                   Canvas.ZIndex="999"
                    Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel HorizontalAlignment="Center" 
                            VerticalAlignment="Center" 

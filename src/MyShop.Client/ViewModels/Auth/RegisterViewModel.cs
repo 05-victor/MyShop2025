@@ -7,6 +7,7 @@ using MyShop.Shared.DTOs.Requests;
 using Refit;
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -131,6 +132,11 @@ namespace MyShop.Client.ViewModels.Auth
                 {
                     ErrorMessage = "Network error. Please check your connection.";
                 }
+            }
+            catch (HttpRequestException httpEx)
+            {
+                System.Diagnostics.Debug.WriteLine($"Network Error: {httpEx.Message}");
+                ErrorMessage = "Cannot connect to server. Please check your network connection and ensure the server is running.";
             }
             catch (Exception ex)
             {
