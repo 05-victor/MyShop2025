@@ -1,14 +1,12 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
-using MyShop.Client.ApiServer;
+using MyShop.Client.Core.Adapters;
+using MyShop.Client.Core.Config;
+using MyShop.Client.Core.Repositories.Interfaces;
+using MyShop.Client.Core.Services.Interfaces;
 using MyShop.Client.Helpers;
 using MyShop.Client.Views.Auth;
-using MyShop.Client.Views.Dashboard;
-using MyShop.Shared.DTOs.Common;
-using MyShop.Shared.DTOs.Responses;
-using Refit;
 using System;
 using System.Threading.Tasks;
 
@@ -19,50 +17,22 @@ namespace MyShop.Client
         private readonly IHost _host;
         public new static App Current => (App)Application.Current;
         public IServiceProvider Services => _host.Services;
+        public static MainWindow? MainWindow { get; private set; }
 
         public App()
         {
             this.InitializeComponent();
-            _host = Host.CreateDefaultBuilder()
-                .ConfigureAppConfiguration((context, config) => {
-                    config.SetBasePath(AppContext.BaseDirectory);
-                    config.AddJsonFile("ApiServer/ApiConfig.json", optional: false, reloadOnChange: true);
-                })
-                .ConfigureServices((context, services) => {
-                    services.AddTransient<AuthHeaderHandler>();
-
-                    services.AddRefitClient<IAuthApi>()
-                        .ConfigureHttpClient(client => {
-                            var baseUrl = context.Configuration["BaseUrl"];
-                            if (string.IsNullOrEmpty(baseUrl))
-                            {
-                                throw new InvalidOperationException("BaseUrl is not configured in ApiConfig.json");
-                            }
-                            client.BaseAddress = new Uri(baseUrl);
-                        })
-                        .AddHttpMessageHandler<AuthHeaderHandler>();
-
-                    services.AddSingleton<INavigationService, NavigationService>();
-                    services.AddTransient<IToastHelper, ToastHelper>();
-
-                    // ViewModels
-                    services.AddTransient<MyShop.Client.ViewModels.Auth.LoginViewModel>();
-                    services.AddTransient<MyShop.Client.ViewModels.Auth.RegisterViewModel>();
-                    services.AddTransient<MyShop.Client.ViewModels.Dashboard.DashboardViewModel>();
-                    services.AddTransient<MyShop.Client.ViewModels.Dashboard.CustomerDashboardViewModel>();
-                    services.AddTransient<MyShop.Client.ViewModels.Dashboard.SalesmanDashboardViewModel>();
-                })
-                .Build();
+            _host = Bootstrapper.CreateHost();
         }
 
         protected override async void OnLaunched(LaunchActivatedEventArgs args)
         {
             try
             {
-                var window = new MainWindow();
+                MainWindow = new MainWindow();
 
                 var navigationService = Services.GetRequiredService<INavigationService>();
-                navigationService.Initialize(window.RootFrame);
+                navigationService.Initialize(MainWindow.RootFrame);
 
                 var token = CredentialHelper.GetToken();
                 bool isLoggedIn = false;
@@ -71,24 +41,20 @@ namespace MyShop.Client
                 {
                     try
                     {
-                        var authApi = Services.GetRequiredService<IAuthApi>();
-                        var response = await authApi.GetMeAsync();
+                        var authRepository = Services.GetRequiredService<IAuthRepository>();
+                        var result = await authRepository.GetCurrentUserAsync();
 
-                        // Use correct MyShop.Shared.DTOs.Common.ApiResponse<UserInfoResponse> structure
-                        if (response is not null && response.Success && response.Result is not null)
+                        if (result.IsSuccess && result.Data != null)
                         {
-                            var userInfo = response.Result;
-                            var loginData = new LoginResponse
-                            {
-                                Id = userInfo.Id,
-                                Username = userInfo.Username,
-                                Email = userInfo.Email,
-                                Token = token,
-                                RoleNames = userInfo.RoleNames,
-                                CreatedAt = userInfo.CreatedAt
-                            };
-                            var pageType = ChooseDashboardPage(userInfo.RoleNames);
-                            navigationService.NavigateTo(pageType, loginData);
+                            var user = result.Data;
+                            
+                            // Use strategy pattern để navigate
+                            var roleStrategyFactory = Services.GetRequiredService<IRoleStrategyFactory>();
+                            var primaryRole = user.GetPrimaryRole();
+                            var strategy = roleStrategyFactory.GetStrategy(primaryRole);
+                            var pageType = strategy.GetDashboardPageType();
+                            
+                            navigationService.NavigateTo(pageType, user);
                             isLoggedIn = true;
                         }
                         else
@@ -96,14 +62,9 @@ namespace MyShop.Client
                             CredentialHelper.RemoveToken();
                         }
                     }
-                    catch (ApiException ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"API Error on startup (token likely expired): {ex.StatusCode}");
-                        CredentialHelper.RemoveToken();
-                    }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine($"General Error on startup: {ex.Message}");
+                        System.Diagnostics.Debug.WriteLine($"Error on startup: {ex.Message}");
                         CredentialHelper.RemoveToken();
                     }
                 }
@@ -113,7 +74,7 @@ namespace MyShop.Client
                     navigationService.NavigateTo(typeof(LoginPage));
                 }
 
-                window.Activate();
+                MainWindow.Activate();
             }
             catch (Exception ex)
             {
@@ -134,24 +95,6 @@ namespace MyShop.Client
                 
                 Environment.Exit(1);
             }
-        }
-
-        private static Type ChooseDashboardPage(System.Collections.Generic.IEnumerable<string> roleNames)
-        {
-            // Normalize roles to upper-case for comparison
-            var roles = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            if (roleNames != null)
-            {
-                foreach (var r in roleNames)
-                {
-                    if (!string.IsNullOrWhiteSpace(r)) roles.Add(r.Trim());
-                }
-            }
-
-            if (roles.Contains("ADMIN")) return typeof(DashboardPage);
-            if (roles.Contains("SALEMAN") || roles.Contains("SALESMAN")) return typeof(SalesmanDashboardPage);
-            // default customer
-            return typeof(CustomerDashboardPage);
         }
     }
 }
