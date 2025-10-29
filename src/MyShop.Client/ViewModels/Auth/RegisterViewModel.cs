@@ -109,7 +109,7 @@ namespace MyShop.Client.ViewModels.Auth
                     ErrorMessage = response?.Message ?? "Registration failed. Please try again.";
                 }
             }
-            catch (ApiException apiEx)
+            catch (Refit.ApiException apiEx)
             {
                 System.Diagnostics.Debug.WriteLine($"API Error: {apiEx.StatusCode} - {apiEx.Content}");
                 

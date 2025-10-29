@@ -46,7 +46,7 @@ namespace MyShop.Client.Core.Repositories.Implementations
 
                 return Result<User>.Failure(response?.Message ?? "Login failed");
             }
-            catch (ApiException apiEx)
+            catch (Refit.ApiException apiEx)
             {
                 var errorMessage = MapApiError(apiEx);
                 return Result<User>.Failure(errorMessage, apiEx);
@@ -92,7 +92,7 @@ namespace MyShop.Client.Core.Repositories.Implementations
 
                 return Result<User>.Failure(response?.Message ?? "Registration failed");
             }
-            catch (ApiException apiEx)
+            catch (Refit.ApiException apiEx)
             {
                 var errorMessage = MapApiError(apiEx);
                 return Result<User>.Failure(errorMessage, apiEx);
@@ -125,7 +125,7 @@ namespace MyShop.Client.Core.Repositories.Implementations
 
                 return Result<User>.Failure(response?.Message ?? "Failed to get user info");
             }
-            catch (ApiException apiEx)
+            catch (Refit.ApiException apiEx)
             {
                 var errorMessage = MapApiError(apiEx);
                 return Result<User>.Failure(errorMessage, apiEx);
@@ -145,7 +145,7 @@ namespace MyShop.Client.Core.Repositories.Implementations
         /// <summary>
         /// Map API errors thành user-friendly messages
         /// </summary>
-        private string MapApiError(ApiException apiEx)
+        private string MapApiError(Refit.ApiException apiEx)
         {
             System.Diagnostics.Debug.WriteLine($"API Error: {apiEx.StatusCode} - {apiEx.Content}");
 

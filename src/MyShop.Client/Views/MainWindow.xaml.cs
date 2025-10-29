@@ -44,7 +44,7 @@ namespace MyShop.Client {
             if (appWindow.Presenter is OverlappedPresenter presenter) {
                 presenter.IsResizable = true;
                 presenter.IsMaximizable = true;
-                appWindow.Resize(new Windows.Graphics.SizeInt32(1200, 800));
+                appWindow.Resize(new Windows.Graphics.SizeInt32(1200, 900));
             }
         }
     }
