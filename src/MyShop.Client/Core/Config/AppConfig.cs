@@ -14,6 +14,7 @@ namespace MyShop.Client.Core.Config
         public string ApiBaseUrl { get; private set; } = string.Empty;
         public int RequestTimeoutSeconds { get; private set; } = 30;
         public bool EnableLogging { get; private set; } = true;
+        public bool UseMockData { get; private set; } = false;
 
         private AppConfig() { }
 
@@ -22,13 +23,23 @@ namespace MyShop.Client.Core.Config
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
 
-            ApiBaseUrl = configuration["BaseUrl"] 
-                ?? throw new InvalidOperationException("BaseUrl not configured in ApiConfig.json");
-            
-            RequestTimeoutSeconds = int.Parse(configuration["RequestTimeout"] ?? "30");
-            EnableLogging = bool.Parse(configuration["EnableLogging"] ?? "true");
+            UseMockData = bool.Parse(configuration["UseMockData"] ?? "false");
 
-            System.Diagnostics.Debug.WriteLine($"[AppConfig] Loaded: BaseUrl={ApiBaseUrl}");
+            if (UseMockData)
+            {
+                ApiBaseUrl = "mock://localhost";
+                System.Diagnostics.Debug.WriteLine($"[AppConfig] MOCK MODE Enabled");
+            }
+            else
+            {
+                ApiBaseUrl = configuration["BaseUrl"] 
+                    ?? throw new InvalidOperationException("BaseUrl not configured in ApiConfig.json");
+                
+                RequestTimeoutSeconds = int.Parse(configuration["RequestTimeout"] ?? "30");
+                System.Diagnostics.Debug.WriteLine($"[AppConfig] Loaded: BaseUrl={ApiBaseUrl}");
+            }
+
+            EnableLogging = bool.Parse(configuration["EnableLogging"] ?? "true");
         }
     }
 }

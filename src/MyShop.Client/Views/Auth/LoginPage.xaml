@@ -56,6 +56,18 @@
 
         <!-- Right Side: Login Form -->
         <Grid Grid.Column="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+            <!-- Mock Mode Banner -->
+            <InfoBar x:Name="MockModeBanner"
+                     Title="🎭 Demo Mode"
+                     Message="Using mock data. Try: admin/admin123, salesman/sales123, or customer/customer123"
+                     Severity="Informational"
+                     IsOpen="False"
+                     IsClosable="False"
+                     VerticalAlignment="Top"
+                     HorizontalAlignment="Stretch"
+                     Canvas.ZIndex="1000"
+                     Margin="24,24,24,0"/>
+
             <ScrollViewer VerticalScrollBarVisibility="Auto" Canvas.ZIndex="0">
                 <StackPanel MaxWidth="400" 
                            HorizontalAlignment="Center" 
@@ -205,17 +217,27 @@
                     </Button>
 
                     <!-- Register Link -->
-                    <StackPanel Orientation="Horizontal" 
-                               HorizontalAlignment="Center"
+                    <StackPanel HorizontalAlignment="Center"
                                Spacing="6"
                                Margin="0,16,0,0">
-                        <TextBlock Text="Don't have an account?" 
-                                  FontSize="14"
-                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <HyperlinkButton Content="Register here"
-                                        Command="{x:Bind ViewModel.NavigateToRegisterCommand}"
-                                        FontSize="14"
-                                        Padding="0"/>
+                        <StackPanel Orientation="Horizontal" 
+                                   HorizontalAlignment="Center"
+                                   Spacing="6">
+                            <TextBlock Text="Don't have an account?" 
+                                      FontSize="14"
+                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <HyperlinkButton x:Name="RegisterButton"
+                                            Content="Register here"
+                                            Command="{x:Bind ViewModel.NavigateToRegisterCommand}"
+                                            FontSize="14"
+                                            Padding="0"/>
+                        </StackPanel>
+                        <TextBlock x:Name="RegisterDisabledText"
+                                  Text="⚠️ Registration disabled in Mock mode"
+                                  FontSize="11"
+                                  Foreground="{ThemeResource SystemFillColorAttentionBrush}"
+                                  HorizontalAlignment="Center"
+                                  Visibility="Collapsed"/>
                     </StackPanel>
 
                     <!-- Server Config Link -->

@@ -33,19 +33,37 @@ namespace MyShop.Client.Core.Config
                     // Load configuration vào AppConfig singleton
                     AppConfig.Instance.LoadFromConfiguration(context.Configuration);
 
-                    // ===== HTTP & API Clients =====
-                    services.AddTransient<AuthHeaderHandler>();
+                    // Check if using Mock Data
+                    var useMockData = context.Configuration.GetValue<bool>("UseMockData");
+                    System.Diagnostics.Debug.WriteLine($"[Bootstrapper] UseMockData={useMockData}");
 
-                    services.AddRefitClient<IAuthApi>()
-                        .ConfigureHttpClient(client =>
-                        {
-                            client.BaseAddress = new Uri(AppConfig.Instance.ApiBaseUrl);
-                            client.Timeout = TimeSpan.FromSeconds(AppConfig.Instance.RequestTimeoutSeconds);
-                        })
-                        .AddHttpMessageHandler<AuthHeaderHandler>();
+                    if (useMockData)
+                    {
+                        // ===== Mock Mode - No HTTP Clients =====
+                        System.Diagnostics.Debug.WriteLine("[Bootstrapper] Using MOCK DATA mode");
+                        
+                        // ===== Repositories (Mock) =====
+                        services.AddScoped<IAuthRepository, MockAuthRepository>();
+                    }
+                    else
+                    {
+                        // ===== Real API Mode =====
+                        System.Diagnostics.Debug.WriteLine("[Bootstrapper] Using REAL API mode");
 
-                    // ===== Repositories =====
-                    services.AddScoped<IAuthRepository, AuthRepository>();
+                        // ===== HTTP & API Clients =====
+                        services.AddTransient<AuthHeaderHandler>();
+
+                        services.AddRefitClient<IAuthApi>()
+                            .ConfigureHttpClient(client =>
+                            {
+                                client.BaseAddress = new Uri(AppConfig.Instance.ApiBaseUrl);
+                                client.Timeout = TimeSpan.FromSeconds(AppConfig.Instance.RequestTimeoutSeconds);
+                            })
+                            .AddHttpMessageHandler<AuthHeaderHandler>();
+
+                        // ===== Repositories (Real) =====
+                        services.AddScoped<IAuthRepository, AuthRepository>();
+                    }
 
                     // ===== Services =====
                     services.AddSingleton<INavigationService, NavigationService>();

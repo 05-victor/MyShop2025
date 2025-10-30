@@ -175,12 +175,8 @@ namespace MyShop.Client.ViewModels.Auth
                 if (window?.Content != null)
                 {
                     dialog.XamlRoot = window.Content.XamlRoot;
-                    var result = await dialog.ShowAsync();
-
-                    if (result == ContentDialogResult.Primary)
-                    {
-                        _toastHelper.ShowSuccess("Server configuration saved! You may need to restart the app.");
-                    }
+                    await dialog.ShowAsync();
+                    // Note: Dialog handles restart internally if config changed
                 }
             }
             catch (Exception ex)
