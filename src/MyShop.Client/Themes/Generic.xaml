@@ -1,0 +1,28 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ============================================= -->
+    <!-- MYSHOP 2025 DESIGN SYSTEM                    -->
+    <!-- Main resource dictionary that merges all     -->
+    <!-- design tokens and theme resources            -->
+    <!-- ============================================= -->
+    
+    <ResourceDictionary.MergedDictionaries>
+        <!-- Core Design Tokens -->
+        <ResourceDictionary Source="Colors.xaml"/>
+        <ResourceDictionary Source="Brushes.xaml"/>
+        <ResourceDictionary Source="Typography.xaml"/>
+        <ResourceDictionary Source="Spacing.xaml"/>
+        <ResourceDictionary Source="Shadows.xaml"/>
+        <ResourceDictionary Source="Animations.xaml"/>
+        <ResourceDictionary Source="Icons.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- ============================================= -->
+    <!-- ADDITIONAL GLOBAL RESOURCES                  -->
+    <!-- ============================================= -->
+    
+    <!-- Default CompositeTransform for animations -->
+    <CompositeTransform x:Key="DefaultTransform"/>
+
+</ResourceDictionary>
