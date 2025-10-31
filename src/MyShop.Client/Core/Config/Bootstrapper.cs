@@ -68,6 +68,7 @@ namespace MyShop.Client.Core.Config
                     // ===== Services =====
                     services.AddSingleton<INavigationService, NavigationService>();
                     services.AddTransient<IToastHelper, ToastHelper>();
+                    services.AddSingleton<IValidationService, ValidationService>();
 
                     // ===== Strategies =====
                     services.AddSingleton<IRoleStrategy, AdminDashboardStrategy>();

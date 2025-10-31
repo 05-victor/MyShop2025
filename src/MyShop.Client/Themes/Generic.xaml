@@ -16,6 +16,10 @@
         <ResourceDictionary Source="Shadows.xaml"/>
         <ResourceDictionary Source="Animations.xaml"/>
         <ResourceDictionary Source="Icons.xaml"/>
+        
+        <!-- Component Styles -->
+        <ResourceDictionary Source="InputStyles.xaml"/>
+        <ResourceDictionary Source="ButtonStyles.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
     <!-- ============================================= -->

@@ -10,6 +10,7 @@ using MyShop.Client.Views.Dialogs;
 using System;
 using System.Net.Http;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MyShop.Client.ViewModels.Auth
@@ -20,17 +21,23 @@ namespace MyShop.Client.ViewModels.Auth
         private readonly INavigationService _navigationService;
         private readonly IToastHelper _toastHelper;
         private readonly IRoleStrategyFactory _roleStrategyFactory;
+        private readonly IValidationService _validationService;
+        private CancellationTokenSource? _loginCancellationTokenSource;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsUsernameValid))]
+        [NotifyPropertyChangedFor(nameof(IsFormValid))]
+        [NotifyCanExecuteChangedFor(nameof(AttemptLoginCommand))]
         private string _username = string.Empty;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsPasswordValid))]
+        [NotifyPropertyChangedFor(nameof(IsFormValid))]
+        [NotifyCanExecuteChangedFor(nameof(AttemptLoginCommand))]
         private string _password = string.Empty;
 
         [ObservableProperty]
         private bool _isRememberMe = true;
-
-        // IsLoading đã được khai báo trong BaseViewModel, không cần khai báo lại
 
         [ObservableProperty]
         private string _usernameError = string.Empty;
@@ -38,18 +45,39 @@ namespace MyShop.Client.ViewModels.Auth
         [ObservableProperty]
         private string _passwordError = string.Empty;
 
+        /// <summary>
+        /// Kiểm tra username có hợp lệ không
+        /// </summary>
+        public bool IsUsernameValid => string.IsNullOrWhiteSpace(UsernameError);
+
+        /// <summary>
+        /// Kiểm tra password có hợp lệ không
+        /// </summary>
+        public bool IsPasswordValid => string.IsNullOrWhiteSpace(PasswordError);
+
+        /// <summary>
+        /// Kiểm tra form có hợp lệ không (để enable/disable nút Login)
+        /// </summary>
+        public bool IsFormValid => 
+            IsUsernameValid && 
+            IsPasswordValid && 
+            !string.IsNullOrWhiteSpace(Username) && 
+            !string.IsNullOrWhiteSpace(Password);
+
         public string LoginButtonText => IsLoading ? "Signing in..." : "Sign In";
 
         public LoginViewModel(
             IAuthRepository authRepository,
             INavigationService navigationService,
             IToastHelper toastHelper,
-            IRoleStrategyFactory roleStrategyFactory)
+            IRoleStrategyFactory roleStrategyFactory,
+            IValidationService validationService)
         {
             _authRepository = authRepository;
             _navigationService = navigationService;
             _toastHelper = toastHelper;
             _roleStrategyFactory = roleStrategyFactory;
+            _validationService = validationService;
 
             // Notify LoginButtonText when IsLoading changes
             PropertyChanged += (s, e) =>
@@ -61,27 +89,67 @@ namespace MyShop.Client.ViewModels.Auth
             };
         }
 
-        [RelayCommand]
-        private async Task AttemptLoginAsync()
+        /// <summary>
+        /// Real-time validation khi username thay đổi
+        /// </summary>
+        partial void OnUsernameChanged(string value)
         {
-            // Clear previous errors
-            ClearError();
-            UsernameError = string.Empty;
-            PasswordError = string.Empty;
-
-            // Validation
-            if (!ValidateInput())
+            if (!string.IsNullOrWhiteSpace(value))
             {
-                return;
+                var result = _validationService.ValidateUsername(value);
+                UsernameError = result.IsValid ? string.Empty : result.ErrorMessage;
             }
+            else
+            {
+                UsernameError = string.Empty;
+            }
+        }
 
-            // Hiện loading overlay ngay lập tức
-            SetLoadingState(true);
+        /// <summary>
+        /// Real-time validation khi password thay đổi
+        /// </summary>
+        partial void OnPasswordChanged(string value)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                var result = _validationService.ValidatePassword(value);
+                PasswordError = result.IsValid ? string.Empty : result.ErrorMessage;
+            }
+            else
+            {
+                PasswordError = string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Kiểm tra xem có thể attempt login không
+        /// </summary>
+        private bool CanAttemptLogin() => IsFormValid && !IsLoading;
+
+        [RelayCommand(CanExecute = nameof(CanAttemptLogin), IncludeCancelCommand = true)]
+        private async Task AttemptLoginAsync(CancellationToken cancellationToken)
+        {
+            // Cancel previous login attempt if still running
+            _loginCancellationTokenSource?.Cancel();
+            _loginCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
             try
             {
+                // Clear previous errors
+                ClearError();
+                UsernameError = string.Empty;
+                PasswordError = string.Empty;
 
-                // Use repository thay vì gọi trực tiếp API
+                // Validation
+                if (!ValidateInput())
+                {
+                    return;
+                }
+
+                // Hiện loading overlay ngay lập tức
+                SetLoadingState(true);
+
+                // Use repository với cancellation token support
                 var result = await _authRepository.LoginAsync(Username.Trim(), Password);
 
                 if (result.IsSuccess && result.Data != null)
@@ -150,7 +218,7 @@ namespace MyShop.Client.ViewModels.Auth
             {
                 case ConnectionErrorAction.Retry:
                     // Retry login
-                    await AttemptLoginAsync();
+                    await AttemptLoginAsync(CancellationToken.None);
                     break;
 
                 case ConnectionErrorAction.ConfigureServer:
@@ -186,24 +254,26 @@ namespace MyShop.Client.ViewModels.Auth
             }
         }
 
+        /// <summary>
+        /// Validate input trước khi submit (sử dụng ValidationService)
+        /// </summary>
         private bool ValidateInput()
         {
             bool isValid = true;
 
-            if (string.IsNullOrWhiteSpace(Username))
+            // Validate username using validation service
+            var usernameValidation = _validationService.ValidateUsername(Username);
+            if (!usernameValidation.IsValid)
             {
-                UsernameError = "Username or Email is required";
+                UsernameError = usernameValidation.ErrorMessage;
                 isValid = false;
             }
 
-            if (string.IsNullOrWhiteSpace(Password))
+            // Validate password using validation service
+            var passwordValidation = _validationService.ValidatePassword(Password);
+            if (!passwordValidation.IsValid)
             {
-                PasswordError = "Password is required";
-                isValid = false;
-            }
-            else if (Password.Length < 6)
-            {
-                PasswordError = "Password must be at least 6 characters";
+                PasswordError = passwordValidation.ErrorMessage;
                 isValid = false;
             }
 

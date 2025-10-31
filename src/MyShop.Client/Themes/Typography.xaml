@@ -103,6 +103,9 @@
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
     
+    <!-- Body Style (Alias for BodyTextStyle) -->
+    <Style x:Key="BodyStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextStyle}"/>
+    
     <!-- Body Large -->
     <Style x:Key="BodyLargeStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource FontSize_LG}"/>
