@@ -127,6 +127,7 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IEmailNotificationService, EmailNotificationService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
 
 // Register HttpClient for EmailNotificationService
 builder.Services.AddHttpClient<IEmailNotificationService, EmailNotificationService>();
