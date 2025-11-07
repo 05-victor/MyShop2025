@@ -11,19 +11,22 @@ namespace MyShop.Server.Services.Implementations;
 public class AuthService : IAuthService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IProfileRepository _profileRepository;
     private readonly IJwtService _jwtService;
     private readonly IRoleRepository _roleRepository;
     private readonly ILogger<AuthService> _logger;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public AuthService(
-        IUserRepository userRepository, 
-        IJwtService jwtService, 
-        IRoleRepository roleRepository, 
+        IUserRepository userRepository,
+        IProfileRepository profileRepository,
+        IJwtService jwtService,
+        IRoleRepository roleRepository,
         ILogger<AuthService> logger,
         IHttpContextAccessor httpContextAccessor)
     {
         _userRepository = userRepository;
+        _profileRepository = profileRepository;
         _jwtService = jwtService;
         _roleRepository = roleRepository;
         _logger = logger;
@@ -78,6 +81,12 @@ public class AuthService : IAuthService
             };
 
             var createdUser = await _userRepository.CreateAsync(user);
+
+            // Ensure profile is created
+            var createdProfile = await _profileRepository.CreateAsync(new Profile
+            {
+                UserId = createdUser.Id
+            });
 
             _logger.LogInformation("✅ User registered successfully: {Username} (ID: {UserId}) with roles: {Roles}",
                 createdUser.Username,

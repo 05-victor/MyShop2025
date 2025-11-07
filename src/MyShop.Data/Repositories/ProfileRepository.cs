@@ -27,6 +27,13 @@ namespace MyShop.Data.Repositories
             return profile;
         }
 
+        public async Task<Profile> UpdateAsync(Profile profile)
+        {
+            _context.Profiles.Update(profile);
+            await _context.SaveChangesAsync();
+            return profile;
+        }
+
         public async Task DeleteAsync(Guid userId)
         {
             var profile = await GetByUserIdAsync(userId);

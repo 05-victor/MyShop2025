@@ -112,6 +112,7 @@ builder.Services.AddDbContext<ShopContext>(options =>
 // Register Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 
 // Register Services
 builder.Services.AddHttpClient<IUserService, UserService>();
@@ -125,6 +126,7 @@ builder.Services.AddScoped<IUserAuthorityService, UserAuthorityService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IEmailNotificationService, EmailNotificationService>();
+builder.Services.AddScoped<IProfileService, ProfileService>();
 
 // Register HttpClient for EmailNotificationService
 builder.Services.AddHttpClient<IEmailNotificationService, EmailNotificationService>();
