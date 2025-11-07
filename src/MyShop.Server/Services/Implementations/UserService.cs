@@ -20,6 +20,41 @@ public class UserService : IUserService
         _httpClient = httpClient;
         _logger = logger;
     }
+
+    public async Task<UserInfoResponse?> GetMeAsync()
+    {
+        var userId = _currentUser.UserId;
+        if (!userId.HasValue)
+        {
+            _logger.LogWarning("Invalid JWT: userId claim is missing.");
+            return null;
+        }
+        var user = await _userRepository.GetByIdAsync(userId.Value);
+        if (user == null)
+        {
+            _logger.LogWarning("User with ID {UserId} not found", userId);
+            return null;
+        }
+        var response = new UserInfoResponse
+        {
+            Id = user.Id,
+            Username = user.Username,
+            Email = user.Email,
+            CreatedAt = user.CreatedAt,
+            IsTrialActive = user.IsTrialActive,
+            TrialStartDate = user.TrialStartDate,
+            TrialEndDate = user.TrialEndDate,
+            IsEmailVerified = user.IsEmailVerified,
+            UpdatedAt = user.UpdatedAt,
+            Avatar = user.Profile?.Avatar,
+            FullName = user.Profile?.FullName,
+            PhoneNumber = user.Profile?.PhoneNumber,
+            Address = user.Profile?.Address,
+            RoleNames = user.Roles.Select(r => r.Name).ToList()
+        };
+        return response;
+    }
+
     public async Task<ActivateUserResponse> ActivateUserAsync(string activateCode)
     {
         try

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyShop.Data;
 using MyShop.Data.Entities;
+using MyShop.Server.Services.Implementations;
 using MyShop.Server.Services.Interfaces;
 using MyShop.Shared.DTOs.Common;
 using MyShop.Shared.DTOs.Responses;
@@ -21,6 +22,38 @@ public class UserController : ControllerBase
     {
         _userService = userService;
         _logger = logger;
+    }
+
+    [HttpGet("me")]
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ApiResponse<UserInfoResponse>>> GetMe()
+    {
+        try
+        {
+            var user = await _userService.GetMeAsync();
+
+            if (user == null)
+            {
+                return NotFound(ApiResponse.NotFoundResponse(
+                    "User not found or invalid token"));
+            }
+
+            return Ok(ApiResponse<UserInfoResponse>.SuccessResponse(
+                user,
+                "User profile retrieved successfully",
+                200));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in GetMe endpoint");
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                ApiResponse.ServerErrorResponse(
+                    "An error occurred while processing your request"));
+        }
     }
 
     [HttpPost("activate")]
