@@ -23,7 +23,6 @@
   <ItemGroup>
     <ProjectReference Include="..\MyShop.Data\MyShop.Data.csproj" />
     <ProjectReference Include="..\MyShop.Shared\MyShop.Shared.csproj" />
-    <ProjectReference Include="..\MyShop.Plugins\MyShop.Plugins.csproj" />
   </ItemGroup>
 
   <ItemGroup>

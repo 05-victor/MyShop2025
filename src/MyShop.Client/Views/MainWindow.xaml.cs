@@ -30,8 +30,8 @@ namespace MyShop.Client {
             // Only initialize ToastHelper once
             if (args.WindowActivationState != WindowActivationState.Deactivated) {
                 var toastHelper = App.Current.Services.GetRequiredService<IToastHelper>();
-                if (this.Content?.XamlRoot != null) {
-                    toastHelper.Initialize(this.Content.XamlRoot);
+                if (this.Content?.XamlRoot != null && toastHelper is ToastHelper concreteToastHelper) {
+                    concreteToastHelper.Initialize(this.Content.XamlRoot);
                 }
                 
                 // Unsubscribe to avoid multiple initializations

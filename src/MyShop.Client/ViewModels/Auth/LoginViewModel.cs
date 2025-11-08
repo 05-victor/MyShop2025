@@ -1,8 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
-using MyShop.Client.Core.Repositories.Interfaces;
-using MyShop.Client.Core.Services.Interfaces;
 using MyShop.Client.Helpers;
 using MyShop.Client.ViewModels.Base;
 using MyShop.Client.Views.Auth;
@@ -12,6 +10,12 @@ using System.Net.Http;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+
+// ===== NEW NAMESPACES - After Refactor =====
+using MyShop.Core.Interfaces.Repositories;
+using MyShop.Core.Interfaces.Services;
+using MyShop.Client.Strategies;
+using MyShop.Plugins.Storage;
 
 namespace MyShop.Client.ViewModels.Auth
 {

@@ -1,9 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MyShop.Client.Helpers;
-using MyShop.Client.Models;
+using MyShop.Shared.Models;
 using MyShop.Client.ViewModels.Base;
 using MyShop.Client.Views.Auth;
+using MyShop.Client.Helpers;
+using MyShop.Plugins.Storage;
 using System.Threading.Tasks;
 
 namespace MyShop.Client.ViewModels.Dashboard

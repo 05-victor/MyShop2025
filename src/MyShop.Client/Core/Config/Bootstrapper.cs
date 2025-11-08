@@ -1,16 +1,19 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using MyShop.Client.ApiServer;
 using Refit;
 using MyShop.Client.Core.Config;
-using MyShop.Client.Core.Repositories.Implementations;
-using MyShop.Client.Core.Repositories.Interfaces;
-using MyShop.Client.Core.Services.Implementations;
-using MyShop.Client.Core.Services.Interfaces;
-using MyShop.Client.Core.Strategies;
 using MyShop.Client.Helpers;
 using System;
+
+// ===== NEW NAMESPACES - After Refactor =====
+using MyShop.Core.Interfaces.Repositories;
+using MyShop.Core.Interfaces.Services;
+using MyShop.Core.Services;
+using MyShop.Client.Strategies;
+using MyShop.Plugins.ApiClients.Auth;
+using MyShop.Plugins.Mocks.Repositories;
+using MyShop.Plugins.Http;
 
 namespace MyShop.Client.Core.Config
 {
@@ -42,7 +45,7 @@ namespace MyShop.Client.Core.Config
                         // ===== Mock Mode - No HTTP Clients =====
                         System.Diagnostics.Debug.WriteLine("[Bootstrapper] Using MOCK DATA mode");
                         
-                        // ===== Repositories (Mock) =====
+                        // ===== Repositories (Mock - from Plugins) =====
                         services.AddScoped<IAuthRepository, MockAuthRepository>();
                     }
                     else
@@ -50,10 +53,10 @@ namespace MyShop.Client.Core.Config
                         // ===== Real API Mode =====
                         System.Diagnostics.Debug.WriteLine("[Bootstrapper] Using REAL API mode");
 
-                        // ===== HTTP & API Clients =====
+                        // ===== HTTP & API Clients (from Plugins) =====
                         services.AddTransient<AuthHeaderHandler>();
 
-                        services.AddRefitClient<IAuthApi>()
+                        services.AddRefitClient<IAuthApiClient>()
                             .ConfigureHttpClient(client =>
                             {
                                 client.BaseAddress = new Uri(AppConfig.Instance.ApiBaseUrl);
@@ -61,22 +64,22 @@ namespace MyShop.Client.Core.Config
                             })
                             .AddHttpMessageHandler<AuthHeaderHandler>();
 
-                        // ===== Repositories (Real) =====
+                        // ===== Repositories (Real - from Plugins) =====
                         services.AddScoped<IAuthRepository, AuthRepository>();
                     }
 
-                    // ===== Services =====
+                    // ===== Services (from Client.Helpers + Core.Services) =====
                     services.AddSingleton<INavigationService, NavigationService>();
                     services.AddTransient<IToastHelper, ToastHelper>();
-                    services.AddSingleton<IValidationService, ValidationService>();
+                    services.AddSingleton<MyShop.Core.Interfaces.Services.IValidationService, MyShop.Core.Services.ValidationService>();
 
-                    // ===== Strategies =====
+                    // ===== Strategies (from Client.Strategies) =====
                     services.AddSingleton<IRoleStrategy, AdminDashboardStrategy>();
                     services.AddSingleton<IRoleStrategy, SalesmanDashboardStrategy>();
                     services.AddSingleton<IRoleStrategy, CustomerDashboardStrategy>();
                     services.AddSingleton<IRoleStrategyFactory, RoleStrategyFactory>();
 
-                    // ===== ViewModels =====
+                    // ===== ViewModels (Client) =====
                     services.AddTransient<ViewModels.Auth.LoginViewModel>();
                     services.AddTransient<ViewModels.Auth.RegisterViewModel>();
                     services.AddTransient<ViewModels.Dashboard.AdminDashboardViewModel>();

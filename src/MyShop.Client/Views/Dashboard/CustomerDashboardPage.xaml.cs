@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
-using MyShop.Client.Models;
+using MyShop.Shared.Models;
 using MyShop.Client.ViewModels.Dashboard;
 
 namespace MyShop.Client.Views.Dashboard

@@ -1,9 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MyShop.Client.Helpers;
-using MyShop.Client.Models;
+using MyShop.Shared.Models;
 using MyShop.Client.ViewModels.Base;
 using MyShop.Client.Views.Auth;
+using MyShop.Client.Helpers;
+using MyShop.Plugins.Storage;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -32,7 +33,19 @@ namespace MyShop.Client.ViewModels.Dashboard
         private int _todayOrders = 0;
 
         [ObservableProperty]
+        private double _ordersTrend = 0;
+
+        [ObservableProperty]
         private decimal _todayRevenue = 0;
+
+        [ObservableProperty]
+        private double _revenueTrend = 0;
+
+        [ObservableProperty]
+        private string _topRatedProductName = "Loading...";
+
+        [ObservableProperty]
+        private double _topRatedProductRating = 0;
 
         [ObservableProperty]
         private int _lowStockCount = 0;
@@ -68,10 +81,16 @@ namespace MyShop.Client.ViewModels.Dashboard
         {
             CurrentUser = user;
             WelcomeMessage = $"Welcome back, {user.Username}!";
-            LoadDashboardDataAsync();
+            _ = LoadDashboardDataAsync();
         }
 
-        private async void LoadDashboardDataAsync()
+        [RelayCommand]
+        private async Task RefreshAsync()
+        {
+            await LoadDashboardDataAsync();
+        }
+
+        private async Task LoadDashboardDataAsync()
         {
             SetLoadingState(true);
 
@@ -82,8 +101,12 @@ namespace MyShop.Client.ViewModels.Dashboard
 
                 // Load Statistics (Mock Data)
                 TotalProducts = 150;
-                TodayOrders = 24;
-                TodayRevenue = 12450.50m;
+                TodayOrders = 127;
+                OrdersTrend = 12.5; // +12.5% vs yesterday
+                TodayRevenue = 19847.50m;
+                RevenueTrend = 8.2; // +8.2% vs yesterday
+                TopRatedProductName = "Premium Wireless Headphones";
+                TopRatedProductRating = 4.9;
                 LowStockCount = 8;
 
                 // Load Revenue Chart Data (Last 7 days)
@@ -147,12 +170,11 @@ namespace MyShop.Client.ViewModels.Dashboard
         }
 
         [RelayCommand]
-        private async Task LogoutAsync()
+        private void Logout()
         {
             CredentialHelper.RemoveToken();
             _toastHelper.ShowInfo("You have been logged out");
             _navigationService.NavigateTo(typeof(LoginPage));
-            await Task.CompletedTask;
         }
 
         [RelayCommand]

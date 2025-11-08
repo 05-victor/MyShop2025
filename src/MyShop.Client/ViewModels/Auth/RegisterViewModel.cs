@@ -1,11 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MyShop.Client.ApiServer;
-using MyShop.Client.Core.Services.Interfaces;
 using MyShop.Client.Helpers;
 using MyShop.Client.Views.Auth;
-using MyShop.Shared.DTOs.Requests;
-using Refit;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -13,11 +9,16 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
+// ===== NEW NAMESPACES - After Refactor =====
+using MyShop.Core.Interfaces.Repositories;
+using MyShop.Core.Interfaces.Services;
+using MyShop.Shared.DTOs.Requests;
+
 namespace MyShop.Client.ViewModels.Auth
 {
     public partial class RegisterViewModel : ObservableObject
     {
-        private readonly IAuthApi _authApi;
+        private readonly IAuthRepository _authRepository;
         private readonly INavigationService _navigationService;
         private readonly IToastHelper _toastHelper;
         private readonly IValidationService _validationService;
@@ -115,12 +116,12 @@ namespace MyShop.Client.ViewModels.Auth
             !IsLoading;
 
         public RegisterViewModel(
-            IAuthApi authApi,
+            IAuthRepository authRepository,
             INavigationService navigationService,
             IToastHelper toastHelper,
             IValidationService validationService)
         {
-            _authApi = authApi;
+            _authRepository = authRepository;
             _navigationService = navigationService;
             _toastHelper = toastHelper;
             _validationService = validationService;
@@ -222,22 +223,18 @@ namespace MyShop.Client.ViewModels.Auth
 
             try
             {
-                var request = new CreateUserRequest
-                {
-                    Username = Username.Trim(),
-                    Email = Email.Trim(),
-                    Sdt = PhoneNumber.Trim(),
-                    Password = Password,
-                    ActivateTrial = true,
-                    RoleNames = new List<string> { _selectedRole }
-                };
-
-                var response = await _authApi.RegisterAsync(request);
+                var response = await _authRepository.RegisterAsync(
+                    Username.Trim(),
+                    Email.Trim(),
+                    PhoneNumber.Trim(),
+                    Password,
+                    _selectedRole
+                );
 
                 // Check for cancellation
                 _registerCancellationTokenSource.Token.ThrowIfCancellationRequested();
 
-                if (response?.Success == true && response.Result != null)
+                if (response.IsSuccess)
                 {
                     _toastHelper.ShowSuccess("Account created successfully! Please login.");
                     
@@ -246,7 +243,7 @@ namespace MyShop.Client.ViewModels.Auth
                 }
                 else
                 {
-                    ErrorMessage = response?.Message ?? "Registration failed. Please try again.";
+                    ErrorMessage = response.ErrorMessage ?? "Registration failed. Please try again.";
                 }
             }
             catch (OperationCanceledException)

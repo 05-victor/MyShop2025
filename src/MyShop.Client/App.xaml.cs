@@ -1,14 +1,16 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
-using MyShop.Client.Core.Adapters;
 using MyShop.Client.Core.Config;
-using MyShop.Client.Core.Repositories.Interfaces;
-using MyShop.Client.Core.Services.Interfaces;
 using MyShop.Client.Helpers;
 using MyShop.Client.Views.Auth;
 using System;
 using System.Threading.Tasks;
+
+// ===== NEW NAMESPACES - After Refactor =====
+using MyShop.Core.Interfaces.Repositories;
+using MyShop.Plugins.Storage;
+using MyShop.Client.Strategies;
 
 namespace MyShop.Client
 {
@@ -30,6 +32,12 @@ namespace MyShop.Client
             try
             {
                 MainWindow = new MainWindow();
+
+                // Force Light theme app-wide at runtime
+                if (MainWindow.Content is FrameworkElement root)
+                {
+                    root.RequestedTheme = ElementTheme.Light;
+                }
 
                 var navigationService = Services.GetRequiredService<INavigationService>();
                 navigationService.Initialize(MainWindow.RootFrame);
