@@ -114,40 +114,4 @@ public class AuthController : ControllerBase
                     "An error occurred while processing your request"));
         }
     }
-
-    /// <summary>
-    /// Get current user profile from JWT token
-    /// </summary>
-    /// <returns>Standardized API response with current user details</returns>
-    [HttpGet("me")]
-    [Authorize]
-    [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<ApiResponse<UserInfoResponse>>> GetMe()
-    {
-        try
-        {
-            var user = await _authService.GetMeAsync();
-
-            if (user == null)
-            {
-                return NotFound(ApiResponse.NotFoundResponse(
-                    "User not found or invalid token"));
-            }
-
-            return Ok(ApiResponse<UserInfoResponse>.SuccessResponse(
-                user,
-                "User profile retrieved successfully",
-                200));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error in GetMe endpoint");
-            return StatusCode(StatusCodes.Status500InternalServerError,
-                ApiResponse.ServerErrorResponse(
-                    "An error occurred while processing your request"));
-        }
-    }
 }
