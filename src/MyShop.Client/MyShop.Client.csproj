@@ -42,8 +42,12 @@
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 	</ItemGroup>
 
+	<!-- Client phụ thuộc vào Core (interfaces) và Shared (DTOs) -->
+	<!-- Plugins được inject qua DI, không reference trực tiếp -->
 	<ItemGroup>
+		<ProjectReference Include="..\MyShop.Core\MyShop.Core.csproj" />
 		<ProjectReference Include="..\MyShop.Shared\MyShop.Shared.csproj" />
+		<ProjectReference Include="..\MyShop.Plugins\MyShop.Plugins.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -9,16 +9,24 @@ namespace MyShop.Client.Helpers {
             _rootFrame = frame ?? throw new ArgumentNullException(nameof(frame));
         }
 
-        public bool NavigateTo(Type pageType, object? parameter = null) {
+        public void NavigateTo(Type pageType, object? parameter = null) {
             if (_rootFrame is null) {
                 throw new InvalidOperationException("NavigationService must be initialized before use.");
             }
 
             if (_rootFrame.CurrentSourcePageType == pageType && parameter == null) {
-                return false; // Don't navigate to the same page without parameters
+                return; // Don't navigate to the same page without parameters
             }
 
-            return _rootFrame.Navigate(pageType, parameter);
+            _rootFrame.Navigate(pageType, parameter);
         }
+
+        public void GoBack() {
+            if (_rootFrame?.CanGoBack == true) {
+                _rootFrame.GoBack();
+            }
+        }
+
+        public bool CanGoBack => _rootFrame?.CanGoBack ?? false;
     }
 }

@@ -54,27 +54,8 @@ namespace MyShop.Client.Views.Controls
             control.PasswordBox.PlaceholderText = e.NewValue as string ?? string.Empty;
         }
 
-        public bool IsEnabled
-        {
-            get => (bool)GetValue(IsEnabledProperty);
-            set => SetValue(IsEnabledProperty, value);
-        }
-
-        public new static readonly DependencyProperty IsEnabledProperty =
-            DependencyProperty.Register(
-                nameof(IsEnabled),
-                typeof(bool),
-                typeof(PasswordInputControl),
-                new PropertyMetadata(true, OnIsEnabledChanged));
-
-        private static void OnIsEnabledChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var control = (PasswordInputControl)d;
-            control.PasswordBox.IsEnabled = (bool)e.NewValue;
-        }
-
         // Event for password changes
-        public event RoutedEventHandler PasswordChanged;
+        public event RoutedEventHandler? PasswordChanged;
 
         private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
         {

@@ -1,22 +1,43 @@
-﻿// Helpers/IToastHelper.cs
-using Microsoft.UI.Xaml;
-using System.Threading.Tasks;
+namespace MyShop.Client.Helpers;
 
-namespace MyShop.Client.Helpers {
-    public enum ConnectionErrorAction {
-        Retry,
-        ConfigureServer,
-        Cancel
-    }
+/// <summary>
+/// Helper service cho toast notifications
+/// Interface ở Core, Implementation ở Client (vì phụ thuộc WinUI)
+/// </summary>
+public interface IToastHelper
+{
+    /// <summary>
+    /// Hiển thị success toast
+    /// </summary>
+    void ShowSuccess(string message);
 
-    public interface IToastHelper {
-        Task ShowSuccessAsync(string message);
-        Task ShowErrorAsync(string message);
-        Task ShowInfoAsync(string message);
-        void ShowSuccess(string message);
-        void ShowError(string message);
-        void ShowInfo(string message);
-        void Initialize(XamlRoot xamlRoot);
-        Task<ConnectionErrorAction> ShowConnectionErrorAsync(string message);
-    }
+    /// <summary>
+    /// Hiển thị error toast
+    /// </summary>
+    void ShowError(string message);
+
+    /// <summary>
+    /// Hiển thị info toast
+    /// </summary>
+    void ShowInfo(string message);
+
+    /// <summary>
+    /// Hiển thị warning toast
+    /// </summary>
+    void ShowWarning(string message);
+
+    /// <summary>
+    /// Hiển thị connection error dialog với actions
+    /// </summary>
+    Task<ConnectionErrorAction> ShowConnectionErrorAsync(string message);
+}
+
+/// <summary>
+/// Actions user có thể chọn khi gặp connection error
+/// </summary>
+public enum ConnectionErrorAction
+{
+    Retry,
+    ConfigureServer,
+    Cancel
 }

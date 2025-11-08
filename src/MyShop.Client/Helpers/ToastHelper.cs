@@ -26,6 +26,7 @@ namespace MyShop.Client.Helpers {
             await ShowDialogAsync("Information", message);
         }
 
+        // Sync wrappers for interface compatibility
         public void ShowSuccess(string message) {
             _ = ShowSuccessAsync(message);
         }
@@ -36,6 +37,10 @@ namespace MyShop.Client.Helpers {
 
         public void ShowInfo(string message) {
             _ = ShowInfoAsync(message);
+        }
+
+        public void ShowWarning(string message) {
+            _ = ShowDialogAsync("Warning", message);
         }
 
         private XamlRoot? ResolveXamlRoot()
