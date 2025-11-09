@@ -1,6 +1,0 @@
-﻿{
-  "BaseUrl": "https://localhost:7120",
-  "UseMockData": false,
-  "RequestTimeout": "30",
-  "EnableLogging": "true"
-}
