@@ -4,7 +4,7 @@ using MyShop.Shared.Models;
 using MyShop.Client.ViewModels.Base;
 using MyShop.Client.Views.Auth;
 using MyShop.Client.Helpers;
-using MyShop.Plugins.Storage;
+using MyShop.Core.Interfaces.Storage;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -15,6 +15,7 @@ namespace MyShop.Client.ViewModels.Dashboard
     {
         private readonly INavigationService _navigationService;
         private readonly IToastHelper _toastHelper;
+        private readonly ICredentialStorage _credentialStorage;
 
         [ObservableProperty]
         private User? _currentUser;
@@ -71,10 +72,12 @@ namespace MyShop.Client.ViewModels.Dashboard
 
         public AdminDashboardViewModel(
             INavigationService navigationService,
-            IToastHelper toastHelper)
+            IToastHelper toastHelper,
+            ICredentialStorage credentialStorage)
         {
             _navigationService = navigationService;
             _toastHelper = toastHelper;
+            _credentialStorage = credentialStorage;
         }
 
         public void Initialize(User user)
@@ -172,7 +175,7 @@ namespace MyShop.Client.ViewModels.Dashboard
         [RelayCommand]
         private void Logout()
         {
-            CredentialHelper.RemoveToken();
+            _credentialStorage.RemoveToken();
             _toastHelper.ShowInfo("You have been logged out");
             _navigationService.NavigateTo(typeof(LoginPage));
         }

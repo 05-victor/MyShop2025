@@ -14,8 +14,8 @@ using System.Threading.Tasks;
 // ===== NEW NAMESPACES - After Refactor =====
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
+using MyShop.Core.Interfaces.Storage;
 using MyShop.Client.Strategies;
-using MyShop.Plugins.Storage;
 
 namespace MyShop.Client.ViewModels.Auth
 {
@@ -26,6 +26,7 @@ namespace MyShop.Client.ViewModels.Auth
         private readonly IToastHelper _toastHelper;
         private readonly IRoleStrategyFactory _roleStrategyFactory;
         private readonly IValidationService _validationService;
+        private readonly ICredentialStorage _credentialStorage;
         private CancellationTokenSource? _loginCancellationTokenSource;
 
         [ObservableProperty]
@@ -75,13 +76,15 @@ namespace MyShop.Client.ViewModels.Auth
             INavigationService navigationService,
             IToastHelper toastHelper,
             IRoleStrategyFactory roleStrategyFactory,
-            IValidationService validationService)
+            IValidationService validationService,
+            ICredentialStorage credentialStorage)
         {
             _authRepository = authRepository;
             _navigationService = navigationService;
             _toastHelper = toastHelper;
             _roleStrategyFactory = roleStrategyFactory;
             _validationService = validationService;
+            _credentialStorage = credentialStorage;
 
             // Notify LoginButtonText when IsLoading changes
             PropertyChanged += (s, e) =>
@@ -163,7 +166,7 @@ namespace MyShop.Client.ViewModels.Auth
                     // Save token if remember me is checked
                     if (IsRememberMe)
                     {
-                        CredentialHelper.SaveToken(user.Token);
+                        _credentialStorage.SaveToken(user.Token);
                     }
 
                     // Show success message

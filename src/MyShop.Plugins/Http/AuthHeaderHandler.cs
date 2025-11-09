@@ -1,4 +1,4 @@
-using MyShop.Plugins.Storage;
+using MyShop.Core.Interfaces.Storage;
 
 namespace MyShop.Plugins.Http;
 
@@ -7,9 +7,16 @@ namespace MyShop.Plugins.Http;
 /// </summary>
 public class AuthHeaderHandler : DelegatingHandler
 {
+    private readonly ICredentialStorage _credentialStorage;
+
+    public AuthHeaderHandler(ICredentialStorage credentialStorage)
+    {
+        _credentialStorage = credentialStorage;
+    }
+
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        var token = CredentialHelper.GetToken();
+        var token = _credentialStorage.GetToken();
         if (!string.IsNullOrEmpty(token))
         {
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);

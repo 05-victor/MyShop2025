@@ -1,8 +1,8 @@
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
+using MyShop.Core.Interfaces.Storage;
 using MyShop.Shared.Models;
 using MyShop.Plugins.Mocks.Data;
-using MyShop.Plugins.Storage;
 
 namespace MyShop.Plugins.Mocks.Repositories;
 
@@ -11,6 +11,12 @@ namespace MyShop.Plugins.Mocks.Repositories;
 /// </summary>
 public class MockAuthRepository : IAuthRepository
 {
+    private readonly ICredentialStorage _credentialStorage;
+
+    public MockAuthRepository(ICredentialStorage credentialStorage)
+    {
+        _credentialStorage = credentialStorage ?? throw new ArgumentNullException(nameof(credentialStorage));
+    }
     public async Task<Result<User>> LoginAsync(string usernameOrEmail, string password)
     {
         try
@@ -41,7 +47,7 @@ public class MockAuthRepository : IAuthRepository
     {
         try
         {
-            var token = CredentialHelper.GetToken();
+            var token = _credentialStorage.GetToken();
             if (string.IsNullOrEmpty(token))
             {
                 return Result<User>.Failure("No authentication token found");

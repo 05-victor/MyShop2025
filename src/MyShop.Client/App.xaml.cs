@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
-using MyShop.Client.Core.Config;
+using MyShop.Client.Config;
 using MyShop.Client.Helpers;
 using MyShop.Client.Views.Auth;
 using System;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 // ===== NEW NAMESPACES - After Refactor =====
 using MyShop.Core.Interfaces.Repositories;
-using MyShop.Plugins.Storage;
+using MyShop.Core.Interfaces.Storage;
 using MyShop.Client.Strategies;
 
 namespace MyShop.Client
@@ -42,7 +42,8 @@ namespace MyShop.Client
                 var navigationService = Services.GetRequiredService<INavigationService>();
                 navigationService.Initialize(MainWindow.RootFrame);
 
-                var token = CredentialHelper.GetToken();
+                var credentialStorage = Services.GetRequiredService<ICredentialStorage>();
+                var token = credentialStorage.GetToken();
                 bool isLoggedIn = false;
 
                 if (!string.IsNullOrEmpty(token))
@@ -67,13 +68,13 @@ namespace MyShop.Client
                         }
                         else
                         {
-                            CredentialHelper.RemoveToken();
+                            credentialStorage.RemoveToken();
                         }
                     }
                     catch (Exception ex)
                     {
                         System.Diagnostics.Debug.WriteLine($"Error on startup: {ex.Message}");
-                        CredentialHelper.RemoveToken();
+                        credentialStorage.RemoveToken();
                     }
                 }
 

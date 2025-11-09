@@ -19,7 +19,7 @@
 
 	<ItemGroup>
 		<Content Include="Assets\**" />
-		<Content Include="ApiServer\ApiConfig.json">
+		<Content Include="Config\ApiConfig.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>

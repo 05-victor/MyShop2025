@@ -1,10 +1,10 @@
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
+using MyShop.Core.Interfaces.Storage;
 using MyShop.Shared.Models;
 using MyShop.Shared.Models.Enums;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
-using MyShop.Plugins.Storage;
 using Refit;
 
 namespace MyShop.Plugins.ApiClients.Auth;
@@ -16,10 +16,12 @@ namespace MyShop.Plugins.ApiClients.Auth;
 public class AuthRepository : IAuthRepository
 {
     private readonly IAuthApiClient _authApi;
+    private readonly ICredentialStorage _credentialStorage;
 
-    public AuthRepository(IAuthApiClient authApi)
+    public AuthRepository(IAuthApiClient authApi, ICredentialStorage credentialStorage)
     {
         _authApi = authApi ?? throw new ArgumentNullException(nameof(authApi));
+        _credentialStorage = credentialStorage ?? throw new ArgumentNullException(nameof(credentialStorage));
     }
 
     public async Task<Result<User>> LoginAsync(string usernameOrEmail, string password)
@@ -113,7 +115,7 @@ public class AuthRepository : IAuthRepository
 
             if (response?.Success == true && response.Result != null)
             {
-                var token = CredentialHelper.GetToken() ?? string.Empty;
+                var token = _credentialStorage.GetToken() ?? string.Empty;
                 var user = MapUserInfoResponseToUser(response.Result, token);
                 return Result<User>.Success(user);
             }

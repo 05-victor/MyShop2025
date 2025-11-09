@@ -4,7 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
 using MyShop.Client.ViewModels.Auth;
-using MyShop.Client.Core.Config;
+using MyShop.Client.Config;
 
 namespace MyShop.Client.Views.Auth
 {
