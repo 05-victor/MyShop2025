@@ -6,6 +6,10 @@ namespace MyShop.Data.Entities
         public int Quantity { get; set; }
         public float UnitSalePrice { get; set; }
         public int TotalPrice { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+
         public Guid ProductId { get; set; }
         public required Product Product { get; set; }
         public Guid OrderId { get; set; }

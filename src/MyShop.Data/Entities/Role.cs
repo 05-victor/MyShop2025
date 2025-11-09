@@ -31,7 +31,10 @@ namespace MyShop.Data.Entities
         /// <value>Chuỗi mô tả vai trò, có thể null</value>
         [MaxLength(500)]
         public string? Description { get; set; }
-        
+
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+
         /// <summary>
         /// Lấy hoặc đặt danh sách các quyền hạn của vai trò này.
         /// </summary>
