@@ -6,6 +6,8 @@ namespace MyShop.Data.Entities
 
         public DateTime CreatedAt { get; set; }
 
+        public DateTime UpdatedAt { get; set; }
+
         public int FinalPrice { get; set; }
     }
 }

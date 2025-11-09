@@ -35,6 +35,7 @@ public class ProfileService : IProfileService
             return null;
         }
 
+        // TODO: check null before update
         profile.FullName = request.FullName;
         profile.PhoneNumber = request.PhoneNumber;
         profile.Address = request.Address;
