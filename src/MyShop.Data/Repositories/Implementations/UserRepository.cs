@@ -3,7 +3,7 @@ using MyShop.Data.Entities;
 using MyShop.Data.Repositories.Interfaces;
 using MyShop.Shared;
 
-namespace MyShop.Data.Repositories;
+namespace MyShop.Data.Repositories.Implementations;
 
 public class UserRepository : IUserRepository
 {

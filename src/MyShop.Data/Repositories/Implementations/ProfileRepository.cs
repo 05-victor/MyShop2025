@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using MyShop.Data.Entities;
 using MyShop.Data.Repositories.Interfaces;
 
-namespace MyShop.Data.Repositories
+namespace MyShop.Data.Repositories.Implementations
 {
     public class ProfileRepository : IProfileRepository
     {

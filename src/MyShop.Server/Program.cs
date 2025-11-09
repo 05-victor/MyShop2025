@@ -2,7 +2,6 @@
 using MyShop.Data;
 using Microsoft.EntityFrameworkCore;
 using MyShop.Data.Repositories.Interfaces;
-using MyShop.Data.Repositories;
 using MyShop.Server.Services.Interfaces;
 using MyShop.Server.Services.Implementations;
 using MyShop.Server.Configuration;
@@ -10,6 +9,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Security.Claims;
+using MyShop.Data.Repositories.Implementations;
+using AutoMapper;
+using MyShop.Server.Factories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +23,9 @@ builder.Services.AddHttpContextAccessor();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// Add AutoMapper
+builder.Services.AddAutoMapper(typeof(Program));
 
 // Configure JWT Settings
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
@@ -109,10 +114,15 @@ builder.Services.AddDbContext<ShopContext>(options =>
                      b => b.MigrationsAssembly("MyShop.Data"))
             .UseSnakeCaseNamingConvention());
 
+// Add Factory
+builder.Services.AddScoped<ProductFactory, ProductFactory>();
+
 // Register Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 // Register Services
 builder.Services.AddHttpClient<IUserService, UserService>();
@@ -128,6 +138,8 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IEmailNotificationService, EmailNotificationService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 // Register HttpClient for EmailNotificationService
 builder.Services.AddHttpClient<IEmailNotificationService, EmailNotificationService>();
