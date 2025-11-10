@@ -1,0 +1,240 @@
+{
+  "orders": [
+    {
+      "id": "30000000-0000-0000-0000-000000000001",
+      "customerId": "00000000-0000-0000-0000-000000000003",
+      "customerName": "John Customer Doe",
+      "salesAgentId": "00000000-0000-0000-0000-000000000002",
+      "salesAgentName": "Trần Thị Bích Salesman",
+      "finalPrice": 29990000,
+      "status": "PAID",
+      "createdAt": "2025-11-05T14:30:00Z",
+      "updatedAt": "2025-11-05T16:45:00Z",
+      "items": [
+        {
+          "id": "31000000-0000-0000-0000-000000000001",
+          "orderId": "30000000-0000-0000-0000-000000000001",
+          "productId": "20000000-0000-0000-0000-000000000001",
+          "productName": "iPhone 15 Pro 256GB Titanium",
+          "quantity": 1,
+          "unitSalePrice": 29990000,
+          "totalPrice": 29990000,
+          "createdAt": "2025-11-05T14:30:00Z",
+          "updatedAt": "2025-11-05T14:30:00Z"
+        }
+      ]
+    },
+    {
+      "id": "30000000-0000-0000-0000-000000000002",
+      "customerId": "00000000-0000-0000-0000-000000000004",
+      "customerName": "Jane Smith",
+      "salesAgentId": "00000000-0000-0000-0000-000000000002",
+      "salesAgentName": "Trần Thị Bích Salesman",
+      "finalPrice": 37980000,
+      "status": "PAID",
+      "createdAt": "2025-11-07T10:15:00Z",
+      "updatedAt": "2025-11-07T11:30:00Z",
+      "items": [
+        {
+          "id": "31000000-0000-0000-0000-000000000002",
+          "orderId": "30000000-0000-0000-0000-000000000002",
+          "productId": "20000000-0000-0000-0000-000000000002",
+          "productName": "Samsung Galaxy S23 Ultra 512GB",
+          "quantity": 1,
+          "unitSalePrice": 31990000,
+          "totalPrice": 31990000,
+          "createdAt": "2025-11-07T10:15:00Z",
+          "updatedAt": "2025-11-07T10:15:00Z"
+        },
+        {
+          "id": "31000000-0000-0000-0000-000000000003",
+          "orderId": "30000000-0000-0000-0000-000000000002",
+          "productId": "20000000-0000-0000-0000-000000000003",
+          "productName": "AirPods Pro (2nd Generation)",
+          "quantity": 1,
+          "unitSalePrice": 6490000,
+          "totalPrice": 6490000,
+          "createdAt": "2025-11-07T10:15:00Z",
+          "updatedAt": "2025-11-07T10:15:00Z"
+        }
+      ]
+    },
+    {
+      "id": "30000000-0000-0000-0000-000000000003",
+      "customerId": "00000000-0000-0000-0000-000000000003",
+      "customerName": "John Customer Doe",
+      "salesAgentId": "00000000-0000-0000-0000-000000000002",
+      "salesAgentName": "Trần Thị Bích Salesman",
+      "finalPrice": 33480000,
+      "status": "CREATED",
+      "createdAt": "2025-11-08T09:00:00Z",
+      "updatedAt": "2025-11-08T09:00:00Z",
+      "items": [
+        {
+          "id": "31000000-0000-0000-0000-000000000004",
+          "orderId": "30000000-0000-0000-0000-000000000003",
+          "productId": "20000000-0000-0000-0000-000000000004",
+          "productName": "MacBook Air 13 inch M3 8GB 256GB",
+          "quantity": 1,
+          "unitSalePrice": 30990000,
+          "totalPrice": 30990000,
+          "createdAt": "2025-11-08T09:00:00Z",
+          "updatedAt": "2025-11-08T09:00:00Z"
+        },
+        {
+          "id": "31000000-0000-0000-0000-000000000005",
+          "orderId": "30000000-0000-0000-0000-000000000003",
+          "productId": "20000000-0000-0000-0000-000000000009",
+          "productName": "Logitech MX Master 3S Wireless Mouse",
+          "quantity": 1,
+          "unitSalePrice": 2490000,
+          "totalPrice": 2490000,
+          "createdAt": "2025-11-08T09:00:00Z",
+          "updatedAt": "2025-11-08T09:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "30000000-0000-0000-0000-000000000004",
+      "customerId": "00000000-0000-0000-0000-000000000004",
+      "customerName": "Jane Smith",
+      "salesAgentId": "00000000-0000-0000-0000-000000000002",
+      "salesAgentName": "Trần Thị Bích Salesman",
+      "finalPrice": 22980000,
+      "status": "CREATED",
+      "createdAt": "2025-11-08T15:20:00Z",
+      "updatedAt": "2025-11-08T15:20:00Z",
+      "items": [
+        {
+          "id": "31000000-0000-0000-0000-000000000006",
+          "orderId": "30000000-0000-0000-0000-000000000004",
+          "productId": "20000000-0000-0000-0000-000000000006",
+          "productName": "Apple Watch Series 9 GPS 45mm",
+          "quantity": 2,
+          "unitSalePrice": 11490000,
+          "totalPrice": 22980000,
+          "createdAt": "2025-11-08T15:20:00Z",
+          "updatedAt": "2025-11-08T15:20:00Z"
+        }
+      ]
+    },
+    {
+      "id": "30000000-0000-0000-0000-000000000005",
+      "customerId": "00000000-0000-0000-0000-000000000003",
+      "customerName": "John Customer Doe",
+      "salesAgentId": "00000000-0000-0000-0000-000000000002",
+      "salesAgentName": "Trần Thị Bích Salesman",
+      "finalPrice": 26990000,
+      "status": "CANCELLED",
+      "createdAt": "2025-11-03T11:45:00Z",
+      "updatedAt": "2025-11-03T14:20:00Z",
+      "items": [
+        {
+          "id": "31000000-0000-0000-0000-000000000007",
+          "orderId": "30000000-0000-0000-0000-000000000005",
+          "productId": "20000000-0000-0000-0000-000000000005",
+          "productName": "iPad Pro 11 inch M4 WiFi 256GB",
+          "quantity": 1,
+          "unitSalePrice": 26990000,
+          "totalPrice": 26990000,
+          "createdAt": "2025-11-03T11:45:00Z",
+          "updatedAt": "2025-11-03T11:45:00Z"
+        }
+      ]
+    },
+    {
+      "id": "30000000-0000-0000-0000-000000000006",
+      "customerId": "00000000-0000-0000-0000-000000000004",
+      "customerName": "Jane Smith",
+      "salesAgentId": "00000000-0000-0000-0000-000000000002",
+      "salesAgentName": "Trần Thị Bích Salesman",
+      "finalPrice": 21000000,
+      "status": "PAID",
+      "createdAt": "2025-11-06T16:30:00Z",
+      "updatedAt": "2025-11-06T17:50:00Z",
+      "items": [
+        {
+          "id": "31000000-0000-0000-0000-000000000008",
+          "orderId": "30000000-0000-0000-0000-000000000006",
+          "productId": "20000000-0000-0000-0000-000000000007",
+          "productName": "Sony WH-1000XM5 Wireless Headphones",
+          "quantity": 1,
+          "unitSalePrice": 8990000,
+          "totalPrice": 8990000,
+          "createdAt": "2025-11-06T16:30:00Z",
+          "updatedAt": "2025-11-06T16:30:00Z"
+        },
+        {
+          "id": "31000000-0000-0000-0000-000000000009",
+          "orderId": "30000000-0000-0000-0000-000000000006",
+          "productId": "20000000-0000-0000-0000-000000000003",
+          "productName": "AirPods Pro (2nd Generation)",
+          "quantity": 2,
+          "unitSalePrice": 6490000,
+          "totalPrice": 12980000,
+          "createdAt": "2025-11-06T16:30:00Z",
+          "updatedAt": "2025-11-06T16:30:00Z"
+        }
+      ]
+    },
+    {
+      "id": "30000000-0000-0000-0000-000000000007",
+      "customerId": "00000000-0000-0000-0000-000000000003",
+      "customerName": "John Customer Doe",
+      "salesAgentId": "00000000-0000-0000-0000-000000000002",
+      "salesAgentName": "Trần Thị Bích Salesman",
+      "finalPrice": 38990000,
+      "status": "PAID",
+      "createdAt": "2025-11-02T13:15:00Z",
+      "updatedAt": "2025-11-02T14:40:00Z",
+      "items": [
+        {
+          "id": "31000000-0000-0000-0000-000000000010",
+          "orderId": "30000000-0000-0000-0000-000000000007",
+          "productId": "20000000-0000-0000-0000-000000000008",
+          "productName": "Dell XPS 13 Intel Core i7 Gen 13",
+          "quantity": 1,
+          "unitSalePrice": 38990000,
+          "totalPrice": 38990000,
+          "createdAt": "2025-11-02T13:15:00Z",
+          "updatedAt": "2025-11-02T13:15:00Z"
+        }
+      ]
+    },
+    {
+      "id": "30000000-0000-0000-0000-000000000008",
+      "customerId": "00000000-0000-0000-0000-000000000004",
+      "customerName": "Jane Smith",
+      "salesAgentId": "00000000-0000-0000-0000-000000000002",
+      "salesAgentName": "Trần Thị Bích Salesman",
+      "finalPrice": 80000000,
+      "status": "PAID",
+      "createdAt": "2025-10-30T10:00:00Z",
+      "updatedAt": "2025-10-30T12:30:00Z",
+      "items": [
+        {
+          "id": "31000000-0000-0000-0000-000000000011",
+          "orderId": "30000000-0000-0000-0000-000000000008",
+          "productId": "20000000-0000-0000-0000-000000000001",
+          "productName": "iPhone 15 Pro 256GB Titanium",
+          "quantity": 2,
+          "unitSalePrice": 29990000,
+          "totalPrice": 59980000,
+          "createdAt": "2025-10-30T10:00:00Z",
+          "updatedAt": "2025-10-30T10:00:00Z"
+        },
+        {
+          "id": "31000000-0000-0000-0000-000000000012",
+          "orderId": "30000000-0000-0000-0000-000000000008",
+          "productId": "20000000-0000-0000-0000-000000000006",
+          "productName": "Apple Watch Series 9 GPS 45mm",
+          "quantity": 2,
+          "unitSalePrice": 11490000,
+          "totalPrice": 22980000,
+          "createdAt": "2025-10-30T10:00:00Z",
+          "updatedAt": "2025-10-30T10:00:00Z"
+        }
+      ]
+    }
+  ]
+}
