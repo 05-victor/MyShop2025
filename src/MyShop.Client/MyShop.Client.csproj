@@ -22,6 +22,11 @@
 		<Content Include="Config\ApiConfig.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
+		<!-- Copy mock data JSON files from Plugins project -->
+		<Content Include="..\MyShop.Plugins\Mocks\Data\Json\*.json">
+			<Link>Mocks\Data\Json\%(Filename)%(Extension)</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 
 	<ItemGroup>

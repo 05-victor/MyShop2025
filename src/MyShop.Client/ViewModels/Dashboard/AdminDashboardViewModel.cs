@@ -5,9 +5,11 @@ using MyShop.Client.ViewModels.Base;
 using MyShop.Client.Views.Auth;
 using MyShop.Client.Helpers;
 using MyShop.Core.Interfaces.Storage;
+using MyShop.Core.Interfaces.Repositories;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace MyShop.Client.ViewModels.Dashboard
 {
@@ -16,6 +18,7 @@ namespace MyShop.Client.ViewModels.Dashboard
         private readonly INavigationService _navigationService;
         private readonly IToastHelper _toastHelper;
         private readonly ICredentialStorage _credentialStorage;
+        private readonly IDashboardRepository _dashboardRepository;
 
         [ObservableProperty]
         private User? _currentUser;
@@ -38,6 +41,12 @@ namespace MyShop.Client.ViewModels.Dashboard
 
         [ObservableProperty]
         private decimal _todayRevenue = 0;
+
+        [ObservableProperty]
+        private decimal _weekRevenue = 0;
+
+        [ObservableProperty]
+        private decimal _monthRevenue = 0;
 
         [ObservableProperty]
         private double _revenueTrend = 0;
@@ -73,11 +82,13 @@ namespace MyShop.Client.ViewModels.Dashboard
         public AdminDashboardViewModel(
             INavigationService navigationService,
             IToastHelper toastHelper,
-            ICredentialStorage credentialStorage)
+            ICredentialStorage credentialStorage,
+            IDashboardRepository dashboardRepository)
         {
             _navigationService = navigationService;
             _toastHelper = toastHelper;
             _credentialStorage = credentialStorage;
+            _dashboardRepository = dashboardRepository;
         }
 
         public void Initialize(User user)
@@ -99,67 +110,105 @@ namespace MyShop.Client.ViewModels.Dashboard
 
             try
             {
-                // Simulate API call delay
-                await Task.Delay(500);
+                // Load Dashboard Summary from Repository
+                var summary = await _dashboardRepository.GetSummaryAsync();
+                if (summary == null)
+                {
+                    SetError("Failed to load dashboard data");
+                    return;
+                }
 
-                // Load Statistics (Mock Data)
-                TotalProducts = 150;
-                TodayOrders = 127;
+                // Map Summary Statistics
+                TotalProducts = summary.TotalProducts;
+                TodayOrders = summary.TodayOrders;
+                TodayRevenue = summary.TodayRevenue;
+                WeekRevenue = summary.WeekRevenue;
+                MonthRevenue = summary.MonthRevenue;
+                
+                // Calculate trends (mock calculation - could be from backend)
                 OrdersTrend = 12.5; // +12.5% vs yesterday
-                TodayRevenue = 19847.50m;
                 RevenueTrend = 8.2; // +8.2% vs yesterday
-                TopRatedProductName = "Premium Wireless Headphones";
-                TopRatedProductRating = 4.9;
-                LowStockCount = 8;
 
-                // Load Revenue Chart Data (Last 7 days)
-                RevenueChartData = new ObservableCollection<RevenueDataPoint>
+                // Top Rated Product (from top selling)
+                var topProduct = summary.TopSellingProducts.FirstOrDefault();
+                if (topProduct != null)
                 {
-                    new RevenueDataPoint { Day = "Mon", Revenue = 4200, Orders = 45 },
-                    new RevenueDataPoint { Day = "Tue", Revenue = 5100, Orders = 52 },
-                    new RevenueDataPoint { Day = "Wed", Revenue = 3800, Orders = 38 },
-                    new RevenueDataPoint { Day = "Thu", Revenue = 6200, Orders = 61 },
-                    new RevenueDataPoint { Day = "Fri", Revenue = 7300, Orders = 73 },
-                    new RevenueDataPoint { Day = "Sat", Revenue = 8900, Orders = 89 },
-                    new RevenueDataPoint { Day = "Sun", Revenue = 5600, Orders = 56 }
-                };
+                    TopRatedProductName = topProduct.Name;
+                    TopRatedProductRating = 4.8; // Mock rating
+                }
 
-                // Load Category Data
-                CategoryData = new ObservableCollection<CategoryDataPoint>
-                {
-                    new CategoryDataPoint { Name = "Electronics", Percentage = 45 },
-                    new CategoryDataPoint { Name = "Clothing", Percentage = 28 },
-                    new CategoryDataPoint { Name = "Home & Garden", Percentage = 18 },
-                    new CategoryDataPoint { Name = "Sports", Percentage = 12 }
-                };
+                // Low Stock Count
+                LowStockCount = summary.LowStockProducts.Count;
 
-                // Load Top Products
-                TopProducts = new ObservableCollection<TopProductItem>
+                // Load Revenue Chart Data (Daily)
+                var chartData = await _dashboardRepository.GetRevenueChartAsync("daily");
+                if (chartData != null)
                 {
-                    new TopProductItem { Rank = 1, Name = "Laptop Dell XPS 13", Category = "Electronics", Price = 1200, Stock = 45 },
-                    new TopProductItem { Rank = 2, Name = "iPhone 15 Pro", Category = "Electronics", Price = 1399, Stock = 120 },
-                    new TopProductItem { Rank = 3, Name = "Samsung Galaxy S24", Category = "Electronics", Price = 1099, Stock = 85 },
-                    new TopProductItem { Rank = 4, Name = "MacBook Pro 16", Category = "Electronics", Price = 2999, Stock = 30 },
-                    new TopProductItem { Rank = 5, Name = "AirPods Pro", Category = "Audio", Price = 249, Stock = 200 }
-                };
+                    RevenueChartData = new ObservableCollection<RevenueDataPoint>();
+                    for (int i = 0; i < chartData.Labels.Count; i++)
+                    {
+                        RevenueChartData.Add(new RevenueDataPoint
+                        {
+                            Day = chartData.Labels[i],
+                            Revenue = chartData.Data[i],
+                            Orders = 0 // Could add orders count to chart data
+                        });
+                    }
+                }
 
-                // Load Low Stock Items
-                LowStockItems = new ObservableCollection<LowStockItem>
+                // Map Category Sales Data
+                CategoryData = new ObservableCollection<CategoryDataPoint>();
+                foreach (var categorySale in summary.SalesByCategory)
                 {
-                    new LowStockItem { Name = "Sony WH-1000XM5", Category = "Audio", Stock = 5 },
-                    new LowStockItem { Name = "Canon EOS R5", Category = "Photography", Stock = 3 },
-                    new LowStockItem { Name = "Nintendo Switch", Category = "Gaming", Stock = 8 },
-                    new LowStockItem { Name = "iPad Air", Category = "Electronics", Stock = 7 },
-                    new LowStockItem { Name = "LG OLED TV 55", Category = "Electronics", Stock = 4 }
-                };
+                    CategoryData.Add(new CategoryDataPoint
+                    {
+                        Name = categorySale.CategoryName,
+                        Percentage = (int)categorySale.Percentage
+                    });
+                }
 
-                // Load Recent Orders
-                RecentOrders = new ObservableCollection<RecentOrderItem>
+                // Map Top Products
+                TopProducts = new ObservableCollection<TopProductItem>();
+                int rank = 1;
+                foreach (var product in summary.TopSellingProducts)
                 {
-                    new RecentOrderItem { OrderId = "ORD001", CustomerName = "John Smith", OrderDate = "2025-10-22", Amount = 2599, Status = "Completed" },
-                    new RecentOrderItem { OrderId = "ORD002", CustomerName = "Sarah Johnson", OrderDate = "2025-10-22", Amount = 1399, Status = "Delivering" },
-                    new RecentOrderItem { OrderId = "ORD003", CustomerName = "Michael Brown", OrderDate = "2025-10-22", Amount = 749, Status = "Created" }
-                };
+                    TopProducts.Add(new TopProductItem
+                    {
+                        Rank = rank++,
+                        Name = product.Name,
+                        Category = product.CategoryName ?? "Unknown",
+                        Price = product.Revenue / Math.Max(product.SoldCount, 1), // Avg price
+                        Stock = 0 // Not available in summary
+                    });
+                }
+
+                // Map Low Stock Items
+                LowStockItems = new ObservableCollection<LowStockItem>();
+                foreach (var lowStock in summary.LowStockProducts)
+                {
+                    LowStockItems.Add(new LowStockItem
+                    {
+                        Name = lowStock.Name,
+                        Category = lowStock.CategoryName ?? "Unknown",
+                        Stock = lowStock.Quantity
+                    });
+                }
+
+                // Map Recent Orders
+                RecentOrders = new ObservableCollection<RecentOrderItem>();
+                foreach (var order in summary.RecentOrders)
+                {
+                    RecentOrders.Add(new RecentOrderItem
+                    {
+                        OrderId = order.Id.ToString().Substring(0, 8).ToUpper(),
+                        CustomerName = order.CustomerName,
+                        OrderDate = order.OrderDate.ToString("yyyy-MM-dd"),
+                        Amount = order.TotalAmount,
+                        Status = order.Status
+                    });
+                }
+
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Loaded dashboard data successfully");
             }
             catch (Exception ex)
             {

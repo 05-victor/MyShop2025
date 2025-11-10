@@ -33,7 +33,7 @@ namespace MyShop.Client.Views.Dialogs
         {
             try
             {
-                var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ApiServer", "ApiConfig.json");
+                var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", "ApiConfig.json");
                 if (File.Exists(configPath))
                 {
                     var json = File.ReadAllText(configPath);
@@ -230,7 +230,7 @@ namespace MyShop.Client.Views.Dialogs
 
         private void SaveConfiguration()
         {
-            var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ApiServer", "ApiConfig.json");
+            var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", "ApiConfig.json");
             var configDir = Path.GetDirectoryName(configPath);
 
             if (!Directory.Exists(configDir))
@@ -238,22 +238,38 @@ namespace MyShop.Client.Views.Dialogs
                 Directory.CreateDirectory(configDir!);
             }
 
-            var config = new ApiConfig
+            // Read existing config to preserve other settings
+            var config = new ApiConfig();
+            if (File.Exists(configPath))
             {
-                BaseUrl = UseMockData ? "mock" : ServerUrl.TrimEnd('/'),
-                UseMockData = UseMockData
-            };
+                try
+                {
+                    var existingJson = File.ReadAllText(configPath);
+                    config = JsonSerializer.Deserialize<ApiConfig>(existingJson) ?? new ApiConfig();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error reading existing config: {ex.Message}");
+                }
+            }
+
+            // Update only the fields from dialog
+            config.BaseUrl = UseMockData ? "mock" : ServerUrl.TrimEnd('/');
+            config.UseMockData = UseMockData;
 
             var json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(configPath, json);
 
-            System.Diagnostics.Debug.WriteLine($"[ServerConfigDialog] Saved: UseMockData={UseMockData}, BaseUrl={config.BaseUrl}");
+            System.Diagnostics.Debug.WriteLine($"[ServerConfigDialog] Saved to {configPath}: UseMockData={UseMockData}, BaseUrl={config.BaseUrl}");
         }
 
         private class ApiConfig
         {
-            public string BaseUrl { get; set; } = string.Empty;
             public bool UseMockData { get; set; }
+            public string BaseUrl { get; set; } = string.Empty;
+            public int RequestTimeout { get; set; } = 30;
+            public bool EnableLogging { get; set; } = true;
+            public bool UseWindowsCredentialStorage { get; set; } = true;
         }
     }
 }

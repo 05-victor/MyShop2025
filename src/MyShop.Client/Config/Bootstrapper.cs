@@ -52,6 +52,12 @@ namespace MyShop.Client.Config
                         
                         // ===== Repositories (Mock - from Plugins) =====
                         services.AddScoped<IAuthRepository, MockAuthRepository>();
+                        services.AddSingleton<IDashboardRepository, MockDashboardRepository>();
+                        services.AddSingleton<IProfileRepository, MockProfileRepository>();
+                        services.AddSingleton<ICategoryRepository, MockCategoryRepository>();
+                        services.AddSingleton<IProductRepository, MockProductRepository>();
+                        
+                        System.Diagnostics.Debug.WriteLine("[Bootstrapper] All Mock Repositories registered");
                     }
                     else
                     {
