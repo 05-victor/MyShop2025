@@ -13,6 +13,7 @@ using MyShop.Core.Interfaces.Storage;
 using MyShop.Core.Services;
 using MyShop.Client.Strategies;
 using MyShop.Plugins.ApiClients.Auth;
+using MyShop.Plugins.ApiClients.Dashboard;
 using MyShop.Plugins.Mocks.Repositories;
 using MyShop.Plugins.Http;
 using MyShop.Plugins.Storage;
@@ -88,8 +89,17 @@ namespace MyShop.Client.Config
                             })
                             .AddHttpMessageHandler<AuthHeaderHandler>();
 
+                        services.AddRefitClient<IDashboardApiClient>()
+                            .ConfigureHttpClient(client =>
+                            {
+                                client.BaseAddress = new Uri(AppConfig.Instance.ApiBaseUrl);
+                                client.Timeout = TimeSpan.FromSeconds(AppConfig.Instance.RequestTimeoutSeconds);
+                            })
+                            .AddHttpMessageHandler<AuthHeaderHandler>();
+
                         // ===== Repositories (Real - from Plugins) =====
                         services.AddScoped<IAuthRepository, AuthRepository>();
+                        services.AddScoped<IDashboardRepository, DashboardRepository>();
                     }
 
                     // ===== Services (from Client.Helpers + Core.Services) =====
