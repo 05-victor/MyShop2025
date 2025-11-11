@@ -1,4 +1,4 @@
-using MyShop.Core.Common;
+﻿using MyShop.Core.Common;
 using MyShop.Shared.Models;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Shared.DTOs.Responses;
@@ -42,14 +42,14 @@ public class MockProductRepository : IProductRepository
                 {
                     Id = Guid.Parse(item.GetProperty("id").GetString()!),
                     SKU = item.GetProperty("sku").GetString(),
-                    Name = item.GetProperty("name").GetString(),
+                    Name = item.GetProperty("name").GetString() ?? string.Empty,
                     Manufacturer = item.GetProperty("manufacturer").GetString(),
                     DeviceType = item.GetProperty("deviceType").GetString(),
                     ImportPrice = item.GetProperty("importPrice").GetInt32(),
                     SellingPrice = item.GetProperty("sellingPrice").GetInt32(),
                     Quantity = item.GetProperty("quantity").GetInt32(),
                     CommissionRate = item.GetProperty("commissionRate").GetDouble(),
-                    Status = item.GetProperty("status").GetString(),
+                    Status = item.GetProperty("status").GetString() ?? string.Empty,
                     Description = item.GetProperty("description").GetString(),
                     ImageUrl = item.GetProperty("imageUrl").GetString(),
                     CreatedAt = DateTime.Parse(item.GetProperty("createdAt").GetString()!),

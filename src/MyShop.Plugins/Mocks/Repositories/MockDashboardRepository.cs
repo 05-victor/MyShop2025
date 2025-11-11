@@ -1,5 +1,7 @@
 using System.Text.Json;
+using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
+using MyShop.Shared.Models;
 
 namespace MyShop.Plugins.Mocks.Repositories;
 
@@ -15,7 +17,7 @@ public class MockDashboardRepository : IDashboardRepository
         _jsonFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Mocks", "Data", "Json", "dashboard.json");
     }
 
-    public async Task<DashboardSummary?> GetSummaryAsync()
+    public async Task<Result<DashboardSummary>> GetSummaryAsync()
     {
         await Task.Delay(400);
 
@@ -24,7 +26,7 @@ public class MockDashboardRepository : IDashboardRepository
             if (!File.Exists(_jsonFilePath))
             {
                 System.Diagnostics.Debug.WriteLine($"[MockDashboardRepository] JSON file not found: {_jsonFilePath}");
-                return null;
+                return Result<DashboardSummary>.Failure("Dashboard data file not found");
             }
 
             var json = File.ReadAllText(_jsonFilePath);
@@ -112,16 +114,16 @@ public class MockDashboardRepository : IDashboardRepository
             }
 
             System.Diagnostics.Debug.WriteLine($"[MockDashboardRepository] Loaded dashboard summary for {summary.Date:yyyy-MM-dd}");
-            return summary;
+            return Result<DashboardSummary>.Success(summary);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockDashboardRepository] Error loading dashboard: {ex.Message}");
-            return null;
+            return Result<DashboardSummary>.Failure($"Failed to load dashboard data: {ex.Message}", ex);
         }
     }
 
-    public async Task<RevenueChartData?> GetRevenueChartAsync(string period = "daily")
+    public async Task<Result<RevenueChartData>> GetRevenueChartAsync(string period = "daily")
     {
         await Task.Delay(350);
 
@@ -129,7 +131,7 @@ public class MockDashboardRepository : IDashboardRepository
         {
             if (!File.Exists(_jsonFilePath))
             {
-                return null;
+                return Result<RevenueChartData>.Failure("Revenue chart data file not found");
             }
 
             var json = File.ReadAllText(_jsonFilePath);
@@ -162,12 +164,12 @@ public class MockDashboardRepository : IDashboardRepository
             }
 
             System.Diagnostics.Debug.WriteLine($"[MockDashboardRepository] Loaded {period} revenue chart with {chartData.Labels.Count} data points");
-            return chartData;
+            return Result<RevenueChartData>.Success(chartData);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockDashboardRepository] Error loading revenue chart: {ex.Message}");
-            return null;
+            return Result<RevenueChartData>.Failure($"Failed to load revenue chart: {ex.Message}", ex);
         }
     }
 }

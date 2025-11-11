@@ -1,4 +1,4 @@
-using MyShop.Core.Common;
+﻿using MyShop.Core.Common;
 using MyShop.Shared.Models;
 using MyShop.Shared.Models.Enums;
 using System.Text.Json;
@@ -174,7 +174,7 @@ public static class MockAuthData
         }
 
         // Check if email exists
-        if (_users.Any(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase)))
+        if (_users?.Any(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase)) == true)
         {
             return Result<User>.Failure("Email already registered");
         }
@@ -207,7 +207,7 @@ public static class MockAuthData
             CreatedAt = DateTime.UtcNow
         };
 
-        _users.Add(newUser);
+        _users?.Add(newUser);
 
         var userModel = new User
         {

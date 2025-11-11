@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using MyShop.Shared.Models;
 using System.Diagnostics;
 
@@ -41,7 +41,7 @@ public class MockOrderRepository
                     Id = Guid.Parse(item.GetProperty("id").GetString()!),
                     OrderDate = DateTime.Parse(item.GetProperty("orderDate").GetString()!),
                     Status = item.GetProperty("status").GetString()!,
-                    CustomerName = item.GetProperty("customerName").GetString(),
+                    CustomerName = item.GetProperty("customerName").GetString() ?? string.Empty,
                     CustomerPhone = item.GetProperty("customerPhone").GetString(),
                     CustomerAddress = item.GetProperty("customerAddress").GetString(),
                     SalesAgentId = Guid.Parse(item.GetProperty("salesAgentId").GetString()!),
