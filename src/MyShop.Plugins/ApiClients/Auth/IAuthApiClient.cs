@@ -11,11 +11,11 @@ namespace MyShop.Plugins.ApiClients.Auth;
 public interface IAuthApiClient
 {
     [Post("/api/v1/auth/login")]
-    Task<MyShop.Shared.DTOs.Common.ApiResponse<LoginResponse>> LoginAsync([Body] LoginRequest request);
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<LoginResponse>>> LoginAsync([Body] LoginRequest request);
 
     [Post("/api/v1/auth/register")]
-    Task<MyShop.Shared.DTOs.Common.ApiResponse<CreateUserResponse>> RegisterAsync([Body] CreateUserRequest request);
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<CreateUserResponse>>> RegisterAsync([Body] CreateUserRequest request);
 
     [Get("/api/v1/auth/me")]
-    Task<MyShop.Shared.DTOs.Common.ApiResponse<UserInfoResponse>> GetMeAsync();
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<UserInfoResponse>>> GetMeAsync();
 }

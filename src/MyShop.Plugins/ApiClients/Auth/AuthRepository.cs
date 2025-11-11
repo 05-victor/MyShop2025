@@ -34,16 +34,26 @@ public class AuthRepository : IAuthRepository
                 Password = password
             };
 
-            var response = await _authApi.LoginAsync(request);
+            var refitResponse = await _authApi.LoginAsync(request);
 
-            if (response?.Success == true && response.Result != null)
+            // Check Refit outer wrapper (HTTP status)
+            if (refitResponse.IsSuccessStatusCode && refitResponse.Content != null)
             {
-                // Transform DTO → Client Model
-                var user = MapLoginResponseToUser(response.Result);
-                return Result<User>.Success(user);
+                var apiResponse = refitResponse.Content;
+
+                // Check inner ApiResponse (business logic)
+                if (apiResponse.Success == true && apiResponse.Result != null)
+                {
+                    // Transform DTO → Client Model
+                    var user = MapLoginResponseToUser(apiResponse.Result);
+                    return Result<User>.Success(user);
+                }
+
+                return Result<User>.Failure(apiResponse.Message ?? "Login failed");
             }
 
-            return Result<User>.Failure(response?.Message ?? "Login failed");
+            // HTTP error
+            return Result<User>.Failure($"HTTP Error: {refitResponse.StatusCode}");
         }
         catch (ApiException apiEx)
         {
@@ -73,22 +83,32 @@ public class AuthRepository : IAuthRepository
                 Password = password
             };
 
-            var response = await _authApi.RegisterAsync(request);
+            var refitResponse = await _authApi.RegisterAsync(request);
 
-            if (response?.Success == true && response.Result != null)
+            // Check Refit outer wrapper (HTTP status)
+            if (refitResponse.IsSuccessStatusCode && refitResponse.Content != null)
             {
-                // Note: Register response doesn't include token, need to login after
-                var user = new User
+                var apiResponse = refitResponse.Content;
+
+                // Check inner ApiResponse (business logic)
+                if (apiResponse.Success == true && apiResponse.Result != null)
                 {
-                    Id = response.Result.Id,
-                    Username = username,
-                    Email = email,
-                    CreatedAt = DateTime.Now
-                };
-                return Result<User>.Success(user);
+                    // Note: Register response doesn't include token, need to login after
+                    var user = new User
+                    {
+                        Id = apiResponse.Result.Id,
+                        Username = username,
+                        Email = email,
+                        CreatedAt = DateTime.Now
+                    };
+                    return Result<User>.Success(user);
+                }
+
+                return Result<User>.Failure(apiResponse.Message ?? "Registration failed");
             }
 
-            return Result<User>.Failure(response?.Message ?? "Registration failed");
+            // HTTP error
+            return Result<User>.Failure($"HTTP Error: {refitResponse.StatusCode}");
         }
         catch (ApiException apiEx)
         {
@@ -111,16 +131,26 @@ public class AuthRepository : IAuthRepository
     {
         try
         {
-            var response = await _authApi.GetMeAsync();
+            var refitResponse = await _authApi.GetMeAsync();
 
-            if (response?.Success == true && response.Result != null)
+            // Check Refit outer wrapper (HTTP status)
+            if (refitResponse.IsSuccessStatusCode && refitResponse.Content != null)
             {
-                var token = _credentialStorage.GetToken() ?? string.Empty;
-                var user = MapUserInfoResponseToUser(response.Result, token);
-                return Result<User>.Success(user);
+                var apiResponse = refitResponse.Content;
+
+                // Check inner ApiResponse (business logic)
+                if (apiResponse.Success == true && apiResponse.Result != null)
+                {
+                    var token = _credentialStorage.GetToken() ?? string.Empty;
+                    var user = MapUserInfoResponseToUser(apiResponse.Result, token);
+                    return Result<User>.Success(user);
+                }
+
+                return Result<User>.Failure(apiResponse.Message ?? "Failed to get user info");
             }
 
-            return Result<User>.Failure(response?.Message ?? "Failed to get user info");
+            // HTTP error
+            return Result<User>.Failure($"HTTP Error: {refitResponse.StatusCode}");
         }
         catch (ApiException apiEx)
         {

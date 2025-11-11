@@ -111,10 +111,18 @@ namespace MyShop.Client.ViewModels.Dashboard
             try
             {
                 // Load Dashboard Summary from Repository
-                var summary = await _dashboardRepository.GetSummaryAsync();
+                var summaryResult = await _dashboardRepository.GetSummaryAsync();
+                if (!summaryResult.IsSuccess)
+                {
+                    SetError(summaryResult.ErrorMessage ?? "Failed to load dashboard data");
+                    _toastHelper.ShowError(summaryResult.ErrorMessage ?? "Failed to load dashboard data");
+                    return;
+                }
+
+                var summary = summaryResult.Data;
                 if (summary == null)
                 {
-                    SetError("Failed to load dashboard data");
+                    SetError("Dashboard data is empty");
                     return;
                 }
 
@@ -141,19 +149,23 @@ namespace MyShop.Client.ViewModels.Dashboard
                 LowStockCount = summary.LowStockProducts.Count;
 
                 // Load Revenue Chart Data (Daily)
-                var chartData = await _dashboardRepository.GetRevenueChartAsync("daily");
-                if (chartData != null)
+                var chartResult = await _dashboardRepository.GetRevenueChartAsync("daily");
+                if (chartResult.IsSuccess && chartResult.Data != null)
                 {
                     RevenueChartData = new ObservableCollection<RevenueDataPoint>();
-                    for (int i = 0; i < chartData.Labels.Count; i++)
+                    for (int i = 0; i < chartResult.Data.Labels.Count; i++)
                     {
                         RevenueChartData.Add(new RevenueDataPoint
                         {
-                            Day = chartData.Labels[i],
-                            Revenue = chartData.Data[i],
+                            Day = chartResult.Data.Labels[i],
+                            Revenue = chartResult.Data.Data[i],
                             Orders = 0 // Could add orders count to chart data
                         });
                     }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Failed to load chart data: {chartResult.ErrorMessage}");
                 }
 
                 // Map Category Sales Data
@@ -214,6 +226,7 @@ namespace MyShop.Client.ViewModels.Dashboard
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading dashboard data: {ex.Message}");
                 SetError("Failed to load dashboard data", ex);
+                _toastHelper.ShowError("Failed to load dashboard data. Please try again.");
             }
             finally
             {
