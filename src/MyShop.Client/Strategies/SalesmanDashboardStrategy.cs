@@ -14,6 +14,8 @@ public class SalesmanDashboardStrategy : IRoleStrategy
         return typeof(MyShop.Client.Views.Dashboard.SalesmanDashboardPage);
     }
 
+    // public Type GetDashboardPageType() => typeof(SalesmanDashboardShellPage);
+
     public bool CanAccessFeature(string featureName)
     {
         // Salesman có quyền hạn chế

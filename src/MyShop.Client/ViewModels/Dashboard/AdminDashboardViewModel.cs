@@ -15,19 +15,11 @@ namespace MyShop.Client.ViewModels.Dashboard
 {
     public partial class AdminDashboardViewModel : BaseViewModel
     {
-        private readonly INavigationService _navigationService;
         private readonly IToastHelper _toastHelper;
-        private readonly ICredentialStorage _credentialStorage;
         private readonly IDashboardRepository _dashboardRepository;
 
         [ObservableProperty]
-        private User? _currentUser;
-
-        [ObservableProperty]
         private bool _isLoading = false;
-
-        [ObservableProperty]
-        private string _welcomeMessage = "Welcome back!";
 
         // Dashboard Statistics
         [ObservableProperty]
@@ -80,21 +72,15 @@ namespace MyShop.Client.ViewModels.Dashboard
         private ObservableCollection<RecentOrderItem> _recentOrders = new();
 
         public AdminDashboardViewModel(
-            INavigationService navigationService,
-            IToastHelper toastHelper,
-            ICredentialStorage credentialStorage,
+            IToastHelper toastHelper, 
             IDashboardRepository dashboardRepository)
         {
-            _navigationService = navigationService;
             _toastHelper = toastHelper;
-            _credentialStorage = credentialStorage;
             _dashboardRepository = dashboardRepository;
         }
 
         public void Initialize(User user)
         {
-            CurrentUser = user;
-            WelcomeMessage = $"Welcome back, {user.Username}!";
             _ = LoadDashboardDataAsync();
         }
 
@@ -232,38 +218,6 @@ namespace MyShop.Client.ViewModels.Dashboard
             {
                 SetLoadingState(false);
             }
-        }
-
-        [RelayCommand]
-        private void Logout()
-        {
-            _credentialStorage.RemoveToken();
-            _toastHelper.ShowInfo("You have been logged out");
-            _navigationService.NavigateTo(typeof(LoginPage));
-        }
-
-        [RelayCommand]
-        private void NavigateToProducts()
-        {
-            _toastHelper.ShowInfo("Products management coming soon!");
-        }
-
-        [RelayCommand]
-        private void NavigateToOrders()
-        {
-            _toastHelper.ShowInfo("Orders management coming soon!");
-        }
-
-        [RelayCommand]
-        private void NavigateToReports()
-        {
-            _toastHelper.ShowInfo("Reports coming soon!");
-        }
-
-        [RelayCommand]
-        private void NavigateToSettings()
-        {
-            _toastHelper.ShowInfo("Settings coming soon!");
         }
     }
 

@@ -1,22 +1,22 @@
+using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Refit;
 using MyShop.Client.Config;
 using MyShop.Client.Helpers;
-using System;
-
+using MyShop.Client.Strategies;
+using MyShop.Client.ViewModels.Shell;
 // ===== NEW NAMESPACES - After Refactor =====
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Core.Interfaces.Storage;
 using MyShop.Core.Services;
-using MyShop.Client.Strategies;
 using MyShop.Plugins.ApiClients.Auth;
 using MyShop.Plugins.ApiClients.Dashboard;
-using MyShop.Plugins.Mocks.Repositories;
 using MyShop.Plugins.Http;
+using MyShop.Plugins.Mocks.Repositories;
 using MyShop.Plugins.Storage;
+using Refit;
 
 namespace MyShop.Client.Config
 {
@@ -119,6 +119,7 @@ namespace MyShop.Client.Config
                     services.AddTransient<ViewModels.Dashboard.AdminDashboardViewModel>();
                     services.AddTransient<ViewModels.Dashboard.CustomerDashboardViewModel>();
                     services.AddTransient<ViewModels.Dashboard.SalesmanDashboardViewModel>();
+                    services.AddTransient<ViewModels.Shell.DashboardShellViewModel>();
                 })
                 .Build();
         }

@@ -15,138 +15,8 @@
     </Page.Resources>
 
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="220"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-
-        <!-- Left Sidebar Navigation -->
-        <Grid Grid.Column="0" Background="#1F2937">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
-            <!-- Logo & Branding -->
-            <StackPanel Grid.Row="0" Padding="20,24" Spacing="8">
-                <Border Width="40" Height="40" Background="White" CornerRadius="8" HorizontalAlignment="Left">
-                    <FontIcon Glyph="&#xE7B8;" FontSize="20" Foreground="#1F2937" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Border>
-                <TextBlock Text="MyShop2025" FontSize="18" FontWeight="Bold" Foreground="White"/>
-                <TextBlock Text="Welcome back, admin!" FontSize="12" Foreground="#9CA3AF"/>
-            </StackPanel>
-
-            <!-- Navigation Menu -->
-            <StackPanel Grid.Row="1" Padding="12,0" Spacing="4">
-                <!-- Dashboard - Active -->
-                <Border Background="#3B82F6" CornerRadius="8" Padding="12,10" Margin="0,0,0,4">
-                    <StackPanel Orientation="Horizontal" Spacing="12">
-                        <FontIcon Glyph="&#xE80F;" FontSize="18" Foreground="White"/>
-                        <TextBlock Text="Dashboard" FontSize="14" Foreground="White" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-                
-                <!-- Products -->
-                <Button Background="Transparent" BorderThickness="0" Padding="12,10" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{x:Bind ViewModel.NavigateToProductsCommand}">
-                    <StackPanel Orientation="Horizontal" Spacing="12">
-                        <FontIcon Glyph="&#xE7B8;" FontSize="18" Foreground="#9CA3AF"/>
-                        <TextBlock Text="Products" FontSize="14" Foreground="#9CA3AF" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-                
-                <!-- Orders -->
-                <Button Background="Transparent" BorderThickness="0" Padding="12,10" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{x:Bind ViewModel.NavigateToOrdersCommand}">
-                    <StackPanel Orientation="Horizontal" Spacing="12">
-                        <FontIcon Glyph="&#xE7BF;" FontSize="18" Foreground="#9CA3AF"/>
-                        <TextBlock Text="Orders" FontSize="14" Foreground="#9CA3AF" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-                
-                <!-- Reports -->
-                <Button Background="Transparent" BorderThickness="0" Padding="12,10" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{x:Bind ViewModel.NavigateToReportsCommand}">
-                    <StackPanel Orientation="Horizontal" Spacing="12">
-                        <FontIcon Glyph="&#xE9D9;" FontSize="18" Foreground="#9CA3AF"/>
-                        <TextBlock Text="Reports" FontSize="14" Foreground="#9CA3AF" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-                
-                <!-- Users -->
-                <Button Background="Transparent" BorderThickness="0" Padding="12,10" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
-                    <StackPanel Orientation="Horizontal" Spacing="12">
-                        <FontIcon Glyph="&#xE716;" FontSize="18" Foreground="#9CA3AF"/>
-                        <TextBlock Text="Users" FontSize="14" Foreground="#9CA3AF" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-                
-                <!-- Agent Requests -->
-                <Button Background="Transparent" BorderThickness="0" Padding="12,10" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
-                    <StackPanel Orientation="Horizontal" Spacing="12">
-                        <FontIcon Glyph="&#xE8F2;" FontSize="18" Foreground="#9CA3AF"/>
-                        <TextBlock Text="Agent Requests" FontSize="14" Foreground="#9CA3AF" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-                
-                <!-- Profile -->
-                <Button Background="Transparent" BorderThickness="0" Padding="12,10" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
-                    <StackPanel Orientation="Horizontal" Spacing="12">
-                        <FontIcon Glyph="&#xE77B;" FontSize="18" Foreground="#9CA3AF"/>
-                        <TextBlock Text="Profile" FontSize="14" Foreground="#9CA3AF" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-                
-                <!-- Settings -->
-                <Button Background="Transparent" BorderThickness="0" Padding="12,10" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{x:Bind ViewModel.NavigateToSettingsCommand}">
-                    <StackPanel Orientation="Horizontal" Spacing="12">
-                        <FontIcon Glyph="&#xE713;" FontSize="18" Foreground="#9CA3AF"/>
-                        <TextBlock Text="Settings" FontSize="14" Foreground="#9CA3AF" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-            </StackPanel>
-
-            <!-- User Profile & Logout -->
-            <StackPanel Grid.Row="2" Padding="16" Spacing="12" Background="#111827">
-                <Border Background="#374151" 
-                       CornerRadius="8" 
-                       Padding="12">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Width="36" Height="36" Background="#6B7280" CornerRadius="18" Margin="0,0,12,0">
-                            <FontIcon Glyph="&#xE77B;" FontSize="16" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock Text="admin" 
-                                      FontWeight="SemiBold" 
-                                      FontSize="14"
-                                      Foreground="White"
-                                      TextTrimming="CharacterEllipsis"/>
-                            <TextBlock Text="admin@example.com" 
-                                      FontSize="11" 
-                                      Foreground="#9CA3AF"
-                                      TextTrimming="CharacterEllipsis"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-                <Button Command="{x:Bind ViewModel.LogoutCommand}"
-                       HorizontalAlignment="Stretch"
-                       Background="#DC2626"
-                       Foreground="White"
-                       BorderThickness="0"
-                       CornerRadius="6"
-                       Padding="12,10">
-                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                        <FontIcon Glyph="&#xE7E8;" FontSize="14" Foreground="White"/>
-                        <TextBlock Text="Logout" FontSize="14" FontWeight="SemiBold"/>
-                    </StackPanel>
-                </Button>
-            </StackPanel>
-        </Grid>
-
         <!-- Main Content Area -->
-        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Background="#F3F4F6">
+        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" Background="#F3F4F6">
             <StackPanel Padding="32" Spacing="32">
                 
                 <!-- Page Header -->
@@ -535,7 +405,7 @@
         </ScrollViewer>
 
         <!-- Loading Overlay -->
-        <Border Grid.ColumnSpan="2"
+        <Border
                Background="#80000000"
                Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel HorizontalAlignment="Center" 

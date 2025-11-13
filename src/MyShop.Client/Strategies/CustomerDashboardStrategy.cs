@@ -14,6 +14,8 @@ public class CustomerDashboardStrategy : IRoleStrategy
         return typeof(MyShop.Client.Views.Dashboard.CustomerDashboardPage);
     }
 
+    //public Type GetDashboardPageType() => typeof(CustomerDashboardShellPage);
+
     public bool CanAccessFeature(string featureName)
     {
         // Customer chỉ có quyền xem orders của mình
