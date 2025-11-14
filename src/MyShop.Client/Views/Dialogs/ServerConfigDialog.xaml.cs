@@ -213,54 +213,92 @@ namespace MyShop.Client.Views.Dialogs
                 
                 if (!string.IsNullOrEmpty(exePath))
                 {
-                    // Start new instance
-                    Process.Start(exePath);
+                    // Create a batch script to restart the app
+                    // This ensures the old process is fully terminated before starting new one
+                    var batchPath = Path.Combine(Path.GetTempPath(), "restart_myshop.bat");
+                    var batchContent = $@"@echo off
+timeout /t 1 /nobreak > nul
+start """" ""{exePath}""
+exit";
+                    File.WriteAllText(batchPath, batchContent);
                     
-                    // Exit current instance
+                    // Start the batch script
+                    var startInfo = new ProcessStartInfo
+                    {
+                        FileName = batchPath,
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                        WorkingDirectory = Path.GetDirectoryName(exePath) ?? ""
+                    };
+                    
+                    Process.Start(startInfo);
+                    
+                    // Exit current instance immediately
                     Application.Current.Exit();
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error restarting app: {ex.Message}");
-                // Fallback: just exit
+                // Fallback: just exit and user can manually restart
                 Application.Current.Exit();
             }
         }
 
         private void SaveConfiguration()
         {
-            var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", "ApiConfig.json");
-            var configDir = Path.GetDirectoryName(configPath);
-
-            if (!Directory.Exists(configDir))
+            try
             {
-                Directory.CreateDirectory(configDir!);
-            }
+                var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", "ApiConfig.json");
+                var configDir = Path.GetDirectoryName(configPath);
 
-            // Read existing config to preserve other settings
-            var config = new ApiConfig();
-            if (File.Exists(configPath))
+                if (!Directory.Exists(configDir))
+                {
+                    Directory.CreateDirectory(configDir!);
+                }
+
+                // Read existing config to preserve other settings
+                var config = new ApiConfig();
+                if (File.Exists(configPath))
+                {
+                    try
+                    {
+                        var existingJson = File.ReadAllText(configPath);
+                        config = JsonSerializer.Deserialize<ApiConfig>(existingJson) ?? new ApiConfig();
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[ServerConfig] Error reading existing config: {ex.Message}");
+                    }
+                }
+
+                // Update only the fields from dialog
+                config.BaseUrl = UseMockData ? "mock" : ServerUrl.TrimEnd('/');
+                config.UseMockData = UseMockData;
+
+                // Serialize with pretty formatting
+                var options = new JsonSerializerOptions 
+                { 
+                    WriteIndented = true,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+                var json = JsonSerializer.Serialize(config, options);
+                
+                // Write to file with UTF-8 encoding
+                File.WriteAllText(configPath, json, System.Text.Encoding.UTF8);
+
+                System.Diagnostics.Debug.WriteLine($"[ServerConfigDialog] ✅ Config saved successfully!");
+                System.Diagnostics.Debug.WriteLine($"[ServerConfigDialog] Path: {configPath}");
+                System.Diagnostics.Debug.WriteLine($"[ServerConfigDialog] UseMockData: {config.UseMockData}");
+                System.Diagnostics.Debug.WriteLine($"[ServerConfigDialog] BaseUrl: {config.BaseUrl}");
+                System.Diagnostics.Debug.WriteLine($"[ServerConfigDialog] JSON Content:\n{json}");
+            }
+            catch (Exception ex)
             {
-                try
-                {
-                    var existingJson = File.ReadAllText(configPath);
-                    config = JsonSerializer.Deserialize<ApiConfig>(existingJson) ?? new ApiConfig();
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error reading existing config: {ex.Message}");
-                }
+                System.Diagnostics.Debug.WriteLine($"[ServerConfig] ❌ Error saving config: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[ServerConfig] Stack trace: {ex.StackTrace}");
+                throw; // Re-throw to let caller handle
             }
-
-            // Update only the fields from dialog
-            config.BaseUrl = UseMockData ? "mock" : ServerUrl.TrimEnd('/');
-            config.UseMockData = UseMockData;
-
-            var json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(configPath, json);
-
-            System.Diagnostics.Debug.WriteLine($"[ServerConfigDialog] Saved to {configPath}: UseMockData={UseMockData}, BaseUrl={config.BaseUrl}");
         }
 
         private class ApiConfig
