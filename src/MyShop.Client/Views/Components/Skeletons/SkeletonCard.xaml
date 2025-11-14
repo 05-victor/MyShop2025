@@ -1,0 +1,31 @@
+<UserControl x:Class="MyShop.Client.Views.Components.Skeletons.SkeletonCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:skeletons="using:MyShop.Client.Views.Components.Skeletons"
+             mc:Ignorable="d">
+
+    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="16">
+        
+        <StackPanel Spacing="12">
+            <!-- Image Skeleton -->
+            <skeletons:SkeletonLoader Width="200" Height="120" Shape="Rectangle"/>
+            
+            <!-- Title Skeleton -->
+            <skeletons:SkeletonLoader Width="180" Height="20" Shape="Rectangle"/>
+            
+            <!-- Description Lines -->
+            <skeletons:SkeletonLoader Width="220" Height="14" Shape="Rectangle"/>
+            <skeletons:SkeletonLoader Width="200" Height="14" Shape="Rectangle"/>
+            <skeletons:SkeletonLoader Width="160" Height="14" Shape="Rectangle"/>
+            
+            <!-- Action Button Skeleton -->
+            <skeletons:SkeletonLoader Width="100" Height="32" Shape="Rectangle"/>
+        </StackPanel>
+    </Border>
+</UserControl>

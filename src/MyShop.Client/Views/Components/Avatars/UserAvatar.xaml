@@ -1,0 +1,35 @@
+<UserControl x:Class="MyShop.Client.Views.Components.Avatars.UserAvatar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d">
+
+    <Grid x:Name="AvatarContainer">
+        <!-- Avatar Image or Initials -->
+        <Grid>
+            <!-- Image Avatar -->
+            <Border x:Name="ImageBorder"
+                    CornerRadius="999"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1">
+                <!-- Don't bind ProfilePicture directly from string - use code-behind to convert -->
+                <PersonPicture x:Name="AvatarImage"
+                              Initials="{x:Bind Initials, Mode=OneWay}"
+                              DisplayName="{x:Bind DisplayName, Mode=OneWay}"/>
+            </Border>
+
+            <!-- Status Indicator -->
+            <Ellipse x:Name="StatusIndicator"
+                     Width="12"
+                     Height="12"
+                     HorizontalAlignment="Right"
+                     VerticalAlignment="Bottom"
+                     Margin="0,0,-2,-2"
+                     Stroke="White"
+                     StrokeThickness="2"
+                     Visibility="Collapsed"/>
+        </Grid>
+    </Grid>
+</UserControl>
