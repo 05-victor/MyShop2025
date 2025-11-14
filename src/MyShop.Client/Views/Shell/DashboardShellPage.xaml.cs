@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Navigation;
 using MyShop.Client.ViewModels.Shell;
 using MyShop.Shared.Models;
 using MyShop.Client.Views.Dashboard;
+using MyShop.Client.Views.Product;
 
 namespace MyShop.Client.Views.Shell
 {
@@ -77,8 +78,12 @@ namespace MyShop.Client.Views.Shell
                     break;
 
                 case "products":
-                    ViewModel.NavigateToProductsCommand?.Execute(null);
-                    RestoreSelection();
+                    if (ViewModel.CurrentUser != null)
+                        ContentFrame.Navigate(typeof(AdminProductPage), ViewModel.CurrentUser);
+                    else
+                        ContentFrame.Navigate(typeof(AdminProductPage));
+                    //ViewModel.NavigateToProductsCommand?.Execute(null);
+                    //RestoreSelection();
                     break;
 
                 case "orders":
