@@ -15,10 +15,21 @@ namespace MyShop.Client.Helpers {
             }
 
             if (_rootFrame.CurrentSourcePageType == pageType && parameter == null) {
+                AppLogger.Debug($"Skipping navigation - already on {pageType.Name}");
                 return; // Don't navigate to the same page without parameters
             }
 
-            _rootFrame.Navigate(pageType, parameter);
+            try
+            {
+                AppLogger.Info($"Navigating to {pageType.Name}...");
+                _rootFrame.Navigate(pageType, parameter);
+                AppLogger.Success($"Navigation to {pageType.Name} completed");
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error($"Navigation to {pageType.Name} failed", ex);
+                throw;
+            }
         }
 
         public void GoBack() {

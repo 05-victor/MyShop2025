@@ -24,38 +24,65 @@ namespace MyShop.Client
         public App()
         {
             this.InitializeComponent();
+            
+            // Add unhandled exception handler for detailed logging
+            this.UnhandledException += App_UnhandledException;
+            
             _host = Bootstrapper.CreateHost();
+        }
+
+        private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+        {
+            AppLogger.Separator("UNHANDLED EXCEPTION");
+            AppLogger.Error("Unhandled exception caught by global handler", e.Exception);
+            AppLogger.Separator();
+            
+            // Mark as handled to prevent app crash during debugging
+            e.Handled = true;
         }
 
         protected override async void OnLaunched(LaunchActivatedEventArgs args)
         {
             try
             {
+                AppLogger.Separator("APP LAUNCH");
+                AppLogger.Custom("🚀", "APP", "Starting MyShop2025...");
+                
+                AppLogger.Info("Creating MainWindow...");
                 MainWindow = new MainWindow();
+                AppLogger.Success("MainWindow created");
 
                 // Force Light theme app-wide at runtime
                 if (MainWindow.Content is FrameworkElement root)
                 {
+                    AppLogger.Debug("Setting Light theme");
                     root.RequestedTheme = ElementTheme.Light;
                 }
 
+                AppLogger.Info("Initializing NavigationService...");
                 var navigationService = Services.GetRequiredService<INavigationService>();
                 navigationService.Initialize(MainWindow.RootFrame);
+                AppLogger.Success("NavigationService ready");
 
+                AppLogger.Info("Checking for saved credentials...");
                 var credentialStorage = Services.GetRequiredService<ICredentialStorage>();
                 var token = credentialStorage.GetToken();
                 bool isLoggedIn = false;
 
                 if (!string.IsNullOrEmpty(token))
                 {
+                    AppLogger.Debug($"Token found: {token.Substring(0, Math.Min(20, token.Length))}...");
                     try
                     {
+                        AppLogger.Info("Validating token...");
                         var authRepository = Services.GetRequiredService<IAuthRepository>();
                         var result = await authRepository.GetCurrentUserAsync();
 
                         if (result.IsSuccess && result.Data != null)
                         {
                             var user = result.Data;
+                            AppLogger.Auth("Auto-login", user.Username, true);
+                            AppLogger.Info($"User roles: {string.Join(", ", user.Roles)}");
                             
                             // Use strategy pattern để navigate
                             var roleStrategyFactory = Services.GetRequiredService<IRoleStrategyFactory>();
@@ -63,36 +90,50 @@ namespace MyShop.Client
                             var strategy = roleStrategyFactory.GetStrategy(primaryRole);
                             var pageType = strategy.GetDashboardPageType();
                             
+                            AppLogger.Navigation("Startup", pageType.Name, user);
                             navigationService.NavigateTo(pageType, user);
+                            AppLogger.Success("Dashboard loaded");
                             isLoggedIn = true;
                         }
                         else
                         {
+                            AppLogger.Warning($"Token validation failed: {result.ErrorMessage}");
                             credentialStorage.RemoveToken();
                         }
                     }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine($"Error on startup: {ex.Message}");
+                        AppLogger.Error("Auto-login failed", ex);
                         credentialStorage.RemoveToken();
                     }
+                }
+                else
+                {
+                    AppLogger.Info("No saved token found");
                 }
 
                 if (!isLoggedIn)
                 {
+                    AppLogger.Navigation("Startup", "LoginPage");
                     navigationService.NavigateTo(typeof(LoginPage));
                 }
 
+                AppLogger.Info("Activating MainWindow...");
                 MainWindow.Activate();
+                AppLogger.Success("App startup complete!");
+                AppLogger.Separator();
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"CRITICAL ERROR in OnLaunched: {ex}");
+                AppLogger.Separator("CRITICAL STARTUP ERROR");
+                AppLogger.Error("OnLaunched failed", ex);
+                AppLogger.Separator();
+                
                 // Show error dialog
                 var errorDialog = new Microsoft.UI.Xaml.Controls.ContentDialog
                 {
                     Title = "Application Error",
-                    Content = $"Failed to start application:\n\n{ex.Message}\n\n{ex.StackTrace}",
+                    Content = $"Failed to start application:\n\n{ex.Message}\n\nCheck Output window for details.",
                     CloseButtonText = "Exit"
                 };
                 
