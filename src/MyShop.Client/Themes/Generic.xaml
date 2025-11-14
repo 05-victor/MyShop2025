@@ -9,13 +9,13 @@
     
     <ResourceDictionary.MergedDictionaries>
         <!-- Core Design Tokens -->
-        <ResourceDictionary Source="Colors.xaml"/>
         <ResourceDictionary Source="Brushes.xaml"/>
         <ResourceDictionary Source="Typography.xaml"/>
         <ResourceDictionary Source="Spacing.xaml"/>
         <ResourceDictionary Source="Shadows.xaml"/>
         <ResourceDictionary Source="Animations.xaml"/>
         <ResourceDictionary Source="Icons.xaml"/>
+        <ResourceDictionary Source="Converters.xaml"/>
         
         <!-- Component Styles -->
         <ResourceDictionary Source="InputStyles.xaml"/>
