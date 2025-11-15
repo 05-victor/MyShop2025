@@ -5,6 +5,8 @@ using MyShop.Client.ViewModels.Shell;
 using MyShop.Shared.Models;
 using MyShop.Client.Views.Dashboard;
 using MyShop.Client.Views.Product;
+using MyShop.Client.Views.Profile;
+using MyShop.Client.Views.Settings;
 using MyShop.Client.Helpers;
 
 namespace MyShop.Client.Views.Shell
@@ -124,8 +126,16 @@ namespace MyShop.Client.Views.Shell
                         ContentFrame.Navigate(typeof(AdminProductPage), ViewModel.CurrentUser);
                     else
                         ContentFrame.Navigate(typeof(AdminProductPage));
-                    //ViewModel.NavigateToProductsCommand?.Execute(null);
-                    //RestoreSelection();
+                    break;
+
+                case "profile":
+                    _currentContentItem = item;
+                    ContentFrame.Navigate(typeof(ProfilePage));
+                    break;
+
+                case "settings":
+                    _currentContentItem = item;
+                    ContentFrame.Navigate(typeof(SettingsPage));
                     break;
 
                 case "orders":
@@ -135,16 +145,6 @@ namespace MyShop.Client.Views.Shell
 
                 case "reports":
                     ViewModel.NavigateToReportsCommand.Execute(null);
-                    RestoreSelection();
-                    break;
-
-                case "settings":
-                    ViewModel.NavigateToSettingsCommand.Execute(null);
-                    RestoreSelection();
-                    break;
-
-                case "profile":
-                    ViewModel.NavigateToProfileCommand.Execute(null);
                     RestoreSelection();
                     break;
 

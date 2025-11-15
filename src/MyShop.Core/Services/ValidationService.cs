@@ -74,4 +74,27 @@ public class ValidationService : IValidationService
 
         return ValidationResult.Success();
     }
+
+    /// <inheritdoc/>
+    public ValidationResult ValidatePhoneNumber(string phoneNumber)
+    {
+        if (string.IsNullOrWhiteSpace(phoneNumber))
+            return ValidationResult.Failure("Phone number is required");
+
+        // Accept phone numbers with 10-20 digits, may contain spaces, dashes, or parentheses
+        var phonePattern = @"^[\d\s\-\(\)]{10,20}$";
+        if (!Regex.IsMatch(phoneNumber, phonePattern))
+            return ValidationResult.Failure("Invalid phone number format");
+
+        return ValidationResult.Success();
+    }
+
+    /// <inheritdoc/>
+    public ValidationResult ValidateRequired(string value, string fieldName)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return ValidationResult.Failure($"{fieldName} is required");
+
+        return ValidationResult.Success();
+    }
 }

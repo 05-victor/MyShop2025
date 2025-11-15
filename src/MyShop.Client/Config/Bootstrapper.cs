@@ -7,7 +7,6 @@ using MyShop.Client.Helpers;
 using MyShop.Client.Strategies;
 using MyShop.Client.ViewModels.Product;
 using MyShop.Client.ViewModels.Shell;
-// ===== NEW NAMESPACES - After Refactor =====
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Core.Interfaces.Storage;
@@ -51,6 +50,7 @@ namespace MyShop.Client.Config
                         
                         // ===== Storage (Mock - Simple File Storage) =====
                         services.AddSingleton<ICredentialStorage, FileCredentialStorage>();
+                        services.AddSingleton<ISettingsStorage, FileSettingsStorage>();
                         
                         // ===== Repositories (Mock - from Plugins) =====
                         services.AddScoped<IAuthRepository, MockAuthRepository>();
@@ -58,6 +58,7 @@ namespace MyShop.Client.Config
                         services.AddSingleton<IProfileRepository, MockProfileRepository>();
                         services.AddSingleton<ICategoryRepository, MockCategoryRepository>();
                         services.AddSingleton<IProductRepository, MockProductRepository>();
+                        services.AddScoped<IUserRepository, MockUserRepository>();
                         
                         System.Diagnostics.Debug.WriteLine("[Bootstrapper] All Mock Repositories registered");
                     }
@@ -98,9 +99,14 @@ namespace MyShop.Client.Config
                             })
                             .AddHttpMessageHandler<AuthHeaderHandler>();
 
+                        // ===== Storage (Production) =====
+                        services.AddSingleton<ISettingsStorage, FileSettingsStorage>();
+
                         // ===== Repositories (Real - from Plugins) =====
                         services.AddScoped<IAuthRepository, AuthRepository>();
                         services.AddScoped<IDashboardRepository, DashboardRepository>();
+                        // TODO: Add real UserRepository when API is ready
+                        services.AddScoped<IUserRepository, MockUserRepository>(); // Using mock for now
                     }
 
                     // ===== Services (from Client.Helpers + Core.Services) =====
@@ -122,6 +128,10 @@ namespace MyShop.Client.Config
                     services.AddTransient<ViewModels.Dashboard.SalesmanDashboardViewModel>();
                     services.AddTransient<ViewModels.Product.AdminProductViewModel>();
                     services.AddTransient<ViewModels.Shell.DashboardShellViewModel>();
+                    services.AddTransient<ViewModels.Profile.ProfileViewModel>();
+                    services.AddTransient<ViewModels.Profile.ChangePasswordViewModel>();
+                    services.AddTransient<ViewModels.Profile.TrialActivationViewModel>();
+                    services.AddTransient<ViewModels.Settings.SettingsViewModel>();
                 })
                 .Build();
         }
