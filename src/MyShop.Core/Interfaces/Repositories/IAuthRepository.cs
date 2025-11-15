@@ -23,4 +23,9 @@ public interface IAuthRepository
     /// Get thông tin user hiện tại từ token
     /// </summary>
     Task<Result<User>> GetCurrentUserAsync();
+
+    /// <summary>
+    /// Activate trial account với admin code
+    /// </summary>
+    Task<Result<User>> ActivateTrialAsync(string adminCode);
 }

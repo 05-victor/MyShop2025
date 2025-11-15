@@ -169,6 +169,45 @@ public class AuthRepository : IAuthRepository
         }
     }
 
+    public async Task<Result<User>> ActivateTrialAsync(string adminCode)
+    {
+        try
+        {
+            // TODO: Implement real API call when backend endpoint is ready
+            // For now, return not implemented
+            await Task.Delay(500); // Simulate network delay
+            
+            return Result<User>.Failure("Trial activation API not yet implemented on server. Please use mock mode for testing.");
+            
+            /*
+            // Future implementation when backend is ready:
+            var request = new ActivateTrialRequest { AdminCode = adminCode };
+            var refitResponse = await _authApi.ActivateTrialAsync(request);
+
+            if (refitResponse.IsSuccessStatusCode && refitResponse.Content != null)
+            {
+                var apiResponse = refitResponse.Content;
+
+                if (apiResponse.Success == true && apiResponse.Result != null)
+                {
+                    var token = _credentialStorage.GetToken() ?? string.Empty;
+                    var user = MapUserInfoResponseToUser(apiResponse.Result, token);
+                    return Result<User>.Success(user);
+                }
+
+                return Result<User>.Failure(apiResponse.Message ?? "Trial activation failed");
+            }
+
+            return Result<User>.Failure($"HTTP Error: {refitResponse.StatusCode}");
+            */
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"ActivateTrial Error: {ex.Message}");
+            return Result<User>.Failure("An unexpected error occurred. Please try again.", ex);
+        }
+    }
+
     #region DTO Mapping
 
     /// <summary>

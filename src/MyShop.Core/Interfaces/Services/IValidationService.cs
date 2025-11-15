@@ -24,6 +24,16 @@ public interface IValidationService
     /// Validate password confirmation (phải khớp với password gốc)
     /// </summary>
     ValidationResult ValidatePasswordConfirmation(string password, string confirmPassword);
+
+    /// <summary>
+    /// Validate phone number format
+    /// </summary>
+    ValidationResult ValidatePhoneNumber(string phoneNumber);
+
+    /// <summary>
+    /// Validate required field with custom field name
+    /// </summary>
+    ValidationResult ValidateRequired(string value, string fieldName);
 }
 
 /// <summary>

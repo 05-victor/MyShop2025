@@ -61,4 +61,23 @@ public class MockAuthRepository : IAuthRepository
             return Result<User>.Failure("An unexpected error occurred. Please try again.", ex);
         }
     }
+
+    public async Task<Result<User>> ActivateTrialAsync(string adminCode)
+    {
+        try
+        {
+            var token = _credentialStorage.GetToken();
+            if (string.IsNullOrEmpty(token))
+            {
+                return Result<User>.Failure("No authentication token found");
+            }
+
+            return await MockAuthData.ActivateTrialAsync(token, adminCode);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Mock ActivateTrial Error: {ex.Message}");
+            return Result<User>.Failure("An unexpected error occurred. Please try again.", ex);
+        }
+    }
 }

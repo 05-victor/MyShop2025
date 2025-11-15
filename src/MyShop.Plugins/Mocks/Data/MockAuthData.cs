@@ -13,6 +13,7 @@ public static class MockAuthData
     private static List<MockUserData>? _users;
     private static List<MockRoleData>? _roles;
     private static List<MockProfileData>? _profiles;
+    private static List<MockAdminCodeData>? _adminCodes;
     private static readonly object _lock = new object();
     private static readonly string _jsonFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Mocks", "Data", "Json", "auth.json");
 
@@ -46,6 +47,7 @@ public static class MockAuthData
                     _users = data.Users;
                     _roles = data.Roles ?? new List<MockRoleData>();
                     _profiles = data.Profiles ?? new List<MockProfileData>();
+                    _adminCodes = data.AdminCodes ?? new List<MockAdminCodeData>();
                     System.Diagnostics.Debug.WriteLine($"Loaded {_users.Count} users from auth.json");
                 }
                 else
@@ -105,6 +107,7 @@ public static class MockAuthData
 
         _roles = new List<MockRoleData>();
         _profiles = new List<MockProfileData>();
+        _adminCodes = new List<MockAdminCodeData>();
     }
 
     public static async Task<Result<User>> LoginAsync(string usernameOrEmail, string password)
@@ -287,12 +290,126 @@ public static class MockAuthData
         return Result<User>.Success(userModel);
     }
 
+    public static async Task<Result<User>> ActivateTrialAsync(string token, string adminCode)
+    {
+        EnsureDataLoaded();
+        
+        // Simulate network delay
+        await Task.Delay(500);
+
+        // Extract user ID from token
+        if (!token.StartsWith("mock_token_"))
+        {
+            return Result<User>.Failure("Invalid token");
+        }
+
+        var parts = token.Split('_');
+        if (parts.Length < 3)
+        {
+            return Result<User>.Failure("Invalid token format");
+        }
+
+        var userId = parts[2];
+        var user = _users!.FirstOrDefault(u => u.Id == userId);
+
+        if (user == null)
+        {
+            return Result<User>.Failure("User not found");
+        }
+
+        // Validate admin code (remove hyphens for comparison)
+        var cleanCode = adminCode.Replace("-", "").ToUpper();
+        var validCode = _adminCodes!.FirstOrDefault(c => 
+            c.Code.Replace("-", "").ToUpper() == cleanCode && 
+            c.IsActive && 
+            c.ExpiresAt > DateTime.UtcNow);
+
+        if (validCode == null)
+        {
+            return Result<User>.Failure("Invalid or expired admin code");
+        }
+
+        // Deactivate trial for this user
+        user.IsTrialActive = false;
+        user.TrialStartDate = null;
+        user.TrialEndDate = null;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        // Persist changes to JSON file
+        await SaveDataToJsonAsync();
+
+        // Return updated user
+        var roles = new List<UserRole>();
+        foreach (var roleName in user.RoleNames)
+        {
+            if (roleName.Equals("ADMIN", StringComparison.OrdinalIgnoreCase))
+                roles.Add(UserRole.Admin);
+            else if (roleName.Equals("SALESAGENT", StringComparison.OrdinalIgnoreCase))
+                roles.Add(UserRole.Salesman);
+            else if (roleName.Equals("USER", StringComparison.OrdinalIgnoreCase))
+                roles.Add(UserRole.Customer);
+        }
+
+        if (roles.Count == 0)
+            roles.Add(UserRole.Customer);
+
+        var userModel = new User
+        {
+            Id = Guid.Parse(user.Id),
+            Username = user.Username,
+            Email = user.Email,
+            PhoneNumber = user.PhoneNumber,
+            FullName = user.FullName,
+            Avatar = user.Avatar,
+            Address = user.Address,
+            Roles = roles,
+            Token = token,
+            CreatedAt = user.CreatedAt,
+            IsTrialActive = user.IsTrialActive,
+            TrialStartDate = user.TrialStartDate,
+            TrialEndDate = user.TrialEndDate,
+            IsEmailVerified = user.IsEmailVerified
+        };
+
+        return Result<User>.Success(userModel);
+    }
+
+    private static async Task SaveDataToJsonAsync()
+    {
+        try
+        {
+            var container = new AuthDataContainer
+            {
+                Users = _users!,
+                Roles = _roles!,
+                Profiles = _profiles!,
+                AdminCodes = _adminCodes!
+            };
+
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+
+            var jsonString = JsonSerializer.Serialize(container, options);
+            await File.WriteAllTextAsync(_jsonFilePath, jsonString);
+            
+            System.Diagnostics.Debug.WriteLine("Successfully saved auth data to JSON");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error saving auth.json: {ex.Message}");
+        }
+    }
+
     // Data container classes for JSON deserialization
     private class AuthDataContainer
     {
         public List<MockUserData> Users { get; set; } = new();
         public List<MockRoleData> Roles { get; set; } = new();
         public List<MockProfileData> Profiles { get; set; } = new();
+        public List<MockAdminCodeData> AdminCodes { get; set; } = new();
     }
 
     private class MockUserData
@@ -331,5 +448,14 @@ public static class MockAuthData
         public string? Address { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+    }
+
+    private class MockAdminCodeData
+    {
+        public string Code { get; set; } = string.Empty;
+        public bool IsActive { get; set; }
+        public DateTime ExpiresAt { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? DeactivatedAt { get; set; }
     }
 }
