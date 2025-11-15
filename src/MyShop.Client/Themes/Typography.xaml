@@ -1,11 +1,8 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- Merge Brushes to access color brushes -->
-    <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="Brushes.xaml"/>
-    </ResourceDictionary.MergedDictionaries>
-
+    <!-- Note: Brushes are already merged in Generic.xaml before Typography.xaml -->
+    <!-- No need to merge Brushes.xaml again here to avoid circular dependency issues -->
 
     <!-- ============================================= -->
     <!-- FONT SIZES                                   -->

@@ -5,17 +5,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:converters="using:MyShop.Client.Views.Converters"
     xmlns:controls="using:MyShop.Client.Views.Controls"
+    xmlns:components="using:MyShop.Client.Views.Components"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Auth"
     mc:Ignorable="d"
     Background="{ThemeResource LayerFillColorDefaultBrush}">
-
-    <Page.Resources>
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
-        <converters:BoolNegationConverter x:Key="BoolNegationConverter"/>
-    </Page.Resources>
 
     <Grid>
         <!-- Visual State Manager for Responsive Design -->
@@ -97,10 +91,9 @@
                      IsClosable="False"
                      VerticalAlignment="Top"
                      HorizontalAlignment="Stretch"
-                     Canvas.ZIndex="1000"
                      Margin="24,24,24,0"/>
 
-            <ScrollViewer VerticalScrollBarVisibility="Auto" Canvas.ZIndex="0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel MaxWidth="400" 
                            HorizontalAlignment="Center" 
                            VerticalAlignment="Center"
@@ -111,29 +104,29 @@
                     <StackPanel Spacing="{StaticResource Gap_SM}" Margin="0,0,0,16">
                         <TextBlock Text="Welcome back!" 
                                   Style="{StaticResource Heading1Style}"
-                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                  Foreground="{StaticResource TextPrimaryBrush}"
                                   AutomationProperties.HeadingLevel="Level1"/>
                         
                         <TextBlock Text="Enter your credentials to access your account" 
                                   Style="{StaticResource SecondaryTextStyle}"
-                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                  Foreground="{StaticResource TextSecondaryBrush}"
                                   TextWrapping="Wrap"/>
                     </StackPanel>
 
                     <!-- Username/Email Input -->
                     <StackPanel Spacing="{StaticResource Gap_SM}">
                         <TextBlock Style="{StaticResource InputLabelStyle}"
-                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                  Foreground="{StaticResource TextPrimaryBrush}"
                                   AutomationProperties.LabeledBy="{Binding ElementName=UsernameTextBox}">
                             <Run Text="Username or Email"/>
-                            <Run Text="*" Foreground="{ThemeResource SystemErrorTextColor}"/>
+                            <Run Text="*" Foreground="{StaticResource ErrorRedBrush}"/>
                         </TextBlock>
                         
                         <TextBox x:Name="UsernameTextBox"
                                 Style="{StaticResource BaseInputStyle}"
                                 PlaceholderText="Enter your username or email"
                                 Text="{x:Bind ViewModel.Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
                                 KeyDown="Input_KeyDown"
                                 AutomationProperties.Name="Username or Email"
                                 AutomationProperties.HelpText="Enter your username or email address"
@@ -141,7 +134,7 @@
                         
                         <TextBlock Text="{x:Bind ViewModel.UsernameError, Mode=OneWay}"
                                   Style="{StaticResource ValidationErrorStyle}"
-                                  Visibility="{x:Bind ViewModel.UsernameError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
+                                  Visibility="{x:Bind ViewModel.UsernameError, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"
                                   AutomationProperties.LiveSetting="Assertive">
                             <TextBlock.Transitions>
                                 <TransitionCollection>
@@ -154,20 +147,20 @@
                     <!-- Password Input -->
                     <StackPanel Spacing="{StaticResource Gap_SM}">
                         <TextBlock Style="{StaticResource InputLabelStyle}"
-                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}">
+                                  Foreground="{StaticResource TextPrimaryBrush}">
                             <Run Text="Password"/>
-                            <Run Text="*" Foreground="{ThemeResource SystemErrorTextColor}"/>
+                            <Run Text="*" Foreground="{StaticResource ErrorRedBrush}"/>
                         </TextBlock>
                         
                         <controls:PasswordInputControl x:Name="PasswordInput"
                                                       PlaceholderText="Enter your password"
                                                       Password="{x:Bind ViewModel.Password, Mode=TwoWay}"
-                                                      IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                                      IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
                                                       KeyDown="Input_KeyDown"/>
                         
                         <TextBlock Text="{x:Bind ViewModel.PasswordError, Mode=OneWay}"
                                   Style="{StaticResource ValidationErrorStyle}"
-                                  Visibility="{x:Bind ViewModel.PasswordError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
+                                  Visibility="{x:Bind ViewModel.PasswordError, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"
                                   AutomationProperties.LiveSetting="Assertive">
                             <TextBlock.Transitions>
                                 <TransitionCollection>
@@ -197,7 +190,7 @@
                               Style="{StaticResource ValidationErrorStyle}"
                               TextAlignment="Center"
                               MaxWidth="340"
-                              Visibility="{x:Bind ViewModel.ErrorMessage, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
+                              Visibility="{x:Bind ViewModel.ErrorMessage, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"
                               AutomationProperties.LiveSetting="Assertive">
                         <TextBlock.Transitions>
                             <TransitionCollection>
@@ -235,16 +228,16 @@
                         <Border Grid.Column="0" 
                                Height="1" 
                                VerticalAlignment="Center" 
-                               Background="{ThemeResource DividerStrokeColorDefaultBrush}"/>
+                               Background="{StaticResource Gray300Brush}"/>
                         <TextBlock Grid.Column="1" 
                                   Text="OR" 
                                   Margin="16,0"
                                   FontSize="12"
-                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                  Foreground="{StaticResource TextSecondaryBrush}"/>
                         <Border Grid.Column="2" 
                                Height="1" 
                                VerticalAlignment="Center" 
-                               Background="{ThemeResource DividerStrokeColorDefaultBrush}"/>
+                               Background="{StaticResource Gray300Brush}"/>
                     </Grid>
 
                     <!-- Google Login Button -->
@@ -270,7 +263,7 @@
                                    Spacing="6">
                             <TextBlock Text="Don't have an account?" 
                                       Style="{StaticResource SecondaryTextStyle}"
-                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                      Foreground="{StaticResource TextSecondaryBrush}"/>
                             
                             <HyperlinkButton x:Name="RegisterButton"
                                             Content="Register here"
@@ -282,7 +275,7 @@
                         <TextBlock x:Name="RegisterDisabledText"
                                   Text="⚠️ Registration disabled in Mock mode"
                                   Style="{StaticResource CaptionStyle}"
-                                  Foreground="{ThemeResource SystemFillColorAttentionBrush}"
+                                  Foreground="{StaticResource WarningAmberBrush}"
                                   HorizontalAlignment="Center"
                                   Visibility="Collapsed"/>
                     </StackPanel>
@@ -298,28 +291,9 @@
                 </StackPanel>
             </ScrollViewer>
 
-            <!-- Loading Overlay -->
-            <Border Background="#80000000"
-                   Canvas.ZIndex="999"
-                   Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                <Border.Transitions>
-                    <TransitionCollection>
-                        <EntranceThemeTransition/>
-                    </TransitionCollection>
-                </Border.Transitions>
-                
-                <StackPanel HorizontalAlignment="Center" 
-                           VerticalAlignment="Center" 
-                           Spacing="{StaticResource Gap_LG}">
-                    <ProgressRing IsActive="True" 
-                                 Width="48" 
-                                 Height="48"
-                                 Foreground="White"/>
-                    <TextBlock Text="Signing in..." 
-                              Style="{StaticResource BodyLargeStyle}"
-                              Foreground="White"/>
-                </StackPanel>
-            </Border>
+            <!-- Loading Overlay (declared last for proper z-order) -->
+            <components:LoadingOverlay IsLoading="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                                      Message="Signing in..."/>
         </Grid>
     </Grid>
 </Page>

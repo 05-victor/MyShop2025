@@ -5,15 +5,14 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:converters="using:MyShop.Client.Views.Converters"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Dashboard"
+    xmlns:badges="using:MyShop.Client.Views.Components.Badges"
     mc:Ignorable="d"
     Background="{ThemeResource LayerFillColorDefaultBrush}"
     x:Name="MyPage">
 
-    <Page.Resources>
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-    </Page.Resources>
+    <!-- Note: Converters are already merged in App.xaml -> Generic.xaml -->
+    <!-- No need to merge them again here to avoid circular dependency -->
 
     <Grid>
         <!-- Main Content Area -->
@@ -195,10 +194,8 @@
                                             <Border Grid.Column="2" 
                                                    CornerRadius="6" 
                                                    Padding="12,6"
-                                                   HorizontalAlignment="Right">
-                                                <Border.Background>
-                                                    <SolidColorBrush Color="{ThemeResource SystemFillColorCriticalBackground}"/>
-                                                </Border.Background>
+                                                   HorizontalAlignment="Right"
+                                                   Background="#FEE2E2">
                                                 <TextBlock Text="{x:Bind Stock}" 
                                                           FontSize="14" 
                                                           FontWeight="SemiBold"
@@ -283,16 +280,9 @@
                                                       FontWeight="SemiBold">
                                                 <Run Text="₫"/><Run Text="{x:Bind Amount}"/>
                                             </TextBlock>
-                                            <Border Grid.Column="4" 
-                                                   Background="#10B981" 
-                                                   CornerRadius="4" 
-                                                   Padding="8,4" 
-                                                   HorizontalAlignment="Left">
-                                                <TextBlock Text="{x:Bind Status}" 
-                                                          FontSize="11" 
-                                                          FontWeight="SemiBold" 
-                                                          Foreground="White"/>
-                                            </Border>
+                                            <badges:StatusBadge Grid.Column="4"
+                                                               Text="{x:Bind Status}"
+                                                               Variant="Success"/>
                                         </Grid>
                                     </DataTemplate>
                                 </ListView.ItemTemplate>

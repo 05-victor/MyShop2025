@@ -5,17 +5,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:converters="using:MyShop.Client.Views.Converters"
     xmlns:controls="using:MyShop.Client.Views.Controls"
+    xmlns:components="using:MyShop.Client.Views.Components"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Auth"
     mc:Ignorable="d"
     Background="{ThemeResource LayerFillColorDefaultBrush}">
-
-    <Page.Resources>
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
-        <converters:BoolNegationConverter x:Key="BoolNegationConverter"/>
-    </Page.Resources>
 
     <Grid>
         <VisualStateManager.VisualStateGroups>
@@ -96,11 +90,11 @@
                         <TextBlock Text="Create Account" 
                                   FontSize="32"
                                   FontWeight="SemiBold"
-                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                  Foreground="{StaticResource TextPrimaryBrush}"
                                   AutomationProperties.HeadingLevel="Level1"/>
                         <TextBlock Text="Fill in the information below to get started" 
                                   FontSize="14"
-                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                  Foreground="{StaticResource TextSecondaryBrush}"
                                   TextWrapping="Wrap"/>
                     </StackPanel>
 
@@ -108,20 +102,20 @@
                     <StackPanel Spacing="{StaticResource Gap_XS}">
                         <TextBlock Style="{StaticResource InputLabelStyle}">
                             <Run Text="Username"/>
-                            <Run Text="*" Foreground="{StaticResource SystemErrorTextColor}"/>
+                            <Run Text="*" Foreground="{StaticResource ErrorRedBrush}"/>
                         </TextBlock>
                         <TextBox x:Name="UsernameTextBox"
                                 Style="{StaticResource BaseInputStyle}"
                                 PlaceholderText="Choose a unique username"
                                 Text="{x:Bind ViewModel.Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
                                 AutomationProperties.Name="Username"
                                 AutomationProperties.HelpText="Enter a unique username for your account"
                                 AutomationProperties.IsRequiredForForm="True"/>
                         <TextBlock x:Name="UsernameErrorText"
                                   Style="{StaticResource ValidationErrorStyle}"
                                   Text="{x:Bind ViewModel.UsernameError, Mode=OneWay}"
-                                  Visibility="{x:Bind ViewModel.UsernameError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
+                                  Visibility="{x:Bind ViewModel.UsernameError, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"
                                   AutomationProperties.LiveSetting="Assertive">
                             <TextBlock.Transitions>
                                 <TransitionCollection>
@@ -135,19 +129,19 @@
                     <StackPanel Spacing="{StaticResource Gap_XS}">
                         <TextBlock Style="{StaticResource InputLabelStyle}">
                             <Run Text="Email Address"/>
-                            <Run Text="*" Foreground="{StaticResource SystemErrorTextColor}"/>
+                            <Run Text="*" Foreground="{StaticResource ErrorRedBrush}"/>
                         </TextBlock>
                         <TextBox Style="{StaticResource BaseInputStyle}"
                                 PlaceholderText="your.email@example.com"
                                 Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
                                 InputScope="EmailSmtpAddress"
                                 AutomationProperties.Name="Email Address"
                                 AutomationProperties.HelpText="Enter your email address"
                                 AutomationProperties.IsRequiredForForm="True"/>
                         <TextBlock Style="{StaticResource ValidationErrorStyle}"
                                   Text="{x:Bind ViewModel.EmailError, Mode=OneWay}"
-                                  Visibility="{x:Bind ViewModel.EmailError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
+                                  Visibility="{x:Bind ViewModel.EmailError, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"
                                   AutomationProperties.LiveSetting="Assertive">
                             <TextBlock.Transitions>
                                 <TransitionCollection>
@@ -161,19 +155,19 @@
                     <StackPanel Spacing="{StaticResource Gap_XS}">
                         <TextBlock Style="{StaticResource InputLabelStyle}">
                             <Run Text="Phone Number"/>
-                            <Run Text="*" Foreground="{StaticResource SystemErrorTextColor}"/>
+                            <Run Text="*" Foreground="{StaticResource ErrorRedBrush}"/>
                         </TextBlock>
                         <TextBox Style="{StaticResource BaseInputStyle}"
                                 PlaceholderText="0123456789"
                                 Text="{x:Bind ViewModel.PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
                                 InputScope="TelephoneNumber"
                                 AutomationProperties.Name="Phone Number"
                                 AutomationProperties.HelpText="Enter your phone number"
                                 AutomationProperties.IsRequiredForForm="True"/>
                         <TextBlock Style="{StaticResource ValidationErrorStyle}"
                                   Text="{x:Bind ViewModel.PhoneError, Mode=OneWay}"
-                                  Visibility="{x:Bind ViewModel.PhoneError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
+                                  Visibility="{x:Bind ViewModel.PhoneError, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"
                                   AutomationProperties.LiveSetting="Assertive">
                             <TextBlock.Transitions>
                                 <TransitionCollection>
@@ -187,15 +181,15 @@
                     <StackPanel Spacing="{StaticResource Gap_XS}">
                         <TextBlock Style="{StaticResource InputLabelStyle}">
                             <Run Text="Password"/>
-                            <Run Text="*" Foreground="{StaticResource SystemErrorTextColor}"/>
+                            <Run Text="*" Foreground="{StaticResource ErrorRedBrush}"/>
                         </TextBlock>
                         <controls:PasswordInputControl x:Name="PasswordInput"
                                                       PlaceholderText="Create a strong password (min 6 chars)"
                                                       Password="{x:Bind ViewModel.Password, Mode=TwoWay}"
-                                                      IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
+                                                      IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
                         <TextBlock Style="{StaticResource ValidationErrorStyle}"
                                   Text="{x:Bind ViewModel.PasswordError, Mode=OneWay}"
-                                  Visibility="{x:Bind ViewModel.PasswordError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
+                                  Visibility="{x:Bind ViewModel.PasswordError, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"
                                   AutomationProperties.LiveSetting="Assertive">
                             <TextBlock.Transitions>
                                 <TransitionCollection>
@@ -209,15 +203,15 @@
                     <StackPanel Spacing="{StaticResource Gap_XS}">
                         <TextBlock Style="{StaticResource InputLabelStyle}">
                             <Run Text="Confirm Password"/>
-                            <Run Text="*" Foreground="{StaticResource SystemErrorTextColor}"/>
+                            <Run Text="*" Foreground="{StaticResource ErrorRedBrush}"/>
                         </TextBlock>
                         <controls:PasswordInputControl x:Name="ConfirmPasswordInput"
                                                       PlaceholderText="Re-enter your password"
                                                       Password="{x:Bind ViewModel.ConfirmPassword, Mode=TwoWay}"
-                                                      IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
+                                                      IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
                         <TextBlock Style="{StaticResource ValidationErrorStyle}"
                                   Text="{x:Bind ViewModel.ConfirmPasswordError, Mode=OneWay}"
-                                  Visibility="{x:Bind ViewModel.ConfirmPasswordError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
+                                  Visibility="{x:Bind ViewModel.ConfirmPasswordError, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"
                                   AutomationProperties.LiveSetting="Assertive">
                             <TextBlock.Transitions>
                                 <TransitionCollection>
@@ -232,12 +226,12 @@
                                 Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
                                 FontSize="13"
                                 FontWeight="Medium"
-                                Foreground="{ThemeResource SystemErrorTextColor}"
+                                Foreground="{StaticResource ErrorRedBrush}"
                                 Margin="0,4,0,0"
                                 TextWrapping="Wrap"
                                 TextAlignment="Center"
                                 MaxWidth="340"
-                                Visibility="{x:Bind ViewModel.ErrorMessage, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
+                                Visibility="{x:Bind ViewModel.ErrorMessage, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"
                                 AutomationProperties.LiveSetting="Assertive">
                         <TextBlock.Transitions>
                             <TransitionCollection>
@@ -267,13 +261,13 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Height="1" VerticalAlignment="Center" Background="{ThemeResource DividerStrokeColorDefaultBrush}"/>
+                        <Border Grid.Column="0" Height="1" VerticalAlignment="Center" Background="{StaticResource Gray300Brush}"/>
                         <TextBlock Grid.Column="1" 
                                   Text="OR" 
                                   Margin="12,0" 
                                   Style="{StaticResource CaptionStyle}"
-                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <Border Grid.Column="2" Height="1" VerticalAlignment="Center" Background="{ThemeResource DividerStrokeColorDefaultBrush}"/>
+                                  Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <Border Grid.Column="2" Height="1" VerticalAlignment="Center" Background="{StaticResource Gray300Brush}"/>
                     </Grid>
 
                     <!-- Google Sign-Up Button -->
@@ -297,7 +291,7 @@
                                Margin="0,12,0,0">
                         <TextBlock Text="Already have an account?" 
                                   Style="{StaticResource BodyStyle}"
-                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                  Foreground="{StaticResource TextSecondaryBrush}"/>
                         <HyperlinkButton Content="Login here"
                                         Command="{x:Bind ViewModel.NavigateToLoginCommand}"
                                         Style="{StaticResource LinkButtonStyle}"
@@ -307,7 +301,7 @@
                     <!-- Terms Notice -->
                     <TextBlock TextWrapping="Wrap"
                               Style="{StaticResource CaptionStyle}"
-                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                              Foreground="{StaticResource TextSecondaryBrush}"
                               TextAlignment="Center"
                               Margin="0,8,0,0">
                         By creating an account, you agree to our 
@@ -319,25 +313,8 @@
             </ScrollViewer>
 
             <!-- Loading Overlay -->
-            <Border Background="#80000000"
-                   Visibility="{Binding IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                <Border.Transitions>
-                    <TransitionCollection>
-                        <EntranceThemeTransition/>
-                    </TransitionCollection>
-                </Border.Transitions>
-                <StackPanel HorizontalAlignment="Center" 
-                           VerticalAlignment="Center" 
-                           Spacing="{StaticResource Gap_MD}">
-                    <ProgressRing IsActive="True" 
-                                 Width="48" 
-                                 Height="48"
-                                 Foreground="White"/>
-                    <TextBlock Text="Creating your account..." 
-                              Style="{StaticResource BodyLargeStyle}"
-                              Foreground="White"/>
-                </StackPanel>
-            </Border>
+            <components:LoadingOverlay IsLoading="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                                      Message="Creating your account..."/>
         </Grid>
     </Grid>
 </Page>

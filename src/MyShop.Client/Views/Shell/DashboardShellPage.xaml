@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:MyShop.Client.Views.Shell"
+    xmlns:avatars="using:MyShop.Client.Views.Components.Avatars"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
@@ -38,19 +39,9 @@
         <!--  PHẦN TRÊN: Logo + Branding giống sidebar cũ  -->
         <NavigationView.PaneHeader>
             <StackPanel Padding="20,24" Spacing="8">
-                <Border
-                    Width="40"
-                    Height="40"
-                    HorizontalAlignment="Left"
-                    Background="White"
-                    CornerRadius="8">
-                    <FontIcon
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        FontSize="20"
-                        Foreground="#1F2937"
-                        Glyph="&#xE7B8;" />
-                </Border>
+                <!-- Remove Status binding to avoid enum parse error -->
+                <avatars:UserAvatar DisplayName="Admin User"
+                                   Size="Medium"/>
                 <TextBlock
                     FontSize="18"
                     FontWeight="Bold"

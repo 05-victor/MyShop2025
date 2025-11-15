@@ -5,6 +5,7 @@ using MyShop.Client.ViewModels.Shell;
 using MyShop.Shared.Models;
 using MyShop.Client.Views.Dashboard;
 using MyShop.Client.Views.Product;
+using MyShop.Client.Helpers;
 
 namespace MyShop.Client.Views.Shell
 {
@@ -19,34 +20,74 @@ namespace MyShop.Client.Views.Shell
 
         public DashboardShellPage()
         {
-            InitializeComponent();
-            ViewModel = App.Current.Services.GetRequiredService<DashboardShellViewModel>();
-            DataContext = ViewModel;
+            try
+            {
+                AppLogger.Enter();
+                AppLogger.Info("Initializing DashboardShellPage...");
+                InitializeComponent();
+                AppLogger.Success("InitializeComponent completed");
+                
+                ViewModel = App.Current.Services.GetRequiredService<DashboardShellViewModel>();
+                AppLogger.Debug("ViewModel resolved from DI");
+                
+                DataContext = ViewModel;
+                AppLogger.Success("DashboardShellPage constructed successfully");
+                AppLogger.Exit();
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("DashboardShellPage constructor failed", ex);
+                throw;
+            }
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            base.OnNavigatedTo(e);
-
-            if (e.Parameter is User user)
+            try
             {
-                ViewModel.Initialize(user);
+                AppLogger.Enter();
+                base.OnNavigatedTo(e);
 
-                // Chỉ set mặc định lần đầu
-                if (_isInitialized) return;
-                _isInitialized = true;
-
-                // 1. Mở nội dung Dashboard
-                ContentFrame.Navigate(typeof(AdminDashboardPage), user);
-
-                // 2. Chọn sẵn item Dashboard trong NavigationView
-                _currentContentItem = FindNavigationItemByTag("dashboard");
-                if (_currentContentItem != null)
+                if (e.Parameter is User user)
                 {
-                    _isRestoringSelection = true;      // tránh loop SelectionChanged
-                    Nav.SelectedItem = _currentContentItem;
-                    _isRestoringSelection = false;
+                    AppLogger.Info($"User parameter received: {user.Username}");
+                    ViewModel.Initialize(user);
+                    AppLogger.Success("ViewModel initialized with user");
+
+                    // Chỉ set mặc định lần đầu
+                    if (_isInitialized)
+                    {
+                        AppLogger.Debug("Already initialized, skipping default setup");
+                        return;
+                    }
+                    _isInitialized = true;
+
+                    // 1. Mở nội dung Dashboard
+                    AppLogger.Info("Navigating ContentFrame to AdminDashboardPage...");
+                    ContentFrame.Navigate(typeof(AdminDashboardPage), user);
+                    AppLogger.Success("ContentFrame navigation completed");
+
+                    // 2. Chọn sẵn item Dashboard trong NavigationView
+                    _currentContentItem = FindNavigationItemByTag("dashboard");
+                    if (_currentContentItem != null)
+                    {
+                        AppLogger.Debug("Setting NavigationView selected item to dashboard");
+                        _isRestoringSelection = true;      // tránh loop SelectionChanged
+                        Nav.SelectedItem = _currentContentItem;
+                        _isRestoringSelection = false;
+                        AppLogger.Success("NavigationView selection set");
+                    }
                 }
+                else
+                {
+                    AppLogger.Warning("No User parameter provided");
+                }
+                AppLogger.Exit();
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("OnNavigatedTo failed", ex);
+                throw;
             }
         }
 

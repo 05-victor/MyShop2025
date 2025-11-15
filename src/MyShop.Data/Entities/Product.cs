@@ -19,6 +19,6 @@ namespace MyShop.Data.Entities
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public Guid CategoryId { get; set; }
-        public Category Category { get; set; }
+        public required Category Category { get; set; }
     }
 }
