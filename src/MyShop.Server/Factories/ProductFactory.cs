@@ -19,7 +19,7 @@ namespace MyShop.Server.Factories
                 throw new ArgumentException("Commission rate must be between 0 and 1.");
 
             // Initialize new Product entity
-            // Only have to set CategoryId here; Category navigation property will be set in service layer (or automatically set?)
+            // Set Category to a non-null value to satisfy required member
             var product = new Product
             {
                 SKU = request.SKU.Trim(),
@@ -33,7 +33,8 @@ namespace MyShop.Server.Factories
                 Status = request.Status != null ? request.Status.Trim() : "AVAILABLE",
                 Description = request.Description?.Trim(),
                 ImageUrl = request.ImageUrl?.Trim(),
-                CategoryId = request.CategoryId
+                CategoryId = request.CategoryId,
+                Category = null! // Will be set in the service layer or by EF Core
             };
 
             // Set additional fields

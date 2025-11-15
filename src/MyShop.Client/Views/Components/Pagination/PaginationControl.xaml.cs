@@ -71,8 +71,15 @@ public sealed partial class PaginationControl : UserControl
 
     private void UpdatePagination()
     {
+        // Guard clause: ensure all UI elements are loaded
+        if (PageNumbersContainer == null || PrevButton == null || NextButton == null ||
+            InfoText == null || PageSizeComboBox == null)
+        {
+            return;
+        }
+
         int totalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
-        
+
         // Update page size combobox
         var pageSizeText = PageSize.ToString();
         for (int i = 0; i < PageSizeComboBox.Items.Count; i++)
@@ -136,7 +143,7 @@ public sealed partial class PaginationControl : UserControl
 
     private void OnPageSizeChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (PageSizeComboBox.SelectedItem is ComboBoxItem item && 
+        if (PageSizeComboBox.SelectedItem is ComboBoxItem item &&
             int.TryParse(item.Content?.ToString(), out int newPageSize))
         {
             PageSize = newPageSize;
