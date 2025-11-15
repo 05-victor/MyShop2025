@@ -498,8 +498,10 @@
                             </ListView.ItemTemplate>
                         </ListView>
 
+                        <!--Sau này sẽ xóa(1)-->
+                        
                         <!--  Pagination  -->
-                        <Grid
+                        <!--<Grid
                             Grid.Row="1"
                             Margin="0,8,0,0"
                             Padding="16,8,16,0"
@@ -508,19 +510,19 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
+                            </Grid.ColumnDefinitions>-->
 
                             <!--  Left: summary  -->
-                            <TextBlock
+                            <!--<TextBlock
                                 Grid.Column="0"
                                 VerticalAlignment="Center"
                                 FontSize="12"
                                 Foreground="#6B7280"
-                                Text="Showing 1 to 8 of 8 products" />
+                                Text="Showing 1 to 8 of 8 products" />-->
                             <!--  Sau này binding: Showing {StartIndex} to {EndIndex} of {TotalProducts}  -->
 
                             <!--  Right: Prev / Page / Next  -->
-                            <StackPanel
+                            <!--<StackPanel
                                 Grid.Column="1"
                                 Orientation="Horizontal"
                                 Spacing="8">
@@ -545,9 +547,9 @@
                                     FontSize="12"
                                     Foreground="#6B7280"
                                     Text="Page 1 of 1" />
-                                <!--  sau này binding CurrentPage / TotalPages  -->
+                                --><!--  sau này binding CurrentPage / TotalPages  -->
 
-                                <Button
+                                <!--<Button
                                     Padding="8,4"
                                     Background="White"
                                     BorderBrush="#E5E7EB"
@@ -563,8 +565,11 @@
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
-                        </Grid>
-
+                        </Grid>-->
+                        <!--Sau này sẽ xóa(1)-->
+    
+                        
+                        
                         <!--  Pagination  -->
                         <pagination:PaginationControl
                             Grid.Row="1"

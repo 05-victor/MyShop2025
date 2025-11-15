@@ -119,6 +119,7 @@ namespace MyShop.Client.Views.Shell
                     break;
 
                 case "products":
+                    _currentContentItem = item;   // ghi nhớ “tab nội dung” mới
                     if (ViewModel.CurrentUser != null)
                         ContentFrame.Navigate(typeof(AdminProductPage), ViewModel.CurrentUser);
                     else
