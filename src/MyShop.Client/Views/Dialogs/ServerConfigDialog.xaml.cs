@@ -11,7 +11,9 @@ namespace MyShop.Client.Views.Dialogs
 {
     public sealed partial class ServerConfigDialog : ContentDialog
     {
-        public string ServerUrl { get; set; } = string.Empty;
+        private const string DefaultServerUrl = "https://localhost:7120";
+        
+        public string ServerUrl { get; set; } = DefaultServerUrl;
         public bool UseMockData { get; private set; }
         private bool _configChanged = false;
         private bool _originalUseMockData;
@@ -38,15 +40,15 @@ namespace MyShop.Client.Views.Dialogs
                 {
                     var json = File.ReadAllText(configPath);
                     var config = JsonSerializer.Deserialize<ApiConfig>(json);
-                    var baseUrl = config?.BaseUrl ?? "https://localhost:7120";
+                    var baseUrl = config?.BaseUrl ?? DefaultServerUrl;
                     
                     // If BaseUrl is "mock", use default URL for display
-                    ServerUrl = baseUrl == "mock" ? "https://localhost:7120" : baseUrl;
+                    ServerUrl = baseUrl == "mock" ? DefaultServerUrl : baseUrl;
                     UseMockData = config?.UseMockData ?? false;
                 }
                 else
                 {
-                    ServerUrl = "https://localhost:7120";
+                    // ServerUrl already has default value from property initialization
                     UseMockData = false;
                 }
 
@@ -62,7 +64,7 @@ namespace MyShop.Client.Views.Dialogs
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading config: {ex.Message}");
-                ServerUrl = "https://localhost:7120";
+                // ServerUrl already has default value from property initialization
                 UseMockData = false;
                 ApiModeRadioButtons.SelectedIndex = 0;
                 UpdatePanelVisibility();
@@ -84,6 +86,14 @@ namespace MyShop.Client.Views.Dialogs
                 RealApiPanel.Visibility = isMock ? Visibility.Collapsed : Visibility.Visible;
                 RealApiTipsPanel.Visibility = isMock ? Visibility.Collapsed : Visibility.Visible;
                 MockDataPanel.Visibility = isMock ? Visibility.Visible : Visibility.Collapsed;
+                
+                // Auto-fill default URL when switching to Real API mode if URL is empty
+                if (!isMock && string.IsNullOrWhiteSpace(ServerUrl))
+                {
+                    ServerUrl = DefaultServerUrl;
+                    ServerUrlTextBox.Text = ServerUrl;
+                    System.Diagnostics.Debug.WriteLine($"[ServerConfig] Auto-filled default URL: {ServerUrl}");
+                }
                 
                 // Track if config changed
                 _configChanged = (UseMockData != _originalUseMockData);
@@ -110,12 +120,12 @@ namespace MyShop.Client.Views.Dialogs
                 // If not Mock mode, validate URL
                 if (!UseMockData)
                 {
+                    // Auto-fill default if empty
                     if (string.IsNullOrWhiteSpace(ServerUrl))
                     {
-                        ValidationMessage.Text = "Server URL cannot be empty";
-                        ValidationMessage.Visibility = Visibility.Visible;
-                        args.Cancel = true;
-                        return;
+                        ServerUrl = DefaultServerUrl;
+                        ServerUrlTextBox.Text = ServerUrl;
+                        System.Diagnostics.Debug.WriteLine("[ServerConfig] Auto-filled empty URL with default");
                     }
 
                     if (!Uri.TryCreate(ServerUrl, UriKind.Absolute, out var uri))
@@ -276,11 +286,11 @@ exit";
                 config.BaseUrl = UseMockData ? "mock" : ServerUrl.TrimEnd('/');
                 config.UseMockData = UseMockData;
 
-                // Serialize with pretty formatting
+                // Serialize with pretty formatting using PascalCase (matching file format)
                 var options = new JsonSerializerOptions 
                 { 
                     WriteIndented = true,
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    PropertyNamingPolicy = null // Use default PascalCase for property names
                 };
                 var json = JsonSerializer.Serialize(config, options);
                 

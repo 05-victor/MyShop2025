@@ -66,7 +66,7 @@
         <ToggleButton x:Name="EmailVerifiedToggle" IsChecked="False" Visibility="Collapsed" />
 
         <ScrollViewer>
-            <StackPanel Spacing="24" MaxWidth="1100" Padding="48">
+            <StackPanel Spacing="24" MaxWidth="1100" Padding="48" HorizontalAlignment="Center">
             <!-- Page Header -->
             <Grid>
                 <Grid.ColumnDefinitions>
