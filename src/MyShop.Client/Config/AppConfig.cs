@@ -36,8 +36,14 @@ namespace MyShop.Client.Config
             }
             else
             {
-                ApiBaseUrl = configuration["BaseUrl"] 
-                    ?? throw new InvalidOperationException("BaseUrl not configured in ApiConfig.json");
+                // Allow empty BaseUrl and use default fallback
+                ApiBaseUrl = configuration["BaseUrl"] ?? "https://localhost:7120";
+                
+                // If BaseUrl is empty or whitespace, use default
+                if (string.IsNullOrWhiteSpace(ApiBaseUrl))
+                {
+                    ApiBaseUrl = "https://localhost:7120";
+                }
                 
                 RequestTimeoutSeconds = int.Parse(configuration["RequestTimeout"] ?? "30");
                 UseWindowsCredentialStorage = bool.Parse(configuration["UseWindowsCredentialStorage"] ?? "true");

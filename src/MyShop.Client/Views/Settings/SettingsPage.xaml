@@ -51,6 +51,227 @@
 
                 <!--  Tabs  -->
                 <TabView IsAddTabButtonVisible="False">
+                    <!--  Trial Tab (Admin Only)  -->
+                    <TabViewItem Header="Trial" IsClosable="False">
+                        <TabViewItem.IconSource>
+                            <FontIconSource Glyph="&#xE8D7;" />
+                        </TabViewItem.IconSource>
+                        <ScrollViewer>
+                            <StackPanel Padding="0,24" Spacing="24">
+                                <!--  Trial Status Card  -->
+                                <Border
+                                    Padding="24"
+                                    Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                                    BorderBrush="{ThemeResource SystemFillColorAttentionBrush}"
+                                    BorderThickness="2"
+                                    CornerRadius="12">
+                                    <StackPanel Spacing="16">
+                                        <!--  Status Header  -->
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <FontIcon
+                                                Grid.Column="0"
+                                                FontSize="32"
+                                                Foreground="#F59E0B"
+                                                Glyph="&#xE7BA;" />
+                                            <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center">
+                                                <TextBlock FontSize="18" FontWeight="Bold" Text="Trial Mode Active" />
+                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Experience full features during your trial period" />
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <!--  Trial Info  -->
+                                        <Border
+                                            Padding="16"
+                                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                            CornerRadius="8">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Spacing="4">
+                                                    <TextBlock FontWeight="SemiBold" Text="Trial Period Remaining" />
+                                                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Your trial will expire soon" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                                    <TextBlock
+                                                        FontSize="32"
+                                                        FontWeight="Bold"
+                                                        Foreground="#F59E0B"
+                                                        Text="15" />
+                                                    <TextBlock
+                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                        Text="days left" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+
+                                        <!--  Actions  -->
+                                        <StackPanel Spacing="12">
+                                            <Button
+                                                HorizontalAlignment="Stretch"
+                                                Background="#2563EB"
+                                                Foreground="White">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <FontIcon FontSize="14" Glyph="&#xE734;" />
+                                                    <TextBlock Text="Upgrade to Pro - $49/month" />
+                                                </StackPanel>
+                                            </Button>
+
+                                            <StackPanel Spacing="8">
+                                                <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                    <Run Text="✓" />
+                                                    <Run Text="Unlimited products and orders" />
+                                                </TextBlock>
+                                                <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                    <Run Text="✓" />
+                                                    <Run Text="Advanced analytics and reporting" />
+                                                </TextBlock>
+                                                <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                    <Run Text="✓" />
+                                                    <Run Text="Priority customer support" />
+                                                </TextBlock>
+                                                <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                    <Run Text="✓" />
+                                                    <Run Text="Custom branding options" />
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!--  Trial Extension Card  -->
+                                <Border
+                                    Padding="24"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
+                                    <StackPanel Spacing="16">
+                                        <TextBlock FontSize="16" FontWeight="SemiBold" Text="Extend Your Trial" />
+                                        <TextBlock
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Text="Have a license code? Enter it below to add more trial days."
+                                            TextWrapping="Wrap" />
+
+                                        <StackPanel Spacing="12">
+                                            <TextBox
+                                                x:Name="TrialCodeTextBox"
+                                                MaxLength="24"
+                                                PlaceholderText="MYSHOP-15DAY-XXXX-XXXX"
+                                                Style="{StaticResource BaseInputStyle}" />
+
+                                            <Button HorizontalAlignment="Left" Background="{ThemeResource AccentFillColorDefaultBrush}" Foreground="White">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <FontIcon FontSize="14" Glyph="&#xE73E;" />
+                                                    <TextBlock Text="Activate Trial Code" />
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+
+                                        <InfoBar
+                                            IsClosable="False"
+                                            IsOpen="True"
+                                            Message="Trial codes are provided by your administrator or can be obtained from our support team."
+                                            Severity="Informational" />
+                                    </StackPanel>
+                                </Border>
+
+                                <!--  Additional Features  -->
+                                <Border
+                                    Padding="24"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
+                                    <StackPanel Spacing="12">
+                                        <TextBlock FontSize="16" FontWeight="SemiBold" Text="What You Get with Pro" />
+
+                                        <Border Padding="0,12" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <FontIcon
+                                                    Grid.Column="0"
+                                                    Margin="0,0,12,0"
+                                                    FontSize="20"
+                                                    Foreground="#10B981"
+                                                    Glyph="&#xE73E;" />
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock FontWeight="SemiBold" Text="Unlimited Everything" />
+                                                    <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="No limits on products, orders, or customers" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+
+                                        <Border Padding="0,12" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <FontIcon
+                                                    Grid.Column="0"
+                                                    Margin="0,0,12,0"
+                                                    FontSize="20"
+                                                    Foreground="#10B981"
+                                                    Glyph="&#xE73E;" />
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock FontWeight="SemiBold" Text="Advanced Analytics" />
+                                                    <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Detailed reports and insights" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+
+                                        <Border Padding="0,12" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <FontIcon
+                                                    Grid.Column="0"
+                                                    Margin="0,0,12,0"
+                                                    FontSize="20"
+                                                    Foreground="#10B981"
+                                                    Glyph="&#xE73E;" />
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock FontWeight="SemiBold" Text="Priority Support" />
+                                                    <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="24/7 dedicated support team" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+
+                                        <Border Padding="0,12">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <FontIcon
+                                                    Grid.Column="0"
+                                                    Margin="0,0,12,0"
+                                                    FontSize="20"
+                                                    Foreground="#10B981"
+                                                    Glyph="&#xE73E;" />
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock FontWeight="SemiBold" Text="Custom Branding" />
+                                                    <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Add your logo and brand colors" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabViewItem>
+
                     <!--  General Tab  -->
                     <TabViewItem Header="General" IsClosable="False">
                         <TabViewItem.IconSource>
