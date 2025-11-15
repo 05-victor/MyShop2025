@@ -5,162 +5,216 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:converters="using:MyShop.Client.Converters"
+    xmlns:controls="using:MyShop.Client.Views.Controls"
+    xmlns:components="using:MyShop.Client.Views.Components"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Auth"
     mc:Ignorable="d"
     Background="{ThemeResource LayerFillColorDefaultBrush}">
 
-    <Page.Resources>
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
-        <converters:BoolNegationConverter x:Key="BoolNegationConverter"/>
-    </Page.Resources>
-
     <Grid>
+        <!-- Visual State Manager for Responsive Design -->
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="WindowSizeStates">
+                <!-- Wide: Show branding + form -->
+                <VisualState x:Name="WideState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1100"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="BrandingPanel.Visibility" Value="Visible"/>
+                        <Setter Target="FormColumn.Width" Value="1*"/>
+                    </VisualState.Setters>
+                </VisualState>
+                
+                <!-- Narrow: Hide branding, expand form -->
+                <VisualState x:Name="NarrowState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="BrandingPanel.Visibility" Value="Collapsed"/>
+                        <Setter Target="FormColumn.Width" Value="*"/>
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="1*"/> 
+            <ColumnDefinition x:Name="FormColumn" Width="1*"/> 
         </Grid.ColumnDefinitions>
 
-
-        <!-- Left Side: Branding with Gradient Background -->
-        <Grid Grid.Column="0" Grid.ColumnSpan="1">
+        <!-- Left Side: Branding with Mountain Background -->
+        <Grid x:Name="BrandingPanel" Grid.Column="0" Grid.ColumnSpan="1">
             <Grid.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop Color="#2563EB" Offset="0"/>
-                    <GradientStop Color="#1E40AF" Offset="1"/>
-                </LinearGradientBrush>
+                <ImageBrush ImageSource="/Assets/login-background.jpg"
+                           Stretch="UniformToFill"/>
             </Grid.Background>
             
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="24">
-                <Image Source="/Assets/StoreLogo.png" Width="120" Height="120" Stretch="Uniform"/>
+            <!-- Dark overlay for better text contrast -->
+            <Border Background="#66000000"/>
+            
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="{StaticResource Gap_LG}">
+                <Image Source="/Assets/StoreLogo.png" 
+                       Width="120" Height="120" 
+                       Stretch="Uniform"
+                       AutomationProperties.Name="MyShop2025 Logo"/>
+                
                 <TextBlock Text="MyShop2025" 
-                           FontSize="48" 
-                           FontWeight="Bold" 
+                           Style="{StaticResource DisplayHeadingStyle}"
                            Foreground="White"
-                           HorizontalAlignment="Center"/>
+                           HorizontalAlignment="Center"
+                           AutomationProperties.HeadingLevel="Level1"/>
+                
                 <TextBlock Text="Modern Shop Management System" 
-                           FontSize="18" 
+                           Style="{StaticResource BodyLargeStyle}"
                            Foreground="White"
                            Opacity="0.9"
                            HorizontalAlignment="Center"/>
+                
                 <TextBlock Text="v1.0.0" 
-                           FontSize="14" 
+                           Style="{StaticResource SmallTextStyle}"
                            Foreground="White"
                            Opacity="0.7"
-                           HorizontalAlignment="Center"
-                           Margin="0,24,0,0"/>
+                           HorizontalAlignment="Center"/>
             </StackPanel>
         </Grid>
 
         <!-- Right Side: Login Form -->
         <Grid Grid.Column="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+            <!-- Mock Mode Banner -->
+            <InfoBar x:Name="MockModeBanner"
+                     Title="🎭 Demo Mode"
+                     Message="Using mock data. Try: admin/admin123, salesman/sales123, or customer/customer123"
+                     Severity="Informational"
+                     IsOpen="False"
+                     IsClosable="False"
+                     VerticalAlignment="Top"
+                     HorizontalAlignment="Stretch"
+                     Margin="24,24,24,0"/>
+
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel MaxWidth="400" 
                            HorizontalAlignment="Center" 
                            VerticalAlignment="Center"
-                           Spacing="16"
-                           Padding="48,40">
+                           Spacing="{StaticResource Gap_LG}"
+                           Padding="{StaticResource Padding_3XL}">
 
                     <!-- Header -->
-                    <StackPanel Spacing="8" Margin="0,0,0,16">
+                    <StackPanel Spacing="{StaticResource Gap_SM}" Margin="0,0,0,16">
                         <TextBlock Text="Welcome back!" 
-                                  FontSize="32"
-                                  FontWeight="SemiBold"
-                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                  Style="{StaticResource Heading1Style}"
+                                  Foreground="{StaticResource TextPrimaryBrush}"
+                                  AutomationProperties.HeadingLevel="Level1"/>
+                        
                         <TextBlock Text="Enter your credentials to access your account" 
-                                  FontSize="14"
-                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                  Style="{StaticResource SecondaryTextStyle}"
+                                  Foreground="{StaticResource TextSecondaryBrush}"
                                   TextWrapping="Wrap"/>
                     </StackPanel>
 
                     <!-- Username/Email Input -->
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="Username or Email" 
-                                  FontSize="14"
-                                  FontWeight="SemiBold"
-                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}">
-                            <Run Text="*" Foreground="#DC2626"/>
+                    <StackPanel Spacing="{StaticResource Gap_SM}">
+                        <TextBlock Style="{StaticResource InputLabelStyle}"
+                                  Foreground="{StaticResource TextPrimaryBrush}"
+                                  AutomationProperties.LabeledBy="{Binding ElementName=UsernameTextBox}">
+                            <Run Text="Username or Email"/>
+                            <Run Text="*" Foreground="{StaticResource ErrorRedBrush}"/>
                         </TextBlock>
+                        
                         <TextBox x:Name="UsernameTextBox"
+                                Style="{StaticResource BaseInputStyle}"
                                 PlaceholderText="Enter your username or email"
                                 Text="{x:Bind ViewModel.Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
                                 KeyDown="Input_KeyDown"
-                                Height="44"
-                                CornerRadius="8"
-                                BorderThickness="1"
-                                BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"/>
+                                AutomationProperties.Name="Username or Email"
+                                AutomationProperties.HelpText="Enter your username or email address"
+                                AutomationProperties.IsRequiredForForm="True"/>
+                        
                         <TextBlock Text="{x:Bind ViewModel.UsernameError, Mode=OneWay}"
-                                  Foreground="#DC2626" 
-                                  FontSize="12"
-                                  Visibility="{x:Bind ViewModel.UsernameError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+                                  Style="{StaticResource ValidationErrorStyle}"
+                                  Visibility="{x:Bind ViewModel.UsernameError, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"
+                                  AutomationProperties.LiveSetting="Assertive">
+                            <TextBlock.Transitions>
+                                <TransitionCollection>
+                                    <EntranceThemeTransition FromVerticalOffset="-10"/>
+                                </TransitionCollection>
+                            </TextBlock.Transitions>
+                        </TextBlock>
                     </StackPanel>
 
                     <!-- Password Input -->
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="Password" 
-                                  FontSize="14"
-                                  FontWeight="SemiBold"
-                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}">
-                            <Run Text="*" Foreground="#DC2626"/>
+                    <StackPanel Spacing="{StaticResource Gap_SM}">
+                        <TextBlock Style="{StaticResource InputLabelStyle}"
+                                  Foreground="{StaticResource TextPrimaryBrush}">
+                            <Run Text="Password"/>
+                            <Run Text="*" Foreground="{StaticResource ErrorRedBrush}"/>
                         </TextBlock>
-                        <PasswordBox x:Name="PasswordInput"
-                                    PlaceholderText="Enter your password"
-                                    PasswordChanged="PasswordInput_PasswordChanged"
-                                    IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                                    KeyDown="Input_KeyDown"
-                                    Height="44"
-                                    CornerRadius="8"
-                                    BorderThickness="1"
-                                    BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"/>
+                        
+                        <controls:PasswordInputControl x:Name="PasswordInput"
+                                                      PlaceholderText="Enter your password"
+                                                      Password="{x:Bind ViewModel.Password, Mode=TwoWay}"
+                                                      IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                                                      KeyDown="Input_KeyDown"/>
+                        
                         <TextBlock Text="{x:Bind ViewModel.PasswordError, Mode=OneWay}"
-                                  Foreground="#DC2626" 
-                                  FontSize="12"
-                                  Visibility="{x:Bind ViewModel.PasswordError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+                                  Style="{StaticResource ValidationErrorStyle}"
+                                  Visibility="{x:Bind ViewModel.PasswordError, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"
+                                  AutomationProperties.LiveSetting="Assertive">
+                            <TextBlock.Transitions>
+                                <TransitionCollection>
+                                    <EntranceThemeTransition FromVerticalOffset="-10"/>
+                                </TransitionCollection>
+                            </TextBlock.Transitions>
+                        </TextBlock>
                     </StackPanel>
 
                     <!-- Remember Me & Forgot Password -->
                     <Grid Margin="0,4,0,0">
                         <CheckBox Content="Remember me"
                                  IsChecked="{x:Bind ViewModel.IsRememberMe, Mode=TwoWay}"
-                                 HorizontalAlignment="Left"/>
+                                 HorizontalAlignment="Left"
+                                 AutomationProperties.Name="Remember me checkbox"/>
+                        
                         <HyperlinkButton Content="Forgot password?"
                                         Command="{x:Bind ViewModel.ForgotPasswordCommand}"
                                         HorizontalAlignment="Right"
-                                        FontSize="13"/>
+                                        Style="{StaticResource LinkButtonStyle}"
+                                        AutomationProperties.Name="Forgot password link"/>
                     </Grid>
 
                     <!-- Error Message -->
-                    <TextBlock Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
-                                Foreground="{ThemeResource SystemErrorTextColor}" 
-                                FontSize="13"
-                                Margin="0 4 0 0"
-                                TextWrapping="Wrap"
-                                TextAlignment="Center"
-                                MaxWidth="340"
-                                Visibility="{x:Bind ViewModel.ErrorMessage, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+                    <TextBlock x:Name="ErrorMessageText"
+                              Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                              Style="{StaticResource ValidationErrorStyle}"
+                              TextAlignment="Center"
+                              MaxWidth="340"
+                              Visibility="{x:Bind ViewModel.ErrorMessage, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"
+                              AutomationProperties.LiveSetting="Assertive">
+                        <TextBlock.Transitions>
+                            <TransitionCollection>
+                                <EntranceThemeTransition/>
+                            </TransitionCollection>
+                        </TextBlock.Transitions>
+                    </TextBlock>
 
                     <!-- Login Button -->
                     <Button Command="{x:Bind ViewModel.AttemptLoginCommand}"
-                           IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                           HorizontalAlignment="Stretch"
-                           Height="44"
+                           Style="{StaticResource PrimaryButtonStyle}"
                            Margin="0,8,0,0"
-                           CornerRadius="8"
-                           FontSize="16"
-                           FontWeight="SemiBold">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource AccentButtonStyle}">
-                                <Setter Property="Background" Value="#2563EB"/>
-                            </Style>
-                        </Button.Style>
-                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                           AutomationProperties.Name="Sign in button"
+                           AutomationProperties.HelpText="Click to sign in with your credentials">
+                        <StackPanel Orientation="Horizontal" 
+                                   Spacing="{StaticResource Gap_SM}" 
+                                   HorizontalAlignment="Center">
                             <ProgressRing Width="20" Height="20"
                                          IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
                                          Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
                                          Foreground="White"/>
-                            <TextBlock Text="Sign In" VerticalAlignment="Center"/>
+                            <TextBlock Text="{x:Bind ViewModel.LoginButtonText, Mode=OneWay}" 
+                                      VerticalAlignment="Center"
+                                      Foreground="White"/>
                         </StackPanel>
                     </Button>
 
@@ -174,72 +228,72 @@
                         <Border Grid.Column="0" 
                                Height="1" 
                                VerticalAlignment="Center" 
-                               Background="{ThemeResource DividerStrokeColorDefaultBrush}"/>
+                               Background="{StaticResource Gray300Brush}"/>
                         <TextBlock Grid.Column="1" 
                                   Text="OR" 
                                   Margin="16,0"
                                   FontSize="12"
-                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                  Foreground="{StaticResource TextSecondaryBrush}"/>
                         <Border Grid.Column="2" 
                                Height="1" 
                                VerticalAlignment="Center" 
-                               Background="{ThemeResource DividerStrokeColorDefaultBrush}"/>
+                               Background="{StaticResource Gray300Brush}"/>
                     </Grid>
 
                     <!-- Google Login Button -->
                     <Button Command="{x:Bind ViewModel.GoogleLoginCommand}"
-                           IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                           HorizontalAlignment="Stretch"
-                           Height="44"
-                           CornerRadius="8"
-                           Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                           BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
-                           BorderThickness="1">
-                        <StackPanel Orientation="Horizontal" Spacing="12">
-                            <Image Source="/Assets/Google.png" Width="20" Height="20"/>
-                            <TextBlock Text="Sign in with Google" VerticalAlignment="Center"/>
+                           Style="{StaticResource SecondaryButtonStyle}"
+                           AutomationProperties.Name="Sign in with Google">
+                        <StackPanel Orientation="Horizontal" 
+                                   Spacing="{StaticResource Gap_MD}">
+                            <Image Source="/Assets/Google.png" 
+                                   Width="20" Height="20"
+                                   AutomationProperties.Name="Google logo"/>
+                            <TextBlock Text="Sign in with Google" 
+                                      VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
                     <!-- Register Link -->
-                    <StackPanel Orientation="Horizontal" 
-                               HorizontalAlignment="Center"
-                               Spacing="6"
+                    <StackPanel HorizontalAlignment="Center"
+                               Spacing="{StaticResource Gap_SM}"
                                Margin="0,16,0,0">
-                        <TextBlock Text="Don't have an account?" 
-                                  FontSize="14"
-                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <HyperlinkButton Content="Register here"
-                                        Command="{x:Bind ViewModel.NavigateToRegisterCommand}"
-                                        FontSize="14"
-                                        Padding="0"/>
+                        <StackPanel Orientation="Horizontal" 
+                                   HorizontalAlignment="Center"
+                                   Spacing="6">
+                            <TextBlock Text="Don't have an account?" 
+                                      Style="{StaticResource SecondaryTextStyle}"
+                                      Foreground="{StaticResource TextSecondaryBrush}"/>
+                            
+                            <HyperlinkButton x:Name="RegisterButton"
+                                            Content="Register here"
+                                            Command="{x:Bind ViewModel.NavigateToRegisterCommand}"
+                                            Style="{StaticResource LinkButtonStyle}"
+                                            AutomationProperties.Name="Register for new account"/>
+                        </StackPanel>
+                        
+                        <TextBlock x:Name="RegisterDisabledText"
+                                  Text="⚠️ Registration disabled in Mock mode"
+                                  Style="{StaticResource CaptionStyle}"
+                                  Foreground="{StaticResource WarningAmberBrush}"
+                                  HorizontalAlignment="Center"
+                                  Visibility="Collapsed"/>
                     </StackPanel>
 
                     <!-- Server Config Link -->
                     <HyperlinkButton Content="⚙️ Configure Server"
                                     Command="{x:Bind ViewModel.ConfigureServerCommand}"
                                     HorizontalAlignment="Center"
-                                    FontSize="12"
-                                    Margin="0,8,0,0"/>
+                                    Style="{StaticResource LinkButtonStyle}"
+                                    Margin="0,8,0,0"
+                                    AutomationProperties.Name="Configure server settings"/>
 
                 </StackPanel>
             </ScrollViewer>
 
-            <!-- Loading Overlay -->
-            <Border Background="#80000000"
-                   Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                <StackPanel HorizontalAlignment="Center" 
-                           VerticalAlignment="Center" 
-                           Spacing="16">
-                    <ProgressRing IsActive="True" 
-                                 Width="48" 
-                                 Height="48"
-                                 Foreground="White"/>
-                    <TextBlock Text="Signing in..." 
-                              FontSize="16"
-                              Foreground="White"/>
-                </StackPanel>
-            </Border>
+            <!-- Loading Overlay (declared last for proper z-order) -->
+            <components:LoadingOverlay IsLoading="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                                      Message="Signing in..."/>
         </Grid>
     </Grid>
 </Page>

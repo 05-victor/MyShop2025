@@ -1,0 +1,133 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ============================================= -->
+    <!-- PRIMARY BRUSHES                              -->
+    <!-- ============================================= -->
+    
+    <SolidColorBrush x:Key="NavyPrimaryBrush" Color="#1A4D8F"/>
+    <SolidColorBrush x:Key="AccentBlueBrush" Color="#00AEEF"/>
+    <SolidColorBrush x:Key="SecondaryBlueBrush" Color="#2563EB"/>
+    <SolidColorBrush x:Key="DarkBlueBrush" Color="#1E40AF"/>
+
+
+    <!-- ============================================= -->
+    <!-- STATUS BRUSHES                               -->
+    <!-- ============================================= -->
+    
+    <!-- Success -->
+    <SolidColorBrush x:Key="SuccessGreenBrush" Color="#10B981"/>
+    <SolidColorBrush x:Key="SuccessGreenLightBrush" Color="#D1FAE5"/>
+    <SolidColorBrush x:Key="SuccessGreen50Brush" Color="#ECFDF5"/>
+    <SolidColorBrush x:Key="SuccessGreenDarkBrush" Color="#059669"/>
+    
+    <!-- Warning -->
+    <SolidColorBrush x:Key="WarningAmberBrush" Color="#F59E0B"/>
+    <SolidColorBrush x:Key="WarningAmberLightBrush" Color="#FEF3C7"/>
+    <SolidColorBrush x:Key="WarningAmber50Brush" Color="#FFFBEB"/>
+    <SolidColorBrush x:Key="WarningAmberDarkBrush" Color="#D97706"/>
+    
+    <!-- Error -->
+    <SolidColorBrush x:Key="ErrorRedBrush" Color="#DC2626"/>
+    <SolidColorBrush x:Key="ErrorRedLightBrush" Color="#FEE2E2"/>
+    <SolidColorBrush x:Key="ErrorRed50Brush" Color="#FEF2F2"/>
+    <SolidColorBrush x:Key="ErrorRedDarkBrush" Color="#B91C1C"/>
+    
+    <!-- Info -->
+    <SolidColorBrush x:Key="InfoBlueBrush" Color="#2563EB"/>
+    <SolidColorBrush x:Key="InfoBlueLightBrush" Color="#DBEAFE"/>
+    <SolidColorBrush x:Key="InfoBlue50Brush" Color="#EFF6FF"/>
+    <SolidColorBrush x:Key="InfoBlueDarkBrush" Color="#1D4ED8"/>
+    
+    <!-- Purple -->
+    <SolidColorBrush x:Key="PurpleBrush" Color="#8B5CF6"/>
+    <SolidColorBrush x:Key="PurpleLightBrush" Color="#EDE9FE"/>
+    <SolidColorBrush x:Key="Purple50Brush" Color="#F5F3FF"/>
+    <SolidColorBrush x:Key="PurpleDarkBrush" Color="#7C3AED"/>
+
+
+    <!-- ============================================= -->
+    <!-- NEUTRAL BRUSHES (Gray Scale)                 -->
+    <!-- ============================================= -->
+    
+    <!-- Text Brushes -->
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#111827"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#1F2937"/>
+    <SolidColorBrush x:Key="TextTertiaryBrush" Color="#374151"/>
+    <SolidColorBrush x:Key="TextMutedBrush" Color="#6B7280"/>
+    
+    <!-- All Gray Brushes -->
+    <SolidColorBrush x:Key="Gray900Brush" Color="#111827"/>
+    <SolidColorBrush x:Key="Gray800Brush" Color="#1F2937"/>
+    <SolidColorBrush x:Key="Gray700Brush" Color="#374151"/>
+    <SolidColorBrush x:Key="Gray600Brush" Color="#6B7280"/>
+    <SolidColorBrush x:Key="Gray500Brush" Color="#9CA3AF"/>
+    <SolidColorBrush x:Key="Gray400Brush" Color="#D1D5DB"/>
+    <SolidColorBrush x:Key="Gray300Brush" Color="#E5E7EB"/>
+    <SolidColorBrush x:Key="Gray200Brush" Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="Gray100Brush" Color="#F9FAFB"/>
+    <SolidColorBrush x:Key="Gray50Brush" Color="#F8FAFC"/>
+    
+    <!-- Semantic Gray Brushes -->
+    <SolidColorBrush x:Key="BorderDefaultBrush" Color="#E5E7EB"/>
+    <SolidColorBrush x:Key="BorderLightBrush" Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="BackgroundLightBrush" Color="#F8FAFC"/>
+    <SolidColorBrush x:Key="BackgroundMediumBrush" Color="#F9FAFB"/>
+
+
+    <!-- ============================================= -->
+    <!-- SEMANTIC BRUSHES                             -->
+    <!-- ============================================= -->
+    
+    <SolidColorBrush x:Key="WhiteBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="BlackBrush" Color="#000000"/>
+    
+    <!-- Transparent Brushes -->
+    <SolidColorBrush x:Key="WhiteSemiTransparent" Color="#80FFFFFF"/>
+    <SolidColorBrush x:Key="WhiteLightTransparent" Color="#33FFFFFF"/>
+    <SolidColorBrush x:Key="BlackSemiTransparent" Color="#80000000"/>
+    <SolidColorBrush x:Key="BlackLightTransparent" Color="#1A000000"/>
+    <SolidColorBrush x:Key="BlackVeryLightTransparent" Color="#0D000000"/>
+
+
+    <!-- ============================================= -->
+    <!-- GRADIENT BRUSHES                             -->
+    <!-- ============================================= -->
+    
+    <!-- Primary Gradient (Blue) -->
+    <LinearGradientBrush x:Key="PrimaryGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#2563EB" Offset="0"/>
+        <GradientStop Color="#1E40AF" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <!-- Success Gradient (Green) -->
+    <LinearGradientBrush x:Key="SuccessGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#10B981" Offset="0"/>
+        <GradientStop Color="#059669" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <!-- Warning Gradient (Amber) -->
+    <LinearGradientBrush x:Key="WarningGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#F59E0B" Offset="0"/>
+        <GradientStop Color="#D97706" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <!-- Error Gradient (Red) -->
+    <LinearGradientBrush x:Key="ErrorGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#DC2626" Offset="0"/>
+        <GradientStop Color="#B91C1C" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <!-- Auth Sidebar Gradient (used in Login/Register pages) -->
+    <LinearGradientBrush x:Key="AuthSidebarGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#2563EB" Offset="0"/>
+        <GradientStop Color="#1E40AF" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <!-- Subtle Background Gradient -->
+    <LinearGradientBrush x:Key="SubtleBackgroundGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#F8FAFC" Offset="0"/>
+        <GradientStop Color="#F9FAFB" Offset="1"/>
+    </LinearGradientBrush>
+
+</ResourceDictionary>

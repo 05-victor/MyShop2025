@@ -1,36 +1,48 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MyShop.Client.ApiServer;
+using Microsoft.UI.Xaml.Controls;
 using MyShop.Client.Helpers;
+using MyShop.Client.ViewModels.Base;
 using MyShop.Client.Views.Auth;
-using MyShop.Client.Views.Dashboard;
-using MyShop.Shared.DTOs.Requests;
-using Refit;
+using MyShop.Client.Views.Dialogs;
 using System;
+using System.Net.Http;
+using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
+
+// ===== NEW NAMESPACES - After Refactor =====
+using MyShop.Core.Interfaces.Repositories;
+using MyShop.Core.Interfaces.Services;
+using MyShop.Core.Interfaces.Storage;
+using MyShop.Client.Strategies;
 
 namespace MyShop.Client.ViewModels.Auth
 {
-    public partial class LoginViewModel : ObservableObject
+    public partial class LoginViewModel : BaseViewModel
     {
-        private readonly IAuthApi _authApi;
+        private readonly IAuthRepository _authRepository;
         private readonly INavigationService _navigationService;
         private readonly IToastHelper _toastHelper;
+        private readonly IRoleStrategyFactory _roleStrategyFactory;
+        private readonly IValidationService _validationService;
+        private readonly ICredentialStorage _credentialStorage;
+        private CancellationTokenSource? _loginCancellationTokenSource;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsUsernameValid))]
+        [NotifyPropertyChangedFor(nameof(IsFormValid))]
+        [NotifyCanExecuteChangedFor(nameof(AttemptLoginCommand))]
         private string _username = string.Empty;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsPasswordValid))]
+        [NotifyPropertyChangedFor(nameof(IsFormValid))]
+        [NotifyCanExecuteChangedFor(nameof(AttemptLoginCommand))]
         private string _password = string.Empty;
 
         [ObservableProperty]
         private bool _isRememberMe = true;
-
-        [ObservableProperty]
-        private bool _isLoading = false;
-
-        [ObservableProperty]
-        private string _errorMessage = string.Empty;
 
         [ObservableProperty]
         private string _usernameError = string.Empty;
@@ -38,113 +50,241 @@ namespace MyShop.Client.ViewModels.Auth
         [ObservableProperty]
         private string _passwordError = string.Empty;
 
+        /// <summary>
+        /// Kiểm tra username có hợp lệ không
+        /// </summary>
+        public bool IsUsernameValid => string.IsNullOrWhiteSpace(UsernameError);
+
+        /// <summary>
+        /// Kiểm tra password có hợp lệ không
+        /// </summary>
+        public bool IsPasswordValid => string.IsNullOrWhiteSpace(PasswordError);
+
+        /// <summary>
+        /// Kiểm tra form có hợp lệ không (để enable/disable nút Login)
+        /// </summary>
+        public bool IsFormValid => 
+            IsUsernameValid && 
+            IsPasswordValid && 
+            !string.IsNullOrWhiteSpace(Username) && 
+            !string.IsNullOrWhiteSpace(Password);
+
+        public string LoginButtonText => IsLoading ? "Signing in..." : "Sign In";
+
         public LoginViewModel(
-            IAuthApi authApi,
+            IAuthRepository authRepository,
             INavigationService navigationService,
-            IToastHelper toastHelper)
+            IToastHelper toastHelper,
+            IRoleStrategyFactory roleStrategyFactory,
+            IValidationService validationService,
+            ICredentialStorage credentialStorage)
         {
-            _authApi = authApi;
+            _authRepository = authRepository;
             _navigationService = navigationService;
             _toastHelper = toastHelper;
+            _roleStrategyFactory = roleStrategyFactory;
+            _validationService = validationService;
+            _credentialStorage = credentialStorage;
+
+            // Notify LoginButtonText when IsLoading changes
+            PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(IsLoading))
+                {
+                    OnPropertyChanged(nameof(LoginButtonText));
+                }
+            };
         }
 
-        [RelayCommand]
-        private async Task AttemptLoginAsync()
+        /// <summary>
+        /// Real-time validation khi username thay đổi
+        /// </summary>
+        partial void OnUsernameChanged(string value)
         {
-            // Clear previous errors
-            ErrorMessage = string.Empty;
-            UsernameError = string.Empty;
-            PasswordError = string.Empty;
-
-            // Validation
-            bool isValid = true;
-
-            if (string.IsNullOrWhiteSpace(Username))
+            if (!string.IsNullOrWhiteSpace(value))
             {
-                UsernameError = "Username or Email is required";
-                isValid = false;
+                var result = _validationService.ValidateUsername(value);
+                UsernameError = result.IsValid ? string.Empty : result.ErrorMessage;
             }
-
-            if (string.IsNullOrWhiteSpace(Password))
+            else
             {
-                PasswordError = "Password is required";
-                isValid = false;
+                UsernameError = string.Empty;
             }
-            else if (Password.Length < 6)
-            {
-                PasswordError = "Password must be at least 6 characters";
-                isValid = false;
-            }
+        }
 
-            if (!isValid)
+        /// <summary>
+        /// Real-time validation khi password thay đổi
+        /// </summary>
+        partial void OnPasswordChanged(string value)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
             {
-                return;
+                var result = _validationService.ValidatePassword(value);
+                PasswordError = result.IsValid ? string.Empty : result.ErrorMessage;
             }
+            else
+            {
+                PasswordError = string.Empty;
+            }
+        }
 
-            IsLoading = true;
+        /// <summary>
+        /// Kiểm tra xem có thể attempt login không
+        /// </summary>
+        private bool CanAttemptLogin() => IsFormValid && !IsLoading;
+
+        [RelayCommand(CanExecute = nameof(CanAttemptLogin), IncludeCancelCommand = true)]
+        private async Task AttemptLoginAsync(CancellationToken cancellationToken)
+        {
+            // Cancel previous login attempt if still running
+            _loginCancellationTokenSource?.Cancel();
+            _loginCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
             try
             {
-                var request = new LoginRequest
-                {
-                    UsernameOrEmail = Username.Trim(),
-                    Password = Password
-                };
+                // Clear previous errors
+                ClearError();
+                UsernameError = string.Empty;
+                PasswordError = string.Empty;
 
-                var response = await _authApi.LoginAsync(request);
-
-                if (response is not null && response.Success && response.Result != null)
+                // Validation
+                if (!ValidateInput())
                 {
-                    var loginData = response.Result;
+                    return;
+                }
+
+                // Hiện loading overlay ngay lập tức
+                SetLoadingState(true);
+
+                // Use repository với cancellation token support
+                var result = await _authRepository.LoginAsync(Username.Trim(), Password);
+
+                if (result.IsSuccess && result.Data != null)
+                {
+                    var user = result.Data;
 
                     // Save token if remember me is checked
                     if (IsRememberMe)
                     {
-                        CredentialHelper.SaveToken(loginData.Token);
+                        _credentialStorage.SaveToken(user.Token);
                     }
 
                     // Show success message
-                    _toastHelper.ShowSuccess($"Welcome back, {loginData.Username}!");
+                    _toastHelper.ShowSuccess($"Welcome back, {user.Username}!");
 
-                    // Navigate to role-specific dashboard
-                    var pageType = ChooseDashboardPage(loginData.RoleNames);
-                    _navigationService.NavigateTo(pageType, loginData);
+                    // Use strategy pattern để navigate đến đúng dashboard
+                    var primaryRole = user.GetPrimaryRole();
+                    var strategy = _roleStrategyFactory.GetStrategy(primaryRole);
+                    var pageType = strategy.GetDashboardPageType();
+                    
+                    _navigationService.NavigateTo(pageType, user);
                 }
                 else
                 {
-                    ErrorMessage = MapLoginError(response?.Code ?? 0, response?.Message);
+                    // Nếu lỗi mạng (repository đã bắt và đính kèm Exception), hiển thị dialog kết nối
+                    if (result.Exception is HttpRequestException || result.Exception is SocketException || result.Exception is TaskCanceledException)
+                    {
+                        await HandleConnectionErrorAsync();
+                    }
+                    else
+                    {
+                        // Repository đã handle hết exceptions và map thành error message
+                        SetError(result.ErrorMessage ?? "Login failed. Please try again.");
+                    }
                 }
             }
-            catch (ApiException apiEx)
+            catch (HttpRequestException httpEx)
             {
-                System.Diagnostics.Debug.WriteLine($"API Error: {apiEx.StatusCode} - {apiEx.Content}");
+                System.Diagnostics.Debug.WriteLine($"Network Error: {httpEx.Message}");
+                // Show immediate inline error to guarantee UX baseline
+                SetError("Cannot connect to server. Please check your network connection and ensure the server is running.");
+                // Then offer richer UX dialog if possible
+                await HandleConnectionErrorAsync();
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Unexpected Error in LoginViewModel: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+                SetError("An unexpected error occurred. Please try again.");
+            }
+            finally
+            {
+                SetLoadingState(false);
+            }
+        }
+
+        private async Task HandleConnectionErrorAsync()
+        {
+            // Ensure a baseline inline message is visible
+            SetError("Cannot connect to server. Please check your network connection and ensure the server is running.");
+
+            var action = await _toastHelper.ShowConnectionErrorAsync(
+                "Cannot connect to server. Please check your network connection and ensure the server is running.");
+
+            switch (action)
+            {
+                case ConnectionErrorAction.Retry:
+                    // Retry login
+                    await AttemptLoginAsync(CancellationToken.None);
+                    break;
+
+                case ConnectionErrorAction.ConfigureServer:
+                    // Show server config dialog
+                    await ShowServerConfigDialogAsync();
+                    break;
+
+                case ConnectionErrorAction.Cancel:
+                    // Keep the inline error message visible as a fallback
+                    break;
+            }
+        }
+
+        private async Task ShowServerConfigDialogAsync()
+        {
+            try
+            {
+                var dialog = new ServerConfigDialog();
                 
-                if (apiEx.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                // Get XamlRoot from current window
+                var window = App.MainWindow;
+                if (window?.Content != null)
                 {
-                    ErrorMessage = "Invalid username or password. Please try again.";
-                }
-                else if (apiEx.StatusCode == System.Net.HttpStatusCode.NotFound)
-                {
-                    ErrorMessage = "Account not found. Please check your username or email.";
-                }
-                else if (apiEx.StatusCode == System.Net.HttpStatusCode.BadRequest)
-                {
-                    ErrorMessage = "Invalid request. Please check your input.";
-                }
-                else
-                {
-                    ErrorMessage = "Network error. Please check your connection.";
+                    dialog.XamlRoot = window.Content.XamlRoot;
+                    await dialog.ShowAsync();
+                    // Note: Dialog handles restart internally if config changed
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"General Error: {ex.Message}");
-                ErrorMessage = "An unexpected error occurred. Please try again.";
+                System.Diagnostics.Debug.WriteLine($"Error showing server config dialog: {ex.Message}");
+                SetError("Failed to open server configuration dialog.");
             }
-            finally
+        }
+
+        /// <summary>
+        /// Validate input trước khi submit (sử dụng ValidationService)
+        /// </summary>
+        private bool ValidateInput()
+        {
+            bool isValid = true;
+
+            // Validate username using validation service
+            var usernameValidation = _validationService.ValidateUsername(Username);
+            if (!usernameValidation.IsValid)
             {
-                IsLoading = false;
+                UsernameError = usernameValidation.ErrorMessage;
+                isValid = false;
             }
+
+            // Validate password using validation service
+            var passwordValidation = _validationService.ValidatePassword(Password);
+            if (!passwordValidation.IsValid)
+            {
+                PasswordError = passwordValidation.ErrorMessage;
+                isValid = false;
+            }
+
+            return isValid;
         }
 
         [RelayCommand]
@@ -183,47 +323,7 @@ namespace MyShop.Client.ViewModels.Auth
         [RelayCommand]
         private async Task ConfigureServer()
         {
-            try {
-                IsLoading = true;
-                ErrorMessage = string.Empty;
-
-                // TODO: Implement server configuration dialog
-                System.Diagnostics.Debug.WriteLine("Cấu hình Server clicked - cần implement chức năng");
-
-                // Tạm thời hiển thị thông báo
-                await Task.Delay(1000); // Simulate network call
-                ErrorMessage = "Server configuration feature coming soon!";
-            }
-            catch (Exception ex) {
-                ErrorMessage = $"Lỗi đăng nhập Server: {ex.Message}";
-            }
-            finally {
-                IsLoading = false;
-            }
-        }
-
-        private static System.Type ChooseDashboardPage(System.Collections.Generic.IEnumerable<string> roleNames)
-        {
-            var roles = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            if (roleNames != null)
-            {
-                foreach (var r in roleNames)
-                {
-                    if (!string.IsNullOrWhiteSpace(r)) roles.Add(r.Trim());
-                }
-            }
-
-            if (roles.Contains("ADMIN")) return typeof(MyShop.Client.Views.Dashboard.DashboardPage);
-            if (roles.Contains("SALEMAN") || roles.Contains("SALESMAN")) return typeof(MyShop.Client.Views.Dashboard.SalesmanDashboardPage);
-            return typeof(MyShop.Client.Views.Dashboard.CustomerDashboardPage);
-        }
-
-        private static string MapLoginError(int code, string? message)
-        {
-            if (code == 401) return "Invalid username or password. Please try again.";
-            if (code == 404) return "Account not found. Please check your username or email.";
-            if (!string.IsNullOrWhiteSpace(message)) return message!;
-            return "Login failed. Please try again.";
+            await ShowServerConfigDialogAsync();
         }
     }
 }

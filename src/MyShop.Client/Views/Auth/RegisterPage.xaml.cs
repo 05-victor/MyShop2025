@@ -1,10 +1,16 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Navigation;
 using MyShop.Client.ViewModels.Auth;
 
 namespace MyShop.Client.Views.Auth
 {
+    /// <summary>
+    /// Registration page for creating new user accounts with real-time validation,
+    /// accessibility support, and responsive design.
+    /// </summary>
     public sealed partial class RegisterPage : Page
     {
         public RegisterViewModel ViewModel { get; }
@@ -14,22 +20,31 @@ namespace MyShop.Client.Views.Auth
             this.InitializeComponent();
             ViewModel = App.Current.Services.GetRequiredService<RegisterViewModel>();
             this.DataContext = ViewModel;
+
+            Loaded += OnPageLoaded;
         }
 
-        private void PasswordInput_PasswordChanged(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Handles page load initialization, including auto-focus for better UX.
+        /// </summary>
+        private void OnPageLoaded(object sender, RoutedEventArgs e)
         {
-            if (sender is PasswordBox passwordBox)
-            {
-                ViewModel.Password = passwordBox.Password;
-            }
+            // Auto-focus the first input field for better user experience
+            UsernameTextBox.Focus(FocusState.Programmatic);
         }
 
-        private void ConfirmPasswordInput_PasswordChanged(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Clears sensitive data when navigating away from the page for security.
+        /// </summary>
+        protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (sender is PasswordBox passwordBox)
-            {
-                ViewModel.ConfirmPassword = passwordBox.Password;
-            }
+            base.OnNavigatedTo(e);
+
+            // Clear passwords for security when navigating to this page
+            ViewModel.Password = string.Empty;
+            ViewModel.ConfirmPassword = string.Empty;
         }
+
+
     }
 }

@@ -1,0 +1,7 @@
+{
+  "UseMockData": false,
+  "BaseUrl": "https://localhost:7120",
+  "RequestTimeout": 30,
+  "EnableLogging": true,
+  "UseWindowsCredentialStorage": true
+}

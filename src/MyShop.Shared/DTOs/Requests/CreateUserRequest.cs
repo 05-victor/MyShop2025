@@ -21,11 +21,16 @@ namespace MyShop.Shared.DTOs.Requests
         [Required(ErrorMessage = "Mật khẩu không được để trống")]
         [MinLength(6, ErrorMessage = "Mật khẩu phải có ít nhất 6 ký tự")]
         public string Password { get; set; } = string.Empty;
+
+        [MaxLength(20, ErrorMessage = "Số điện thoại không được vượt quá 20 ký tự")]
+        public string? Sdt { get; set; }
+
+        public bool ActivateTrial { get; set; } = false;
         
         /// <summary>
         /// List of role names to assign to the user during registration.
         /// If empty or null, no roles will be assigned.
         /// </summary>
-        //public List<string> RoleNames { get; set; } = new List<string>();
+        public List<string> RoleNames { get; set; } = new List<string>();
     }
 }

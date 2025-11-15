@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
+		<TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
 		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
 		<RootNamespace>MyShop.Client</RootNamespace>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
@@ -19,9 +19,19 @@
 
 	<ItemGroup>
 		<Content Include="Assets\**" />
-		<Content Include="ApiServer\ApiConfig.json">
+		<Content Include="Config\ApiConfig.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
+		<!-- Copy mock data JSON files from Plugins project -->
+		<Content Include="..\MyShop.Plugins\Mocks\Data\Json\*.json">
+			<Link>Mocks\Data\Json\%(Filename)%(Extension)</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Views\Product\AdminProductPage.xaml" />
+	  <None Remove="Views\Shell\DashboardShellPage.xaml" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -42,12 +52,28 @@
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 	</ItemGroup>
 
+	<!-- Client phụ thuộc vào Core (interfaces) và Shared (DTOs) -->
+	<!-- Plugins được inject qua DI, không reference trực tiếp -->
 	<ItemGroup>
+		<ProjectReference Include="..\MyShop.Core\MyShop.Core.csproj" />
 		<ProjectReference Include="..\MyShop.Shared\MyShop.Shared.csproj" />
+		<ProjectReference Include="..\MyShop.Plugins\MyShop.Plugins.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<Manifest Include="$(ApplicationManifest)" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Update="Views\Shell\DashboardShellPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Update="Views\Product\AdminProductPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 
 </Project>

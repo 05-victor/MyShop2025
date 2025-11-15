@@ -1,16 +1,16 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
-using MyShop.Client.ApiServer;
+using MyShop.Client.Config;
 using MyShop.Client.Helpers;
 using MyShop.Client.Views.Auth;
-using MyShop.Client.Views.Dashboard;
-using MyShop.Shared.DTOs.Common;
-using MyShop.Shared.DTOs.Responses;
-using Refit;
 using System;
 using System.Threading.Tasks;
+
+// ===== NEW NAMESPACES - After Refactor =====
+using MyShop.Core.Interfaces.Repositories;
+using MyShop.Core.Interfaces.Storage;
+using MyShop.Client.Strategies;
 
 namespace MyShop.Client
 {
@@ -19,110 +19,121 @@ namespace MyShop.Client
         private readonly IHost _host;
         public new static App Current => (App)Application.Current;
         public IServiceProvider Services => _host.Services;
+        public static MainWindow? MainWindow { get; private set; }
 
         public App()
         {
             this.InitializeComponent();
-            _host = Host.CreateDefaultBuilder()
-                .ConfigureAppConfiguration((context, config) => {
-                    config.SetBasePath(AppContext.BaseDirectory);
-                    config.AddJsonFile("ApiServer/ApiConfig.json", optional: false, reloadOnChange: true);
-                })
-                .ConfigureServices((context, services) => {
-                    services.AddTransient<AuthHeaderHandler>();
+            
+            // Add unhandled exception handler for detailed logging
+            this.UnhandledException += App_UnhandledException;
+            
+            _host = Bootstrapper.CreateHost();
+        }
 
-                    services.AddRefitClient<IAuthApi>()
-                        .ConfigureHttpClient(client => {
-                            var baseUrl = context.Configuration["BaseUrl"];
-                            if (string.IsNullOrEmpty(baseUrl))
-                            {
-                                throw new InvalidOperationException("BaseUrl is not configured in ApiConfig.json");
-                            }
-                            client.BaseAddress = new Uri(baseUrl);
-                        })
-                        .AddHttpMessageHandler<AuthHeaderHandler>();
-
-                    services.AddSingleton<INavigationService, NavigationService>();
-                    services.AddTransient<IToastHelper, ToastHelper>();
-
-                    // ViewModels
-                    services.AddTransient<MyShop.Client.ViewModels.Auth.LoginViewModel>();
-                    services.AddTransient<MyShop.Client.ViewModels.Auth.RegisterViewModel>();
-                    services.AddTransient<MyShop.Client.ViewModels.Dashboard.DashboardViewModel>();
-                    services.AddTransient<MyShop.Client.ViewModels.Dashboard.CustomerDashboardViewModel>();
-                    services.AddTransient<MyShop.Client.ViewModels.Dashboard.SalesmanDashboardViewModel>();
-                })
-                .Build();
+        private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+        {
+            AppLogger.Separator("UNHANDLED EXCEPTION");
+            AppLogger.Error("Unhandled exception caught by global handler", e.Exception);
+            AppLogger.Separator();
+            
+            // Mark as handled to prevent app crash during debugging
+            e.Handled = true;
         }
 
         protected override async void OnLaunched(LaunchActivatedEventArgs args)
         {
             try
             {
-                var window = new MainWindow();
+                AppLogger.Separator("APP LAUNCH");
+                AppLogger.Custom("🚀", "APP", "Starting MyShop2025...");
+                
+                AppLogger.Info("Creating MainWindow...");
+                MainWindow = new MainWindow();
+                AppLogger.Success("MainWindow created");
 
+                // Force Light theme app-wide at runtime
+                if (MainWindow.Content is FrameworkElement root)
+                {
+                    AppLogger.Debug("Setting Light theme");
+                    root.RequestedTheme = ElementTheme.Light;
+                }
+
+                AppLogger.Info("Initializing NavigationService...");
                 var navigationService = Services.GetRequiredService<INavigationService>();
-                navigationService.Initialize(window.RootFrame);
+                navigationService.Initialize(MainWindow.RootFrame);
+                AppLogger.Success("NavigationService ready");
 
-                var token = CredentialHelper.GetToken();
+                AppLogger.Info("Checking for saved credentials...");
+                var credentialStorage = Services.GetRequiredService<ICredentialStorage>();
+                var token = credentialStorage.GetToken();
                 bool isLoggedIn = false;
 
                 if (!string.IsNullOrEmpty(token))
                 {
+                    AppLogger.Debug($"Token found: {token.Substring(0, Math.Min(20, token.Length))}...");
                     try
                     {
-                        var authApi = Services.GetRequiredService<IAuthApi>();
-                        var response = await authApi.GetMeAsync();
+                        AppLogger.Info("Validating token...");
+                        var authRepository = Services.GetRequiredService<IAuthRepository>();
+                        var result = await authRepository.GetCurrentUserAsync();
 
-                        // Use correct MyShop.Shared.DTOs.Common.ApiResponse<UserInfoResponse> structure
-                        if (response is not null && response.Success && response.Result is not null)
+                        if (result.IsSuccess && result.Data != null)
                         {
-                            var userInfo = response.Result;
-                            var loginData = new LoginResponse
-                            {
-                                Id = userInfo.Id,
-                                Username = userInfo.Username,
-                                Email = userInfo.Email,
-                                Token = token,
-                                RoleNames = userInfo.RoleNames,
-                                CreatedAt = userInfo.CreatedAt
-                            };
-                            var pageType = ChooseDashboardPage(userInfo.RoleNames);
-                            navigationService.NavigateTo(pageType, loginData);
+                            var user = result.Data;
+                            AppLogger.Auth("Auto-login", user.Username, true);
+                            AppLogger.Info($"User roles: {string.Join(", ", user.Roles)}");
+                            
+                            // Use strategy pattern để navigate
+                            var roleStrategyFactory = Services.GetRequiredService<IRoleStrategyFactory>();
+                            var primaryRole = user.GetPrimaryRole();
+                            var strategy = roleStrategyFactory.GetStrategy(primaryRole);
+                            var pageType = strategy.GetDashboardPageType();
+                            
+                            AppLogger.Navigation("Startup", pageType.Name, user);
+                            navigationService.NavigateTo(pageType, user);
+                            AppLogger.Success("Dashboard loaded");
                             isLoggedIn = true;
                         }
                         else
                         {
-                            CredentialHelper.RemoveToken();
+                            AppLogger.Warning($"Token validation failed: {result.ErrorMessage}");
+                            credentialStorage.RemoveToken();
                         }
-                    }
-                    catch (ApiException ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"API Error on startup (token likely expired): {ex.StatusCode}");
-                        CredentialHelper.RemoveToken();
                     }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine($"General Error on startup: {ex.Message}");
-                        CredentialHelper.RemoveToken();
+                        AppLogger.Error("Auto-login failed", ex);
+                        credentialStorage.RemoveToken();
                     }
+                }
+                else
+                {
+                    AppLogger.Info("No saved token found");
                 }
 
                 if (!isLoggedIn)
                 {
+                    AppLogger.Navigation("Startup", "LoginPage");
                     navigationService.NavigateTo(typeof(LoginPage));
                 }
 
-                window.Activate();
+                AppLogger.Info("Activating MainWindow...");
+                MainWindow.Activate();
+                AppLogger.Success("App startup complete!");
+                AppLogger.Separator();
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"CRITICAL ERROR in OnLaunched: {ex}");
+                AppLogger.Separator("CRITICAL STARTUP ERROR");
+                AppLogger.Error("OnLaunched failed", ex);
+                AppLogger.Separator();
+                
                 // Show error dialog
                 var errorDialog = new Microsoft.UI.Xaml.Controls.ContentDialog
                 {
                     Title = "Application Error",
-                    Content = $"Failed to start application:\n\n{ex.Message}\n\n{ex.StackTrace}",
+                    Content = $"Failed to start application:\n\n{ex.Message}\n\nCheck Output window for details.",
                     CloseButtonText = "Exit"
                 };
                 
@@ -134,24 +145,6 @@ namespace MyShop.Client
                 
                 Environment.Exit(1);
             }
-        }
-
-        private static Type ChooseDashboardPage(System.Collections.Generic.IEnumerable<string> roleNames)
-        {
-            // Normalize roles to upper-case for comparison
-            var roles = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            if (roleNames != null)
-            {
-                foreach (var r in roleNames)
-                {
-                    if (!string.IsNullOrWhiteSpace(r)) roles.Add(r.Trim());
-                }
-            }
-
-            if (roles.Contains("ADMIN")) return typeof(DashboardPage);
-            if (roles.Contains("SALEMAN") || roles.Contains("SALESMAN")) return typeof(SalesmanDashboardPage);
-            // default customer
-            return typeof(CustomerDashboardPage);
         }
     }
 }

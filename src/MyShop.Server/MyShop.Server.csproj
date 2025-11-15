@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
@@ -23,7 +23,6 @@
   <ItemGroup>
     <ProjectReference Include="..\MyShop.Data\MyShop.Data.csproj" />
     <ProjectReference Include="..\MyShop.Shared\MyShop.Shared.csproj" />
-    <ProjectReference Include="..\MyShop.Plugins\MyShop.Plugins.csproj" />
   </ItemGroup>
 
   <ItemGroup>

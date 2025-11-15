@@ -2,6 +2,7 @@
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Threading.Tasks;
+using MyShop.Client;
 
 namespace MyShop.Client.Helpers {
     public class ToastHelper : IToastHelper {
@@ -25,6 +26,7 @@ namespace MyShop.Client.Helpers {
             await ShowDialogAsync("Information", message);
         }
 
+        // Sync wrappers for interface compatibility
         public void ShowSuccess(string message) {
             _ = ShowSuccessAsync(message);
         }
@@ -37,9 +39,27 @@ namespace MyShop.Client.Helpers {
             _ = ShowInfoAsync(message);
         }
 
+        public void ShowWarning(string message) {
+            _ = ShowDialogAsync("Warning", message);
+        }
+
+        private XamlRoot? ResolveXamlRoot()
+        {
+            if (_xamlRoot != null)
+                return _xamlRoot;
+
+            // Try to reuse App.MainWindow if available
+            var main = App.MainWindow;
+            if (main?.Content?.XamlRoot != null)
+                return main.Content.XamlRoot;
+
+            return null;
+        }
+
         private async Task ShowDialogAsync(string title, string content) {
-            if (_xamlRoot is null) {
-                System.Diagnostics.Debug.WriteLine("ToastHelper not initialized with XamlRoot.");
+            var xamlRoot = ResolveXamlRoot();
+            if (xamlRoot is null) {
+                System.Diagnostics.Debug.WriteLine("ToastHelper could not resolve XamlRoot. Skipping dialog.");
                 return;
             }
 
@@ -55,9 +75,49 @@ namespace MyShop.Client.Helpers {
                     Title = title,
                     Content = content,
                     CloseButtonText = "OK",
-                    XamlRoot = _xamlRoot
+                    XamlRoot = xamlRoot
                 };
                 await dialog.ShowAsync();
+            }
+            finally {
+                lock (_dialogLock) {
+                    _isDialogShowing = false;
+                }
+            }
+        }
+
+        public async Task<ConnectionErrorAction> ShowConnectionErrorAsync(string message) {
+            var xamlRoot = ResolveXamlRoot();
+            if (xamlRoot is null) {
+                System.Diagnostics.Debug.WriteLine("ToastHelper could not resolve XamlRoot. Returning Cancel.");
+                return ConnectionErrorAction.Cancel;
+            }
+
+            lock (_dialogLock) {
+                if (_isDialogShowing) {
+                    return ConnectionErrorAction.Cancel; // Prevent multiple dialogs
+                }
+                _isDialogShowing = true;
+            }
+
+            try {
+                var dialog = new ContentDialog {
+                    Title = "⚠️ Cannot Connect to Server",
+                    Content = message + "\n\nWhat would you like to do?",
+                    PrimaryButtonText = "🔄 Retry",
+                    SecondaryButtonText = "⚙️ Configure Server",
+                    CloseButtonText = "Cancel",
+                    DefaultButton = ContentDialogButton.Primary,
+                    XamlRoot = xamlRoot
+                };
+
+                var result = await dialog.ShowAsync();
+
+                return result switch {
+                    ContentDialogResult.Primary => ConnectionErrorAction.Retry,
+                    ContentDialogResult.Secondary => ConnectionErrorAction.ConfigureServer,
+                    _ => ConnectionErrorAction.Cancel
+                };
             }
             finally {
                 lock (_dialogLock) {
