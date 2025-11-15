@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="MyShop.Client.Views.Settings.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -6,15 +5,15 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:MyShop.Client.Views.Settings"
     xmlns:vm="using:MyShop.Client.ViewModels.Settings"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="using:MyShop.Client.Views.Converters"
-    Background="#F3F4F6"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
 
     <Page.Resources>
+        <!-- Converters for visibility -->
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-        <converters:EmptyStringToVisibilityConverter x:Key="StringToVisibilityConverter" />
-        <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
     </Page.Resources>
 
     <Grid>
@@ -307,7 +306,7 @@
 
                                         <StackPanel Spacing="8">
                                             <TextBlock Style="{StaticResource InputLabelStyle}" Text="Timezone" />
-                                            <ComboBox Style="{StaticResource BaseInputStyle}" SelectedIndex="0" HorizontalAlignment="Stretch">
+                                            <ComboBox SelectedIndex="0" HorizontalAlignment="Stretch">
                                                 <ComboBoxItem Content="(UTC-5) Eastern Time" />
                                                 <ComboBoxItem Content="(UTC-6) Central Time" />
                                                 <ComboBoxItem Content="(UTC-7) Mountain Time" />
@@ -344,17 +343,17 @@
 
                                         <StackPanel Spacing="8">
                                             <TextBlock Style="{StaticResource InputLabelStyle}" Text="Products per page" />
-                                            <ComboBox SelectedItem="{x:Bind ViewModel.ProductsPageSize, Mode=TwoWay}" ItemsSource="{x:Bind ViewModel.PageSizeOptions}" Style="{StaticResource BaseInputStyle}" HorizontalAlignment="Stretch" />
+                                            <ComboBox SelectedItem="{x:Bind ViewModel.ProductsPageSize, Mode=TwoWay}" ItemsSource="{x:Bind ViewModel.PageSizeOptions}" HorizontalAlignment="Stretch" />
                                         </StackPanel>
 
                                         <StackPanel Spacing="8">
                                             <TextBlock Style="{StaticResource InputLabelStyle}" Text="Orders per page" />
-                                            <ComboBox SelectedItem="{x:Bind ViewModel.OrdersPageSize, Mode=TwoWay}" ItemsSource="{x:Bind ViewModel.PageSizeOptions}" Style="{StaticResource BaseInputStyle}" HorizontalAlignment="Stretch" />
+                                            <ComboBox SelectedItem="{x:Bind ViewModel.OrdersPageSize, Mode=TwoWay}" ItemsSource="{x:Bind ViewModel.PageSizeOptions}" HorizontalAlignment="Stretch" />
                                         </StackPanel>
 
                                         <StackPanel Spacing="8">
                                             <TextBlock Style="{StaticResource InputLabelStyle}" Text="Customers per page" />
-                                            <ComboBox SelectedItem="{x:Bind ViewModel.CustomersPageSize, Mode=TwoWay}" ItemsSource="{x:Bind ViewModel.PageSizeOptions}" Style="{StaticResource BaseInputStyle}" HorizontalAlignment="Stretch" />
+                                            <ComboBox SelectedItem="{x:Bind ViewModel.CustomersPageSize, Mode=TwoWay}" ItemsSource="{x:Bind ViewModel.PageSizeOptions}" HorizontalAlignment="Stretch" />
                                         </StackPanel>
 
                                         <Border Padding="0,12" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,1,0,0" Margin="0,8,0,0">

@@ -110,41 +110,33 @@ namespace MyShop.Client.Views.Shell
                 return;
 
             var tag = item.Tag as string ?? string.Empty;
+            AppLogger.Debug($"Navigation item selected: {tag}");
 
             switch (tag)
             {
                 case "dashboard":
-                    _currentContentItem = item;   // ghi nhớ “tab nội dung” mới
-                    if (ViewModel.CurrentUser != null)
-                        ContentFrame.Navigate(typeof(AdminDashboardPage), ViewModel.CurrentUser);
-                    else
-                        ContentFrame.Navigate(typeof(AdminDashboardPage));
+                    _currentContentItem = item;
+                    NavigateToPage(typeof(AdminDashboardPage), ViewModel.CurrentUser);
                     break;
 
                 case "products":
-                    _currentContentItem = item;   // ghi nhớ “tab nội dung” mới
-                    if (ViewModel.CurrentUser != null)
-                        ContentFrame.Navigate(typeof(AdminProductPage), ViewModel.CurrentUser);
-                    else
-                        ContentFrame.Navigate(typeof(AdminProductPage));
+                    _currentContentItem = item;
+                    NavigateToPage(typeof(AdminProductPage), ViewModel.CurrentUser);
                     break;
 
                 case "profile":
                     _currentContentItem = item;
-                    ContentFrame.Navigate(typeof(ProfilePage));
+                    NavigateToPage(typeof(ProfilePage), ViewModel.CurrentUser);
                     break;
 
                 case "settings":
                     _currentContentItem = item;
-                    ContentFrame.Navigate(typeof(SettingsPage));
+                    NavigateToPage(typeof(SettingsPage), ViewModel.CurrentUser);
                     break;
 
                 case "orders":
-                    _currentContentItem = item;   // ghi nhớ “tab nội dung” mới
-                    if (ViewModel.CurrentUser != null)
-                        ContentFrame.Navigate(typeof(AdminOrderPage), ViewModel.CurrentUser);
-                    else
-                        ContentFrame.Navigate(typeof(AdminOrderPage));
+                    _currentContentItem = item;
+                    NavigateToPage(typeof(AdminOrderPage), ViewModel.CurrentUser);
                     break;
 
                 case "reports":
@@ -162,6 +154,43 @@ namespace MyShop.Client.Views.Shell
                     RestoreSelection();
                     break;
 
+            }
+        }
+
+        private void NavigateToPage(Type pageType, object? parameter = null)
+        {
+            try
+            {
+                AppLogger.Info($"Navigating to {pageType.Name}...");
+                
+                // Force fresh navigation - clear cache temporarily
+                var cacheSize = ContentFrame.CacheSize;
+                ContentFrame.CacheSize = 0;
+                
+                bool result;
+                if (parameter != null)
+                {
+                    result = ContentFrame.Navigate(pageType, parameter);
+                }
+                else
+                {
+                    result = ContentFrame.Navigate(pageType);
+                }
+                
+                ContentFrame.CacheSize = cacheSize;
+                
+                if (result)
+                {
+                    AppLogger.Success($"Navigation to {pageType.Name} completed");
+                }
+                else
+                {
+                    AppLogger.Warning($"Navigation to {pageType.Name} returned false");
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error($"Failed to navigate to {pageType.Name}", ex);
             }
         }
 

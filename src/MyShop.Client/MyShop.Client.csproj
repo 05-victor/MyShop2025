@@ -33,6 +33,8 @@
 	  <None Remove="Views\Order\AdminOrderPage.xaml" />
 	  <None Remove="Views\Product\AdminProductPage.xaml" />
 	  <None Remove="Views\Shell\DashboardShellPage.xaml" />
+	  <None Remove="Views\Settings\SettingsPage.xaml" />
+	  <None Remove="Views\Profile\ProfilePage.xaml" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -84,7 +86,19 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Page Update="Views\Report\ReportsPage.xaml">
+	  <Page Update="Views\Report\AdminReportsPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Update="Views\Settings\AdminSettingsPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Update="Views\Profile\AdminProfilePage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </Page>
 	</ItemGroup>
