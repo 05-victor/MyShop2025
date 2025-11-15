@@ -56,7 +56,7 @@ namespace MyShop.Client.ViewModels.Shell
         private void NavigateToProducts()
         {
             _toastHelper.ShowInfo("Products management coming soon!");
-            // Sau này có thể đổi thành: _navigationService.NavigateTo(typeof(ProductsPage));
+             //Sau này có thể đổi thành: _navigationService.NavigateTo(typeof(ProductsPage));
         }
 
         [RelayCommand]
