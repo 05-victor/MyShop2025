@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using MyShop.Client.Config;
 using MyShop.Client.Helpers;
 using MyShop.Client.Strategies;
+using MyShop.Client.ViewModels.Product;
 using MyShop.Client.ViewModels.Shell;
 // ===== NEW NAMESPACES - After Refactor =====
 using MyShop.Core.Interfaces.Repositories;
@@ -119,6 +120,7 @@ namespace MyShop.Client.Config
                     services.AddTransient<ViewModels.Dashboard.AdminDashboardViewModel>();
                     services.AddTransient<ViewModels.Dashboard.CustomerDashboardViewModel>();
                     services.AddTransient<ViewModels.Dashboard.SalesmanDashboardViewModel>();
+                    services.AddTransient<ViewModels.Product.AdminProductViewModel>();
                     services.AddTransient<ViewModels.Shell.DashboardShellViewModel>();
                 })
                 .Build();

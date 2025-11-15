@@ -1,39 +1,41 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="MyShop.Client.Views.Product.AdminProductPage"
+    x:Name="MyPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:MyShop.Client.Views.Product"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:MyShop.Client.Views.Product"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    Background="#F3F4F6">
+    xmlns:viewmodels="using:MyShop.Client.ViewModels.Product"
+    Background="#F3F4F6"
+    mc:Ignorable="d">
 
     <Page.Resources>
 
-        <!-- Card style (giống card trắng bo góc trong React) -->
+        <!--  Card style (giống card trắng bo góc trong React)  -->
         <Style x:Key="CardBorderStyle" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="BorderBrush" Value="#E5E7EB"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="16"/>
-            <Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="Background" Value="White" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="BorderBrush" Value="#E5E7EB" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="16" />
+            <Setter Property="Margin" Value="0,0,0,16" />
         </Style>
 
-        <!-- Badge stock -->
+        <!--  Badge stock  -->
         <Style x:Key="StockBadgeStyle" TargetType="Border">
-            <Setter Property="CornerRadius" Value="999"/>
-            <Setter Property="Padding" Value="4,2"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="CornerRadius" Value="999" />
+            <Setter Property="Padding" Value="4,2" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
         </Style>
 
-        <!-- Action icon button nhỏ -->
+        <!--  Action icon button nhỏ  -->
         <Style x:Key="IconGhostButtonStyle" TargetType="Button">
-            <Setter Property="Padding" Value="4"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
         </Style>
 
     </Page.Resources>
@@ -42,191 +44,220 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Padding="32" Spacing="24">
 
-                <!-- PAGE TITLE -->
-                <TextBlock Text="Products Management"
-                   FontSize="28"
-                   FontWeight="SemiBold"
-                   Foreground="#111827" />
-                
-                <!-- HEADER ACTIONS -->
+                <!--  PAGE TITLE  -->
+                <TextBlock
+                    FontSize="28"
+                    FontWeight="SemiBold"
+                    Foreground="#111827"
+                    Text="Products Management" />
+
+                <!--  HEADER ACTIONS  -->
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <!-- Left: Add / Export / Import -->
+                    <!--  Left: Add / Export / Import  -->
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <!-- Add Product -->
-                        <Button x:Name="AddProductButton"
-                                Padding="12,8"
-                                Background="#2563EB"
-                                Foreground="White"
-                                BorderThickness="0"
-                                CornerRadius="8"
-                                Click="AddProductButton_Click">
+                        <!--  Add Product  -->
+                        <Button
+                            x:Name="AddProductButton"
+                            Padding="12,8"
+                            Background="#2563EB"
+                            BorderThickness="0"
+                            Click="AddProductButton_Click"
+                            CornerRadius="8"
+                            Foreground="White">
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE710;" Width="24" Height="24"/>
-                                <!-- Plus -->
-                                <TextBlock Text="Add Product"/>
+                                <FontIcon
+                                    Width="24"
+                                    Height="24"
+                                    Glyph="&#xE710;" />
+                                <!--  Plus  -->
+                                <TextBlock Text="Add Product" />
                             </StackPanel>
                         </Button>
 
-                        <!-- Export -->
-                        <Button Padding="12,8"
-                                Background="White"
-                                Foreground="#111827"
-                                BorderBrush="#E5E7EB"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                Click="ExportButton_Click"
-                                Margin="0,0,4,0">
+                        <!--  Export  -->
+                        <Button
+                            Margin="0,0,4,0"
+                            Padding="12,8"
+                            Background="White"
+                            BorderBrush="#E5E7EB"
+                            BorderThickness="1"
+                            Click="ExportButton_Click"
+                            CornerRadius="8"
+                            Foreground="#111827">
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE898;" Width="24" Height="24"/>
-                                <!-- Upload-ish -->
-                                <TextBlock Text="Export"/>
+                                <FontIcon
+                                    Width="24"
+                                    Height="24"
+                                    Glyph="&#xE898;" />
+                                <!--  Upload-ish  -->
+                                <TextBlock Text="Export" />
                             </StackPanel>
                         </Button>
 
-                        <!-- Import -->
-                        <Button Padding="12,8"
-                                Background="White"
-                                Foreground="#111827"
-                                BorderBrush="#E5E7EB"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                Click="ImportButton_Click">
+                        <!--  Import  -->
+                        <Button
+                            Padding="12,8"
+                            Background="White"
+                            BorderBrush="#E5E7EB"
+                            BorderThickness="1"
+                            Click="ImportButton_Click"
+                            CornerRadius="8"
+                            Foreground="#111827">
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE898;" Width="24" Height="24"
-                                          RenderTransformOrigin="0.5,0.5">
+                                <FontIcon
+                                    Width="24"
+                                    Height="24"
+                                    Glyph="&#xE898;"
+                                    RenderTransformOrigin="0.5,0.5">
                                     <FontIcon.RenderTransform>
-                                        <RotateTransform Angle="180"/>
+                                        <RotateTransform Angle="180" />
                                     </FontIcon.RenderTransform>
                                 </FontIcon>
-                                <TextBlock Text="Import"/>
+                                <TextBlock Text="Import" />
                             </StackPanel>
                         </Button>
                     </StackPanel>
 
-                    <!-- Right: Refresh -->
-                    <Button Grid.Column="1"
-                            Padding="12,8"
-                            Background="White"
-                            Foreground="#111827"
-                            BorderBrush="#E5E7EB"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            Click="RefreshButton_Click">
+                    <!--  Right: Refresh  -->
+                    <Button
+                        Grid.Column="1"
+                        Padding="12,8"
+                        Background="White"
+                        BorderBrush="#E5E7EB"
+                        BorderThickness="1"
+                        Command="{x:Bind ViewModel.RefreshCommand}"
+                        CornerRadius="8"
+                        Foreground="#111827">
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE72C;" Width="24" Height="24"/>
-                            <!-- Refresh -->
-                            <TextBlock Text="Refresh"/>
+                            <FontIcon
+                                Width="24"
+                                Height="24"
+                                Glyph="&#xE72C;" />
+                            <!--  Refresh  -->
+                            <TextBlock Text="Refresh" />
                         </StackPanel>
                     </Button>
                 </Grid>
 
-                <!-- FILTERS CARD -->
+                <!--  FILTERS CARD  -->
                 <Border Style="{StaticResource CardBorderStyle}">
                     <StackPanel Spacing="16">
-                        <TextBlock Text="Filters"
-                                   FontSize="16"
-                                   FontWeight="SemiBold"
-                                   Foreground="#111827" />
+                        <TextBlock
+                            FontSize="16"
+                            FontWeight="SemiBold"
+                            Foreground="#111827"
+                            Text="Filters" />
 
-                        <Grid ColumnSpacing="12" HorizontalAlignment="Stretch">
+                        <Grid HorizontalAlignment="Stretch" ColumnSpacing="12">
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3*" />
+                                <!--  Search  -->
                                 <ColumnDefinition Width="2*" />
-                                <!-- Search -->
+                                <!--  Category  -->
                                 <ColumnDefinition Width="2*" />
-                                <!-- Category -->
-                                <ColumnDefinition Width="*" />
-                                <!-- Min price -->
-                                <ColumnDefinition Width="*" />
-                                <!-- Max price -->
+                                <!--  Min price  -->
                                 <ColumnDefinition Width="2*" />
-                                <!-- Sort -->
+                                <!--  Max price  -->
+                                <ColumnDefinition Width="2*" />
+                                <!--  Sort  -->
                             </Grid.ColumnDefinitions>
 
-                            <!-- Search -->
+                            <!--  Search  -->
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Search"
-                           FontSize="12"
-                           Foreground="#6B7280"
-                           Margin="0,0,0,4"/>
-                                <TextBox x:Name="SearchTextBox"
-                         PlaceholderText="Search by name..."
-                         BorderBrush="#E5E7EB"
-                         BorderThickness="1"/>
+                                <TextBlock
+                                    Margin="0,0,0,4"
+                                    FontSize="12"
+                                    Foreground="#6B7280"
+                                    Text="Search" />
+                                <TextBox
+                                    x:Name="SearchTextBox"
+                                    BorderBrush="#E5E7EB"
+                                    BorderThickness="1"
+                                    PlaceholderText="Search by name..." />
                             </StackPanel>
 
-                            <!-- Category -->
+                            <!--  Category  -->
                             <StackPanel Grid.Column="1">
-                                <TextBlock Text="Category"
-                           FontSize="12"
-                           Foreground="#6B7280"
-                           Margin="0,0,0,4"/>
-                                <ComboBox x:Name="CategoryComboBox"
-                          BorderBrush="#E5E7EB"
-                          BorderThickness="1"
-                          PlaceholderText="All Categories">
-                                    <!-- sau này binding ItemsSource Categories -->
-                                    <ComboBoxItem Content="All Categories"/>
-                                    <ComboBoxItem Content="Smartphones"/>
-                                    <ComboBoxItem Content="Laptops"/>
-                                    <ComboBoxItem Content="Audio"/>
-                                    <ComboBoxItem Content="Tablets"/>
-                                    <ComboBoxItem Content="Wearables"/>
+                                <TextBlock
+                                    Margin="0,0,0,4"
+                                    FontSize="12"
+                                    Foreground="#6B7280"
+                                    Text="Category" />
+                                <ComboBox
+                                    x:Name="CategoryComboBox"
+                                    HorizontalAlignment="Stretch"
+                                    BorderBrush="#E5E7EB"
+                                    BorderThickness="1"
+                                    PlaceholderText="All Categories">
+                                    <!--  sau này binding ItemsSource Categories  -->
+                                    <ComboBoxItem Content="All Categories" />
+                                    <ComboBoxItem Content="Smartphones" />
+                                    <ComboBoxItem Content="Laptops" />
+                                    <ComboBoxItem Content="Audio" />
+                                    <ComboBoxItem Content="Tablets" />
+                                    <ComboBoxItem Content="Wearables" />
                                 </ComboBox>
                             </StackPanel>
 
-                            <!-- Min Price -->
+                            <!--  Min Price  -->
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Min Price"
-                                           FontSize="12"
-                                           Foreground="#6B7280"
-                                           Margin="0,0,0,4"/>
-                                <TextBox x:Name="MinPriceTextBox"
-                                         PlaceholderText="0"
-                                         InputScope="Number"
-                                         BorderBrush="#E5E7EB"
-                                         BorderThickness="1"/>
+                                <TextBlock
+                                    Margin="0,0,0,4"
+                                    FontSize="12"
+                                    Foreground="#6B7280"
+                                    Text="Min Price" />
+                                <TextBox
+                                    x:Name="MinPriceTextBox"
+                                    BorderBrush="#E5E7EB"
+                                    BorderThickness="1"
+                                    InputScope="Number"
+                                    PlaceholderText="0" />
                             </StackPanel>
 
-                            <!-- Max Price -->
+                            <!--  Max Price  -->
                             <StackPanel Grid.Column="3">
-                                <TextBlock Text="Max Price"
-                                           FontSize="12"
-                                           Foreground="#6B7280"
-                                           Margin="0,0,0,4"/>
-                                <TextBox x:Name="MaxPriceTextBox"
-                                         PlaceholderText="∞"
-                                         InputScope="Number"
-                                         BorderBrush="#E5E7EB"
-                                         BorderThickness="1"/>
+                                <TextBlock
+                                    Margin="0,0,0,4"
+                                    FontSize="12"
+                                    Foreground="#6B7280"
+                                    Text="Max Price" />
+                                <TextBox
+                                    x:Name="MaxPriceTextBox"
+                                    BorderBrush="#E5E7EB"
+                                    BorderThickness="1"
+                                    InputScope="Number"
+                                    PlaceholderText="∞" />
                             </StackPanel>
 
-                            <!-- Sort By -->
+                            <!--  Sort By  -->
                             <StackPanel Grid.Column="4">
-                                <TextBlock Text="Sort By"
-                                           FontSize="12"
-                                           Foreground="#6B7280"
-                                           Margin="0,0,0,4"/>
-                                <ComboBox x:Name="SortByComboBox"
-                                          BorderBrush="#E5E7EB"
-                                          BorderThickness="1"
-                                          SelectedIndex="0">
-                                    <ComboBoxItem Content="Rating (High to Low)" Tag="rating-desc"/>
-                                    <ComboBoxItem Content="Price (High to Low)" Tag="price-desc"/>
-                                    <ComboBoxItem Content="Price (Low to High)" Tag="price-asc"/>
-                                    <ComboBoxItem Content="Name (A-Z)" Tag="name-asc"/>
-                                    <ComboBoxItem Content="Name (Z-A)" Tag="name-desc"/>
+                                <TextBlock
+                                    Margin="0,0,0,4"
+                                    FontSize="12"
+                                    Foreground="#6B7280"
+                                    Text="Sort By" />
+                                <ComboBox
+                                    x:Name="SortByComboBox"
+                                    BorderBrush="#E5E7EB"
+                                    BorderThickness="1"
+                                    SelectedIndex="0">
+                                    <ComboBoxItem Content="Rating (High to Low)" Tag="rating-desc" />
+                                    <ComboBoxItem Content="Price (High to Low)" Tag="price-desc" />
+                                    <ComboBoxItem Content="Price (Low to High)" Tag="price-asc" />
+                                    <ComboBoxItem Content="Name (A-Z)" Tag="name-asc" />
+                                    <ComboBoxItem Content="Name (Z-A)" Tag="name-desc" />
                                 </ComboBox>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
                 </Border>
 
-                <!-- PRODUCTS TABLE CARD -->
+                <!--  PRODUCTS TABLE CARD  -->
                 <Border Style="{StaticResource CardBorderStyle}">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -234,146 +265,211 @@
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
-                        <!-- Table -->
-                        <ListView x:Name="ProductsListView"
-                                  Grid.Row="0"
-                                  BorderThickness="0"
-                                  IsItemClickEnabled="False">
+                        <!--  Table  -->
+                        <ListView
+                            x:Name="ProductsListView"
+                            Grid.Row="0"
+                            BorderThickness="0"
+                            IsItemClickEnabled="False"
+                            ItemsSource="{x:Bind ViewModel.Products, Mode=OneWay}">
                             <ListView.Resources>
-                                <!-- để ListView trong suốt, giữ border ngoài -->
+                                <!--  để ListView trong suốt, giữ border ngoài  -->
                                 <Style TargetType="ListView">
-                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Background" Value="Transparent" />
                                 </Style>
                                 <Style TargetType="ListViewItem">
-                                    <Setter Property="Padding" Value="12,8"/>
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                    <Setter Property="Padding" Value="12,8" />
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                 </Style>
                             </ListView.Resources>
 
                             <ListView.Header>
-                                <!-- Header row -->
+                                <!--  Header row  -->
                                 <Grid Padding="8,4">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="1*"/>
-                                        <!-- Image -->
-                                        <ColumnDefinition Width="3*"/>
-                                        <!-- Name -->
-                                        <ColumnDefinition Width="2*"/>
-                                        <!-- Category -->
-                                        <ColumnDefinition Width="1*"/>
-                                        <!-- Price -->
-                                        <ColumnDefinition Width="2*"/>
-                                        <!-- Import Price -->
-                                        <ColumnDefinition Width="1*"/>
-                                        <!-- Stock -->
-                                        <ColumnDefinition Width="1*"/>
-                                        <!-- Rating -->
-                                        <ColumnDefinition Width="2*"/>
-                                        <!-- Actions -->
+                                        <ColumnDefinition Width="1*" />
+                                        <!--  Image  -->
+                                        <ColumnDefinition Width="3*" />
+                                        <!--  Name  -->
+                                        <ColumnDefinition Width="2*" />
+                                        <!--  Category  -->
+                                        <ColumnDefinition Width="1*" />
+                                        <!--  Price  -->
+                                        <ColumnDefinition Width="2*" />
+                                        <!--  Import Price  -->
+                                        <ColumnDefinition Width="1*" />
+                                        <!--  Stock  -->
+                                        <ColumnDefinition Width="1*" />
+                                        <!--  Rating  -->
+                                        <ColumnDefinition Width="2*" />
+                                        <!--  Actions  -->
                                     </Grid.ColumnDefinitions>
 
-                                    <TextBlock Grid.Column="0" Text="Image" FontWeight="SemiBold" />
-                                    <TextBlock Grid.Column="1" Text="Product Name" FontWeight="SemiBold" />
-                                    <TextBlock Grid.Column="2" Text="Category" FontWeight="SemiBold" />
-                                    <TextBlock Grid.Column="3" Text="Price" FontWeight="SemiBold" />
-                                    <TextBlock Grid.Column="4" Text="Import Price" FontWeight="SemiBold" />
-                                    <TextBlock Grid.Column="5" Text="Stock" FontWeight="SemiBold" />
-                                    <TextBlock Grid.Column="6" Text="Rating" FontWeight="SemiBold" />
-                                    <TextBlock Grid.Column="7" Text="Actions" FontWeight="SemiBold" />
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        FontWeight="SemiBold"
+                                        Text="Image" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        FontWeight="SemiBold"
+                                        Text="Product Name" />
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        FontWeight="SemiBold"
+                                        Text="Category" />
+                                    <TextBlock
+                                        Grid.Column="3"
+                                        FontWeight="SemiBold"
+                                        Text="Price" />
+                                    <TextBlock
+                                        Grid.Column="4"
+                                        FontWeight="SemiBold"
+                                        Text="Import Price" />
+                                    <TextBlock
+                                        Grid.Column="5"
+                                        FontWeight="SemiBold"
+                                        Text="Stock" />
+                                    <TextBlock
+                                        Grid.Column="6"
+                                        FontWeight="SemiBold"
+                                        Text="Rating" />
+                                    <TextBlock
+                                        Grid.Column="7"
+                                        FontWeight="SemiBold"
+                                        Text="Actions" />
                                 </Grid>
                             </ListView.Header>
 
-                            <!-- 1 row -->
+                            <!--  1 row  -->
                             <ListView.ItemTemplate>
                                 <DataTemplate>
-                                    <!-- Sau này đổi sang x:DataType cho mạnh -->
-                                    <Grid Padding="8,4">
+                                    <!--  Sau này đổi sang x:DataType cho mạnh  -->
+                                    <Grid Padding="-8,4,0,4">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="1*"/>
-                                            <ColumnDefinition Width="3*"/>
-                                            <ColumnDefinition Width="2*"/>
-                                            <ColumnDefinition Width="1*"/>
-                                            <ColumnDefinition Width="2*"/>
-                                            <ColumnDefinition Width="1*"/>
-                                            <ColumnDefinition Width="1*"/>
-                                            <ColumnDefinition Width="2*"/>
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="3*" />
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="2*" />
                                         </Grid.ColumnDefinitions>
 
-                                        <!-- Image -->
-                                        <Border Width="48" Height="48" CornerRadius="8" Grid.Column="0" Background="#E5E7EB" HorizontalAlignment="Left">
-                                            <Image Source="{Binding Image}" Stretch="UniformToFill" />
+                                        <!--  Image  -->
+                                        <Border
+                                            Grid.Column="0"
+                                            Width="48"
+                                            Height="48"
+                                            HorizontalAlignment="Left"
+                                            Background="#E5E7EB"
+                                            CornerRadius="8">
+                                            <Rectangle RadiusX="8" RadiusY="8">
+                                                <Rectangle.Fill>
+                                                    <ImageBrush ImageSource="{Binding Image}" Stretch="UniformToFill" />
+                                                </Rectangle.Fill>
+                                            </Rectangle>
                                         </Border>
 
-                                        <!-- Product name + SKU -->
-                                        <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Name}"
-                                                       TextTrimming="CharacterEllipsis"/>
-                                            <TextBlock Text="{Binding Sku}"
-                                                       FontSize="11"
-                                                       Foreground="#6B7280"/>
+                                        <!--  Product name + SKU  -->
+                                        <StackPanel
+                                            Grid.Column="1"
+                                            VerticalAlignment="Center"
+                                            Spacing="2">
+                                            <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                                            <TextBlock
+                                                FontSize="12"
+                                                Foreground="#6B7280"
+                                                Text="{Binding Sku}" />
                                         </StackPanel>
 
-                                        <!-- Category -->
-                                        <TextBlock Grid.Column="2"
-                                                   Text="{Binding Category}" 
-                                                   VerticalAlignment="Center"/>
+                                        <!--  Category  -->
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            VerticalAlignment="Center"
+                                            Text="{Binding Category}" />
 
-                                        <!-- Price -->
-                                        <TextBlock Grid.Column="3"
-                                                   Text="{Binding Price}"
-                                                   Foreground="#10B981"
-                                                   VerticalAlignment="Center"/>
-                                        
-                                        <!-- Import price -->
-                                        <TextBlock Grid.Column="4"
-                                                   Text="{Binding ImportPrice}"
-                                                   Foreground="#6B7280"
-                                                   VerticalAlignment="Center"/>
-                                        
-                                        <!-- Stock badge -->
+                                        <!--  Price  -->
+                                        <TextBlock
+                                            Grid.Column="3"
+                                            VerticalAlignment="Center"
+                                            Foreground="#10B981"
+                                            Text="{Binding Price}" />
+
+                                        <!--  Import price  -->
+                                        <TextBlock
+                                            Grid.Column="4"
+                                            VerticalAlignment="Center"
+                                            Foreground="#6B7280"
+                                            Text="{Binding ImportPrice}" />
+
+                                        <!--  Stock badge  -->
                                         <!--<Border Grid.Column="5"
                                                 Style="{StaticResource StockBadgeStyle}"
                                                 Background="#10B981">
-                                            --><!-- TODO: sau này dùng converter đổi màu theo Stock --><!--
+                                        -->
+                                        <!--  TODO: sau này dùng converter đổi màu theo Stock  -->
+                                        <!--
                                             <TextBlock Text="{Binding Stock}"
                                                        Foreground="White"
                                                        FontSize="12"/>
                                         </Border>-->
-                                        <Border Grid.Column="5" Background="#10B981" CornerRadius="4" Padding="8,4" Margin="0,12" HorizontalAlignment="Center">
-                                            <TextBlock Text="{Binding Stock}" FontSize="12" Foreground="White" VerticalAlignment="Center"/>
+                                        <Border
+                                            Grid.Column="5"
+                                            Margin="0,12"
+                                            Padding="8,4"
+                                            HorizontalAlignment="Center"
+                                            Background="#10B981"
+                                            CornerRadius="4">
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                FontSize="12"
+                                                Foreground="White"
+                                                Text="{Binding Stock}" />
                                         </Border>
 
-                                        <!-- Rating -->
-                                        <StackPanel Grid.Column="6"
-                                                    Orientation="Horizontal"
-                                                    Spacing="4">
-                                            <TextBlock Text="{Binding Rating}" VerticalAlignment="Center"/>
-                                            <FontIcon Glyph="&#xE735;" FontSize="14" Foreground="#F59E0B"/>
+                                        <!--  Rating  -->
+                                        <StackPanel
+                                            Grid.Column="6"
+                                            Orientation="Horizontal"
+                                            Spacing="4">
+                                            <TextBlock VerticalAlignment="Center" Text="{Binding Rating}" />
+                                            <FontIcon
+                                                FontSize="14"
+                                                Foreground="#F59E0B"
+                                                Glyph="&#xE735;" />
                                         </StackPanel>
 
-                                        <!-- Actions -->
-                                        <StackPanel Grid.Column="7"
-                                                    Orientation="Horizontal"
-                                                    Spacing="4">
-                                            <!-- Edit -->
-                                            <Button Style="{StaticResource IconGhostButtonStyle}"
-                                                    Click="EditProductButton_Click">
-                                                <FontIcon Glyph="&#xE70F;" Foreground="#2563EB"/>
-                                                <!-- Edit icon -->
+                                        <!--  Actions  -->
+                                        <StackPanel
+                                            Grid.Column="7"
+                                            Orientation="Horizontal"
+                                            Spacing="4">
+                                            <!--  Edit  -->
+                                            <Button
+                                                Command="{Binding DataContext.EditProductCommand, ElementName=MyPage}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource IconGhostButtonStyle}">
+                                                <FontIcon Foreground="#2563EB" Glyph="&#xE70F;" />
+                                                <!--  Edit icon  -->
                                             </Button>
 
-                                            <!-- Delete -->
-                                            <Button Style="{StaticResource IconGhostButtonStyle}"
-                                                    Click="DeleteProductButton_Click">
-                                                <FontIcon Glyph="&#xE74D;" Foreground="#DC2626"/>
-                                                <!-- Trash -->
+                                            <!--  Delete  -->
+                                            <Button
+                                                Command="{Binding DataContext.DeleteProductCommand, ElementName=MyPage}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource IconGhostButtonStyle}">
+                                                <FontIcon Foreground="#DC2626" Glyph="&#xE74D;" />
+                                                <!--  Trash  -->
                                             </Button>
 
-                                            <!-- View -->
-                                            <Button Style="{StaticResource IconGhostButtonStyle}"
-                                                    Click="ViewProductButton_Click">
-                                                <FontIcon Glyph="&#xE8A7;" Foreground="#6B7280"/>
-                                                <!-- View -->
+                                            <!--  View  -->
+                                            <Button
+                                                Command="{Binding DataContext.ViewProductCommand, ElementName=MyPage}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource IconGhostButtonStyle}">
+                                                <FontIcon Foreground="#6B7280" Glyph="&#xE8A7;" />
+                                                <!--  View  -->
                                             </Button>
                                         </StackPanel>
                                     </Grid>
@@ -381,56 +477,68 @@
                             </ListView.ItemTemplate>
                         </ListView>
 
-                        <!-- Pagination -->
-                        <Grid Grid.Row="1"
-                              Padding="16,8,16,0"
-                              Margin="0,8,0,0"
-                              BorderThickness="1,1,0,0"
-                              BorderBrush="#E5E7EB">
+                        <!--  Pagination  -->
+                        <Grid
+                            Grid.Row="1"
+                            Margin="0,8,0,0"
+                            Padding="16,8,16,0"
+                            BorderBrush="#E5E7EB"
+                            BorderThickness="1,1,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
-                            <!-- Left: summary -->
-                            <TextBlock Grid.Column="0"
-                                       VerticalAlignment="Center"
-                                       FontSize="12"
-                                       Foreground="#6B7280"
-                                       Text="Showing 1 to 8 of 8 products"/>
-                            <!-- Sau này binding: Showing {StartIndex} to {EndIndex} of {TotalProducts} -->
+                            <!--  Left: summary  -->
+                            <TextBlock
+                                Grid.Column="0"
+                                VerticalAlignment="Center"
+                                FontSize="12"
+                                Foreground="#6B7280"
+                                Text="Showing 1 to 8 of 8 products" />
+                            <!--  Sau này binding: Showing {StartIndex} to {EndIndex} of {TotalProducts}  -->
 
-                            <!-- Right: Prev / Page / Next -->
-                            <StackPanel Grid.Column="1"
-                                        Orientation="Horizontal"
-                                        Spacing="8">
-                                <Button Padding="8,4"
-                                        Background="White"
-                                        BorderBrush="#E5E7EB"
-                                        BorderThickness="1"
-                                        CornerRadius="6"
-                                        Click="PrevPageButton_Click">
+                            <!--  Right: Prev / Page / Next  -->
+                            <StackPanel
+                                Grid.Column="1"
+                                Orientation="Horizontal"
+                                Spacing="8">
+                                <Button
+                                    Padding="8,4"
+                                    Background="White"
+                                    BorderBrush="#E5E7EB"
+                                    BorderThickness="1"
+                                    Click="PrevPageButton_Click"
+                                    CornerRadius="6">
                                     <StackPanel Orientation="Horizontal" Spacing="4">
-                                        <FontIcon Glyph="&#xE76B;" Width="16" Height="16"/>
-                                        <TextBlock Text="Prev" FontSize="12"/>
+                                        <FontIcon
+                                            Width="16"
+                                            Height="16"
+                                            Glyph="&#xE76B;" />
+                                        <TextBlock FontSize="12" Text="Prev" />
                                     </StackPanel>
                                 </Button>
 
-                                <TextBlock VerticalAlignment="Center"
-                                           FontSize="12"
-                                           Foreground="#6B7280"
-                                           Text="Page 1 of 1"/>
-                                <!-- sau này binding CurrentPage / TotalPages -->
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    FontSize="12"
+                                    Foreground="#6B7280"
+                                    Text="Page 1 of 1" />
+                                <!--  sau này binding CurrentPage / TotalPages  -->
 
-                                <Button Padding="8,4"
-                                        Background="White"
-                                        BorderBrush="#E5E7EB"
-                                        BorderThickness="1"
-                                        CornerRadius="6"
-                                        Click="NextPageButton_Click">
+                                <Button
+                                    Padding="8,4"
+                                    Background="White"
+                                    BorderBrush="#E5E7EB"
+                                    BorderThickness="1"
+                                    Click="NextPageButton_Click"
+                                    CornerRadius="6">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="Next" FontSize="12"/>
-                                        <FontIcon Glyph="&#xE76C;" Width="16" Height="16"/>
+                                        <TextBlock FontSize="12" Text="Next" />
+                                        <FontIcon
+                                            Width="16"
+                                            Height="16"
+                                            Glyph="&#xE76C;" />
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
@@ -441,58 +549,62 @@
             </StackPanel>
         </ScrollViewer>
 
-        <!-- ADD PRODUCT DIALOG (BEFORE: Dialog trong React) -->
-        <ContentDialog x:Name="AddProductDialog"
-                       Title="Add New Product"
-                       PrimaryButtonText="Save Product"
-                       SecondaryButtonText="Cancel"
-                       DefaultButton="Primary"
-                       PrimaryButtonClick="AddProductDialog_PrimaryButtonClick"
-                       SecondaryButtonClick="AddProductDialog_SecondaryButtonClick">
+        <!--  ADD PRODUCT DIALOG (BEFORE: Dialog trong React)  -->
+        <ContentDialog
+            x:Name="AddProductDialog"
+            Title="Add New Product"
+            DefaultButton="Primary"
+            PrimaryButtonClick="AddProductDialog_PrimaryButtonClick"
+            PrimaryButtonText="Save Product"
+            SecondaryButtonClick="AddProductDialog_SecondaryButtonClick"
+            SecondaryButtonText="Cancel">
             <StackPanel Spacing="12">
-                <!-- Name -->
+                <!--  Name  -->
                 <StackPanel>
-                    <TextBlock Text="Product Name *" Margin="0,0,0,4"/>
-                    <TextBox x:Name="NewNameTextBox"
-                             PlaceholderText="Enter product name"
-                             BorderBrush="#E5E7EB"
-                             BorderThickness="1"/>
+                    <TextBlock Margin="0,0,0,4" Text="Product Name *" />
+                    <TextBox
+                        x:Name="NewNameTextBox"
+                        BorderBrush="#E5E7EB"
+                        BorderThickness="1"
+                        PlaceholderText="Enter product name" />
                 </StackPanel>
 
-                <!-- Category + Stock -->
+                <!--  Category + Stock  -->
                 <Grid ColumnSpacing="12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-                    <!-- Category -->
+                    <!--  Category  -->
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Category *" Margin="0,0,0,4"/>
-                        <ComboBox x:Name="NewCategoryComboBox"
-                                  BorderBrush="#E5E7EB"
-                                  BorderThickness="1"
-                                  PlaceholderText="Select category">
-                            <ComboBoxItem Content="Smartphones"/>
-                            <ComboBoxItem Content="Laptops"/>
-                            <ComboBoxItem Content="Audio"/>
-                            <ComboBoxItem Content="Tablets"/>
-                            <ComboBoxItem Content="Wearables"/>
+                        <TextBlock Margin="0,0,0,4" Text="Category *" />
+                        <ComboBox
+                            x:Name="NewCategoryComboBox"
+                            BorderBrush="#E5E7EB"
+                            BorderThickness="1"
+                            PlaceholderText="Select category">
+                            <ComboBoxItem Content="Smartphones" />
+                            <ComboBoxItem Content="Laptops" />
+                            <ComboBoxItem Content="Audio" />
+                            <ComboBoxItem Content="Tablets" />
+                            <ComboBoxItem Content="Wearables" />
                         </ComboBox>
                     </StackPanel>
 
-                    <!-- Stock -->
+                    <!--  Stock  -->
                     <StackPanel Grid.Column="1">
-                        <TextBlock Text="Stock *" Margin="0,0,0,4"/>
-                        <TextBox x:Name="NewStockTextBox"
-                                 PlaceholderText="0"
-                                 InputScope="Number"
-                                 BorderBrush="#E5E7EB"
-                                 BorderThickness="1"/>
+                        <TextBlock Margin="0,0,0,4" Text="Stock *" />
+                        <TextBox
+                            x:Name="NewStockTextBox"
+                            BorderBrush="#E5E7EB"
+                            BorderThickness="1"
+                            InputScope="Number"
+                            PlaceholderText="0" />
                     </StackPanel>
                 </Grid>
 
-                <!-- Price + Import price -->
+                <!--  Price + Import price  -->
                 <Grid ColumnSpacing="12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -500,33 +612,36 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Sale Price *" Margin="0,0,0,4"/>
-                        <TextBox x:Name="NewPriceTextBox"
-                                 PlaceholderText="0.00"
-                                 InputScope="Number"
-                                 BorderBrush="#E5E7EB"
-                                 BorderThickness="1"/>
+                        <TextBlock Margin="0,0,0,4" Text="Sale Price *" />
+                        <TextBox
+                            x:Name="NewPriceTextBox"
+                            BorderBrush="#E5E7EB"
+                            BorderThickness="1"
+                            InputScope="Number"
+                            PlaceholderText="0.00" />
                     </StackPanel>
 
                     <StackPanel Grid.Column="1">
-                        <TextBlock Text="Import Price" Margin="0,0,0,4"/>
-                        <TextBox x:Name="NewImportPriceTextBox"
-                                 PlaceholderText="0.00"
-                                 InputScope="Number"
-                                 BorderBrush="#E5E7EB"
-                                 BorderThickness="1"/>
+                        <TextBlock Margin="0,0,0,4" Text="Import Price" />
+                        <TextBox
+                            x:Name="NewImportPriceTextBox"
+                            BorderBrush="#E5E7EB"
+                            BorderThickness="1"
+                            InputScope="Number"
+                            PlaceholderText="0.00" />
                     </StackPanel>
                 </Grid>
 
-                <!-- Description -->
+                <!--  Description  -->
                 <StackPanel>
-                    <TextBlock Text="Description" Margin="0,0,0,4"/>
-                    <TextBox x:Name="NewDescriptionTextBox"
-                             AcceptsReturn="True"
-                             TextWrapping="Wrap"
-                             MinHeight="80"
-                             BorderBrush="#E5E7EB"
-                             BorderThickness="1"/>
+                    <TextBlock Margin="0,0,0,4" Text="Description" />
+                    <TextBox
+                        x:Name="NewDescriptionTextBox"
+                        MinHeight="80"
+                        AcceptsReturn="True"
+                        BorderBrush="#E5E7EB"
+                        BorderThickness="1"
+                        TextWrapping="Wrap" />
                 </StackPanel>
             </StackPanel>
         </ContentDialog>
