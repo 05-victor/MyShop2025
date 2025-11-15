@@ -7,6 +7,7 @@ using MyShop.Client.Views.Dashboard;
 using MyShop.Client.Views.Product;
 using MyShop.Client.Views.Profile;
 using MyShop.Client.Views.Settings;
+using MyShop.Client.Views.Order;
 using MyShop.Client.Helpers;
 
 namespace MyShop.Client.Views.Shell
@@ -139,8 +140,11 @@ namespace MyShop.Client.Views.Shell
                     break;
 
                 case "orders":
-                    ViewModel.NavigateToOrdersCommand.Execute(null);
-                    RestoreSelection();
+                    _currentContentItem = item;   // ghi nhớ “tab nội dung” mới
+                    if (ViewModel.CurrentUser != null)
+                        ContentFrame.Navigate(typeof(AdminOrderPage), ViewModel.CurrentUser);
+                    else
+                        ContentFrame.Navigate(typeof(AdminOrderPage));
                     break;
 
                 case "reports":

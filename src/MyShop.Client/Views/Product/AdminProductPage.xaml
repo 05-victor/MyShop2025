@@ -498,8 +498,8 @@
                             </ListView.ItemTemplate>
                         </ListView>
 
-                        <!--Sau này sẽ xóa(1)-->
-                        
+                        <!--  Sau này sẽ xóa(1)  -->
+
                         <!--  Pagination  -->
                         <!--<Grid
                             Grid.Row="1"
@@ -512,17 +512,17 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>-->
 
-                            <!--  Left: summary  -->
-                            <!--<TextBlock
+                        <!--  Left: summary  -->
+                        <!--<TextBlock
                                 Grid.Column="0"
                                 VerticalAlignment="Center"
                                 FontSize="12"
                                 Foreground="#6B7280"
                                 Text="Showing 1 to 8 of 8 products" />-->
-                            <!--  Sau này binding: Showing {StartIndex} to {EndIndex} of {TotalProducts}  -->
+                        <!--  Sau này binding: Showing {StartIndex} to {EndIndex} of {TotalProducts}  -->
 
-                            <!--  Right: Prev / Page / Next  -->
-                            <!--<StackPanel
+                        <!--  Right: Prev / Page / Next  -->
+                        <!--<StackPanel
                                 Grid.Column="1"
                                 Orientation="Horizontal"
                                 Spacing="8">
@@ -547,9 +547,10 @@
                                     FontSize="12"
                                     Foreground="#6B7280"
                                     Text="Page 1 of 1" />
-                                --><!--  sau này binding CurrentPage / TotalPages  -->
+                        -->
+                        <!--  sau này binding CurrentPage / TotalPages  -->
 
-                                <!--<Button
+                        <!--<Button
                                     Padding="8,4"
                                     Background="White"
                                     BorderBrush="#E5E7EB"
@@ -566,10 +567,10 @@
                                 </Button>
                             </StackPanel>
                         </Grid>-->
-                        <!--Sau này sẽ xóa(1)-->
-    
-                        
-                        
+                        <!--  Sau này sẽ xóa(1)  -->
+
+
+
                         <!--  Pagination  -->
                         <pagination:PaginationControl
                             Grid.Row="1"
@@ -616,6 +617,7 @@
                         <TextBlock Margin="0,0,0,4" Text="Category *" />
                         <ComboBox
                             x:Name="NewCategoryComboBox"
+                            HorizontalAlignment="Stretch"
                             BorderBrush="#E5E7EB"
                             BorderThickness="1"
                             PlaceholderText="Select category">

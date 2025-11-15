@@ -30,6 +30,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Views\Order\AdminOrderPage.xaml" />
 	  <None Remove="Views\Product\AdminProductPage.xaml" />
 	  <None Remove="Views\Shell\DashboardShellPage.xaml" />
 	</ItemGroup>
@@ -72,6 +73,12 @@
 
 	<ItemGroup>
 	  <Page Update="Views\Product\AdminProductPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Update="Views\Order\AdminOrderPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </Page>
 	</ItemGroup>
