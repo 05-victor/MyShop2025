@@ -3,9 +3,9 @@
     x:Class="MyShop.Client.Views.Shell.DashboardShellPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:avatars="using:MyShop.Client.Views.Components.Avatars"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:MyShop.Client.Views.Shell"
-    xmlns:avatars="using:MyShop.Client.Views.Components.Avatars"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
@@ -21,6 +21,7 @@
         <SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="White" />
 
         <!--  Màu nền item khi được chọn  -->
+        <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPointerOver" Color="#FF3B82F6" />
         <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected" Color="#FF3B82F6" />
         <SolidColorBrush x:Key="NavigationViewItemBackgroundPointerOver" Color="#FF374151" />
     </Page.Resources>
@@ -33,15 +34,13 @@
         IsSettingsVisible="False"
         OpenPaneLength="220"
         PaneDisplayMode="Left"
-        SelectionChanged="Nav_SelectionChanged"
-        >
+        SelectionChanged="Nav_SelectionChanged">
 
         <!--  PHẦN TRÊN: Logo + Branding giống sidebar cũ  -->
         <NavigationView.PaneHeader>
             <StackPanel Padding="20,24" Spacing="8">
-                <!-- Remove Status binding to avoid enum parse error -->
-                <avatars:UserAvatar DisplayName="Admin User"
-                                   Size="Medium"/>
+                <!--  Remove Status binding to avoid enum parse error  -->
+                <avatars:UserAvatar DisplayName="Admin User" Size="Medium" />
                 <TextBlock
                     FontSize="18"
                     FontWeight="Bold"
