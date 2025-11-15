@@ -37,16 +37,16 @@
 
 	<ItemGroup>
 		<!-- WinUI -->
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251003001" />
-		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.6584" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251106002" />
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.6901" />
 
 		<!-- MVVM & DI -->
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.10" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
 
 		<!-- API Client (Update to non-vulnerable versions) -->
 		<PackageReference Include="Refit.HttpClientFactory" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.10" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0" />
 
 		<!-- Using Newtonsoft.Json with Refit is often more reliable -->
 		<PackageReference Include="Refit.Newtonsoft.Json" Version="8.0.0" />
@@ -79,6 +79,12 @@
 
 	<ItemGroup>
 	  <Page Update="Views\Order\AdminOrderPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Update="Views\Report\ReportsPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </Page>
 	</ItemGroup>
