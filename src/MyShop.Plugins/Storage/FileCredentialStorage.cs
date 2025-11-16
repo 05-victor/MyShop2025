@@ -16,7 +16,7 @@ public class FileCredentialStorage : ICredentialStorage
     public FileCredentialStorage()
     {
         var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        var appFolder = Path.Combine(appDataPath, "MyShop");
+        var appFolder = Path.Combine(appDataPath, "MyShop2025");
         Directory.CreateDirectory(appFolder);
         _filePath = Path.Combine(appFolder, "credentials.json");
     }

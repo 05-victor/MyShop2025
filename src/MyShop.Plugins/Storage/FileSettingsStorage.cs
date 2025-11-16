@@ -20,7 +20,7 @@ public class FileSettingsStorage : ISettingsStorage
     public FileSettingsStorage()
     {
         var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        var appFolder = Path.Combine(localAppData, "MyShop");
+        var appFolder = Path.Combine(localAppData, "MyShop2025");
         
         if (!Directory.Exists(appFolder))
         {

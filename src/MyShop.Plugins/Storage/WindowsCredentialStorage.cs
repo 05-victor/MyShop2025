@@ -9,7 +9,7 @@ namespace MyShop.Plugins.Storage;
 /// </summary>
 public class WindowsCredentialStorage : ICredentialStorage
 {
-    private const string ResourceName = "MyShopJwtToken";
+    private const string ResourceName = "MyShop2025JwtToken";
 
     public void SaveToken(string token)
     {
