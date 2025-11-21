@@ -2,7 +2,8 @@ using AutoMapper;
 using MyShop.Data.Entities;
 using MyShop.Data.Repositories.Interfaces;
 using MyShop.Server.EntityMappings;
-using MyShop.Server.Factories;
+using MyShop.Server.Factories.Implementations;
+using MyShop.Server.Factories.Interfaces;
 using MyShop.Server.Mappings;
 using MyShop.Server.Services.Interfaces;
 using MyShop.Shared.DTOs.Requests;
@@ -10,16 +11,29 @@ using MyShop.Shared.DTOs.Responses;
 
 namespace MyShop.Server.Services.Implementations;
 
+/// <summary>
+/// Service for managing product operations
+/// </summary>
 public class ProductService : IProductService
 {
     private readonly IProductRepository _productRepository;
     private readonly ICategoryRepository _categoryRepository;
-    private readonly ProductFactory _productFactory;
-    public ProductService(IProductRepository productRepository, ICategoryRepository categoryRepository, ProductFactory productFactory)
+    private readonly IProductFactory _productFactory;
+    private readonly ICurrentUserService _currentUserService;
+    private readonly ILogger<ProductService> _logger;
+
+    public ProductService(
+        IProductRepository productRepository, 
+        ICategoryRepository categoryRepository, 
+        IProductFactory productFactory,
+        ICurrentUserService currentUserService,
+        ILogger<ProductService> logger)
     {
         _productRepository = productRepository;
         _categoryRepository = categoryRepository;
         _productFactory = productFactory;
+        _currentUserService = currentUserService;
+        _logger = logger;
     }
 
     public async Task<IEnumerable<ProductResponse>> GetAllAsync()
@@ -36,15 +50,37 @@ public class ProductService : IProductService
 
     public async Task<ProductResponse> CreateAsync(CreateProductRequest createProductRequest)
     {
+        // Validate category exists
         var category = await _categoryRepository.GetByIdAsync(createProductRequest.CategoryId);
-
         if (category is null)
         {
             throw new System.Collections.Generic.KeyNotFoundException("Category not found");
         }
 
+        // Create product using factory
         var product = _productFactory.Create(createProductRequest);
+
+        // Auto-assign current user as sale agent if not specified
+        if (!product.SaleAgentId.HasValue)
+        {
+            var currentUserId = _currentUserService.UserId;
+            if (currentUserId.HasValue)
+            {
+                product.SaleAgentId = currentUserId.Value;
+                _logger.LogInformation("Auto-assigned sale agent {UserId} to product {ProductName}", 
+                    currentUserId.Value, product.Name);
+            }
+            else
+            {
+                _logger.LogWarning("No authenticated user found. Product created without sale agent.");
+            }
+        }
+
         var createdProduct = await _productRepository.CreateAsync(product);
+        
+        _logger.LogInformation("Product {ProductId} created by sale agent {SaleAgentId}", 
+            createdProduct.Id, createdProduct.SaleAgentId);
+
         return ProductMapper.ToProductResponse(createdProduct);
     }
 
@@ -56,9 +92,17 @@ public class ProductService : IProductService
             throw new System.Collections.Generic.KeyNotFoundException("Product not found");
         }
 
-        // AutoMapper can be used here to map the fields
+        // Apply updates using Patch method
         existingProduct.Patch(updateProductRequest);
         existingProduct.UpdatedAt = DateTime.UtcNow;
+
+        // Update sale agent if specified
+        if (updateProductRequest.SaleAgentId.HasValue)
+        {
+            existingProduct.SaleAgentId = updateProductRequest.SaleAgentId;
+            _logger.LogInformation("Sale agent updated to {SaleAgentId} for product {ProductId}", 
+                updateProductRequest.SaleAgentId, id);
+        }
 
         var updatedProduct = await _productRepository.UpdateAsync(existingProduct);
         return ProductMapper.ToProductResponse(updatedProduct);
@@ -71,7 +115,9 @@ public class ProductService : IProductService
         {
             return false;
         }
+        
         await _productRepository.DeleteAsync(id);
+        _logger.LogInformation("Product {ProductId} deleted", id);
         return true;
     }
 }

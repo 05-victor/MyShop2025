@@ -5,6 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MyShop.Shared.DTOs.Requests;
+
+/// <summary>
+/// Request DTO for updating an existing product
+/// </summary>
 public class UpdateProductRequest
 {
     public string? SKU { get; set; }
@@ -18,6 +22,10 @@ public class UpdateProductRequest
     public string? Status { get; set; }
     public string? Description { get; set; }
     public string? ImageUrl { get; set; }
-
     public Guid? CategoryId { get; set; }
+
+    /// <summary>
+    /// Optional: Update the sale agent ID
+    /// </summary>
+    public Guid? SaleAgentId { get; set; }
 }

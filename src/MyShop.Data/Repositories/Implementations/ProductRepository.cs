@@ -8,7 +8,6 @@ namespace MyShop.Data.Repositories.Implementations;
 public class ProductRepository : IProductRepository
 {
     private readonly ShopContext _context;
-
     private readonly ILogger<ProductRepository> _logger;
 
     public ProductRepository(ShopContext context, ILogger<ProductRepository> logger)
@@ -19,33 +18,53 @@ public class ProductRepository : IProductRepository
 
     public async Task<IEnumerable<Product>> GetAllAsync()
     {
-        return await _context.Products.Include(p => p.Category).ToListAsync();
+        return await _context.Products
+            .Include(p => p.Category)
+            .Include(p => p.SaleAgent)
+                .ThenInclude(u => u.Profile)
+            .ToListAsync();
     }
 
     public async Task<Product?> GetByIdAsync(Guid id)
     {
-        return await _context.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id);
+        return await _context.Products
+            .Include(p => p.Category)
+            .Include(p => p.SaleAgent)
+                .ThenInclude(u => u.Profile)
+            .FirstOrDefaultAsync(p => p.Id == id);
     }
 
     public async Task<Product> CreateAsync(Product product)
     {
         _context.Products.Add(product);
         await _context.SaveChangesAsync();
+
+        // Reload with navigation properties
+        await _context.Entry(product)
+            .Reference(p => p.Category)
+            .LoadAsync();
+
+        if (product.SaleAgentId.HasValue)
+        {
+            await _context.Entry(product)
+                .Reference(p => p.SaleAgent)
+                .LoadAsync();
+
+            if (product.SaleAgent != null)
+            {
+                await _context.Entry(product.SaleAgent)
+                    .Reference(u => u.Profile)
+                    .LoadAsync();
+            }
+        }
+
         return product;
     }
 
     public async Task<Product> UpdateAsync(Product product)
     {
         _context.Products.Update(product);
-
-        // _context.Entry(product).State = EntityState.Modified;
-        // _context.Entry(product).Property(p => p.CategoryId).IsModified = false; // không đụng FK
-
-        //_logger.LogInformation("Before SaveChanges: CategoryId = {CategoryId}", product.CategoryId);
-
         await _context.SaveChangesAsync();
-
-
         return product;
     }
 

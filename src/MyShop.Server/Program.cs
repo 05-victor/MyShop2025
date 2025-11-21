@@ -11,7 +11,8 @@ using System.Text;
 using System.Security.Claims;
 using MyShop.Data.Repositories.Implementations;
 using AutoMapper;
-using MyShop.Server.Factories;
+using MyShop.Server.Factories.Implementations;
+using MyShop.Server.Factories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -115,7 +116,7 @@ builder.Services.AddDbContext<ShopContext>(options =>
             .UseSnakeCaseNamingConvention());
 
 // Add Factory
-builder.Services.AddScoped<ProductFactory, ProductFactory>();
+builder.Services.AddScoped<IProductFactory, ProductFactory>();
 
 // Register Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();

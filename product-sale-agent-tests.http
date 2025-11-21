@@ -1,0 +1,243 @@
+### Product Sale Agent Feature - API Tests
+
+@baseUrl = https://localhost:5001/api/v1
+@adminToken = your-admin-jwt-token-here
+@userToken = your-user-jwt-token-here
+
+### ============================================
+### 1. Create Product (Auto-assign current user as sale agent)
+### ============================================
+POST {{baseUrl}}/products
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "SKU": "IPHONE-15-PRO",
+  "Name": "iPhone 15 Pro",
+  "Manufacturer": "Apple",
+  "DeviceType": "Smartphone",
+  "ImportPrice": 800,
+  "SellingPrice": 1000,
+  "Quantity": 50,
+  "CommissionRate": 0.1,
+  "Status": "AVAILABLE",
+  "Description": "Latest iPhone model",
+  "ImageUrl": "https://example.com/iphone15.jpg",
+  "CategoryId": "your-category-guid-here"
+  // SaleAgentId is NOT provided - will auto-assign to current user
+}
+
+### ============================================
+### 2. Create Product (Admin assigns specific sale agent)
+### ============================================
+POST {{baseUrl}}/products
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "SKU": "SAMSUNG-S24",
+  "Name": "Samsung Galaxy S24",
+  "Manufacturer": "Samsung",
+  "DeviceType": "Smartphone",
+  "ImportPrice": 700,
+  "SellingPrice": 900,
+  "Quantity": 30,
+  "CommissionRate": 0.12,
+  "Status": "AVAILABLE",
+  "CategoryId": "your-category-guid-here",
+  "SaleAgentId": "specific-user-guid-here"  // Admin specifies the sale agent
+}
+
+### ============================================
+### 3. Get All Products (verify sale agent info is included)
+### ============================================
+GET {{baseUrl}}/products
+Authorization: Bearer {{userToken}}
+
+### Expected Response:
+### {
+###   "code": 200,
+###   "message": "Success",
+###   "result": [
+###     {
+###       "id": "...",
+###       "name": "iPhone 15 Pro",
+###       "categoryName": "Electronics",
+###       "saleAgentId": "user-guid",
+###       "saleAgentUsername": "john_doe",
+###       "saleAgentFullName": "John Doe"
+###     }
+###   ]
+### }
+
+### ============================================
+### 4. Get Product by ID (check sale agent details)
+### ============================================
+GET {{baseUrl}}/products/{{productId}}
+Authorization: Bearer {{userToken}}
+
+### ============================================
+### 5. Update Product (change sale agent)
+### ============================================
+PATCH {{baseUrl}}/products/{{productId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "SaleAgentId": "new-agent-guid-here"  // Reassign to different agent
+}
+
+### ============================================
+### 6. Update Product (remove sale agent - set to null)
+### ============================================
+PATCH {{baseUrl}}/products/{{productId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "SaleAgentId": null  // Remove sale agent
+}
+
+### ============================================
+### 7. Update Product (other fields + sale agent)
+### ============================================
+PATCH {{baseUrl}}/products/{{productId}}
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "Name": "iPhone 15 Pro Max",
+  "SellingPrice": 1200,
+  "Quantity": 45,
+  "SaleAgentId": "another-agent-guid"  // Can update multiple fields including agent
+}
+
+### ============================================
+### 8. Create Product without Authentication
+### (Should work but without sale agent)
+### ============================================
+POST {{baseUrl}}/products
+Content-Type: application/json
+
+{
+  "SKU": "NO-AGENT-PROD",
+  "Name": "Product Without Agent",
+  "ImportPrice": 100,
+  "SellingPrice": 150,
+  "Quantity": 10,
+  "CommissionRate": 0.05,
+  "CategoryId": "your-category-guid-here"
+  // No SaleAgentId, no authentication - should create without agent
+}
+
+### ============================================
+### 9. Verify Sale Agent Info in Response
+### ============================================
+GET {{baseUrl}}/products/{{productId}}
+
+### Expected Response Structure:
+### {
+###   "code": 200,
+###   "message": "Success",
+###   "result": {
+###     "id": "product-guid",
+###     "sku": "IPHONE-15-PRO",
+###     "name": "iPhone 15 Pro",
+###     "manufacturer": "Apple",
+###     "deviceType": "Smartphone",
+###     "importPrice": 800,
+###     "sellingPrice": 1000,
+###     "quantity": 50,
+###     "commissionRate": 0.1,
+###     "status": "AVAILABLE",
+###     "description": "Latest iPhone model",
+###     "imageUrl": "https://example.com/iphone15.jpg",
+###     "createdAt": "2025-01-15T10:30:00Z",
+###     "updatedAt": "2025-01-15T10:30:00Z",
+###     "categoryName": "Electronics",
+###     "saleAgentId": "user-guid",              // ? New field
+###     "saleAgentUsername": "john_doe",         // ? New field
+###     "saleAgentFullName": "John Doe"          // ? New field
+###   }
+### }
+
+### ============================================
+### 10. Test Auto-Assignment Logging
+### (Check server logs after creating product)
+### ============================================
+POST {{baseUrl}}/products
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "SKU": "TEST-LOG",
+  "Name": "Test Logging Product",
+  "ImportPrice": 50,
+  "SellingPrice": 75,
+  "Quantity": 5,
+  "CommissionRate": 0.08,
+  "CategoryId": "your-category-guid-here"
+}
+
+### Check server logs for:
+### ?? Auto-assigned sale agent {UserId} to product Test Logging Product
+### ?? Product {ProductId} created by sale agent {SaleAgentId}
+
+### ============================================
+### Expected Behaviors
+### ============================================
+
+### ? Scenario 1: Authenticated User Creates Product
+### - Request: No SaleAgentId field
+### - Result: SaleAgentId = Current User's ID
+### - Response includes: saleAgentUsername, saleAgentFullName
+
+### ? Scenario 2: Admin Assigns Specific Agent
+### - Request: SaleAgentId = "specific-guid"
+### - Result: SaleAgentId = specified GUID
+### - Response includes agent's info
+
+### ? Scenario 3: Update Sale Agent
+### - Request: PATCH with SaleAgentId
+### - Result: Product's sale agent is updated
+### - Logs: "Sale agent updated to {SaleAgentId} for product {ProductId}"
+
+### ? Scenario 4: Unauthenticated Request
+### - Request: No Authorization header
+### - Result: Product created without sale agent (SaleAgentId = null)
+### - Response: All sale agent fields are null
+
+### ?? Scenario 5: Invalid Sale Agent ID
+### - Request: SaleAgentId = non-existent user GUID
+### - Result: May fail at database level (FK constraint)
+### - Solution: Validate user exists before assigning (future enhancement)
+
+### ============================================
+### Notes
+### ============================================
+
+### 1. Replace placeholders:
+###    - {{productId}} with actual product GUID
+###    - your-category-guid-here with valid category ID
+###    - your-admin-jwt-token-here with real admin token
+###    - your-user-jwt-token-here with real user token
+
+### 2. Auto-assignment only works for authenticated requests
+###    - User must be logged in
+###    - JWT token must be valid
+###    - UserId is extracted from claims
+
+### 3. Sale agent can be:
+###    - Auto-assigned (most common)
+###    - Manually specified (admin use case)
+###    - NULL (legacy products or unauthenticated creation)
+
+### 4. Response always includes sale agent info:
+###    - saleAgentId: GUID or null
+###    - saleAgentUsername: string or null
+###    - saleAgentFullName: string or null
+
+### 5. Commission tracking ready:
+###    - Each product has CommissionRate
+###    - Each product has SaleAgentId
+###    - Ready for future commission calculation endpoints

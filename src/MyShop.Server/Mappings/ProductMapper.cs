@@ -1,10 +1,18 @@
 using MyShop.Shared.DTOs.Responses;
-
 using MyShop.Data.Entities;
 
 namespace MyShop.Server.Mappings;
+
+/// <summary>
+/// Mapper for converting Product entities to ProductResponse DTOs
+/// </summary>
 public class ProductMapper
 {
+    /// <summary>
+    /// Convert a Product entity to a ProductResponse DTO
+    /// </summary>
+    /// <param name="product">The product entity to convert</param>
+    /// <returns>ProductResponse DTO with mapped data</returns>
     public static ProductResponse ToProductResponse(Product product)
     {
         return new ProductResponse
@@ -23,7 +31,12 @@ public class ProductMapper
             ImageUrl = product.ImageUrl,
             CreatedAt = product.CreatedAt,
             UpdatedAt = product.UpdatedAt,
-            CategoryName = product.Category?.Name
+            CategoryName = product.Category?.Name,
+            
+            // Sale agent information
+            SaleAgentId = product.SaleAgentId,
+            SaleAgentUsername = product.SaleAgent?.Username,
+            SaleAgentFullName = product.SaleAgent?.Profile?.FullName
         };
     }
 }
