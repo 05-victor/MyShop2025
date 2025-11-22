@@ -5,7 +5,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              d:DesignHeight="300"
-             d:DesignWidth="400">
+             d:DesignWidth="400"
+             x:Name="RootControl">
 
     <Grid>
         <StackPanel HorizontalAlignment="Center"
@@ -14,33 +15,33 @@
                     MaxWidth="400">
             
             <!-- Icon -->
-            <FontIcon Glyph="{x:Bind IconGlyph, Mode=OneWay}"
+            <FontIcon Glyph="{Binding IconGlyph, ElementName=RootControl, Mode=OneWay}"
                       FontFamily="{StaticResource SymbolThemeFontFamily}"
                       FontSize="72"
                       Foreground="{StaticResource TextSecondaryBrush}"/>
             
             <!-- Title -->
-            <TextBlock Text="{x:Bind Title, Mode=OneWay}"
+            <TextBlock Text="{Binding Title, ElementName=RootControl, Mode=OneWay}"
                        Style="{StaticResource TitleTextBlockStyle}"
                        Foreground="{StaticResource TextPrimaryBrush}"
                        HorizontalAlignment="Center"
                        TextWrapping="Wrap"/>
             
             <!-- Description -->
-            <TextBlock Text="{x:Bind Description, Mode=OneWay}"
+            <TextBlock Text="{Binding Description, ElementName=RootControl, Mode=OneWay}"
                        Style="{StaticResource BodyTextBlockStyle}"
                        Foreground="{StaticResource TextSecondaryBrush}"
                        HorizontalAlignment="Center"
                        TextAlignment="Center"
                        TextWrapping="Wrap"
-                       Visibility="{x:Bind Description, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                       Visibility="{Binding Description, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
             
             <!-- Action Button -->
-            <Button Content="{x:Bind ActionText, Mode=OneWay}"
-                    Command="{x:Bind ActionCommand, Mode=OneWay}"
+            <Button Content="{Binding ActionText, ElementName=RootControl, Mode=OneWay}"
+                    Command="{Binding ActionCommand, ElementName=RootControl, Mode=OneWay}"
                     Style="{StaticResource AccentButtonStyle}"
                     HorizontalAlignment="Center"
-                    Visibility="{x:Bind ActionText, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                    Visibility="{Binding ActionText, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
             
         </StackPanel>
     </Grid>

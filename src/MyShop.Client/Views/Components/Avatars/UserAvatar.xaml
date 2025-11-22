@@ -3,7 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d">
+             xmlns:badges="using:MyShop.Client.Views.Components.Badges"
+             xmlns:converters="using:MyShop.Client.Common.Converters"
+             mc:Ignorable="d"
+             x:Name="RootControl">
+
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </UserControl.Resources>
 
     <Grid x:Name="AvatarContainer">
         <!-- Avatar Image or Initials -->
@@ -16,8 +23,8 @@
                     BorderThickness="1">
                 <!-- Don't bind ProfilePicture directly from string - use code-behind to convert -->
                 <PersonPicture x:Name="AvatarImage"
-                              Initials="{x:Bind Initials, Mode=OneWay}"
-                              DisplayName="{x:Bind DisplayName, Mode=OneWay}"/>
+                              Initials="{Binding Initials, ElementName=RootControl, Mode=OneWay}"
+                              DisplayName="{Binding DisplayName, ElementName=RootControl, Mode=OneWay}"/>
             </Border>
 
             <!-- Status Indicator -->
@@ -30,6 +37,14 @@
                      Stroke="White"
                      StrokeThickness="2"
                      Visibility="Collapsed"/>
+            
+            <!-- Email Verification Badge -->
+            <badges:VerificationBadge x:Name="VerificationBadge"
+                                     IsVerified="{Binding IsEmailVerified, ElementName=RootControl, Mode=OneWay}"
+                                     HorizontalAlignment="Right"
+                                     VerticalAlignment="Bottom"
+                                     Margin="0,0,0,0"
+                                     Visibility="{Binding ShowVerificationBadge, ElementName=RootControl, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
         </Grid>
     </Grid>
 </UserControl>

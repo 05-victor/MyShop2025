@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.UI.Dispatching;
 using System;
 
 namespace MyShop.Client.ViewModels.Base
@@ -17,6 +18,34 @@ namespace MyShop.Client.ViewModels.Base
 
         [ObservableProperty]
         private bool _isBusy = false;
+
+        /// <summary>
+        /// DispatcherQueue for marshalling to UI thread
+        /// Set by the View when created
+        /// </summary>
+        protected DispatcherQueue? DispatcherQueue { get; set; }
+
+        /// <summary>
+        /// Run action on UI thread safely
+        /// </summary>
+        protected void RunOnUIThread(Action action)
+        {
+            if (DispatcherQueue == null)
+            {
+                // Fallback to direct execution if DispatcherQueue not set
+                action();
+                return;
+            }
+
+            if (DispatcherQueue.HasThreadAccess)
+            {
+                action();
+            }
+            else
+            {
+                DispatcherQueue.TryEnqueue(() => action());
+            }
+        }
 
         /// <summary>
         /// Set error message và log nó

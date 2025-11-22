@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
-using MyShop.Client.ViewModels.Profile;
+using MyShop.Client.ViewModels.Settings;
 using System;
 
 namespace MyShop.Client.Views.Dialogs;

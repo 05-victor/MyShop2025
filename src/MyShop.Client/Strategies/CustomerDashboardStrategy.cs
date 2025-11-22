@@ -10,11 +10,7 @@ public class CustomerDashboardStrategy : IRoleStrategy
     public UserRole Role => UserRole.Customer;
 
     public Type GetDashboardPageType()
-    {
-        return typeof(MyShop.Client.Views.Dashboard.CustomerDashboardPage);
-    }
-
-    //public Type GetDashboardPageType() => typeof(CustomerDashboardShellPage);
+    => typeof(MyShop.Client.Views.Shell.CustomerDashboardShell);
 
     public bool CanAccessFeature(string featureName)
     {

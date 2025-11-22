@@ -1,5 +1,5 @@
 {
-  "UseMockData": false,
+  "UseMockData": true,
   "BaseUrl": "https://localhost:7120",
   "RequestTimeout": 30,
   "EnableLogging": true,

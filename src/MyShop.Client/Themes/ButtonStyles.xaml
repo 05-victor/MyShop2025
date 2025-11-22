@@ -38,4 +38,67 @@
         <Setter Property="Foreground" Value="{StaticResource SecondaryBlueBrush}"/>
     </Style>
 
+    <!-- Small Success Button (for Approve) -->
+    <Style x:Key="SmallSuccessButtonStyle" TargetType="Button">
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="Padding" Value="16,0"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="Background" Value="#D1FAE5"/>
+        <Setter Property="Foreground" Value="#10B981"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <!-- Small Danger Button (for Reject) -->
+    <Style x:Key="SmallDangerButtonStyle" TargetType="Button">
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="Padding" Value="16,0"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="Background" Value="#FEE2E2"/>
+        <Setter Property="Foreground" Value="#DC2626"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <!-- Tab Radio Button Style -->
+    <Style x:Key="TabRadioButtonStyle" TargetType="RadioButton">
+        <Setter Property="Padding" Value="16,10"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="#6B7280"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border Background="{TemplateBinding Background}"
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter Content="{TemplateBinding Content}"
+                                         HorizontalAlignment="Center"
+                                         VerticalAlignment="Center"/>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CheckStates">
+                                <VisualState x:Name="Checked">
+                                    <VisualState.Setters>
+                                        <Setter Target="Background" Value="#BEEFFF"/>
+                                        <Setter Target="Foreground" Value="#00AEEF"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Unchecked">
+                                    <VisualState.Setters>
+                                        <Setter Target="Background" Value="Transparent"/>
+                                        <Setter Target="Foreground" Value="#6B7280"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

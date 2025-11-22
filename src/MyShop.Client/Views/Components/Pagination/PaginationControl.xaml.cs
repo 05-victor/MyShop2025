@@ -73,6 +73,7 @@ public sealed partial class PaginationControl : UserControl
     {
         // Guard clause: ensure all UI elements are loaded
         if (PageNumbersContainer == null || PrevButton == null || NextButton == null ||
+            FirstButton == null || LastButton == null ||
             InfoText == null || PageSizeComboBox == null)
         {
             return;
@@ -104,13 +105,24 @@ public sealed partial class PaginationControl : UserControl
         PageNumbersContainer.ItemsSource = pageNumbers;
 
         // Update buttons state
+        FirstButton.IsEnabled = CurrentPage > 1;
         PrevButton.IsEnabled = CurrentPage > 1;
         NextButton.IsEnabled = CurrentPage < totalPages;
+        LastButton.IsEnabled = CurrentPage < totalPages;
 
         // Update info text
         int startItem = (CurrentPage - 1) * PageSize + 1;
         int endItem = Math.Min(CurrentPage * PageSize, TotalItems);
         InfoText.Text = $"Showing {startItem}-{endItem} of {TotalItems}";
+    }
+
+    private void OnFirstClick(object sender, RoutedEventArgs e)
+    {
+        if (CurrentPage > 1)
+        {
+            CurrentPage = 1;
+            RaisePageChanged();
+        }
     }
 
     private void OnPreviousClick(object sender, RoutedEventArgs e)
@@ -128,6 +140,16 @@ public sealed partial class PaginationControl : UserControl
         if (CurrentPage < totalPages)
         {
             CurrentPage++;
+            RaisePageChanged();
+        }
+    }
+
+    private void OnLastClick(object sender, RoutedEventArgs e)
+    {
+        int totalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+        if (CurrentPage < totalPages)
+        {
+            CurrentPage = totalPages;
             RaisePageChanged();
         }
     }

@@ -1,20 +1,29 @@
 using System;
+using FluentValidation;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MyShop.Client.Config;
 using MyShop.Client.Helpers;
 using MyShop.Client.Strategies;
-using MyShop.Client.ViewModels.Product;
+using MyShop.Client.ViewModels.Admin;
 using MyShop.Client.ViewModels.Shell;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
-using MyShop.Core.Interfaces.Storage;
-using MyShop.Core.Services;
-using MyShop.Plugins.ApiClients.Auth;
-using MyShop.Plugins.ApiClients.Dashboard;
-using MyShop.Plugins.Http;
-using MyShop.Plugins.Mocks.Repositories;
+using MyShop.Core.Interfaces.Infrastructure;
+using MyShop.Plugins.API.Auth;
+using MyShop.Plugins.API.Dashboard;
+using MyShop.Plugins.API.Products;
+using MyShop.Plugins.API.Orders;
+using MyShop.Plugins.API.Categories;
+using MyShop.Plugins.API.Users;
+using MyShop.Plugins.API.Profile;
+using MyShop.Plugins.API.Cart;
+using MyShop.Plugins.API.Reports;
+using MyShop.Plugins.API.Commission;
+using MyShop.Plugins.Repositories.Api;
+using MyShop.Plugins.Repositories.Mocks;
 using MyShop.Plugins.Storage;
 using Refit;
 
@@ -59,6 +68,10 @@ namespace MyShop.Client.Config
                         services.AddSingleton<ICategoryRepository, MockCategoryRepository>();
                         services.AddSingleton<IProductRepository, MockProductRepository>();
                         services.AddScoped<IUserRepository, MockUserRepository>();
+                        services.AddSingleton<IOrderRepository, MockOrderRepository>();
+                        services.AddSingleton<ICommissionRepository, MockCommissionRepository>();
+                        services.AddSingleton<IReportRepository, MockReportRepository>();
+                        services.AddSingleton<ICartRepository, MockCartRepository>();
                         
                         System.Diagnostics.Debug.WriteLine("[Bootstrapper] All Mock Repositories registered");
                     }
@@ -81,23 +94,87 @@ namespace MyShop.Client.Config
                         }
 
                         // ===== HTTP & API Clients (from Plugins) =====
-                        services.AddTransient<AuthHeaderHandler>();
+                        services.AddTransient<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
 
-                        services.AddRefitClient<IAuthApiClient>()
+                        services.AddRefitClient<IAuthApi>()
                             .ConfigureHttpClient(client =>
                             {
                                 client.BaseAddress = new Uri(AppConfig.Instance.ApiBaseUrl);
                                 client.Timeout = TimeSpan.FromSeconds(AppConfig.Instance.RequestTimeoutSeconds);
                             })
-                            .AddHttpMessageHandler<AuthHeaderHandler>();
+                            .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
 
-                        services.AddRefitClient<IDashboardApiClient>()
+                        services.AddRefitClient<IDashboardApi>()
                             .ConfigureHttpClient(client =>
                             {
                                 client.BaseAddress = new Uri(AppConfig.Instance.ApiBaseUrl);
                                 client.Timeout = TimeSpan.FromSeconds(AppConfig.Instance.RequestTimeoutSeconds);
                             })
-                            .AddHttpMessageHandler<AuthHeaderHandler>();
+                            .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
+
+                        services.AddRefitClient<IProductsApi>()
+                            .ConfigureHttpClient(client =>
+                            {
+                                client.BaseAddress = new Uri(AppConfig.Instance.ApiBaseUrl);
+                                client.Timeout = TimeSpan.FromSeconds(AppConfig.Instance.RequestTimeoutSeconds);
+                            })
+                            .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
+
+                        services.AddRefitClient<IOrdersApi>()
+                            .ConfigureHttpClient(client =>
+                            {
+                                client.BaseAddress = new Uri(AppConfig.Instance.ApiBaseUrl);
+                                client.Timeout = TimeSpan.FromSeconds(AppConfig.Instance.RequestTimeoutSeconds);
+                            })
+                            .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
+
+                        services.AddRefitClient<ICategoriesApi>()
+                            .ConfigureHttpClient(client =>
+                            {
+                                client.BaseAddress = new Uri(AppConfig.Instance.ApiBaseUrl);
+                                client.Timeout = TimeSpan.FromSeconds(AppConfig.Instance.RequestTimeoutSeconds);
+                            })
+                            .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
+
+                        services.AddRefitClient<IUsersApi>()
+                            .ConfigureHttpClient(client =>
+                            {
+                                client.BaseAddress = new Uri(AppConfig.Instance.ApiBaseUrl);
+                                client.Timeout = TimeSpan.FromSeconds(AppConfig.Instance.RequestTimeoutSeconds);
+                            })
+                            .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
+
+                        services.AddRefitClient<IProfileApi>()
+                            .ConfigureHttpClient(client =>
+                            {
+                                client.BaseAddress = new Uri(AppConfig.Instance.ApiBaseUrl);
+                                client.Timeout = TimeSpan.FromSeconds(AppConfig.Instance.RequestTimeoutSeconds);
+                            })
+                            .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
+
+                        services.AddRefitClient<ICartApi>()
+                            .ConfigureHttpClient(client =>
+                            {
+                                client.BaseAddress = new Uri(AppConfig.Instance.ApiBaseUrl);
+                                client.Timeout = TimeSpan.FromSeconds(AppConfig.Instance.RequestTimeoutSeconds);
+                            })
+                            .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
+
+                        services.AddRefitClient<IReportsApi>()
+                            .ConfigureHttpClient(client =>
+                            {
+                                client.BaseAddress = new Uri(AppConfig.Instance.ApiBaseUrl);
+                                client.Timeout = TimeSpan.FromSeconds(AppConfig.Instance.RequestTimeoutSeconds);
+                            })
+                            .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
+
+                        services.AddRefitClient<ICommissionApi>()
+                            .ConfigureHttpClient(client =>
+                            {
+                                client.BaseAddress = new Uri(AppConfig.Instance.ApiBaseUrl);
+                                client.Timeout = TimeSpan.FromSeconds(AppConfig.Instance.RequestTimeoutSeconds);
+                            })
+                            .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
 
                         // ===== Storage (Production) =====
                         services.AddSingleton<ISettingsStorage, FileSettingsStorage>();
@@ -105,14 +182,32 @@ namespace MyShop.Client.Config
                         // ===== Repositories (Real - from Plugins) =====
                         services.AddScoped<IAuthRepository, AuthRepository>();
                         services.AddScoped<IDashboardRepository, DashboardRepository>();
-                        // TODO: Add real UserRepository when API is ready
-                        services.AddScoped<IUserRepository, MockUserRepository>(); // Using mock for now
+                        services.AddScoped<IProductRepository, ProductRepository>();
+                        services.AddScoped<IOrderRepository, OrderRepository>();
+                        services.AddScoped<ICategoryRepository, CategoryRepository>();
+                        services.AddScoped<IUserRepository, UserRepository>();
+                        services.AddScoped<IProfileRepository, ProfileRepository>();
+                        services.AddScoped<ICartRepository, CartRepository>();
+                        services.AddScoped<IReportRepository, ReportRepository>();
+                        services.AddScoped<ICommissionRepository, CommissionRepository>();
                     }
 
-                    // ===== Services (from Client.Helpers + Core.Services) =====
-                    services.AddSingleton<INavigationService, NavigationService>();
-                    services.AddTransient<IToastHelper, ToastHelper>();
-                    services.AddSingleton<MyShop.Core.Interfaces.Services.IValidationService, MyShop.Core.Services.ValidationService>();
+                    // ===== Services (from Client.Services) =====
+                    services.AddSingleton<INavigationService, MyShop.Client.Services.NavigationService>();
+                    services.AddTransient<MyShop.Core.Interfaces.Services.IToastService, Services.ToastService>();
+                    services.AddTransient<MyShop.Core.Interfaces.Services.IDialogService, Services.DialogService>();
+                    services.AddSingleton<MyShop.Core.Interfaces.Services.IValidationService, Services.ValidationService>();
+
+                    // ===== MediatR (CQRS) =====
+                    services.AddMediatR(cfg =>
+                    {
+                        cfg.RegisterServicesFromAssembly(typeof(App).Assembly);
+                        // Add validation pipeline behavior
+                        cfg.AddOpenBehavior(typeof(Common.Behaviors.ValidationBehavior<,>));
+                    });
+
+                    // ===== FluentValidation =====
+                    services.AddValidatorsFromAssembly(typeof(App).Assembly);
 
                     // ===== Strategies (from Client.Strategies) =====
                     services.AddSingleton<IRoleStrategy, AdminDashboardStrategy>();
@@ -121,17 +216,38 @@ namespace MyShop.Client.Config
                     services.AddSingleton<IRoleStrategyFactory, RoleStrategyFactory>();
 
                     // ===== ViewModels (Client) =====
-                    services.AddTransient<ViewModels.Auth.LoginViewModel>();
-                    services.AddTransient<ViewModels.Auth.RegisterViewModel>();
-                    services.AddTransient<ViewModels.Dashboard.AdminDashboardViewModel>();
-                    services.AddTransient<ViewModels.Dashboard.CustomerDashboardViewModel>();
-                    services.AddTransient<ViewModels.Dashboard.SalesmanDashboardViewModel>();
-                    services.AddTransient<ViewModels.Product.AdminProductViewModel>();
+                    services.AddTransient<ViewModels.Shared.LoginViewModel>();
+                    services.AddTransient<ViewModels.Shared.RegisterViewModel>();
+                    
+                    // Admin ViewModels
+                    services.AddTransient<ViewModels.Admin.AdminDashboardViewModel>();
+                    services.AddTransient<ViewModels.Admin.AdminProductViewModel>();
+                    services.AddTransient<ViewModels.Admin.AdminUsersViewModel>();
+                    services.AddTransient<ViewModels.Admin.ReportsPageViewModel>();
+                    services.AddTransient<ViewModels.Admin.AdminAgentRequestsViewModel>();
+                    
+                    // Customer ViewModels
+                    services.AddTransient<ViewModels.Customer.CustomerDashboardViewModel>();
+                    
+                    // SalesAgent ViewModels
+                    services.AddTransient<ViewModels.SalesAgent.SalesmanDashboardViewModel>();
+                    services.AddTransient<ViewModels.SalesAgent.EarningsViewModel>();
+                    services.AddTransient<ViewModels.SalesAgent.SalesAgentProductsViewModel>();
+                    services.AddTransient<ViewModels.SalesAgent.SalesAgentReportsViewModel>();
+                    services.AddTransient<ViewModels.SalesAgent.SalesOrdersViewModel>();
+                    
+                    // Shared ViewModels
+                    services.AddTransient<ViewModels.Shared.ProductBrowseViewModel>();
+                    services.AddTransient<ViewModels.Shared.CartViewModel>();
+                    services.AddTransient<ViewModels.Shared.CheckoutViewModel>();
+                    services.AddTransient<ViewModels.Shared.PurchaseOrdersViewModel>();
+                    services.AddTransient<ViewModels.Shared.ProfileViewModel>();
+                    services.AddTransient<ViewModels.Shared.ChangePasswordViewModel>();
+                    
+                    // Shell & Settings
                     services.AddTransient<ViewModels.Shell.DashboardShellViewModel>();
-                    services.AddTransient<ViewModels.Profile.ProfileViewModel>();
-                    services.AddTransient<ViewModels.Profile.ChangePasswordViewModel>();
-                    services.AddTransient<ViewModels.Profile.TrialActivationViewModel>();
                     services.AddTransient<ViewModels.Settings.SettingsViewModel>();
+                    services.AddTransient<ViewModels.Settings.TrialActivationViewModel>();
                 })
                 .Build();
         }
