@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="MyShop.Client.Views.Dialogs.OrderDetailsDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:MyShop.Client.ViewModels.Shared"
+    mc:Ignorable="d"
+    Title="Order Details"
+    PrimaryButtonText="Close"
+    DefaultButton="Primary"
+    Style="{StaticResource DefaultContentDialogStyle}">
+
+    <ContentDialog.Resources>
+        <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="Margin" Value="0,16,0,12"/>
+        </Style>
+    </ContentDialog.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="600">
+        <StackPanel Spacing="24" Padding="8">
+            
+            <!-- Order Header -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="{x:Bind ViewModel.OrderId, Mode=OneWay}" 
+                              FontSize="24" 
+                              FontWeight="Bold"
+                              Foreground="#111827"/>
+                    <TextBlock Text="{x:Bind ViewModel.FormattedOrderDate, Mode=OneWay}" 
+                              FontSize="14" 
+                              Foreground="#6B7280"
+                              Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                       Background="{x:Bind ViewModel.StatusBgColor, Mode=OneWay}"
+                       CornerRadius="8"
+                       Padding="12,6">
+                    <TextBlock Text="{x:Bind ViewModel.Status, Mode=OneWay}"
+                              FontSize="14"
+                              FontWeight="SemiBold"
+                              Foreground="{x:Bind ViewModel.StatusColor, Mode=OneWay}"/>
+                </Border>
+            </Grid>
+
+            <!-- Tracking Information -->
+            <Border Background="#F9FAFB" 
+                   CornerRadius="12" 
+                   Padding="16"
+                   BorderBrush="#E5E7EB"
+                   BorderThickness="1">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Tracking Information" Style="{StaticResource SectionHeaderStyle}" Margin="0"/>
+                    <Grid>
+                        <TextBlock Text="Tracking Number" Foreground="#6B7280" FontSize="14"/>
+                        <TextBlock Text="{x:Bind ViewModel.TrackingNumber, Mode=OneWay}" 
+                                  HorizontalAlignment="Right" 
+                                  FontWeight="SemiBold"
+                                  Foreground="#111827"
+                                  FontSize="14"/>
+                    </Grid>
+                    <Grid>
+                        <TextBlock Text="Delivery Status" Foreground="#6B7280" FontSize="14"/>
+                        <TextBlock Text="{x:Bind ViewModel.DeliveryMessage, Mode=OneWay}" 
+                                  HorizontalAlignment="Right" 
+                                  FontWeight="SemiBold"
+                                  Foreground="#00AEEF"
+                                  FontSize="14"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Order Items -->
+            <StackPanel>
+                <TextBlock Text="Items Ordered" Style="{StaticResource SectionHeaderStyle}"/>
+                
+                <ItemsControl ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:OrderItemViewModel">
+                            <Border Background="White"
+                                   CornerRadius="12"
+                                   BorderBrush="#E5E7EB"
+                                   BorderThickness="1"
+                                   Padding="16"
+                                   Margin="0,0,0,12">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Product Image -->
+                                    <Border Width="80" 
+                                           Height="80" 
+                                           Background="#F9FAFB" 
+                                           CornerRadius="8"
+                                           Margin="0,0,16,0">
+                                        <Image Source="{x:Bind ImageUrl}" 
+                                              Stretch="UniformToFill"/>
+                                    </Border>
+
+                                    <!-- Product Info -->
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{x:Bind ProductName}" 
+                                                  FontSize="16" 
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#111827"/>
+                                        <TextBlock Text="{x:Bind Brand}" 
+                                                  FontSize="12" 
+                                                  Foreground="#6B7280"
+                                                  Margin="0,4,0,0"/>
+                                        <TextBlock FontSize="12" Foreground="#6B7280" Margin="0,4,0,0">
+                                            <Run Text="Quantity:"/>
+                                            <Run Text="{x:Bind Quantity}" FontWeight="SemiBold"/>
+                                        </TextBlock>
+                                    </StackPanel>
+
+                                    <!-- Price -->
+                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                        <TextBlock Text="{x:Bind Price}" 
+                                                  FontSize="18" 
+                                                  FontWeight="Bold"
+                                                  Foreground="#00AEEF"
+                                                  TextAlignment="Right"/>
+                                        <TextBlock Text="per item" 
+                                                  FontSize="11" 
+                                                  Foreground="#9CA3AF"
+                                                  TextAlignment="Right"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+            <!-- Order Summary -->
+            <Border Background="White"
+                   CornerRadius="12"
+                   BorderBrush="#E5E7EB"
+                   BorderThickness="1"
+                   Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Order Summary" Style="{StaticResource SectionHeaderStyle}" Margin="0,0,0,8"/>
+                    
+                    <Grid>
+                        <TextBlock Text="Subtotal" Foreground="#6B7280" FontSize="14"/>
+                        <TextBlock Text="{x:Bind ViewModel.Subtotal, Mode=OneWay}" 
+                                  HorizontalAlignment="Right" 
+                                  Foreground="#111827"
+                                  FontSize="14"/>
+                    </Grid>
+                    
+                    <Grid>
+                        <TextBlock Text="Shipping" Foreground="#6B7280" FontSize="14"/>
+                        <TextBlock Text="{x:Bind ViewModel.Shipping, Mode=OneWay}" 
+                                  HorizontalAlignment="Right" 
+                                  Foreground="#111827"
+                                  FontSize="14"/>
+                    </Grid>
+                    
+                    <Grid>
+                        <TextBlock Text="Tax" Foreground="#6B7280" FontSize="14"/>
+                        <TextBlock Text="{x:Bind ViewModel.Tax, Mode=OneWay}" 
+                                  HorizontalAlignment="Right" 
+                                  Foreground="#111827"
+                                  FontSize="14"/>
+                    </Grid>
+
+                    <Border Height="1" Background="#E5E7EB" Margin="0,8"/>
+
+                    <Grid>
+                        <TextBlock Text="Total" 
+                                  FontSize="18" 
+                                  FontWeight="Bold" 
+                                  Foreground="#111827"/>
+                        <TextBlock Text="{x:Bind ViewModel.Total, Mode=OneWay}" 
+                                  FontSize="20" 
+                                  FontWeight="Bold"
+                                  HorizontalAlignment="Right" 
+                                  Foreground="#00AEEF"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</ContentDialog>
