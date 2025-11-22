@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="MyShop.Client.Views.Components.Cards.ChartCard"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    x:Name="RootControl">
+
+    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            CornerRadius="16"
+            BorderBrush="#E5E7EB"
+            BorderThickness="1"
+            Padding="24">
+        <Border.Shadow>
+            <ThemeShadow/>
+        </Border.Shadow>
+        <Border.Translation>0,0,8</Border.Translation>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header: Title + Menu -->
+            <Grid Grid.Row="0" Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0"
+                           Text="{Binding Title, ElementName=RootControl, Mode=OneWay}"
+                           FontSize="18"
+                           FontWeight="SemiBold"
+                           Foreground="#111827"
+                           VerticalAlignment="Center"/>
+
+                <!-- Menu Button (3 dots) -->
+                <Button Grid.Column="1"
+                        Width="32" Height="32"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        CornerRadius="6"
+                        Visibility="{Binding ShowMenu, ElementName=RootControl, Mode=OneWay}">
+                    <Button.Flyout>
+                        <MenuFlyout x:Name="ChartMenuFlyout" Placement="BottomEdgeAlignedRight">
+                            <!-- Menu items will be populated from MenuItems property -->
+                        </MenuFlyout>
+                    </Button.Flyout>
+                    <FontIcon Glyph="&#xE712;" FontSize="16" Foreground="#6B7280"/>
+                </Button>
+            </Grid>
+
+            <!-- Actions Slot (e.g., Toggle buttons for view switching) -->
+            <ContentPresenter Grid.Row="1"
+                            x:Name="ActionsPresenter"
+                            Content="{Binding Actions, ElementName=RootControl, Mode=OneWay}"
+                            Margin="0,0,0,16"
+                            Visibility="{Binding ShowActions, ElementName=RootControl, Mode=OneWay}"/>
+
+            <!-- Chart Content Slot -->
+            <ContentPresenter Grid.Row="2"
+                            x:Name="ChartPresenter"
+                            Content="{Binding ChartContent, ElementName=RootControl, Mode=OneWay}"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"/>
+        </Grid>
+    </Border>
+</UserControl>

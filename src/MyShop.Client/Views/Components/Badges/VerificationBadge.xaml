@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="MyShop.Client.Views.Components.Badges.VerificationBadge"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Width="16" Height="16">
+        <Grid.Resources>
+            <Storyboard x:Name="PulseAnimation" RepeatBehavior="Forever">
+                <DoubleAnimation
+                    Storyboard.TargetName="UnverifiedBadge"
+                    Storyboard.TargetProperty="Opacity"
+                    From="1.0"
+                    To="0.4"
+                    Duration="0:0:1.5"
+                    AutoReverse="True"
+                    EnableDependentAnimation="True"/>
+            </Storyboard>
+        </Grid.Resources>
+        
+        <!-- Verified Badge (Green Checkmark) -->
+        <Border x:Name="VerifiedBadge"
+                Background="#10B981"
+                CornerRadius="8"
+                BorderBrush="White"
+                BorderThickness="2"
+                Visibility="Collapsed">
+            <FontIcon Glyph="&#xE73E;" 
+                     FontSize="8" 
+                     Foreground="White"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center"/>
+            <ToolTipService.ToolTip>
+                <ToolTip Content="Email verified ✓" />
+            </ToolTipService.ToolTip>
+        </Border>
+
+        <!-- Unverified Badge (Red Exclamation) -->
+        <Border x:Name="UnverifiedBadge"
+                Background="#EF4444"
+                CornerRadius="8"
+                BorderBrush="White"
+                BorderThickness="2"
+                Visibility="Collapsed">
+            <TextBlock Text="!" 
+                      FontSize="10" 
+                      FontWeight="Bold"
+                      Foreground="White"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Margin="0,-1,0,0"/>
+            <ToolTipService.ToolTip>
+                <ToolTip>
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Email not verified" FontWeight="SemiBold"/>
+                        <TextBlock Text="Verify now to unlock all features" 
+                                  FontSize="12" 
+                                  Foreground="#6B7280"
+                                  TextWrapping="Wrap"
+                                  MaxWidth="200"/>
+                    </StackPanel>
+                </ToolTip>
+            </ToolTipService.ToolTip>
+        </Border>
+    </Grid>
+</UserControl>

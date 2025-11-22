@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="MyShop.Client.Views.Components.BecomeAdminBanner"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Border CornerRadius="12"
+            BorderBrush="#93C5FD"
+            BorderThickness="2"
+            Margin="0,0,0,24">
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#1A4D8F" Offset="0"/>
+                <GradientStop Color="#00AEEF" Offset="1"/>
+            </LinearGradientBrush>
+        </Border.Background>
+        
+        <Grid Padding="24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Crown Icon Circle -->
+            <Border Grid.Column="0"
+                    Width="56" Height="56"
+                    Background="#FFFFFF33"
+                    CornerRadius="28"
+                    Margin="0,0,20,0"
+                    VerticalAlignment="Top">
+                <TextBlock Text="👑"
+                          FontSize="28"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"/>
+            </Border>
+
+            <!-- Content -->
+            <StackPanel Grid.Column="1" Spacing="16">
+                <!-- Header -->
+                <StackPanel Spacing="8">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="🎉 You're the first user!"
+                                  FontSize="22"
+                                  FontWeight="Bold"
+                                  Foreground="White"/>
+                        <TextBlock Text="✨"
+                                  FontSize="20"
+                                  VerticalAlignment="Center"/>
+                    </StackPanel>
+                    
+                    <TextBlock Text="This system doesn't have an admin yet. Enter your Activation Code to become the administrator."
+                              FontSize="14"
+                              Foreground="#BEEFFF"
+                              TextWrapping="Wrap"
+                              MaxWidth="600"/>
+                </StackPanel>
+
+                <!-- Input Section -->
+                <StackPanel Spacing="12" MaxWidth="500">
+                    <!-- Activation Code Input -->
+                    <Grid>
+                        <TextBox x:Name="ActivationCodeInput"
+                                PlaceholderText="MYSHOP-ADMIN-2025-XXXXX"
+                                MaxLength="25"
+                                Background="#FFFFFF1A"
+                                BorderBrush="#FFFFFF4D"
+                                BorderThickness="1"
+                                Foreground="White"
+                                CornerRadius="6"
+                                Padding="12,10"
+                                FontFamily="Consolas"
+                                TextChanged="ActivationCodeInput_TextChanged"/>
+                        
+                        <!-- Character Counter -->
+                        <TextBlock x:Name="CharCounterText"
+                                  Text="0/25"
+                                  FontSize="11"
+                                  FontFamily="Consolas"
+                                  Foreground="#BEEFFF"
+                                  HorizontalAlignment="Right"
+                                  VerticalAlignment="Center"
+                                  Margin="0,0,12,0"
+                                  IsHitTestVisible="False"/>
+                    </Grid>
+
+                    <!-- Error Message -->
+                    <TextBlock x:Name="ErrorMessage"
+                              Foreground="#FCA5A5"
+                              FontSize="13"
+                              TextWrapping="Wrap"
+                              Visibility="Collapsed"/>
+
+                    <!-- Become Admin Button -->
+                    <Button x:Name="BecomeAdminButton"
+                            Click="BecomeAdminButton_Click"
+                            Background="White"
+                            Foreground="#1A4D8F"
+                            CornerRadius="6"
+                            Padding="16,10"
+                            HorizontalAlignment="Stretch"
+                            IsEnabled="False">
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                            <TextBlock Text="👑" FontSize="16"/>
+                            <TextBlock x:Name="ButtonText" Text="Become Admin →" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Tooltip Info -->
+                    <Border Background="#FFFFFF1A"
+                            CornerRadius="6"
+                            Padding="12">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="ℹ️" FontSize="14"/>
+                            <TextBlock Text="Where to get activation code?"
+                                      FontSize="12"
+                                      Foreground="#BEEFFF"/>
+                        </StackPanel>
+                        <ToolTipService.ToolTip>
+                            <ToolTip>
+                                <StackPanel Spacing="8" MaxWidth="300">
+                                    <TextBlock Text="Contact your vendor or check your purchase email for the activation code."
+                                              TextWrapping="Wrap"/>
+                                    <Border Background="#FEF3C7" CornerRadius="4" Padding="8">
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="For testing:" FontWeight="SemiBold"/>
+                                            <TextBlock Text="MYSHOP-ADMIN-2025" FontFamily="Consolas" FontWeight="Bold"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </ToolTip>
+                        </ToolTipService.ToolTip>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>
