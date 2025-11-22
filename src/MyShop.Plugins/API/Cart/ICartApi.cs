@@ -1,0 +1,27 @@
+using MyShop.Shared.DTOs.Requests;
+using MyShop.Shared.DTOs.Responses;
+using Refit;
+
+namespace MyShop.Plugins.API.Cart;
+
+/// <summary>
+/// Refit interface for Cart API endpoints
+/// </summary>
+[Headers("User-Agent: MyShop-Client/1.0")]
+public interface ICartApi
+{
+    [Get("/api/v1/cart")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<CartResponse>>> GetMyCartAsync();
+
+    [Post("/api/v1/cart/items")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<CartResponse>>> AddItemAsync([Body] AddToCartRequest request);
+
+    [Put("/api/v1/cart/items/{itemId}")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<CartResponse>>> UpdateItemAsync(Guid itemId, [Body] UpdateCartItemRequest request);
+
+    [Delete("/api/v1/cart/items/{itemId}")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<bool>>> RemoveItemAsync(Guid itemId);
+
+    [Delete("/api/v1/cart/clear")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<bool>>> ClearCartAsync();
+}
