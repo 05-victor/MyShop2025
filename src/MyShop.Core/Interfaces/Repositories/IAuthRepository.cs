@@ -25,7 +25,27 @@ public interface IAuthRepository
     Task<Result<User>> GetCurrentUserAsync();
 
     /// <summary>
+    /// Get current user ID from token/storage
+    /// </summary>
+    Task<Result<Guid>> GetCurrentUserIdAsync();
+
+    /// <summary>
     /// Activate trial account với admin code
     /// </summary>
     Task<Result<User>> ActivateTrialAsync(string adminCode);
+
+    /// <summary>
+    /// Send verification email to user
+    /// </summary>
+    Task<Result<Unit>> SendVerificationEmailAsync(string userId);
+
+    /// <summary>
+    /// Check if user's email is verified
+    /// </summary>
+    Task<Result<bool>> CheckVerificationStatusAsync(string userId);
+
+    /// <summary>
+    /// Verify user's email with verification code
+    /// </summary>
+    Task<Result<Unit>> VerifyEmailAsync(string userId, string verificationCode);
 }
