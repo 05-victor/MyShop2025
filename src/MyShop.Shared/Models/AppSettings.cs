@@ -38,4 +38,11 @@ public class AppSettings
 
     // Offline mode
     public bool EnableOfflineMode { get; set; } = false;
+
+    // Shop information
+    public string? ShopName { get; set; } = "MyShop 2025";
+    public string? Address { get; set; } = string.Empty;
+    
+    // Timezone
+    public int SelectedTimezoneIndex { get; set; } = 0;
 }

@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
-namespace MyShop.Shared.DTOs.Responses
-{
-    /// <summary>
-    /// DTO cho thông tin người dùng
-    /// </summary>
-    public class UserInfoResponse
+namespace MyShop.Shared.DTOs.Responses;
+
+/// <summary>
+/// DTO cho thông tin người dùng
+/// </summary>
+public class UserInfoResponse
     {
         public Guid Id { get; set; }
         public string Username { get; set; } = string.Empty;
@@ -21,7 +21,6 @@ namespace MyShop.Shared.DTOs.Responses
         public string? Avatar { get; set; }
         public string? FullName { get; set; }
         public string? PhoneNumber { get; set; }
-        public string? Address { get; set; }
-        public List<string> RoleNames { get; set; } = new List<string>();
-    }
+    public string? Address { get; set; }
+    public List<string> RoleNames { get; set; } = new List<string>();
 }
