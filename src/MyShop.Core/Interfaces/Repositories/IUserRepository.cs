@@ -11,6 +11,11 @@ namespace MyShop.Core.Interfaces.Repositories;
 public interface IUserRepository
 {
     /// <summary>
+    /// Get all users (for admin management)
+    /// </summary>
+    Task<IEnumerable<User>> GetAllAsync();
+
+    /// <summary>
     /// Update user profile information
     /// </summary>
     /// <param name="request">Profile update data</param>

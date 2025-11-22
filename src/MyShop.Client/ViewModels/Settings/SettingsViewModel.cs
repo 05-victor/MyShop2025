@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MyShop.Client.Helpers;
-using MyShop.Core.Interfaces.Storage;
+using MyShop.Core.Interfaces.Services;
+using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Shared.Models;
 using System;
 using System.Collections.Generic;
@@ -21,7 +21,7 @@ namespace MyShop.Client.ViewModels.Settings;
 public partial class SettingsViewModel : ObservableObject
 {
     private readonly ISettingsStorage _settingsStorage;
-    private readonly IToastHelper _toastHelper;
+    private readonly IToastService _toastHelper;
 
     [ObservableProperty] private bool _isLoading = false;
     [ObservableProperty] private string _errorMessage = string.Empty;
@@ -93,12 +93,36 @@ public partial class SettingsViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
     private bool _enableOfflineMode = false;
 
+    // Shop information settings
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
+    private string _shopName = "MyShop 2025";
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
+    private string _address = string.Empty;
+
+    // Timezone settings
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
+    private int _selectedTimezoneIndex = 0;
+
+    public ObservableCollection<string> TimezoneOptions { get; } = new()
+    {
+        "UTC+7 (Vietnam)",
+        "UTC+8 (Singapore)",
+        "UTC+9 (Japan)",
+        "UTC+0 (GMT)",
+        "UTC-5 (EST)",
+        "UTC-8 (PST)"
+    };
+
     // Track if settings changed
     private AppSettings? _originalSettings;
 
     public SettingsViewModel(
         ISettingsStorage settingsStorage,
-        IToastHelper toastHelper)
+        IToastService toastHelper)
     {
         _settingsStorage = settingsStorage;
         _toastHelper = toastHelper;
@@ -225,6 +249,9 @@ public partial class SettingsViewModel : ObservableObject
             NotifyOnLowStock = settings.NotifyOnLowStock;
             NotifyOnNewOrders = settings.NotifyOnNewOrders;
             EnableOfflineMode = settings.EnableOfflineMode;
+            ShopName = settings.ShopName ?? "MyShop 2025";
+            Address = settings.Address ?? string.Empty;
+            SelectedTimezoneIndex = settings.SelectedTimezoneIndex;
 
             // Store original for change detection
             _originalSettings = settings;
@@ -265,7 +292,10 @@ public partial class SettingsViewModel : ObservableObject
                 EnableSoundNotifications = EnableSoundNotifications,
                 NotifyOnLowStock = NotifyOnLowStock,
                 NotifyOnNewOrders = NotifyOnNewOrders,
-                EnableOfflineMode = EnableOfflineMode
+                EnableOfflineMode = EnableOfflineMode,
+                ShopName = ShopName,
+                Address = Address,
+                SelectedTimezoneIndex = SelectedTimezoneIndex
             };
 
             await _settingsStorage.SaveAsync(settings);
@@ -275,9 +305,8 @@ public partial class SettingsViewModel : ObservableObject
 
             _toastHelper.ShowSuccess("Settings saved successfully!");
             
-            // TODO: Apply theme and language immediately
-            // await _themeService.ApplyAsync(Theme);
-            // await _localizationService.ApplyAsync(Language);
+            // Apply theme and language immediately
+            ApplyThemeAndLanguage();
 
             System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Saved: Theme={Theme}, Language={Language}");
         }
@@ -340,6 +369,47 @@ public partial class SettingsViewModel : ObservableObject
                EnableSoundNotifications != _originalSettings.EnableSoundNotifications ||
                NotifyOnLowStock != _originalSettings.NotifyOnLowStock ||
                NotifyOnNewOrders != _originalSettings.NotifyOnNewOrders ||
-               EnableOfflineMode != _originalSettings.EnableOfflineMode;
+               EnableOfflineMode != _originalSettings.EnableOfflineMode ||
+               ShopName != _originalSettings.ShopName ||
+               Address != _originalSettings.Address ||
+               SelectedTimezoneIndex != _originalSettings.SelectedTimezoneIndex;
+    }
+
+    /// <summary>
+    /// Apply theme and language settings immediately
+    /// </summary>
+    private void ApplyThemeAndLanguage()
+    {
+        try
+        {
+            // Apply theme
+            if (App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement root)
+            {
+                var requestedTheme = Theme.ToLower() switch
+                {
+                    "light" => Microsoft.UI.Xaml.ElementTheme.Light,
+                    "dark" => Microsoft.UI.Xaml.ElementTheme.Dark,
+                    _ => Microsoft.UI.Xaml.ElementTheme.Default
+                };
+
+                root.RequestedTheme = requestedTheme;
+                System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Applied theme: {requestedTheme}");
+            }
+
+            // Apply language (requires app restart for full effect)
+            // For immediate effect on current page, you would need to:
+            // 1. Update resource dictionaries
+            // 2. Re-bind all text elements
+            // For simplicity, show a notification that language will apply on restart
+            if (Language != _originalSettings?.Language)
+            {
+                System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Language changed to: {Language}");
+                _toastHelper.ShowInfo("Language changes will take effect after app restart.");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] ApplyThemeAndLanguage error: {ex.Message}");
+        }
     }
 }

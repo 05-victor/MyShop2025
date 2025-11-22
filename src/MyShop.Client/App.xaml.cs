@@ -1,16 +1,18 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
 using MyShop.Client.Config;
 using MyShop.Client.Helpers;
-using MyShop.Client.Views.Auth;
+using MyShop.Client.Views.Shared;
 using System;
 using System.Threading.Tasks;
 
 // ===== NEW NAMESPACES - After Refactor =====
 using MyShop.Core.Interfaces.Repositories;
-using MyShop.Core.Interfaces.Storage;
+using MyShop.Core.Interfaces.Services;
+using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Client.Strategies;
+using MyShop.Client.Services;
 
 namespace MyShop.Client
 {
@@ -33,9 +35,46 @@ namespace MyShop.Client
 
         private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
         {
-            AppLogger.Separator("UNHANDLED EXCEPTION");
-            AppLogger.Error("Unhandled exception caught by global handler", e.Exception);
-            AppLogger.Separator();
+            // CRITICAL: Log exception details BEFORE debugger break
+            // WinRT properties can't be evaluated in debugger, must log in-process
+            try
+            {
+                var exceptionMessage = e.Message ?? "No message";
+                var exception = e.Exception;
+                var exceptionType = exception?.GetType().FullName ?? "Unknown";
+                var innerException = exception?.InnerException;
+                
+                System.Diagnostics.Debug.WriteLine("═══════════════════════════════════════════════════════");
+                System.Diagnostics.Debug.WriteLine("❌ [ERROR] [App.xaml.App_UnhandledException] Unhandled exception caught by global handler");
+                System.Diagnostics.Debug.WriteLine($"   Exception: {exceptionType}");
+                System.Diagnostics.Debug.WriteLine($"   Message: {exceptionMessage}");
+                System.Diagnostics.Debug.WriteLine($"   HRESULT: {exception?.HResult:X8}");
+                
+                if (exception != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"   Stack Trace:");
+                    System.Diagnostics.Debug.WriteLine($"{exception.StackTrace}");
+                }
+                
+                if (innerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"   Inner Exception: {innerException.GetType().FullName}");
+                    System.Diagnostics.Debug.WriteLine($"   Inner Message: {innerException.Message}");
+                    System.Diagnostics.Debug.WriteLine($"   Inner Stack:");
+                    System.Diagnostics.Debug.WriteLine($"{innerException.StackTrace}");
+                }
+                
+                System.Diagnostics.Debug.WriteLine("═══════════════════════════════════════════════════════");
+                
+                // Also log via AppLogger for file output
+                AppLogger.Separator("UNHANDLED EXCEPTION");
+                AppLogger.Error("Unhandled exception caught by global handler", e.Exception);
+                AppLogger.Separator();
+            }
+            catch (Exception logEx)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to log exception: {logEx.Message}");
+            }
             
             // Mark as handled to prevent app crash during debugging
             e.Handled = true;
@@ -61,7 +100,18 @@ namespace MyShop.Client
 
                 AppLogger.Info("Initializing NavigationService...");
                 var navigationService = Services.GetRequiredService<INavigationService>();
-                navigationService.Initialize(MainWindow.RootFrame);
+                
+                // Cast to concrete type to call Initialize (WinUI-specific method)
+                if (navigationService is NavigationService navService)
+                {
+                    navService.Initialize(MainWindow.RootFrame);
+                    AppLogger.Success("NavigationService initialized with Frame");
+                }
+                else
+                {
+                    throw new InvalidOperationException("NavigationService implementation must be NavigationService class");
+                }
+                
                 AppLogger.Success("NavigationService ready");
 
                 AppLogger.Info("Checking for saved credentials...");
@@ -91,7 +141,7 @@ namespace MyShop.Client
                             var pageType = strategy.GetDashboardPageType();
                             
                             AppLogger.Navigation("Startup", pageType.Name, user);
-                            navigationService.NavigateTo(pageType, user);
+                            navigationService.NavigateTo(pageType.FullName!, user);
                             AppLogger.Success("Dashboard loaded");
                             isLoggedIn = true;
                         }
@@ -115,7 +165,7 @@ namespace MyShop.Client
                 if (!isLoggedIn)
                 {
                     AppLogger.Navigation("Startup", "LoginPage");
-                    navigationService.NavigateTo(typeof(LoginPage));
+                    navigationService.NavigateTo(typeof(LoginPage).FullName!);
                 }
 
                 AppLogger.Info("Activating MainWindow...");

@@ -14,6 +14,7 @@ public sealed partial class LoadingOverlay : UserControl
     public LoadingOverlay()
     {
         InitializeComponent();
+        this.Loaded += LoadingOverlay_Loaded;
     }
 
     public static readonly DependencyProperty IsLoadingProperty =
@@ -21,7 +22,7 @@ public sealed partial class LoadingOverlay : UserControl
             nameof(IsLoading),
             typeof(bool),
             typeof(LoadingOverlay),
-            new PropertyMetadata(false));
+            new PropertyMetadata(false, OnIsLoadingChanged));
 
     public bool IsLoading
     {
@@ -40,5 +41,34 @@ public sealed partial class LoadingOverlay : UserControl
     {
         get => (string)GetValue(MessageProperty);
         set => SetValue(MessageProperty, value);
+    }
+
+    public static readonly DependencyProperty ShowSubMessageProperty =
+        DependencyProperty.Register(
+            nameof(ShowSubMessage),
+            typeof(Visibility),
+            typeof(LoadingOverlay),
+            new PropertyMetadata(Visibility.Collapsed));
+
+    public Visibility ShowSubMessage
+    {
+        get => (Visibility)GetValue(ShowSubMessageProperty);
+        set => SetValue(ShowSubMessageProperty, value);
+    }
+
+    private void LoadingOverlay_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (IsLoading)
+        {
+            FadeInAnimation.Begin();
+        }
+    }
+
+    private static void OnIsLoadingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is LoadingOverlay overlay && e.NewValue is bool isLoading && isLoading)
+        {
+            overlay.FadeInAnimation.Begin();
+        }
     }
 }

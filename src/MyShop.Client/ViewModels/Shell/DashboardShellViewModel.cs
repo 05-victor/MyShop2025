@@ -1,11 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyShop.Shared.Models;
 using MyShop.Client.ViewModels.Base;
-using MyShop.Client.Helpers;
-using MyShop.Core.Interfaces.Storage;
 using MyShop.Core.Interfaces.Services;
-using MyShop.Client.Views.Auth;
+using MyShop.Core.Interfaces.Infrastructure;
+using MyShop.Client.Views.Shared;
 using System;
 
 namespace MyShop.Client.ViewModels.Shell
@@ -13,7 +12,7 @@ namespace MyShop.Client.ViewModels.Shell
     public partial class DashboardShellViewModel : BaseViewModel
     {
         private readonly INavigationService _navigationService;
-        private readonly IToastHelper _toastHelper;
+        private readonly IToastService _toastHelper;
         private readonly ICredentialStorage _credentialStorage;
 
         // Thông tin user hiện tại để hiển thị ở PaneHeader / PaneFooter
@@ -25,7 +24,7 @@ namespace MyShop.Client.ViewModels.Shell
 
         public DashboardShellViewModel(
             INavigationService navigationService,
-            IToastHelper toastHelper,
+            IToastService toastHelper,
             ICredentialStorage credentialStorage)
         {
             _navigationService = navigationService;
@@ -49,50 +48,10 @@ namespace MyShop.Client.ViewModels.Shell
         {
             _credentialStorage.RemoveToken();
             _toastHelper.ShowInfo("You have been logged out");
-            _navigationService.NavigateTo(typeof(LoginPage));
+            _navigationService.NavigateTo(typeof(LoginPage).FullName!);
         }
 
-        [RelayCommand]
-        private void NavigateToProducts()
-        {
-            _toastHelper.ShowInfo("Products management coming soon!");
-             //Sau này có thể đổi thành: _navigationService.NavigateTo(typeof(ProductsPage));
-        }
-
-        [RelayCommand]
-        private void NavigateToOrders()
-        {
-            _toastHelper.ShowInfo("Orders management coming soon!");
-        }
-
-        [RelayCommand]
-        private void NavigateToReports()
-        {
-            _toastHelper.ShowInfo("Reports coming soon!");
-        }
-
-        [RelayCommand]
-        private void NavigateToSettings()
-        {
-            _toastHelper.ShowInfo("Settings coming soon!");
-        }
-
-        [RelayCommand]
-        private void NavigateToProfile()
-        {
-            _toastHelper.ShowInfo("Profile page coming soon!");
-        }
-
-        [RelayCommand]
-        private void NavigateToUsers()
-        {
-            _toastHelper.ShowInfo("Users page coming soon!");
-        }
-
-        [RelayCommand]
-        private void NavigateToAgentRequests()
-        {
-            _toastHelper.ShowInfo("Agent Requests page coming soon!");
-        }
+        // Navigation commands removed - Shell handles navigation directly
+        // These were causing redundant navigation logic
     }
 }

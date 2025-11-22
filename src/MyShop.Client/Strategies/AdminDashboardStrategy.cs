@@ -10,14 +10,8 @@ public class AdminDashboardStrategy : IRoleStrategy
 {
     public UserRole Role => UserRole.Admin;
 
-    //public Type GetDashboardPageType()
-    //{
-    //    // Reference tới Client Views (vì Strategies vẫn cần biết Page types)
-    //    return typeof(MyShop.Client.Views.Dashboard.AdminDashboardPage);
-    //}
-
     public Type GetDashboardPageType()
-    => typeof(DashboardShellPage);
+    => typeof(AdminDashboardShell);
 
     public bool CanAccessFeature(string featureName)
     {

@@ -1,11 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MyShop.Client.Helpers;
+using MyShop.Core.Interfaces.Services;
 using MyShop.Core.Interfaces.Repositories;
 using System;
 using System.Threading.Tasks;
 
-namespace MyShop.Client.ViewModels.Profile;
+namespace MyShop.Client.ViewModels.Settings;
 
 /// <summary>
 /// ViewModel for Trial Activation dialog
@@ -14,7 +14,7 @@ namespace MyShop.Client.ViewModels.Profile;
 public partial class TrialActivationViewModel : ObservableObject
 {
     private readonly IAuthRepository _authRepository;
-    private readonly IToastHelper _toastHelper;
+    private readonly IToastService _toastHelper;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsFormValid))]
@@ -33,6 +33,7 @@ public partial class TrialActivationViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanActivate))]
     [NotifyPropertyChangedFor(nameof(CanSubmit))]
+    [NotifyPropertyChangedFor(nameof(HasError))]
     private string _errorMessage = string.Empty;
     
     [ObservableProperty]
@@ -41,6 +42,8 @@ public partial class TrialActivationViewModel : ObservableObject
     private bool _isLoading = false;
     
     [ObservableProperty] private bool _isSuccess = false;
+
+    public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
 
     public bool IsFormValid =>
         !string.IsNullOrWhiteSpace(AdminCode);
@@ -51,7 +54,7 @@ public partial class TrialActivationViewModel : ObservableObject
 
     public TrialActivationViewModel(
         IAuthRepository authRepository,
-        IToastHelper toastHelper)
+        IToastService toastHelper)
     {
         _authRepository = authRepository;
         _toastHelper = toastHelper;

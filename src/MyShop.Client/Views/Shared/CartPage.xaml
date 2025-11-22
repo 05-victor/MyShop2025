@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="MyShop.Client.Views.Shared.CartPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:MyShop.Client.ViewModels.Shared"
+    xmlns:converters="using:MyShop.Client.Common.Converters"
+    mc:Ignorable="d"
+    Background="#F8FAFC">
+
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:StringFormatConverter x:Key="StringFormatConverter"/>
+        <x:String x:Key="CurrencyFormat">{0:N0} ₫</x:String>
+        
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="16"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Padding="32" Spacing="24" MaxWidth="1200">
+                
+                <!-- Header -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Horizontal" Spacing="16">
+                        <Button Padding="12,8" 
+                               Background="White"
+                               BorderBrush="#E5E7EB"
+                               CornerRadius="8"
+                               Command="{x:Bind ViewModel.ContinueShoppingCommand}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE72B;" FontSize="16"/>
+                                <TextBlock Text="Continue Shopping"/>
+                            </StackPanel>
+                        </Button>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Shopping Cart" 
+                                      FontSize="28" 
+                                      FontWeight="SemiBold"
+                                      Foreground="#111827"/>
+                            <TextBlock Text="{x:Bind ViewModel.ItemCount, Mode=OneWay}" 
+                                      FontSize="14" 
+                                      Foreground="#6B7280"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Button Grid.Column="1"
+                           Content="Clear Cart"
+                           Padding="12,8"
+                           Background="Transparent"
+                           BorderBrush="#E5E7EB"
+                           Foreground="#DC2626"
+                           CornerRadius="8"
+                           Command="{x:Bind ViewModel.ClearCartCommand}"/>
+                </Grid>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Cart Items List -->
+                    <StackPanel Grid.Column="0" Spacing="16" Margin="0,0,16,0">
+                        
+                        <!-- Empty Cart Message -->
+                        <Border Style="{StaticResource CardStyle}" 
+                               Padding="48" 
+                               Visibility="{x:Bind ViewModel.IsEmpty, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <StackPanel Spacing="16" HorizontalAlignment="Center">
+                                <FontIcon Glyph="&#xE7BF;" FontSize="64" Foreground="#D1D5DB"/>
+                                <TextBlock Text="Your cart is empty" 
+                                          FontSize="18" 
+                                          FontWeight="SemiBold" 
+                                          Foreground="#6B7280" 
+                                          TextAlignment="Center"/>
+                                <TextBlock Text="Add items to your cart to get started" 
+                                          FontSize="14" 
+                                          Foreground="#9CA3AF" 
+                                          TextAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Cart Items List -->
+                        <ItemsControl x:Name="CartItemsControl" ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CartItemViewModel">
+                                    <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Product Image -->
+                                            <Border Width="96" 
+                                                   Height="96" 
+                                                   Background="#F9FAFB" 
+                                                   CornerRadius="8"
+                                                   Margin="0,0,16,0">
+                                                <Image Source="{x:Bind ImageUrl}" 
+                                                      Stretch="UniformToFill"/>
+                                            </Border>
+
+                                            <!-- Product Info -->
+                                            <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Top">
+                                                <TextBlock Text="{x:Bind Name}" 
+                                                          FontSize="16" 
+                                                          FontWeight="SemiBold"
+                                                          Foreground="#111827"/>
+                                                <TextBlock Text="{x:Bind Category}" 
+                                                          FontSize="12" 
+                                                          Foreground="#6B7280"/>
+
+                                                <!-- Quantity Controls -->
+                                                <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
+                                                    <Button Width="32" Height="32" Padding="0"
+                                                           Background="White" BorderBrush="#E5E7EB" CornerRadius="8"
+                                                           Command="{Binding ElementName=CartItemsControl, Path=DataContext.DecreaseQuantityCommand}"
+                                                           CommandParameter="{x:Bind}">
+                                                        <FontIcon Glyph="&#xE738;" FontSize="12"/>
+                                                    </Button>
+                                                    <Border BorderBrush="#E5E7EB" BorderThickness="1" 
+                                                           CornerRadius="8" Padding="12,6" Width="60">
+                                                        <TextBlock Text="{x:Bind Quantity, Mode=OneWay}" 
+                                                                  TextAlignment="Center" 
+                                                                  Foreground="#111827"/>
+                                                    </Border>
+                                                    <Button Width="32" Height="32" Padding="0"
+                                                           Background="#00AEEF" Foreground="White" CornerRadius="8"
+                                                           Command="{Binding ElementName=CartItemsControl, Path=DataContext.IncreaseQuantityCommand}"
+                                                           CommandParameter="{x:Bind}">
+                                                        <FontIcon Glyph="&#xE710;" FontSize="12"/>
+                                                    </Button>
+                                                    <Button Padding="8" Background="Transparent" 
+                                                           BorderBrush="Transparent" Margin="12,0,0,0"
+                                                           Command="{Binding ElementName=CartItemsControl, Path=DataContext.RemoveItemCommand}"
+                                                           CommandParameter="{x:Bind}">
+                                                        <FontIcon Glyph="&#xE74D;" FontSize="16" Foreground="#DC2626"/>
+                                                    </Button>
+                                                </StackPanel>
+                                            </StackPanel>
+
+                                            <!-- Price -->
+                                            <StackPanel Grid.Column="2" VerticalAlignment="Top" HorizontalAlignment="Right">
+                                                <TextBlock Text="{x:Bind Price, Converter={StaticResource StringFormatConverter}, ConverterParameter={StaticResource CurrencyFormat}}" 
+                                                          FontSize="20" 
+                                                          FontWeight="Bold"
+                                                          Foreground="#111827" 
+                                                          TextAlignment="Right"/>
+                                                <TextBlock Text="each" FontSize="12" Foreground="#6B7280" TextAlignment="Right"/>
+                                                <TextBlock Text="{x:Bind Total, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter={StaticResource CurrencyFormat}}" 
+                                                          FontSize="14" 
+                                                          FontWeight="SemiBold"
+                                                          Foreground="#00AEEF" 
+                                                          Margin="0,8,0,0" 
+                                                          TextAlignment="Right"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- Order Summary Card -->
+                    <Border Grid.Column="1" Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="16">
+                            <TextBlock Text="Order Summary" FontSize="18" FontWeight="SemiBold" Foreground="#111827"/>
+
+                            <StackPanel Spacing="12">
+                                <Grid>
+                                    <TextBlock Text="Subtotal" Foreground="#6B7280"/>
+                                    <TextBlock Text="{x:Bind ViewModel.Subtotal, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter={StaticResource CurrencyFormat}}" 
+                                              HorizontalAlignment="Right" 
+                                              Foreground="#111827"/>
+                                </Grid>
+                                <Grid>
+                                    <TextBlock Text="Shipping" Foreground="#6B7280"/>
+                                    <TextBlock Text="{x:Bind ViewModel.ShippingFee, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter={StaticResource CurrencyFormat}}" 
+                                              HorizontalAlignment="Right" 
+                                              Foreground="#111827"/>
+                                </Grid>
+                                <Grid>
+                                    <TextBlock Text="Tax (10%)" Foreground="#6B7280"/>
+                                    <TextBlock Text="{x:Bind ViewModel.Tax, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter={StaticResource CurrencyFormat}}" 
+                                              HorizontalAlignment="Right" 
+                                              Foreground="#111827"/>
+                                </Grid>
+
+                                <Border Height="1" Background="#E5E7EB" Margin="0,8"/>
+
+                                <Grid>
+                                    <TextBlock Text="Total" FontSize="18" FontWeight="SemiBold" Foreground="#111827"/>
+                                    <TextBlock Text="{x:Bind ViewModel.Total, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter={StaticResource CurrencyFormat}}" 
+                                              FontSize="20" 
+                                              FontWeight="Bold"
+                                              HorizontalAlignment="Right" 
+                                              Foreground="#00AEEF"/>
+                                </Grid>
+                            </StackPanel>
+
+                            <Button Content="Proceed to Checkout"
+                                   Background="#00AEEF"
+                                   Foreground="White"
+                                   Padding="16"
+                                   CornerRadius="8"
+                                   HorizontalAlignment="Stretch"
+                                   Margin="0,16,0,0"
+                                   Command="{x:Bind ViewModel.ProceedToCheckoutCommand}"/>
+
+                            <HyperlinkButton Content="Continue Shopping"
+                                            HorizontalAlignment="Center"
+                                            Foreground="#6B7280"
+                                            Command="{x:Bind ViewModel.ContinueShoppingCommand}"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

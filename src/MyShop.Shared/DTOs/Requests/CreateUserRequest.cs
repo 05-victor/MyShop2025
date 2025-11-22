@@ -1,13 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyShop.Shared.DTOs.Requests
-{
-    public class CreateUserRequest
+namespace MyShop.Shared.DTOs.Requests;
+
+public class CreateUserRequest
     {
         [Required(ErrorMessage = "Tên đăng nhập không được để trống")]
         [MaxLength(100, ErrorMessage = "Tên đăng nhập không được vượt quá 100 ký tự")]
@@ -27,10 +27,9 @@ namespace MyShop.Shared.DTOs.Requests
 
         public bool ActivateTrial { get; set; } = false;
         
-        /// <summary>
-        /// List of role names to assign to the user during registration.
-        /// If empty or null, no roles will be assigned.
-        /// </summary>
-        public List<string> RoleNames { get; set; } = new List<string>();
-    }
+    /// <summary>
+    /// List of role names to assign to the user during registration.
+    /// If empty or null, no roles will be assigned.
+    /// </summary>
+    public List<string> RoleNames { get; set; } = new List<string>();
 }

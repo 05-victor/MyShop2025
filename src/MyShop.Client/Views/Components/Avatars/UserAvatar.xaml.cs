@@ -103,6 +103,32 @@ public sealed partial class UserAvatar : UserControl
         set => SetValue(StatusProperty, value);
     }
 
+    public static readonly DependencyProperty IsEmailVerifiedProperty =
+        DependencyProperty.Register(
+            nameof(IsEmailVerified),
+            typeof(bool),
+            typeof(UserAvatar),
+            new PropertyMetadata(false));
+
+    public bool IsEmailVerified
+    {
+        get => (bool)GetValue(IsEmailVerifiedProperty);
+        set => SetValue(IsEmailVerifiedProperty, value);
+    }
+
+    public static readonly DependencyProperty ShowVerificationBadgeProperty =
+        DependencyProperty.Register(
+            nameof(ShowVerificationBadge),
+            typeof(bool),
+            typeof(UserAvatar),
+            new PropertyMetadata(false));
+
+    public bool ShowVerificationBadge
+    {
+        get => (bool)GetValue(ShowVerificationBadgeProperty);
+        set => SetValue(ShowVerificationBadgeProperty, value);
+    }
+
     private static void OnDisplayNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is UserAvatar avatar && !string.IsNullOrEmpty(avatar.DisplayName))
@@ -138,6 +164,9 @@ public sealed partial class UserAvatar : UserControl
 
     private void UpdateAvatarSize()
     {
+        if (AvatarContainer == null || AvatarImage == null)
+            return;
+
         var size = Size switch
         {
             AvatarSize.XSmall => 24.0,
@@ -156,6 +185,9 @@ public sealed partial class UserAvatar : UserControl
 
     private void UpdateStatusIndicator()
     {
+        if (StatusIndicator == null)
+            return;
+
         if (Status == UserStatus.None)
         {
             StatusIndicator.Visibility = Visibility.Collapsed;

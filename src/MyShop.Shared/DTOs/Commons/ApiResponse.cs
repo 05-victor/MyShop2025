@@ -1,4 +1,4 @@
-﻿namespace MyShop.Shared.DTOs.Common;
+namespace MyShop.Shared.DTOs.Common;
 
 /// <summary>
 /// Standard API response wrapper for all endpoints

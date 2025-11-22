@@ -5,30 +5,66 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              d:DesignHeight="300"
-             d:DesignWidth="400">
+             d:DesignWidth="400"
+             x:Name="RootControl">
+
+    <UserControl.Resources>
+        <!-- Fade-in animation -->
+        <Storyboard x:Name="FadeInAnimation">
+            <DoubleAnimation Storyboard.TargetName="RootGrid"
+                           Storyboard.TargetProperty="Opacity"
+                           From="0" To="1" Duration="0:0:0.3">
+                <DoubleAnimation.EasingFunction>
+                    <CubicEase EasingMode="EaseOut"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+    </UserControl.Resources>
 
     <!-- Note: Converters are already merged in App.xaml -> Generic.xaml -->
     <!-- No need to merge them again here to avoid circular dependency -->
 
-    <Grid Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}"
-          Visibility="{x:Bind IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+    <Grid x:Name="RootGrid"
+          Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}"
+          Visibility="{Binding IsLoading, ElementName=RootControl, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
         
         <StackPanel HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    Spacing="16">
+                    Spacing="20">
             
-            <!-- Loading Spinner -->
-            <ProgressRing Width="48"
-                          Height="48"
-                          IsActive="{x:Bind IsLoading, Mode=OneWay}"
-                          Foreground="{StaticResource SecondaryBlueBrush}"/>
+            <!-- Animated Spinner Container -->
+            <Grid Width="64" Height="64">
+                <!-- Outer Ring (Accent) -->
+                <Ellipse Width="64" Height="64"
+                        Stroke="#00AEEF"
+                        StrokeThickness="4"
+                        Opacity="0.2"/>
+                
+                <!-- Spinning Progress Ring -->
+                <ProgressRing Width="56"
+                            Height="56"
+                            IsActive="{Binding IsLoading, ElementName=RootControl, Mode=OneWay}"
+                            Foreground="#00AEEF"/>
+            </Grid>
             
-            <!-- Loading Message -->
-            <TextBlock Text="{x:Bind Message, Mode=OneWay}"
-                       Style="{StaticResource BodyStrongTextBlockStyle}"
-                       Foreground="{StaticResource TextPrimaryBrush}"
+            <!-- Loading Message with subtle animation -->
+            <TextBlock Text="{Binding Message, ElementName=RootControl, Mode=OneWay}"
+                       FontSize="16"
+                       FontWeight="SemiBold"
+                       Foreground="#111827"
                        HorizontalAlignment="Center"
-                       Visibility="{x:Bind Message, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                       Visibility="{Binding Message, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}">
+                <TextBlock.RenderTransform>
+                    <TranslateTransform x:Name="MessageTransform" Y="0"/>
+                </TextBlock.RenderTransform>
+            </TextBlock>
+            
+            <!-- Sub-message (optional) -->
+            <TextBlock Text="Please wait..."
+                       FontSize="13"
+                       Foreground="#6B7280"
+                       HorizontalAlignment="Center"
+                       Visibility="{Binding ShowSubMessage, ElementName=RootControl, Mode=OneWay}"/>
             
         </StackPanel>
     </Grid>

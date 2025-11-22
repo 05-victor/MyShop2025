@@ -40,6 +40,22 @@
                     HorizontalAlignment="Center"
                     Spacing="4">
             
+            <!-- First Page Button -->
+            <Button x:Name="FirstButton"
+                    Content="&#xE892;"
+                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                    Width="36"
+                    Height="36"
+                    Click="OnFirstClick"
+                    ToolTipService.ToolTip="First Page">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderBrush" Value="{StaticResource BorderDefaultBrush}"/>
+                    </Style>
+                </Button.Style>
+            </Button>
+            
             <!-- Previous Button -->
             <Button x:Name="PrevButton"
                     Content="&#xE76B;"
@@ -89,6 +105,22 @@
                     Height="36"
                     Click="OnNextClick"
                     ToolTipService.ToolTip="Next Page">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderBrush" Value="{StaticResource BorderDefaultBrush}"/>
+                    </Style>
+                </Button.Style>
+            </Button>
+            
+            <!-- Last Page Button -->
+            <Button x:Name="LastButton"
+                    Content="&#xE893;"
+                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                    Width="36"
+                    Height="36"
+                    Click="OnLastClick"
+                    ToolTipService.ToolTip="Last Page">
                 <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
                         <Setter Property="Background" Value="Transparent"/>
