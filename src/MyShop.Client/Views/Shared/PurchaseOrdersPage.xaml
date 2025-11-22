@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="MyShop.Client.Views.Shared.PurchaseOrdersPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="#F8FAFC">
+
+    <Page.Resources>
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="24"/>
+        </Style>
+
+        <Style x:Key="StatCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="16"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Padding="32" Spacing="24">
+
+                <!-- Header -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="My Orders" FontSize="28" FontWeight="SemiBold" Foreground="#111827"/>
+                    <TextBlock Text="Track and manage your orders" FontSize="14" Foreground="#6B7280"/>
+                </StackPanel>
+
+                <!-- Order Stats -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Total Orders -->
+                    <Border Grid.Column="0" Style="{StaticResource StatCardStyle}" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Border Width="40" Height="40" Background="#EEF2FF" CornerRadius="8">
+                                <FontIcon Glyph="&#xF133;" FontSize="20" Foreground="#2563EB" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel>
+                                <TextBlock Text="Total Orders" FontSize="12" Foreground="#6B7280"/>
+                                <TextBlock Text="24" FontSize="18" FontWeight="SemiBold" Foreground="#111827"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Pending -->
+                    <Border Grid.Column="1" Style="{StaticResource StatCardStyle}" Margin="4,0">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Border Width="40" Height="40" Background="#F3F4F6" CornerRadius="8">
+                                <FontIcon Glyph="&#xE121;" FontSize="20" Foreground="#6B7280" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel>
+                                <TextBlock Text="Pending" FontSize="12" Foreground="#6B7280"/>
+                                <TextBlock Text="3" FontSize="18" FontWeight="SemiBold" Foreground="#111827"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- In Transit -->
+                    <Border Grid.Column="2" Style="{StaticResource StatCardStyle}" Margin="4,0">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Border Width="40" Height="40" Background="#DBEAFE" CornerRadius="8">
+                                <FontIcon Glyph="&#xE916;" FontSize="20" Foreground="#00AEEF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel>
+                                <TextBlock Text="In Transit" FontSize="12" Foreground="#6B7280"/>
+                                <TextBlock Text="5" FontSize="18" FontWeight="SemiBold" Foreground="#111827"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Delivered -->
+                    <Border Grid.Column="3" Style="{StaticResource StatCardStyle}" Margin="4,0">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Border Width="40" Height="40" Background="#D1FAE5" CornerRadius="8">
+                                <FontIcon Glyph="&#xE73E;" FontSize="20" Foreground="#10B981" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel>
+                                <TextBlock Text="Delivered" FontSize="12" Foreground="#6B7280"/>
+                                <TextBlock Text="15" FontSize="18" FontWeight="SemiBold" Foreground="#111827"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Total Spent -->
+                    <Border Grid.Column="4" Style="{StaticResource StatCardStyle}" Margin="8,0,0,0">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Border Width="40" Height="40" Background="#FEF3C7" CornerRadius="8">
+                                <FontIcon Glyph="&#xE8C7;" FontSize="20" Foreground="#F59E0B" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel>
+                                <TextBlock Text="Total Spent" FontSize="12" Foreground="#6B7280"/>
+                                <TextBlock Text="$8,542" FontSize="18" FontWeight="SemiBold" Foreground="#111827"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Filters -->
+                <Border Style="{StaticResource CardStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Content="All (24)" Padding="12,8" Background="#2563EB" Foreground="White" CornerRadius="8"/>
+                            <Button Content="Pending (3)" Padding="12,8" Background="Transparent" BorderBrush="#E5E7EB" Foreground="#6B7280" CornerRadius="8"/>
+                            <Button Content="Processing (1)" Padding="12,8" Background="Transparent" BorderBrush="#E5E7EB" Foreground="#6B7280" CornerRadius="8"/>
+                            <Button Content="Shipped (5)" Padding="12,8" Background="Transparent" BorderBrush="#E5E7EB" Foreground="#6B7280" CornerRadius="8"/>
+                            <Button Content="Delivered (15)" Padding="12,8" Background="Transparent" BorderBrush="#E5E7EB" Foreground="#6B7280" CornerRadius="8"/>
+                        </StackPanel>
+
+                        <ComboBox Grid.Column="1" Width="200" PlaceholderText="Sort by" BorderBrush="#E5E7EB">
+                            <ComboBoxItem Content="Newest First" IsSelected="True"/>
+                            <ComboBoxItem Content="Oldest First"/>
+                            <ComboBoxItem Content="Highest Amount"/>
+                            <ComboBoxItem Content="Lowest Amount"/>
+                        </ComboBox>
+                    </Grid>
+                </Border>
+
+                <!-- Sample Order Card -->
+                <Border Style="{StaticResource CardStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="300"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left: Order Items -->
+                        <StackPanel Spacing="16">
+                            <Grid>
+                                <StackPanel>
+                                    <TextBlock Text="Order #ORD-2024-001" FontSize="18" FontWeight="SemiBold" Foreground="#111827"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,4,0,0">
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <FontIcon Glyph="&#xE787;" FontSize="14" Foreground="#6B7280"/>
+                                            <TextBlock Text="Nov 15, 2024" FontSize="12" Foreground="#6B7280"/>
+                                        </StackPanel>
+                                        <TextBlock Text="Tracking: TRK123456789" FontSize="12" Foreground="#6B7280"/>
+                                    </StackPanel>
+                                </StackPanel>
+                                <Border Background="#D1FAE5" Padding="8,4" CornerRadius="6" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <FontIcon Glyph="&#xE73E;" FontSize="14" Foreground="#10B981"/>
+                                        <TextBlock Text="Delivered" FontSize="12" Foreground="#10B981" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <!-- Product Items -->
+                            <StackPanel Spacing="12">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Width="64" Height="64" Background="#F9FAFB" CornerRadius="8">
+                                        <Image Source="/Assets/placeholder-product.png" Stretch="UniformToFill"/>
+                                    </Border>
+
+                                    <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Text="iPhone 14 Pro Max" FontSize="14" FontWeight="SemiBold" Foreground="#111827"/>
+                                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+                                            <TextBlock Text="Qty: 1" FontSize="12" Foreground="#6B7280"/>
+                                            <TextBlock Text="·" FontSize="12" Foreground="#6B7280"/>
+                                            <TextBlock Text="Apple" FontSize="12" Foreground="#6B7280"/>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <TextBlock Grid.Column="2" Text="$1,299.00" FontSize="14" FontWeight="SemiBold" Foreground="#111827" VerticalAlignment="Center"/>
+                                </Grid>
+                            </StackPanel>
+
+                            <!-- Status Alert -->
+                            <Border Background="#D1FAE5" Padding="12" CornerRadius="8">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE73E;" FontSize="16" Foreground="#10B981"/>
+                                    <TextBlock Text="Delivered on Nov 18, 2024" FontSize="14" Foreground="#10B981"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Right: Order Summary & Actions -->
+                        <StackPanel Grid.Column="1" Margin="24,0,0,0" Spacing="16">
+                            <Border Background="#F9FAFB" Padding="16" CornerRadius="8">
+                                <StackPanel Spacing="12">
+                                    <Grid>
+                                        <TextBlock Text="Subtotal" FontSize="14" Foreground="#6B7280"/>
+                                        <TextBlock Text="$1,299.00" FontSize="14" Foreground="#111827" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                    <Grid>
+                                        <TextBlock Text="Shipping" FontSize="14" Foreground="#6B7280"/>
+                                        <TextBlock Text="$10.00" FontSize="14" Foreground="#111827" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                    <Grid>
+                                        <TextBlock Text="Tax" FontSize="14" Foreground="#6B7280"/>
+                                        <TextBlock Text="$104.00" FontSize="14" Foreground="#111827" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                    <Border Height="1" Background="#E5E7EB"/>
+                                    <Grid>
+                                        <TextBlock Text="Total" FontSize="14" FontWeight="SemiBold" Foreground="#111827"/>
+                                        <TextBlock Text="$1,413.00" FontSize="18" FontWeight="Bold" Foreground="#111827" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <StackPanel Spacing="8">
+                                <Button Content="View Details &amp; Tracking" Background="#2563EB" Foreground="White" Padding="16" CornerRadius="8" HorizontalAlignment="Stretch"/>
+                                <Button Content="Buy Again" Background="Transparent" BorderBrush="#E5E7EB" Foreground="#111827" Padding="16" CornerRadius="8" HorizontalAlignment="Stretch"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>
