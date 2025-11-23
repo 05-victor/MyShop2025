@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="MyShop.Client.Views.Shared.CheckoutPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="#F8FAFC">
+
+    <Page.Resources>
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="24"/>
+        </Style>
+
+        <Style x:Key="InputLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+
+        <Style x:Key="InputBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="Background" Value="White"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Padding="32" Spacing="24" MaxWidth="1200">
+
+                <!-- Header -->
+                <Grid>
+                    <StackPanel Orientation="Horizontal" Spacing="16">
+                        <Button Padding="12,8" 
+                               Background="White"
+                               BorderBrush="#E5E7EB"
+                               CornerRadius="8">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE72B;" FontSize="16"/>
+                                <TextBlock Text="Back to Cart"/>
+                            </StackPanel>
+                        </Button>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Checkout" 
+                                      FontSize="28" 
+                                      FontWeight="SemiBold"
+                                      Foreground="#111827"/>
+                            <TextBlock Text="Complete your purchase" 
+                                      FontSize="14" 
+                                      Foreground="#6B7280"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left Column: Forms & Content -->
+                    <StackPanel Grid.Column="0" Spacing="24" Margin="0,0,24,0">
+
+                        <!-- Shipping Information Form -->
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel Spacing="16">
+                                <TextBlock Text="Shipping Information" 
+                                          FontSize="18" 
+                                          FontWeight="SemiBold" 
+                                          Foreground="#111827"/>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Row 1: Name & Email -->
+                                    <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,8,0">
+                                        <TextBlock Text="Full Name *" Style="{StaticResource InputLabelStyle}"/>
+                                        <TextBox Style="{StaticResource InputBoxStyle}" 
+                                                PlaceholderText="John Doe"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="8,0,0,0">
+                                        <TextBlock Text="Email Address *" Style="{StaticResource InputLabelStyle}"/>
+                                        <TextBox Style="{StaticResource InputBoxStyle}" 
+                                                PlaceholderText="john@example.com"/>
+                                    </StackPanel>
+
+                                    <!-- Row 2: Phone & Country -->
+                                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,16,8,0">
+                                        <TextBlock Text="Phone Number *" Style="{StaticResource InputLabelStyle}"/>
+                                        <TextBox Style="{StaticResource InputBoxStyle}" 
+                                                PlaceholderText="+1 (555) 000-0000"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Row="1" Grid.Column="1" Margin="8,16,0,0">
+                                        <TextBlock Text="Country *" Style="{StaticResource InputLabelStyle}"/>
+                                        <TextBox Style="{StaticResource InputBoxStyle}" 
+                                                Text="United States"/>
+                                    </StackPanel>
+
+                                    <!-- Row 3: Address (full width) -->
+                                    <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,16,0,0">
+                                        <TextBlock Text="Street Address *" Style="{StaticResource InputLabelStyle}"/>
+                                        <TextBox Style="{StaticResource InputBoxStyle}" 
+                                                PlaceholderText="123 Main Street, Apt 4B"/>
+                                    </StackPanel>
+
+                                    <!-- Row 4: City & ZIP -->
+                                    <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,16,8,0">
+                                        <TextBlock Text="City *" Style="{StaticResource InputLabelStyle}"/>
+                                        <TextBox Style="{StaticResource InputBoxStyle}" 
+                                                PlaceholderText="New York"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Row="3" Grid.Column="1" Margin="8,16,0,0">
+                                        <TextBlock Text="ZIP Code *" Style="{StaticResource InputLabelStyle}"/>
+                                        <TextBox Style="{StaticResource InputBoxStyle}" 
+                                                PlaceholderText="10001"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Order Items -->
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel Spacing="16">
+                                <TextBlock Text="Order Items (2)" 
+                                          FontSize="18" 
+                                          FontWeight="SemiBold" 
+                                          Foreground="#111827"/>
+
+                                <!-- Sample Order Item 1 -->
+                                <Grid BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Padding="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Width="64" Height="64" Background="#F9FAFB" CornerRadius="8">
+                                        <Image Source="/Assets/placeholder-product.png" Stretch="UniformToFill"/>
+                                    </Border>
+
+                                    <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Text="iPhone 14 Pro Max" 
+                                                  FontSize="14" 
+                                                  FontWeight="SemiBold" 
+                                                  Foreground="#111827"/>
+                                        <TextBlock Text="Qty: 1" 
+                                                  FontSize="12" 
+                                                  Foreground="#6B7280"/>
+                                    </StackPanel>
+
+                                    <TextBlock Grid.Column="2" 
+                                              Text="$1,299.00" 
+                                              FontSize="14" 
+                                              FontWeight="SemiBold" 
+                                              Foreground="#111827"
+                                              VerticalAlignment="Center"/>
+                                </Grid>
+
+                                <!-- Sample Order Item 2 -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Width="64" Height="64" Background="#F9FAFB" CornerRadius="8">
+                                        <Image Source="/Assets/placeholder-product.png" Stretch="UniformToFill"/>
+                                    </Border>
+
+                                    <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Text="AirPods Pro" 
+                                                  FontSize="14" 
+                                                  FontWeight="SemiBold" 
+                                                  Foreground="#111827"/>
+                                        <TextBlock Text="Qty: 2" 
+                                                  FontSize="12" 
+                                                  Foreground="#6B7280"/>
+                                    </StackPanel>
+
+                                    <TextBlock Grid.Column="2" 
+                                              Text="$498.00" 
+                                              FontSize="14" 
+                                              FontWeight="SemiBold" 
+                                              Foreground="#111827"
+                                              VerticalAlignment="Center"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+
+                    <!-- Right Column: Order Summary (Sticky) -->
+                    <Border Grid.Column="1" Style="{StaticResource CardStyle}" VerticalAlignment="Top">
+                        <StackPanel Spacing="16">
+                            <TextBlock Text="Order Summary" 
+                                      FontSize="18" 
+                                      FontWeight="SemiBold" 
+                                      Foreground="#111827"/>
+
+                            <!-- Price Breakdown -->
+                            <StackPanel Spacing="12">
+                                <Grid>
+                                    <TextBlock Text="Subtotal" Foreground="#6B7280" FontSize="14"/>
+                                    <TextBlock Text="$1,797.00" 
+                                              HorizontalAlignment="Right" 
+                                              Foreground="#111827" 
+                                              FontSize="14"/>
+                                </Grid>
+                                <Grid>
+                                    <TextBlock Text="Shipping" Foreground="#6B7280" FontSize="14"/>
+                                    <TextBlock Text="$10.00" 
+                                              HorizontalAlignment="Right" 
+                                              Foreground="#111827" 
+                                              FontSize="14"/>
+                                </Grid>
+                                <Grid>
+                                    <TextBlock Text="Tax (8%)" Foreground="#6B7280" FontSize="14"/>
+                                    <TextBlock Text="$143.76" 
+                                              HorizontalAlignment="Right" 
+                                              Foreground="#111827" 
+                                              FontSize="14"/>
+                                </Grid>
+
+                                <Border Height="1" Background="#E5E7EB" Margin="0,8"/>
+
+                                <Grid>
+                                    <TextBlock Text="Total" 
+                                              FontSize="18" 
+                                              FontWeight="SemiBold" 
+                                              Foreground="#111827"/>
+                                    <TextBlock Text="$1,950.76" 
+                                              FontSize="20" 
+                                              FontWeight="Bold"
+                                              HorizontalAlignment="Right" 
+                                              Foreground="#2563EB"/>
+                                </Grid>
+                            </StackPanel>
+
+                            <!-- Continue to Payment Button -->
+                            <Button Content="Continue to Payment"
+                                   Background="#2563EB"
+                                   Foreground="White"
+                                   Padding="16"
+                                   CornerRadius="8"
+                                   HorizontalAlignment="Stretch"
+                                   Height="48"
+                                   Margin="0,16,0,0">
+                                <Button.Resources>
+                                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#1D4ED8"/>
+                                    <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#1E40AF"/>
+                                </Button.Resources>
+                            </Button>
+
+                            <TextBlock Text="By proceeding, you agree to our terms and conditions" 
+                                      FontSize="11" 
+                                      Foreground="#9CA3AF" 
+                                      TextAlignment="Center"
+                                      TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+
+                </Grid>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

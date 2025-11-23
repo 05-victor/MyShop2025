@@ -1,0 +1,25 @@
+<UserControl x:Class="MyShop.Client.Views.Components.Badges.StockBadge"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d">
+
+    <Border x:Name="StockContainer"
+            CornerRadius="4"
+            Padding="8,4"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Center">
+        
+        <StackPanel Orientation="Horizontal" Spacing="4">
+            <FontIcon x:Name="StockIcon"
+                      FontFamily="{StaticResource SymbolThemeFontFamily}"
+                      FontSize="12"/>
+            
+            <TextBlock x:Name="StockText"
+                       FontSize="12"
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center"/>
+        </StackPanel>
+    </Border>
+</UserControl>

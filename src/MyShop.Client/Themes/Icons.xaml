@@ -1,0 +1,223 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ============================================= -->
+    <!-- ICON SIZES                                   -->
+    <!-- Standard sizes for consistent icon usage     -->
+    <!-- ============================================= -->
+    
+    <x:Double x:Key="IconSize_XS">12</x:Double>      <!-- Inline icons, badges -->
+    <x:Double x:Key="IconSize_SM">16</x:Double>      <!-- Small buttons, list items -->
+    <x:Double x:Key="IconSize_MD">20</x:Double>      <!-- Default, navigation -->
+    <x:Double x:Key="IconSize_LG">24</x:Double>      <!-- Large buttons, headers -->
+    <x:Double x:Key="IconSize_XL">32</x:Double>      <!-- Feature icons, cards -->
+    <x:Double x:Key="IconSize_2XL">48</x:Double>     <!-- Hero icons, empty states -->
+    <x:Double x:Key="IconSize_3XL">64</x:Double>     <!-- Large hero icons -->
+    <x:Double x:Key="IconSize_4XL">96</x:Double>     <!-- Extra large display icons -->
+
+
+    <!-- ============================================= -->
+    <!-- SEGOE MDL2 ASSETS GLYPHS                     -->
+    <!-- Common icons from Segoe MDL2 Assets font     -->
+    <!-- Reference: https://docs.microsoft.com/en-us/windows/apps/design/style/segoe-ui-symbol-font -->
+    <!-- ============================================= -->
+    
+    <!-- Navigation & UI -->
+    <x:String x:Key="Icon_Home">&#xE80F;</x:String>
+    <x:String x:Key="Icon_Back">&#xE72B;</x:String>
+    <x:String x:Key="Icon_Forward">&#xE72A;</x:String>
+    <x:String x:Key="Icon_Menu">&#xE700;</x:String>
+    <x:String x:Key="Icon_More">&#xE712;</x:String>
+    <x:String x:Key="Icon_Close">&#xE711;</x:String>
+    <x:String x:Key="Icon_Cancel">&#xE711;</x:String>
+    <x:String x:Key="Icon_CheckMark">&#xE73E;</x:String>
+    <x:String x:Key="Icon_Accept">&#xE8FB;</x:String>
+    <x:String x:Key="Icon_Refresh">&#xE72C;</x:String>
+    <x:String x:Key="Icon_Search">&#xE721;</x:String>
+    <x:String x:Key="Icon_Filter">&#xE71C;</x:String>
+    <x:String x:Key="Icon_Sort">&#xE8CB;</x:String>
+    
+    <!-- Actions -->
+    <x:String x:Key="Icon_Add">&#xE710;</x:String>
+    <x:String x:Key="Icon_Remove">&#xE738;</x:String>
+    <x:String x:Key="Icon_Delete">&#xE74D;</x:String>
+    <x:String x:Key="Icon_Edit">&#xE70F;</x:String>
+    <x:String x:Key="Icon_Save">&#xE74E;</x:String>
+    <x:String x:Key="Icon_Upload">&#xE898;</x:String>
+    <x:String x:Key="Icon_Download">&#xE896;</x:String>
+    <x:String x:Key="Icon_Share">&#xE72D;</x:String>
+    <x:String x:Key="Icon_Copy">&#xE8C8;</x:String>
+    <x:String x:Key="Icon_Paste">&#xE77F;</x:String>
+    <x:String x:Key="Icon_Print">&#xE749;</x:String>
+    
+    <!-- Arrows & Directions -->
+    <x:String x:Key="Icon_ChevronUp">&#xE70E;</x:String>
+    <x:String x:Key="Icon_ChevronDown">&#xE70D;</x:String>
+    <x:String x:Key="Icon_ChevronLeft">&#xE76B;</x:String>
+    <x:String x:Key="Icon_ChevronRight">&#xE76C;</x:String>
+    <x:String x:Key="Icon_ArrowUp">&#xE74A;</x:String>
+    <x:String x:Key="Icon_ArrowDown">&#xE74B;</x:String>
+    <x:String x:Key="Icon_ArrowLeft">&#xE72A;</x:String>
+    <x:String x:Key="Icon_ArrowRight">&#xE72B;</x:String>
+    
+    <!-- User & Account -->
+    <x:String x:Key="Icon_Contact">&#xE77B;</x:String>
+    <x:String x:Key="Icon_People">&#xE716;</x:String>
+    <x:String x:Key="Icon_Account">&#xE77B;</x:String>
+    <x:String x:Key="Icon_Admin">&#xE7EF;</x:String>
+    
+    <!-- Shopping & Commerce -->
+    <x:String x:Key="Icon_Shop">&#xE719;</x:String>
+    <x:String x:Key="Icon_Cart">&#xE7BF;</x:String>
+    <x:String x:Key="Icon_ShoppingBag">&#xE719;</x:String>
+    <x:String x:Key="Icon_Tag">&#xE8EC;</x:String>
+    <x:String x:Key="Icon_Barcode">&#xEDB7;</x:String>
+    <x:String x:Key="Icon_Money">&#xE8D0;</x:String>
+    <x:String x:Key="Icon_CreditCard">&#xE8C7;</x:String>
+    <x:String x:Key="Icon_Wallet">&#xE8D1;</x:String>
+    
+    <!-- Communication -->
+    <x:String x:Key="Icon_Mail">&#xE715;</x:String>
+    <x:String x:Key="Icon_Message">&#xE8BD;</x:String>
+    <x:String x:Key="Icon_Chat">&#xE8F2;</x:String>
+    <x:String x:Key="Icon_Phone">&#xE717;</x:String>
+    <x:String x:Key="Icon_Notification">&#xE7E7;</x:String>
+    
+    <!-- Status & Indicators -->
+    <x:String x:Key="Icon_Info">&#xE946;</x:String>
+    <x:String x:Key="Icon_Warning">&#xE7BA;</x:String>
+    <x:String x:Key="Icon_Error">&#xE783;</x:String>
+    <x:String x:Key="Icon_Success">&#xE73E;</x:String>
+    <x:String x:Key="Icon_StatusCircle">&#xEA3A;</x:String>
+    <x:String x:Key="Icon_StatusTriangle">&#xE7BA;</x:String>
+    
+    <!-- Settings & Tools -->
+    <x:String x:Key="Icon_Settings">&#xE713;</x:String>
+    <x:String x:Key="Icon_Options">&#xE713;</x:String>
+    <x:String x:Key="Icon_Repair">&#xE90F;</x:String>
+    <x:String x:Key="Icon_Tool">&#xE90F;</x:String>
+    <x:String x:Key="Icon_Permissions">&#xE8D7;</x:String>
+    
+    <!-- Documents & Files -->
+    <x:String x:Key="Icon_Document">&#xE8A5;</x:String>
+    <x:String x:Key="Icon_Folder">&#xE8B7;</x:String>
+    <x:String x:Key="Icon_File">&#xE8A5;</x:String>
+    <x:String x:Key="Icon_Page">&#xE7C3;</x:String>
+    <x:String x:Key="Icon_Attach">&#xE723;</x:String>
+    
+    <!-- Media -->
+    <x:String x:Key="Icon_Picture">&#xE8B9;</x:String>
+    <x:String x:Key="Icon_Camera">&#xE722;</x:String>
+    <x:String x:Key="Icon_Video">&#xE714;</x:String>
+    <x:String x:Key="Icon_Play">&#xE768;</x:String>
+    <x:String x:Key="Icon_Pause">&#xE769;</x:String>
+    <x:String x:Key="Icon_Stop">&#xE71A;</x:String>
+    
+    <!-- Analytics & Charts -->
+    <x:String x:Key="Icon_Chart">&#xE9D2;</x:String>
+    <x:String x:Key="Icon_BarChart">&#xE9D2;</x:String>
+    <x:String x:Key="Icon_PieChart">&#xEB05;</x:String>
+    <x:String x:Key="Icon_Analytics">&#xE9D2;</x:String>
+    <x:String x:Key="Icon_Trending">&#xE823;</x:String>
+    
+    <!-- Time & Calendar -->
+    <x:String x:Key="Icon_Calendar">&#xE787;</x:String>
+    <x:String x:Key="Icon_Clock">&#xE917;</x:String>
+    <x:String x:Key="Icon_Timer">&#xE917;</x:String>
+    <x:String x:Key="Icon_AlarmClock">&#xE919;</x:String>
+    
+    <!-- Location -->
+    <x:String x:Key="Icon_Location">&#xE707;</x:String>
+    <x:String x:Key="Icon_MapPin">&#xE707;</x:String>
+    <x:String x:Key="Icon_World">&#xE774;</x:String>
+    
+    <!-- Security -->
+    <x:String x:Key="Icon_Lock">&#xE72E;</x:String>
+    <x:String x:Key="Icon_Unlock">&#xE785;</x:String>
+    <x:String x:Key="Icon_Shield">&#xE83D;</x:String>
+    <x:String x:Key="Icon_Key">&#xE8D7;</x:String>
+    
+    <!-- Visibility -->
+    <x:String x:Key="Icon_View">&#xE890;</x:String>
+    <x:String x:Key="Icon_Hide">&#xED1A;</x:String>
+    <x:String x:Key="Icon_Preview">&#xE8FF;</x:String>
+    
+    <!-- Rating & Favorites -->
+    <x:String x:Key="Icon_Star">&#xE734;</x:String>
+    <x:String x:Key="Icon_StarFilled">&#xE735;</x:String>
+    <x:String x:Key="Icon_Heart">&#xEB51;</x:String>
+    <x:String x:Key="Icon_HeartFilled">&#xEB52;</x:String>
+    <x:String x:Key="Icon_Favorite">&#xE734;</x:String>
+    
+    <!-- Misc -->
+    <x:String x:Key="Icon_Globe">&#xE774;</x:String>
+    <x:String x:Key="Icon_Link">&#xE71B;</x:String>
+    <x:String x:Key="Icon_Flag">&#xE7C1;</x:String>
+    <x:String x:Key="Icon_Pin">&#xE840;</x:String>
+    <x:String x:Key="Icon_Bookmark">&#xE8A4;</x:String>
+    <x:String x:Key="Icon_Help">&#xE897;</x:String>
+    <x:String x:Key="Icon_Emoji">&#xE899;</x:String>
+
+
+    <!-- ============================================= -->
+    <!-- ICON STYLES                                  -->
+    <!-- Pre-configured FontIcon styles               -->
+    <!-- ============================================= -->
+    
+    <!-- Default Icon Style -->
+    <Style x:Key="IconStyle" TargetType="FontIcon">
+        <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+        <Setter Property="FontSize" Value="{StaticResource IconSize_MD}"/>
+    </Style>
+    
+    <!-- Small Icon -->
+    <Style x:Key="IconSmallStyle" TargetType="FontIcon" BasedOn="{StaticResource IconStyle}">
+        <Setter Property="FontSize" Value="{StaticResource IconSize_SM}"/>
+    </Style>
+    
+    <!-- Large Icon -->
+    <Style x:Key="IconLargeStyle" TargetType="FontIcon" BasedOn="{StaticResource IconStyle}">
+        <Setter Property="FontSize" Value="{StaticResource IconSize_LG}"/>
+    </Style>
+    
+    <!-- Primary Icon -->
+    <Style x:Key="IconPrimaryStyle" TargetType="FontIcon" BasedOn="{StaticResource IconStyle}">
+        <Setter Property="Foreground" Value="{StaticResource SecondaryBlueBrush}"/>
+    </Style>
+    
+    <!-- Success Icon -->
+    <Style x:Key="IconSuccessStyle" TargetType="FontIcon" BasedOn="{StaticResource IconStyle}">
+        <Setter Property="Foreground" Value="{StaticResource SuccessGreenBrush}"/>
+    </Style>
+    
+    <!-- Warning Icon -->
+    <Style x:Key="IconWarningStyle" TargetType="FontIcon" BasedOn="{StaticResource IconStyle}">
+        <Setter Property="Foreground" Value="{StaticResource WarningAmberBrush}"/>
+    </Style>
+    
+    <!-- Error Icon -->
+    <Style x:Key="IconErrorStyle" TargetType="FontIcon" BasedOn="{StaticResource IconStyle}">
+        <Setter Property="Foreground" Value="{StaticResource ErrorRedBrush}"/>
+    </Style>
+    
+    <!-- Muted Icon -->
+    <Style x:Key="IconMutedStyle" TargetType="FontIcon" BasedOn="{StaticResource IconStyle}">
+        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+    </Style>
+
+
+    <!-- ============================================= -->
+    <!-- USAGE NOTES                                  -->
+    <!-- ============================================= -->
+    <!-- Usage Examples:
+    
+    1. Basic icon with Glyph="{StaticResource Icon_Home}"
+    2. Styled icon using IconSuccessStyle, IconErrorStyle, etc.
+    3. Icons in buttons with StackPanel
+    4. Large feature icons with IconSize_2XL
+    5. Status indicators with small icons
+    
+    See README.md and QUICK_REFERENCE.md for detailed examples
+    -->
+
+</ResourceDictionary>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="MyShop.Client.Views.Components.Cards.DataTableCard"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    x:Name="RootControl">
+
+    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            CornerRadius="16"
+            BorderBrush="#E5E7EB"
+            BorderThickness="1">
+        <Border.Shadow>
+            <ThemeShadow/>
+        </Border.Shadow>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header with accent line -->
+            <Grid Grid.Row="0" 
+                  Padding="24,20,24,16" 
+                  BorderBrush="#E5E7EB"
+                  BorderThickness="0,0,0,1">
+                <Grid.Background>
+                    <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                        <GradientStop Color="Transparent" Offset="0"/>
+                        <GradientStop Color="#1000AEEF" Offset="0.5"/>
+                        <GradientStop Color="Transparent" Offset="1"/>
+                    </LinearGradientBrush>
+                </Grid.Background>
+                
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Accent Line -->
+                <Border Grid.Column="0"
+                        Width="4"
+                        CornerRadius="2"
+                        Margin="0,0,12,0"
+                        VerticalAlignment="Stretch">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#00AEEF" Offset="0"/>
+                            <GradientStop Color="#1A4D8F" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                </Border>
+
+                <!-- Title -->
+                <TextBlock Grid.Column="1"
+                           Text="{Binding Title, ElementName=RootControl, Mode=OneWay}"
+                           FontSize="18"
+                           FontWeight="SemiBold"
+                           Foreground="#111827"
+                           VerticalAlignment="Center"/>
+
+                <!-- View All Button -->
+                <Button Grid.Column="2"
+                        Click="ViewAllButton_Click"
+                        Visibility="{Binding ShowViewAll, ElementName=RootControl, Mode=OneWay}"
+                        Padding="16,8"
+                        Background="Transparent"
+                        BorderBrush="#4D00AEEF"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                    <Button.Resources>
+                        <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#1A00AEEF"/>
+                        <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="#00AEEF"/>
+                        <SolidColorBrush x:Key="ButtonForegroundPointerOver" Color="#00AEEF"/>
+                    </Button.Resources>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding ViewAllText, ElementName=RootControl, Mode=OneWay}" 
+                                   FontSize="13"
+                                   Foreground="#6B7280"/>
+                        <FontIcon Glyph="&#xE76C;" 
+                                  FontSize="12"
+                                  Foreground="#6B7280"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+
+            <!-- Table Content Slot -->
+            <ContentPresenter Grid.Row="1"
+                            x:Name="TableContentPresenter"
+                            Content="{Binding TableContent, ElementName=RootControl, Mode=OneWay}"
+                            Padding="24,16,24,24"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"/>
+        </Grid>
+    </Border>
+</UserControl>

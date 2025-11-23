@@ -1,0 +1,166 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Note: Brushes are already merged in Generic.xaml before Typography.xaml -->
+    <!-- No need to merge Brushes.xaml again here to avoid circular dependency issues -->
+
+    <!-- ============================================= -->
+    <!-- FONT SIZES                                   -->
+    <!-- Device-independent pixels (1/96 inch)        -->
+    <!-- ============================================= -->
+    
+    <x:Double x:Key="FontSize_XS">11</x:Double>        <!-- Caption, labels -->
+    <x:Double x:Key="FontSize_SM">12</x:Double>        <!-- Small text -->
+    <x:Double x:Key="FontSize_Base">14</x:Double>      <!-- Body text default -->
+    <x:Double x:Key="FontSize_LG">16</x:Double>        <!-- Large body -->
+    <x:Double x:Key="FontSize_XL">18</x:Double>        <!-- Subheading -->
+    <x:Double x:Key="FontSize_2XL">20</x:Double>       <!-- H3 -->
+    <x:Double x:Key="FontSize_3XL">24</x:Double>       <!-- H2 -->
+    <x:Double x:Key="FontSize_4XL">28</x:Double>       <!-- H1 -->
+    <x:Double x:Key="FontSize_5XL">32</x:Double>       <!-- Page title -->
+    <x:Double x:Key="FontSize_6XL">36</x:Double>       <!-- Display heading -->
+
+
+    <!-- ============================================= -->
+    <!-- FONT WEIGHTS                                 -->
+    <!-- WinUI 3: Use FontWeights static properties   -->
+    <!-- FontWeights.Normal, FontWeights.SemiBold, etc -->
+    <!-- ============================================= -->
+
+
+    <!-- ============================================= -->
+    <!-- LINE HEIGHTS                                 -->
+    <!-- Multipliers for better readability           -->
+    <!-- ============================================= -->
+    
+    <x:Double x:Key="LineHeight_Tight">1.2</x:Double>      <!-- Headings -->
+    <x:Double x:Key="LineHeight_Normal">1.5</x:Double>     <!-- Body text -->
+    <x:Double x:Key="LineHeight_Relaxed">1.75</x:Double>   <!-- Long-form text -->
+
+
+    <!-- ============================================= -->
+    <!-- TEXT STYLES                                  -->
+    <!-- Pre-defined styles for consistent typography -->
+    <!-- ============================================= -->
+    
+    <!-- Display Heading (Hero text) -->
+    <Style x:Key="DisplayHeadingStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource FontSize_6XL}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="LineHeight" Value="44"/>
+    </Style>
+    
+    <!-- Page Title -->
+    <Style x:Key="PageTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource FontSize_5XL}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="LineHeight" Value="40"/>
+    </Style>
+    
+    <!-- Heading 1 -->
+    <Style x:Key="Heading1Style" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource FontSize_4XL}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="LineHeight" Value="34"/>
+    </Style>
+    
+    <!-- Heading 2 -->
+    <Style x:Key="Heading2Style" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource FontSize_3XL}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="LineHeight" Value="30"/>
+    </Style>
+    
+    <!-- Heading 3 -->
+    <Style x:Key="Heading3Style" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource FontSize_2XL}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="LineHeight" Value="28"/>
+    </Style>
+    
+    <!-- Subheading -->
+    <Style x:Key="SubheadingStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource FontSize_XL}"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+        <Setter Property="LineHeight" Value="26"/>
+    </Style>
+    
+    <!-- Body Text (Default) -->
+    <Style x:Key="BodyTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource FontSize_Base}"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="LineHeight" Value="21"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+    
+    <!-- Body Style (Alias for BodyTextStyle) -->
+    <Style x:Key="BodyStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextStyle}"/>
+    
+    <!-- Body Large -->
+    <Style x:Key="BodyLargeStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource FontSize_LG}"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="LineHeight" Value="24"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+    
+    <!-- Secondary Text -->
+    <Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource FontSize_Base}"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+        <Setter Property="LineHeight" Value="21"/>
+    </Style>
+    
+    <!-- Muted Text -->
+    <Style x:Key="MutedTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource FontSize_Base}"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+    </Style>
+    
+    <!-- Small Text -->
+    <Style x:Key="SmallTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource FontSize_SM}"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+    </Style>
+    
+    <!-- Caption -->
+    <Style x:Key="CaptionStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource FontSize_XS}"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+    </Style>
+    
+    <!-- Label -->
+    <Style x:Key="LabelStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource FontSize_SM}"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+    </Style>
+    
+    <!-- Bold Text -->
+    <Style x:Key="BoldTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource FontSize_Base}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    </Style>
+    
+    <!-- Link Text -->
+    <Style x:Key="LinkTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource FontSize_Base}"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{StaticResource SecondaryBlueBrush}"/>
+        <Setter Property="TextDecorations" Value="Underline"/>
+    </Style>
+
+</ResourceDictionary>

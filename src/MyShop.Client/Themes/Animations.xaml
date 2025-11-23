@@ -1,0 +1,265 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ============================================= -->
+    <!-- ANIMATION DURATIONS                          -->
+    <!-- In milliseconds                              -->
+    <!-- ============================================= -->
+    
+    <x:Double x:Key="Duration_Instant">0</x:Double>        <!-- No animation -->
+    <x:Double x:Key="Duration_Fast">150</x:Double>         <!-- Quick interactions (hover, click) -->
+    <x:Double x:Key="Duration_Normal">300</x:Double>       <!-- Default transitions -->
+    <x:Double x:Key="Duration_Slow">500</x:Double>         <!-- Emphasis, enter/exit -->
+    <x:Double x:Key="Duration_Slower">700</x:Double>       <!-- Complex animations -->
+
+
+    <!-- ============================================= -->
+    <!-- TIMESPAN DURATIONS                           -->
+    <!-- For Storyboard Duration property             -->
+    <!-- ============================================= -->
+    
+    <Duration x:Key="AnimationDuration_Fast">0:0:0.15</Duration>
+    <Duration x:Key="AnimationDuration_Normal">0:0:0.3</Duration>
+    <Duration x:Key="AnimationDuration_Slow">0:0:0.5</Duration>
+    <Duration x:Key="AnimationDuration_Slower">0:0:0.7</Duration>
+
+
+    <!-- ============================================= -->
+    <!-- EASING FUNCTIONS                             -->
+    <!-- Smooth, natural motion curves                -->
+    <!-- ============================================= -->
+    
+    <!-- Standard easing (default) -->
+    <CubicEase x:Key="EaseInOut" EasingMode="EaseInOut"/>
+    <CubicEase x:Key="EaseIn" EasingMode="EaseIn"/>
+    <CubicEase x:Key="EaseOut" EasingMode="EaseOut"/>
+    
+    <!-- Quadratic easing (softer) -->
+    <QuadraticEase x:Key="QuadraticEaseInOut" EasingMode="EaseInOut"/>
+    <QuadraticEase x:Key="QuadraticEaseIn" EasingMode="EaseIn"/>
+    <QuadraticEase x:Key="QuadraticEaseOut" EasingMode="EaseOut"/>
+    
+    <!-- Exponential easing (dramatic) -->
+    <ExponentialEase x:Key="ExpoEaseInOut" EasingMode="EaseInOut" Exponent="6"/>
+    <ExponentialEase x:Key="ExpoEaseIn" EasingMode="EaseIn" Exponent="6"/>
+    <ExponentialEase x:Key="ExpoEaseOut" EasingMode="EaseOut" Exponent="6"/>
+    
+    <!-- Back easing (overshoot) -->
+    <BackEase x:Key="BackEaseInOut" EasingMode="EaseInOut" Amplitude="0.3"/>
+    <BackEase x:Key="BackEaseIn" EasingMode="EaseIn" Amplitude="0.3"/>
+    <BackEase x:Key="BackEaseOut" EasingMode="EaseOut" Amplitude="0.3"/>
+    
+    <!-- Bounce easing -->
+    <BounceEase x:Key="BounceEaseOut" EasingMode="EaseOut" Bounces="2" Bounciness="2"/>
+    
+    <!-- Elastic easing -->
+    <ElasticEase x:Key="ElasticEaseOut" EasingMode="EaseOut" Oscillations="3" Springiness="3"/>
+
+
+    <!-- ============================================= -->
+    <!-- COMMON ANIMATIONS                            -->
+    <!-- Reusable animation storyboards               -->
+    <!-- ============================================= -->
+    
+    <!-- Fade In -->
+    <Storyboard x:Key="FadeInStoryboard">
+        <DoubleAnimation Duration="{StaticResource AnimationDuration_Normal}"
+                         From="0" 
+                         To="1"
+                         EasingFunction="{StaticResource EaseOut}"
+                         Storyboard.TargetProperty="Opacity"/>
+    </Storyboard>
+    
+    <!-- Fade Out -->
+    <Storyboard x:Key="FadeOutStoryboard">
+        <DoubleAnimation Duration="{StaticResource AnimationDuration_Normal}"
+                         From="1" 
+                         To="0"
+                         EasingFunction="{StaticResource EaseIn}"
+                         Storyboard.TargetProperty="Opacity"/>
+    </Storyboard>
+    
+    <!-- Slide In From Right -->
+    <Storyboard x:Key="SlideInFromRightStoryboard">
+        <DoubleAnimation Duration="{StaticResource AnimationDuration_Normal}"
+                         From="100" 
+                         To="0"
+                         EasingFunction="{StaticResource EaseOut}"
+                         Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)"/>
+        <DoubleAnimation Duration="{StaticResource AnimationDuration_Normal}"
+                         From="0" 
+                         To="1"
+                         EasingFunction="{StaticResource EaseOut}"
+                         Storyboard.TargetProperty="Opacity"/>
+    </Storyboard>
+    
+    <!-- Slide In From Left -->
+    <Storyboard x:Key="SlideInFromLeftStoryboard">
+        <DoubleAnimation Duration="{StaticResource AnimationDuration_Normal}"
+                         From="-100" 
+                         To="0"
+                         EasingFunction="{StaticResource EaseOut}"
+                         Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)"/>
+        <DoubleAnimation Duration="{StaticResource AnimationDuration_Normal}"
+                         From="0" 
+                         To="1"
+                         EasingFunction="{StaticResource EaseOut}"
+                         Storyboard.TargetProperty="Opacity"/>
+    </Storyboard>
+    
+    <!-- Slide In From Top -->
+    <Storyboard x:Key="SlideInFromTopStoryboard">
+        <DoubleAnimation Duration="{StaticResource AnimationDuration_Normal}"
+                         From="-50" 
+                         To="0"
+                         EasingFunction="{StaticResource EaseOut}"
+                         Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)"/>
+        <DoubleAnimation Duration="{StaticResource AnimationDuration_Normal}"
+                         From="0" 
+                         To="1"
+                         EasingFunction="{StaticResource EaseOut}"
+                         Storyboard.TargetProperty="Opacity"/>
+    </Storyboard>
+    
+    <!-- Slide In From Bottom -->
+    <Storyboard x:Key="SlideInFromBottomStoryboard">
+        <DoubleAnimation Duration="{StaticResource AnimationDuration_Normal}"
+                         From="50" 
+                         To="0"
+                         EasingFunction="{StaticResource EaseOut}"
+                         Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)"/>
+        <DoubleAnimation Duration="{StaticResource AnimationDuration_Normal}"
+                         From="0" 
+                         To="1"
+                         EasingFunction="{StaticResource EaseOut}"
+                         Storyboard.TargetProperty="Opacity"/>
+    </Storyboard>
+    
+    <!-- Scale Up (Zoom In) -->
+    <Storyboard x:Key="ScaleUpStoryboard">
+        <DoubleAnimation Duration="{StaticResource AnimationDuration_Normal}"
+                         From="0.9" 
+                         To="1"
+                         EasingFunction="{StaticResource BackEaseOut}"
+                         Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleX)"/>
+        <DoubleAnimation Duration="{StaticResource AnimationDuration_Normal}"
+                         From="0.9" 
+                         To="1"
+                         EasingFunction="{StaticResource BackEaseOut}"
+                         Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleY)"/>
+        <DoubleAnimation Duration="{StaticResource AnimationDuration_Normal}"
+                         From="0" 
+                         To="1"
+                         EasingFunction="{StaticResource EaseOut}"
+                         Storyboard.TargetProperty="Opacity"/>
+    </Storyboard>
+    
+    <!-- Scale Down (Zoom Out) -->
+    <Storyboard x:Key="ScaleDownStoryboard">
+        <DoubleAnimation Duration="{StaticResource AnimationDuration_Fast}"
+                         From="1" 
+                         To="0.95"
+                         EasingFunction="{StaticResource EaseIn}"
+                         Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleX)"/>
+        <DoubleAnimation Duration="{StaticResource AnimationDuration_Fast}"
+                         From="1" 
+                         To="0.95"
+                         EasingFunction="{StaticResource EaseIn}"
+                         Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleY)"/>
+    </Storyboard>
+    
+    <!-- Pulse (Attention) -->
+    <Storyboard x:Key="PulseStoryboard" RepeatBehavior="3x">
+        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleX)">
+            <EasingDoubleKeyFrame KeyTime="0:0:0" Value="1"/>
+            <EasingDoubleKeyFrame KeyTime="0:0:0.15" Value="1.05"/>
+            <EasingDoubleKeyFrame KeyTime="0:0:0.3" Value="1"/>
+        </DoubleAnimationUsingKeyFrames>
+        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleY)">
+            <EasingDoubleKeyFrame KeyTime="0:0:0" Value="1"/>
+            <EasingDoubleKeyFrame KeyTime="0:0:0.15" Value="1.05"/>
+            <EasingDoubleKeyFrame KeyTime="0:0:0.3" Value="1"/>
+        </DoubleAnimationUsingKeyFrames>
+    </Storyboard>
+    
+    <!-- Rotate (Loading spinner) -->
+    <Storyboard x:Key="RotateStoryboard" RepeatBehavior="Forever">
+        <DoubleAnimation Duration="0:0:1"
+                         From="0" 
+                         To="360"
+                         Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.Rotation)"/>
+    </Storyboard>
+    
+    <!-- Shake (Error feedback) -->
+    <Storyboard x:Key="ShakeStoryboard">
+        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)">
+            <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+            <EasingDoubleKeyFrame KeyTime="0:0:0.05" Value="-10"/>
+            <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="10"/>
+            <EasingDoubleKeyFrame KeyTime="0:0:0.15" Value="-10"/>
+            <EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="10"/>
+            <EasingDoubleKeyFrame KeyTime="0:0:0.25" Value="-10"/>
+            <EasingDoubleKeyFrame KeyTime="0:0:0.3" Value="0"/>
+        </DoubleAnimationUsingKeyFrames>
+    </Storyboard>
+
+
+    <!-- ============================================= -->
+    <!-- HOVER ANIMATIONS                             -->
+    <!-- For interactive elements                     -->
+    <!-- ============================================= -->
+    
+    <!-- Button Hover (Lift effect) -->
+    <Storyboard x:Key="ButtonHoverStoryboard">
+        <DoubleAnimation Duration="{StaticResource AnimationDuration_Fast}"
+                         To="-2"
+                         EasingFunction="{StaticResource EaseOut}"
+                         Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)"/>
+    </Storyboard>
+    
+    <!-- Button Unhover -->
+    <Storyboard x:Key="ButtonUnhoverStoryboard">
+        <DoubleAnimation Duration="{StaticResource AnimationDuration_Fast}"
+                         To="0"
+                         EasingFunction="{StaticResource EaseOut}"
+                         Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)"/>
+    </Storyboard>
+    
+    <!-- Card Hover (Slight scale) -->
+    <Storyboard x:Key="CardHoverStoryboard">
+        <DoubleAnimation Duration="{StaticResource AnimationDuration_Fast}"
+                         To="1.02"
+                         EasingFunction="{StaticResource EaseOut}"
+                         Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleX)"/>
+        <DoubleAnimation Duration="{StaticResource AnimationDuration_Fast}"
+                         To="1.02"
+                         EasingFunction="{StaticResource EaseOut}"
+                         Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleY)"/>
+    </Storyboard>
+    
+    <!-- Card Unhover -->
+    <Storyboard x:Key="CardUnhoverStoryboard">
+        <DoubleAnimation Duration="{StaticResource AnimationDuration_Fast}"
+                         To="1"
+                         EasingFunction="{StaticResource EaseOut}"
+                         Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleX)"/>
+        <DoubleAnimation Duration="{StaticResource AnimationDuration_Fast}"
+                         To="1"
+                         EasingFunction="{StaticResource EaseOut}"
+                         Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleY)"/>
+    </Storyboard>
+
+
+    <!-- ============================================= -->
+    <!-- USAGE NOTES                                  -->
+    <!-- ============================================= -->
+    <!-- Usage Examples:
+    
+    1. Apply fade in animation using FadeInStoryboard
+    2. Hover animations using CardHoverStoryboard
+    3. Easing functions with EaseOut, EaseIn, EaseInOut
+    
+    See README.md for detailed usage examples
+    -->
+
+</ResourceDictionary>

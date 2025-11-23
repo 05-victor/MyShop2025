@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentDialog
+    x:Class="MyShop.Client.Views.Dialogs.TrialActivationDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:MyShop.Client.Common.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:MyShop.Client.Views.Dialogs"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="Activate Trial Account"
+    PrimaryButtonText="Activate"
+    CloseButtonText="Cancel"
+    DefaultButton="Primary"
+    IsPrimaryButtonEnabled="{Binding CanActivate, Mode=OneWay}"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    mc:Ignorable="d">
+
+    <ContentDialog.Resources>
+        <converters:EmptyStringToVisibilityConverter x:Key="StringToVisibilityConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </ContentDialog.Resources>
+
+    <Grid Width="450">
+        <StackPanel Spacing="{StaticResource Gap_MD}">
+
+            <!--  Info Message  -->
+            <InfoBar
+                Title="Trial Activation"
+                IsClosable="False"
+                IsOpen="True"
+                Message="Enter the 8-character admin activation code (XXXX-XXXX format) provided by your administrator to unlock full account features."
+                Severity="Informational" />
+
+            <!--  Error Message  -->
+            <InfoBar
+                IsClosable="True"
+                IsOpen="{Binding HasError, Mode=OneWay}"
+                Message="{Binding ErrorMessage, Mode=OneWay}"
+                Severity="Error" />
+
+            <!--  Admin Code Input  -->
+            <StackPanel Spacing="{StaticResource Gap_XS}">
+                <TextBlock Style="{StaticResource InputLabelStyle}">
+                    <Run Text="Admin Activation Code" />
+                    <Run Foreground="{ThemeResource SystemErrorTextColor}" Text="*" />
+                </TextBlock>
+                <TextBox
+                    Style="{StaticResource BaseInputStyle}"
+                    MaxLength="9"
+                    PlaceholderText="XXXX-XXXX"
+                    Text="{Binding AdminCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBlock
+                    Style="{StaticResource ValidationErrorStyle}"
+                    Foreground="{ThemeResource SystemErrorTextColor}"
+                    Text="{Binding AdminCodeError, Mode=OneWay}"
+                    Visibility="{Binding AdminCodeError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}" />
+            </StackPanel>
+
+            <!--  Help Text  -->
+            <Border
+                Padding="16"
+                Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <StackPanel Spacing="8">
+                    <TextBlock
+                        FontSize="13"
+                        FontWeight="SemiBold"
+                        Text="How to get an admin code:" />
+                    <StackPanel Spacing="4">
+                        <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                            <Run Text="•" />
+                            <Run Text="Contact your system administrator" />
+                        </TextBlock>
+                        <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                            <Run Text="•" />
+                            <Run Text="Check your welcome email for activation instructions" />
+                        </TextBlock>
+                        <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                            <Run Text="•" />
+                            <Run Text="Visit the help center or support portal" />
+                        </TextBlock>
+                    </StackPanel>
+
+                    <Border
+                        Margin="0,8,0,0"
+                        Padding="12,8"
+                        Background="{ThemeResource LayerFillColorDefaultBrush}"
+                        CornerRadius="4">
+                        <TextBlock
+                            FontSize="11"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            TextWrapping="Wrap">
+                            <Run FontWeight="SemiBold" Text="Demo codes (8 characters):" />
+                            <Run Text="ADMIN123, TRIAL001" />
+                        </TextBlock>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Grid>
+</ContentDialog>

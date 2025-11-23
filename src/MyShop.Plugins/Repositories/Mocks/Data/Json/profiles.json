@@ -1,0 +1,59 @@
+{
+  "profiles": [
+    {
+      "userId": "00000000-0000-0000-0000-000000000001",
+      "avatar": "https://ui-avatars.com/api/?name=Administrator&background=4F46E5&color=fff&size=200",
+      "fullName": "Nguyễn Văn Admin",
+      "phoneNumber": "0901234567",
+      "email": "admin@myshop.com",
+      "address": "123 Nguyễn Huệ, Quận 1, TP.HCM",
+      "jobTitle": "System Administrator",
+      "createdAt": "2024-05-10T08:30:00Z",
+      "updatedAt": "2025-10-15T14:20:00Z"
+    },
+    {
+      "userId": "00000000-0000-0000-0000-000000000002",
+      "avatar": "https://ui-avatars.com/api/?name=Sales+Agent&background=10B981&color=fff&size=200",
+      "fullName": "Trần Thị Bích",
+      "phoneNumber": "0902345678",
+      "email": "sales1@myshop.com",
+      "address": "456 Lê Lợi, Quận 3, TP.HCM",
+      "jobTitle": "Sales Agent",
+      "createdAt": "2024-08-15T10:00:00Z",
+      "updatedAt": "2025-11-05T09:15:00Z"
+    },
+    {
+      "userId": "00000000-0000-0000-0000-000000000003",
+      "avatar": "https://ui-avatars.com/api/?name=John+Doe&background=F59E0B&color=fff&size=200",
+      "fullName": "John Doe",
+      "phoneNumber": "0903456789",
+      "email": "john.doe@gmail.com",
+      "address": "789 Pasteur, Quận 1, TP.HCM",
+      "jobTitle": "Customer",
+      "createdAt": "2025-10-01T12:30:00Z",
+      "updatedAt": "2025-10-26T08:00:00Z"
+    },
+    {
+      "userId": "00000000-0000-0000-0000-000000000004",
+      "avatar": "https://ui-avatars.com/api/?name=Jane+Smith&background=EC4899&color=fff&size=200",
+      "fullName": "Jane Smith",
+      "phoneNumber": "0904567890",
+      "email": "jane.smith@gmail.com",
+      "address": "321 Võ Văn Tần, Quận 3, TP.HCM",
+      "jobTitle": "Business Owner",
+      "createdAt": "2025-08-30T16:20:00Z",
+      "updatedAt": "2025-09-20T11:30:00Z"
+    },
+    {
+      "userId": "00000000-0000-0000-0000-000000000005",
+      "avatar": null,
+      "fullName": null,
+      "phoneNumber": "0905678901",
+      "email": "newuser@example.com",
+      "address": null,
+      "jobTitle": null,
+      "createdAt": "2025-11-08T14:00:00Z",
+      "updatedAt": null
+    }
+  ]
+}

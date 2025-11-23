@@ -1,0 +1,214 @@
+{
+  "dashboardSummary": {
+    "date": "2025-11-10",
+    "totalProducts": 12,
+    "todayOrders": 0,
+    "todayRevenue": 0,
+    "weekRevenue": 56460000,
+    "monthRevenue": 243920000,
+    "lowStockProducts": [
+      {
+        "id": "20000000-0000-0000-0000-000000000010",
+        "name": "WWWWWWWWWWWWWWWWWWWWWWWWW",
+        "categoryName": "Gaming",
+        "quantity": 0,
+        "imageUrl": "ms-appx:///Assets/Images/products/product-placeholder.png",
+        "status": "OUT_OF_STOCK"
+      },
+      {
+        "id": "20000000-0000-0000-0000-000000000009",
+        "name": "Logitech MX Master 3S Wireless Mouse",
+        "categoryName": "Accessories",
+        "quantity": 3,
+        "imageUrl": "ms-appx:///Assets/Images/products/product-placeholder.png",
+        "status": "LOW_STOCK"
+      },
+      {
+        "id": "20000000-0000-0000-0000-000000000008",
+        "name": "Dell XPS 13 Intel Core i7 Gen 13",
+        "categoryName": "Laptops",
+        "quantity": 5,
+        "imageUrl": "ms-appx:///Assets/Images/products/product-placeholder.png",
+        "status": "AVAILABLE"
+      },
+      {
+        "id": "20000000-0000-0000-0000-000000000007",
+        "name": "Sony WH-1000XM5 Wireless Headphones",
+        "categoryName": "Audio",
+        "quantity": 8,
+        "imageUrl": "ms-appx:///Assets/Images/products/product-placeholder.png",
+        "status": "AVAILABLE"
+      }
+    ],
+    "topSellingProducts": [
+      {
+        "id": "20000000-0000-0000-0000-000000000001",
+        "name": "iPhone 15 Pro 256GB Titanium",
+        "categoryName": "Smartphones",
+        "soldCount": 3,
+        "revenue": 89970000,
+        "imageUrl": "ms-appx:///Assets/Images/products/product-placeholder.png"
+      },
+      {
+        "id": "20000000-0000-0000-0000-000000000006",
+        "name": "Apple Watch Series 9 GPS 45mm",
+        "categoryName": "Wearables",
+        "soldCount": 4,
+        "revenue": 45960000,
+        "imageUrl": "ms-appx:///Assets/Images/products/product-placeholder.png"
+      },
+      {
+        "id": "20000000-0000-0000-0000-000000000008",
+        "name": "Dell XPS 13 Intel Core i7 Gen 13",
+        "categoryName": "Laptops",
+        "soldCount": 1,
+        "revenue": 38990000,
+        "imageUrl": "ms-appx:///Assets/Images/products/product-placeholder.png"
+      },
+      {
+        "id": "20000000-0000-0000-0000-000000000002",
+        "name": "Samsung Galaxy S23 Ultra 512GB",
+        "categoryName": "Smartphones",
+        "soldCount": 1,
+        "revenue": 31990000,
+        "imageUrl": "ms-appx:///Assets/Images/products/product-placeholder.png"
+      },
+      {
+        "id": "20000000-0000-0000-0000-000000000003",
+        "name": "AirPods Pro (2nd Generation)",
+        "categoryName": "Accessories",
+        "soldCount": 3,
+        "revenue": 19470000,
+        "imageUrl": "ms-appx:///Assets/Images/products/product-placeholder.png"
+      }
+    ],
+    "recentOrders": [
+      {
+        "id": "30000000-0000-0000-0000-000000000004",
+        "customerName": "Jane Smith",
+        "orderDate": "2025-11-08T15:20:00Z",
+        "totalAmount": 22980000,
+        "status": "CREATED",
+        "salesAgentName": "Trần Thị Bích Salesman"
+      },
+      {
+        "id": "30000000-0000-0000-0000-000000000003",
+        "customerName": "John Customer Doe",
+        "orderDate": "2025-11-08T09:00:00Z",
+        "totalAmount": 33480000,
+        "status": "CREATED",
+        "salesAgentName": "Trần Thị Bích Salesman"
+      },
+      {
+        "id": "30000000-0000-0000-0000-000000000002",
+        "customerName": "Jane Smith",
+        "orderDate": "2025-11-07T10:15:00Z",
+        "totalAmount": 37980000,
+        "status": "PAID",
+        "salesAgentName": "Trần Thị Bích Salesman"
+      },
+      {
+        "id": "30000000-0000-0000-0000-000000000006",
+        "customerName": "Jane Smith",
+        "orderDate": "2025-11-06T16:30:00Z",
+        "totalAmount": 21000000,
+        "status": "PAID",
+        "salesAgentName": "Trần Thị Bích Salesman"
+      },
+      {
+        "id": "30000000-0000-0000-0000-000000000001",
+        "customerName": "John Customer Doe",
+        "orderDate": "2025-11-05T14:30:00Z",
+        "totalAmount": 29990000,
+        "status": "PAID",
+        "salesAgentName": "Trần Thị Bích Salesman"
+      }
+    ],
+    "salesByCategory": [
+      {
+        "categoryName": "Smartphones",
+        "totalRevenue": 121960000,
+        "orderCount": 4,
+        "percentage": 50.0
+      },
+      {
+        "categoryName": "Wearables",
+        "totalRevenue": 45960000,
+        "orderCount": 4,
+        "percentage": 18.8
+      },
+      {
+        "categoryName": "Laptops",
+        "totalRevenue": 38990000,
+        "orderCount": 1,
+        "percentage": 16.0
+      },
+      {
+        "categoryName": "Accessories",
+        "totalRevenue": 22460000,
+        "orderCount": 4,
+        "percentage": 9.2
+      },
+      {
+        "categoryName": "Audio",
+        "totalRevenue": 8990000,
+        "orderCount": 1,
+        "percentage": 3.7
+      },
+      {
+        "categoryName": "Tablets",
+        "totalRevenue": 0,
+        "orderCount": 0,
+        "percentage": 0
+      },
+      {
+        "categoryName": "Gaming",
+        "totalRevenue": 0,
+        "orderCount": 0,
+        "percentage": 0
+      },
+      {
+        "categoryName": "Smart Home",
+        "totalRevenue": 0,
+        "orderCount": 0,
+        "percentage": 0
+      }
+    ]
+  },
+  "revenueChart": {
+    "daily": {
+      "labels": [
+        "2025-11-01",
+        "2025-11-02",
+        "2025-11-03",
+        "2025-11-04",
+        "2025-11-05",
+        "2025-11-06",
+        "2025-11-07",
+        "2025-11-08",
+        "2025-11-09",
+        "2025-11-10"
+      ],
+      "data": [0, 38990000, 0, 0, 29990000, 21000000, 37980000, 56460000, 0, 0]
+    },
+    "weekly": {
+      "labels": ["Week 40", "Week 41", "Week 42", "Week 43", "Week 44", "Week 45"],
+      "data": [0, 0, 0, 80000000, 0, 163920000]
+    },
+    "monthly": {
+      "labels": [
+        "Jun 2025",
+        "Jul 2025",
+        "Aug 2025",
+        "Sep 2025",
+        "Oct 2025",
+        "Nov 2025"
+      ],
+      "data": [0, 0, 0, 0, 80000000, 163920000]
+    },
+    "yearly": {
+      "labels": ["2023", "2024", "2025"],
+      "data": [0, 0, 243920000]
+    }
+  }
+}

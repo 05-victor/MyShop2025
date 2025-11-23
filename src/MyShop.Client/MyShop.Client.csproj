@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
+		<TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
 		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
 		<RootNamespace>MyShop.Client</RootNamespace>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
@@ -19,35 +19,91 @@
 
 	<ItemGroup>
 		<Content Include="Assets\**" />
-		<Content Include="ApiServer\ApiConfig.json">
+		<Content Include="Config\ApiConfig.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
 
+	<!-- Copy mock data JSON files from Plugins project to output directory -->
+	<Target Name="CopyMockDataFiles" AfterTargets="Build">
+		<ItemGroup>
+			<MockJsonFiles Include="..\MyShop.Plugins\Repositories\Mocks\Data\Json\*.json" />
+		</ItemGroup>
+		<Copy SourceFiles="@(MockJsonFiles)" DestinationFolder="$(OutputPath)\Mocks\Data\Json\" SkipUnchangedFiles="true" />
+		<Message Text="Copied mock JSON files to $(OutputPath)\Mocks\Data\Json\" Importance="high" />
+	</Target>
+
 	<ItemGroup>
 		<!-- WinUI -->
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251003001" />
-		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.6584" />
+		<PackageReference Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="7.1.2" />
+		<PackageReference Include="CSharpMarkup.WinUI.LiveChartsCore.SkiaSharpView" Version="3.1.2" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251106002" />
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7175" />
 
-		<!-- MVVM & DI -->
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.10" />
+	<!-- MVVM & DI -->
+	<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+	<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
 
-		<!-- API Client (Update to non-vulnerable versions) -->
-		<PackageReference Include="Refit.HttpClientFactory" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.10" />
+	<!-- MediatR for CQRS -->
+	<PackageReference Include="MediatR" Version="13.1.0" />
 
-		<!-- Using Newtonsoft.Json with Refit is often more reliable -->
-		<PackageReference Include="Refit.Newtonsoft.Json" Version="8.0.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+	<!-- FluentValidation -->
+	<PackageReference Include="FluentValidation" Version="12.1.0" />
+	<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.0" />
+
+	<!-- API Client (Update to non-vulnerable versions) -->
+	<PackageReference Include="Refit.HttpClientFactory" Version="8.0.0" />
+	<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0" />
+
+	<!-- Using Newtonsoft.Json with Refit is often more reliable -->
+	<PackageReference Include="Refit.Newtonsoft.Json" Version="8.0.0" />
+	<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 	</ItemGroup>
 
+	<!-- Client phụ thuộc vào Core (interfaces) và Shared (DTOs) -->
+	<!-- Plugins được inject qua DI, không reference trực tiếp -->
 	<ItemGroup>
+		<ProjectReference Include="..\MyShop.Core\MyShop.Core.csproj" />
 		<ProjectReference Include="..\MyShop.Shared\MyShop.Shared.csproj" />
+		<ProjectReference Include="..\MyShop.Plugins\MyShop.Plugins.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<Manifest Include="$(ApplicationManifest)" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Update="Views\Product\AdminProductPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Update="Views\Order\AdminOrderPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Update="Views\Report\AdminReportsPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Update="Views\Settings\SettingsPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Update="Views\Profile\ProfilePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Logs\" />
 	</ItemGroup>
 
 </Project>

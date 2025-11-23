@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="MyShop.Client.Views.SalesAgent.SalesAgentProductsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:badges="using:MyShop.Client.Views.Components.Badges"
+    xmlns:pagination="using:MyShop.Client.Views.Components.Pagination"
+    mc:Ignorable="d"
+    Background="#F3F4F6">
+
+    <Page.Resources>
+        <Style x:Key="CardBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="BorderBrush" Value="#E5E7EB" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="24" />
+        </Style>
+
+        <Style x:Key="IconButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="8" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="6" />
+        </Style>
+    </Page.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Padding="32" Spacing="24">
+
+            <!-- PAGE HEADER -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="My Products" 
+                              FontSize="28" 
+                              FontWeight="SemiBold"
+                              Foreground="#111827"/>
+                    <TextBlock Text="Manage your product listings and inventory" 
+                              FontSize="14" 
+                              Foreground="#6B7280"
+                              Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" 
+                           Orientation="Horizontal" 
+                           Spacing="12"
+                           VerticalAlignment="Center">
+                    <Button Padding="12,10"
+                           Background="Transparent"
+                           BorderBrush="#E5E7EB"
+                           BorderThickness="1"
+                           CornerRadius="8">
+                        <Button.Resources>
+                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#F9FAFB"/>
+                        </Button.Resources>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE72C;" FontSize="16" Foreground="#6B7280"/>
+                            <TextBlock Text="Refresh" FontSize="14" Foreground="#111827"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Padding="12,10"
+                           Background="Transparent"
+                           BorderBrush="#E5E7EB"
+                           BorderThickness="1"
+                           CornerRadius="8">
+                        <Button.Resources>
+                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#F9FAFB"/>
+                        </Button.Resources>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE896;" FontSize="16" Foreground="#6B7280"/>
+                            <TextBlock Text="Export" FontSize="14" Foreground="#111827"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Padding="16,10"
+                           Background="#1A4D8F"
+                           Foreground="White"
+                           BorderThickness="0"
+                           CornerRadius="8">
+                        <Button.Resources>
+                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#153d73"/>
+                            <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#0f2f5a"/>
+                        </Button.Resources>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE710;" FontSize="16"/>
+                            <TextBlock Text="Add Product" FontSize="14" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- FILTERS & SEARCH -->
+            <Border Style="{StaticResource CardBorderStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.ColumnSpacing>16</Grid.ColumnSpacing>
+
+                    <!-- Search -->
+                    <TextBox Grid.Column="0"
+                            PlaceholderText="Search products..."
+                            CornerRadius="8"
+                            BorderBrush="#E5E7EB">
+                        <TextBox.Resources>
+                            <Thickness x:Key="TextBoxPadding">12,10</Thickness>
+                        </TextBox.Resources>
+                    </TextBox>
+
+                    <!-- Category Filter -->
+                    <ComboBox Grid.Column="1"
+                             SelectedIndex="0"
+                             HorizontalAlignment="Stretch"
+                             CornerRadius="8">
+                        <ComboBoxItem Content="All Categories"/>
+                        <ComboBoxItem Content="Smartphones"/>
+                        <ComboBoxItem Content="Laptops"/>
+                        <ComboBoxItem Content="Audio"/>
+                        <ComboBoxItem Content="Tablets"/>
+                    </ComboBox>
+
+                    <!-- Brand Filter -->
+                    <ComboBox Grid.Column="2"
+                             SelectedIndex="0"
+                             HorizontalAlignment="Stretch"
+                             CornerRadius="8">
+                        <ComboBoxItem Content="All Brands"/>
+                        <ComboBoxItem Content="Apple"/>
+                        <ComboBoxItem Content="Samsung"/>
+                        <ComboBoxItem Content="Dell"/>
+                        <ComboBoxItem Content="Sony"/>
+                    </ComboBox>
+
+                    <!-- Sort By -->
+                    <ComboBox Grid.Column="3"
+                             SelectedIndex="0"
+                             HorizontalAlignment="Stretch"
+                             CornerRadius="8">
+                        <ComboBoxItem Content="Rating (High to Low)"/>
+                        <ComboBoxItem Content="Price (High to Low)"/>
+                        <ComboBoxItem Content="Price (Low to High)"/>
+                        <ComboBoxItem Content="Name (A-Z)"/>
+                        <ComboBoxItem Content="Name (Z-A)"/>
+                    </ComboBox>
+                </Grid>
+            </Border>
+
+            <!-- PRODUCTS TABLE -->
+            <Border Style="{StaticResource CardBorderStyle}" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Table Header -->
+                    <Grid Grid.Row="0" 
+                         Padding="24,16"
+                         BorderBrush="#E5E7EB"
+                         BorderThickness="0,0,0,1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="120"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Text="PRODUCT" 
+                                  FontSize="11" FontWeight="SemiBold" 
+                                  Foreground="#6B7280"/>
+                        <TextBlock Grid.Column="1" Text="CATEGORY" 
+                                  FontSize="11" FontWeight="SemiBold" 
+                                  Foreground="#6B7280"/>
+                        <TextBlock Grid.Column="2" Text="PRICE" 
+                                  FontSize="11" FontWeight="SemiBold" 
+                                  Foreground="#6B7280"/>
+                        <TextBlock Grid.Column="3" Text="STOCK" 
+                                  FontSize="11" FontWeight="SemiBold" 
+                                  Foreground="#6B7280"/>
+                        <TextBlock Grid.Column="4" Text="RATING" 
+                                  FontSize="11" FontWeight="SemiBold" 
+                                  Foreground="#6B7280"/>
+                        <TextBlock Grid.Column="5" Text="ACTIONS" 
+                                  FontSize="11" FontWeight="SemiBold" 
+                                  Foreground="#6B7280"/>
+                    </Grid>
+
+                    <!-- Table Body -->
+                    <ScrollViewer Grid.Row="1" 
+                                 VerticalScrollBarVisibility="Auto"
+                                 MaxHeight="600">
+                        <StackPanel>
+                            <!-- Mock Product Row 1 -->
+                            <Grid Padding="24,16" 
+                                 BorderBrush="#E5E7EB"
+                                 BorderThickness="0,0,0,1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="3*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="120"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Product Info -->
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                                    <Border Width="48" Height="48" 
+                                           Background="#F9FAFB" 
+                                           CornerRadius="8">
+                                        <FontIcon Glyph="&#xE7B8;" 
+                                                 FontSize="24" 
+                                                 Foreground="#6B7280"/>
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="iPhone 15 Pro Max" 
+                                                  FontSize="14" 
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#111827"/>
+                                        <TextBlock Text="Apple" 
+                                                  FontSize="12" 
+                                                  Foreground="#6B7280"/>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!-- Category -->
+                                <TextBlock Grid.Column="1" 
+                                          Text="Smartphones"
+                                          FontSize="14"
+                                          Foreground="#6B7280"
+                                          VerticalAlignment="Center"/>
+
+                                <!-- Price -->
+                                <TextBlock Grid.Column="2" 
+                                          FontSize="14"
+                                          FontWeight="SemiBold"
+                                          Foreground="#111827"
+                                          VerticalAlignment="Center">
+                                    <Run Text="$"/>
+                                    <Run Text="1,199"/>
+                                </TextBlock>
+
+                                <!-- Stock -->
+                                <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                                    <badges:StockBadge Stock="45" LowStockThreshold="10"/>
+                                </StackPanel>
+
+                                <!-- Rating -->
+                                <StackPanel Grid.Column="4" 
+                                           Orientation="Horizontal" 
+                                           Spacing="4"
+                                           VerticalAlignment="Center">
+                                    <FontIcon Glyph="&#xE735;" 
+                                             FontSize="14" 
+                                             Foreground="#F59E0B"/>
+                                    <TextBlock Text="4.8" 
+                                              FontSize="14" 
+                                              Foreground="#111827"/>
+                                    <TextBlock Text="(234)" 
+                                              FontSize="12" 
+                                              Foreground="#6B7280"/>
+                                </StackPanel>
+
+                                <!-- Actions -->
+                                <StackPanel Grid.Column="5" 
+                                           Orientation="Horizontal" 
+                                           Spacing="4"
+                                           VerticalAlignment="Center">
+                                    <Button Style="{StaticResource IconButtonStyle}"
+                                           ToolTipService.ToolTip="View">
+                                        <FontIcon Glyph="&#xE7A6;" FontSize="16" Foreground="#6B7280"/>
+                                    </Button>
+                                    <Button Style="{StaticResource IconButtonStyle}"
+                                           ToolTipService.ToolTip="Edit">
+                                        <FontIcon Glyph="&#xE70F;" FontSize="16" Foreground="#3B82F6"/>
+                                    </Button>
+                                    <Button Style="{StaticResource IconButtonStyle}"
+                                           ToolTipService.ToolTip="Delete">
+                                        <FontIcon Glyph="&#xE74D;" FontSize="16" Foreground="#DC2626"/>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Mock Product Row 2 -->
+                            <Grid Padding="24,16" 
+                                 BorderBrush="#E5E7EB"
+                                 BorderThickness="0,0,0,1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="3*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="120"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                                    <Border Width="48" Height="48" 
+                                           Background="#F9FAFB" 
+                                           CornerRadius="8">
+                                        <FontIcon Glyph="&#xE7F4;" 
+                                                 FontSize="24" 
+                                                 Foreground="#6B7280"/>
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="MacBook Pro 16&quot;" 
+                                                  FontSize="14" 
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#111827"/>
+                                        <TextBlock Text="Apple" 
+                                                  FontSize="12" 
+                                                  Foreground="#6B7280"/>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <TextBlock Grid.Column="1" 
+                                          Text="Laptops"
+                                          FontSize="14"
+                                          Foreground="#6B7280"
+                                          VerticalAlignment="Center"/>
+
+                                <TextBlock Grid.Column="2" 
+                                          FontSize="14"
+                                          FontWeight="SemiBold"
+                                          Foreground="#111827"
+                                          VerticalAlignment="Center">
+                                    <Run Text="$"/>
+                                    <Run Text="2,499"/>
+                                </TextBlock>
+
+                                <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                                    <badges:StockBadge Stock="23" LowStockThreshold="10"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="4" 
+                                           Orientation="Horizontal" 
+                                           Spacing="4"
+                                           VerticalAlignment="Center">
+                                    <FontIcon Glyph="&#xE735;" 
+                                             FontSize="14" 
+                                             Foreground="#F59E0B"/>
+                                    <TextBlock Text="4.9" 
+                                              FontSize="14" 
+                                              Foreground="#111827"/>
+                                    <TextBlock Text="(189)" 
+                                              FontSize="12" 
+                                              Foreground="#6B7280"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="5" 
+                                           Orientation="Horizontal" 
+                                           Spacing="4"
+                                           VerticalAlignment="Center">
+                                    <Button Style="{StaticResource IconButtonStyle}">
+                                        <FontIcon Glyph="&#xE7A6;" FontSize="16" Foreground="#6B7280"/>
+                                    </Button>
+                                    <Button Style="{StaticResource IconButtonStyle}">
+                                        <FontIcon Glyph="&#xE70F;" FontSize="16" Foreground="#3B82F6"/>
+                                    </Button>
+                                    <Button Style="{StaticResource IconButtonStyle}">
+                                        <FontIcon Glyph="&#xE74D;" FontSize="16" Foreground="#DC2626"/>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- More rows would be generated dynamically -->
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Pagination -->
+                    <Grid Grid.Row="2" 
+                         Padding="24,16"
+                         BorderBrush="#E5E7EB"
+                         BorderThickness="0,1,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0"
+                                  VerticalAlignment="Center"
+                                  FontSize="14"
+                                  Foreground="#6B7280">
+                            <Run Text="Showing"/>
+                            <Run Text="1-5" FontWeight="SemiBold"/>
+                            <Run Text="of"/>
+                            <Run Text="5" FontWeight="SemiBold"/>
+                            <Run Text="products"/>
+                        </TextBlock>
+
+                        <pagination:PaginationControl Grid.Column="1"
+                                                     CurrentPage="1"
+                                                     VerticalAlignment="Center"/>
+                    </Grid>
+                </Grid>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

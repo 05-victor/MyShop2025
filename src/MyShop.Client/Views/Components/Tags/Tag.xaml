@@ -1,0 +1,39 @@
+<UserControl x:Class="MyShop.Client.Views.Components.Tags.Tag"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Name="RootControl">
+
+    <Border x:Name="TagContainer"
+            CornerRadius="12"
+            Padding="10,4"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Center">
+        
+        <StackPanel Orientation="Horizontal" Spacing="6">
+            <!-- Tag Text -->
+            <TextBlock x:Name="TagText"
+                       Text="{Binding Text, ElementName=RootControl, Mode=OneWay}"
+                       FontSize="12"
+                       FontWeight="Medium"
+                       VerticalAlignment="Center"/>
+            
+            <!-- Remove Button -->
+            <Button x:Name="RemoveButton"
+                    Width="16"
+                    Height="16"
+                    Padding="0"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Visibility="Collapsed"
+                    Click="OnRemoveClick"
+                    ToolTipService.ToolTip="Remove">
+                <FontIcon Glyph="&#xE711;"
+                          FontSize="10"
+                          FontFamily="{StaticResource SymbolThemeFontFamily}"/>
+            </Button>
+        </StackPanel>
+    </Border>
+</UserControl>
