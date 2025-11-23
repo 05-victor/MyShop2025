@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyShop.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MyShop.Data.Migrations
 {
     [DbContext(typeof(ShopContext))]
-    partial class ShopContextModelSnapshot : ModelSnapshot
+    [Migration("20251122012731_UpdateOrderEntity")]
+    partial class UpdateOrderEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -198,8 +201,8 @@ namespace MyShop.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("total_price");
 
-                    b.Property<int>("UnitSalePrice")
-                        .HasColumnType("integer")
+                    b.Property<float>("UnitSalePrice")
+                        .HasColumnType("real")
                         .HasColumnName("unit_sale_price");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -556,7 +559,7 @@ namespace MyShop.Data.Migrations
             modelBuilder.Entity("MyShop.Data.Entities.OrderItem", b =>
                 {
                     b.HasOne("MyShop.Data.Entities.Order", "Order")
-                        .WithMany("OrderItems")
+                        .WithMany()
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
@@ -667,11 +670,6 @@ namespace MyShop.Data.Migrations
             modelBuilder.Entity("MyShop.Data.Entities.Authority", b =>
                 {
                     b.Navigation("RoleAuthorities");
-                });
-
-            modelBuilder.Entity("MyShop.Data.Entities.Order", b =>
-                {
-                    b.Navigation("OrderItems");
                 });
 
             modelBuilder.Entity("MyShop.Data.Entities.Role", b =>

@@ -1,7 +1,8 @@
-﻿
-
-namespace MyShop.Data.Entities
+﻿namespace MyShop.Data.Entities
 {
+    /// <summary>
+    /// Entity representing a product in the MyShop system
+    /// </summary>
     public class Product
     {
         public Guid Id { get; set; }
@@ -18,7 +19,20 @@ namespace MyShop.Data.Entities
         public string? ImageUrl { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        // Category relationship
         public Guid CategoryId { get; set; }
-        public required Category Category { get; set; }
+        public Category Category { get; set; }
+
+        // Sale Agent (User) relationship
+        /// <summary>
+        /// ID of the sale agent (user) who published this product
+        /// </summary>
+        public Guid? SaleAgentId { get; set; }
+
+        /// <summary>
+        /// Navigation property to the sale agent (user) who published this product
+        /// </summary>
+        public User? SaleAgent { get; set; }
     }
 }

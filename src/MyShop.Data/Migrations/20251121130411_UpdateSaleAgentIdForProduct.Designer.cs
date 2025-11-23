@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyShop.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MyShop.Data.Migrations
 {
     [DbContext(typeof(ShopContext))]
-    partial class ShopContextModelSnapshot : ModelSnapshot
+    [Migration("20251121130411_UpdateSaleAgentIdForProduct")]
+    partial class UpdateSaleAgentIdForProduct
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -109,51 +112,18 @@ namespace MyShop.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("customer_id");
-
-                    b.Property<int>("DiscountAmount")
+                    b.Property<int>("FinalPrice")
                         .HasColumnType("integer")
-                        .HasColumnName("discount_amount");
-
-                    b.Property<int>("GrandTotal")
-                        .HasColumnType("integer")
-                        .HasColumnName("grand_total");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("text")
-                        .HasColumnName("note");
+                        .HasColumnName("final_price");
 
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("order_date");
 
-                    b.Property<string>("PaymentStatus")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("payment_status");
-
-                    b.Property<Guid>("SaleAgentId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("sale_agent_id");
-
-                    b.Property<int>("ShippingFee")
-                        .HasColumnType("integer")
-                        .HasColumnName("shipping_fee");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("status");
-
-                    b.Property<int>("TaxAmount")
-                        .HasColumnType("integer")
-                        .HasColumnName("tax_amount");
-
-                    b.Property<int>("TotalAmount")
-                        .HasColumnType("integer")
-                        .HasColumnName("total_amount");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -161,12 +131,6 @@ namespace MyShop.Data.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_orders");
-
-                    b.HasIndex("CustomerId")
-                        .HasDatabaseName("ix_orders_customer_id");
-
-                    b.HasIndex("SaleAgentId")
-                        .HasDatabaseName("ix_orders_sale_agent_id");
 
                     b.ToTable("orders", (string)null);
                 });
@@ -198,8 +162,8 @@ namespace MyShop.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("total_price");
 
-                    b.Property<int>("UnitSalePrice")
-                        .HasColumnType("integer")
+                    b.Property<float>("UnitSalePrice")
+                        .HasColumnType("real")
                         .HasColumnName("unit_sale_price");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -532,31 +496,10 @@ namespace MyShop.Data.Migrations
                     b.ToTable("user_roles", (string)null);
                 });
 
-            modelBuilder.Entity("MyShop.Data.Entities.Order", b =>
-                {
-                    b.HasOne("MyShop.Data.Entities.User", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_orders_users_customer_id");
-
-                    b.HasOne("MyShop.Data.Entities.User", "SaleAgent")
-                        .WithMany()
-                        .HasForeignKey("SaleAgentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_orders_users_sale_agent_id");
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("SaleAgent");
-                });
-
             modelBuilder.Entity("MyShop.Data.Entities.OrderItem", b =>
                 {
                     b.HasOne("MyShop.Data.Entities.Order", "Order")
-                        .WithMany("OrderItems")
+                        .WithMany()
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
@@ -667,11 +610,6 @@ namespace MyShop.Data.Migrations
             modelBuilder.Entity("MyShop.Data.Entities.Authority", b =>
                 {
                     b.Navigation("RoleAuthorities");
-                });
-
-            modelBuilder.Entity("MyShop.Data.Entities.Order", b =>
-                {
-                    b.Navigation("OrderItems");
                 });
 
             modelBuilder.Entity("MyShop.Data.Entities.Role", b =>

@@ -1,11 +1,20 @@
 ﻿using MyShop.Data.Entities;
-using MyShop.Server.Factories;
+using MyShop.Server.Factories.Interfaces;
 using MyShop.Shared.DTOs.Requests;
 
-namespace MyShop.Server.Factories
+namespace MyShop.Server.Factories.Implementations
 {
-    public class ProductFactory : BaseFactory<Product, CreateProductRequest>
+    /// <summary>
+    /// Factory for creating Product entities from CreateProductRequest
+    /// </summary>
+    public class ProductFactory : BaseFactory<Product, CreateProductRequest>, IProductFactory
     {
+        /// <summary>
+        /// Create a new Product entity from a CreateProductRequest
+        /// </summary>
+        /// <param name="request">The product creation request</param>
+        /// <returns>A new Product entity with initialized fields</returns>
+        /// <exception cref="ArgumentException">Thrown when validation fails</exception>
         public override Product Create(CreateProductRequest request)
         {
             // Basic validation
@@ -19,7 +28,10 @@ namespace MyShop.Server.Factories
                 throw new ArgumentException("Commission rate must be between 0 and 1.");
 
             // Initialize new Product entity
+<<<<<<< HEAD:src/MyShop.Server/Factories/Implementations/ProductFactory.cs
+=======
             // Set Category to a non-null value to satisfy required member
+>>>>>>> master:src/MyShop.Server/Factories/ProductFactory.cs
             var product = new Product
             {
                 SKU = request.SKU.Trim(),
@@ -34,7 +46,11 @@ namespace MyShop.Server.Factories
                 Description = request.Description?.Trim(),
                 ImageUrl = request.ImageUrl?.Trim(),
                 CategoryId = request.CategoryId,
+<<<<<<< HEAD:src/MyShop.Server/Factories/Implementations/ProductFactory.cs
+                SaleAgentId = request.SaleAgentId // Will be set in service if null
+=======
                 Category = null! // Will be set in the service layer or by EF Core
+>>>>>>> master:src/MyShop.Server/Factories/ProductFactory.cs
             };
 
             // Set additional fields
