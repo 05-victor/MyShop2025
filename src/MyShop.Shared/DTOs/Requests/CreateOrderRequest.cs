@@ -14,8 +14,8 @@ public class CreateOrderRequest
 
     public string PaymentStatus { get; set; } = "UNPAID";
 
-    [Range(0, int.MaxValue, ErrorMessage = "Total amount must be non-negative")]
-    public int TotalAmount { get; set; }
+    //[Range(0, int.MaxValue, ErrorMessage = "Total amount must be non-negative")]
+    //public int TotalAmount { get; set; }
 
     [Range(0, int.MaxValue, ErrorMessage = "Discount amount must be non-negative")]
     public int DiscountAmount { get; set; } = 0;
@@ -26,8 +26,8 @@ public class CreateOrderRequest
     [Range(0, int.MaxValue, ErrorMessage = "Tax amount must be non-negative")]
     public int TaxAmount { get; set; } = 0;
 
-    [Range(0, int.MaxValue, ErrorMessage = "Grand total must be non-negative")]
-    public int GrandTotal { get; set; }
+    //[Range(0, int.MaxValue, ErrorMessage = "Grand total must be non-negative")]
+    //public int GrandTotal { get; set; }
 
     [MaxLength(500, ErrorMessage = "Note cannot exceed 500 characters")]
     public string? Note { get; set; }
@@ -57,6 +57,6 @@ public class CreateOrderItemRequest
     [Range(0, int.MaxValue, ErrorMessage = "Unit sale price must be non-negative")]
     public int UnitSalePrice { get; set; }
 
-    [Range(0, int.MaxValue, ErrorMessage = "Total price must be non-negative")]
-    public int TotalPrice { get; set; }
+    //[Range(0, int.MaxValue, ErrorMessage = "Total price must be non-negative")]
+    //public int TotalPrice { get; set; }
 }

@@ -18,11 +18,11 @@ public class OrderFactory : BaseFactory<Order, CreateOrderRequest>, IOrderFactor
     public override Order Create(CreateOrderRequest request)
     {
         // Basic validation
-        if (request.GrandTotal < 0)
-            throw new ArgumentException("Grand total cannot be negative.", nameof(request.GrandTotal));
+        //if (request.GrandTotal < 0)
+        //    throw new ArgumentException("Grand total cannot be negative.", nameof(request.GrandTotal));
 
-        if (request.TotalAmount < 0)
-            throw new ArgumentException("Total amount cannot be negative.", nameof(request.TotalAmount));
+        //if (request.TotalAmount < 0)
+        //    throw new ArgumentException("Total amount cannot be negative.", nameof(request.TotalAmount));
 
         if (request.DiscountAmount < 0)
             throw new ArgumentException("Discount amount cannot be negative.", nameof(request.DiscountAmount));
@@ -33,11 +33,11 @@ public class OrderFactory : BaseFactory<Order, CreateOrderRequest>, IOrderFactor
             OrderDate = DateTime.UtcNow,
             Status = !string.IsNullOrWhiteSpace(request.Status) ? request.Status.Trim() : "PENDING",
             PaymentStatus = !string.IsNullOrWhiteSpace(request.PaymentStatus) ? request.PaymentStatus.Trim() : "UNPAID",
-            TotalAmount = request.TotalAmount,
+            //TotalAmount = request.TotalAmount,
             DiscountAmount = request.DiscountAmount,
             ShippingFee = request.ShippingFee,
             TaxAmount = request.TaxAmount,
-            GrandTotal = request.GrandTotal,
+            //GrandTotal = request.GrandTotal,
             Note = request.Note?.Trim(),
             CustomerId = request.CustomerId,
             SaleAgentId = request.SaleAgentId ?? Guid.Empty
@@ -52,7 +52,7 @@ public class OrderFactory : BaseFactory<Order, CreateOrderRequest>, IOrderFactor
                 ProductId = item.ProductId,
                 Quantity = item.Quantity,
                 UnitSalePrice = item.UnitSalePrice,
-                TotalPrice = item.TotalPrice,
+                TotalPrice = item.UnitSalePrice * item.Quantity,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 Order = order
@@ -62,6 +62,11 @@ public class OrderFactory : BaseFactory<Order, CreateOrderRequest>, IOrderFactor
         {
             order.OrderItems = new List<OrderItem>();
         }
+
+        // Calculate TotalAmount and GrandTotal
+        order.TotalAmount = order.OrderItems.Sum(oi => oi.TotalPrice);
+
+        order.GrandTotal = order.TotalAmount - order.DiscountAmount + order.ShippingFee + order.TaxAmount;
 
         // Set additional fields
         AssignNewId(order);
