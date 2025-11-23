@@ -1,8 +1,6 @@
-<<<<<<< HEAD
 using System.ComponentModel.DataAnnotations;
 
-=======
->>>>>>> master
+
 namespace MyShop.Shared.DTOs.Requests;
 
 /// <summary>
@@ -10,7 +8,6 @@ namespace MyShop.Shared.DTOs.Requests;
 /// </summary>
 public class CreateOrderRequest
 {
-<<<<<<< HEAD
     [Required(ErrorMessage = "Customer ID is required")]
     public required Guid CustomerId { get; set; }
 
@@ -63,7 +60,7 @@ public class CreateOrderItemRequest
 
     //[Range(0, int.MaxValue, ErrorMessage = "Total price must be non-negative")]
     //public int TotalPrice { get; set; }
-=======
+
     /// <summary>
     /// List of order items (product ID + quantity)
     /// </summary>
@@ -92,5 +89,4 @@ public class OrderItemRequest
 {
     public Guid ProductId { get; set; }
     public int Quantity { get; set; }
->>>>>>> master
 }
