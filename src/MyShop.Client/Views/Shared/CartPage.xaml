@@ -26,7 +26,7 @@
 
     <Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel Padding="32" Spacing="24" MaxWidth="1200">
+            <StackPanel Padding="32" Spacing="24">
                 
                 <!-- Header -->
                 <Grid>
@@ -48,8 +48,7 @@
                         </Button>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="Shopping Cart" 
-                                      FontSize="28" 
-                                      FontWeight="SemiBold"
+                                      Style="{StaticResource DisplayHeadingStyle}"
                                       Foreground="#111827"/>
                             <TextBlock Text="{x:Bind ViewModel.ItemCount, Mode=OneWay}" 
                                       FontSize="14" 
