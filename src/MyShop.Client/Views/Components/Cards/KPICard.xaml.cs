@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using System;
 using Windows.UI;
+using System.Globalization;
 
 namespace MyShop.Client.Views.Components.Cards
 {
@@ -162,7 +163,33 @@ namespace MyShop.Client.Views.Components.Cards
             if (value is int i) return i;
             if (value is long l) return l;
             if (value is float f) return f;
-            return Convert.ToDouble(value);
+
+            if (value is string s)
+            {
+                // Try parsing as currency/number using current culture (decimal for money accuracy)
+                if (decimal.TryParse(s, NumberStyles.Number | NumberStyles.AllowCurrencySymbol, CultureInfo.CurrentCulture, out var decParsed))
+                    return (double)decParsed;
+
+                // Fallback: remove common grouping and currency symbols then try invariant parse
+                var cleaned = s.Replace(",", "").Replace(" ", "").Replace("$", "").Replace("€", "").Replace("¥", "").Trim();
+                if (decimal.TryParse(cleaned, NumberStyles.Number, CultureInfo.InvariantCulture, out decParsed))
+                    return (double)decParsed;
+
+                // Last resort: try double parsing with current culture
+                if (double.TryParse(s, NumberStyles.Number | NumberStyles.AllowCurrencySymbol, CultureInfo.CurrentCulture, out var dParsed))
+                    return dParsed;
+
+                return 0.0;
+            }
+
+            try
+            {
+                return Convert.ToDouble(value, CultureInfo.CurrentCulture);
+            }
+            catch
+            {
+                return 0.0;
+            }
         }
 
         private void CardBorder_PointerEntered(object sender, PointerRoutedEventArgs e)
