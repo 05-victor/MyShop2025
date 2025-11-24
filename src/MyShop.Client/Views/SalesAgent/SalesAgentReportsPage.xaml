@@ -28,6 +28,26 @@
     <ScrollViewer>
         <StackPanel Spacing="24" Padding="24">
 
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="My Reports"
+                           Style="{StaticResource DisplayHeadingStyle}"
+                           Foreground="#111827"/>
+                    <TextBlock Text="View performance insights and revenue trends"
+                           FontSize="14"
+                           Foreground="#6B7280"
+                           Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <!-- Right side actions (optional)
+                 Nếu muốn sau này có thể thêm nút Refresh/Export giống SalesOrdersPage ở đây -->
+            </Grid>
+
             <!-- Header với Filters -->
             <Border Style="{StaticResource CardStyle}">
                 <Grid ColumnSpacing="16" RowSpacing="16">
