@@ -28,7 +28,6 @@
   <ItemGroup>
     <Folder Include="Attributes\" />
     <Folder Include="Extensions\" />
-    <Folder Include="Middleware\" />
   </ItemGroup>
 
 </Project>

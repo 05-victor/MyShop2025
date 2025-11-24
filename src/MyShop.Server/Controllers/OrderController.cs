@@ -21,6 +21,7 @@ public class OrderController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<IEnumerable<OrderResponse>>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 500)]
     public async Task<ActionResult<ApiResponse<IEnumerable<OrderResponse>>>> GetAllAsync()
     {
         var orders = await _orderService.GetAllAsync();
@@ -29,6 +30,8 @@ public class OrderController : ControllerBase
 
     [HttpGet("{id:guid}", Name = "GetOrderById")]
     [ProducesResponseType(typeof(ApiResponse<OrderResponse>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 404)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 500)]
     public async Task<ActionResult<ApiResponse<OrderResponse>>> GetByIdAsync([FromRoute] Guid id)
     {
         var order = await _orderService.GetByIdAsync(id);
@@ -41,6 +44,9 @@ public class OrderController : ControllerBase
 
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<OrderResponse>), 201)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 400)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 404)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 500)]
     public async Task<ActionResult<ApiResponse<OrderResponse>>> CreateAsync([FromBody] CreateOrderRequest createOrderRequest)
     {
         var createdOrder = await _orderService.CreateAsync(createOrderRequest);
@@ -50,6 +56,9 @@ public class OrderController : ControllerBase
 
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(typeof(ApiResponse<OrderResponse>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 400)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 404)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 500)]
     public async Task<ActionResult<ApiResponse<OrderResponse>>> UpdateAsync([FromRoute] Guid id, [FromBody] UpdateOrderRequest updateOrderRequest)
     {
         var updatedOrder = await _orderService.UpdateAsync(id, updateOrderRequest);
@@ -58,6 +67,8 @@ public class OrderController : ControllerBase
 
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(typeof(ApiResponse), 204)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 404)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 500)]
     public async Task<ActionResult<ApiResponse>> DeleteAsync([FromRoute] Guid id)
     {
         var deleted = await _orderService.DeleteAsync(id);
