@@ -1,18 +1,14 @@
 using MyShop.Core.Interfaces.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using MyShop.Plugins.Mocks.Data;
+using MyShop.Shared.Models;
 
 namespace MyShop.Plugins.Repositories.Mocks;
 
 /// <summary>
-/// Mock implementation for shopping cart using in-memory storage
+/// Mock implementation for shopping cart - delegates to MockCartData
 /// </summary>
 public class MockCartRepository : ICartRepository
 {
-    // In-memory storage: UserId -> List of CartItems
-    private static readonly Dictionary<Guid, List<CartItem>> _carts = new();
     private readonly IProductRepository _productRepository;
 
     public MockCartRepository(IProductRepository productRepository)
@@ -20,210 +16,141 @@ public class MockCartRepository : ICartRepository
         _productRepository = productRepository;
     }
 
-    public Task<IEnumerable<CartItem>> GetCartItemsAsync(Guid userId)
+    public async Task<IEnumerable<CartItem>> GetCartItemsAsync(Guid userId)
     {
-        if (!_carts.ContainsKey(userId))
+        try
         {
-            _carts[userId] = new List<CartItem>();
+            var items = await MockCartData.GetCartItemsAsync(userId);
+            System.Diagnostics.Debug.WriteLine($"[MockCartRepository] Got {items.Count} items for user {userId}");
+            return items;
         }
-
-        return Task.FromResult(_carts[userId].AsEnumerable());
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockCartRepository] GetCartItemsAsync error: {ex.Message}");
+            return new List<CartItem>();
+        }
     }
 
     public async Task<bool> AddToCartAsync(Guid userId, Guid productId, int quantity = 1)
     {
         try
         {
-            if (!_carts.ContainsKey(userId))
-            {
-                _carts[userId] = new List<CartItem>();
-            }
-
-            var cart = _carts[userId];
-
-            // Get product details
+            // Get product details for validation
             var product = await _productRepository.GetByIdAsync(productId);
             if (product == null)
             {
-                System.Diagnostics.Debug.WriteLine($"[MockCart] Product {productId} not found");
+                System.Diagnostics.Debug.WriteLine($"[MockCartRepository] Product {productId} not found");
                 return false;
             }
 
-            // Check stock availability
+            // Check stock
             if (product.Quantity < quantity)
             {
-                System.Diagnostics.Debug.WriteLine($"[MockCart] Insufficient stock for {product.Name}");
+                System.Diagnostics.Debug.WriteLine($"[MockCartRepository] Insufficient stock for {product.Name}");
                 return false;
             }
 
-            // Check if product already in cart
-            var existingItem = cart.FirstOrDefault(c => c.ProductId == productId);
-            
-            if (existingItem != null)
-            {
-                // Update quantity
-                var newQuantity = existingItem.Quantity + quantity;
-                
-                // Check total quantity against stock
-                if (newQuantity > product.Quantity)
-                {
-                    System.Diagnostics.Debug.WriteLine($"[MockCart] Total quantity exceeds stock");
-                    return false;
-                }
-
-                existingItem.Quantity = newQuantity;
-                System.Diagnostics.Debug.WriteLine($"[MockCart] Updated {product.Name} quantity to {newQuantity}");
-            }
-            else
-            {
-                // Add new item
-                var cartItem = new CartItem
-                {
-                    Id = Guid.NewGuid(),
-                    UserId = userId,
-                    ProductId = productId,
-                    ProductName = product.Name,
-                    ProductImage = product.ImageUrl,
-                    Price = product.SellingPrice,
-                    Quantity = quantity,
-                    CategoryName = product.CategoryName ?? product.Category,
-                    StockAvailable = product.Quantity,
-                    AddedAt = DateTime.Now
-                };
-
-                cart.Add(cartItem);
-                System.Diagnostics.Debug.WriteLine($"[MockCart] Added {product.Name} to cart");
-            }
-
-            return true;
+            var cartItem = await MockCartData.AddToCartAsync(userId, productId, product.Name, product.SellingPrice, quantity);
+            System.Diagnostics.Debug.WriteLine($"[MockCartRepository] AddToCart result: {cartItem != null}");
+            return cartItem != null;
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[MockCart] Error adding to cart: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[MockCartRepository] AddToCartAsync error: {ex.Message}");
             return false;
         }
     }
 
-    public Task<bool> UpdateQuantityAsync(Guid userId, Guid productId, int quantity)
+    public async Task<bool> UpdateQuantityAsync(Guid userId, Guid productId, int quantity)
     {
         try
         {
-            if (!_carts.ContainsKey(userId))
-            {
-                return Task.FromResult(false);
-            }
-
-            var cart = _carts[userId];
-            var item = cart.FirstOrDefault(c => c.ProductId == productId);
-
-            if (item == null)
-            {
-                return Task.FromResult(false);
-            }
-
-            if (quantity <= 0)
-            {
-                cart.Remove(item);
-                System.Diagnostics.Debug.WriteLine($"[MockCart] Removed {item.ProductName} from cart");
-                return Task.FromResult(true);
-            }
-
-            if (quantity > item.StockAvailable)
-            {
-                System.Diagnostics.Debug.WriteLine($"[MockCart] Quantity exceeds stock");
-                return Task.FromResult(false);
-            }
-
-            item.Quantity = quantity;
-            System.Diagnostics.Debug.WriteLine($"[MockCart] Updated {item.ProductName} quantity to {quantity}");
-            return Task.FromResult(true);
+            var result = await MockCartData.UpdateCartItemAsync(userId, productId, quantity);
+            System.Diagnostics.Debug.WriteLine($"[MockCartRepository] UpdateQuantity result: {result}");
+            return result;
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[MockCart] Error updating quantity: {ex.Message}");
-            return Task.FromResult(false);
+            System.Diagnostics.Debug.WriteLine($"[MockCartRepository] UpdateQuantityAsync error: {ex.Message}");
+            return false;
         }
     }
 
-    public Task<bool> RemoveFromCartAsync(Guid userId, Guid productId)
+    public async Task<bool> RemoveFromCartAsync(Guid userId, Guid productId)
     {
         try
         {
-            if (!_carts.ContainsKey(userId))
-            {
-                return Task.FromResult(false);
-            }
-
-            var cart = _carts[userId];
-            var item = cart.FirstOrDefault(c => c.ProductId == productId);
-
-            if (item == null)
-            {
-                return Task.FromResult(false);
-            }
-
-            cart.Remove(item);
-            System.Diagnostics.Debug.WriteLine($"[MockCart] Removed {item.ProductName} from cart");
-            return Task.FromResult(true);
+            var result = await MockCartData.RemoveFromCartAsync(userId, productId);
+            System.Diagnostics.Debug.WriteLine($"[MockCartRepository] RemoveFromCart result: {result}");
+            return result;
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[MockCart] Error removing from cart: {ex.Message}");
-            return Task.FromResult(false);
+            System.Diagnostics.Debug.WriteLine($"[MockCartRepository] RemoveFromCartAsync error: {ex.Message}");
+            return false;
         }
     }
 
-    public Task<bool> ClearCartAsync(Guid userId)
+    public async Task<bool> ClearCartAsync(Guid userId)
     {
         try
         {
-            if (_carts.ContainsKey(userId))
-            {
-                _carts[userId].Clear();
-                System.Diagnostics.Debug.WriteLine($"[MockCart] Cleared cart for user {userId}");
-            }
-            return Task.FromResult(true);
+            var result = await MockCartData.ClearCartAsync(userId);
+            System.Diagnostics.Debug.WriteLine($"[MockCartRepository] ClearCart result: {result}");
+            return result;
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[MockCart] Error clearing cart: {ex.Message}");
-            return Task.FromResult(false);
+            System.Diagnostics.Debug.WriteLine($"[MockCartRepository] ClearCartAsync error: {ex.Message}");
+            return false;
         }
     }
 
-    public Task<int> GetCartCountAsync(Guid userId)
+    public async Task<int> GetCartCountAsync(Guid userId)
     {
-        if (!_carts.ContainsKey(userId))
+        try
         {
-            return Task.FromResult(0);
+            var items = await MockCartData.GetCartItemsAsync(userId);
+            var count = items.Sum(item => item.Quantity);
+            return count;
         }
-
-        var totalCount = _carts[userId].Sum(item => item.Quantity);
-        return Task.FromResult(totalCount);
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockCartRepository] GetCartCountAsync error: {ex.Message}");
+            return 0;
+        }
     }
 
-    public Task<CartSummary> GetCartSummaryAsync(Guid userId)
+    public async Task<CartSummary> GetCartSummaryAsync(Guid userId)
     {
-        var summary = new CartSummary();
-
-        if (!_carts.ContainsKey(userId))
+        try
         {
-            return Task.FromResult(summary);
+            var items = await MockCartData.GetCartItemsAsync(userId);
+            
+            var subtotal = items.Sum(item => item.Subtotal);
+            var itemCount = items.Sum(item => item.Quantity);
+            
+            // Calculate tax (10% VAT)
+            var tax = Math.Round(subtotal * 0.10m, 0);
+            
+            // Calculate shipping fee (free if > 5,000,000 VND)
+            var shippingFee = subtotal > 5000000 ? 0 : 50000;
+            
+            var total = subtotal + tax + shippingFee;
+
+            return new CartSummary
+            {
+                ItemCount = itemCount,
+                Subtotal = subtotal,
+                Tax = tax,
+                ShippingFee = shippingFee,
+                Total = total
+            };
         }
-
-        var cart = _carts[userId];
-        
-        summary.ItemCount = cart.Sum(item => item.Quantity);
-        summary.Subtotal = cart.Sum(item => item.Subtotal);
-        
-        // Calculate tax (10% VAT)
-        summary.Tax = Math.Round(summary.Subtotal * 0.10m, 0);
-        
-        // Calculate shipping fee (free if > 5,000,000 VND)
-        summary.ShippingFee = summary.Subtotal > 5000000 ? 0 : 50000;
-        
-        summary.Total = summary.Subtotal + summary.Tax + summary.ShippingFee;
-
-        return Task.FromResult(summary);
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockCartRepository] GetCartSummaryAsync error: {ex.Message}");
+            return new CartSummary();
+        }
     }
 }

@@ -7,9 +7,9 @@ public class Order
 {
     public Guid Id { get; set; }
     public string OrderCode { get; set; } = string.Empty;
-    public Guid SalesAgentId { get; set; }
+    public Guid? SalesAgentId { get; set; }
     public string? SalesAgentName { get; set; }
-    public Guid CustomerId { get; set; }
+    public Guid? CustomerId { get; set; }
     public string CustomerName { get; set; } = string.Empty;
     public string? CustomerPhone { get; set; }
     public string? CustomerAddress { get; set; }

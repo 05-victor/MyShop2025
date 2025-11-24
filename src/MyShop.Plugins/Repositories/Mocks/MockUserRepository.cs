@@ -3,17 +3,17 @@ using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.Models;
+using MyShop.Plugins.Mocks.Data;
 
 namespace MyShop.Plugins.Repositories.Mocks;
 
 /// <summary>
 /// Mock repository for user profile and account management
-/// Uses in-memory user data with simulated delays
+/// Uses MockUserData for data operations while maintaining ICredentialStorage dependency
 /// </summary>
 public class MockUserRepository : IUserRepository
 {
     private readonly ICredentialStorage _credentialStorage;
-    private User? _currentUser;
 
     public MockUserRepository(ICredentialStorage credentialStorage)
     {
@@ -22,42 +22,55 @@ public class MockUserRepository : IUserRepository
 
     public async Task<IEnumerable<User>> GetAllAsync()
     {
-        await Task.Delay(300);
-        // Return mock users for admin management
-        return new List<User>();
+        try
+        {
+            var users = await MockUserData.GetAllAsync();
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] GetAllAsync returned {users.Count} users");
+            return users;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] GetAllAsync error: {ex.Message}");
+            return new List<User>();
+        }
     }
 
     public async Task<Result<User>> UpdateProfileAsync(UpdateProfileRequest request)
     {
         try
         {
-            await Task.Delay(500); // Simulate network delay
-
             var token = _credentialStorage.GetToken();
             if (string.IsNullOrEmpty(token))
             {
                 return Result<User>.Failure("Not authenticated. Please login again.");
             }
 
-            // Simulate getting current user from token
-            _currentUser ??= GetMockUser();
+            // Get current user from token (mock implementation uses first user)
+            var users = await MockUserData.GetAllAsync();
+            var currentUser = users.FirstOrDefault();
+            
+            if (currentUser == null)
+            {
+                return Result<User>.Failure("User not found");
+            }
 
             // Update user properties
             if (!string.IsNullOrWhiteSpace(request.Avatar))
-                _currentUser.Avatar = request.Avatar;
+                currentUser.Avatar = request.Avatar;
 
             if (!string.IsNullOrWhiteSpace(request.FullName))
-                _currentUser.FullName = request.FullName;
+                currentUser.FullName = request.FullName;
 
             if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
-                _currentUser.PhoneNumber = request.PhoneNumber;
+                currentUser.PhoneNumber = request.PhoneNumber;
 
             if (!string.IsNullOrWhiteSpace(request.Address))
-                _currentUser.Address = request.Address;
+                currentUser.Address = request.Address;
 
-            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] Profile updated for user: {_currentUser.Username}");
+            var updated = await MockUserData.UpdateAsync(currentUser);
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] Profile updated for user: {updated.Username}");
             
-            return Result<User>.Success(_currentUser);
+            return Result<User>.Success(updated);
         }
         catch (Exception ex)
         {
@@ -70,7 +83,7 @@ public class MockUserRepository : IUserRepository
     {
         try
         {
-            await Task.Delay(600); // Simulate network delay
+            await Task.Delay(600);
 
             var token = _credentialStorage.GetToken();
             if (string.IsNullOrEmpty(token))
@@ -78,19 +91,18 @@ public class MockUserRepository : IUserRepository
                 return Result<bool>.Failure("Not authenticated. Please login again.");
             }
 
-            // Simulate password verification (mock always accepts "password123" as current)
+            // Simulate password verification (mock accepts "password123")
             if (request.CurrentPassword != "password123")
             {
                 return Result<bool>.Failure("Current password is incorrect");
             }
 
-            // Simulate password strength validation
+            // Password validation
             if (request.NewPassword.Length < 6)
             {
                 return Result<bool>.Failure("New password must be at least 6 characters");
             }
 
-            // Simulate check: new password must differ from current
             if (request.CurrentPassword == request.NewPassword)
             {
                 return Result<bool>.Failure("New password must differ from current password");
@@ -130,41 +142,27 @@ public class MockUserRepository : IUserRepository
                 return Result<User>.Failure("Image file is too large (max 5MB)");
             }
 
-            _currentUser ??= GetMockUser();
+            var users = await MockUserData.GetAllAsync();
+            var currentUser = users.FirstOrDefault();
+            
+            if (currentUser == null)
+            {
+                return Result<User>.Failure("User not found");
+            }
 
-            // Simulate avatar URL (in real app, this would be server-generated URL)
+            // Generate mock avatar URL
             var avatarUrl = $"https://api.myshop.com/avatars/{Guid.NewGuid()}.jpg";
-            _currentUser.Avatar = avatarUrl;
+            currentUser.Avatar = avatarUrl;
 
+            var updated = await MockUserData.UpdateAsync(currentUser);
             System.Diagnostics.Debug.WriteLine($"[MockUserRepository] Avatar uploaded: {avatarUrl}");
             
-            return Result<User>.Success(_currentUser);
+            return Result<User>.Success(updated);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockUserRepository] UploadAvatar error: {ex.Message}");
             return Result<User>.Failure("Failed to upload avatar", ex);
         }
-    }
-
-    private User GetMockUser()
-    {
-        return new User
-        {
-            Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
-            Username = "admin",
-            Email = "admin@example.com",
-            PhoneNumber = "0123456789",
-            FullName = "Administrator",
-            Avatar = "https://via.placeholder.com/150",
-            Address = "123 Main St, Hanoi, Vietnam",
-            CreatedAt = DateTime.UtcNow.AddMonths(-6),
-            IsEmailVerified = true,
-            Roles = new List<MyShop.Shared.Models.Enums.UserRole> 
-            { 
-                MyShop.Shared.Models.Enums.UserRole.Admin 
-            },
-            Token = _credentialStorage.GetToken() ?? string.Empty
-        };
     }
 }
