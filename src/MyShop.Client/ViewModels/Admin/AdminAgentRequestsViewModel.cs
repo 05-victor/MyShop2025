@@ -9,6 +9,17 @@ using Microsoft.UI.Xaml;
 
 namespace MyShop.Client.ViewModels.Admin;
 
+/// <summary>
+/// Represents the available filter tabs for agent requests
+/// </summary>
+public enum AgentRequestTab
+{
+    All = 0,
+    Pending = 1,
+    Approved = 2,
+    Rejected = 3
+}
+
 public partial class AdminAgentRequestsViewModel : BaseViewModel
 {
         private readonly IToastService _toastHelper;
@@ -20,16 +31,20 @@ public partial class AdminAgentRequestsViewModel : BaseViewModel
         private ObservableCollection<AgentRequestItem> _filteredRequests = new();
 
         [ObservableProperty]
-        private bool _isAllTabSelected = true;
+        [NotifyPropertyChangedFor(nameof(CurrentFilterStatus))]
+        private int _selectedTabIndex = 0; // Default to "All Requests" tab
 
-        [ObservableProperty]
-        private bool _isPendingTabSelected = false;
-
-        [ObservableProperty]
-        private bool _isApprovedTabSelected = false;
-
-        [ObservableProperty]
-        private bool _isRejectedTabSelected = false;
+        /// <summary>
+        /// Gets the current filter status based on selected tab
+        /// </summary>
+        public string CurrentFilterStatus => SelectedTabIndex switch
+        {
+            0 => "All",
+            1 => "Pending",
+            2 => "Approved",
+            3 => "Rejected",
+            _ => "All"
+        };
 
         public AdminAgentRequestsViewModel(IToastService toastHelper)
         {
@@ -37,9 +52,36 @@ public partial class AdminAgentRequestsViewModel : BaseViewModel
             // Data will be loaded from repository via LoadAgentRequestsAsync
         }
 
+        /// <summary>
+        /// Called when the selected tab changes
+        /// </summary>
+        partial void OnSelectedTabIndexChanged(int value)
+        {
+            ApplyFilter();
+        }
+
+        /// <summary>
+        /// Applies the current filter based on selected tab
+        /// </summary>
+        private void ApplyFilter()
+        {
+            if (CurrentFilterStatus == "All")
+            {
+                FilteredRequests = new ObservableCollection<AgentRequestItem>(Requests);
+            }
+            else
+            {
+                FilteredRequests = new ObservableCollection<AgentRequestItem>(
+                    Requests.Where(r => r.Status == CurrentFilterStatus)
+                );
+            }
+        }
+
         [RelayCommand]
         private void FilterByStatus(string status)
         {
+            // Legacy method - now handled by OnSelectedTabIndexChanged
+            // Can be removed if no longer needed
             if (status == "All")
             {
                 FilteredRequests = new ObservableCollection<AgentRequestItem>(Requests);
@@ -71,10 +113,8 @@ public partial class AdminAgentRequestsViewModel : BaseViewModel
             
             _toastHelper.ShowSuccess($"✅ Approved {request.FullName}'s request");
             
-            // Refresh filtered list
-            FilterByStatus(IsAllTabSelected ? "All" : 
-                          IsPendingTabSelected ? "Pending" : 
-                          IsApprovedTabSelected ? "Approved" : "Rejected");
+            // Refresh filtered list based on current tab
+            ApplyFilter();
         }
 
         [RelayCommand]
@@ -88,10 +128,8 @@ public partial class AdminAgentRequestsViewModel : BaseViewModel
             
             _toastHelper.ShowWarning($"❌ Rejected {request.FullName}'s request");
             
-            // Refresh filtered list
-            FilterByStatus(IsAllTabSelected ? "All" : 
-                          IsPendingTabSelected ? "Pending" : 
-                          IsApprovedTabSelected ? "Approved" : "Rejected");
+            // Refresh filtered list based on current tab
+            ApplyFilter();
         }
 
         private async Task LoadAgentRequestsAsync()

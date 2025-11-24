@@ -10,102 +10,8 @@
     Background="#F3F4F6"
     mc:Ignorable="d">
 
-    <!--  Sau khi hoàn thiện sẽ chuyển vào Resource dùng chung  -->
     <Page.Resources>
-
-        <Style x:Key="TabRadioButtonStyle" TargetType="RadioButton">
-            <!--  Base  -->
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="#4B5563" />
-            <!--  gray-600  -->
-            <Setter Property="Padding" Value="14,6" />
-            <Setter Property="HorizontalAlignment" Value="Left" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="BorderThickness" Value="0" />
-
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="RadioButton">
-                        <Grid>
-                            <!--  Pill  -->
-                            <Border
-                                x:Name="Root"
-                                Padding="{TemplateBinding Padding}"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="Transparent"
-                                BorderThickness="0"
-                                CornerRadius="12">
-                                <ContentPresenter
-                                    x:Name="ContentPresenter"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Content="{TemplateBinding Content}"
-                                    ContentTemplate="{TemplateBinding ContentTemplate}"
-                                    Foreground="{TemplateBinding Foreground}" />
-                            </Border>
-
-                            <VisualStateManager.VisualStateGroups>
-
-                                <!--  Hover / Press / Disabled  -->
-                                <VisualStateGroup x:Name="CommonStates">
-                                    <VisualState x:Name="Normal" />
-
-                                    <!--  HOVER: hơi sáng hơn, text đậm hơn  -->
-                                    <VisualState x:Name="PointerOver">
-                                        <VisualState.Setters>
-                                            <Setter Target="Root.Opacity" Value="0.95" />
-                                            <Setter Target="ContentPresenter.Foreground" Value="#111827" />
-                                            <!--  gray-900  -->
-                                        </VisualState.Setters>
-                                    </VisualState>
-
-                                    <!--  PRESSED: tối thêm chút nữa  -->
-                                    <VisualState x:Name="Pressed">
-                                        <VisualState.Setters>
-                                            <Setter Target="Root.Opacity" Value="0.85" />
-                                            <Setter Target="ContentPresenter.Foreground" Value="#111827" />
-                                        </VisualState.Setters>
-                                    </VisualState>
-
-                                    <VisualState x:Name="Disabled">
-                                        <VisualState.Setters>
-                                            <Setter Target="Root.Opacity" Value="0.4" />
-                                        </VisualState.Setters>
-                                    </VisualState>
-                                </VisualStateGroup>
-
-                                <!--  Checked / Unchecked  -->
-                                <VisualStateGroup x:Name="CheckStates">
-                                    <!--  UNCHECKED: nền trong suốt, chữ xám  -->
-                                    <VisualState x:Name="Unchecked">
-                                        <VisualState.Setters>
-                                            <Setter Target="Root.Background" Value="Transparent" />
-                                            <Setter Target="ContentPresenter.Foreground" Value="#4B5563" />
-                                            <Setter Target="Root.Opacity" Value="1" />
-                                        </VisualState.Setters>
-                                    </VisualState>
-
-                                    <!--  ACTIVE: fill đầy bằng accent, chữ trắng  -->
-                                    <VisualState x:Name="Checked">
-                                        <VisualState.Setters>
-                                            <Setter Target="Root.Background" Value="{ThemeResource AccentFillColorDefaultBrush}" />
-                                            <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
-                                            <Setter Target="Root.Opacity" Value="1" />
-                                        </VisualState.Setters>
-                                    </VisualState>
-
-                                    <VisualState x:Name="Indeterminate" />
-                                </VisualStateGroup>
-
-                            </VisualStateManager.VisualStateGroups>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
+        <!-- No custom styles needed - TabView uses built-in WinUI 3 styles -->
     </Page.Resources>
 
 
@@ -149,47 +55,42 @@
             </Button>
         </Grid>
 
-        <!--  Status Tabs  -->
-        <Border
+        <!--  Status Tabs - Using TabView  -->
+        <TabView
             Grid.Row="1"
             Margin="0,0,0,16"
-            Padding="4"
-            HorizontalAlignment="Left"
-            Background="White"
-            BorderBrush="#E5E7EB"
-            BorderThickness="1"
-            CornerRadius="12">
-            <StackPanel Orientation="Horizontal" Spacing="12">
-                <RadioButton
-                    Command="{x:Bind ViewModel.FilterByStatusCommand}"
-                    CommandParameter="All"
-                    Content="All Requests"
-                    GroupName="StatusTabs"
-                    IsChecked="{x:Bind ViewModel.IsAllTabSelected, Mode=TwoWay}"
-                    Style="{StaticResource TabRadioButtonStyle}" />
-                <RadioButton
-                    Command="{x:Bind ViewModel.FilterByStatusCommand}"
-                    CommandParameter="Pending"
-                    Content="Pending"
-                    GroupName="StatusTabs"
-                    IsChecked="{x:Bind ViewModel.IsPendingTabSelected, Mode=TwoWay}"
-                    Style="{StaticResource TabRadioButtonStyle}" />
-                <RadioButton
-                    Command="{x:Bind ViewModel.FilterByStatusCommand}"
-                    CommandParameter="Approved"
-                    Content="Approved"
-                    GroupName="StatusTabs"
-                    IsChecked="{x:Bind ViewModel.IsApprovedTabSelected, Mode=TwoWay}"
-                    Style="{StaticResource TabRadioButtonStyle}" />
-                <RadioButton
-                    Command="{x:Bind ViewModel.FilterByStatusCommand}"
-                    CommandParameter="Rejected"
-                    Content="Rejected"
-                    GroupName="StatusTabs"
-                    IsChecked="{x:Bind ViewModel.IsRejectedTabSelected, Mode=TwoWay}"
-                    Style="{StaticResource TabRadioButtonStyle}" />
-            </StackPanel>
-        </Border>
+            IsAddTabButtonVisible="False"
+            SelectedIndex="{x:Bind ViewModel.SelectedTabIndex, Mode=TwoWay}"
+            TabWidthMode="SizeToContent">
+            
+            <!--  All Requests Tab  -->
+            <TabViewItem Header="All Requests" IsClosable="False">
+                <TabViewItem.IconSource>
+                    <FontIconSource Glyph="&#xE8FD;" />
+                </TabViewItem.IconSource>
+            </TabViewItem>
+
+            <!--  Pending Tab  -->
+            <TabViewItem Header="Pending" IsClosable="False">
+                <TabViewItem.IconSource>
+                    <FontIconSource Glyph="&#xE9F5;" />
+                </TabViewItem.IconSource>
+            </TabViewItem>
+
+            <!--  Approved Tab  -->
+            <TabViewItem Header="Approved" IsClosable="False">
+                <TabViewItem.IconSource>
+                    <FontIconSource Glyph="&#xE73E;" />
+                </TabViewItem.IconSource>
+            </TabViewItem>
+
+            <!--  Rejected Tab  -->
+            <TabViewItem Header="Rejected" IsClosable="False">
+                <TabViewItem.IconSource>
+                    <FontIconSource Glyph="&#xE711;" />
+                </TabViewItem.IconSource>
+            </TabViewItem>
+        </TabView>
 
         <!--  Requests Table  -->
         <Border
