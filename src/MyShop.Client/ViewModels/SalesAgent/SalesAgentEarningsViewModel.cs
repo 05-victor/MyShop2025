@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MyShop.Client.ViewModels.SalesAgent;
 
-public partial class EarningsViewModel : BaseViewModel
+public partial class SalesAgentEarningsViewModel : BaseViewModel
 {
     private readonly ICommissionRepository _commissionRepository;
     private readonly IAuthRepository _authRepository;
@@ -33,7 +33,7 @@ public partial class EarningsViewModel : BaseViewModel
     [ObservableProperty]
     private string _selectedPeriod = "This Month";
 
-    public EarningsViewModel(
+    public SalesAgentEarningsViewModel(
         ICommissionRepository commissionRepository,
         IAuthRepository authRepository,
         IToastService toastHelper)

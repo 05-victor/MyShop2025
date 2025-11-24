@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MyShop.Client.ViewModels.SalesAgent;
 
-public partial class SalesOrdersViewModel : ObservableObject
+public partial class SalesAgentOrdersViewModel : ObservableObject
 {
     private readonly IOrderRepository _orderRepository;
 
@@ -30,7 +30,7 @@ public partial class SalesOrdersViewModel : ObservableObject
     [ObservableProperty]
     private int _cancelledOrders;
 
-    public SalesOrdersViewModel(IOrderRepository orderRepository)
+    public SalesAgentOrdersViewModel(IOrderRepository orderRepository)
     {
         _orderRepository = orderRepository;
         Orders = new ObservableCollection<OrderViewModel>();

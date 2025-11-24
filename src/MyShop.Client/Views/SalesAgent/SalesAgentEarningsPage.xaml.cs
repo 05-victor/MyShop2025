@@ -6,12 +6,12 @@ namespace MyShop.Client.Views.SalesAgent
 {
     public sealed partial class EarningsPage : Page
     {
-        public EarningsViewModel ViewModel { get; }
+        public SalesAgentEarningsViewModel ViewModel { get; }
 
         public EarningsPage()
         {
             this.InitializeComponent();
-            ViewModel = App.Current.Services.GetRequiredService<EarningsViewModel>();
+            ViewModel = App.Current.Services.GetRequiredService<SalesAgentEarningsViewModel>();
         }
     }
 }

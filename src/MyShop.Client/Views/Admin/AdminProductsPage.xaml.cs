@@ -15,13 +15,13 @@ namespace MyShop.Client.Views.Admin;
 /// </summary>
 public sealed partial class AdminProductsPage : Page
 {
-    public AdminProductViewModel ViewModel { get; }
+    public AdminProductsViewModel ViewModel { get; }
 
     public AdminProductsPage()
     {
         InitializeComponent();
 
-        ViewModel = App.Current.Services.GetRequiredService<AdminProductViewModel>();
+        ViewModel = App.Current.Services.GetRequiredService<AdminProductsViewModel>();
         this.DataContext = ViewModel;
 
         Loaded += AdminProductPage_Loaded;

@@ -222,20 +222,20 @@ namespace MyShop.Client.Config
                     
                     // Admin ViewModels
                     services.AddTransient<ViewModels.Admin.AdminDashboardViewModel>();
-                    services.AddTransient<ViewModels.Admin.AdminProductViewModel>();
+                    services.AddTransient<ViewModels.Admin.AdminProductsViewModel>();
                     services.AddTransient<ViewModels.Admin.AdminUsersViewModel>();
-                    services.AddTransient<ViewModels.Admin.ReportsPageViewModel>();
+                    services.AddTransient<ViewModels.Admin.AdminReportsViewModel>();
                     services.AddTransient<ViewModels.Admin.AdminAgentRequestsViewModel>();
                     
                     // Customer ViewModels
                     services.AddTransient<ViewModels.Customer.CustomerDashboardViewModel>();
                     
                     // SalesAgent ViewModels
-                    services.AddTransient<ViewModels.SalesAgent.SalesmanDashboardViewModel>();
-                    services.AddTransient<ViewModels.SalesAgent.EarningsViewModel>();
+                    services.AddTransient<ViewModels.SalesAgent.SalesAgentDashboardViewModel>();
+                    services.AddTransient<ViewModels.SalesAgent.SalesAgentEarningsViewModel>();
                     services.AddTransient<ViewModels.SalesAgent.SalesAgentProductsViewModel>();
                     services.AddTransient<ViewModels.SalesAgent.SalesAgentReportsViewModel>();
-                    services.AddTransient<ViewModels.SalesAgent.SalesOrdersViewModel>();
+                    services.AddTransient<ViewModels.SalesAgent.SalesAgentOrdersViewModel>();
                     
                     // Shared ViewModels
                     services.AddTransient<ViewModels.Shared.ProductBrowseViewModel>();

@@ -11,7 +11,7 @@ using System.Collections.ObjectModel;
 
 namespace MyShop.Client.ViewModels.SalesAgent;
 
-public partial class SalesmanDashboardViewModel : BaseViewModel
+public partial class SalesAgentDashboardViewModel : BaseViewModel
 {
         private readonly INavigationService _navigationService;
         private readonly IToastService _toastHelper;
@@ -56,7 +56,7 @@ public partial class SalesmanDashboardViewModel : BaseViewModel
         [ObservableProperty]
         private ObservableCollection<RecentSalesOrder> _recentOrders = new();
 
-        public SalesmanDashboardViewModel(
+        public SalesAgentDashboardViewModel(
             INavigationService navigationService,
             IToastService toastHelper,
             ICredentialStorage credentialStorage,

@@ -12,7 +12,7 @@ using System.Collections.ObjectModel;
 
 namespace MyShop.Client.ViewModels.Admin;
 
-public partial class ReportsPageViewModel : BaseViewModel
+public partial class AdminReportsViewModel : BaseViewModel
 {
     private readonly IReportRepository? _reportRepository;
     private readonly IProductRepository? _productRepository;
@@ -48,7 +48,7 @@ public partial class ReportsPageViewModel : BaseViewModel
     public bool IsAdmin => false; // await _authService.HasRoleAsync("Admin")
     public bool IsSalesAgent => false; // await _authService.HasRoleAsync("SalesAgent")
 
-    public ReportsPageViewModel(
+    public AdminReportsViewModel(
         IReportRepository? reportRepository = null,
         IProductRepository? productRepository = null)
     {
