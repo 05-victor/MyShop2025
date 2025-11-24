@@ -72,6 +72,7 @@ namespace MyShop.Client.Config
                         services.AddSingleton<ICommissionRepository, MockCommissionRepository>();
                         services.AddSingleton<IReportRepository, MockReportRepository>();
                         services.AddSingleton<ICartRepository, MockCartRepository>();
+                        services.AddSingleton<IAgentRequestRepository, MockAgentRequestsRepository>();
                         
                         System.Diagnostics.Debug.WriteLine("[Bootstrapper] All Mock Repositories registered");
                     }

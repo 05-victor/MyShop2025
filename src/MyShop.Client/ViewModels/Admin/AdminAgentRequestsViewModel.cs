@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyShop.Client.ViewModels.Base;
+using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -23,6 +24,7 @@ public enum AgentRequestTab
 public partial class AdminAgentRequestsViewModel : BaseViewModel
 {
         private readonly IToastService _toastHelper;
+        private readonly IAgentRequestRepository _agentRequestRepository;
 
         [ObservableProperty]
         private ObservableCollection<AgentRequestItem> _requests = new();
@@ -46,10 +48,23 @@ public partial class AdminAgentRequestsViewModel : BaseViewModel
             _ => "All"
         };
 
-        public AdminAgentRequestsViewModel(IToastService toastHelper)
+        public AdminAgentRequestsViewModel(
+            IToastService toastHelper, 
+            IAgentRequestRepository agentRequestRepository)
         {
             _toastHelper = toastHelper;
-            // Data will be loaded from repository via LoadAgentRequestsAsync
+            _agentRequestRepository = agentRequestRepository;
+            
+            // Load data on initialization
+            _ = InitializeAsync();
+        }
+
+        /// <summary>
+        /// Initialize and load data
+        /// </summary>
+        public async Task InitializeAsync()
+        {
+            await LoadAgentRequestsAsync();
         }
 
         /// <summary>
@@ -105,9 +120,14 @@ public partial class AdminAgentRequestsViewModel : BaseViewModel
         [RelayCommand]
         private async Task ApproveRequest(AgentRequestItem request)
         {
-            // Mock approval logic
-            await Task.Delay(300);
+            var success = await _agentRequestRepository.ApproveAsync(Guid.Parse(request.Id));
             
+            if (!success)
+            {
+                _toastHelper.ShowError("Failed to approve request");
+                return;
+            }
+
             request.Status = "Approved";
             request.IsPending = Visibility.Collapsed;
             
@@ -120,9 +140,14 @@ public partial class AdminAgentRequestsViewModel : BaseViewModel
         [RelayCommand]
         private async Task RejectRequest(AgentRequestItem request)
         {
-            // Mock rejection logic
-            await Task.Delay(300);
+            var success = await _agentRequestRepository.RejectAsync(Guid.Parse(request.Id));
             
+            if (!success)
+            {
+                _toastHelper.ShowError("Failed to reject request");
+                return;
+            }
+
             request.Status = "Rejected";
             request.IsPending = Visibility.Collapsed;
             
@@ -132,15 +157,41 @@ public partial class AdminAgentRequestsViewModel : BaseViewModel
             ApplyFilter();
         }
 
+        /// <summary>
+        /// Load agent requests from repository
+        /// </summary>
         private async Task LoadAgentRequestsAsync()
         {
-            // TODO: Load from repository when API endpoint is ready
-            // var requests = await _agentRequestRepository.GetAllAsync();
-            // Requests = new ObservableCollection<AgentRequestItem>(
-            //     requests.Select(r => new AgentRequestItem { ... })
-            // );
-            // FilteredRequests = new ObservableCollection<AgentRequestItem>(Requests);
-            await Task.CompletedTask;
+            try
+            {
+                var data = await _agentRequestRepository.GetAllAsync();
+
+                Requests = new ObservableCollection<AgentRequestItem>(
+                    data.Select(r => new AgentRequestItem
+                    {
+                        Id = r.Id.ToString(),
+                        Username = r.Email.Split('@')[0], // Extract username from email
+                        FullName = r.FullName,
+                        Email = r.Email,
+                        Phone = r.PhoneNumber,
+                        Avatar = r.AvatarUrl,
+                        SubmittedDate = r.RequestedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm"),
+                        Experience = r.Notes,
+                        Status = r.Status,
+                        IsPending = r.Status == "Pending" ? Visibility.Visible : Visibility.Collapsed
+                    })
+                );
+
+                // Initialize filtered list according to current tab
+                ApplyFilter();
+
+                System.Diagnostics.Debug.WriteLine($"[AdminAgentRequestsViewModel] Loaded {Requests.Count} agent requests");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminAgentRequestsViewModel] Error loading requests: {ex.Message}");
+                _toastHelper.ShowError("Failed to load agent requests");
+            }
         }
     }
 
