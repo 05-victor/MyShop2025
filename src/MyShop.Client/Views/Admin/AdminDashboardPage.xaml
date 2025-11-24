@@ -16,9 +16,11 @@
     <!-- No need to merge them again here to avoid circular dependency -->
 
     <Grid>
-        <!-- Main Content Area -->
-        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" Background="#F3F4F6">
-            <StackPanel Padding="32" Spacing="32">
+        <!-- Layer 0: Dashboard Content (Hidden during loading) -->
+        <Grid x:Name="DashboardContent"
+              Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Background="#F3F4F6">
+                <StackPanel Padding="32" Spacing="32">
                 
                 <!-- Page Header with Actions -->
                 <Grid>
@@ -503,24 +505,31 @@
                     </Button>
                 </StackPanel>
 
-            </StackPanel>
-        </ScrollViewer>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
 
-        <!-- Loading Overlay -->
-        <Border
-               Background="#80000000"
-               Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-            <StackPanel HorizontalAlignment="Center" 
-                       VerticalAlignment="Center" 
-                       Spacing="16">
-                <ProgressRing IsActive="True" 
-                             Width="48" 
-                             Height="48"
-                             Foreground="White"/>
-                <TextBlock Text="Loading dashboard..." 
-                          FontSize="16"
-                          Foreground="White"/>
+        <!-- Layer 1: Loading Overlay (Shown during loading) -->
+        <Grid x:Name="LoadingOverlay"
+              Background="{ThemeResource LayerFillColorDefaultBrush}"
+              Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Spacing="24"
+                        Padding="48">
+                <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                              Width="64"
+                              Height="64" />
+                <TextBlock Text="Loading dashboard data..."
+                           FontSize="18"
+                           FontWeight="SemiBold"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="Please wait while we fetch your analytics"
+                           FontSize="14"
+                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                           HorizontalAlignment="Center" />
             </StackPanel>
-        </Border>
+        </Grid>
     </Grid>
 </Page>

@@ -19,7 +19,13 @@ public partial class AdminDashboardViewModel : BaseViewModel
         private readonly IDashboardRepository _dashboardRepository;
 
         [ObservableProperty]
+        private User? _currentUser;
+
+        [ObservableProperty]
         private bool _isLoading = false;
+
+        [ObservableProperty]
+        private bool _isInitialized = false;
 
         // New Platform-Owner KPIs
         [ObservableProperty]
@@ -107,9 +113,35 @@ public partial class AdminDashboardViewModel : BaseViewModel
             _dashboardRepository = dashboardRepository;
         }
 
-        public void Initialize(User user)
+        public async Task InitializeAsync(User user)
         {
-            _ = LoadDashboardDataAsync();
+            if (IsInitialized)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] Already initialized, skipping...");
+                return;
+            }
+
+            try
+            {
+                IsLoading = true;
+                CurrentUser = user;
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] InitializeAsync called for user: {user.Username}");
+                
+                await LoadDashboardDataAsync();
+                
+                IsInitialized = true;
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] InitializeAsync completed successfully");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] InitializeAsync failed: {ex.Message}");
+                _toastHelper.ShowError($"Failed to load dashboard: {ex.Message}");
+                throw;
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         [RelayCommand]
@@ -120,6 +152,7 @@ public partial class AdminDashboardViewModel : BaseViewModel
 
         private async Task LoadDashboardDataAsync()
         {
+            System.Diagnostics.Debug.WriteLine("[AdminDashboardViewModel] LoadDashboardDataAsync started");
             SetLoadingState(true);
 
             try
@@ -140,38 +173,46 @@ public partial class AdminDashboardViewModel : BaseViewModel
                     return;
                 }
 
-                // Map Platform-Owner KPIs (temporary mapping using existing data)
-                TotalGmvThisMonth = summary.MonthRevenue; // Total GMV across platform
-                AdminCommission = Math.Round(summary.MonthRevenue * 0.05m, 2); // 5% commission
-                ActiveSalesAgents = 127; // Mock value - replace with summary.ActiveSalesAgentsCount when available
-                ItemsToReview = summary.LowStockProducts.Count + 8; // Flagged + pending items
-                
-                // Map Summary Statistics (kept for backwards compatibility)
-                TotalProducts = summary.TotalProducts;
-                TodayOrders = summary.TodayOrders;
-                TodayRevenue = summary.TodayRevenue;
-                WeekRevenue = summary.WeekRevenue;
-                MonthRevenue = summary.MonthRevenue;
-                
-                // Calculate trends (mock calculation - could be from backend)
-                OrdersTrend = 12.5; // +12.5% vs yesterday
-                RevenueTrend = 8.2; // +8.2% vs yesterday
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] Summary loaded: MonthRevenue={summary.MonthRevenue}, TotalProducts={summary.TotalProducts}");
 
-                // Top Rated Product
-                var topProduct = summary.TopSellingProducts?.FirstOrDefault();
-                if (topProduct != null)
+                // Map ALL properties on UI thread to ensure proper binding updates
+                RunOnUIThread(() =>
                 {
-                    TopRatedProductName = topProduct.Name ?? "N/A";
-                    TopRatedProductRating = 4.5; // Default rating, extend TopSellingProduct model if needed
-                }
-                else
-                {
-                    TopRatedProductName = "No data";
-                    TopRatedProductRating = 0;
-                }
+                    // Map Platform-Owner KPIs (temporary mapping using existing data)
+                    TotalGmvThisMonth = summary.MonthRevenue; // Total GMV across platform
+                    AdminCommission = Math.Round(summary.MonthRevenue * 0.05m, 2); // 5% commission
+                    ActiveSalesAgents = 127; // Mock value - replace with summary.ActiveSalesAgentsCount when available
+                    ItemsToReview = summary.LowStockProducts.Count + 8; // Flagged + pending items
+                    
+                    System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] KPIs set: GMV={TotalGmvThisMonth}, Commission={AdminCommission}, Agents={ActiveSalesAgents}, ToReview={ItemsToReview}");
+                    
+                    // Map Summary Statistics (kept for backwards compatibility)
+                    TotalProducts = summary.TotalProducts;
+                    TodayOrders = summary.TodayOrders;
+                    TodayRevenue = summary.TodayRevenue;
+                    WeekRevenue = summary.WeekRevenue;
+                    MonthRevenue = summary.MonthRevenue;
+                    
+                    // Calculate trends (mock calculation - could be from backend)
+                    OrdersTrend = 12.5; // +12.5% vs yesterday
+                    RevenueTrend = 8.2; // +8.2% vs yesterday
 
-                // Low Stock Count
-                LowStockCount = summary.LowStockProducts.Count;
+                    // Top Rated Product
+                    var topProduct = summary.TopSellingProducts?.FirstOrDefault();
+                    if (topProduct != null)
+                    {
+                        TopRatedProductName = topProduct.Name ?? "N/A";
+                        TopRatedProductRating = 4.5; // Default rating, extend TopSellingProduct model if needed
+                    }
+                    else
+                    {
+                        TopRatedProductName = "No data";
+                        TopRatedProductRating = 0;
+                    }
+
+                    // Low Stock Count
+                    LowStockCount = summary.LowStockProducts.Count;
+                });
 
                 // Load Revenue Chart Data (Daily)
                 var chartResult = await _dashboardRepository.GetRevenueChartAsync("daily");

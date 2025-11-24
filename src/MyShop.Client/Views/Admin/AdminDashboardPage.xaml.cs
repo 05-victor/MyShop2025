@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
@@ -17,13 +18,20 @@ namespace MyShop.Client.Views.Admin
             this.DataContext = ViewModel;
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            System.Diagnostics.Debug.WriteLine($"[AdminDashboardPage] OnNavigatedTo called, Parameter: {e.Parameter?.GetType().Name ?? "null"}");
 
             if (e.Parameter is User user)
             {
-                ViewModel.Initialize(user);
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardPage] Initializing ViewModel with User: {user.Username}");
+                await ViewModel.InitializeAsync(user);
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardPage] InitializeAsync completed");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("[AdminDashboardPage] WARNING: No User parameter received!");
             }
         }
     }
