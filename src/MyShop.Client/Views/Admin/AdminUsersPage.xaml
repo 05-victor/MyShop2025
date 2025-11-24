@@ -29,7 +29,7 @@
                 <!-- Header -->
                 <Grid>
                     <StackPanel>
-                        <TextBlock Text="Users Management" FontSize="28" FontWeight="SemiBold" Foreground="#111827"/>
+                        <TextBlock Text="Users Management" Style="{StaticResource DisplayHeadingStyle}" Foreground="#111827"/>
                         <TextBlock Text="Manage all users in the system" FontSize="14" Foreground="#6B7280" Margin="0,8,0,0"/>
                     </StackPanel>
                     <Button Background="#2563EB" Foreground="White" Padding="16,12" CornerRadius="8" HorizontalAlignment="Right" VerticalAlignment="Center">

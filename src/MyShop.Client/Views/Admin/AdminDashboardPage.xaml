@@ -29,8 +29,7 @@
 
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Admin Dashboard" 
-                                  FontSize="28" 
-                                  FontWeight="SemiBold"
+                                  Style="{StaticResource DisplayHeadingStyle}"
                                   Foreground="#111827"/>
                         <TextBlock Text="Platform-wide overview and analytics" 
                                   FontSize="14" 

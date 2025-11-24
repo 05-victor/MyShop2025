@@ -42,8 +42,7 @@
 
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="Sales Agent Dashboard" 
-                              FontSize="28" 
-                              FontWeight="SemiBold"
+                              Style="{StaticResource DisplayHeadingStyle}"
                               Foreground="#111827"/>
                     <TextBlock Text="Track your sales performance and commissions" 
                               FontSize="14" 

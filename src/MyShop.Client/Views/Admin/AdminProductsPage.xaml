@@ -48,8 +48,7 @@
 
                 <!--  PAGE TITLE  -->
                 <TextBlock
-                    FontSize="28"
-                    FontWeight="SemiBold"
+                    Style="{StaticResource DisplayHeadingStyle}"
                     Foreground="#111827"
                     Text="Products Management" />
 

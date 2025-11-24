@@ -128,8 +128,7 @@
 
             <StackPanel Grid.Column="0">
                 <TextBlock
-                    FontSize="28"
-                    FontWeight="SemiBold"
+                    Style="{StaticResource DisplayHeadingStyle}"
                     Text="Agent Requests" />
                 <TextBlock
                     Margin="0,4,0,0"
