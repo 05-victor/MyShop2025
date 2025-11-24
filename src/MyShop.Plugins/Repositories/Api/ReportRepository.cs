@@ -1,6 +1,6 @@
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Reports;
-
+using MyShop.Shared.Models;
 namespace MyShop.Plugins.Repositories.Api;
 
 /// <summary>

@@ -1,7 +1,7 @@
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Profile;
 using MyShop.Shared.DTOs.Requests;
-
+using MyShop.Shared.Models;
 namespace MyShop.Plugins.Repositories.Api;
 
 /// <summary>

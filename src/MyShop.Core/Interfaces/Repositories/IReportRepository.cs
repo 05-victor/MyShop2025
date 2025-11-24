@@ -1,3 +1,4 @@
+using MyShop.Shared.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -28,65 +29,4 @@ public interface IReportRepository
     /// Get sales trend data (daily, weekly, monthly)
     /// </summary>
     Task<SalesTrend> GetSalesTrendAsync(Guid salesAgentId, string period = "monthly");
-}
-
-/// <summary>
-/// Sales report with summary statistics
-/// </summary>
-public class SalesReport
-{
-    public Guid SalesAgentId { get; set; }
-    public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
-    public int TotalOrders { get; set; }
-    public decimal TotalRevenue { get; set; }
-    public decimal TotalCommission { get; set; }
-    public int CompletedOrders { get; set; }
-    public int PendingOrders { get; set; }
-    public int CancelledOrders { get; set; }
-    public decimal AverageOrderValue { get; set; }
-    public decimal ConversionRate { get; set; } // Percentage
-}
-
-/// <summary>
-/// Performance metrics for a sales agent
-/// </summary>
-public class PerformanceMetrics
-{
-    public Guid SalesAgentId { get; set; }
-    public int TotalProductsShared { get; set; }
-    public int TotalClicks { get; set; }
-    public int TotalOrders { get; set; }
-    public decimal ConversionRate { get; set; } // (Orders / Clicks) * 100
-    public decimal TotalRevenue { get; set; }
-    public decimal TotalCommission { get; set; }
-    public decimal AverageOrderValue { get; set; }
-    public string PerformanceRank { get; set; } = "N/A"; // Top 10%, Top 25%, etc.
-}
-
-/// <summary>
-/// Product performance for a sales agent
-/// </summary>
-public class ProductPerformance
-{
-    public Guid ProductId { get; set; }
-    public string ProductName { get; set; } = string.Empty;
-    public string CategoryName { get; set; } = string.Empty;
-    public int TotalSold { get; set; }
-    public decimal TotalRevenue { get; set; }
-    public decimal TotalCommission { get; set; }
-    public int Clicks { get; set; }
-    public decimal ConversionRate { get; set; }
-}
-
-/// <summary>
-/// Sales trend data for charting
-/// </summary>
-public class SalesTrend
-{
-    public string Period { get; set; } = "monthly"; // daily, weekly, monthly
-    public List<string> Labels { get; set; } = new();
-    public List<decimal> RevenueData { get; set; } = new();
-    public List<int> OrdersData { get; set; } = new();
-    public List<decimal> CommissionData { get; set; } = new();
 }

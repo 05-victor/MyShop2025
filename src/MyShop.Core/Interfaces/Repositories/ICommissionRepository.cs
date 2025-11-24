@@ -35,34 +35,3 @@ public interface ICommissionRepository
     /// </summary>
     Task<IEnumerable<Commission>> GetByDateRangeAsync(Guid salesAgentId, DateTime startDate, DateTime endDate);
 }
-
-/// <summary>
-/// Commission record
-/// </summary>
-public class Commission
-{
-    public Guid Id { get; set; }
-    public Guid OrderId { get; set; }
-    public Guid SalesAgentId { get; set; }
-    public string OrderNumber { get; set; } = string.Empty;
-    public decimal OrderAmount { get; set; }
-    public decimal CommissionRate { get; set; } // Percentage (e.g., 10 = 10%)
-    public decimal CommissionAmount { get; set; }
-    public string Status { get; set; } = "Pending"; // Pending, Approved, Paid
-    public DateTime CreatedDate { get; set; }
-    public DateTime? PaidDate { get; set; }
-}
-
-/// <summary>
-/// Commission summary statistics
-/// </summary>
-public class CommissionSummary
-{
-    public decimal TotalEarnings { get; set; }
-    public decimal PendingCommission { get; set; }
-    public decimal PaidCommission { get; set; }
-    public int TotalOrders { get; set; }
-    public decimal AverageCommission { get; set; }
-    public decimal ThisMonthEarnings { get; set; }
-    public decimal LastMonthEarnings { get; set; }
-}

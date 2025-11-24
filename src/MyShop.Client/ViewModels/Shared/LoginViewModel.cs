@@ -11,8 +11,6 @@ using System.Net.Http;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-
-// ===== NEW NAMESPACES - After Refactor =====
 using MyShop.Core.Interfaces.Services;
 using MyShop.Client.Strategies;
 
