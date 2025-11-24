@@ -64,6 +64,7 @@
 
     <Grid>
         <!-- ToggleButton ẩn để điều khiển trạng thái IsEditing và EmailVerified cho mục đích demo -->
+        <!--Nếu sau này không làm gì nữa sẽ xóa-->
         <ToggleButton x:Name="EditModeToggle" IsChecked="False" Visibility="Collapsed" />
         <ToggleButton x:Name="EmailVerifiedToggle" IsChecked="False" Visibility="Collapsed" />
 

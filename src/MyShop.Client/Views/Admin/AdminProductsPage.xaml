@@ -59,27 +59,8 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <!--  Left: Add / Export / Import  -->
+                    <!--  Left: Export  -->
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <!--  Add Product  -->
-                        <Button
-                            x:Name="AddProductButton"
-                            Padding="12,8"
-                            Background="#2563EB"
-                            BorderThickness="0"
-                            Click="AddProductButton_Click"
-                            CornerRadius="8"
-                            Foreground="White">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon
-                                    Width="24"
-                                    Height="24"
-                                    Glyph="&#xE710;" />
-                                <!--  Plus  -->
-                                <TextBlock Text="Add Product" />
-                            </StackPanel>
-                        </Button>
-
                         <!--  Export  -->
                         <Button
                             Margin="0,0,4,0"
@@ -97,29 +78,6 @@
                                     Glyph="&#xE898;" />
                                 <!--  Upload-ish  -->
                                 <TextBlock Text="Export" />
-                            </StackPanel>
-                        </Button>
-
-                        <!--  Import  -->
-                        <Button
-                            Padding="12,8"
-                            Background="White"
-                            BorderBrush="#E5E7EB"
-                            BorderThickness="1"
-                            Click="ImportButton_Click"
-                            CornerRadius="8"
-                            Foreground="#111827">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon
-                                    Width="24"
-                                    Height="24"
-                                    Glyph="&#xE898;"
-                                    RenderTransformOrigin="0.5,0.5">
-                                    <FontIcon.RenderTransform>
-                                        <RotateTransform Angle="180" />
-                                    </FontIcon.RenderTransform>
-                                </FontIcon>
-                                <TextBlock Text="Import" />
                             </StackPanel>
                         </Button>
                     </StackPanel>

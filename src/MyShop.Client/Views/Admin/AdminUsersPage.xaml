@@ -61,7 +61,7 @@
                         </TextBox>
 
                         <!-- Role Filter -->
-                        <ComboBox Grid.Column="1" Width="150" PlaceholderText="All Roles" BorderBrush="#E5E7EB" Margin="12,0">
+                        <ComboBox Grid.Column="1" Width="150" PlaceholderText="All Roles" BorderBrush="#E5E7EB" Padding="12" Margin="12,0">
                             <ComboBoxItem Content="All Roles" IsSelected="True"/>
                             <ComboBoxItem Content="Admin"/>
                             <ComboBoxItem Content="Salesman"/>
@@ -69,7 +69,7 @@
                         </ComboBox>
 
                         <!-- Status Filter -->
-                        <ComboBox Grid.Column="2" Width="150" PlaceholderText="All Status" BorderBrush="#E5E7EB">
+                        <ComboBox Grid.Column="2" Width="150" PlaceholderText="All Status" BorderBrush="#E5E7EB" Padding="12">
                             <ComboBoxItem Content="All Status" IsSelected="True"/>
                             <ComboBoxItem Content="Active"/>
                             <ComboBoxItem Content="Inactive"/>

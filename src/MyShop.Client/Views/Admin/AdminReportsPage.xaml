@@ -54,6 +54,8 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
@@ -61,13 +63,15 @@
                               ItemsSource="{x:Bind ViewModel.DateRanges}"
                               SelectedItem="{x:Bind ViewModel.SelectedDateRange, Mode=TwoWay}"
                               DisplayMemberPath="Display"
+                              HorizontalAlignment="Stretch"
                               SelectedValuePath="Value" />
 
-                    <ComboBox Grid.Column="1" Header="Category"
+                    <ComboBox Grid.Column="2" Header="Category"
                               ItemsSource="{x:Bind ViewModel.Categories}"
+                              HorizontalAlignment="Stretch"
                               SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}" />
 
-                    <Button Grid.Column="2" VerticalAlignment="Bottom" 
+                    <Button Grid.Column="4" VerticalAlignment="Bottom" 
                             Command="{x:Bind ViewModel.ExportReportCommand}">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon Glyph="&#xE896;" FontSize="16"/>
