@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace MyShop.Plugins.Repositories.Mocks;
+namespace MyShop.Plugins.Repositories.Mocks.Data;
 
 /// <summary>
 /// Mock data provider for agent requests - loads from JSON file

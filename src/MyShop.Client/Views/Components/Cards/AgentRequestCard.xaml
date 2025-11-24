@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="MyShop.Client.Views.Components.Cards.AgentRequestCard"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:badges="using:MyShop.Client.Views.Components.Badges"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="using:MyShop.Client.ViewModels.Admin"
+    x:Name="RootControl"
+    mc:Ignorable="d">
+
+    <Border
+        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+        BorderBrush="#E5E7EB"
+        BorderThickness="1"
+        CornerRadius="16"
+        Padding="24">
+        <Border.Shadow>
+            <ThemeShadow />
+        </Border.Shadow>
+
+        <Grid RowSpacing="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <!--  Header  -->
+                <RowDefinition Height="Auto" />
+                <!--  Reason & Experience  -->
+                <RowDefinition Height="Auto" />
+                <!--  Rejection (conditional)  -->
+                <RowDefinition Height="Auto" />
+                <!--  Actions  -->
+            </Grid.RowDefinitions>
+
+            <!--  Header Section: Avatar + Name + Badge + Email + Date  -->
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!--  Avatar  -->
+                <PersonPicture
+                    Grid.Column="0"
+                    Width="48"
+                    Height="48"
+                    Margin="0,0,16,0"
+                    ProfilePicture="{Binding Avatar, ElementName=RootControl}" />
+
+                <!--  Name, Badge, Email, Date  -->
+                <StackPanel Grid.Column="1" Spacing="8">
+                    <!--  Name + Status Badge  -->
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock
+                            FontSize="16"
+                            FontWeight="SemiBold"
+                            Foreground="#111827"
+                            Text="{Binding FullName, ElementName=RootControl}"
+                            VerticalAlignment="Center" />
+                        <badges:StatusBadge
+                            Text="{Binding Status, ElementName=RootControl}"
+                            Variant="Warning" />
+                    </StackPanel>
+
+                    <!--  Email + Date  -->
+                    <StackPanel Orientation="Horizontal" Spacing="16">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon
+                                FontSize="14"
+                                Foreground="#6B7280"
+                                Glyph="&#xE715;" />
+                            <TextBlock
+                                FontSize="13"
+                                Foreground="#6B7280"
+                                Text="{Binding Email, ElementName=RootControl}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon
+                                FontSize="14"
+                                Foreground="#6B7280"
+                                Glyph="&#xE787;" />
+                            <TextBlock
+                                FontSize="13"
+                                Foreground="#6B7280"
+                                Text="{Binding SubmittedDate, ElementName=RootControl}" />
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+
+            <!--  Reason & Experience Section  -->
+            <StackPanel Grid.Row="1" Spacing="12">
+                <!--  Reason  -->
+                <StackPanel Spacing="8">
+                    <TextBlock
+                        FontSize="13"
+                        FontWeight="SemiBold"
+                        Foreground="#111827"
+                        Text="Reason:" />
+                    <Border
+                        Background="#F9FAFB"
+                        CornerRadius="8"
+                        Padding="12">
+                        <TextBlock
+                            FontSize="13"
+                            Foreground="#6B7280"
+                            Text="{Binding Reason, ElementName=RootControl}"
+                            TextWrapping="Wrap" />
+                    </Border>
+                </StackPanel>
+
+                <!--  Experience  -->
+                <StackPanel Spacing="8">
+                    <TextBlock
+                        FontSize="13"
+                        FontWeight="SemiBold"
+                        Foreground="#111827"
+                        Text="Experience:" />
+                    <Border
+                        Background="#F9FAFB"
+                        CornerRadius="8"
+                        Padding="12">
+                        <TextBlock
+                            FontSize="13"
+                            Foreground="#6B7280"
+                            Text="{Binding Experience, ElementName=RootControl}"
+                            TextWrapping="Wrap" />
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+
+            <!--  Rejection Reason (only if rejected)  -->
+            <StackPanel
+                Grid.Row="2"
+                Spacing="8"
+                Visibility="{Binding HasRejectionReason, ElementName=RootControl}">
+                <TextBlock
+                    FontSize="13"
+                    FontWeight="SemiBold"
+                    Foreground="#B91C1C"
+                    Text="Rejection Reason:" />
+                <Border
+                    Background="#FEF2F2"
+                    BorderBrush="#FCA5A5"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="12">
+                    <TextBlock
+                        FontSize="13"
+                        Foreground="#DC2626"
+                        Text="{Binding RejectionReason, ElementName=RootControl}"
+                        TextWrapping="Wrap" />
+                </Border>
+            </StackPanel>
+
+            <!--  Action Buttons (only for pending)  -->
+            <StackPanel
+                Grid.Row="3"
+                BorderBrush="#E5E7EB"
+                BorderThickness="0,1,0,0"
+                Orientation="Horizontal"
+                Padding="0,16,0,0"
+                Spacing="12"
+                Visibility="{Binding IsPending, ElementName=RootControl}">
+                <Button
+                    Command="{Binding ApproveCommand, ElementName=RootControl}"
+                    Style="{StaticResource AccentButtonStyle}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon FontSize="14" Glyph="&#xE73E;" />
+                        <TextBlock Text="Approve" />
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource DefaultButtonStyle}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon
+                            FontSize="14"
+                            Foreground="#DC2626"
+                            Glyph="&#xE711;" />
+                        <TextBlock Foreground="#DC2626" Text="Reject" />
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource DefaultButtonStyle}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon FontSize="14" Glyph="&#xE77B;" />
+                        <TextBlock Text="View Profile" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

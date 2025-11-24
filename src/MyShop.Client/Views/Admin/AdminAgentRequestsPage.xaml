@@ -7,6 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Admin"
+    x:Name="MyPage"
     Background="#F3F4F6"
     mc:Ignorable="d">
 
@@ -92,198 +93,229 @@
             </TabViewItem>
         </TabView>
 
-        <!--  Requests Table  -->
-        <Border
-            Grid.Row="2"
-            Padding="24"
-            Background="White"
-            BorderBrush="#E5E7EB"
-            BorderThickness="1"
-            CornerRadius="16">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
+        <!--  Requests Cards  -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="16">
+                <!--  Empty State  -->
+                <Border
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="#E5E7EB"
+                    BorderThickness="1"
+                    CornerRadius="16"
+                    Padding="48"
+                    Visibility="{x:Bind ViewModel.HasNoRequests, Mode=OneWay}">
+                    <Border.Shadow>
+                        <ThemeShadow />
+                    </Border.Shadow>
+                    <StackPanel
+                        HorizontalAlignment="Center"
+                        Spacing="16">
+                        <FontIcon
+                            FontSize="48"
+                            Foreground="#9CA3AF"
+                            Glyph="&#xE823;"
+                            HorizontalAlignment="Center" />
+                        <TextBlock
+                            FontSize="16"
+                            Foreground="#6B7280"
+                            Text="No requests found"
+                            HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Border>
 
-                <!--  Table Header  -->
-                <Grid
-                    Grid.Row="0"
-                    Margin="0,0,0,12"
-                    Padding="12,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*" />
-                        <ColumnDefinition Width="2*" />
-                        <ColumnDefinition Width="1.5*" />
-                        <ColumnDefinition Width="1.2*" />
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="1.5*" />
-                    </Grid.ColumnDefinitions>
+                <!--  Request Cards  -->
+                <ItemsRepeater ItemsSource="{x:Bind ViewModel.FilteredRequests, Mode=OneWay}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Spacing="16" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="viewmodels:AgentRequestItem">
+                            <Border
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="#E5E7EB"
+                                BorderThickness="1"
+                                CornerRadius="16"
+                                Padding="24">
+                                <Border.Shadow>
+                                    <ThemeShadow />
+                                </Border.Shadow>
 
-                    <TextBlock
-                        Grid.Column="0"
-                        FontSize="13"
-                        FontWeight="SemiBold"
-                        Foreground="#6B7280"
-                        Text="Name" />
-                    <TextBlock
-                        Grid.Column="1"
-                        FontSize="13"
-                        FontWeight="SemiBold"
-                        Foreground="#6B7280"
-                        Text="Email" />
-                    <TextBlock
-                        Grid.Column="2"
-                        FontSize="13"
-                        FontWeight="SemiBold"
-                        Foreground="#6B7280"
-                        Text="Phone" />
-                    <TextBlock
-                        Grid.Column="3"
-                        FontSize="13"
-                        FontWeight="SemiBold"
-                        Foreground="#6B7280"
-                        Text="Submitted" />
-                    <TextBlock
-                        Grid.Column="4"
-                        FontSize="13"
-                        FontWeight="SemiBold"
-                        Foreground="#6B7280"
-                        Text="Experience" />
-                    <TextBlock
-                        Grid.Column="5"
-                        FontSize="13"
-                        FontWeight="SemiBold"
-                        Foreground="#6B7280"
-                        Text="Status" />
-                    <TextBlock
-                        Grid.Column="6"
-                        FontSize="13"
-                        FontWeight="SemiBold"
-                        Foreground="#6B7280"
-                        Text="Actions"
-                        TextAlignment="Right" />
-                </Grid>
+                                <Grid RowSpacing="16">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <!--  Header  -->
+                                        <RowDefinition Height="Auto" />
+                                        <!--  Reason & Experience  -->
+                                        <RowDefinition Height="Auto" />
+                                        <!--  Rejection (conditional)  -->
+                                        <RowDefinition Height="Auto" />
+                                        <!--  Actions  -->
+                                    </Grid.RowDefinitions>
 
-                <!--  Requests List  -->
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.FilteredRequests, Mode=OneWay}">
-                        <ItemsRepeater.Layout>
-                            <StackLayout Spacing="8" />
-                        </ItemsRepeater.Layout>
-                        <ItemsRepeater.ItemTemplate>
-                            <DataTemplate x:DataType="viewmodels:AgentRequestItem">
-                                <Border
-                                    Padding="12"
-                                    Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                                    BorderBrush="#E5E7EB"
-                                    BorderThickness="1"
-                                    CornerRadius="8">
-                                    <Grid>
+                                    <!--  Header Section: Avatar + Name + Badge + Email + Date  -->
+                                    <Grid Grid.Row="0">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="2*" />
-                                            <ColumnDefinition Width="2*" />
-                                            <ColumnDefinition Width="1.5*" />
-                                            <ColumnDefinition Width="1.2*" />
-                                            <ColumnDefinition Width="1*" />
-                                            <ColumnDefinition Width="1*" />
-                                            <ColumnDefinition Width="1.5*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
 
-                                        <!--  Name + Avatar  -->
-                                        <StackPanel
+                                        <!--  Avatar  -->
+                                        <PersonPicture
                                             Grid.Column="0"
-                                            VerticalAlignment="Center"
-                                            Orientation="Horizontal"
-                                            Spacing="12">
-                                            <PersonPicture
-                                                Width="40"
-                                                Height="40"
-                                                ProfilePicture="{x:Bind Avatar}" />
-                                            <StackPanel VerticalAlignment="Center">
+                                            Width="48"
+                                            Height="48"
+                                            Margin="0,0,16,0"
+                                            ProfilePicture="{x:Bind Avatar}" />
+
+                                        <!--  Name, Badge, Email, Date  -->
+                                        <StackPanel Grid.Column="1" Spacing="8">
+                                            <!--  Name + Status Badge  -->
+                                            <StackPanel Orientation="Horizontal" Spacing="12">
                                                 <TextBlock
-                                                    FontSize="14"
+                                                    FontSize="16"
                                                     FontWeight="SemiBold"
-                                                    Text="{x:Bind FullName}" />
-                                                <TextBlock
-                                                    FontSize="12"
-                                                    Foreground="#6B7280"
-                                                    Text="{x:Bind Username}" />
+                                                    Foreground="#111827"
+                                                    Text="{x:Bind FullName}"
+                                                    VerticalAlignment="Center" />
+                                                <badges:StatusBadge
+                                                    Text="{x:Bind Status}"
+                                                    Variant="Warning" />
+                                            </StackPanel>
+
+                                            <!--  Email + Date  -->
+                                            <StackPanel Orientation="Horizontal" Spacing="16">
+                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                    <FontIcon
+                                                        FontSize="14"
+                                                        Foreground="#6B7280"
+                                                        Glyph="&#xE715;" />
+                                                    <TextBlock
+                                                        FontSize="13"
+                                                        Foreground="#6B7280"
+                                                        Text="{x:Bind Email}" />
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                    <FontIcon
+                                                        FontSize="14"
+                                                        Foreground="#6B7280"
+                                                        Glyph="&#xE787;" />
+                                                    <TextBlock
+                                                        FontSize="13"
+                                                        Foreground="#6B7280"
+                                                        Text="{x:Bind SubmittedDate}" />
+                                                </StackPanel>
                                             </StackPanel>
                                         </StackPanel>
+                                    </Grid>
 
-                                        <!--  Email  -->
-                                        <TextBlock
-                                            Grid.Column="1"
-                                            VerticalAlignment="Center"
-                                            FontSize="13"
-                                            Text="{x:Bind Email}" />
-
-                                        <!--  Phone  -->
-                                        <TextBlock
-                                            Grid.Column="2"
-                                            VerticalAlignment="Center"
-                                            FontSize="13"
-                                            Text="{x:Bind Phone}" />
-
-                                        <!--  Submitted Date  -->
-                                        <TextBlock
-                                            Grid.Column="3"
-                                            VerticalAlignment="Center"
-                                            FontSize="13"
-                                            Foreground="#6B7280"
-                                            Text="{x:Bind SubmittedDate}" />
+                                    <!--  Reason & Experience Section  -->
+                                    <StackPanel Grid.Row="1" Spacing="12">
+                                        <!--  Reason  -->
+                                        <StackPanel Spacing="8">
+                                            <TextBlock
+                                                FontSize="13"
+                                                FontWeight="SemiBold"
+                                                Foreground="#111827"
+                                                Text="Reason:" />
+                                            <Border
+                                                Background="#F9FAFB"
+                                                CornerRadius="8"
+                                                Padding="12">
+                                                <TextBlock
+                                                    FontSize="13"
+                                                    Foreground="#6B7280"
+                                                    Text="{x:Bind Reason}"
+                                                    TextWrapping="Wrap" />
+                                            </Border>
+                                        </StackPanel>
 
                                         <!--  Experience  -->
-                                        <TextBlock
-                                            Grid.Column="4"
-                                            VerticalAlignment="Center"
-                                            FontSize="13"
-                                            Text="{x:Bind Experience}" />
-
-                                        <!--  Status Badge  -->
-                                        <badges:StatusBadge
-                                            Grid.Column="5"
-                                            VerticalAlignment="Center"
-                                            Text="{x:Bind Status}"
-                                            Variant="Warning" />
-
-                                        <!--  Actions  -->
-                                        <StackPanel
-                                            Grid.Column="6"
-                                            HorizontalAlignment="Right"
-                                            VerticalAlignment="Center"
-                                            Orientation="Horizontal"
-                                            Spacing="8">
-                                            <Button
-                                                Command="{Binding DataContext.ApproveRequestCommand, ElementName=MyPage}"
-                                                CommandParameter="{x:Bind}"
-                                                Style="{StaticResource SmallSuccessButtonStyle}"
-                                                Visibility="{x:Bind IsPending}">
-                                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                                    <FontIcon FontSize="14" Glyph="&#xE73E;" />
-                                                    <TextBlock Text="Approve" />
-                                                </StackPanel>
-                                            </Button>
-                                            <Button
-                                                Command="{Binding DataContext.RejectRequestCommand, ElementName=MyPage}"
-                                                CommandParameter="{x:Bind}"
-                                                Style="{StaticResource SmallDangerButtonStyle}"
-                                                Visibility="{x:Bind IsPending}">
-                                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                                    <FontIcon FontSize="14" Glyph="&#xE711;" />
-                                                    <TextBlock Text="Reject" />
-                                                </StackPanel>
-                                            </Button>
+                                        <StackPanel Spacing="8">
+                                            <TextBlock
+                                                FontSize="13"
+                                                FontWeight="SemiBold"
+                                                Foreground="#111827"
+                                                Text="Experience:" />
+                                            <Border
+                                                Background="#F9FAFB"
+                                                CornerRadius="8"
+                                                Padding="12">
+                                                <TextBlock
+                                                    FontSize="13"
+                                                    Foreground="#6B7280"
+                                                    Text="{x:Bind Experience}"
+                                                    TextWrapping="Wrap" />
+                                            </Border>
                                         </StackPanel>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsRepeater.ItemTemplate>
-                    </ItemsRepeater>
-                </ScrollViewer>
-            </Grid>
-        </Border>
+                                    </StackPanel>
+
+                                    <!--  Rejection Reason (only if rejected)  -->
+                                    <StackPanel
+                                        Grid.Row="2"
+                                        Spacing="8"
+                                        Visibility="{x:Bind HasRejectionReason}">
+                                        <TextBlock
+                                            FontSize="13"
+                                            FontWeight="SemiBold"
+                                            Foreground="#B91C1C"
+                                            Text="Rejection Reason:" />
+                                        <Border
+                                            Background="#FEF2F2"
+                                            BorderBrush="#FCA5A5"
+                                            BorderThickness="1"
+                                            CornerRadius="8"
+                                            Padding="12">
+                                            <TextBlock
+                                                FontSize="13"
+                                                Foreground="#DC2626"
+                                                Text="{x:Bind RejectionReason}"
+                                                TextWrapping="Wrap" />
+                                        </Border>
+                                    </StackPanel>
+
+                                    <!--  Action Buttons (only for pending)  -->
+                                    <StackPanel
+                                        Grid.Row="3"
+                                        BorderBrush="#E5E7EB"
+                                        BorderThickness="0,1,0,0"
+                                        Orientation="Horizontal"
+                                        Padding="0,16,0,0"
+                                        Spacing="12"
+                                        Visibility="{x:Bind IsPending}">
+                                        <Button
+                                            Command="{Binding DataContext.ApproveRequestCommand, ElementName=MyPage}"
+                                            CommandParameter="{x:Bind}"
+                                            Style="{StaticResource AccentButtonStyle}">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <FontIcon FontSize="14" Glyph="&#xE73E;" />
+                                                <TextBlock Text="Approve" />
+                                            </StackPanel>
+                                        </Button>
+                                        <Button
+                                            Command="{Binding DataContext.RejectRequestCommand, ElementName=MyPage}"
+                                            CommandParameter="{x:Bind}"
+                                            Style="{StaticResource DefaultButtonStyle}">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <FontIcon
+                                                    FontSize="14"
+                                                    Foreground="#DC2626"
+                                                    Glyph="&#xE711;" />
+                                                <TextBlock Foreground="#DC2626" Text="Reject" />
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Style="{StaticResource DefaultButtonStyle}">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <FontIcon FontSize="14" Glyph="&#xE77B;" />
+                                                <TextBlock Text="View Profile" />
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Page>

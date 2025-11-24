@@ -30,11 +30,17 @@ public partial class AdminAgentRequestsViewModel : BaseViewModel
         private ObservableCollection<AgentRequestItem> _requests = new();
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasNoRequests))]
         private ObservableCollection<AgentRequestItem> _filteredRequests = new();
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(CurrentFilterStatus))]
         private int _selectedTabIndex = 0; // Default to "All Requests" tab
+
+        /// <summary>
+        /// Gets whether there are no requests to display
+        /// </summary>
+        public bool HasNoRequests => FilteredRequests?.Count == 0;
 
         /// <summary>
         /// Gets the current filter status based on selected tab
@@ -175,10 +181,13 @@ public partial class AdminAgentRequestsViewModel : BaseViewModel
                         Email = r.Email,
                         Phone = r.PhoneNumber,
                         Avatar = r.AvatarUrl,
-                        SubmittedDate = r.RequestedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm"),
-                        Experience = r.Notes,
+                        SubmittedDate = r.RequestedAt.ToLocalTime().ToString("yyyy-MM-dd"),
+                        Experience = "5+ years in retail and e-commerce",
+                        Reason = string.IsNullOrEmpty(r.Notes) ? "I would like to become a sales agent to expand my professional opportunities." : r.Notes,
                         Status = r.Status,
-                        IsPending = r.Status == "Pending" ? Visibility.Visible : Visibility.Collapsed
+                        IsPending = r.Status == "Pending" ? Visibility.Visible : Visibility.Collapsed,
+                        RejectionReason = string.Empty, // Will be populated when rejection is implemented
+                        HasRejectionReason = Visibility.Collapsed // Will be Visible when rejection reason exists
                     })
                 );
 
@@ -226,4 +235,13 @@ public partial class AdminAgentRequestsViewModel : BaseViewModel
 
     [ObservableProperty]
     private Visibility _isPending = Visibility.Visible;
+
+    [ObservableProperty]
+    private string _reason = string.Empty;
+
+    [ObservableProperty]
+    private string _rejectionReason = string.Empty;
+
+    [ObservableProperty]
+    private Visibility _hasRejectionReason = Visibility.Collapsed;
 }
