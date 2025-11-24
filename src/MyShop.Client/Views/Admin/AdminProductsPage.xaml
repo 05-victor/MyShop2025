@@ -8,7 +8,7 @@
     xmlns:local="using:MyShop.Client.Views.Admin"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:pagination="using:MyShop.Client.Views.Components.Pagination"
-    xmlns:viewmodels="using:MyShop.Client.ViewModels.Product"
+    xmlns:viewmodels="using:MyShop.Client.ViewModels.Admin"
     x:Name="MyPage"
     Background="#F3F4F6"
     mc:Ignorable="d">
@@ -48,8 +48,8 @@
 
                 <!--  PAGE TITLE  -->
                 <TextBlock
-                    Style="{StaticResource DisplayHeadingStyle}"
                     Foreground="#111827"
+                    Style="{StaticResource DisplayHeadingStyle}"
                     Text="Products Management" />
 
                 <!--  HEADER ACTIONS  -->
