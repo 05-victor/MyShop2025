@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using MyShop.Client.ViewModels.Shared;
 
@@ -7,9 +8,11 @@ public sealed partial class CartPage : Page
 {
     public CartViewModel ViewModel { get; }
 
-    public CartPage(CartViewModel viewModel)
+    public CartPage()
     {
-        ViewModel = viewModel;
         InitializeComponent();
+
+        ViewModel = App.Current.Services.GetRequiredService<CartViewModel>();
+        this.DataContext = ViewModel;
     }
 }

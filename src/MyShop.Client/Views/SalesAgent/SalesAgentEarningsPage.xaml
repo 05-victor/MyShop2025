@@ -21,8 +21,7 @@
 
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="My Earnings" 
-                              FontSize="28" 
-                              FontWeight="SemiBold"
+                              Style="{StaticResource DisplayHeadingStyle}"
                               Foreground="#111827"/>
                     <TextBlock Text="Track your income and platform fees" 
                               FontSize="14" 

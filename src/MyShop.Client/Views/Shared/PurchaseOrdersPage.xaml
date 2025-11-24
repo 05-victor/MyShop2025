@@ -32,7 +32,7 @@
 
                 <!-- Header -->
                 <StackPanel Spacing="8">
-                    <TextBlock Text="My Orders" FontSize="28" FontWeight="SemiBold" Foreground="#111827"/>
+                    <TextBlock Style="{StaticResource DisplayHeadingStyle}" Text="My Orders" Foreground="#111827"/>
                     <TextBlock Text="Track and manage your orders" FontSize="14" Foreground="#6B7280"/>
                 </StackPanel>
 

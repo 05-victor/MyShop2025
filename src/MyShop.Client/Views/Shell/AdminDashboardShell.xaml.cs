@@ -8,12 +8,14 @@ using MyShop.Shared.Models;
 using MyShop.Client.Views.Admin;
 using MyShop.Client.Views.Shared;
 using MyShop.Client.Helpers;
+using MyShop.Core.Interfaces.Services;
 
 namespace MyShop.Client.Views.Shell
 {
     public sealed partial class AdminDashboardShell : Page
     {
         public DashboardShellViewModel ViewModel { get; }
+        private readonly INavigationService _navigationService;
         private NavigationViewItem? _currentContentItem;
         private bool _isRestoringSelection;
         private bool _isInitialized;
@@ -25,7 +27,16 @@ namespace MyShop.Client.Views.Shell
                 AppLogger.Enter();
                 InitializeComponent();
                 ViewModel = App.Current.Services.GetRequiredService<DashboardShellViewModel>();
+                _navigationService = App.Current.Services.GetRequiredService<INavigationService>();
                 DataContext = ViewModel;
+
+                // Register the shell's ContentFrame for in-shell navigation
+                Loaded += (s, e) => _navigationService.RegisterShellFrame(ContentFrame);
+                Unloaded += (s, e) => _navigationService.UnregisterShellFrame();
+
+                // Subscribe to ContentFrame navigation to sync NavigationView selection
+                ContentFrame.Navigated += ContentFrame_Navigated;
+
                 AppLogger.Exit();
             }
             catch (Exception ex)
@@ -140,6 +151,60 @@ namespace MyShop.Client.Views.Shell
             _isRestoringSelection = true;
             Nav.SelectedItem = _currentContentItem;
             _isRestoringSelection = false;
+        }
+
+        /// <summary>
+        /// Handles ContentFrame navigation to automatically update NavigationView selection
+        /// This ensures the NavigationView stays in sync regardless of how navigation was triggered
+        /// (via NavigationView selection or via IShellNavigationService from ViewModels)
+        /// </summary>
+        private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
+        {
+            // Map the navigated page type to its corresponding NavigationView tag
+            var tag = GetNavigationTagForPageType(e.SourcePageType);
+            
+            if (string.IsNullOrEmpty(tag))
+                return;
+
+            // Find the corresponding NavigationViewItem
+            var item = FindNavigationItemByTag(tag);
+            
+            // Update the NavigationView selection if we found a matching item
+            // Use _isRestoringSelection to prevent re-triggering Nav_SelectionChanged
+            if (item != null && !_isRestoringSelection)
+            {
+                _isRestoringSelection = true;
+                Nav.SelectedItem = item;
+                _currentContentItem = item;
+                _isRestoringSelection = false;
+            }
+        }
+
+        /// <summary>
+        /// Maps page types to their corresponding NavigationView item tags
+        /// </summary>
+        private string? GetNavigationTagForPageType(Type? pageType)
+        {
+            if (pageType == null)
+                return null;
+
+            // Map each page type to its NavigationView tag
+            if (pageType == typeof(AdminDashboardPage))
+                return "dashboard";
+            else if (pageType == typeof(AdminProductsPage))
+                return "products";
+            else if (pageType == typeof(AdminReportsPage))
+                return "reports";
+            else if (pageType == typeof(AdminAgentRequestsPage))
+                return "salesAgents";
+            else if (pageType == typeof(AdminUsersPage))
+                return "users";
+            else if (pageType == typeof(ProfilePage))
+                return "profile";
+            else if (pageType == typeof(SettingsPage))
+                return "settings";
+
+            return null;
         }
     }
 }

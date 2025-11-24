@@ -51,8 +51,8 @@
 
                     <StackPanel Grid.Column="0" Spacing="8">
                         <TextBlock Text="{x:Bind ViewModel.WelcomeMessage, Mode=OneWay}"
-                                  FontSize="32"
-                                  FontWeight="Bold"
+                                  Style="{StaticResource DisplayHeadingStyle}"
+                                  TextWrapping="Wrap"
                                   Foreground="#111827"/>
                         <TextBlock Text="Discover amazing products and great deals"
                                   FontSize="16"

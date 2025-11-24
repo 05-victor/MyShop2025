@@ -7,7 +7,7 @@ using MyShop.Core.Interfaces.Services;
 
 namespace MyShop.Client.ViewModels.Admin;
 
-public partial class AdminProductViewModel : ObservableObject
+public partial class AdminProductsViewModel : ObservableObject
 {
         private readonly IProductRepository _productRepository;
 
@@ -20,7 +20,7 @@ public partial class AdminProductViewModel : ObservableObject
         [ObservableProperty]
         private string? errorMessage;
 
-        public AdminProductViewModel(IProductRepository productRepository)
+        public AdminProductsViewModel(IProductRepository productRepository)
         {
             _productRepository = productRepository;
         }

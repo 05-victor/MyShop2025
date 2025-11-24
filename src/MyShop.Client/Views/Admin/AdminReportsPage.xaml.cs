@@ -9,11 +9,11 @@ namespace MyShop.Client.Views.Admin;
 /// </summary>
 public sealed partial class AdminReportsPage : Page
 {
-    public ReportsPageViewModel ViewModel { get; }
+    public AdminReportsViewModel ViewModel { get; }
 
     public AdminReportsPage()
     {
-        ViewModel = App.Current.Services.GetRequiredService<ReportsPageViewModel>();
+        ViewModel = App.Current.Services.GetRequiredService<AdminReportsViewModel>();
         InitializeComponent();
     }
 }

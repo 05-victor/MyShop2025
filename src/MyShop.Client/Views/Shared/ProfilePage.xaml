@@ -64,6 +64,7 @@
 
     <Grid>
         <!-- ToggleButton ẩn để điều khiển trạng thái IsEditing và EmailVerified cho mục đích demo -->
+        <!--Nếu sau này không làm gì nữa sẽ xóa-->
         <ToggleButton x:Name="EditModeToggle" IsChecked="False" Visibility="Collapsed" />
         <ToggleButton x:Name="EmailVerifiedToggle" IsChecked="False" Visibility="Collapsed" />
 
@@ -77,7 +78,7 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Administrator Profile" Style="{ThemeResource TitleTextBlockStyle}" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,8" />
+                        <TextBlock Text="Administrator Profile" Style="{StaticResource DisplayHeadingStyle}" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,8" />
                     <TextBlock Text="Manage your admin account and security settings" Style="{ThemeResource BodyTextBlockStyle}" Foreground="{StaticResource TextSecondaryBrush}" />
                 </StackPanel>
 

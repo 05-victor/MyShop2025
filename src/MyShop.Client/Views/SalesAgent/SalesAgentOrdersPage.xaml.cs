@@ -7,12 +7,12 @@ namespace MyShop.Client.Views.SalesAgent
 {
     public sealed partial class SalesOrdersPage : Page
     {
-        public SalesOrdersViewModel ViewModel { get; }
+        public SalesAgentOrdersViewModel ViewModel { get; }
 
         public SalesOrdersPage()
         {
             this.InitializeComponent();
-            ViewModel = App.Current.Services.GetRequiredService<SalesOrdersViewModel>();
+            ViewModel = App.Current.Services.GetRequiredService<SalesAgentOrdersViewModel>();
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)

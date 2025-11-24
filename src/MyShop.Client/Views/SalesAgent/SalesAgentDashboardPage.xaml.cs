@@ -8,12 +8,12 @@ namespace MyShop.Client.Views.SalesAgent
 {
     public sealed partial class SalesAgentDashboardPage : Page
     {
-        public SalesmanDashboardViewModel ViewModel { get; }
+        public SalesAgentDashboardViewModel ViewModel { get; }
 
         public SalesAgentDashboardPage()
         {
             this.InitializeComponent();
-            ViewModel = App.Current.Services.GetRequiredService<SalesmanDashboardViewModel>();
+            ViewModel = App.Current.Services.GetRequiredService<SalesAgentDashboardViewModel>();
             this.DataContext = ViewModel;
         }
 

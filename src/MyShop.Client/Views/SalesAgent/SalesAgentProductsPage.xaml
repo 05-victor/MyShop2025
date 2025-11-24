@@ -39,8 +39,7 @@
 
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="My Products" 
-                              FontSize="28" 
-                              FontWeight="SemiBold"
+                              Style="{StaticResource DisplayHeadingStyle}"
                               Foreground="#111827"/>
                     <TextBlock Text="Manage your product listings and inventory" 
                               FontSize="14" 

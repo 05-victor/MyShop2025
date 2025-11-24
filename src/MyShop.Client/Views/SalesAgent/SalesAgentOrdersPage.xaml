@@ -31,8 +31,7 @@
 
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="Sales Orders" 
-                              FontSize="28" 
-                              FontWeight="SemiBold"
+                              Style="{StaticResource DisplayHeadingStyle}"
                               Foreground="#111827"/>
                     <TextBlock Text="Track and manage orders for your products" 
                               FontSize="14" 
