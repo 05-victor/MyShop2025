@@ -8,12 +8,14 @@ using MyShop.Shared.Models;
 using MyShop.Client.Views.Admin;
 using MyShop.Client.Views.Shared;
 using MyShop.Client.Helpers;
+using MyShop.Core.Interfaces.Services;
 
 namespace MyShop.Client.Views.Shell
 {
     public sealed partial class AdminDashboardShell : Page
     {
         public DashboardShellViewModel ViewModel { get; }
+        private readonly INavigationService _navigationService;
         private NavigationViewItem? _currentContentItem;
         private bool _isRestoringSelection;
         private bool _isInitialized;
@@ -25,7 +27,13 @@ namespace MyShop.Client.Views.Shell
                 AppLogger.Enter();
                 InitializeComponent();
                 ViewModel = App.Current.Services.GetRequiredService<DashboardShellViewModel>();
+                _navigationService = App.Current.Services.GetRequiredService<INavigationService>();
                 DataContext = ViewModel;
+
+                // Register the shell's ContentFrame for in-shell navigation
+                Loaded += (s, e) => _navigationService.RegisterShellFrame(ContentFrame);
+                Unloaded += (s, e) => _navigationService.UnregisterShellFrame();
+
                 AppLogger.Exit();
             }
             catch (Exception ex)

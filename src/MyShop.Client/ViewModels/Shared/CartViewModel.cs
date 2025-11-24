@@ -253,7 +253,7 @@ public partial class CartViewModel : ObservableObject
     [RelayCommand]
     private void ContinueShopping()
     {
-        _navigationService.NavigateTo(typeof(ProductBrowsePage).FullName!);
+        _navigationService.NavigateInShell(typeof(ProductBrowsePage).FullName!);
     }
 
     [RelayCommand]
@@ -265,7 +265,7 @@ public partial class CartViewModel : ObservableObject
             return;
         }
 
-        _navigationService.NavigateTo(typeof(CheckoutPage).FullName!);
+        _navigationService.NavigateInShell(typeof(CheckoutPage).FullName!);
     }
 
     private async Task RefreshTotalsAsync()
