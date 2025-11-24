@@ -21,7 +21,20 @@ public partial class AdminDashboardViewModel : BaseViewModel
         [ObservableProperty]
         private bool _isLoading = false;
 
-        // Dashboard Statistics
+        // New Platform-Owner KPIs
+        [ObservableProperty]
+        private decimal _totalGmvThisMonth = 0;
+
+        [ObservableProperty]
+        private decimal _adminCommission = 0;
+
+        [ObservableProperty]
+        private int _activeSalesAgents = 0;
+
+        [ObservableProperty]
+        private int _itemsToReview = 0;
+
+        // Dashboard Statistics (kept for backwards compatibility)
         [ObservableProperty]
         private int _totalProducts = 0;
 
@@ -79,6 +92,13 @@ public partial class AdminDashboardViewModel : BaseViewModel
         [ObservableProperty]
         private ObservableCollection<FlaggedProductItem> _flaggedProducts = new();
 
+        // Revenue & Commission Trend Chart Data
+        [ObservableProperty]
+        private ObservableCollection<TrendDataPoint> _revenueTrendData = new();
+
+        [ObservableProperty]
+        private ObservableCollection<TrendDataPoint> _commissionTrendData = new();
+
         public AdminDashboardViewModel(
             IToastService toastHelper, 
             IDashboardRepository dashboardRepository)
@@ -120,7 +140,13 @@ public partial class AdminDashboardViewModel : BaseViewModel
                     return;
                 }
 
-                // Map Summary Statistics
+                // Map Platform-Owner KPIs (temporary mapping using existing data)
+                TotalGmvThisMonth = summary.MonthRevenue; // Total GMV across platform
+                AdminCommission = Math.Round(summary.MonthRevenue * 0.05m, 2); // 5% commission
+                ActiveSalesAgents = 127; // Mock value - replace with summary.ActiveSalesAgentsCount when available
+                ItemsToReview = summary.LowStockProducts.Count + 8; // Flagged + pending items
+                
+                // Map Summary Statistics (kept for backwards compatibility)
                 TotalProducts = summary.TotalProducts;
                 TodayOrders = summary.TodayOrders;
                 TodayRevenue = summary.TodayRevenue;
@@ -258,12 +284,111 @@ public partial class AdminDashboardViewModel : BaseViewModel
                     }
                 });
 
-                // Top sales agents and flagged products not available in current dashboard summary
-                // These would require separate repository methods in future:
-                // - IUserRepository.GetTopSalesAgentsAsync(limit: 5)
-                // - IProductRepository.GetFlaggedProductsAsync()
-                TopSalesAgents = new ObservableCollection<TopSalesAgentItem>();
-                FlaggedProducts = new ObservableCollection<FlaggedProductItem>();
+                // Mock Top SalesAgents data (until real repository methods are available)
+                TopSalesAgents = new ObservableCollection<TopSalesAgentItem>
+                {
+                    new() { 
+                        Name = "Michael Chen", 
+                        Email = "michael.chen@example.com", 
+                        Avatar = "ms-appx:///Assets/Avatars/avatar1.png", 
+                        GMV = 127450m, 
+                        Commission = 6372.50m, 
+                        Rating = 4.9, 
+                        Status = "Active" 
+                    },
+                    new() { 
+                        Name = "Sarah Johnson", 
+                        Email = "sarah.johnson@example.com", 
+                        Avatar = "ms-appx:///Assets/Avatars/avatar2.png", 
+                        GMV = 98320m, 
+                        Commission = 4916.00m, 
+                        Rating = 4.8, 
+                        Status = "Active" 
+                    },
+                    new() { 
+                        Name = "David Park", 
+                        Email = "david.park@example.com", 
+                        Avatar = "ms-appx:///Assets/Avatars/avatar3.png", 
+                        GMV = 87650m, 
+                        Commission = 4382.50m, 
+                        Rating = 4.7, 
+                        Status = "Active" 
+                    },
+                    new() { 
+                        Name = "Emma Wilson", 
+                        Email = "emma.wilson@example.com", 
+                        Avatar = "ms-appx:///Assets/Avatars/avatar4.png", 
+                        GMV = 76890m, 
+                        Commission = 3844.50m, 
+                        Rating = 4.9, 
+                        Status = "Active" 
+                    },
+                    new() { 
+                        Name = "James Lee", 
+                        Email = "james.lee@example.com", 
+                        Avatar = "ms-appx:///Assets/Avatars/avatar5.png", 
+                        GMV = 65430m, 
+                        Commission = 3271.50m, 
+                        Rating = 4.6, 
+                        Status = "Active" 
+                    }
+                };
+
+                // Mock Flagged Products data
+                FlaggedProducts = new ObservableCollection<FlaggedProductItem>
+                {
+                    new() { 
+                        Name = "iPhone 14 Pro Max", 
+                        Agent = "Michael Chen", 
+                        Category = "Smartphones", 
+                        State = "Pending Review" 
+                    },
+                    new() { 
+                        Name = "Samsung Galaxy S23 Ultra", 
+                        Agent = "Sarah Johnson", 
+                        Category = "Smartphones", 
+                        State = "Flagged" 
+                    },
+                    new() { 
+                        Name = "MacBook Pro 16\"", 
+                        Agent = "David Park", 
+                        Category = "Laptops", 
+                        State = "Pending Review" 
+                    },
+                    new() { 
+                        Name = "Sony WH-1000XM5", 
+                        Agent = "Emma Wilson", 
+                        Category = "Audio", 
+                        State = "Under Review" 
+                    },
+                    new() { 
+                        Name = "iPad Pro 12.9\"", 
+                        Agent = "James Lee", 
+                        Category = "Tablets", 
+                        State = "Pending Review" 
+                    }
+                };
+
+                // Mock Revenue & Commission Trend Data (Jun-Nov)
+                RevenueTrendData = new ObservableCollection<TrendDataPoint>
+                {
+                    new() { Label = "Jun", Value = 145000m },
+                    new() { Label = "Jul", Value = 168000m },
+                    new() { Label = "Aug", Value = 182000m },
+                    new() { Label = "Sep", Value = 195000m },
+                    new() { Label = "Oct", Value = 178000m },
+                    new() { Label = "Nov", Value = 198500m }
+                };
+
+                CommissionTrendData = new ObservableCollection<TrendDataPoint>
+                {
+                    new() { Label = "Jun", Value = 7250m },
+                    new() { Label = "Jul", Value = 8400m },
+                    new() { Label = "Aug", Value = 9100m },
+                    new() { Label = "Sep", Value = 9750m },
+                    new() { Label = "Oct", Value = 8900m },
+                    new() { Label = "Nov", Value = 9925m }
+                };
 
                 System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Loaded dashboard data successfully");
             }
@@ -336,4 +461,10 @@ public class FlaggedProductItem
     public string Agent { get; set; } = string.Empty;
     public string Category { get; set; } = string.Empty;
     public string State { get; set; } = string.Empty;
+}
+
+public class TrendDataPoint
+{
+    public string Label { get; set; } = string.Empty;
+    public decimal Value { get; set; }
 }
