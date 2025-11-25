@@ -1,4 +1,5 @@
 using MyShop.Shared.Models;
+using MyShop.Core.Common;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,35 +14,35 @@ public interface ICartRepository
     /// <summary>
     /// Get cart items for current user
     /// </summary>
-    Task<IEnumerable<CartItem>> GetCartItemsAsync(Guid userId);
+    Task<Result<IEnumerable<CartItem>>> GetCartItemsAsync(Guid userId);
 
     /// <summary>
     /// Add product to cart or update quantity if already exists
     /// </summary>
-    Task<bool> AddToCartAsync(Guid userId, Guid productId, int quantity = 1);
+    Task<Result<bool>> AddToCartAsync(Guid userId, Guid productId, int quantity = 1);
 
     /// <summary>
     /// Update quantity of cart item
     /// </summary>
-    Task<bool> UpdateQuantityAsync(Guid userId, Guid productId, int quantity);
+    Task<Result<bool>> UpdateQuantityAsync(Guid userId, Guid productId, int quantity);
 
     /// <summary>
     /// Remove item from cart
     /// </summary>
-    Task<bool> RemoveFromCartAsync(Guid userId, Guid productId);
+    Task<Result<bool>> RemoveFromCartAsync(Guid userId, Guid productId);
 
     /// <summary>
     /// Clear all items from cart
     /// </summary>
-    Task<bool> ClearCartAsync(Guid userId);
+    Task<Result<bool>> ClearCartAsync(Guid userId);
 
     /// <summary>
     /// Get total count of items in cart
     /// </summary>
-    Task<int> GetCartCountAsync(Guid userId);
+    Task<Result<int>> GetCartCountAsync(Guid userId);
 
     /// <summary>
     /// Get cart summary (total amount, count, etc.)
     /// </summary>
-    Task<CartSummary> GetCartSummaryAsync(Guid userId);
+    Task<Result<CartSummary>> GetCartSummaryAsync(Guid userId);
 }

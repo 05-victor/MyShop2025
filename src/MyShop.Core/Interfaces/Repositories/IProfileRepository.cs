@@ -1,4 +1,5 @@
 using MyShop.Shared.Models;
+using MyShop.Core.Common;
 
 namespace MyShop.Core.Interfaces.Repositories;
 
@@ -10,20 +11,20 @@ public interface IProfileRepository
     /// <summary>
     /// Get user profile by user ID
     /// </summary>
-    Task<ProfileData?> GetByUserIdAsync(Guid userId);
+    Task<Result<ProfileData>> GetByUserIdAsync(Guid userId);
 
     /// <summary>
     /// Create new user profile
     /// </summary>
-    Task<ProfileData> CreateAsync(ProfileData profile);
+    Task<Result<ProfileData>> CreateAsync(ProfileData profile);
 
     /// <summary>
     /// Update existing user profile
     /// </summary>
-    Task<ProfileData> UpdateAsync(ProfileData profile);
+    Task<Result<ProfileData>> UpdateAsync(ProfileData profile);
 
     /// <summary>
     /// Delete user profile
     /// </summary>
-    Task<bool> DeleteAsync(Guid userId);
+    Task<Result<bool>> DeleteAsync(Guid userId);
 }

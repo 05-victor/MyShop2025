@@ -1,3 +1,5 @@
+using MyShop.Core.Common;
+
 namespace MyShop.Core.Interfaces.Infrastructure;
 
 /// <summary>
@@ -9,16 +11,16 @@ public interface ICredentialStorage
     /// <summary>
     /// Save authentication token to storage
     /// </summary>
-    void SaveToken(string token);
+    Task<Result<Unit>> SaveToken(string token);
 
     /// <summary>
     /// Retrieve authentication token from storage
     /// </summary>
-    /// <returns>Token if exists, null otherwise</returns>
+    /// <returns>Token if exist s, null otherwise</returns>
     string? GetToken();
 
     /// <summary>
     /// Remove authentication token from storage (logout)
     /// </summary>
-    void RemoveToken();
+    Task<Result<Unit>> RemoveToken();
 }

@@ -1,4 +1,5 @@
 using MyShop.Shared.Models;
+using MyShop.Core.Common;
 
 namespace MyShop.Core.Interfaces.Infrastructure;
 
@@ -12,15 +13,15 @@ public interface ISettingsStorage
     /// Load application settings from storage
     /// Returns default settings if none exist
     /// </summary>
-    Task<AppSettings> GetAsync();
+    Task<Result<AppSettings>> GetAsync();
 
     /// <summary>
     /// Save application settings to storage
     /// </summary>
-    Task SaveAsync(AppSettings settings);
+    Task<Result<Unit>> SaveAsync(AppSettings settings);
 
     /// <summary>
     /// Reset settings to defaults and delete storage
     /// </summary>
-    Task ResetAsync();
+    Task<Result<Unit>> ResetAsync();
 }

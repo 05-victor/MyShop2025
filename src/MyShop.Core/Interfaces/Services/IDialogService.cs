@@ -1,4 +1,5 @@
 namespace MyShop.Core.Interfaces.Services;
+using MyShop.Core.Common;
 
 /// <summary>
 /// Service for displaying dialogs
@@ -8,15 +9,15 @@ public interface IDialogService
     /// <summary>
     /// Show a confirmation dialog
     /// </summary>
-    Task<bool> ShowConfirmationAsync(string title, string message);
+    Task<Result<bool>> ShowConfirmationAsync(string title, string message);
 
     /// <summary>
     /// Show an input dialog
     /// </summary>
-    Task<string?> ShowInputAsync(string title, string message, string placeholder = "");
+    Task<Result<string?>> ShowInputAsync(string title, string message, string placeholder = "");
 
     /// <summary>
     /// Show a custom dialog
     /// </summary>
-    Task ShowDialogAsync(string dialogName, object? parameter = null);
+    Task<Result<Unit>> ShowDialogAsync(string dialogName, object? parameter = null);
 }

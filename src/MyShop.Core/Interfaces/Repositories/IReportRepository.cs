@@ -1,4 +1,5 @@
 using MyShop.Shared.Models;
+using MyShop.Core.Common;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,20 +14,20 @@ public interface IReportRepository
     /// <summary>
     /// Get sales report for a specific sales agent
     /// </summary>
-    Task<SalesReport> GetSalesReportAsync(Guid salesAgentId, DateTime? startDate = null, DateTime? endDate = null);
+    Task<Result<SalesReport>> GetSalesReportAsync(Guid salesAgentId, DateTime? startDate = null, DateTime? endDate = null);
 
     /// <summary>
     /// Get performance metrics for a sales agent
     /// </summary>
-    Task<PerformanceMetrics> GetPerformanceMetricsAsync(Guid salesAgentId);
+    Task<Result<PerformanceMetrics>> GetPerformanceMetricsAsync(Guid salesAgentId);
 
     /// <summary>
     /// Get top performing products for a sales agent
     /// </summary>
-    Task<IEnumerable<ProductPerformance>> GetTopProductsAsync(Guid salesAgentId, int topCount = 10);
+    Task<Result<IEnumerable<ProductPerformance>>> GetTopProductsAsync(Guid salesAgentId, int topCount = 10);
 
     /// <summary>
     /// Get sales trend data (daily, weekly, monthly)
     /// </summary>
-    Task<SalesTrend> GetSalesTrendAsync(Guid salesAgentId, string period = "monthly");
+    Task<Result<SalesTrend>> GetSalesTrendAsync(Guid salesAgentId, string period = "monthly");
 }

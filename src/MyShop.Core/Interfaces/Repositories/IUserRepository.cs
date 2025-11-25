@@ -13,7 +13,7 @@ public interface IUserRepository
     /// <summary>
     /// Get all users (for admin management)
     /// </summary>
-    Task<IEnumerable<User>> GetAllAsync();
+    Task<Result<IEnumerable<User>>> GetAllAsync();
 
     /// <summary>
     /// Update user profile information
