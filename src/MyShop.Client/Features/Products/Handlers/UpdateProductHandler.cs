@@ -34,8 +34,14 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, Result
                 UpdatedAt = DateTimeOffset.UtcNow.DateTime
             };
 
-            var updated = await _productRepository.UpdateAsync(product);
-            return Result<Product>.Success(updated);
+            var result = await _productRepository.UpdateAsync(product);
+            
+            if (!result.IsSuccess)
+            {
+                return Result<Product>.Failure(result.ErrorMessage);
+            }
+            
+            return Result<Product>.Success(result.Data);
         }
         catch (Exception ex)
         {

@@ -38,11 +38,16 @@ public partial class AdminProductsViewModel : ObservableObject
             {
                 AppLogger.Info("Loading products from repository...");
 
-                var products = await _productRepository.GetAllAsync();
+                var result = await _productRepository.GetAllAsync();
+                if (!result.IsSuccess || result.Data == null)
+                {
+                    ErrorMessage = $"Failed to load products: {result.ErrorMessage}";
+                    return;
+                }
 
                 Products.Clear();
 
-                foreach (var product in products)
+                foreach (var product in result.Data)
                 {
                     Products.Add(ProductRow.FromProduct(product));
                 }

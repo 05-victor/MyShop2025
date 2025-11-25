@@ -31,22 +31,22 @@ public class GetProfileHandler : IRequestHandler<GetProfileQuery, Result<User>>
                 return Result<User>.Failure("User not authenticated");
             }
 
-            var profileData = await _profileRepository.GetByUserIdAsync(userResult.Data.Id);
-            if (profileData == null)
+            var profileResult = await _profileRepository.GetByUserIdAsync(userResult.Data.Id);
+            if (!profileResult.IsSuccess || profileResult.Data == null)
             {
-                return Result<User>.Failure("Profile not found");
+                return Result<User>.Failure(profileResult.ErrorMessage ?? "Profile not found");
             }
 
             // Map ProfileData to User model
             var user = new User
             {
-                Id = profileData.UserId,
-                Email = profileData.Email,
-                FullName = profileData.FullName,
-                PhoneNumber = profileData.PhoneNumber,
-                Address = profileData.Address,
-                Avatar = profileData.Avatar,
-                CreatedAt = profileData.CreatedAt
+                Id = profileResult.Data.UserId,
+                Email = profileResult.Data.Email,
+                FullName = profileResult.Data.FullName,
+                PhoneNumber = profileResult.Data.PhoneNumber,
+                Address = profileResult.Data.Address,
+                Avatar = profileResult.Data.Avatar,
+                CreatedAt = profileResult.Data.CreatedAt
             };
 
             return Result<User>.Success(user);

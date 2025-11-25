@@ -184,7 +184,13 @@ public partial class SettingsViewModel : ObservableObject
             var file = await savePicker.PickSaveFileAsync();
             if (file != null)
             {
-                var settings = await _settingsStorage.GetAsync();
+                var result = await _settingsStorage.GetAsync();
+                if (!result.IsSuccess || result.Data == null)
+                {
+                    return;
+                }
+                
+                var settings = result.Data;
                 var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
                 await FileIO.WriteTextAsync(file, json);
             }
@@ -214,8 +220,11 @@ public partial class SettingsViewModel : ObservableObject
                 var settings = JsonSerializer.Deserialize<AppSettings>(json);
                 if (settings != null)
                 {
-                    await _settingsStorage.SaveAsync(settings);
-                    await LoadAsync();
+                    var result = await _settingsStorage.SaveAsync(settings);
+                    if (result.IsSuccess)
+                    {
+                        await LoadAsync();
+                    }
                 }
             }
         }
@@ -236,7 +245,14 @@ public partial class SettingsViewModel : ObservableObject
             IsLoading = true;
             ErrorMessage = string.Empty;
 
-            var settings = await _settingsStorage.GetAsync();
+            var result = await _settingsStorage.GetAsync();
+            if (!result.IsSuccess || result.Data == null)
+            {
+                ErrorMessage = result.ErrorMessage ?? "Failed to load settings.";
+                return;
+            }
+
+            var settings = result.Data;
             
             Theme = settings.Theme;
             Language = settings.Language;
@@ -298,12 +314,17 @@ public partial class SettingsViewModel : ObservableObject
                 SelectedTimezoneIndex = SelectedTimezoneIndex
             };
 
-            await _settingsStorage.SaveAsync(settings);
+            var result = await _settingsStorage.SaveAsync(settings);
+            if (!result.IsSuccess)
+            {
+                ErrorMessage = result.ErrorMessage ?? "Failed to save settings.";
+                return;
+            }
 
             // Update original settings
             _originalSettings = settings;
 
-            _toastHelper.ShowSuccess("Settings saved successfully!");
+            await _toastHelper.ShowSuccess("Settings saved successfully!");
             
             // Apply theme and language immediately
             ApplyThemeAndLanguage();
@@ -334,12 +355,17 @@ public partial class SettingsViewModel : ObservableObject
             IsLoading = true;
             ErrorMessage = string.Empty;
 
-            await _settingsStorage.ResetAsync();
+            var result = await _settingsStorage.ResetAsync();
+            if (!result.IsSuccess)
+            {
+                ErrorMessage = result.ErrorMessage ?? "Failed to reset settings.";
+                return;
+            }
             
             // Reload defaults
             await LoadAsync();
 
-            _toastHelper.ShowInfo("Settings reset to defaults.");
+            await _toastHelper.ShowInfo("Settings reset to defaults.");
         }
         catch (Exception ex)
         {
@@ -404,7 +430,7 @@ public partial class SettingsViewModel : ObservableObject
             if (Language != _originalSettings?.Language)
             {
                 System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Language changed to: {Language}");
-                _toastHelper.ShowInfo("Language changes will take effect after app restart.");
+                _ = _toastHelper.ShowInfo("Language changes will take effect after app restart.");
             }
         }
         catch (Exception ex)

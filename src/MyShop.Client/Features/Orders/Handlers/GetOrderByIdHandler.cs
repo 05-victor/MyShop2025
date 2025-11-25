@@ -22,14 +22,14 @@ public class GetOrderByIdHandler : IRequestHandler<GetOrderByIdQuery, Result<Ord
     {
         try
         {
-            var order = await _orderRepository.GetByIdAsync(request.OrderId);
+            var result = await _orderRepository.GetByIdAsync(request.OrderId);
 
-            if (order == null)
+            if (!result.IsSuccess)
             {
-                return Result<Order>.Failure($"Order with ID {request.OrderId} not found");
+                return Result<Order>.Failure(result.ErrorMessage);
             }
 
-            return Result<Order>.Success(order);
+            return Result<Order>.Success(result.Data);
         }
         catch (Exception ex)
         {

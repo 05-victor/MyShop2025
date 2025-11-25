@@ -118,7 +118,7 @@ public partial class ChangePasswordViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanChangePassword))]
     private async Task ChangePasswordAsync()
     {
-        if (!ValidateAll())
+        if (!await ValidateAllAsync())
         {
             ErrorMessage = "Please fix validation errors.";
             return;
@@ -139,7 +139,7 @@ public partial class ChangePasswordViewModel : ObservableObject
 
             if (result.IsSuccess)
             {
-                _toastHelper.ShowSuccess("Password changed successfully!");
+                await _toastHelper.ShowSuccess("Password changed successfully!");
                 IsSuccess = true;
                 
                 // Clear sensitive data
@@ -198,7 +198,7 @@ public partial class ChangePasswordViewModel : ObservableObject
     /// <summary>
     /// Validate all password fields
     /// </summary>
-    private bool ValidateAll()
+    private async Task<bool> ValidateAllAsync()
     {
         ClearErrors();
         var isValid = true;
@@ -211,11 +211,14 @@ public partial class ChangePasswordViewModel : ObservableObject
         }
 
         // Validate new password
-        var newPasswordResult = _validationService.ValidatePassword(NewPassword);
-        if (!newPasswordResult.IsValid)
+        var newPasswordResult = await _validationService.ValidatePassword(NewPassword);
+        if (newPasswordResult.IsSuccess && newPasswordResult.Data != null)
         {
-            NewPasswordError = newPasswordResult.ErrorMessage;
-            isValid = false;
+            if (!newPasswordResult.Data.IsValid)
+            {
+                NewPasswordError = newPasswordResult.Data.ErrorMessage;
+                isValid = false;
+            }
         }
 
         // Check new password differs from current
@@ -228,11 +231,14 @@ public partial class ChangePasswordViewModel : ObservableObject
         }
 
         // Validate confirmation
-        var confirmResult = _validationService.ValidatePasswordConfirmation(NewPassword, ConfirmPassword);
-        if (!confirmResult.IsValid)
+        var confirmResult = await _validationService.ValidatePasswordConfirmation(NewPassword, ConfirmPassword);
+        if (confirmResult.IsSuccess && confirmResult.Data != null)
         {
-            ConfirmPasswordError = confirmResult.ErrorMessage;
-            isValid = false;
+            if (!confirmResult.Data.IsValid)
+            {
+                ConfirmPasswordError = confirmResult.Data.ErrorMessage;
+                isValid = false;
+            }
         }
 
         return isValid;
@@ -252,12 +258,15 @@ public partial class ChangePasswordViewModel : ObservableObject
     /// <summary>
     /// Real-time validation for new password
     /// </summary>
-    partial void OnNewPasswordChanged(string value)
+    async partial void OnNewPasswordChanged(string value)
     {
         if (!string.IsNullOrWhiteSpace(value))
         {
-            var result = _validationService.ValidatePassword(value);
-            NewPasswordError = result.IsValid ? string.Empty : result.ErrorMessage;
+            var result = await _validationService.ValidatePassword(value);
+            if (result.IsSuccess && result.Data != null)
+            {
+                NewPasswordError = result.Data.IsValid ? string.Empty : result.Data.ErrorMessage;
+            }
 
             // Check if differs from current
             if (!string.IsNullOrWhiteSpace(CurrentPassword) &&
@@ -269,8 +278,11 @@ public partial class ChangePasswordViewModel : ObservableObject
             // Re-validate confirmation if already entered
             if (!string.IsNullOrWhiteSpace(ConfirmPassword))
             {
-                var confirmResult = _validationService.ValidatePasswordConfirmation(value, ConfirmPassword);
-                ConfirmPasswordError = confirmResult.IsValid ? string.Empty : confirmResult.ErrorMessage;
+                var confirmResult = await _validationService.ValidatePasswordConfirmation(value, ConfirmPassword);
+                if (confirmResult.IsSuccess && confirmResult.Data != null)
+                {
+                    ConfirmPasswordError = confirmResult.Data.IsValid ? string.Empty : confirmResult.Data.ErrorMessage;
+                }
             }
         }
         else
@@ -282,12 +294,15 @@ public partial class ChangePasswordViewModel : ObservableObject
     /// <summary>
     /// Real-time validation for confirm password
     /// </summary>
-    partial void OnConfirmPasswordChanged(string value)
+    async partial void OnConfirmPasswordChanged(string value)
     {
         if (!string.IsNullOrWhiteSpace(value) && !string.IsNullOrWhiteSpace(NewPassword))
         {
-            var result = _validationService.ValidatePasswordConfirmation(NewPassword, value);
-            ConfirmPasswordError = result.IsValid ? string.Empty : result.ErrorMessage;
+            var result = await _validationService.ValidatePasswordConfirmation(NewPassword, value);
+            if (result.IsSuccess && result.Data != null)
+            {
+                ConfirmPasswordError = result.Data.IsValid ? string.Empty : result.Data.ErrorMessage;
+            }
         }
         else
         {

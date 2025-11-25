@@ -103,8 +103,13 @@ public partial class CustomerDashboardViewModel : BaseViewModel
         {
             try
             {
-                var products = await _productRepository.GetAllAsync();
-                var featured = products.Take(4).ToList();
+                var result = await _productRepository.GetAllAsync();
+                if (!result.IsSuccess || result.Data == null)
+                {
+                    return;
+                }
+                
+                var featured = result.Data.Take(4).ToList();
 
                 FeaturedProducts.Clear();
                 foreach (var product in featured)
@@ -133,8 +138,13 @@ public partial class CustomerDashboardViewModel : BaseViewModel
         {
             try
             {
-                var products = await _productRepository.GetAllAsync();
-                var recommended = products.Skip(4).Take(4).ToList();
+                var result = await _productRepository.GetAllAsync();
+                if (!result.IsSuccess || result.Data == null)
+                {
+                    return;
+                }
+                
+                var recommended = result.Data.Skip(4).Take(4).ToList();
 
                 RecommendedProducts.Clear();
                 foreach (var product in recommended)
@@ -162,10 +172,9 @@ public partial class CustomerDashboardViewModel : BaseViewModel
         [RelayCommand]
         private async Task LogoutAsync()
         {
-            _credentialStorage.RemoveToken();
-            _toastHelper.ShowInfo("Logged out");
-            _navigationService.NavigateTo(typeof(LoginPage).FullName!);
-            await Task.CompletedTask;
+            await _credentialStorage.RemoveToken();
+            await _toastHelper.ShowInfo("Logged out");
+            await _navigationService.NavigateTo(typeof(LoginPage).FullName!);
         }
     }
 

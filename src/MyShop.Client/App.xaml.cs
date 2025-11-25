@@ -148,13 +148,13 @@ namespace MyShop.Client
                         else
                         {
                             AppLogger.Warning($"Token validation failed: {result.ErrorMessage}");
-                            credentialStorage.RemoveToken();
+                            await credentialStorage.RemoveToken();
                         }
                     }
                     catch (Exception ex)
                     {
                         AppLogger.Error("Auto-login failed", ex);
-                        credentialStorage.RemoveToken();
+                        await credentialStorage.RemoveToken();
                     }
                 }
                 else

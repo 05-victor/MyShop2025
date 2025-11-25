@@ -118,26 +118,26 @@ public partial class AdminAgentRequestsViewModel : BaseViewModel
         [RelayCommand]
         private async Task RefreshAsync()
         {
-            _toastHelper.ShowInfo("Refreshing agent requests...");
+            await _toastHelper.ShowInfo("Refreshing agent requests...");
             await LoadAgentRequestsAsync();
-            _toastHelper.ShowSuccess("✅ Refreshed successfully");
+            await _toastHelper.ShowSuccess("✅ Refreshed successfully");
         }
 
         [RelayCommand]
         private async Task ApproveRequest(AgentRequestItem request)
         {
-            var success = await _agentRequestRepository.ApproveAsync(Guid.Parse(request.Id));
+            var result = await _agentRequestRepository.ApproveAsync(Guid.Parse(request.Id));
             
-            if (!success)
+            if (!result.IsSuccess || !result.Data)
             {
-                _toastHelper.ShowError("Failed to approve request");
+                await _toastHelper.ShowError("Failed to approve request");
                 return;
             }
 
             request.Status = "Approved";
             request.IsPending = Visibility.Collapsed;
             
-            _toastHelper.ShowSuccess($"✅ Approved {request.FullName}'s request");
+            await _toastHelper.ShowSuccess($"✅ Approved {request.FullName}'s request");
             
             // Refresh filtered list based on current tab
             ApplyFilter();
@@ -146,18 +146,18 @@ public partial class AdminAgentRequestsViewModel : BaseViewModel
         [RelayCommand]
         private async Task RejectRequest(AgentRequestItem request)
         {
-            var success = await _agentRequestRepository.RejectAsync(Guid.Parse(request.Id));
+            var result = await _agentRequestRepository.RejectAsync(Guid.Parse(request.Id));
             
-            if (!success)
+            if (!result.IsSuccess || !result.Data)
             {
-                _toastHelper.ShowError("Failed to reject request");
+                await _toastHelper.ShowError("Failed to reject request");
                 return;
             }
 
             request.Status = "Rejected";
             request.IsPending = Visibility.Collapsed;
             
-            _toastHelper.ShowWarning($"❌ Rejected {request.FullName}'s request");
+            await _toastHelper.ShowWarning($"❌ Rejected {request.FullName}'s request");
             
             // Refresh filtered list based on current tab
             ApplyFilter();
@@ -170,10 +170,14 @@ public partial class AdminAgentRequestsViewModel : BaseViewModel
         {
             try
             {
-                var data = await _agentRequestRepository.GetAllAsync();
+                var result = await _agentRequestRepository.GetAllAsync();
+                if (!result.IsSuccess || result.Data == null)
+                {
+                    return;
+                }
 
                 Requests = new ObservableCollection<AgentRequestItem>(
-                    data.Select(r => new AgentRequestItem
+                    result.Data.Select(r => new AgentRequestItem
                     {
                         Id = r.Id.ToString(),
                         Username = r.Email.Split('@')[0], // Extract username from email

@@ -50,13 +50,13 @@ namespace MyShop.Client.Views.Customer
             System.Diagnostics.Debug.WriteLine("[CustomerDashboardPage] User upgraded to admin");
 
             // Show success message
-            _toastHelper.ShowSuccess($"🎉 Welcome, {upgradedUser.FullName}! You are now an Admin.");
+            await _toastHelper.ShowSuccess($"🎉 Welcome, {upgradedUser.FullName}! You are now an Admin.");
 
             // Wait a moment for user to see the toast
             await Task.Delay(1500);
 
             // Navigate to AdminDashboard
-            _navigationService.NavigateTo(typeof(Shell.AdminDashboardShell).FullName!, upgradedUser);
+            await _navigationService.NavigateTo(typeof(Shell.AdminDashboardShell).FullName!, upgradedUser);
         }
     }
 }

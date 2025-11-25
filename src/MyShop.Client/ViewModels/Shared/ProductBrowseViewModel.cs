@@ -82,10 +82,17 @@ public partial class ProductBrowseViewModel : ObservableObject
     {
         try
         {
-            var categories = await _categoryRepository.GetAllAsync();
-            Categories = new ObservableCollection<string>(
-                new[] { "All Categories" }.Concat(categories.Select(c => c.Name))
-            );
+            var result = await _categoryRepository.GetAllAsync();
+            if (result.IsSuccess && result.Data != null)
+            {
+                Categories = new ObservableCollection<string>(
+                    new[] { "All Categories" }.Concat(result.Data.Select(c => c.Name))
+                );
+            }
+            else
+            {
+                Categories = new ObservableCollection<string> { "All Categories" };
+            }
         }
         catch (Exception ex)
         {
@@ -99,8 +106,15 @@ public partial class ProductBrowseViewModel : ObservableObject
         IsLoading = true;
         try
         {
-            var products = await _productRepository.GetAllAsync();
-            _allProducts = products.ToList();
+            var result = await _productRepository.GetAllAsync();
+            if (result.IsSuccess && result.Data != null)
+            {
+                _allProducts = result.Data.ToList();
+            }
+            else
+            {
+                _allProducts = new List<Product>();
+            }
             
             ApplyFiltersAndSort();
         }
@@ -227,34 +241,34 @@ public partial class ProductBrowseViewModel : ObservableObject
             
             if (!userIdResult.IsSuccess || userIdResult.Data == Guid.Empty)
             {
-                _toastHelper.ShowError("Please login to add items to cart");
+                await _toastHelper.ShowError("Please login to add items to cart");
                 return;
             }
 
             var userId = userIdResult.Data;
 
             // Add to cart
-            var success = await _cartRepository.AddToCartAsync(userId, product.Id, 1);
+            var result = await _cartRepository.AddToCartAsync(userId, product.Id, 1);
 
-            if (success)
+            if (result.IsSuccess && result.Data)
             {
-                _toastHelper.ShowSuccess($"Added {product.Name} to cart");
+                await _toastHelper.ShowSuccess($"Added {product.Name} to cart");
                 System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] Added to cart: {product.Name}");
             }
             else
             {
-                _toastHelper.ShowError("Failed to add to cart. Product may be out of stock.");
+                await _toastHelper.ShowError("Failed to add to cart. Product may be out of stock.");
             }
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] Error adding to cart: {ex.Message}");
-            _toastHelper.ShowError("An error occurred while adding to cart");
+            await _toastHelper.ShowError("An error occurred while adding to cart");
         }
     }
 
     [RelayCommand]
-    private void ViewProductDetails(ProductCardViewModel product)
+    private async Task ViewProductDetailsAsync(ProductCardViewModel product)
     {
         // Navigate to product details page
         // When ProductDetailsPage is created, uncomment this:
@@ -263,7 +277,7 @@ public partial class ProductBrowseViewModel : ObservableObject
         System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] View details for product: {product.Name} (ID: {product.Id})");
         
         // For now, show a toast notification
-        _toastHelper.ShowInfo($"Product Details: {product.Name}\nPrice: ${product.Price:F2}\nStock: {product.Stock} units");
+        await _toastHelper.ShowInfo($"Product Details: {product.Name}\nPrice: ${product.Price:F2}\nStock: {product.Stock} units");
     }
 }
 

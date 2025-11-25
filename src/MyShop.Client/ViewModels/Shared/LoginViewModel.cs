@@ -93,12 +93,15 @@ public partial class LoginViewModel : BaseViewModel
     /// <summary>
     /// Real-time validation khi username thay đổi
     /// </summary>
-    partial void OnUsernameChanged(string value)
+    async partial void OnUsernameChanged(string value)
     {
         if (!string.IsNullOrWhiteSpace(value))
         {
-            var result = _validationService.ValidateUsername(value);
-            UsernameError = result.IsValid ? string.Empty : result.ErrorMessage;
+            var result = await _validationService.ValidateUsername(value);
+            if (result.IsSuccess && result.Data != null)
+            {
+                UsernameError = result.Data.IsValid ? string.Empty : result.Data.ErrorMessage;
+            }
         }
         else
         {
@@ -109,12 +112,15 @@ public partial class LoginViewModel : BaseViewModel
     /// <summary>
     /// Real-time validation khi password thay đổi
     /// </summary>
-    partial void OnPasswordChanged(string value)
+    async partial void OnPasswordChanged(string value)
     {
         if (!string.IsNullOrWhiteSpace(value))
         {
-            var result = _validationService.ValidatePassword(value);
-            PasswordError = result.IsValid ? string.Empty : result.ErrorMessage;
+            var result = await _validationService.ValidatePassword(value);
+            if (result.IsSuccess && result.Data != null)
+            {
+                PasswordError = result.Data.IsValid ? string.Empty : result.Data.ErrorMessage;
+            }
         }
         else
         {
@@ -142,7 +148,7 @@ public partial class LoginViewModel : BaseViewModel
             PasswordError = string.Empty;
 
             // Validation
-            if (!ValidateInput())
+            if (!await ValidateInputAsync())
             {
                 return;
             }
@@ -159,14 +165,14 @@ public partial class LoginViewModel : BaseViewModel
                 var user = result.Data;
 
                 // Show success message
-                _toastHelper.ShowSuccess($"Welcome back, {user.Username}!");
+                await _toastHelper.ShowSuccess($"Welcome back, {user.Username}!");
 
                 // Use strategy pattern để navigate đến đúng dashboard
                 var primaryRole = user.GetPrimaryRole();
                 var strategy = _roleStrategyFactory.GetStrategy(primaryRole);
                 var pageType = strategy.GetDashboardPageType();
                     
-                _navigationService.NavigateTo(pageType.FullName!, user);
+                await _navigationService.NavigateTo(pageType.FullName!, user);
             }
             else
             {
@@ -207,8 +213,15 @@ public partial class LoginViewModel : BaseViewModel
         // Ensure a baseline inline message is visible
         SetError("Cannot connect to server. Please check your network connection and ensure the server is running.");
 
-        var action = await _toastHelper.ShowConnectionErrorAsync(
+        var actionResult = await _toastHelper.ShowConnectionErrorAsync(
             "Cannot connect to server. Please check your network connection and ensure the server is running.");
+
+        if (!actionResult.IsSuccess || actionResult.Data == null)
+        {
+            return;
+        }
+
+        var action = actionResult.Data;
 
         switch (action)
         {
@@ -253,39 +266,45 @@ public partial class LoginViewModel : BaseViewModel
     /// <summary>
     /// Validate input trước khi submit (sử dụng ValidationService)
     /// </summary>
-    private bool ValidateInput()
+    private async Task<bool> ValidateInputAsync()
     {
         bool isValid = true;
 
         // Validate username using validation service
-        var usernameValidation = _validationService.ValidateUsername(Username);
-        if (!usernameValidation.IsValid)
+        var usernameResult = await _validationService.ValidateUsername(Username);
+        if (usernameResult.IsSuccess && usernameResult.Data != null)
         {
-            UsernameError = usernameValidation.ErrorMessage;
-            isValid = false;
+            if (!usernameResult.Data.IsValid)
+            {
+                UsernameError = usernameResult.Data.ErrorMessage;
+                isValid = false;
+            }
         }
 
         // Validate password using validation service
-        var passwordValidation = _validationService.ValidatePassword(Password);
-        if (!passwordValidation.IsValid)
+        var passwordResult = await _validationService.ValidatePassword(Password);
+        if (passwordResult.IsSuccess && passwordResult.Data != null)
         {
-            PasswordError = passwordValidation.ErrorMessage;
-            isValid = false;
+            if (!passwordResult.Data.IsValid)
+            {
+                PasswordError = passwordResult.Data.ErrorMessage;
+                isValid = false;
+            }
         }
 
         return isValid;
     }
 
     [RelayCommand]
-    private void NavigateToRegister()
+    private async Task NavigateToRegisterAsync()
     {
-        _navigationService.NavigateTo(typeof(RegisterPage).FullName!);
+        await _navigationService.NavigateTo(typeof(RegisterPage).FullName!);
     }
 
     [RelayCommand]
-    private void ForgotPassword()
+    private async Task ForgotPasswordAsync()
     {
-        _toastHelper.ShowInfo("Password recovery feature coming soon!");
+        await _toastHelper.ShowInfo("Password recovery feature coming soon!");
     }
 
     [RelayCommand]
@@ -332,7 +351,7 @@ public partial class LoginViewModel : BaseViewModel
             */
 
             await Task.Delay(1000); // Simulate network delay
-            _toastHelper.ShowWarning("Google OAuth2 login will be implemented in a future update. Please use username/password login.");
+            await _toastHelper.ShowWarning("Google OAuth2 login will be implemented in a future update. Please use username/password login.");
         }
         catch (Exception ex) 
         {

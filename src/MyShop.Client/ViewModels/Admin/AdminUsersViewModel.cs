@@ -48,9 +48,14 @@ public partial class AdminUsersViewModel : ObservableObject
     {
         try
         {
-            var users = await _userRepository.GetAllAsync();
+            var result = await _userRepository.GetAllAsync();
+            if (!result.IsSuccess || result.Data == null)
+            {
+                _allUsers = new List<UserViewModel>();
+                return;
+            }
             
-            _allUsers = users.Select(u => {
+            _allUsers = result.Data.Select(u => {
                 var roleString = u.GetPrimaryRole().ToString();
                 var isActive = u.IsEmailVerified;
                 

@@ -56,9 +56,14 @@ public partial class PurchaseOrdersViewModel : ObservableObject
     {
         try
         {
-            var orders = await _orderRepository.GetAllAsync();
+            var result = await _orderRepository.GetAllAsync();
+            if (!result.IsSuccess || result.Data == null)
+            {
+                _allOrders = new List<OrderViewModel>();
+                return;
+            }
             
-            _allOrders = orders.Select(o => new OrderViewModel
+            _allOrders = result.Data.Select(o => new OrderViewModel
             {
                 OrderId = $"ORD-{o.Id.ToString().Substring(0, 8)}",
                 OrderDate = o.OrderDate,
@@ -176,21 +181,21 @@ public partial class PurchaseOrdersViewModel : ObservableObject
         {
             // Get order details with items
             var orderGuid = Guid.Parse(order.OrderId);
-            var orderDetails = await _orderRepository.GetByIdAsync(orderGuid);
+            var orderResult = await _orderRepository.GetByIdAsync(orderGuid);
 
-            if (orderDetails == null || !orderDetails.Items.Any())
+            if (!orderResult.IsSuccess || orderResult.Data == null || !orderResult.Data.Items.Any())
             {
                 System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Order {order.OrderId} has no items");
                 return;
             }
 
             // Add each item to cart
-            foreach (var item in orderDetails.Items)
+            foreach (var item in orderResult.Data.Items)
             {
                 await _cartRepository.AddToCartAsync(Guid.Empty, item.ProductId, item.Quantity);
             }
 
-            System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Added {orderDetails.Items.Count} items to cart");
+            System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Added {orderResult.Data.Items.Count} items to cart");
         }
         catch (Exception ex)
         {

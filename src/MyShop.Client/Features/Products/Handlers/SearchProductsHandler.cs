@@ -24,14 +24,19 @@ public class SearchProductsHandler : IRequestHandler<SearchProductsQuery, Result
         {
             // For now, get all products and filter in-memory
             // Backend API should implement server-side search
-            var allProducts = await _productRepository.GetAllAsync();
+            var result = await _productRepository.GetAllAsync();
+            
+            if (!result.IsSuccess)
+            {
+                return Result<List<Product>>.Failure(result.ErrorMessage);
+            }
             
             if (string.IsNullOrWhiteSpace(request.Keyword))
             {
-                return Result<List<Product>>.Success(allProducts.ToList());
+                return Result<List<Product>>.Success(result.Data.ToList());
             }
 
-            var filtered = allProducts
+            var filtered = result.Data
                 .Where(p => p.Name.Contains(request.Keyword, StringComparison.OrdinalIgnoreCase) ||
                            (p.Description?.Contains(request.Keyword, StringComparison.OrdinalIgnoreCase) ?? false))
                 .ToList();

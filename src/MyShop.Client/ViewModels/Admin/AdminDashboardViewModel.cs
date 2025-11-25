@@ -135,7 +135,7 @@ public partial class AdminDashboardViewModel : BaseViewModel
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] InitializeAsync failed: {ex.Message}");
-                _toastHelper.ShowError($"Failed to load dashboard: {ex.Message}");
+                await _toastHelper.ShowError($"Failed to load dashboard: {ex.Message}");
                 throw;
             }
             finally
@@ -162,7 +162,7 @@ public partial class AdminDashboardViewModel : BaseViewModel
                 if (!summaryResult.IsSuccess)
                 {
                     SetError(summaryResult.ErrorMessage ?? "Failed to load dashboard data");
-                    _toastHelper.ShowError(summaryResult.ErrorMessage ?? "Failed to load dashboard data");
+                    await _toastHelper.ShowError(summaryResult.ErrorMessage ?? "Failed to load dashboard data");
                     return;
                 }
 
@@ -437,7 +437,7 @@ public partial class AdminDashboardViewModel : BaseViewModel
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading dashboard data: {ex.Message}");
                 SetError("Failed to load dashboard data", ex);
-                _toastHelper.ShowError("Failed to load dashboard data. Please try again.");
+                await _toastHelper.ShowError("Failed to load dashboard data. Please try again.");
             }
             finally
             {

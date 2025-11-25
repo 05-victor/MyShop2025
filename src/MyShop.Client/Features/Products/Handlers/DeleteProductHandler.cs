@@ -21,8 +21,14 @@ public class DeleteProductHandler : IRequestHandler<DeleteProductCommand, Result
     {
         try
         {
-            var deleted = await _productRepository.DeleteAsync(request.ProductId);
-            return Result<bool>.Success(deleted);
+            var result = await _productRepository.DeleteAsync(request.ProductId);
+            
+            if (!result.IsSuccess)
+            {
+                return Result<bool>.Failure(result.ErrorMessage);
+            }
+            
+            return Result<bool>.Success(result.Data);
         }
         catch (Exception ex)
         {

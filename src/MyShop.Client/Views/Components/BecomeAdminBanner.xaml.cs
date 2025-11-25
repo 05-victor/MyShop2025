@@ -80,7 +80,7 @@ namespace MyShop.Client.Views.Components
                 {
                     // Invalid code
                     ShowError("Invalid activation code. Please check and try again.");
-                    _toastHelper.ShowError("Invalid activation code");
+                    await _toastHelper.ShowError("Invalid activation code");
                     ButtonText.Text = "Become Admin →";
                     BecomeAdminButton.IsEnabled = true;
                 }
@@ -89,7 +89,7 @@ namespace MyShop.Client.Views.Components
             {
                 System.Diagnostics.Debug.WriteLine($"Error during activation: {ex.Message}");
                 ShowError("An error occurred. Please try again.");
-                _toastHelper.ShowError("Activation failed");
+                await _toastHelper.ShowError("Activation failed");
                 ButtonText.Text = "Become Admin →";
                 BecomeAdminButton.IsEnabled = true;
             }
@@ -112,7 +112,7 @@ namespace MyShop.Client.Views.Components
                 // _credentialStorage.SaveItem("hasAdmin", "true");
                 System.Diagnostics.Debug.WriteLine("[BecomeAdminBanner] Admin flag should be saved");
                 
-                _toastHelper.ShowSuccess("🎉 Welcome Admin! Your account has been upgraded. Redirecting...");
+                await _toastHelper.ShowSuccess("🎉 Welcome Admin! Your account has been upgraded. Redirecting...");
 
                 // Wait for toast to show
                 await Task.Delay(2000);

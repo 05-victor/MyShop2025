@@ -125,12 +125,15 @@ public partial class RegisterViewModel : ObservableObject
     }
 
     // Real-time validation on property changes
-    partial void OnUsernameChanged(string value)
+    async partial void OnUsernameChanged(string value)
     {
         if (!string.IsNullOrWhiteSpace(value))
         {
-            var result = _validationService.ValidateUsername(value);
-            UsernameError = result.IsValid ? string.Empty : result.ErrorMessage;
+            var result = await _validationService.ValidateUsername(value);
+            if (result.IsSuccess && result.Data != null)
+            {
+                UsernameError = result.Data.IsValid ? string.Empty : result.Data.ErrorMessage;
+            }
         }
         else
         {
@@ -138,12 +141,15 @@ public partial class RegisterViewModel : ObservableObject
         }
     }
 
-    partial void OnEmailChanged(string value)
+    async partial void OnEmailChanged(string value)
     {
         if (!string.IsNullOrWhiteSpace(value))
         {
-            var result = _validationService.ValidateEmail(value);
-            EmailError = result.IsValid ? string.Empty : result.ErrorMessage;
+            var result = await _validationService.ValidateEmail(value);
+            if (result.IsSuccess && result.Data != null)
+            {
+                EmailError = result.Data.IsValid ? string.Empty : result.Data.ErrorMessage;
+            }
         }
         else
         {
@@ -171,18 +177,24 @@ public partial class RegisterViewModel : ObservableObject
         }
     }
 
-    partial void OnPasswordChanged(string value)
+    async partial void OnPasswordChanged(string value)
     {
         if (!string.IsNullOrWhiteSpace(value))
         {
-            var result = _validationService.ValidatePassword(value);
-            PasswordError = result.IsValid ? string.Empty : result.ErrorMessage;
+            var result = await _validationService.ValidatePassword(value);
+            if (result.IsSuccess && result.Data != null)
+            {
+                PasswordError = result.Data.IsValid ? string.Empty : result.Data.ErrorMessage;
+            }
 
             // Re-validate confirm password if it has a value
             if (!string.IsNullOrWhiteSpace(ConfirmPassword))
             {
-                var confirmResult = _validationService.ValidatePasswordConfirmation(value, ConfirmPassword);
-                ConfirmPasswordError = confirmResult.IsValid ? string.Empty : confirmResult.ErrorMessage;
+                var confirmResult = await _validationService.ValidatePasswordConfirmation(value, ConfirmPassword);
+                if (confirmResult.IsSuccess && confirmResult.Data != null)
+                {
+                    ConfirmPasswordError = confirmResult.Data.IsValid ? string.Empty : confirmResult.Data.ErrorMessage;
+                }
             }
         }
         else
@@ -191,12 +203,15 @@ public partial class RegisterViewModel : ObservableObject
         }
     }
 
-    partial void OnConfirmPasswordChanged(string value)
+    async partial void OnConfirmPasswordChanged(string value)
     {
         if (!string.IsNullOrWhiteSpace(value) && !string.IsNullOrWhiteSpace(Password))
         {
-            var result = _validationService.ValidatePasswordConfirmation(Password, value);
-            ConfirmPasswordError = result.IsValid ? string.Empty : result.ErrorMessage;
+            var result = await _validationService.ValidatePasswordConfirmation(Password, value);
+            if (result.IsSuccess && result.Data != null)
+            {
+                ConfirmPasswordError = result.Data.IsValid ? string.Empty : result.Data.ErrorMessage;
+            }
         }
         else
         {
@@ -233,10 +248,10 @@ public partial class RegisterViewModel : ObservableObject
 
             if (response.IsSuccess)
             {
-                _toastHelper.ShowSuccess("Account created successfully! Please login.");
+                await _toastHelper.ShowSuccess("Account created successfully! Please login.");
                 
                 // Navigate to login page
-                _navigationService.NavigateTo(typeof(LoginPage).FullName!);
+                await _navigationService.NavigateTo(typeof(LoginPage).FullName!);
             }
             else
             {
@@ -290,9 +305,9 @@ public partial class RegisterViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void BackToLogin()
+    private async Task BackToLoginAsync()
     {
-        _navigationService.NavigateTo(typeof(LoginPage).FullName!);
+        await _navigationService.NavigateTo(typeof(LoginPage).FullName!);
     }
 
     [RelayCommand]
@@ -305,7 +320,7 @@ public partial class RegisterViewModel : ObservableObject
             System.Diagnostics.Debug.WriteLine("[RegisterViewModel] Google Register requested - OAuth2 integration pending");
             await Task.Delay(800);
             ErrorMessage = "Google Sign-Up placeholder. Replace this block with OAuth2 flow and account linking on backend.";
-            _toastHelper.ShowInfo("Google Sign-Up coming soon.");
+            await _toastHelper.ShowInfo("Google Sign-Up coming soon.");
         }
         finally
         {

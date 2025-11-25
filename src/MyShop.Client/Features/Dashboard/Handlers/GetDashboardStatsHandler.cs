@@ -21,8 +21,14 @@ public class GetDashboardStatsHandler : IRequestHandler<GetDashboardStatsQuery, 
     {
         try
         {
-            var stats = await _dashboardRepository.GetSummaryAsync();
-            return Result<object>.Success(stats);
+            var result = await _dashboardRepository.GetSummaryAsync();
+            
+            if (!result.IsSuccess)
+            {
+                return Result<object>.Failure(result.ErrorMessage);
+            }
+            
+            return Result<object>.Success(result.Data);
         }
         catch (Exception ex)
         {
