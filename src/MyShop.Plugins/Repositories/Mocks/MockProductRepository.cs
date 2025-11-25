@@ -1,6 +1,7 @@
 using MyShop.Shared.Models;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.Mocks.Data;
+using MyShop.Core.Common;
 
 namespace MyShop.Plugins.Repositories.Mocks;
 
@@ -9,124 +10,128 @@ namespace MyShop.Plugins.Repositories.Mocks;
 /// </summary>
 public class MockProductRepository : IProductRepository
 {
-    public async Task<IEnumerable<Product>> GetAllAsync()
+    public async Task<Result<IEnumerable<Product>>> GetAllAsync()
     {
         try
         {
             var products = await MockProductData.GetAllAsync();
             System.Diagnostics.Debug.WriteLine($"[MockProductRepository] GetAllAsync returned {products.Count} products");
-            return products;
+            return Result<IEnumerable<Product>>.Success(products);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockProductRepository] GetAllAsync error: {ex.Message}");
-            return new List<Product>();
+            return Result<IEnumerable<Product>>.Failure($"Failed to get products: {ex.Message}");
         }
     }
 
-    public async Task<Product?> GetByIdAsync(Guid id)
+    public async Task<Result<Product>> GetByIdAsync(Guid id)
     {
         try
         {
             var product = await MockProductData.GetByIdAsync(id);
             System.Diagnostics.Debug.WriteLine($"[MockProductRepository] GetByIdAsync({id}) - Found: {product != null}");
-            return product;
+            return product != null 
+                ? Result<Product>.Success(product)
+                : Result<Product>.Failure($"Product with ID {id} not found");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockProductRepository] GetByIdAsync error: {ex.Message}");
-            return null;
+            return Result<Product>.Failure($"Failed to get product: {ex.Message}");
         }
     }
 
-    public async Task<Product> CreateAsync(Product product)
+    public async Task<Result<Product>> CreateAsync(Product product)
     {
         try
         {
             product.Id = Guid.NewGuid();
             var created = await MockProductData.CreateAsync(product);
             System.Diagnostics.Debug.WriteLine($"[MockProductRepository] Created product: {created.Name} (ID: {created.Id})");
-            return created;
+            return Result<Product>.Success(created);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockProductRepository] CreateAsync error: {ex.Message}");
-            throw;
+            return Result<Product>.Failure($"Failed to create product: {ex.Message}");
         }
     }
 
-    public async Task<Product> UpdateAsync(Product product)
+    public async Task<Result<Product>> UpdateAsync(Product product)
     {
         try
         {
             var updated = await MockProductData.UpdateAsync(product);
             System.Diagnostics.Debug.WriteLine($"[MockProductRepository] Updated product: {updated.Name}");
-            return updated;
+            return Result<Product>.Success(updated);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockProductRepository] UpdateAsync error: {ex.Message}");
-            throw;
+            return Result<Product>.Failure($"Failed to update product: {ex.Message}");
         }
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<Result<bool>> DeleteAsync(Guid id)
     {
         try
         {
             var result = await MockProductData.DeleteAsync(id);
             System.Diagnostics.Debug.WriteLine($"[MockProductRepository] DeleteAsync({id}) - Success: {result}");
-            return result;
+            return result 
+                ? Result<bool>.Success(true)
+                : Result<bool>.Failure($"Failed to delete product with ID {id}");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockProductRepository] DeleteAsync error: {ex.Message}");
-            return false;
+            return Result<bool>.Failure($"Failed to delete product: {ex.Message}");
         }
     }
 
-    public async Task<IEnumerable<Product>> GetLowStockAsync(int threshold = 10)
+    public async Task<Result<IEnumerable<Product>>> GetLowStockAsync(int threshold = 10)
     {
         try
         {
             var products = await MockProductData.GetLowStockAsync(threshold);
             System.Diagnostics.Debug.WriteLine($"[MockProductRepository] Found {products.Count} low stock products");
-            return products;
+            return Result<IEnumerable<Product>>.Success(products);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockProductRepository] GetLowStockAsync error: {ex.Message}");
-            return new List<Product>();
+            return Result<IEnumerable<Product>>.Failure($"Failed to get low stock products: {ex.Message}");
         }
     }
 
-    public async Task<IEnumerable<Product>> GetByCategoryAsync(Guid categoryId)
+    public async Task<Result<IEnumerable<Product>>> GetByCategoryAsync(Guid categoryId)
     {
         try
         {
             var products = await MockProductData.GetByCategoryAsync(categoryId);
             System.Diagnostics.Debug.WriteLine($"[MockProductRepository] Found {products.Count} products in category");
-            return products;
+            return Result<IEnumerable<Product>>.Success(products);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockProductRepository] GetByCategoryAsync error: {ex.Message}");
-            return new List<Product>();
+            return Result<IEnumerable<Product>>.Failure($"Failed to get products by category: {ex.Message}");
         }
     }
 
-    public async Task<IEnumerable<Product>> SearchAsync(string query)
+    public async Task<Result<IEnumerable<Product>>> SearchAsync(string query)
     {
         try
         {
             var products = await MockProductData.SearchAsync(query);
             System.Diagnostics.Debug.WriteLine($"[MockProductRepository] Search '{query}' returned {products.Count} results");
-            return products;
+            return Result<IEnumerable<Product>>.Success(products);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockProductRepository] SearchAsync error: {ex.Message}");
-            return new List<Product>();
+            return Result<IEnumerable<Product>>.Failure($"Failed to search products: {ex.Message}");
         }
     }
 }

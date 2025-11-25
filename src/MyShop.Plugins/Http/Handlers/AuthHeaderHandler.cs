@@ -68,13 +68,13 @@ public class AuthHeaderHandler : DelegatingHandler
                     System.Diagnostics.Debug.WriteLine("[AuthHeaderHandler] Token refresh failed - Logout required");
                     // Token refresh failed - user needs to login again
                     // Clear invalid token
-                    _credentialStorage.RemoveToken();
+                    await _credentialStorage.RemoveToken();
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[AuthHeaderHandler] Token refresh error: {ex.Message}");
-                _credentialStorage.RemoveToken();
+                await _credentialStorage.RemoveToken();
             }
             finally
             {

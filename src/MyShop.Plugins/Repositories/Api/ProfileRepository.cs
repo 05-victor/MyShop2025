@@ -1,3 +1,4 @@
+using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Profile;
 using MyShop.Shared.DTOs.Requests;
@@ -16,7 +17,7 @@ public class ProfileRepository : IProfileRepository
         _api = api;
     }
 
-    public async Task<ProfileData?> GetByUserIdAsync(Guid userId)
+    public async Task<Result<ProfileData>> GetByUserIdAsync(Guid userId)
     {
         try
         {
@@ -28,26 +29,27 @@ public class ProfileRepository : IProfileRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return MapToProfileData(apiResponse.Result);
+                    var profile = MapToProfileData(apiResponse.Result);
+                    return Result<ProfileData>.Success(profile);
                 }
             }
 
-            return null;
+            return Result<ProfileData>.Failure("Failed to retrieve profile");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return null;
+            return Result<ProfileData>.Failure($"Error retrieving profile: {ex.Message}");
         }
     }
 
-    public async Task<ProfileData> CreateAsync(ProfileData profile)
+    public async Task<Result<ProfileData>> CreateAsync(ProfileData profile)
     {
         // Note: Profile creation happens during user registration
         // This method may not be needed for typical flows
-        throw new NotImplementedException("Profile is created automatically during user registration");
+        return Result<ProfileData>.Failure("Profile is created automatically during user registration");
     }
 
-    public async Task<ProfileData> UpdateAsync(ProfileData profile)
+    public async Task<Result<ProfileData>> UpdateAsync(ProfileData profile)
     {
         try
         {
@@ -66,23 +68,24 @@ public class ProfileRepository : IProfileRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return MapToProfileData(apiResponse.Result);
+                    var updatedProfile = MapToProfileData(apiResponse.Result);
+                    return Result<ProfileData>.Success(updatedProfile);
                 }
             }
 
-            throw new InvalidOperationException("Failed to update profile");
+            return Result<ProfileData>.Failure("Failed to update profile");
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException($"Error updating profile: {ex.Message}", ex);
+            return Result<ProfileData>.Failure($"Error updating profile: {ex.Message}");
         }
     }
 
-    public async Task<bool> DeleteAsync(Guid userId)
+    public async Task<Result<bool>> DeleteAsync(Guid userId)
     {
         // Note: Profile deletion typically happens when user account is deleted
         // May need dedicated backend endpoint
-        throw new NotImplementedException("Profile deletion not supported via API");
+        return Result<bool>.Failure("Profile deletion not supported via API");
     }
 
     /// <summary>

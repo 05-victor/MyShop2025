@@ -1,6 +1,7 @@
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.Repositories.Mocks.Data;
 using MyShop.Shared.Models;
+using MyShop.Core.Common;
 
 namespace MyShop.Plugins.Repositories.Mocks;
 
@@ -10,7 +11,7 @@ namespace MyShop.Plugins.Repositories.Mocks;
 public class MockAgentRequestsRepository : IAgentRequestRepository
 {
 
-    public async Task<IEnumerable<AgentRequest>> GetAllAsync()
+    public async Task<Result<IEnumerable<AgentRequest>>> GetAllAsync()
     {
         try
         {
@@ -32,42 +33,46 @@ public class MockAgentRequestsRepository : IAgentRequestRepository
             }).OrderByDescending(r => r.RequestedAt).ToList();
 
             System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] GetAllAsync returned {requests.Count} requests");
-            return requests;
+            return Result<IEnumerable<AgentRequest>>.Success(requests);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] GetAllAsync error: {ex.Message}");
-            return new List<AgentRequest>();
+            return Result<IEnumerable<AgentRequest>>.Failure($"Failed to get agent requests: {ex.Message}");
         }
     }
 
-    public async Task<bool> ApproveAsync(Guid id)
+    public async Task<Result<bool>> ApproveAsync(Guid id)
     {
         try
         {
             var result = await MockAgentRequestsData.ApproveAsync(id, Guid.Empty);
             System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] ApproveAsync result: {result}");
-            return result;
+            return result
+                ? Result<bool>.Success(true)
+                : Result<bool>.Failure($"Failed to approve agent request {id}");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] ApproveAsync error: {ex.Message}");
-            return false;
+            return Result<bool>.Failure($"Failed to approve request: {ex.Message}");
         }
     }
 
-    public async Task<bool> RejectAsync(Guid id)
+    public async Task<Result<bool>> RejectAsync(Guid id)
     {
         try
         {
             var result = await MockAgentRequestsData.RejectAsync(id, Guid.Empty, "Rejected by admin");
             System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] RejectAsync result: {result}");
-            return result;
+            return result
+                ? Result<bool>.Success(true)
+                : Result<bool>.Failure($"Failed to reject agent request {id}");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] RejectAsync error: {ex.Message}");
-            return false;
+            return Result<bool>.Failure($"Failed to reject request: {ex.Message}");
         }
     }
 }

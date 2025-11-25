@@ -1,6 +1,7 @@
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.Mocks.Data;
 using MyShop.Shared.Models;
+using MyShop.Core.Common;
 
 namespace MyShop.Plugins.Repositories.Mocks;
 
@@ -10,78 +11,80 @@ namespace MyShop.Plugins.Repositories.Mocks;
 public class MockCommissionRepository : ICommissionRepository
 {
 
-    public async Task<IEnumerable<Commission>> GetBySalesAgentIdAsync(Guid salesAgentId)
+    public async Task<Result<IEnumerable<Commission>>> GetBySalesAgentIdAsync(Guid salesAgentId)
     {
         try
         {
             var commissions = await MockCommissionData.GetBySalesAgentIdAsync(salesAgentId);
             System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] Got {commissions.Count} commissions for agent {salesAgentId}");
-            return commissions;
+            return Result<IEnumerable<Commission>>.Success(commissions);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] GetBySalesAgentIdAsync error: {ex.Message}");
-            return new List<Commission>();
+            return Result<IEnumerable<Commission>>.Failure($"Failed to get commissions: {ex.Message}");
         }
     }
 
-    public async Task<CommissionSummary> GetSummaryAsync(Guid salesAgentId)
+    public async Task<Result<CommissionSummary>> GetSummaryAsync(Guid salesAgentId)
     {
         try
         {
             var summary = await MockCommissionData.GetSummaryAsync(salesAgentId);
             System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] GetSummaryAsync success");
-            return summary;
+            return Result<CommissionSummary>.Success(summary);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] GetSummaryAsync error: {ex.Message}");
-            return new CommissionSummary();
+            return Result<CommissionSummary>.Failure($"Failed to get commission summary: {ex.Message}");
         }
     }
 
-    public async Task<Commission?> GetByOrderIdAsync(Guid orderId)
+    public async Task<Result<Commission>> GetByOrderIdAsync(Guid orderId)
     {
         try
         {
             var commission = await MockCommissionData.GetByOrderIdAsync(orderId);
             System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] GetByOrderIdAsync - Found: {commission != null}");
-            return commission;
+            return commission != null
+                ? Result<Commission>.Success(commission)
+                : Result<Commission>.Failure($"Commission not found for order {orderId}");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] GetByOrderIdAsync error: {ex.Message}");
-            return null;
+            return Result<Commission>.Failure($"Failed to get commission: {ex.Message}");
         }
     }
 
-    public async Task<decimal> CalculateCommissionAsync(Guid orderId)
+    public async Task<Result<decimal>> CalculateCommissionAsync(Guid orderId)
     {
         try
         {
             var amount = await MockCommissionData.CalculateCommissionAsync(orderId);
             System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] CalculateCommissionAsync: {amount}");
-            return amount;
+            return Result<decimal>.Success(amount);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] CalculateCommissionAsync error: {ex.Message}");
-            return 0m;
+            return Result<decimal>.Failure($"Failed to calculate commission: {ex.Message}");
         }
     }
 
-    public async Task<IEnumerable<Commission>> GetByDateRangeAsync(Guid salesAgentId, DateTime startDate, DateTime endDate)
+    public async Task<Result<IEnumerable<Commission>>> GetByDateRangeAsync(Guid salesAgentId, DateTime startDate, DateTime endDate)
     {
         try
         {
             var commissions = await MockCommissionData.GetByDateRangeAsync(salesAgentId, startDate, endDate);
             System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] GetByDateRangeAsync returned {commissions.Count} commissions");
-            return commissions;
+            return Result<IEnumerable<Commission>>.Success(commissions);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] GetByDateRangeAsync error: {ex.Message}");
-            return new List<Commission>();
+            return Result<IEnumerable<Commission>>.Failure($"Failed to get commissions by date range: {ex.Message}");
         }
     }
 

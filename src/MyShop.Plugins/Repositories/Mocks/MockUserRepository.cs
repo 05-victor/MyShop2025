@@ -20,18 +20,18 @@ public class MockUserRepository : IUserRepository
         _credentialStorage = credentialStorage;
     }
 
-    public async Task<IEnumerable<User>> GetAllAsync()
+    public async Task<Result<IEnumerable<User>>> GetAllAsync()
     {
         try
         {
             var users = await MockUserData.GetAllAsync();
             System.Diagnostics.Debug.WriteLine($"[MockUserRepository] GetAllAsync returned {users.Count} users");
-            return users;
+            return Result<IEnumerable<User>>.Success(users);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockUserRepository] GetAllAsync error: {ex.Message}");
-            return new List<User>();
+            return Result<IEnumerable<User>>.Failure($"Failed to get users: {ex.Message}");
         }
     }
 

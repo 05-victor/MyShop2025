@@ -1,6 +1,7 @@
 using MyShop.Shared.Models;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.Mocks.Data;
+using MyShop.Core.Common;
 
 namespace MyShop.Plugins.Repositories.Mocks;
 
@@ -10,104 +11,106 @@ namespace MyShop.Plugins.Repositories.Mocks;
 public class MockOrderRepository : IOrderRepository
 {
 
-    public async Task<IEnumerable<Order>> GetAllAsync()
+    public async Task<Result<IEnumerable<Order>>> GetAllAsync()
     {
         try
         {
             var orders = await MockOrderData.GetAllAsync();
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetAllAsync returned {orders.Count} orders");
-            return orders;
+            return Result<IEnumerable<Order>>.Success(orders);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetAllAsync error: {ex.Message}");
-            return new List<Order>();
+            return Result<IEnumerable<Order>>.Failure($"Failed to get orders: {ex.Message}");
         }
     }
 
-    public async Task<Order?> GetByIdAsync(Guid id)
+    public async Task<Result<Order>> GetByIdAsync(Guid id)
     {
         try
         {
             var order = await MockOrderData.GetByIdAsync(id);
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetByIdAsync({id}) - Found: {order != null}");
-            return order;
+            return order != null
+                ? Result<Order>.Success(order)
+                : Result<Order>.Failure($"Order with ID {id} not found");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetByIdAsync error: {ex.Message}");
-            return null;
+            return Result<Order>.Failure($"Failed to get order: {ex.Message}");
         }
     }
 
-    public async Task<IEnumerable<Order>> GetByCustomerIdAsync(Guid customerId)
+    public async Task<Result<IEnumerable<Order>>> GetByCustomerIdAsync(Guid customerId)
     {
         try
         {
             var orders = await MockOrderData.GetByCustomerIdAsync(customerId);
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Found {orders.Count} orders for customer");
-            return orders;
+            return Result<IEnumerable<Order>>.Success(orders);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetByCustomerIdAsync error: {ex.Message}");
-            return new List<Order>();
+            return Result<IEnumerable<Order>>.Failure($"Failed to get orders by customer: {ex.Message}");
         }
     }
 
-    public async Task<IEnumerable<Order>> GetBySalesAgentIdAsync(Guid salesAgentId)
+    public async Task<Result<IEnumerable<Order>>> GetBySalesAgentIdAsync(Guid salesAgentId)
     {
         try
         {
             var orders = await MockOrderData.GetBySalesAgentIdAsync(salesAgentId);
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Found {orders.Count} orders for sales agent");
-            return orders;
+            return Result<IEnumerable<Order>>.Success(orders);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetBySalesAgentIdAsync error: {ex.Message}");
-            return new List<Order>();
+            return Result<IEnumerable<Order>>.Failure($"Failed to get orders by sales agent: {ex.Message}");
         }
     }
 
-    public async Task<IEnumerable<Order>> GetBySalesAgentAsync(Guid salesAgentId)
+    public async Task<Result<IEnumerable<Order>>> GetBySalesAgentAsync(Guid salesAgentId)
     {
         return await GetBySalesAgentIdAsync(salesAgentId);
     }
 
-    public async Task<IEnumerable<Order>> GetByStatusAsync(string status)
+    public async Task<Result<IEnumerable<Order>>> GetByStatusAsync(string status)
     {
         try
         {
             var allOrders = await MockOrderData.GetAllAsync();
             var orders = allOrders.Where(o => o.Status == status).ToList();
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Found {orders.Count} orders with status: {status}");
-            return orders;
+            return Result<IEnumerable<Order>>.Success(orders);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetByStatusAsync error: {ex.Message}");
-            return new List<Order>();
+            return Result<IEnumerable<Order>>.Failure($"Failed to get orders by status: {ex.Message}");
         }
     }
 
-    public async Task<IEnumerable<Order>> GetByDateRangeAsync(DateTime fromDate, DateTime toDate)
+    public async Task<Result<IEnumerable<Order>>> GetByDateRangeAsync(DateTime fromDate, DateTime toDate)
     {
         try
         {
             var allOrders = await MockOrderData.GetAllAsync();
             var orders = allOrders.Where(o => o.OrderDate >= fromDate && o.OrderDate <= toDate).ToList();
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Found {orders.Count} orders in date range");
-            return orders;
+            return Result<IEnumerable<Order>>.Success(orders);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetByDateRangeAsync error: {ex.Message}");
-            return new List<Order>();
+            return Result<IEnumerable<Order>>.Failure($"Failed to get orders by date range: {ex.Message}");
         }
     }
 
-    public async Task<Order> CreateAsync(Order order)
+    public async Task<Result<Order>> CreateAsync(Order order)
     {
         try
         {
@@ -123,56 +126,58 @@ public class MockOrderRepository : IOrderRepository
             
             var created = await MockOrderData.CreateAsync(order);
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Created order: {created.Id}");
-            return created;
+            return Result<Order>.Success(created);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] CreateAsync error: {ex.Message}");
-            throw;
+            return Result<Order>.Failure($"Failed to create order: {ex.Message}");
         }
     }
 
-    public async Task<Order> UpdateAsync(Order order)
+    public async Task<Result<Order>> UpdateAsync(Order order)
     {
         try
         {
             var updated = await MockOrderData.UpdateAsync(order);
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Updated order: {updated.Id}");
-            return updated;
+            return Result<Order>.Success(updated);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] UpdateAsync error: {ex.Message}");
-            throw;
+            return Result<Order>.Failure($"Failed to update order: {ex.Message}");
         }
     }
 
-    public async Task<bool> UpdateStatusAsync(Guid orderId, string status)
+    public async Task<Result<bool>> UpdateStatusAsync(Guid orderId, string status)
     {
         try
         {
             var result = await MockOrderData.UpdateStatusAsync(orderId, status);
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] UpdateStatusAsync - Success: {result}");
-            return result;
+            return result
+                ? Result<bool>.Success(true)
+                : Result<bool>.Failure($"Failed to update status for order {orderId}");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] UpdateStatusAsync error: {ex.Message}");
-            return false;
+            return Result<bool>.Failure($"Failed to update order status: {ex.Message}");
         }
     }
 
-    public async Task<bool> MarkAsPaidAsync(Guid orderId)
+    public async Task<Result<bool>> MarkAsPaidAsync(Guid orderId)
     {
         return await UpdateStatusAsync(orderId, "PAID");
     }
 
-    public async Task<bool> CancelAsync(Guid orderId, string reason)
+    public async Task<Result<bool>> CancelAsync(Guid orderId, string reason)
     {
         try
         {
             var result = await UpdateStatusAsync(orderId, "CANCELLED");
-            if (result)
+            if (result.IsSuccess && result.Data)
             {
                 var order = await MockOrderData.GetByIdAsync(orderId);
                 if (order != null)
@@ -186,22 +191,24 @@ public class MockOrderRepository : IOrderRepository
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] CancelAsync error: {ex.Message}");
-            return false;
+            return Result<bool>.Failure($"Failed to cancel order: {ex.Message}");
         }
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<Result<bool>> DeleteAsync(Guid id)
     {
         try
         {
             var result = await MockOrderData.DeleteAsync(id);
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] DeleteAsync - Success: {result}");
-            return result;
+            return result
+                ? Result<bool>.Success(true)
+                : Result<bool>.Failure($"Failed to delete order with ID {id}");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] DeleteAsync error: {ex.Message}");
-            return false;
+            return Result<bool>.Failure($"Failed to delete order: {ex.Message}");
         }
     }
 

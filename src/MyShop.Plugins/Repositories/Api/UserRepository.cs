@@ -22,7 +22,7 @@ public class UserRepository : IUserRepository
         _profileApi = profileApi;
     }
 
-    public async Task<IEnumerable<User>> GetAllAsync()
+    public async Task<Result<IEnumerable<User>>> GetAllAsync()
     {
         try
         {
@@ -33,15 +33,16 @@ public class UserRepository : IUserRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return apiResponse.Result.Select(MapToUser);
+                    var users = apiResponse.Result.Select(MapToUser).ToList();
+                    return Result<IEnumerable<User>>.Success(users);
                 }
             }
 
-            return Enumerable.Empty<User>();
+            return Result<IEnumerable<User>>.Failure("Failed to retrieve users");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return Enumerable.Empty<User>();
+            return Result<IEnumerable<User>>.Failure($"Error retrieving users: {ex.Message}");
         }
     }
 

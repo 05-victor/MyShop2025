@@ -1,6 +1,7 @@
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.Mocks.Data;
 using MyShop.Shared.Models;
+using MyShop.Core.Common;
 
 namespace MyShop.Plugins.Repositories.Mocks;
 
@@ -16,112 +17,122 @@ public class MockCartRepository : ICartRepository
         _productRepository = productRepository;
     }
 
-    public async Task<IEnumerable<CartItem>> GetCartItemsAsync(Guid userId)
+    public async Task<Result<IEnumerable<CartItem>>> GetCartItemsAsync(Guid userId)
     {
         try
         {
             var items = await MockCartData.GetCartItemsAsync(userId);
             System.Diagnostics.Debug.WriteLine($"[MockCartRepository] Got {items.Count} items for user {userId}");
-            return items;
+            return Result<IEnumerable<CartItem>>.Success(items);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockCartRepository] GetCartItemsAsync error: {ex.Message}");
-            return new List<CartItem>();
+            return Result<IEnumerable<CartItem>>.Failure($"Failed to get cart items: {ex.Message}");
         }
     }
 
-    public async Task<bool> AddToCartAsync(Guid userId, Guid productId, int quantity = 1)
+    public async Task<Result<bool>> AddToCartAsync(Guid userId, Guid productId, int quantity = 1)
     {
         try
         {
             // Get product details for validation
-            var product = await _productRepository.GetByIdAsync(productId);
-            if (product == null)
+            var productResult = await _productRepository.GetByIdAsync(productId);
+            if (!productResult.IsSuccess || productResult.Data == null)
             {
                 System.Diagnostics.Debug.WriteLine($"[MockCartRepository] Product {productId} not found");
-                return false;
+                return Result<bool>.Failure("Product not found");
             }
 
+            var product = productResult.Data;
+            
             // Check stock
             if (product.Quantity < quantity)
             {
                 System.Diagnostics.Debug.WriteLine($"[MockCartRepository] Insufficient stock for {product.Name}");
-                return false;
+                return Result<bool>.Failure("Insufficient stock");
             }
 
             var cartItem = await MockCartData.AddToCartAsync(userId, productId, product.Name, product.SellingPrice, quantity);
             System.Diagnostics.Debug.WriteLine($"[MockCartRepository] AddToCart result: {cartItem != null}");
-            return cartItem != null;
+            return cartItem != null
+                ? Result<bool>.Success(true)
+                : Result<bool>.Failure("Failed to add item to cart");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockCartRepository] AddToCartAsync error: {ex.Message}");
-            return false;
+            return Result<bool>.Failure($"Failed to add to cart: {ex.Message}");
         }
     }
 
-    public async Task<bool> UpdateQuantityAsync(Guid userId, Guid productId, int quantity)
+    public async Task<Result<bool>> UpdateQuantityAsync(Guid userId, Guid productId, int quantity)
     {
         try
         {
             var result = await MockCartData.UpdateCartItemAsync(userId, productId, quantity);
             System.Diagnostics.Debug.WriteLine($"[MockCartRepository] UpdateQuantity result: {result}");
-            return result;
+            return result
+                ? Result<bool>.Success(true)
+                : Result<bool>.Failure("Failed to update quantity");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockCartRepository] UpdateQuantityAsync error: {ex.Message}");
-            return false;
+            return Result<bool>.Failure($"Failed to update quantity: {ex.Message}");
         }
     }
 
-    public async Task<bool> RemoveFromCartAsync(Guid userId, Guid productId)
+    public async Task<Result<bool>> RemoveFromCartAsync(Guid userId, Guid productId)
     {
         try
         {
             var result = await MockCartData.RemoveFromCartAsync(userId, productId);
             System.Diagnostics.Debug.WriteLine($"[MockCartRepository] RemoveFromCart result: {result}");
-            return result;
+            return result
+                ? Result<bool>.Success(true)
+                : Result<bool>.Failure("Failed to remove item from cart");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockCartRepository] RemoveFromCartAsync error: {ex.Message}");
-            return false;
+            return Result<bool>.Failure($"Failed to remove from cart: {ex.Message}");
         }
     }
 
-    public async Task<bool> ClearCartAsync(Guid userId)
+    public async Task<Result<bool>> ClearCartAsync(Guid userId)
     {
         try
         {
             var result = await MockCartData.ClearCartAsync(userId);
             System.Diagnostics.Debug.WriteLine($"[MockCartRepository] ClearCart result: {result}");
-            return result;
+            return result
+                ? Result<bool>.Success(true)
+                : Result<bool>.Failure("Failed to clear cart");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockCartRepository] ClearCartAsync error: {ex.Message}");
-            return false;
+            return Result<bool>.Failure($"Failed to clear cart: {ex.Message}");
         }
     }
 
-    public async Task<int> GetCartCountAsync(Guid userId)
+    public async Task<Result<int>> GetCartCountAsync(Guid userId)
     {
         try
         {
             var items = await MockCartData.GetCartItemsAsync(userId);
             var count = items.Sum(item => item.Quantity);
-            return count;
+            return Result<int>.Success(count);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockCartRepository] GetCartCountAsync error: {ex.Message}");
-            return 0;
+            return Result<int>.Failure($"Failed to get cart count: {ex.Message}");
         }
     }
 
-    public async Task<CartSummary> GetCartSummaryAsync(Guid userId)
+    public async Task<Result<CartSummary>> GetCartSummaryAsync(Guid userId)
     {
         try
         {
@@ -138,19 +149,19 @@ public class MockCartRepository : ICartRepository
             
             var total = subtotal + tax + shippingFee;
 
-            return new CartSummary
+            return Result<CartSummary>.Success(new CartSummary
             {
                 ItemCount = itemCount,
                 Subtotal = subtotal,
                 Tax = tax,
                 ShippingFee = shippingFee,
                 Total = total
-            };
+            });
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockCartRepository] GetCartSummaryAsync error: {ex.Message}");
-            return new CartSummary();
+            return Result<CartSummary>.Failure($"Failed to get cart summary: {ex.Message}");
         }
     }
 }

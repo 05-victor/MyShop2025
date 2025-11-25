@@ -1,3 +1,4 @@
+using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Reports;
 using MyShop.Shared.Models;
@@ -15,7 +16,7 @@ public class ReportRepository : IReportRepository
         _api = api;
     }
 
-    public async Task<SalesReport> GetSalesReportAsync(Guid salesAgentId, DateTime? startDate = null, DateTime? endDate = null)
+    public async Task<Result<SalesReport>> GetSalesReportAsync(Guid salesAgentId, DateTime? startDate = null, DateTime? endDate = null)
     {
         try
         {
@@ -26,27 +27,34 @@ public class ReportRepository : IReportRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return MapToSalesReport(apiResponse.Result);
+                    var report = MapToSalesReport(apiResponse.Result);
+                    return Result<SalesReport>.Success(report);
                 }
             }
 
-            return new SalesReport();
+            return Result<SalesReport>.Failure("Failed to retrieve sales report");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return new SalesReport();
+            return Result<SalesReport>.Failure($"Error retrieving sales report: {ex.Message}");
         }
     }
 
-    public async Task<PerformanceMetrics> GetPerformanceMetricsAsync(Guid salesAgentId)
+    public async Task<Result<PerformanceMetrics>> GetPerformanceMetricsAsync(Guid salesAgentId)
     {
         try
         {
             // Note: Backend may need dedicated endpoint for performance metrics
             // For now, derive from sales report
-            var report = await GetSalesReportAsync(salesAgentId);
+            var reportResult = await GetSalesReportAsync(salesAgentId);
             
-            return new PerformanceMetrics
+            if (!reportResult.IsSuccess)
+            {
+                return Result<PerformanceMetrics>.Failure(reportResult.ErrorMessage ?? "Failed to get performance metrics");
+            }
+
+            var report = reportResult.Data;
+            var metrics = new PerformanceMetrics
             {
                 SalesAgentId = salesAgentId,
                 TotalOrders = report.TotalOrders,
@@ -55,14 +63,15 @@ public class ReportRepository : IReportRepository
                 AverageOrderValue = report.AverageOrderValue,
                 ConversionRate = report.ConversionRate
             };
+            return Result<PerformanceMetrics>.Success(metrics);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return new PerformanceMetrics();
+            return Result<PerformanceMetrics>.Failure($"Error retrieving performance metrics: {ex.Message}");
         }
     }
 
-    public async Task<IEnumerable<ProductPerformance>> GetTopProductsAsync(Guid salesAgentId, int topCount = 10)
+    public async Task<Result<IEnumerable<ProductPerformance>>> GetTopProductsAsync(Guid salesAgentId, int topCount = 10)
     {
         try
         {
@@ -73,28 +82,30 @@ public class ReportRepository : IReportRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return apiResponse.Result
+                    var products = apiResponse.Result
                         .Select(MapToProductPerformance)
                         .OrderByDescending(p => p.TotalRevenue)
-                        .Take(topCount);
+                        .Take(topCount)
+                        .ToList();
+                    return Result<IEnumerable<ProductPerformance>>.Success(products);
                 }
             }
 
-            return Enumerable.Empty<ProductPerformance>();
+            return Result<IEnumerable<ProductPerformance>>.Failure("Failed to retrieve top products");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return Enumerable.Empty<ProductPerformance>();
+            return Result<IEnumerable<ProductPerformance>>.Failure($"Error retrieving top products: {ex.Message}");
         }
     }
 
-    public async Task<SalesTrend> GetSalesTrendAsync(Guid salesAgentId, string period = "monthly")
+    public async Task<Result<SalesTrend>> GetSalesTrendAsync(Guid salesAgentId, string period = "monthly")
     {
         try
         {
             // Note: Backend may need dedicated endpoint for trend data
             // This is a placeholder implementation
-            return new SalesTrend
+            var trend = new SalesTrend
             {
                 Period = period,
                 Labels = new List<string>(),
@@ -102,10 +113,11 @@ public class ReportRepository : IReportRepository
                 OrdersData = new List<int>(),
                 CommissionData = new List<decimal>()
             };
+            return Result<SalesTrend>.Success(trend);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return new SalesTrend();
+            return Result<SalesTrend>.Failure($"Error retrieving sales trend: {ex.Message}");
         }
     }
 
