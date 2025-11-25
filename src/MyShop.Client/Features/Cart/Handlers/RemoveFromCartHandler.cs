@@ -30,11 +30,12 @@ public class RemoveFromCartHandler : IRequestHandler<RemoveFromCartCommand, Resu
                 return Result<bool>.Failure("User not authenticated");
             }
 
-            var success = await _cartRepository.RemoveFromCartAsync(userResult.Data.Id, request.ProductId);
+            var result = await _cartRepository.RemoveFromCartAsync(userResult.Data.Id, request.ProductId);
             
-            return success 
-                ? Result<bool>.Success(true) 
-                : Result<bool>.Failure("Failed to remove item from cart");
+        if (!result.IsSuccess)
+        {
+            return Result<bool>.Failure(result.ErrorMessage);
+        }            return Result<bool>.Success(result.Data);
         }
         catch (Exception ex)
         {

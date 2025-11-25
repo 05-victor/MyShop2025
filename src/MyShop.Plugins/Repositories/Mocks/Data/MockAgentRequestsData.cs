@@ -86,6 +86,47 @@ public static class MockAgentRequestsData
         return Task.FromResult<IReadOnlyList<MockAgentRequestData>>(_agentRequests!.AsReadOnly());
     }
 
+    public static async Task<bool> ApproveAsync(Guid requestId, Guid reviewerId)
+    {
+        EnsureDataLoaded();
+
+        // Simulate network delay
+        await Task.Delay(300);
+
+        var request = _agentRequests!.FirstOrDefault(r => r.Id == requestId.ToString());
+        if (request == null || request.Status != "Pending")
+        {
+            return false;
+        }
+
+        request.Status = "Approved";
+        request.ReviewedBy = reviewerId.ToString();
+        request.ReviewedAt = DateTime.UtcNow;
+
+        return true;
+    }
+
+    public static async Task<bool> RejectAsync(Guid requestId, Guid reviewerId, string reason)
+    {
+        EnsureDataLoaded();
+
+        // Simulate network delay
+        await Task.Delay(300);
+
+        var request = _agentRequests!.FirstOrDefault(r => r.Id == requestId.ToString());
+        if (request == null || request.Status != "Pending")
+        {
+            return false;
+        }
+
+        request.Status = "Rejected";
+        request.ReviewedBy = reviewerId.ToString();
+        request.ReviewedAt = DateTime.UtcNow;
+        request.Notes += $" | Rejection reason: {reason}";
+
+        return true;
+    }
+
     /// <summary>
     /// Container class for JSON deserialization
     /// </summary>

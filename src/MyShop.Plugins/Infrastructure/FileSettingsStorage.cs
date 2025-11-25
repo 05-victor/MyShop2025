@@ -1,3 +1,4 @@
+using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Shared.Models;
 using System.Text.Json;
@@ -31,14 +32,14 @@ public class FileSettingsStorage : ISettingsStorage
         System.Diagnostics.Debug.WriteLine($"[FileSettingsStorage] Settings file: {_filePath}");
     }
 
-    public async Task<AppSettings> GetAsync()
+    public async Task<Result<AppSettings>> GetAsync()
     {
         try
         {
             if (!File.Exists(_filePath))
             {
                 System.Diagnostics.Debug.WriteLine("[FileSettingsStorage] Settings file not found, using defaults");
-                return new AppSettings();
+                return Result<AppSettings>.Success(new AppSettings());
             }
 
             await using var fs = File.OpenRead(_filePath);
@@ -46,16 +47,16 @@ public class FileSettingsStorage : ISettingsStorage
             
             System.Diagnostics.Debug.WriteLine($"[FileSettingsStorage] Loaded settings: Theme={settings?.Theme}, Language={settings?.Language}");
             
-            return settings ?? new AppSettings();
+            return Result<AppSettings>.Success(settings ?? new AppSettings());
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[FileSettingsStorage] Error loading settings: {ex.Message}");
-            return new AppSettings();
+            return Result<AppSettings>.Failure($"Failed to load settings: {ex.Message}");
         }
     }
 
-    public async Task SaveAsync(AppSettings settings)
+    public async Task<Result<Unit>> SaveAsync(AppSettings settings)
     {
         try
         {
@@ -63,15 +64,16 @@ public class FileSettingsStorage : ISettingsStorage
             await File.WriteAllTextAsync(_filePath, json);
             
             System.Diagnostics.Debug.WriteLine($"[FileSettingsStorage] Settings saved: Theme={settings.Theme}, Language={settings.Language}");
+            return Result<Unit>.Success(Unit.Value);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[FileSettingsStorage] Error saving settings: {ex.Message}");
-            throw;
+            return Result<Unit>.Failure($"Failed to save settings: {ex.Message}");
         }
     }
 
-    public async Task ResetAsync()
+    public async Task<Result<Unit>> ResetAsync()
     {
         try
         {
@@ -82,11 +84,12 @@ public class FileSettingsStorage : ISettingsStorage
             }
             
             await Task.CompletedTask;
+            return Result<Unit>.Success(Unit.Value);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[FileSettingsStorage] Error resetting settings: {ex.Message}");
-            throw;
+            return Result<Unit>.Failure($"Failed to reset settings: {ex.Message}");
         }
     }
 }

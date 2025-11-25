@@ -90,26 +90,32 @@ public partial class SalesAgentDashboardViewModel : BaseViewModel
                 System.Diagnostics.Debug.WriteLine($"[SalesmanDashboard] Loading data for user: {userId}");
 
                 // Load performance metrics
-                var metrics = await _reportRepository.GetPerformanceMetricsAsync(userId);
-                TotalProducts = metrics.TotalProductsShared;
-                TotalSales = metrics.TotalOrders;
-                TotalCommission = metrics.TotalCommission;
-                TotalRevenue = metrics.TotalRevenue;
+                var metricsResult = await _reportRepository.GetPerformanceMetricsAsync(userId);
+                if (metricsResult.IsSuccess && metricsResult.Data != null)
+                {
+                    TotalProducts = metricsResult.Data.TotalProductsShared;
+                    TotalSales = metricsResult.Data.TotalOrders;
+                    TotalCommission = metricsResult.Data.TotalCommission;
+                    TotalRevenue = metricsResult.Data.TotalRevenue;
+                }
 
                 // Load commission summary for trend
-                var commissionSummary = await _commissionRepository.GetSummaryAsync(userId);
-                
-                // Calculate trend safely with division-by-zero protection
-                if (commissionSummary.LastMonthEarnings > 0)
+                var commissionResult = await _commissionRepository.GetSummaryAsync(userId);
+                if (commissionResult.IsSuccess && commissionResult.Data != null)
                 {
-                    var percentChange = ((commissionSummary.ThisMonthEarnings - commissionSummary.LastMonthEarnings) / commissionSummary.LastMonthEarnings * 100);
-                    ThisWeekCommission = percentChange >= 0 
-                        ? $"+{percentChange:F1}%" 
-                        : $"{percentChange:F1}%";
-                }
-                else
-                {
-                    ThisWeekCommission = commissionSummary.ThisMonthEarnings > 0 ? "+100%" : "0%";
+                    var commissionSummary = commissionResult.Data;
+                    // Calculate trend safely with division-by-zero protection
+                    if (commissionSummary.LastMonthEarnings > 0)
+                    {
+                        var percentChange = ((commissionSummary.ThisMonthEarnings - commissionSummary.LastMonthEarnings) / commissionSummary.LastMonthEarnings * 100);
+                        ThisWeekCommission = percentChange >= 0 
+                            ? $"+{percentChange:F1}%" 
+                            : $"{percentChange:F1}%";
+                    }
+                    else
+                    {
+                        ThisWeekCommission = commissionSummary.ThisMonthEarnings > 0 ? "+100%" : "0%";
+                    }
                 }
                 
                 System.Diagnostics.Debug.WriteLine($"[SalesmanDashboard] Commission trend: {ThisWeekCommission}");
@@ -135,20 +141,23 @@ public partial class SalesAgentDashboardViewModel : BaseViewModel
             try
             {
                 System.Diagnostics.Debug.WriteLine($"[SalesmanDashboard] Loading top products for user: {userId}");
-                var topProducts = await _reportRepository.GetTopProductsAsync(userId, 3);
+                var topProductsResult = await _reportRepository.GetTopProductsAsync(userId, 3);
 
                 TopLinks.Clear();
-                foreach (var product in topProducts)
+                if (topProductsResult.IsSuccess && topProductsResult.Data != null)
                 {
-                    TopLinks.Add(new TopAffiliateLink
+                    foreach (var product in topProductsResult.Data)
                     {
-                        Product = product.ProductName,
-                        Clicks = product.Clicks,
-                        Orders = product.TotalSold,
-                        Revenue = product.TotalRevenue,
-                        Commission = product.TotalCommission,
-                        Status = "Active"
-                    });
+                        TopLinks.Add(new TopAffiliateLink
+                        {
+                            Product = product.ProductName,
+                            Clicks = product.Clicks,
+                            Orders = product.TotalSold,
+                            Revenue = product.TotalRevenue,
+                            Commission = product.TotalCommission,
+                            Status = "Active"
+                        });
+                    }
                 }
             }
             catch (System.Exception ex)
@@ -163,13 +172,19 @@ public partial class SalesAgentDashboardViewModel : BaseViewModel
             try
             {
                 System.Diagnostics.Debug.WriteLine($"[SalesmanDashboard] Loading recent orders for user: {userId}");
-                var orders = await _orderRepository.GetBySalesAgentIdAsync(userId);
-                var recentOrders = orders.Take(5).ToList();
+                var ordersResult = await _orderRepository.GetBySalesAgentIdAsync(userId);
+                if (!ordersResult.IsSuccess || ordersResult.Data == null)
+                {
+                    return;
+                }
+                
+                var recentOrders = ordersResult.Data.Take(5).ToList();
 
                 RecentOrders.Clear();
                 foreach (var order in recentOrders)
                 {
-                    var commission = await _commissionRepository.GetByOrderIdAsync(order.Id);
+                    var commissionResult = await _commissionRepository.GetByOrderIdAsync(order.Id);
+                    var commission = commissionResult.IsSuccess ? commissionResult.Data : null;
 
                     RecentOrders.Add(new RecentSalesOrder
                     {
@@ -193,10 +208,9 @@ public partial class SalesAgentDashboardViewModel : BaseViewModel
         [RelayCommand]
         private async Task LogoutAsync()
         {
-            _credentialStorage.RemoveToken();
-            _toastHelper.ShowInfo("Logged out");
-            _navigationService.NavigateTo(typeof(LoginPage).FullName!);
-            await Task.CompletedTask;
+            await _credentialStorage.RemoveToken();
+            await _toastHelper.ShowInfo("Logged out");
+            await _navigationService.NavigateTo(typeof(LoginPage).FullName!);
         }
     }
 

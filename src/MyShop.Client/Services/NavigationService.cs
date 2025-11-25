@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Linq;
 using MyShop.Client.Helpers;
+using MyShop.Core.Common;
 
 namespace MyShop.Client.Services;
 
@@ -29,108 +30,140 @@ public class NavigationService : MyShop.Core.Interfaces.Services.INavigationServ
     /// Register the shell's ContentFrame for in-shell navigation
     /// Called by dashboard shells when they load
     /// </summary>
-    public void RegisterShellFrame(object shellFrame)
+    public async Task<Result<Unit>> RegisterShellFrame(object shellFrame)
     {
-        if (shellFrame is not Frame frame)
-            throw new ArgumentException("Shell frame must be of type Frame", nameof(shellFrame));
+        try
+        {
+            if (shellFrame is not Frame frame)
+                return Result<Unit>.Failure("Shell frame must be of type Frame");
 
-        _shellFrame = frame;
-        AppLogger.Debug("Shell ContentFrame registered for in-shell navigation");
+            _shellFrame = frame;
+            AppLogger.Debug("Shell ContentFrame registered for in-shell navigation");
+            return Result<Unit>.Success(Unit.Value);
+        }
+        catch (Exception ex)
+        {
+            return Result<Unit>.Failure($"Failed to register shell frame: {ex.Message}");
+        }
     }
 
     /// <summary>
     /// Unregister the shell's ContentFrame
     /// </summary>
-    public void UnregisterShellFrame()
+    public async Task<Result<Unit>> UnregisterShellFrame()
     {
-        _shellFrame = null;
-        AppLogger.Debug("Shell ContentFrame unregistered");
+        try
+        {
+            _shellFrame = null;
+            AppLogger.Debug("Shell ContentFrame unregistered");
+            return Result<Unit>.Success(Unit.Value);
+        }
+        catch (Exception ex)
+        {
+            return Result<Unit>.Failure($"Failed to unregister shell frame: {ex.Message}");
+        }
     }
 
     /// <summary>
     /// Navigate by page type name (Core interface method) - root-level navigation
     /// </summary>
-    public void NavigateTo(string pageTypeName, object? parameter = null)
+    public async Task<Result<Unit>> NavigateTo(string pageTypeName, object? parameter = null)
     {
-        if (string.IsNullOrWhiteSpace(pageTypeName))
-            throw new ArgumentException("Page type name cannot be null or empty", nameof(pageTypeName));
+        try
+        {
+            if (string.IsNullOrWhiteSpace(pageTypeName))
+                return Result<Unit>.Failure("Page type name cannot be null or empty");
 
-        var pageType = ResolvePageType(pageTypeName);
-        NavigateTo(pageType, parameter);
+            var pageType = ResolvePageType(pageTypeName);
+            return await NavigateToInternal(pageType, parameter);
+        }
+        catch (Exception ex)
+        {
+            return Result<Unit>.Failure($"Navigation failed: {ex.Message}");
+        }
     }
 
     /// <summary>
     /// Navigate within the shell's ContentFrame - preserves the dashboard shell
     /// </summary>
-    public void NavigateInShell(string pageTypeName, object? parameter = null)
+    public async Task<Result<Unit>> NavigateInShell(string pageTypeName, object? parameter = null)
     {
-        if (string.IsNullOrWhiteSpace(pageTypeName))
-            throw new ArgumentException("Page type name cannot be null or empty", nameof(pageTypeName));
+        try
+        {
+            if (string.IsNullOrWhiteSpace(pageTypeName))
+                return Result<Unit>.Failure("Page type name cannot be null or empty");
 
-        if (_shellFrame == null)
-            throw new InvalidOperationException("Shell frame not registered. Ensure the dashboard shell has called RegisterShellFrame.");
+            if (_shellFrame == null)
+                return Result<Unit>.Failure("Shell frame not registered. Ensure the dashboard shell has called RegisterShellFrame.");
 
-        var pageType = ResolvePageType(pageTypeName);
-        NavigateInShell(pageType, parameter);
+            var pageType = ResolvePageType(pageTypeName);
+            return await NavigateInShellInternal(pageType, parameter);
+        }
+        catch (Exception ex)
+        {
+            return Result<Unit>.Failure($"In-shell navigation failed: {ex.Message}");
+        }
     }
 
     /// <summary>
     /// Navigate by Type (convenience method for strongly-typed navigation) - root-level
     /// </summary>
-    public void NavigateTo(Type pageType, object? parameter = null)
+    private async Task<Result<Unit>> NavigateToInternal(Type pageType, object? parameter = null)
     {
-        if (_rootFrame is null)
-            throw new InvalidOperationException("NavigationService must be initialized before use.");
-
-        if (pageType == null)
-            throw new ArgumentNullException(nameof(pageType));
-
-        if (_rootFrame.CurrentSourcePageType == pageType && parameter == null)
-        {
-            AppLogger.Debug($"Skipping root navigation - already on {pageType.Name}");
-            return;
-        }
-
         try
         {
+            if (_rootFrame is null)
+                return Result<Unit>.Failure("NavigationService must be initialized before use.");
+
+            if (pageType == null)
+                return Result<Unit>.Failure("Page type cannot be null");
+
+            if (_rootFrame.CurrentSourcePageType == pageType && parameter == null)
+            {
+                AppLogger.Debug($"Skipping root navigation - already on {pageType.Name}");
+                return Result<Unit>.Success(Unit.Value);
+            }
+
             AppLogger.Info($"[Root] Navigating to {pageType.Name}...");
             _rootFrame.Navigate(pageType, parameter);
             AppLogger.Success($"[Root] Navigation to {pageType.Name} completed");
+            return Result<Unit>.Success(Unit.Value);
         }
         catch (Exception ex)
         {
             AppLogger.Error($"[Root] Navigation to {pageType.Name} failed", ex);
-            throw;
+            return Result<Unit>.Failure($"Navigation to {pageType.Name} failed: {ex.Message}");
         }
     }
 
     /// <summary>
     /// Navigate by Type within shell - preserves dashboard shell
     /// </summary>
-    private void NavigateInShell(Type pageType, object? parameter = null)
+    private async Task<Result<Unit>> NavigateInShellInternal(Type pageType, object? parameter = null)
     {
-        if (_shellFrame == null)
-            throw new InvalidOperationException("Shell frame not registered.");
-
-        if (pageType == null)
-            throw new ArgumentNullException(nameof(pageType));
-
-        if (_shellFrame.CurrentSourcePageType == pageType && parameter == null)
-        {
-            AppLogger.Debug($"Skipping in-shell navigation - already on {pageType.Name}");
-            return;
-        }
-
         try
         {
+            if (_shellFrame == null)
+                return Result<Unit>.Failure("Shell frame not registered.");
+
+            if (pageType == null)
+                return Result<Unit>.Failure("Page type cannot be null");
+
+            if (_shellFrame.CurrentSourcePageType == pageType && parameter == null)
+            {
+                AppLogger.Debug($"Skipping in-shell navigation - already on {pageType.Name}");
+                return Result<Unit>.Success(Unit.Value);
+            }
+
             AppLogger.Info($"[Shell] Navigating to {pageType.Name}...");
             _shellFrame.Navigate(pageType, parameter);
             AppLogger.Success($"[Shell] Navigation to {pageType.Name} completed");
+            return Result<Unit>.Success(Unit.Value);
         }
         catch (Exception ex)
         {
             AppLogger.Error($"[Shell] Navigation to {pageType.Name} failed", ex);
-            throw;
+            return Result<Unit>.Failure($"In-shell navigation to {pageType.Name} failed: {ex.Message}");
         }
     }
 
@@ -156,16 +189,25 @@ public class NavigationService : MyShop.Core.Interfaces.Services.INavigationServ
     /// <summary>
     /// Navigate back to previous page
     /// </summary>
-    public void GoBack()
+    public async Task<Result<Unit>> GoBack()
     {
-        if (_rootFrame?.CanGoBack == true)
+        try
         {
-            AppLogger.Debug("Navigating back");
-            _rootFrame.GoBack();
+            if (_rootFrame?.CanGoBack == true)
+            {
+                AppLogger.Debug("Navigating back");
+                _rootFrame.GoBack();
+                return Result<Unit>.Success(Unit.Value);
+            }
+            else
+            {
+                AppLogger.Warning("Cannot navigate back - no pages in back stack");
+                return Result<Unit>.Failure("Cannot navigate back - no pages in back stack");
+            }
         }
-        else
+        catch (Exception ex)
         {
-            AppLogger.Warning("Cannot navigate back - no pages in back stack");
+            return Result<Unit>.Failure($"Go back failed: {ex.Message}");
         }
     }
 
@@ -177,12 +219,21 @@ public class NavigationService : MyShop.Core.Interfaces.Services.INavigationServ
     /// <summary>
     /// Clear navigation stack (remove all back stack entries)
     /// </summary>
-    public void ClearNavigationStack()
+    public async Task<Result<Unit>> ClearNavigationStack()
     {
-        if (_rootFrame != null)
+        try
         {
-            _rootFrame.BackStack.Clear();
-            AppLogger.Debug("Navigation stack cleared");
+            if (_rootFrame != null)
+            {
+                _rootFrame.BackStack.Clear();
+                AppLogger.Debug("Navigation stack cleared");
+                return Result<Unit>.Success(Unit.Value);
+            }
+            return Result<Unit>.Failure("Root frame not initialized");
+        }
+        catch (Exception ex)
+        {
+            return Result<Unit>.Failure($"Clear navigation stack failed: {ex.Message}");
         }
     }
 

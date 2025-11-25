@@ -224,13 +224,13 @@ public partial class ProfileViewModel : BaseViewModel
                 var props = await file.GetBasicPropertiesAsync();
                 if (props.Size > 5 * 1024 * 1024)
                 {
-                    _toastHelper.ShowError("Image size must be less than 5MB");
+                    await _toastHelper.ShowError("Image size must be less than 5MB");
                     return;
                 }
 
                 SelectedAvatarFile = file;
                 AvatarUrl = file.Path; // Temporary local path for preview
-                _toastHelper.ShowSuccess("Avatar selected. Save profile to upload.");
+                await _toastHelper.ShowSuccess("Avatar selected. Save profile to upload.");
             }
         }
         catch (Exception ex)
@@ -245,7 +245,7 @@ public partial class ProfileViewModel : BaseViewModel
     [RelayCommand(CanExecute = nameof(CanSave))]
     private async Task SaveAsync()
     {
-        if (!ValidateAll())
+        if (!await ValidateAllAsync())
         {
             SetError("Please fix validation errors before saving.");
             return;
@@ -278,7 +278,7 @@ public partial class ProfileViewModel : BaseViewModel
             if (result.IsSuccess && result.Data != null)
             {
                 MapUserToForm(result.Data);
-                _toastHelper.ShowSuccess("Profile updated successfully!");
+                await _toastHelper.ShowSuccess("Profile updated successfully!");
                 IsEditing = false;
                 SelectedAvatarFile = null; // Clear selected file
             }
@@ -339,27 +339,33 @@ public partial class ProfileViewModel : BaseViewModel
     /// <summary>
     /// Validate all form fields
     /// </summary>
-    private bool ValidateAll()
+    private async Task<bool> ValidateAllAsync()
     {
         ClearValidationErrors();
         var isValid = true;
 
         // Validate Full Name
-        var fullNameResult = _validationService.ValidateRequired(FullName, "Full name");
-        if (!fullNameResult.IsValid)
+        var fullNameResult = await _validationService.ValidateRequired(FullName, "Full name");
+        if (fullNameResult.IsSuccess && fullNameResult.Data != null)
         {
-            FullNameError = fullNameResult.ErrorMessage;
-            isValid = false;
+            if (!fullNameResult.Data.IsValid)
+            {
+                FullNameError = fullNameResult.Data.ErrorMessage;
+                isValid = false;
+            }
         }
 
         // Validate Phone Number
         if (!string.IsNullOrWhiteSpace(PhoneNumber))
         {
-            var phoneResult = _validationService.ValidatePhoneNumber(PhoneNumber);
-            if (!phoneResult.IsValid)
+            var phoneResult = await _validationService.ValidatePhoneNumber(PhoneNumber);
+            if (phoneResult.IsSuccess && phoneResult.Data != null)
             {
-                PhoneError = phoneResult.ErrorMessage;
-                isValid = false;
+                if (!phoneResult.Data.IsValid)
+                {
+                    PhoneError = phoneResult.Data.ErrorMessage;
+                    isValid = false;
+                }
             }
         }
 
@@ -384,12 +390,15 @@ public partial class ProfileViewModel : BaseViewModel
         OnPropertyChanged(nameof(HasError));
     }
 
-    partial void OnFullNameChanged(string value)
+    async partial void OnFullNameChanged(string value)
     {
         if (IsEditing && !string.IsNullOrWhiteSpace(value))
         {
-            var result = _validationService.ValidateRequired(value, "Full name");
-            FullNameError = result.IsValid ? string.Empty : result.ErrorMessage;
+            var result = await _validationService.ValidateRequired(value, "Full name");
+            if (result.IsSuccess && result.Data != null)
+            {
+                FullNameError = result.Data.IsValid ? string.Empty : result.Data.ErrorMessage;
+            }
         }
         else if (IsEditing)
         {
@@ -400,12 +409,15 @@ public partial class ProfileViewModel : BaseViewModel
     /// <summary>
     /// Real-time validation for Phone Number
     /// </summary>
-    partial void OnPhoneNumberChanged(string value)
+    async partial void OnPhoneNumberChanged(string value)
     {
         if (IsEditing && !string.IsNullOrWhiteSpace(value))
         {
-            var result = _validationService.ValidatePhoneNumber(value);
-            PhoneError = result.IsValid ? string.Empty : result.ErrorMessage;
+            var result = await _validationService.ValidatePhoneNumber(value);
+            if (result.IsSuccess && result.Data != null)
+            {
+                PhoneError = result.Data.IsValid ? string.Empty : result.Data.ErrorMessage;
+            }
         }
         else if (IsEditing)
         {
@@ -422,12 +434,12 @@ public partial class ProfileViewModel : BaseViewModel
         try
         {
             // Clear stored credentials
-            _credentialStorage.RemoveToken();
+            await _credentialStorage.RemoveToken();
             
             // Navigate to login page using INavigationService
-            _navigationService.NavigateTo(typeof(Views.Shared.LoginPage).FullName!);
+            await _navigationService.NavigateTo(typeof(Views.Shared.LoginPage).FullName!);
             
-            _toastHelper.ShowInfo("Logged out successfully.");
+            await _toastHelper.ShowInfo("Logged out successfully.");
         }
         catch (Exception ex)
         {

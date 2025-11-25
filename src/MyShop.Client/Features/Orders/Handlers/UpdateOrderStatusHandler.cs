@@ -26,11 +26,14 @@ public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusCommand
                 return Result<bool>.Failure("Status cannot be empty");
             }
 
-            var success = await _orderRepository.UpdateStatusAsync(request.OrderId, request.NewStatus);
+            var result = await _orderRepository.UpdateStatusAsync(request.OrderId, request.NewStatus);
             
-            return success 
-                ? Result<bool>.Success(true) 
-                : Result<bool>.Failure("Failed to update order status");
+            if (!result.IsSuccess)
+            {
+                return Result<bool>.Failure(result.ErrorMessage);
+            }
+            
+            return Result<bool>.Success(result.Data);
         }
         catch (Exception ex)
         {

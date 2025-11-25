@@ -1,3 +1,4 @@
+﻿using MyShop.Shared.Adapters;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Users;
@@ -22,7 +23,7 @@ public class UserRepository : IUserRepository
         _profileApi = profileApi;
     }
 
-    public async Task<IEnumerable<User>> GetAllAsync()
+    public async Task<Result<IEnumerable<User>>> GetAllAsync()
     {
         try
         {
@@ -33,15 +34,16 @@ public class UserRepository : IUserRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return apiResponse.Result.Select(MapToUser);
+                    var users = UserAdapter.ToModelList(apiResponse.Result);
+                    return Result<IEnumerable<User>>.Success(users);
                 }
             }
 
-            return Enumerable.Empty<User>();
+            return Result<IEnumerable<User>>.Failure("Failed to retrieve users");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return Enumerable.Empty<User>();
+            return Result<IEnumerable<User>>.Failure($"Error retrieving users: {ex.Message}");
         }
     }
 
@@ -56,7 +58,7 @@ public class UserRepository : IUserRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    var user = MapProfileToUser(apiResponse.Result);
+                    var user = ProfileAdapter.ToUserModel(apiResponse.Result);
                     return Result<User>.Success(user);
                 }
             }
@@ -109,7 +111,7 @@ public class UserRepository : IUserRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    var user = MapProfileToUser(apiResponse.Result);
+                    var user = ProfileAdapter.ToUserModel(apiResponse.Result);
                     return Result<User>.Success(user);
                 }
             }
@@ -120,65 +122,5 @@ public class UserRepository : IUserRepository
         {
             return Result<User>.Failure($"Error uploading avatar: {ex.Message}");
         }
-    }
-
-    /// <summary>
-    /// Map UserInfoResponse DTO to User domain model
-    /// </summary>
-    private static User MapToUser(MyShop.Shared.DTOs.Responses.UserInfoResponse dto)
-    {
-        return new User
-        {
-            Id = dto.Id,
-            Username = dto.Username,
-            Email = dto.Email,
-            PhoneNumber = dto.PhoneNumber,
-            Avatar = dto.Avatar,
-            FullName = dto.FullName,
-            Address = dto.Address,
-            CreatedAt = dto.CreatedAt,
-            IsTrialActive = dto.IsTrialActive,
-            TrialStartDate = dto.TrialStartDate,
-            TrialEndDate = dto.TrialEndDate,
-            IsEmailVerified = dto.IsEmailVerified,
-            Roles = MapRoles(dto.RoleNames)
-        };
-    }
-
-    /// <summary>
-    /// Map ProfileResponse DTO to User domain model
-    /// </summary>
-    private static User MapProfileToUser(MyShop.Shared.DTOs.Responses.ProfileResponse dto)
-    {
-        return new User
-        {
-            Id = dto.UserId,
-            Username = dto.Username,
-            Email = dto.Email,
-            PhoneNumber = dto.PhoneNumber,
-            Avatar = dto.Avatar,
-            FullName = dto.FullName,
-            Address = dto.Address,
-            CreatedAt = dto.CreatedAt,
-            IsEmailVerified = dto.IsEmailVerified
-        };
-    }
-
-    /// <summary>
-    /// Map role names to UserRole enum
-    /// </summary>
-    private static List<UserRole> MapRoles(List<string> roleNames)
-    {
-        var roles = new List<UserRole>();
-        
-        foreach (var roleName in roleNames)
-        {
-            if (Enum.TryParse<UserRole>(roleName, true, out var role))
-            {
-                roles.Add(role);
-            }
-        }
-
-        return roles;
     }
 }

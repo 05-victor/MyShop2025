@@ -17,6 +17,8 @@ namespace MyShop.Shared.Models
         public string? FullName { get; set; }
         public string? Address { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public DateTime? LastLogin { get; set; }
         public bool IsTrialActive { get; set; }
         public DateTime? TrialStartDate { get; set; }
         public DateTime? TrialEndDate { get; set; }

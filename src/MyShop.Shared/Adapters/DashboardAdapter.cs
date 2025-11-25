@@ -1,6 +1,6 @@
 using MyShop.Shared.Models;
 
-namespace MyShop.Client.Adapters;
+namespace MyShop.Shared.Adapters;
 
 /// <summary>
 /// Adapter for mapping Dashboard DTOs to Dashboard Models

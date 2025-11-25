@@ -21,8 +21,14 @@ public class GetDashboardDataHandler : IRequestHandler<GetDashboardDataQuery, Re
     {
         try
         {
-            var data = await _dashboardRepository.GetSummaryAsync();
-            return Result<object>.Success(data);
+            var result = await _dashboardRepository.GetSummaryAsync();
+            
+            if (!result.IsSuccess)
+            {
+                return Result<object>.Failure(result.ErrorMessage);
+            }
+            
+            return Result<object>.Success(result.Data);
         }
         catch (Exception ex)
         {

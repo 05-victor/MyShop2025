@@ -42,10 +42,15 @@ public partial class SalesAgentProductsViewModel : ObservableObject
     {
         try
         {
-            var products = await _productRepository.GetAllAsync();
+            var result = await _productRepository.GetAllAsync();
+            if (!result.IsSuccess || result.Data == null)
+            {
+                Products = new ObservableCollection<ProductViewModel>();
+                return;
+            }
             
             Products = new ObservableCollection<ProductViewModel>(
-                products.Select(p => new ProductViewModel
+                result.Data.Select(p => new ProductViewModel
                 {
                     Id = p.Id,
                     Name = p.Name,

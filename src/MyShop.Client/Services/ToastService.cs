@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Services;
 using System;
 using System.Threading.Tasks;
@@ -22,40 +23,57 @@ public class ToastService : IToastService
         _xamlRoot = xamlRoot;
     }
 
-    public async Task ShowSuccessAsync(string message)
+    // Async methods returning Result<Unit>
+    public async Task<Result<Unit>> ShowSuccess(string message)
     {
-        await ShowDialogAsync("Success", message);
+        try
+        {
+            await ShowDialogAsync("Success", message);
+            return Result<Unit>.Success(Unit.Value);
+        }
+        catch (Exception ex)
+        {
+            return Result<Unit>.Failure($"Failed to show success: {ex.Message}");
+        }
     }
 
-    public async Task ShowErrorAsync(string message)
+    public async Task<Result<Unit>> ShowError(string message)
     {
-        await ShowDialogAsync("Error", message);
+        try
+        {
+            await ShowDialogAsync("Error", message);
+            return Result<Unit>.Success(Unit.Value);
+        }
+        catch (Exception ex)
+        {
+            return Result<Unit>.Failure($"Failed to show error: {ex.Message}");
+        }
     }
 
-    public async Task ShowInfoAsync(string message)
+    public async Task<Result<Unit>> ShowInfo(string message)
     {
-        await ShowDialogAsync("Information", message);
+        try
+        {
+            await ShowDialogAsync("Information", message);
+            return Result<Unit>.Success(Unit.Value);
+        }
+        catch (Exception ex)
+        {
+            return Result<Unit>.Failure($"Failed to show info: {ex.Message}");
+        }
     }
 
-    // Sync wrappers for interface compatibility
-    public void ShowSuccess(string message)
+    public async Task<Result<Unit>> ShowWarning(string message)
     {
-        _ = ShowSuccessAsync(message);
-    }
-
-    public void ShowError(string message)
-    {
-        _ = ShowErrorAsync(message);
-    }
-
-    public void ShowInfo(string message)
-    {
-        _ = ShowInfoAsync(message);
-    }
-
-    public void ShowWarning(string message)
-    {
-        _ = ShowDialogAsync("Warning", message);
+        try
+        {
+            await ShowDialogAsync("Warning", message);
+            return Result<Unit>.Success(Unit.Value);
+        }
+        catch (Exception ex)
+        {
+            return Result<Unit>.Failure($"Failed to show warning: {ex.Message}");
+        }
     }
 
     private XamlRoot? ResolveXamlRoot()
@@ -109,52 +127,61 @@ public class ToastService : IToastService
         }
     }
 
-    public async Task<ConnectionErrorAction> ShowConnectionErrorAsync(string message)
+    public async Task<Result<ConnectionErrorAction>> ShowConnectionErrorAsync(string message)
     {
-        var xamlRoot = ResolveXamlRoot();
-        if (xamlRoot is null)
-        {
-            System.Diagnostics.Debug.WriteLine("ToastService could not resolve XamlRoot. Returning Cancel.");
-            return ConnectionErrorAction.Cancel;
-        }
-
-        lock (_dialogLock)
-        {
-            if (_isDialogShowing)
-            {
-                return ConnectionErrorAction.Cancel; // Prevent multiple dialogs
-            }
-            _isDialogShowing = true;
-        }
-
         try
         {
-            var dialog = new ContentDialog
+            var xamlRoot = ResolveXamlRoot();
+            if (xamlRoot is null)
             {
-                Title = "⚠️ Cannot Connect to Server",
-                Content = message + "\n\nWhat would you like to do?",
-                PrimaryButtonText = "🔄 Retry",
-                SecondaryButtonText = "⚙️ Configure Server",
-                CloseButtonText = "Cancel",
-                DefaultButton = ContentDialogButton.Primary,
-                XamlRoot = xamlRoot
-            };
+                System.Diagnostics.Debug.WriteLine("ToastService could not resolve XamlRoot. Returning Cancel.");
+                return Result<ConnectionErrorAction>.Success(ConnectionErrorAction.Cancel);
+            }
 
-            var result = await dialog.ShowAsync();
-
-            return result switch
-            {
-                ContentDialogResult.Primary => ConnectionErrorAction.Retry,
-                ContentDialogResult.Secondary => ConnectionErrorAction.ConfigureServer,
-                _ => ConnectionErrorAction.Cancel
-            };
-        }
-        finally
-        {
             lock (_dialogLock)
             {
-                _isDialogShowing = false;
+                if (_isDialogShowing)
+                {
+                    return Result<ConnectionErrorAction>.Success(ConnectionErrorAction.Cancel); // Prevent multiple dialogs
+                }
+                _isDialogShowing = true;
             }
+
+            try
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "⚠️ Cannot Connect to Server",
+                    Content = message + "\n\nWhat would you like to do?",
+                    PrimaryButtonText = "🔄 Retry",
+                    SecondaryButtonText = "⚙️ Configure Server",
+                    CloseButtonText = "Cancel",
+                    DefaultButton = ContentDialogButton.Primary,
+                    XamlRoot = xamlRoot
+                };
+
+                var result = await dialog.ShowAsync();
+
+                var action = result switch
+                {
+                    ContentDialogResult.Primary => ConnectionErrorAction.Retry,
+                    ContentDialogResult.Secondary => ConnectionErrorAction.ConfigureServer,
+                    _ => ConnectionErrorAction.Cancel
+                };
+                
+                return Result<ConnectionErrorAction>.Success(action);
+            }
+            finally
+            {
+                lock (_dialogLock)
+                {
+                    _isDialogShowing = false;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            return Result<ConnectionErrorAction>.Failure($"Failed to show connection error: {ex.Message}");
         }
     }
 }

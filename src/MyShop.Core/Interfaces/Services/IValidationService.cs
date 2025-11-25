@@ -1,4 +1,5 @@
-namespace MyShop.Core.Interfaces.Services;
+﻿namespace MyShop.Core.Interfaces.Services;
+using MyShop.Core.Common;
 
 /// <summary>
 /// Service cung cấp validation logic cho các form inputs
@@ -8,32 +9,32 @@ public interface IValidationService
     /// <summary>
     /// Validate username hoặc email
     /// </summary>
-    ValidationResult ValidateUsername(string username);
+    Task<Result<ValidationResult>> ValidateUsername(string username);
 
     /// <summary>
     /// Validate password
     /// </summary>
-    ValidationResult ValidatePassword(string password);
+    Task<Result<ValidationResult>> ValidatePassword(string password);
 
     /// <summary>
     /// Validate email format
     /// </summary>
-    ValidationResult ValidateEmail(string email);
+    Task<Result<ValidationResult>> ValidateEmail(string email);
 
     /// <summary>
     /// Validate password confirmation (phải khớp với password gốc)
     /// </summary>
-    ValidationResult ValidatePasswordConfirmation(string password, string confirmPassword);
+    Task<Result<ValidationResult>> ValidatePasswordConfirmation(string password, string confirmPassword);
 
     /// <summary>
     /// Validate phone number format
     /// </summary>
-    ValidationResult ValidatePhoneNumber(string phoneNumber);
+    Task<Result<ValidationResult>> ValidatePhoneNumber(string phoneNumber);
 
     /// <summary>
     /// Validate required field with custom field name
     /// </summary>
-    ValidationResult ValidateRequired(string value, string fieldName);
+    Task<Result<ValidationResult>> ValidateRequired(string value, string fieldName);
 }
 
 /// <summary>

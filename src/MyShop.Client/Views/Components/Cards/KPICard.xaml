@@ -85,41 +85,41 @@
                     <!-- Icon Circle -->
                     <Border x:Name="IconCircle"
                             Grid.Column="0"
-                            Background="{Binding IconBackgroundBrush, ElementName=RootControl, Mode=OneWay}"
+                            Background="{x:Bind IconBackgroundBrush, Mode=OneWay}"
                             CornerRadius="12"
                             Width="48" Height="48"
                             HorizontalAlignment="Left"
                             VerticalAlignment="Center">
                         <FontIcon x:Name="IconGlyph"
-                                  Glyph="{Binding Icon, ElementName=RootControl, Mode=OneWay}" 
+                                  Glyph="{x:Bind Icon, Mode=OneWay}" 
                                   FontSize="20"
-                                  Foreground="{Binding IconForegroundBrush, ElementName=RootControl, Mode=OneWay}"/>
+                                  Foreground="{x:Bind IconForegroundBrush, Mode=OneWay}"/>
                     </Border>
 
                     <!-- Badge (Top-Right) -->
                     <Border x:Name="TrendBadge"
                             Grid.Column="1"
-                            Background="{Binding BadgeBackgroundBrush, ElementName=RootControl, Mode=OneWay}"
+                            Background="{x:Bind BadgeBackgroundBrush, Mode=OneWay}"
                             CornerRadius="999" 
                             Padding="10,6"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Top"
-                            Visibility="{Binding ShowBadge, ElementName=RootControl, Mode=OneWay}">
+                            Visibility="{x:Bind ShowBadge, Mode=OneWay}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <FontIcon Glyph="{Binding TrendIcon, ElementName=RootControl, Mode=OneWay}" 
+                            <FontIcon Glyph="{x:Bind TrendIcon, Mode=OneWay}" 
                                       FontSize="12" 
-                                      Foreground="{Binding BadgeForegroundBrush, ElementName=RootControl, Mode=OneWay}"/>
-                            <TextBlock Text="{Binding TrendText, ElementName=RootControl, Mode=OneWay}" 
+                                      Foreground="{x:Bind BadgeForegroundBrush, Mode=OneWay}"/>
+                            <TextBlock Text="{x:Bind TrendText, Mode=OneWay}" 
                                        FontSize="12" 
                                        FontWeight="SemiBold"
-                                       Foreground="{Binding BadgeForegroundBrush, ElementName=RootControl, Mode=OneWay}"/>
+                                       Foreground="{x:Bind BadgeForegroundBrush, Mode=OneWay}"/>
                         </StackPanel>
                     </Border>
                 </Grid>
 
                 <!-- Title -->
                 <TextBlock Grid.Row="1"
-                           Text="{Binding Title, ElementName=RootControl, Mode=OneWay}" 
+                           Text="{x:Bind Title, Mode=OneWay}" 
                            FontSize="14" 
                            Foreground="#6B7280"
                            Margin="0,0,0,8"/>
@@ -127,7 +127,7 @@
                 <!-- Value (with count-up animation) -->
                 <TextBlock x:Name="ValueTextBlock"
                            Grid.Row="2"
-                           Text="{Binding DisplayValue, ElementName=RootControl, Mode=OneWay}" 
+                           Text="{x:Bind DisplayValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                            FontSize="32" 
                            FontWeight="Bold" 
                            Foreground="#111827"
@@ -135,7 +135,7 @@
 
                 <!-- Subtitle / Description -->
                 <TextBlock Grid.Row="3"
-                           Text="{Binding Subtitle, ElementName=RootControl, Mode=OneWay}" 
+                           Text="{x:Bind Subtitle, Mode=OneWay}" 
                            FontSize="13" 
                            Foreground="#9CA3AF"
                            TextWrapping="Wrap"

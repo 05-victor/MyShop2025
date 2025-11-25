@@ -1,7 +1,7 @@
 using MyShop.Shared.DTOs.Responses;
 using MyShop.Shared.Models;
 
-namespace MyShop.Client.Adapters;
+namespace MyShop.Shared.Adapters;
 
 /// <summary>
 /// Adapter for mapping User DTOs to User Models

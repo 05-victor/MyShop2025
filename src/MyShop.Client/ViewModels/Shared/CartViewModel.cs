@@ -76,30 +76,36 @@ public partial class CartViewModel : ObservableObject
             var userId = userIdResult.Data;
 
             // Load cart items
-            var cartItems = await _cartRepository.GetCartItemsAsync(userId);
+            var cartItemsResult = await _cartRepository.GetCartItemsAsync(userId);
 
             Items.Clear();
-            foreach (var item in cartItems)
+            if (cartItemsResult.IsSuccess && cartItemsResult.Data != null)
             {
-                Items.Add(new CartItemViewModel
+                foreach (var item in cartItemsResult.Data)
                 {
-                    ProductId = item.ProductId,
-                    Name = item.ProductName,
-                    Category = item.CategoryName ?? "",
-                    Price = item.Price,
-                    Quantity = item.Quantity,
-                    ImageUrl = item.ProductImage ?? "ms-appx:///Assets/Images/products/product-placeholder.png",
-                    Stock = item.StockAvailable
-                });
+                    Items.Add(new CartItemViewModel
+                    {
+                        ProductId = item.ProductId,
+                        Name = item.ProductName,
+                        Category = item.CategoryName ?? "",
+                        Price = item.Price,
+                        Quantity = item.Quantity,
+                        ImageUrl = item.ProductImage ?? "ms-appx:///Assets/Images/products/product-placeholder.png",
+                        Stock = item.StockAvailable
+                    });
+                }
             }
 
             // Load cart summary
-            var summary = await _cartRepository.GetCartSummaryAsync(userId);
-            Subtotal = summary.Subtotal;
-            Tax = summary.Tax;
-            ShippingFee = summary.ShippingFee;
-            Total = summary.Total;
-            ItemCount = summary.ItemCount;
+            var summaryResult = await _cartRepository.GetCartSummaryAsync(userId);
+            if (summaryResult.IsSuccess && summaryResult.Data != null)
+            {
+                Subtotal = summaryResult.Data.Subtotal;
+                Tax = summaryResult.Data.Tax;
+                ShippingFee = summaryResult.Data.ShippingFee;
+                Total = summaryResult.Data.Total;
+                ItemCount = summaryResult.Data.ItemCount;
+            }
             IsEmpty = Items.Count == 0;
 
             System.Diagnostics.Debug.WriteLine($"[CartViewModel] Loaded {Items.Count} items, Total: {Total:N0} VND");
@@ -120,7 +126,7 @@ public partial class CartViewModel : ObservableObject
     {
         if (item.Quantity >= item.Stock)
         {
-            _toastHelper.ShowWarning("Maximum stock reached");
+            await _toastHelper.ShowWarning("Maximum stock reached");
             return;
         }
 
@@ -132,16 +138,16 @@ public partial class CartViewModel : ObservableObject
             var userId = userIdResult.Data;
             var newQuantity = item.Quantity + 1;
 
-            var success = await _cartRepository.UpdateQuantityAsync(userId, item.ProductId, newQuantity);
+            var result = await _cartRepository.UpdateQuantityAsync(userId, item.ProductId, newQuantity);
             
-            if (success)
+            if (result.IsSuccess && result.Data)
             {
                 item.Quantity = newQuantity;
                 await RefreshTotalsAsync();
             }
             else
             {
-                _toastHelper.ShowError("Failed to update quantity");
+                await _toastHelper.ShowError("Failed to update quantity");
             }
         }
         catch (Exception ex)
@@ -168,16 +174,16 @@ public partial class CartViewModel : ObservableObject
             var userId = userIdResult.Data;
             var newQuantity = item.Quantity - 1;
 
-            var success = await _cartRepository.UpdateQuantityAsync(userId, item.ProductId, newQuantity);
+            var result = await _cartRepository.UpdateQuantityAsync(userId, item.ProductId, newQuantity);
             
-            if (success)
+            if (result.IsSuccess && result.Data)
             {
                 item.Quantity = newQuantity;
                 await RefreshTotalsAsync();
             }
             else
             {
-                _toastHelper.ShowError("Failed to update quantity");
+                await _toastHelper.ShowError("Failed to update quantity");
             }
         }
         catch (Exception ex)
@@ -196,18 +202,18 @@ public partial class CartViewModel : ObservableObject
 
             var userId = userIdResult.Data;
 
-            var success = await _cartRepository.RemoveFromCartAsync(userId, item.ProductId);
+            var result = await _cartRepository.RemoveFromCartAsync(userId, item.ProductId);
             
-            if (success)
+            if (result.IsSuccess && result.Data)
             {
                 Items.Remove(item);
                 await RefreshTotalsAsync();
                 IsEmpty = Items.Count == 0;
-                _toastHelper.ShowSuccess($"Removed {item.Name} from cart");
+                await _toastHelper.ShowSuccess($"Removed {item.Name} from cart");
             }
             else
             {
-                _toastHelper.ShowError("Failed to remove item");
+                await _toastHelper.ShowError("Failed to remove item");
             }
         }
         catch (Exception ex)
@@ -226,9 +232,9 @@ public partial class CartViewModel : ObservableObject
 
             var userId = userIdResult.Data;
 
-            var success = await _cartRepository.ClearCartAsync(userId);
+            var result = await _cartRepository.ClearCartAsync(userId);
             
-            if (success)
+            if (result.IsSuccess && result.Data)
             {
                 Items.Clear();
                 Subtotal = 0;
@@ -237,11 +243,11 @@ public partial class CartViewModel : ObservableObject
                 Total = 0;
                 ItemCount = 0;
                 IsEmpty = true;
-                _toastHelper.ShowSuccess("Cart cleared");
+                await _toastHelper.ShowSuccess("Cart cleared");
             }
             else
             {
-                _toastHelper.ShowError("Failed to clear cart");
+                await _toastHelper.ShowError("Failed to clear cart");
             }
         }
         catch (Exception ex)
@@ -251,21 +257,21 @@ public partial class CartViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void ContinueShopping()
+    private async Task ContinueShoppingAsync()
     {
-        _navigationService.NavigateInShell(typeof(ProductBrowsePage).FullName!);
+        await _navigationService.NavigateInShell(typeof(ProductBrowsePage).FullName!);
     }
 
     [RelayCommand]
-    private void ProceedToCheckout()
+    private async Task ProceedToCheckoutAsync()
     {
         if (IsEmpty)
         {
-            _toastHelper.ShowWarning("Your cart is empty");
+            await _toastHelper.ShowWarning("Your cart is empty");
             return;
         }
 
-        _navigationService.NavigateInShell(typeof(CheckoutPage).FullName!);
+        await _navigationService.NavigateInShell(typeof(CheckoutPage).FullName!);
     }
 
     private async Task RefreshTotalsAsync()
@@ -276,13 +282,16 @@ public partial class CartViewModel : ObservableObject
             if (!userIdResult.IsSuccess) return;
 
             var userId = userIdResult.Data;
-            var summary = await _cartRepository.GetCartSummaryAsync(userId);
+            var summaryResult = await _cartRepository.GetCartSummaryAsync(userId);
 
-            Subtotal = summary.Subtotal;
-            Tax = summary.Tax;
-            ShippingFee = summary.ShippingFee;
-            Total = summary.Total;
-            ItemCount = summary.ItemCount;
+            if (summaryResult.IsSuccess && summaryResult.Data != null)
+            {
+                Subtotal = summaryResult.Data.Subtotal;
+                Tax = summaryResult.Data.Tax;
+                ShippingFee = summaryResult.Data.ShippingFee;
+                Total = summaryResult.Data.Total;
+                ItemCount = summaryResult.Data.ItemCount;
+            }
         }
         catch (Exception ex)
         {

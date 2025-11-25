@@ -1,3 +1,5 @@
+﻿using MyShop.Shared.Adapters;
+using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Orders;
 using MyShop.Shared.DTOs.Requests;
@@ -17,7 +19,7 @@ public class OrderRepository : IOrderRepository
         _api = api;
     }
 
-    public async Task<IEnumerable<Order>> GetAllAsync()
+    public async Task<Result<IEnumerable<Order>>> GetAllAsync()
     {
         try
         {
@@ -28,19 +30,20 @@ public class OrderRepository : IOrderRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return apiResponse.Result.Select(MapToOrder);
+                    var orders = OrderAdapter.ToModelList(apiResponse.Result);
+                    return Result<IEnumerable<Order>>.Success(orders);
                 }
             }
 
-            return Enumerable.Empty<Order>();
+            return Result<IEnumerable<Order>>.Failure("Failed to retrieve orders");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return Enumerable.Empty<Order>();
+            return Result<IEnumerable<Order>>.Failure($"Error retrieving orders: {ex.Message}");
         }
     }
 
-    public async Task<Order?> GetByIdAsync(Guid id)
+    public async Task<Result<Order>> GetByIdAsync(Guid id)
     {
         try
         {
@@ -51,19 +54,20 @@ public class OrderRepository : IOrderRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return MapToOrder(apiResponse.Result);
+                    var order = OrderAdapter.ToModel(apiResponse.Result);
+                    return Result<Order>.Success(order);
                 }
             }
 
-            return null;
+            return Result<Order>.Failure($"Order with ID {id} not found");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return null;
+            return Result<Order>.Failure($"Error retrieving order: {ex.Message}");
         }
     }
 
-    public async Task<IEnumerable<Order>> GetByCustomerIdAsync(Guid customerId)
+    public async Task<Result<IEnumerable<Order>>> GetByCustomerIdAsync(Guid customerId)
     {
         try
         {
@@ -75,21 +79,23 @@ public class OrderRepository : IOrderRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return apiResponse.Result
+                    var orders = apiResponse.Result
                         .Where(o => o.CustomerId == customerId)
-                        .Select(MapToOrder);
+                        .Select(OrderAdapter.ToModel)
+                        .ToList();
+                    return Result<IEnumerable<Order>>.Success(orders);
                 }
             }
 
-            return Enumerable.Empty<Order>();
+            return Result<IEnumerable<Order>>.Failure("Failed to retrieve customer orders");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return Enumerable.Empty<Order>();
+            return Result<IEnumerable<Order>>.Failure($"Error retrieving customer orders: {ex.Message}");
         }
     }
 
-    public async Task<IEnumerable<Order>> GetBySalesAgentIdAsync(Guid salesAgentId)
+    public async Task<Result<IEnumerable<Order>>> GetBySalesAgentIdAsync(Guid salesAgentId)
     {
         try
         {
@@ -101,21 +107,23 @@ public class OrderRepository : IOrderRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return apiResponse.Result
+                    var orders = apiResponse.Result
                         .Where(o => o.CustomerId == salesAgentId) // May need adjustment based on backend schema
-                        .Select(MapToOrder);
+                        .Select(OrderAdapter.ToModel)
+                        .ToList();
+                    return Result<IEnumerable<Order>>.Success(orders);
                 }
             }
 
-            return Enumerable.Empty<Order>();
+            return Result<IEnumerable<Order>>.Failure("Failed to retrieve sales agent orders");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return Enumerable.Empty<Order>();
+            return Result<IEnumerable<Order>>.Failure($"Error retrieving sales agent orders: {ex.Message}");
         }
     }
 
-    public async Task<Order> CreateAsync(Order order)
+    public async Task<Result<Order>> CreateAsync(Order order)
     {
         try
         {
@@ -138,33 +146,34 @@ public class OrderRepository : IOrderRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return MapToOrder(apiResponse.Result);
+                    var createdOrder = OrderAdapter.ToModel(apiResponse.Result);
+                    return Result<Order>.Success(createdOrder);
                 }
             }
 
-            throw new InvalidOperationException("Failed to create order");
+            return Result<Order>.Failure("Failed to create order");
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException($"Error creating order: {ex.Message}", ex);
+            return Result<Order>.Failure($"Error creating order: {ex.Message}");
         }
     }
 
-    public async Task<Order> UpdateAsync(Order order)
+    public async Task<Result<Order>> UpdateAsync(Order order)
     {
         try
         {
             // Note: Backend may need dedicated PUT /orders/{id} endpoint for full update
             // Currently only UpdateStatusAsync is available
-            throw new NotImplementedException("Full order update not yet implemented in backend API");
+            return Result<Order>.Failure("Full order update not yet implemented in backend API");
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException($"Error updating order: {ex.Message}", ex);
+            return Result<Order>.Failure($"Error updating order: {ex.Message}");
         }
     }
 
-    public async Task<bool> UpdateStatusAsync(Guid orderId, string status)
+    public async Task<Result<bool>> UpdateStatusAsync(Guid orderId, string status)
     {
         try
         {
@@ -175,65 +184,28 @@ public class OrderRepository : IOrderRepository
             };
 
             var response = await _api.UpdateStatusAsync(orderId, request);
-            return response.IsSuccessStatusCode && response.Content?.Result == true;
+            if (response.IsSuccessStatusCode && response.Content?.Result == true)
+            {
+                return Result<bool>.Success(true);
+            }
+            return Result<bool>.Failure("Failed to update order status");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return false;
+            return Result<bool>.Failure($"Error updating order status: {ex.Message}");
         }
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<Result<bool>> DeleteAsync(Guid id)
     {
         try
         {
             // Note: Backend doesn't have DELETE endpoint - use status update to "CANCELLED"
             return await UpdateStatusAsync(id, "CANCELLED");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return false;
+            return Result<bool>.Failure($"Error deleting order: {ex.Message}");
         }
-    }
-
-    /// <summary>
-    /// Map OrderResponse DTO to Order domain model
-    /// </summary>
-    private static Order MapToOrder(MyShop.Shared.DTOs.Responses.OrderResponse dto)
-    {
-        return new Order
-        {
-            Id = dto.Id,
-            OrderCode = dto.OrderNumber,
-            CustomerId = dto.CustomerId,
-            CustomerName = dto.CustomerName,
-            CustomerAddress = dto.ShippingAddress,
-            Status = dto.Status,
-            FinalPrice = dto.TotalAmount,
-            Subtotal = dto.TotalAmount, // May need adjustment if backend provides subtotal
-            Notes = dto.Notes,
-            OrderDate = dto.CreatedAt,
-            CreatedAt = dto.CreatedAt,
-            UpdatedAt = dto.UpdatedAt,
-            Items = dto.Items.Select(MapToOrderItem).ToList(),
-            OrderItems = dto.Items.Select(MapToOrderItem).ToList()
-        };
-    }
-
-    /// <summary>
-    /// Map OrderItemResponse DTO to OrderItem domain model
-    /// </summary>
-    private static OrderItem MapToOrderItem(MyShop.Shared.DTOs.Responses.OrderItemResponse dto)
-    {
-        return new OrderItem
-        {
-            Id = dto.Id,
-            ProductId = dto.ProductId,
-            ProductName = dto.ProductName,
-            Quantity = dto.Quantity,
-            UnitPrice = dto.UnitPrice,
-            Total = dto.Subtotal,
-            TotalPrice = dto.Subtotal
-        };
     }
 }

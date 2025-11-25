@@ -35,11 +35,12 @@ public class UpdateCartItemHandler : IRequestHandler<UpdateCartItemCommand, Resu
                 return Result<bool>.Failure("Quantity must be greater than 0");
             }
 
-            var success = await _cartRepository.UpdateQuantityAsync(userResult.Data.Id, request.ProductId, request.NewQuantity);
+            var result = await _cartRepository.UpdateQuantityAsync(userResult.Data.Id, request.ProductId, request.NewQuantity);
             
-            return success 
-                ? Result<bool>.Success(true) 
-                : Result<bool>.Failure("Failed to update cart item");
+        if (!result.IsSuccess)
+        {
+            return Result<bool>.Failure(result.ErrorMessage);
+        }            return Result<bool>.Success(result.Data);
         }
         catch (Exception ex)
         {

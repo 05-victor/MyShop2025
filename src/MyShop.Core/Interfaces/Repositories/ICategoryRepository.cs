@@ -1,4 +1,5 @@
 using MyShop.Shared.Models;
+using MyShop.Core.Common;
 
 namespace MyShop.Core.Interfaces.Repositories;
 
@@ -7,9 +8,9 @@ namespace MyShop.Core.Interfaces.Repositories;
 /// </summary>
 public interface ICategoryRepository
 {
-    Task<IEnumerable<Category>> GetAllAsync();
-    Task<Category?> GetByIdAsync(Guid id);
-    Task<Category> CreateAsync(Category category);
-    Task<Category> UpdateAsync(Category category);
-    Task<bool> DeleteAsync(Guid id);
+    Task<Result<IEnumerable<Category>>> GetAllAsync();
+    Task<Result<Category>> GetByIdAsync(Guid id);
+    Task<Result<Category>> CreateAsync(Category category);
+    Task<Result<Category>> UpdateAsync(Category category);
+    Task<Result<bool>> DeleteAsync(Guid id);
 }

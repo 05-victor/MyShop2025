@@ -103,17 +103,20 @@ public partial class AdminReportsViewModel : BaseViewModel
             try
             {
                 var productsResult = await _productRepository.GetAllAsync();
-                var categories = productsResult
-                    .Select(p => p.CategoryName)
-                    .Where(c => !string.IsNullOrEmpty(c))
-                    .Distinct()
-                    .OrderBy(c => c);
-
-                Categories.Clear();
-                Categories.Add("All");
-                foreach (var cat in categories)
+                if (productsResult.IsSuccess && productsResult.Data != null)
                 {
-                    Categories.Add(cat!);
+                    var categories = productsResult.Data
+                        .Select(p => p.CategoryName)
+                        .Where(c => !string.IsNullOrEmpty(c))
+                        .Distinct()
+                        .OrderBy(c => c);
+
+                    Categories.Clear();
+                    Categories.Add("All");
+                    foreach (var cat in categories)
+                    {
+                        Categories.Add(cat!);
+                    }
                 }
             }
             catch (Exception ex)

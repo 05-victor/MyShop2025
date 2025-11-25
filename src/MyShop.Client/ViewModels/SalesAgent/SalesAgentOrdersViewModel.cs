@@ -47,10 +47,15 @@ public partial class SalesAgentOrdersViewModel : ObservableObject
     {
         try
         {
-            var orders = await _orderRepository.GetAllAsync();
+            var result = await _orderRepository.GetAllAsync();
+            if (!result.IsSuccess || result.Data == null)
+            {
+                _allOrders = new ObservableCollection<OrderViewModel>();
+                return;
+            }
             
             _allOrders = new ObservableCollection<OrderViewModel>(
-                orders.Select(o => new OrderViewModel
+                result.Data.Select(o => new OrderViewModel
                 {
                     OrderId = $"ORD-{o.Id.ToString().Substring(0, 8)}",
                     CustomerName = o.CustomerName,

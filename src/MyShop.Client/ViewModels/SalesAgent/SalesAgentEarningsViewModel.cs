@@ -66,30 +66,35 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
             var userId = userIdResult.Data;
             
             // Load commission summary
-            var summary = await _commissionRepository.GetSummaryAsync(userId);
-            
-            TotalEarnings = summary.TotalEarnings;
-            PendingCommission = summary.PendingCommission;
-            PaidCommission = summary.PaidCommission;
-            TotalSales = summary.TotalOrders;
+            var summaryResult = await _commissionRepository.GetSummaryAsync(userId);
+            if (summaryResult.IsSuccess && summaryResult.Data != null)
+            {
+                TotalEarnings = summaryResult.Data.TotalEarnings;
+                PendingCommission = summaryResult.Data.PendingCommission;
+                PaidCommission = summaryResult.Data.PaidCommission;
+                TotalSales = summaryResult.Data.TotalOrders;
+            }
 
             // Load commission history
-            var commissions = await _commissionRepository.GetBySalesAgentIdAsync(userId);
+            var commissionsResult = await _commissionRepository.GetBySalesAgentIdAsync(userId);
             
             Commissions.Clear();
-            foreach (var commission in commissions.Take(20)) // Show latest 20
+            if (commissionsResult.IsSuccess && commissionsResult.Data != null)
             {
-                Commissions.Add(new CommissionViewModel
+                foreach (var commission in commissionsResult.Data.Take(20)) // Show latest 20
                 {
-                    OrderId = commission.OrderNumber,
-                    ProductName = $"Order {commission.OrderNumber}",
-                    CommissionAmount = commission.CommissionAmount,
-                    CommissionRate = (int)commission.CommissionRate,
-                    Status = commission.Status,
-                    StatusColor = GetStatusColor(commission.Status),
-                    StatusBgColor = GetStatusBgColor(commission.Status),
-                    OrderDate = commission.CreatedDate
-                });
+                    Commissions.Add(new CommissionViewModel
+                    {
+                        OrderId = commission.OrderNumber,
+                        ProductName = $"Order {commission.OrderNumber}",
+                        CommissionAmount = commission.CommissionAmount,
+                        CommissionRate = (int)commission.CommissionRate,
+                        Status = commission.Status,
+                        StatusColor = GetStatusColor(commission.Status),
+                        StatusBgColor = GetStatusBgColor(commission.Status),
+                        OrderDate = commission.CreatedDate
+                    });
+                }
             }
         }
         catch (System.Exception ex)
@@ -131,7 +136,7 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
     {
         if (PendingCommission <= 0)
         {
-            _toastHelper.ShowWarning("No pending commission to request payout.");
+            await _toastHelper.ShowWarning("No pending commission to request payout.");
             return;
         }
 
@@ -143,12 +148,12 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
             // var result = await _commissionRepository.RequestPayoutAsync(PendingCommission);
             // if (result.IsSuccess)
             // {
-            //     _toastHelper.ShowSuccess($"Payout request submitted: {PendingCommission:N0} VND");
+            //     await _toastHelper.ShowSuccess($"Payout request submitted: {PendingCommission:N0} VND");
             //     await LoadCommissionsAsync(); // Refresh data
             // }
             // else
             // {
-            //     _toastHelper.ShowError($"Payout request failed: {result.ErrorMessage}");
+            //     await _toastHelper.ShowError($"Payout request failed: {result.ErrorMessage}");
             // }
 
             // Mock implementation - simulate API delay
@@ -156,7 +161,7 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
 
             System.Diagnostics.Debug.WriteLine($"[EarningsViewModel] Payout requested: {PendingCommission:N0} VND");
             
-            _toastHelper.ShowSuccess($"Payout request submitted successfully!\nAmount: {PendingCommission:C2}\n\nYour request will be processed within 3-5 business days.");
+            await _toastHelper.ShowSuccess($"Payout request submitted successfully!\nAmount: {PendingCommission:C2}\n\nYour request will be processed within 3-5 business days.");
 
             // Simulate moving pending to processing
             PendingCommission = 0;
@@ -164,7 +169,7 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[EarningsViewModel] Payout request error: {ex.Message}");
-            _toastHelper.ShowError("Failed to submit payout request. Please try again.");
+            await _toastHelper.ShowError("Failed to submit payout request. Please try again.");
         }
         finally
         {

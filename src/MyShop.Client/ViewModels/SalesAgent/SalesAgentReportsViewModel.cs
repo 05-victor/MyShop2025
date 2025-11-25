@@ -65,26 +65,32 @@ public partial class SalesAgentReportsViewModel : BaseViewModel
             var (startDate, endDate) = GetDateRange(SelectedPeriod);
 
             // Load sales report
-            var report = await _reportRepository.GetSalesReportAsync(userId, startDate, endDate);
-
-            TotalRevenue = report.TotalRevenue;
-            TotalCommission = report.TotalCommission;
-            TotalOrders = report.TotalOrders;
-            AverageOrderValue = report.AverageOrderValue;
+            var reportResult = await _reportRepository.GetSalesReportAsync(userId, startDate, endDate);
+            if (reportResult.IsSuccess && reportResult.Data != null)
+            {
+                TotalRevenue = reportResult.Data.TotalRevenue;
+                TotalCommission = reportResult.Data.TotalCommission;
+                TotalOrders = reportResult.Data.TotalOrders;
+                AverageOrderValue = reportResult.Data.AverageOrderValue;
+            }
 
             // Load sales trend data
-            var trend = await _reportRepository.GetSalesTrendAsync(userId, "daily");
+            var trendResult = await _reportRepository.GetSalesTrendAsync(userId, "daily");
 
             SalesData.Clear();
-            for (int i = 0; i < trend.Labels.Count; i++)
+            if (trendResult.IsSuccess && trendResult.Data != null)
             {
-                SalesData.Add(new SalesReportViewModel
+                var trend = trendResult.Data;
+                for (int i = 0; i < trend.Labels.Count; i++)
                 {
-                    Date = trend.Labels[i],
-                    Orders = trend.OrdersData[i],
-                    Revenue = trend.RevenueData[i],
-                    Commission = trend.CommissionData[i]
-                });
+                    SalesData.Add(new SalesReportViewModel
+                    {
+                        Date = trend.Labels[i],
+                        Orders = trend.OrdersData[i],
+                        Revenue = trend.RevenueData[i],
+                        Commission = trend.CommissionData[i]
+                    });
+                }
             }
         }
         catch (System.Exception ex)

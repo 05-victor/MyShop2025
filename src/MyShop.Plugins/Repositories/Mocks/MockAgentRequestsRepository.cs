@@ -1,35 +1,23 @@
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.Repositories.Mocks.Data;
 using MyShop.Shared.Models;
+using MyShop.Core.Common;
 
 namespace MyShop.Plugins.Repositories.Mocks;
 
 /// <summary>
-/// Mock implementation for agent requests repository using in-memory storage
+/// Mock implementation for agent requests repository - delegates to MockAgentRequestsData
 /// </summary>
 public class MockAgentRequestsRepository : IAgentRequestRepository
 {
-    // In-memory cache of agent requests
-    private static List<AgentRequest>? _requests;
-    private static readonly object _lock = new object();
 
-    public MockAgentRequestsRepository()
+    public async Task<Result<IEnumerable<AgentRequest>>> GetAllAsync()
     {
-        EnsureDataLoaded();
-    }
-
-    private static void EnsureDataLoaded()
-    {
-        if (_requests != null) return;
-
-        lock (_lock)
+        try
         {
-            if (_requests != null) return;
-
-            // Load from JSON data provider
-            var mockData = MockAgentRequestsData.GetAllAsync().GetAwaiter().GetResult();
+            var mockData = await MockAgentRequestsData.GetAllAsync();
             
-            _requests = mockData.Select(m => new AgentRequest
+            var requests = mockData.Select(m => new AgentRequest
             {
                 Id = Guid.Parse(m.Id),
                 UserId = Guid.Parse(m.UserId),
@@ -42,68 +30,49 @@ public class MockAgentRequestsRepository : IAgentRequestRepository
                 ReviewedBy = m.ReviewedBy,
                 ReviewedAt = m.ReviewedAt,
                 Notes = m.Notes
-            }).ToList();
+            }).OrderByDescending(r => r.RequestedAt).ToList();
 
-            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] Loaded {_requests.Count} agent requests into cache");
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] GetAllAsync returned {requests.Count} requests");
+            return Result<IEnumerable<AgentRequest>>.Success(requests);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] GetAllAsync error: {ex.Message}");
+            return Result<IEnumerable<AgentRequest>>.Failure($"Failed to get agent requests: {ex.Message}");
         }
     }
 
-    public Task<IEnumerable<AgentRequest>> GetAllAsync()
+    public async Task<Result<bool>> ApproveAsync(Guid id)
     {
-        EnsureDataLoaded();
-        
-        // Return ordered by RequestedAt descending (newest first)
-        var result = _requests!
-            .OrderByDescending(r => r.RequestedAt)
-            .ToList();
-
-        System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] GetAllAsync returned {result.Count} requests");
-        return Task.FromResult<IEnumerable<AgentRequest>>(result);
-    }
-
-    public Task<bool> ApproveAsync(Guid id)
-    {
-        EnsureDataLoaded();
-
-        lock (_lock)
+        try
         {
-            var request = _requests!.FirstOrDefault(r => r.Id == id);
-            
-            if (request == null)
-            {
-                System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] ApproveAsync - Request {id} not found");
-                return Task.FromResult(false);
-            }
-
-            request.Status = "Approved";
-            request.ReviewedBy = "Nguyễn Quản Trị";
-            request.ReviewedAt = DateTime.Now;
-
-            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] Approved request {id} for {request.FullName}");
-            return Task.FromResult(true);
+            var result = await MockAgentRequestsData.ApproveAsync(id, Guid.Empty);
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] ApproveAsync result: {result}");
+            return result
+                ? Result<bool>.Success(true)
+                : Result<bool>.Failure($"Failed to approve agent request {id}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] ApproveAsync error: {ex.Message}");
+            return Result<bool>.Failure($"Failed to approve request: {ex.Message}");
         }
     }
 
-    public Task<bool> RejectAsync(Guid id)
+    public async Task<Result<bool>> RejectAsync(Guid id)
     {
-        EnsureDataLoaded();
-
-        lock (_lock)
+        try
         {
-            var request = _requests!.FirstOrDefault(r => r.Id == id);
-            
-            if (request == null)
-            {
-                System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] RejectAsync - Request {id} not found");
-                return Task.FromResult(false);
-            }
-
-            request.Status = "Rejected";
-            request.ReviewedBy = "Nguyễn Quản Trị";
-            request.ReviewedAt = DateTime.Now;
-
-            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] Rejected request {id} for {request.FullName}");
-            return Task.FromResult(true);
+            var result = await MockAgentRequestsData.RejectAsync(id, Guid.Empty, "Rejected by admin");
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] RejectAsync result: {result}");
+            return result
+                ? Result<bool>.Success(true)
+                : Result<bool>.Failure($"Failed to reject agent request {id}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] RejectAsync error: {ex.Message}");
+            return Result<bool>.Failure($"Failed to reject request: {ex.Message}");
         }
     }
 }

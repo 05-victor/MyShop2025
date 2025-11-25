@@ -1,4 +1,5 @@
 using MyShop.Shared.Models;
+using MyShop.Core.Common;
 
 namespace MyShop.Core.Interfaces.Repositories;
 
@@ -10,15 +11,15 @@ public interface IAgentRequestRepository
     /// <summary>
     /// Get all agent requests
     /// </summary>
-    Task<IEnumerable<AgentRequest>> GetAllAsync();
+    Task<Result<IEnumerable<AgentRequest>>> GetAllAsync();
 
     /// <summary>
     /// Approve an agent request
     /// </summary>
-    Task<bool> ApproveAsync(Guid id);
+    Task<Result<bool>> ApproveAsync(Guid id);
 
     /// <summary>
     /// Reject an agent request
     /// </summary>
-    Task<bool> RejectAsync(Guid id);
+    Task<Result<bool>> RejectAsync(Guid id);
 }

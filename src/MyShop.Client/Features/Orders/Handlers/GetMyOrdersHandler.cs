@@ -31,8 +31,14 @@ public class GetMyOrdersHandler : IRequestHandler<GetMyOrdersQuery, Result<List<
                 return Result<List<Order>>.Failure("User not authenticated");
             }
 
-            var orders = await _orderRepository.GetByCustomerIdAsync(userResult.Data.Id);
-            return Result<List<Order>>.Success(orders.ToList());
+            var result = await _orderRepository.GetByCustomerIdAsync(userResult.Data.Id);
+            
+            if (!result.IsSuccess)
+            {
+                return Result<List<Order>>.Failure(result.ErrorMessage);
+            }
+            
+            return Result<List<Order>>.Success(result.Data.ToList());
         }
         catch (Exception ex)
         {

@@ -1,3 +1,4 @@
+using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Infrastructure;
 using Windows.Security.Credentials;
 
@@ -11,20 +12,28 @@ public class WindowsCredentialStorage : ICredentialStorage
 {
     private const string ResourceName = "MyShop2025JwtToken";
 
-    public void SaveToken(string token)
+    public async Task<Result<Unit>> SaveToken(string token)
     {
-        var vault = new PasswordVault();
         try
         {
-            var existingCredential = GetCredential();
-            if (existingCredential != null)
+            var vault = new PasswordVault();
+            try
             {
-                vault.Remove(existingCredential);
+                var existingCredential = GetCredential();
+                if (existingCredential != null)
+                {
+                    vault.Remove(existingCredential);
+                }
             }
-        }
-        catch { }
+            catch { }
 
-        vault.Add(new PasswordCredential(ResourceName, "user", token));
+            vault.Add(new PasswordCredential(ResourceName, "user", token));
+            return Result<Unit>.Success(Unit.Value);
+        }
+        catch (Exception ex)
+        {
+            return Result<Unit>.Failure($"Failed to save token: {ex.Message}");
+        }
     }
 
     public string? GetToken()
@@ -43,7 +52,7 @@ public class WindowsCredentialStorage : ICredentialStorage
         return null;
     }
 
-    public void RemoveToken()
+    public async Task<Result<Unit>> RemoveToken()
     {
         try
         {
@@ -53,8 +62,12 @@ public class WindowsCredentialStorage : ICredentialStorage
                 var vault = new PasswordVault();
                 vault.Remove(credential);
             }
+            return Result<Unit>.Success(Unit.Value);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            return Result<Unit>.Failure($"Failed to remove token: {ex.Message}");
+        }
     }
 
     private PasswordCredential? GetCredential()

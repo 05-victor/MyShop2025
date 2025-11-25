@@ -22,14 +22,14 @@ public class GetProductByIdHandler : IRequestHandler<GetProductByIdQuery, Result
     {
         try
         {
-            var product = await _productRepository.GetByIdAsync(request.ProductId);
+            var result = await _productRepository.GetByIdAsync(request.ProductId);
             
-            if (product == null)
+            if (!result.IsSuccess)
             {
-                return Result<Product>.Failure($"Product with ID {request.ProductId} not found.");
+                return Result<Product>.Failure(result.ErrorMessage);
             }
 
-            return Result<Product>.Success(product);
+            return Result<Product>.Success(result.Data);
         }
         catch (Exception ex)
         {

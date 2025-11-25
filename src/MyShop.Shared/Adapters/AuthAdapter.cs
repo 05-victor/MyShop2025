@@ -2,7 +2,7 @@ using MyShop.Shared.DTOs.Responses;
 using MyShop.Shared.Models;
 using MyShop.Shared.Models.Enums;
 
-namespace MyShop.Client.Adapters;
+namespace MyShop.Shared.Adapters;
 
 /// <summary>
 /// Adapter chuyển đổi Auth DTOs ↔ Domain Models

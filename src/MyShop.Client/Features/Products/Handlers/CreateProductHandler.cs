@@ -35,8 +35,14 @@ public class CreateProductHandler : IRequestHandler<CreateProductCommand, Result
                 UpdatedAt = DateTimeOffset.UtcNow.DateTime
             };
 
-            var created = await _productRepository.CreateAsync(product);
-            return Result<Product>.Success(created);
+            var result = await _productRepository.CreateAsync(product);
+            
+            if (!result.IsSuccess)
+            {
+                return Result<Product>.Failure(result.ErrorMessage);
+            }
+            
+            return Result<Product>.Success(result.Data);
         }
         catch (Exception ex)
         {

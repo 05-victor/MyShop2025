@@ -1,172 +1,132 @@
-using System.Text.Json;
-
 namespace MyShop.Plugins.Repositories.Mocks;
 
 /// <summary>
-/// Mock repository for Settings using JSON data
+/// Mock repository for Settings - provides hardcoded mock data
+/// Note: No MockSettingsData exists yet, using inline defaults
 /// </summary>
 public class MockSettingsRepository
 {
-    private readonly string _jsonFilePath;
-    private AppSettings? _appSettings;
-    private SystemSettings? _systemSettings;
-    private BusinessSettings? _businessSettings;
-
-    public MockSettingsRepository()
-    {
-        _jsonFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Mocks", "Data", "Json", "settings.json");
-        LoadSettings();
-    }
-
-    private void LoadSettings()
-    {
-        try
-        {
-            if (!File.Exists(_jsonFilePath))
-            {
-                System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] JSON file not found: {_jsonFilePath}");
-                return;
-            }
-
-            var json = File.ReadAllText(_jsonFilePath);
-            var jsonDoc = JsonDocument.Parse(json);
-
-            // Load App Settings
-            if (jsonDoc.RootElement.TryGetProperty("appSettings", out var appElement))
-            {
-                _appSettings = new AppSettings
-                {
-                    UserId = Guid.Parse(appElement.GetProperty("userId").GetString()!),
-                    PageSize = appElement.GetProperty("pageSize").GetInt32(),
-                    LastOpenedPage = appElement.GetProperty("lastOpenedPage").GetString()!,
-                    Theme = appElement.GetProperty("theme").GetString()!,
-                    Language = appElement.GetProperty("language").GetString()!,
-                    CreatedAt = DateTime.Parse(appElement.GetProperty("createdAt").GetString()!),
-                    UpdatedAt = appElement.TryGetProperty("updatedAt", out var updated) && updated.ValueKind != JsonValueKind.Null
-                        ? DateTime.Parse(updated.GetString()!)
-                        : null
-                };
-
-                // Load notifications
-                if (appElement.TryGetProperty("notifications", out var notifElement))
-                {
-                    _appSettings.Notifications = new NotificationSettings
-                    {
-                        EmailNotifications = notifElement.GetProperty("emailNotifications").GetBoolean(),
-                        LowStockAlerts = notifElement.GetProperty("lowStockAlerts").GetBoolean(),
-                        NewOrderAlerts = notifElement.GetProperty("newOrderAlerts").GetBoolean(),
-                        LowStockThreshold = notifElement.GetProperty("lowStockThreshold").GetInt32()
-                    };
-                }
-
-                // Load display
-                if (appElement.TryGetProperty("display", out var displayElement))
-                {
-                    _appSettings.Display = new DisplaySettings
-                    {
-                        ShowProductImages = displayElement.GetProperty("showProductImages").GetBoolean(),
-                        CompactMode = displayElement.GetProperty("compactMode").GetBoolean(),
-                        ShowRevenueDashboard = displayElement.GetProperty("showRevenueDashboard").GetBoolean()
-                    };
-                }
-            }
-
-            // Load System Settings
-            if (jsonDoc.RootElement.TryGetProperty("systemSettings", out var sysElement))
-            {
-                _systemSettings = new SystemSettings
-                {
-                    ApplicationName = sysElement.GetProperty("applicationName").GetString()!,
-                    Version = sysElement.GetProperty("version").GetString()!,
-                    DefaultCurrency = sysElement.GetProperty("defaultCurrency").GetString()!,
-                    TaxRate = sysElement.GetProperty("taxRate").GetDouble(),
-                    TrialPeriodDays = sysElement.GetProperty("trialPeriodDays").GetInt32()
-                };
-
-                // Load features
-                if (sysElement.TryGetProperty("features", out var featElement))
-                {
-                    _systemSettings.Features = new FeatureFlags
-                    {
-                        GoogleLogin = featElement.GetProperty("googleLogin").GetBoolean(),
-                        EmailVerification = featElement.GetProperty("emailVerification").GetBoolean(),
-                        TrialActivation = featElement.GetProperty("trialActivation").GetBoolean(),
-                        AdminCodeVerification = featElement.GetProperty("adminCodeVerification").GetBoolean(),
-                        DatabaseBackup = featElement.GetProperty("databaseBackup").GetBoolean(),
-                        ProductImport = featElement.GetProperty("productImport").GetBoolean(),
-                        ProductExport = featElement.GetProperty("productExport").GetBoolean()
-                    };
-                }
-            }
-
-            // Load Business Settings
-            if (jsonDoc.RootElement.TryGetProperty("businessSettings", out var bizElement))
-            {
-                _businessSettings = new BusinessSettings
-                {
-                    StoreName = bizElement.GetProperty("storeName").GetString()!,
-                    StoreAddress = bizElement.GetProperty("storeAddress").GetString()!,
-                    StorePhone = bizElement.GetProperty("storePhone").GetString()!,
-                    StoreEmail = bizElement.GetProperty("storeEmail").GetString()!,
-                    StoreWebsite = bizElement.GetProperty("storeWebsite").GetString(),
-                    BusinessRegistrationNumber = bizElement.GetProperty("businessRegistrationNumber").GetString(),
-                    TaxCode = bizElement.GetProperty("taxCode").GetString(),
-                    BankName = bizElement.GetProperty("bankName").GetString(),
-                    BankAccountNumber = bizElement.GetProperty("bankAccountNumber").GetString(),
-                    BankAccountName = bizElement.GetProperty("bankAccountName").GetString()
-                };
-            }
-
-            System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] Loaded all settings from JSON");
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] Error loading settings: {ex.Message}");
-        }
-    }
 
     public async Task<AppSettings?> GetAppSettingsAsync(Guid userId)
     {
-        await Task.Delay(200);
-        System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] GetAppSettingsAsync for user: {userId}");
-        return _appSettings;
+        try
+        {
+            await Task.Delay(200);
+            
+            var settings = new AppSettings
+            {
+                UserId = userId,
+                PageSize = 20,
+                LastOpenedPage = "DASHBOARD",
+                Theme = "LIGHT",
+                Language = "vi",
+                CreatedAt = DateTime.UtcNow.AddMonths(-6),
+                Notifications = new NotificationSettings
+                {
+                    EmailNotifications = true,
+                    LowStockAlerts = true,
+                    NewOrderAlerts = true,
+                    LowStockThreshold = 10
+                },
+                Display = new DisplaySettings
+                {
+                    ShowProductImages = true,
+                    CompactMode = false,
+                    ShowRevenueDashboard = true
+                }
+            };
+            
+            System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] GetAppSettingsAsync for user: {userId}");
+            return settings;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] GetAppSettingsAsync error: {ex.Message}");
+            return null;
+        }
     }
 
     public async Task<AppSettings?> UpdateAppSettingsAsync(AppSettings settings)
     {
-        await Task.Delay(300);
-        
-        if (_appSettings != null)
+        try
         {
-            _appSettings.PageSize = settings.PageSize;
-            _appSettings.LastOpenedPage = settings.LastOpenedPage;
-            _appSettings.Theme = settings.Theme;
-            _appSettings.Language = settings.Language;
-            _appSettings.UpdatedAt = DateTime.UtcNow;
-
-            if (settings.Notifications != null)
-                _appSettings.Notifications = settings.Notifications;
+            await Task.Delay(300);
             
-            if (settings.Display != null)
-                _appSettings.Display = settings.Display;
+            settings.UpdatedAt = DateTime.UtcNow;
+            
+            System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] Updated app settings");
+            return settings;
         }
-
-        System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] Updated app settings");
-        return _appSettings;
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] UpdateAppSettingsAsync error: {ex.Message}");
+            return null;
+        }
     }
 
     public async Task<SystemSettings?> GetSystemSettingsAsync()
     {
-        await Task.Delay(150);
-        System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] GetSystemSettingsAsync");
-        return _systemSettings;
+        try
+        {
+            await Task.Delay(150);
+            
+            var settings = new SystemSettings
+            {
+                ApplicationName = "MyShop 2025",
+                Version = "1.0.0",
+                DefaultCurrency = "VND",
+                TaxRate = 10.0,
+                TrialPeriodDays = 30,
+                Features = new FeatureFlags
+                {
+                    GoogleLogin = true,
+                    EmailVerification = false,
+                    TrialActivation = true,
+                    AdminCodeVerification = true,
+                    DatabaseBackup = false,
+                    ProductImport = true,
+                    ProductExport = true
+                }
+            };
+            
+            System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] GetSystemSettingsAsync");
+            return settings;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] GetSystemSettingsAsync error: {ex.Message}");
+            return null;
+        }
     }
 
     public async Task<BusinessSettings?> GetBusinessSettingsAsync()
     {
-        await Task.Delay(150);
-        System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] GetBusinessSettingsAsync");
-        return _businessSettings;
+        try
+        {
+            await Task.Delay(150);
+            
+            var settings = new BusinessSettings
+            {
+                StoreName = "MyShop 2025",
+                StoreAddress = "123 Nguyễn Huệ, Quận 1, TP.HCM",
+                StorePhone = "0901234567",
+                StoreEmail = "contact@myshop2025.vn",
+                StoreWebsite = "https://myshop2025.vn",
+                BusinessRegistrationNumber = "0123456789",
+                TaxCode = "0123456789-001",
+                BankName = "Vietcombank",
+                BankAccountNumber = "1234567890",
+                BankAccountName = "CONG TY TNHH MYSHOP 2025"
+            };
+            
+            System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] GetBusinessSettingsAsync");
+            return settings;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] GetBusinessSettingsAsync error: {ex.Message}");
+            return null;
+        }
     }
 }
 

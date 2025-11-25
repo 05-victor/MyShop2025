@@ -30,11 +30,12 @@ public class AddToCartHandler : IRequestHandler<AddToCartCommand, Result<bool>>
                 return Result<bool>.Failure("User not authenticated");
             }
 
-            var success = await _cartRepository.AddToCartAsync(userResult.Data.Id, request.ProductId, request.Quantity);
+            var result = await _cartRepository.AddToCartAsync(userResult.Data.Id, request.ProductId, request.Quantity);
             
-            return success 
-                ? Result<bool>.Success(true) 
-                : Result<bool>.Failure("Failed to add item to cart");
+        if (!result.IsSuccess)
+        {
+            return Result<bool>.Failure(result.ErrorMessage);
+        }            return Result<bool>.Success(result.Data);
         }
         catch (Exception ex)
         {

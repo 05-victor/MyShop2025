@@ -1,5 +1,7 @@
+﻿using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Products;
+using MyShop.Shared.Adapters;
 using MyShop.Shared.Models;
 using Refit;
 
@@ -18,7 +20,7 @@ public class ProductRepository : IProductRepository
         _api = api;
     }
 
-    public async Task<IEnumerable<Product>> GetAllAsync()
+    public async Task<Result<IEnumerable<Product>>> GetAllAsync()
     {
         try
         {
@@ -28,25 +30,26 @@ public class ProductRepository : IProductRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    // Map ProductResponse[] to Product[]
-                    return apiResponse.Result.Select(MapToModel).ToList();
+                    // Map ProductResponse[] to Product[] using ProductAdapter
+                    var products = ProductAdapter.ToModelList(apiResponse.Result);
+                    return Result<IEnumerable<Product>>.Success(products);
                 }
             }
-            return new List<Product>();
+            return Result<IEnumerable<Product>>.Failure("Failed to retrieve products");
         }
         catch (ApiException ex)
         {
             System.Diagnostics.Debug.WriteLine($"API Error in GetAllAsync: {ex.StatusCode} - {ex.Message}");
-            return new List<Product>();
+            return Result<IEnumerable<Product>>.Failure($"API error retrieving products: {ex.Message}");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Unexpected Error in GetAllAsync: {ex.Message}");
-            return new List<Product>();
+            return Result<IEnumerable<Product>>.Failure($"Error retrieving products: {ex.Message}");
         }
     }
 
-    public async Task<Product?> GetByIdAsync(Guid id)
+    public async Task<Result<Product>> GetByIdAsync(Guid id)
     {
         try
         {
@@ -56,24 +59,25 @@ public class ProductRepository : IProductRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return MapToModel(apiResponse.Result);
+                    var product = ProductAdapter.ToModel(apiResponse.Result);
+                    return Result<Product>.Success(product);
                 }
             }
-            return null;
+            return Result<Product>.Failure($"Product with ID {id} not found");
         }
         catch (ApiException ex)
         {
             System.Diagnostics.Debug.WriteLine($"API Error in GetByIdAsync: {ex.StatusCode} - {ex.Message}");
-            return null;
+            return Result<Product>.Failure($"API error retrieving product: {ex.Message}");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Unexpected Error in GetByIdAsync: {ex.Message}");
-            return null;
+            return Result<Product>.Failure($"Error retrieving product: {ex.Message}");
         }
     }
 
-    public async Task<Product> CreateAsync(Product product)
+    public async Task<Result<Product>> CreateAsync(Product product)
     {
         try
         {
@@ -92,18 +96,24 @@ public class ProductRepository : IProductRepository
             
             if (response.IsSuccessStatusCode && response.Content != null)
             {
-                return MapToModel(response.Content);
+                var createdProduct = ProductAdapter.ToModel(response.Content.Result);
+                return Result<Product>.Success(createdProduct);
             }
-            return product; // Return original if failed
+            return Result<Product>.Failure("Failed to create product");
         }
         catch (ApiException ex)
         {
             System.Diagnostics.Debug.WriteLine($"API Error in CreateAsync: {ex.StatusCode} - {ex.Message}");
-            throw new Exception($"Failed to create product: {ex.Message}", ex);
+            return Result<Product>.Failure($"Failed to create product: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Unexpected Error in CreateAsync: {ex.Message}");
+            return Result<Product>.Failure($"Error creating product: {ex.Message}");
         }
     }
 
-    public async Task<Product> UpdateAsync(Product product)
+    public async Task<Result<Product>> UpdateAsync(Product product)
     {
         try
         {
@@ -122,53 +132,45 @@ public class ProductRepository : IProductRepository
             
             if (response.IsSuccessStatusCode && response.Content != null)
             {
-                return MapToModel(response.Content);
+                var updatedProduct = ProductAdapter.ToModel(response.Content.Result);
+                return Result<Product>.Success(updatedProduct);
             }
-            return product; // Return original if failed
+            return Result<Product>.Failure("Failed to update product");
         }
         catch (ApiException ex)
         {
             System.Diagnostics.Debug.WriteLine($"API Error in UpdateAsync: {ex.StatusCode} - {ex.Message}");
-            throw new Exception($"Failed to update product: {ex.Message}", ex);
+            return Result<Product>.Failure($"Failed to update product: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Unexpected Error in UpdateAsync: {ex.Message}");
+            return Result<Product>.Failure($"Error updating product: {ex.Message}");
         }
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<Result<bool>> DeleteAsync(Guid id)
     {
         try
         {
             var response = await _api.DeleteAsync(id);
-            return response.IsSuccessStatusCode && response.Content?.Result == true;
+            if (response.IsSuccessStatusCode && response.Content?.Result == true)
+            {
+                return Result<bool>.Success(true);
+            }
+            return Result<bool>.Failure("Failed to delete product");
         }
         catch (ApiException ex)
         {
             System.Diagnostics.Debug.WriteLine($"API Error in DeleteAsync: {ex.StatusCode} - {ex.Message}");
-            return false;
+            return Result<bool>.Failure($"API error deleting product: {ex.Message}");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Unexpected Error in DeleteAsync: {ex.Message}");
-            return false;
+            return Result<bool>.Failure($"Error deleting product: {ex.Message}");
         }
     }
 
-    /// <summary>
-    /// Maps ProductResponse DTO to Product Model
-    /// TODO: Use ProductAdapter when available
-    /// </summary>
-    private Product MapToModel(dynamic dto)
-    {
-        return new Product
-        {
-            Id = dto.Id,
-            Name = dto.Name ?? string.Empty,
-            Description = dto.Description ?? string.Empty,
-            SellingPrice = dto.Price,
-            Quantity = dto.Stock,
-            ImageUrl = dto.ImageUrl,
-            CategoryId = dto.CategoryId,
-            CreatedAt = dto.CreatedAt,
-            UpdatedAt = dto.UpdatedAt
-        };
-    }
+    // DTO Mapping methods removed - now using ProductAdapter
 }

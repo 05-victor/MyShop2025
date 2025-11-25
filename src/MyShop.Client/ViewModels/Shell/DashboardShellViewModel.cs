@@ -44,11 +44,11 @@ namespace MyShop.Client.ViewModels.Shell
         // ====== Logic trước đây nằm trong AdminDashboardViewModel ======
 
         [RelayCommand]
-        private void Logout()
+        private async Task LogoutAsync()
         {
-            _credentialStorage.RemoveToken();
-            _toastHelper.ShowInfo("You have been logged out");
-            _navigationService.NavigateTo(typeof(LoginPage).FullName!);
+            await _credentialStorage.RemoveToken();
+            await _toastHelper.ShowInfo("You have been logged out");
+            await _navigationService.NavigateTo(typeof(LoginPage).FullName!);
         }
 
         // Navigation commands removed - Shell handles navigation directly

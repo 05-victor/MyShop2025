@@ -16,9 +16,11 @@
     <!-- No need to merge them again here to avoid circular dependency -->
 
     <Grid>
-        <!-- Main Content Area -->
-        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" Background="#F3F4F6">
-            <StackPanel Padding="32" Spacing="32">
+        <!-- Layer 0: Dashboard Content (Hidden during loading) -->
+        <Grid x:Name="DashboardContent"
+              Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Background="#F3F4F6">
+                <StackPanel Padding="32" Spacing="32">
                 
                 <!-- Page Header with Actions -->
                 <Grid>
@@ -78,317 +80,159 @@
                     </Grid.ColumnDefinitions>
                     <Grid.ColumnSpacing>20</Grid.ColumnSpacing>
                     
-                    <!-- Total Products KPI -->
+                    <!-- Total GMV This Month KPI -->
                     <cards:KPICard 
                         Grid.Column="0"
-                        Title="Total Products"
-                        Icon="&#xE7B8;"
-                        Value="{x:Bind ViewModel.TotalProducts, Mode=OneWay}"
-                        Subtitle="In Catalog"
-                        ShowBadge="Collapsed"/>
-                    
-                    <!-- Today Orders KPI -->
-                    <cards:KPICard 
-                        Grid.Column="1"
-                        Title="Today Orders"
-                        Icon="&#xE7BF;"
-                        Value="{x:Bind ViewModel.TodayOrders, Mode=OneWay}"
-                        Subtitle="New orders today"
+                        Title="Total GMV This Month"
+                        Icon="&#xE7DB;"
+                        Value="{x:Bind ViewModel.TotalGmvThisMonth, Mode=OneWay}"
+                        Subtitle="Total sales across platform"
                         ShowBadge="Visible"
                         TrendIcon="&#xE74E;"
-                        TrendText="+12.5%"
+                        TrendText="Revenue"
                         IconBackgroundBrush="#DFF0FF"
                         IconForegroundBrush="#3B82F6"
                         BadgeBackgroundBrush="#DFF0FF"
                         BadgeForegroundBrush="#3B82F6"/>
                     
-                    <!-- Today Revenue KPI -->
+                    <!-- Admin Commission KPI -->
                     <cards:KPICard 
-                        Grid.Column="2"
-                        Title="Today Revenue"
-                        Icon="&#xE7DB;"
-                        Value="{x:Bind ViewModel.TodayRevenue, Mode=OneWay}"
-                        Subtitle="Total revenue today"
+                        Grid.Column="1"
+                        Title="Admin Commission"
+                        Icon="&#xE8D0;"
+                        Value="{x:Bind ViewModel.AdminCommission, Mode=OneWay}"
+                        Subtitle="5% of total GMV"
                         ShowBadge="Visible"
-                        TrendIcon="&#xE74E;"
-                        TrendText="+8.2%"
+                        TrendIcon="&#xE8D0;"
+                        TrendText="Earnings"
                         IconBackgroundBrush="#D1FAE5"
                         IconForegroundBrush="#10B981"
                         BadgeBackgroundBrush="#D1FAE5"
                         BadgeForegroundBrush="#10B981"/>
                     
-                    <!-- Low Stock Alert KPI -->
+                    <!-- Active SalesAgents KPI -->
+                    <cards:KPICard 
+                        Grid.Column="2"
+                        Title="Active SalesAgents"
+                        Icon="&#xE716;"
+                        Value="{x:Bind ViewModel.ActiveSalesAgents, Mode=OneWay}"
+                        Subtitle="Approved and selling"
+                        ShowBadge="Visible"
+                        TrendIcon="&#xE716;"
+                        TrendText="Sellers"
+                        IconBackgroundBrush="#FEF3C7"
+                        IconForegroundBrush="#F59E0B"
+                        BadgeBackgroundBrush="#FEF3C7"
+                        BadgeForegroundBrush="#F59E0B"/>
+                    
+                    <!-- Items To Review KPI -->
                     <cards:KPICard 
                         Grid.Column="3"
-                        Title="Low Stock Alert"
+                        Title="Items To Review"
                         Icon="&#xE7BA;"
-                        Value="{x:Bind ViewModel.LowStockCount, Mode=OneWay}"
-                        Subtitle="Needs attention"
+                        Value="{x:Bind ViewModel.ItemsToReview, Mode=OneWay}"
+                        Subtitle="Flagged products pending review"
                         ShowBadge="Visible"
                         TrendIcon="&#xE7BA;"
-                        TrendText="Critical"
+                        TrendText="Moderate"
                         IconBackgroundBrush="#FEE2E2"
                         IconForegroundBrush="#DC2626"
                         BadgeBackgroundBrush="#FEE2E2"
                         BadgeForegroundBrush="#DC2626"/>
                 </Grid>
 
-                <!-- Top Selling Products -->
-                <StackPanel Spacing="16">
-                    <TextBlock Text="Top Selling Products" 
-                              FontSize="20" 
-                              FontWeight="SemiBold"
-                              Foreground="#111827"/>
-                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.TopProducts, Mode=OneWay}">
-                        <ItemsRepeater.Layout>
-                            <UniformGridLayout MinItemWidth="250" MinRowSpacing="16" MinColumnSpacing="16"/>
-                        </ItemsRepeater.Layout>
-                        <ItemsRepeater.ItemTemplate>
-                            <DataTemplate x:DataType="viewmodels:TopProductItem">
-                                <Border Background="White" 
-                                       CornerRadius="12" 
-                                       BorderBrush="#E5E7EB"
-                                       BorderThickness="1"
-                                       Padding="16">
-                                    <StackPanel Spacing="12">
-                                        <Border Width="80" 
-                                               Height="80" 
-                                               CornerRadius="8"
-                                               HorizontalAlignment="Center"
-                                               Background="#F9FAFB">
-                                            <FontIcon Glyph="&#xE7B8;" FontSize="32" Foreground="#9CA3AF"/>
-                                        </Border>
-                                        <StackPanel Spacing="6">
-                                            <TextBlock Text="{x:Bind Name}" 
-                                                      FontWeight="SemiBold"
-                                                      FontSize="14"
-                                                      Foreground="#111827"
-                                                      TextAlignment="Center"
-                                                      TextWrapping="Wrap"
-                                                      MaxLines="2"/>
-                                            <TextBlock Text="{x:Bind Category}" 
-                                                      FontSize="12"
-                                                      Foreground="#6B7280"
-                                                      TextAlignment="Center"/>
-                                            <StackPanel Orientation="Horizontal" 
-                                                       HorizontalAlignment="Center" 
-                                                       Spacing="4">
-                                                <FontIcon Glyph="&#xE735;" 
-                                                         FontSize="14" 
-                                                         Foreground="#F59E0B"/>
-                                                <TextBlock Text="4.8" 
-                                                          FontWeight="SemiBold"
-                                                          FontSize="13"
-                                                          Foreground="#111827"/>
-                                            </StackPanel>
-                                            <Border Background="#EFF6FF" CornerRadius="4" Padding="8,4" Margin="0,4,0,0">
-                                                <TextBlock HorizontalAlignment="Center" FontSize="12" Foreground="#3B82F6">
-                                                    <Run Text="Rank #"/><Run Text="{x:Bind Rank}"/>
-                                                </TextBlock>
-                                            </Border>
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsRepeater.ItemTemplate>
-                    </ItemsRepeater>
-                </StackPanel>
-
-                <!-- Low Stock Items -->
-                <StackPanel Spacing="16">
-                    <TextBlock Text="Low Stock Alert" 
-                              FontSize="20" 
-                              FontWeight="SemiBold"
-                              Foreground="#111827"/>
-                    <Border Background="White" 
-                           CornerRadius="12" 
-                           BorderBrush="#E5E7EB"
-                           BorderThickness="1"
-                           Padding="24">
-                        <StackPanel Spacing="16">
-                            <!-- Table Header -->
-                            <Grid Padding="0,0,0,12" 
-                                 BorderBrush="#E5E7EB" 
-                                 BorderThickness="0,0,0,1">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="3*"/>
-                                    <ColumnDefinition Width="2*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Product Name" FontSize="13" FontWeight="SemiBold" Foreground="#6B7280"/>
-                                <TextBlock Grid.Column="1" Text="Category" FontSize="13" FontWeight="SemiBold" Foreground="#6B7280"/>
-                                <TextBlock Grid.Column="2" Text="Stock" FontSize="13" FontWeight="SemiBold" Foreground="#6B7280" TextAlignment="Right"/>
-                            </Grid>
-                            
-                            <!-- Low Stock Items List -->
-                            <ListView ItemsSource="{x:Bind ViewModel.LowStockItems, Mode=OneWay}" 
-                                     SelectionMode="None">
-                                <ListView.ItemTemplate>
-                                    <DataTemplate x:DataType="viewmodels:LowStockItem">
-                                        <Grid Padding="0,12" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="3*"/>
-                                                <ColumnDefinition Width="2*"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" 
-                                                      Text="{x:Bind Name}" 
-                                                      FontSize="14" 
-                                                      Foreground="#111827"
-                                                      TextWrapping="Wrap"/>
-                                            <TextBlock Grid.Column="1" 
-                                                      Text="{x:Bind Category}" 
-                                                      FontSize="14" 
-                                                      Foreground="#6B7280"/>
-                                            <Border Grid.Column="2" 
-                                                   CornerRadius="6" 
-                                                   Padding="12,6"
-                                                   HorizontalAlignment="Right"
-                                                   Background="#FEE2E2">
-                                                <TextBlock Text="{x:Bind Stock}" 
-                                                          FontSize="14" 
-                                                          FontWeight="SemiBold"
-                                                          Foreground="#DC2626"
-                                                          TextAlignment="Center"/>
-                                            </Border>
-                                        </Grid>
-                                    </DataTemplate>
-                                </ListView.ItemTemplate>
-                                <ListView.ItemContainerStyle>
-                                    <Style TargetType="ListViewItem">
-                                        <Setter Property="Padding" Value="0"/>
-                                        <Setter Property="Margin" Value="0"/>
-                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                    </Style>
-                                </ListView.ItemContainerStyle>
-                            </ListView>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-
-                <!-- Recent Orders -->
-                <StackPanel Spacing="16">
-                    <TextBlock Text="Recent Orders" 
-                              FontSize="20" 
-                              FontWeight="SemiBold"
-                              Foreground="#111827"/>
-                    <Border Background="White" 
-                           CornerRadius="12" 
-                           BorderBrush="#E5E7EB"
-                           BorderThickness="1"
-                           Padding="24">
-                        <StackPanel Spacing="16">
-                            <!-- Table Header -->
-                            <Grid Padding="0,0,0,12" 
-                                 BorderBrush="#E5E7EB" 
-                                 BorderThickness="0,0,0,1">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="120"/>
-                                    <ColumnDefinition Width="2*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="150"/>
-                                    <ColumnDefinition Width="120"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Order ID" FontSize="13" FontWeight="SemiBold" Foreground="#6B7280"/>
-                                <TextBlock Grid.Column="1" Text="Customer" FontSize="13" FontWeight="SemiBold" Foreground="#6B7280"/>
-                                <TextBlock Grid.Column="2" Text="Date" FontSize="13" FontWeight="SemiBold" Foreground="#6B7280"/>
-                                <TextBlock Grid.Column="3" Text="Amount" FontSize="13" FontWeight="SemiBold" Foreground="#6B7280"/>
-                                <TextBlock Grid.Column="4" Text="Status" FontSize="13" FontWeight="SemiBold" Foreground="#6B7280"/>
-                            </Grid>
-                            
-                            <!-- Recent Orders List -->
-                            <ListView ItemsSource="{x:Bind ViewModel.RecentOrders, Mode=OneWay}" 
-                                     SelectionMode="None">
-                                <ListView.ItemTemplate>
-                                    <DataTemplate x:DataType="viewmodels:RecentOrderItem">
-                                        <Grid Padding="0,12" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="120"/>
-                                                <ColumnDefinition Width="2*"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="150"/>
-                                                <ColumnDefinition Width="120"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" 
-                                                      Text="{x:Bind OrderId}" 
-                                                      FontSize="13" 
-                                                      FontFamily="Consolas"
-                                                      Foreground="#6B7280"/>
-                                            <TextBlock Grid.Column="1" 
-                                                      Text="{x:Bind CustomerName}" 
-                                                      FontSize="14" 
-                                                      Foreground="#111827"/>
-                                            <TextBlock Grid.Column="2" 
-                                                      Text="{x:Bind OrderDate}" 
-                                                      FontSize="14" 
-                                                      Foreground="#6B7280"/>
-                                            <TextBlock Grid.Column="3" 
-                                                      FontSize="14" 
-                                                      Foreground="#111827"
-                                                      FontWeight="SemiBold">
-                                                <Run Text="₫"/><Run Text="{x:Bind Amount}"/>
-                                            </TextBlock>
-                                            <badges:StatusBadge Grid.Column="4"
-                                                               Text="{x:Bind Status}"
-                                                               Variant="Success"/>
-                                        </Grid>
-                                    </DataTemplate>
-                                </ListView.ItemTemplate>
-                                <ListView.ItemContainerStyle>
-                                    <Style TargetType="ListViewItem">
-                                        <Setter Property="Padding" Value="0"/>
-                                        <Setter Property="Margin" Value="0"/>
-                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                    </Style>
-                                </ListView.ItemContainerStyle>
-                            </ListView>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-
                 <!-- Charts Section -->
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="24"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Grid.ColumnSpacing>24</Grid.ColumnSpacing>
                     
-                    <!-- Revenue Summary -->
-                    <Border Grid.Column="0" 
-                           Background="White" 
-                           CornerRadius="12" 
-                           BorderBrush="#E5E7EB"
-                           BorderThickness="1"
-                           Padding="24">
-                        <StackPanel Spacing="16">
-                            <TextBlock Text="Revenue Summary" 
-                                      FontSize="18" 
-                                      FontWeight="SemiBold"
-                                      Foreground="#111827"/>
-                            <StackPanel Spacing="12">
-                                <Border Background="#F9FAFB" CornerRadius="8" Padding="16">
-                                    <StackPanel Spacing="8">
-                                        <TextBlock Text="Week Revenue" FontSize="14" Foreground="#6B7280"/>
-                                        <TextBlock FontSize="24" FontWeight="Bold" Foreground="#111827">
-                                            <Run Text="₫"/><Run Text="{x:Bind ViewModel.WeekRevenue, Mode=OneWay}"/>
-                                        </TextBlock>
-                                    </StackPanel>
+                    <!-- Revenue & Commission Trend Chart -->
+                    <cards:ChartCard Grid.Column="0"
+                                    Title="Revenue &amp; Commission Trend"
+                                    ShowActions="Collapsed">
+                        <cards:ChartCard.ChartContent>
+                            <Grid Height="320">
+                                <!-- Chart Placeholder - Will be replaced with actual chart implementation -->
+                                <Border Background="#F9FAFB" 
+                                       CornerRadius="8"
+                                       Padding="24">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!-- Legend -->
+                                        <StackPanel Grid.Row="0" 
+                                                   Orientation="Horizontal" 
+                                                   Spacing="24"
+                                                   HorizontalAlignment="Center"
+                                                   Margin="0,0,0,16">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <Border Width="12" Height="12" 
+                                                       Background="#3B82F6" 
+                                                       CornerRadius="2"/>
+                                                <TextBlock Text="Revenue" 
+                                                          FontSize="13" 
+                                                          Foreground="#6B7280"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <Border Width="12" Height="12" 
+                                                       Background="#10B981" 
+                                                       CornerRadius="2"/>
+                                                <TextBlock Text="Commission" 
+                                                          FontSize="13" 
+                                                          Foreground="#6B7280"/>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <!-- Chart Data Display (Simple Bar View) -->
+                                        <Grid Grid.Row="1">
+                                            <ItemsRepeater ItemsSource="{x:Bind ViewModel.RevenueTrendData, Mode=OneWay}">
+                                                <ItemsRepeater.Layout>
+                                                    <UniformGridLayout Orientation="Horizontal" 
+                                                                     MinItemWidth="80" 
+                                                                     MinItemHeight="240"/>
+                                                </ItemsRepeater.Layout>
+                                                <ItemsRepeater.ItemTemplate>
+                                                    <DataTemplate x:DataType="viewmodels:TrendDataPoint">
+                                                        <StackPanel Spacing="8" HorizontalAlignment="Center">
+                                                            <!-- Bars (simplified visualization) -->
+                                                            <Grid Height="200" VerticalAlignment="Bottom">
+                                                                <Grid.RowDefinitions>
+                                                                    <RowDefinition Height="*"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                </Grid.RowDefinitions>
+                                                                
+                                                                <Border Grid.Row="1"
+                                                                       Width="40"
+                                                                       Height="120"
+                                                                       Background="#3B82F6"
+                                                                       CornerRadius="4,4,0,0"
+                                                                       VerticalAlignment="Bottom"/>
+                                                            </Grid>
+                                                            
+                                                            <!-- Month Label -->
+                                                            <TextBlock Text="{x:Bind Label}" 
+                                                                      FontSize="12" 
+                                                                      Foreground="#6B7280"
+                                                                      HorizontalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ItemsRepeater.ItemTemplate>
+                                            </ItemsRepeater>
+                                        </Grid>
+                                    </Grid>
                                 </Border>
-                                <Border Background="#F9FAFB" CornerRadius="8" Padding="16">
-                                    <StackPanel Spacing="8">
-                                        <TextBlock Text="Month Revenue" FontSize="14" Foreground="#6B7280"/>
-                                        <TextBlock FontSize="24" FontWeight="Bold" Foreground="#10B981">
-                                            <Run Text="₫"/><Run Text="{x:Bind ViewModel.MonthRevenue, Mode=OneWay}"/>
-                                        </TextBlock>
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
+                            </Grid>
+                        </cards:ChartCard.ChartContent>
+                    </cards:ChartCard>
                     
                     <!-- Sales by Category -->
-                    <Border Grid.Column="1" 
+                    <Border Grid.Column="2" 
                            Background="White" 
                            CornerRadius="12" 
                            BorderBrush="#E5E7EB"
@@ -661,24 +505,31 @@
                     </Button>
                 </StackPanel>
 
-            </StackPanel>
-        </ScrollViewer>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
 
-        <!-- Loading Overlay -->
-        <Border
-               Background="#80000000"
-               Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-            <StackPanel HorizontalAlignment="Center" 
-                       VerticalAlignment="Center" 
-                       Spacing="16">
-                <ProgressRing IsActive="True" 
-                             Width="48" 
-                             Height="48"
-                             Foreground="White"/>
-                <TextBlock Text="Loading dashboard..." 
-                          FontSize="16"
-                          Foreground="White"/>
+        <!-- Layer 1: Loading Overlay (Shown during loading) -->
+        <Grid x:Name="LoadingOverlay"
+              Background="{ThemeResource LayerFillColorDefaultBrush}"
+              Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Spacing="24"
+                        Padding="48">
+                <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                              Width="64"
+                              Height="64" />
+                <TextBlock Text="Loading dashboard data..."
+                           FontSize="18"
+                           FontWeight="SemiBold"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="Please wait while we fetch your analytics"
+                           FontSize="14"
+                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                           HorizontalAlignment="Center" />
             </StackPanel>
-        </Border>
+        </Grid>
     </Grid>
 </Page>

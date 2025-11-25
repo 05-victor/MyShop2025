@@ -32,7 +32,7 @@ public class LoginCommandHandler : IRequestHandler<Commands.LoginCommand, Result
         // Save token if remember me is checked
         if (result.IsSuccess && result.Data != null && request.RememberMe)
         {
-            _credentialStorage.SaveToken(result.Data.Token);
+            await _credentialStorage.SaveToken(result.Data.Token);
         }
 
         return result;
