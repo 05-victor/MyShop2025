@@ -51,12 +51,19 @@ public class ProductService : IProductService
         }
     }
 
-    public async Task<ProductResponse?> GetByIdAsync(Guid id)
+    public async Task<ProductResponse> GetByIdAsync(Guid id)
     {
         try
         {
+            
             var product = await _productRepository.GetByIdAsync(id);
-            return product is null ? null : ProductMapper.ToProductResponse(product);
+
+            if (product is null)
+            {
+                throw NotFoundException.ForEntity("Product", id);
+            }
+
+            return ProductMapper.ToProductResponse(product);
         }
         catch (Exception ex) when (ex is not BaseApplicationException)
         {

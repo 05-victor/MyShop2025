@@ -35,10 +35,7 @@ public class ProductController : ControllerBase
     public async Task<ActionResult<ApiResponse<ProductResponse>>> GetByIdAsync([FromRoute] Guid id)
     {
         var product = await _productService.GetByIdAsync(id);
-        if (product is null)
-        {
-            return NotFound(ApiResponse<ProductResponse>.ErrorResponse("Product not found", 404));
-        }
+       
         return Ok(ApiResponse<ProductResponse>.SuccessResponse(product));
     }
 

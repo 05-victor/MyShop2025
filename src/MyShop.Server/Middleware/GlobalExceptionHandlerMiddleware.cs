@@ -121,10 +121,9 @@ public class GlobalExceptionHandlerMiddleware
         // Add additional data in development mode
         if (_environment.IsDevelopment() && exception.AdditionalData?.Any() == true)
         {
-            var result = response.Result as dynamic ?? new { };
             response.Result = new
             {
-                Errors = (result as dynamic)?.Errors,
+                Errors = (response.Result as dynamic)?.Errors, // only exists if ValidationException
                 AdditionalData = exception.AdditionalData,
                 ErrorCode = exception.ErrorCode,
                 Timestamp = exception.Timestamp
