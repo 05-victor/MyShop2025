@@ -1,5 +1,6 @@
 using MyShop.Data.Repositories.Interfaces;
 using MyShop.Server.EntityMappings;
+using MyShop.Server.Exceptions;
 using MyShop.Server.Factories.Interfaces;
 using MyShop.Server.Mappings;
 using MyShop.Server.Services.Interfaces;
@@ -35,14 +36,30 @@ public class OrderService : IOrderService
 
     public async Task<IEnumerable<OrderResponse>> GetAllAsync()
     {
-        var orders = await _orderRepository.GetAllAsync();
-        return orders.Select(o => OrderMapper.ToOrderResponse(o));
+        try
+        {
+            var orders = await _orderRepository.GetAllAsync();
+            return orders.Select(o => OrderMapper.ToOrderResponse(o));
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error retrieving all orders");
+            throw InfrastructureException.DatabaseError("Failed to retrieve orders", ex);
+        }
     }
 
     public async Task<OrderResponse?> GetByIdAsync(Guid id)
     {
-        var order = await _orderRepository.GetByIdAsync(id);
-        return order is null ? null : OrderMapper.ToOrderResponse(order);
+        try
+        {
+            var order = await _orderRepository.GetByIdAsync(id);
+            return order is null ? null : OrderMapper.ToOrderResponse(order);
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error retrieving order {OrderId}", id);
+            throw InfrastructureException.DatabaseError($"Failed to retrieve order with ID {id}", ex);
+        }
     }
 
     public async Task<OrderResponse> CreateAsync(CreateOrderRequest createOrderRequest)
@@ -51,43 +68,56 @@ public class OrderService : IOrderService
         var customer = await _userRepository.GetByIdAsync(createOrderRequest.CustomerId);
         if (customer is null)
         {
-            throw new System.Collections.Generic.KeyNotFoundException("Customer not found");
+            throw NotFoundException.ForEntity("Customer", createOrderRequest.CustomerId);
         }
 
-        // Create order using factory
-        var order = _orderFactory.Create(createOrderRequest);
-
-        // Auto-assign current user as sale agent if not specified
-        if (!createOrderRequest.SaleAgentId.HasValue || createOrderRequest.SaleAgentId == Guid.Empty)
+        try
         {
-            var currentUserId = _currentUserService.UserId;
-            if (currentUserId.HasValue)
+            // Create order using factory (factory will throw ValidationException if invalid)
+            var order = _orderFactory.Create(createOrderRequest);
+
+            // Auto-assign current user as sale agent if not specified
+            if (!createOrderRequest.SaleAgentId.HasValue || createOrderRequest.SaleAgentId == Guid.Empty)
             {
-                order.SaleAgentId = currentUserId.Value;
-                _logger.LogInformation("Auto-assigned sale agent {UserId} to order {OrderId}", 
-                    currentUserId.Value, order.Id);
+                var currentUserId = _currentUserService.UserId;
+                if (currentUserId.HasValue)
+                {
+                    order.SaleAgentId = currentUserId.Value;
+                    _logger.LogInformation("Auto-assigned sale agent {UserId} to order {OrderId}", 
+                        currentUserId.Value, order.Id);
+                }
+                else
+                {
+                    _logger.LogWarning("No authenticated user found. Order created without sale agent.");
+                }
             }
             else
             {
-                _logger.LogWarning("No authenticated user found. Order created without sale agent.");
+                // Validate sale agent exists if provided
+                var saleAgent = await _userRepository.GetByIdAsync(createOrderRequest.SaleAgentId.Value);
+                if (saleAgent is null)
+                {
+                    throw NotFoundException.ForEntity("Sale agent", createOrderRequest.SaleAgentId.Value);
+                }
             }
+
+            var createdOrder = await _orderRepository.CreateAsync(order);
+            
+            _logger.LogInformation("Order {OrderId} created by sale agent {SaleAgentId} for customer {CustomerId}", 
+                createdOrder.Id, createdOrder.SaleAgentId, createdOrder.CustomerId);
+
+            return OrderMapper.ToOrderResponse(createdOrder);
         }
-        else
+        catch (ArgumentException argEx)
         {
-            // Validate sale agent exists if provided
-            var saleAgent = await _userRepository.GetByIdAsync(createOrderRequest.SaleAgentId.Value);
-            if (saleAgent is null)
-            {
-                throw new System.Collections.Generic.KeyNotFoundException("Sale agent not found");
-            }
+            // Convert ArgumentException from factory to ValidationException
+            throw new ValidationException(argEx.Message);
         }
-
-        var createdOrder = await _orderRepository.CreateAsync(order);
-        
-        _logger.LogInformation("Order {OrderId} created by sale agent {SaleAgentId} for customer {CustomerId}", 
-            createdOrder.Id, createdOrder.SaleAgentId, createdOrder.CustomerId);
-
-        return OrderMapper.ToOrderResponse(createdOrder);
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error creating order");
+            throw InfrastructureException.DatabaseError("Failed to create order", ex);
+        }
     }
 
     public async Task<OrderResponse> UpdateAsync(Guid id, UpdateOrderRequest updateOrderRequest)
@@ -95,30 +125,41 @@ public class OrderService : IOrderService
         var existingOrder = await _orderRepository.GetByIdAsync(id);
         if (existingOrder is null)
         {
-            throw new System.Collections.Generic.KeyNotFoundException("Order not found");
+            throw NotFoundException.ForEntity("Order", id);
         }
 
-        // Apply updates using Patch method
-        existingOrder.Patch(updateOrderRequest);
-        existingOrder.UpdatedAt = DateTime.UtcNow;
-
-        // Update sale agent if specified
+        // Validate sale agent if being updated
         if (updateOrderRequest.SaleAgentId.HasValue)
         {
-            // Validate sale agent exists
             var saleAgent = await _userRepository.GetByIdAsync(updateOrderRequest.SaleAgentId.Value);
             if (saleAgent is null)
             {
-                throw new System.Collections.Generic.KeyNotFoundException("Sale agent not found");
+                throw NotFoundException.ForEntity("Sale agent", updateOrderRequest.SaleAgentId.Value);
             }
-
-            existingOrder.SaleAgentId = updateOrderRequest.SaleAgentId.Value;
-            _logger.LogInformation("Sale agent updated to {SaleAgentId} for order {OrderId}", 
-                updateOrderRequest.SaleAgentId, id);
         }
 
-        var updatedOrder = await _orderRepository.UpdateAsync(existingOrder);
-        return OrderMapper.ToOrderResponse(updatedOrder);
+        try
+        {
+            // Apply updates using Patch method
+            existingOrder.Patch(updateOrderRequest);
+            existingOrder.UpdatedAt = DateTime.UtcNow;
+
+            // Update sale agent if specified
+            if (updateOrderRequest.SaleAgentId.HasValue)
+            {
+                existingOrder.SaleAgentId = updateOrderRequest.SaleAgentId.Value;
+                _logger.LogInformation("Sale agent updated to {SaleAgentId} for order {OrderId}", 
+                    updateOrderRequest.SaleAgentId, id);
+            }
+
+            var updatedOrder = await _orderRepository.UpdateAsync(existingOrder);
+            return OrderMapper.ToOrderResponse(updatedOrder);
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error updating order {OrderId}", id);
+            throw InfrastructureException.DatabaseError($"Failed to update order with ID {id}", ex);
+        }
     }
 
     public async Task<bool> DeleteAsync(Guid id)
@@ -128,9 +169,17 @@ public class OrderService : IOrderService
         {
             return false;
         }
-        
-        await _orderRepository.DeleteAsync(id);
-        _logger.LogInformation("Order {OrderId} deleted", id);
-        return true;
+
+        try
+        {
+            await _orderRepository.DeleteAsync(id);
+            _logger.LogInformation("Order {OrderId} deleted", id);
+            return true;
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error deleting order {OrderId}", id);
+            throw InfrastructureException.DatabaseError($"Failed to delete order with ID {id}", ex);
+        }
     }
 }

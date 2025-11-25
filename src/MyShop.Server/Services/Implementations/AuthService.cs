@@ -1,5 +1,6 @@
 ﻿using MyShop.Data.Entities;
 using MyShop.Data.Repositories.Interfaces;
+using MyShop.Server.Exceptions;
 using MyShop.Server.Services.Interfaces;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
@@ -35,37 +36,59 @@ public class AuthService : IAuthService
 
     public async Task<CreateUserResponse> RegisterAsync(CreateUserRequest request)
     {
+        // Validate input
+        if (string.IsNullOrWhiteSpace(request.Username))
+        {
+            throw ValidationException.ForField("Username", "Username is required");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Email))
+        {
+            throw ValidationException.ForField("Email", "Email is required");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Password))
+        {
+            throw ValidationException.ForField("Password", "Password is required");
+        }
+
+        _logger.LogInformation("Register request received for username: {Username}, email: {Email}", 
+            request.Username, request.Email);
+
         try
         {
-            // Log incoming request
-            _logger.LogInformation("✅ Register request received for username: {Username}, email: {Email}", 
-                request.Username, request.Email);
-
             // Check if user already exists
             if (await _userRepository.ExistsAsync(request.Username, request.Email))
             {
-                throw new InvalidOperationException("Username or email already exists");
+                var validationEx = new ValidationException("User registration failed");
+                
+                // Check which field is duplicate
+                var existingByUsername = await _userRepository.GetByUsernameAsync(request.Username);
+                if (existingByUsername != null)
+                {
+                    validationEx.AddError("Username", "Username is already taken");
+                }
+
+                var existingByEmail = await _userRepository.GetByEmailAsync(request.Email);
+                if (existingByEmail != null)
+                {
+                    validationEx.AddError("Email", "Email is already registered");
+                }
+
+                throw validationEx;
             }
 
-            // Validate and fetch roles if provided
+            // Validate and fetch default role
             var roles = new List<Role>();
-            //if (request.RoleNames != null && request.RoleNames.Any())
-            //{
-            //    foreach (var roleName in request.RoleNames)
-            //    {
-            //        var role = await _roleRepository.GetByNameAsync(roleName);
-            //        if (role == null)
-            //        {
-            //            throw new InvalidOperationException($"Role '{roleName}' does not exist");
-            //        }
-            //        roles.Add(role);
-            //    }
-            //}
             var defaultRole = await _roleRepository.GetByNameAsync("User");
 
             if (defaultRole == null)
             {
-                throw new InvalidOperationException("Default role 'User' does not exist");
+                _logger.LogError("Default role 'User' does not exist in database");
+                throw new InfrastructureException(
+                    "System configuration error. Please contact administrator.",
+                    null,
+                    StatusCodes.Status500InternalServerError);
             }
             roles.Add(defaultRole);
 
@@ -88,7 +111,7 @@ public class AuthService : IAuthService
                 UserId = createdUser.Id
             });
 
-            _logger.LogInformation("✅ User registered successfully: {Username} (ID: {UserId}) with roles: {Roles}",
+            _logger.LogInformation("User registered successfully: {Username} (ID: {UserId}) with roles: {Roles}",
                 createdUser.Username,
                 createdUser.Id,
                 string.Join(", ", createdUser.Roles.Select(r => r.Name)));
@@ -106,19 +129,30 @@ public class AuthService : IAuthService
                 RoleNames = createdUser.Roles.Select(r => r.Name).ToList()
             };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not BaseApplicationException)
         {
-            _logger.LogError(ex, "❌ Error during user registration for {Username}", request.Username);
-            throw;
+            _logger.LogError(ex, "Error during user registration for {Username}", request.Username);
+            throw InfrastructureException.DatabaseError("Failed to register user", ex);
         }
     }
 
     public async Task<LoginResponse> LoginAsync(LoginRequest request)
     {
+        // Validate input
+        if (string.IsNullOrWhiteSpace(request.UsernameOrEmail))
+        {
+            throw ValidationException.ForField("UsernameOrEmail", "Username or email is required");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Password))
+        {
+            throw ValidationException.ForField("Password", "Password is required");
+        }
+
+        _logger.LogInformation("Login request received for: {UsernameOrEmail}", request.UsernameOrEmail);
+
         try
         {
-            _logger.LogInformation("✅ Login request received for: {UsernameOrEmail}", request.UsernameOrEmail);
-
             // Find user by username or email
             var user = await _userRepository.GetByUsernameAsync(request.UsernameOrEmail);
 
@@ -129,18 +163,18 @@ public class AuthService : IAuthService
 
             if (user == null)
             {
-                _logger.LogWarning("⚠️ Login failed - User not found: {UsernameOrEmail}", request.UsernameOrEmail);
-                throw new UnauthorizedAccessException("Invalid username/email or password");
+                _logger.LogWarning("Login failed - User not found: {UsernameOrEmail}", request.UsernameOrEmail);
+                throw AuthenticationException.InvalidCredentials();
             }
 
             // Verify hashed password
             if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             {
-                _logger.LogWarning("⚠️ Login failed - Invalid password for user: {Username}", user.Username);
-                throw new UnauthorizedAccessException("Invalid username/email or password");
+                _logger.LogWarning("Login failed - Invalid password for user: {Username}", user.Username);
+                throw AuthenticationException.InvalidCredentials();
             }
 
-            _logger.LogInformation("✅ User logged in successfully: {Username} (ID: {UserId})", 
+            _logger.LogInformation("User logged in successfully: {Username} (ID: {UserId})", 
                 user.Username, user.Id);
 
             // Generate JWT token
@@ -160,10 +194,10 @@ public class AuthService : IAuthService
                 Token = token
             };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not BaseApplicationException)
         {
-            _logger.LogError(ex, "❌ Error during user login for {UsernameOrEmail}", request.UsernameOrEmail);
-            throw;
+            _logger.LogError(ex, "Error during user login for {UsernameOrEmail}", request.UsernameOrEmail);
+            throw InfrastructureException.DatabaseError("Failed to process login request", ex);
         }
     }
 }

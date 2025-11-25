@@ -28,44 +28,17 @@ public class AuthController : ControllerBase
     /// <returns>Standardized API response with user details</returns>
     [HttpPost("register")]
     [ProducesResponseType(typeof(ApiResponse<CreateUserResponse>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<CreateUserResponse>), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ApiResponse<CreateUserResponse>>> Register([FromBody] CreateUserRequest request)
     {
-        if (!ModelState.IsValid)
-        {
-            var errors = string.Join(", ", ModelState.Values
-                .SelectMany(v => v.Errors)
-                .Select(e => e.ErrorMessage));
-            
-            return BadRequest(ApiResponse.ErrorResponse(
-                $"Validation failed: {errors}", 
-                400));
-        }
+        // No need for ModelState validation - service layer handles validation
+        var response = await _authService.RegisterAsync(request);
 
-        try
-        {
-            var response = await _authService.RegisterAsync(request);
-
-            return Ok(ApiResponse<CreateUserResponse>.SuccessResponse(
-                response,
-                "User registered successfully",
-                200));
-        }
-        catch (InvalidOperationException ex)
-        {
-            _logger.LogWarning(ex, "Registration failed: {Message}", ex.Message);
-            return BadRequest(ApiResponse.ErrorResponse(
-                ex.Message,
-                400));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error in Register endpoint");
-            return StatusCode(StatusCodes.Status500InternalServerError,
-                ApiResponse.ServerErrorResponse(
-                    "An error occurred while processing your request"));
-        }
+        return Ok(ApiResponse<CreateUserResponse>.SuccessResponse(
+            response,
+            "User registered successfully",
+            200));
     }
 
     /// <summary>
@@ -75,43 +48,17 @@ public class AuthController : ControllerBase
     /// <returns>Standardized API response with authentication details and token</returns>
     [HttpPost("login")]
     [ProducesResponseType(typeof(ApiResponse<LoginResponse>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<LoginResponse>), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ApiResponse<LoginResponse>), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ApiResponse<LoginResponse>>> Login([FromBody] LoginRequest request)
     {
-        if (!ModelState.IsValid)
-        {
-            var errors = string.Join(", ", ModelState.Values
-                .SelectMany(v => v.Errors)
-                .Select(e => e.ErrorMessage));
-            
-            return BadRequest(ApiResponse.ErrorResponse(
-                $"Validation failed: {errors}", 
-                400));
-        }
+        // No need for try-catch - global exception handler takes care of it
+        var response = await _authService.LoginAsync(request);
 
-        try
-        {
-            var response = await _authService.LoginAsync(request);
-
-            return Ok(ApiResponse<LoginResponse>.SuccessResponse(
-                response,
-                "Login successful",
-                200));
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            _logger.LogWarning(ex, "Login failed: {Message}", ex.Message);
-            return Unauthorized(ApiResponse.UnauthorizedResponse(
-                ex.Message));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error in Login endpoint");
-            return StatusCode(StatusCodes.Status500InternalServerError,
-                ApiResponse.ServerErrorResponse(
-                    "An error occurred while processing your request"));
-        }
+        return Ok(ApiResponse<LoginResponse>.SuccessResponse(
+            response,
+            "Login successful",
+            200));
     }
 }

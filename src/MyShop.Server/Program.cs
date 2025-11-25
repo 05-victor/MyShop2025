@@ -13,6 +13,7 @@ using MyShop.Data.Repositories.Implementations;
 using AutoMapper;
 using MyShop.Server.Factories.Implementations;
 using MyShop.Server.Factories.Interfaces;
+using MyShop.Server.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -155,6 +156,9 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+// ✅ IMPORTANT: Add Global Exception Handler FIRST (before other middleware)
+app.UseGlobalExceptionHandler();
 
 // ✅ Add connection logging middleware
 app.Use(async (context, next) =>
