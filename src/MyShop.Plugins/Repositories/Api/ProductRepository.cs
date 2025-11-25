@@ -1,6 +1,7 @@
-using MyShop.Core.Common;
+﻿using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Products;
+using MyShop.Shared.Adapters;
 using MyShop.Shared.Models;
 using Refit;
 
@@ -29,8 +30,8 @@ public class ProductRepository : IProductRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    // Map ProductResponse[] to Product[]
-                    var products = apiResponse.Result.Select(MapToModel).ToList();
+                    // Map ProductResponse[] to Product[] using ProductAdapter
+                    var products = ProductAdapter.ToModelList(apiResponse.Result);
                     return Result<IEnumerable<Product>>.Success(products);
                 }
             }
@@ -58,7 +59,7 @@ public class ProductRepository : IProductRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    var product = MapToModel(apiResponse.Result);
+                    var product = ProductAdapter.ToModel(apiResponse.Result);
                     return Result<Product>.Success(product);
                 }
             }
@@ -95,7 +96,7 @@ public class ProductRepository : IProductRepository
             
             if (response.IsSuccessStatusCode && response.Content != null)
             {
-                var createdProduct = MapToModel(response.Content);
+                var createdProduct = ProductAdapter.ToModel(response.Content.Result);
                 return Result<Product>.Success(createdProduct);
             }
             return Result<Product>.Failure("Failed to create product");
@@ -131,7 +132,7 @@ public class ProductRepository : IProductRepository
             
             if (response.IsSuccessStatusCode && response.Content != null)
             {
-                var updatedProduct = MapToModel(response.Content);
+                var updatedProduct = ProductAdapter.ToModel(response.Content.Result);
                 return Result<Product>.Success(updatedProduct);
             }
             return Result<Product>.Failure("Failed to update product");
@@ -171,23 +172,5 @@ public class ProductRepository : IProductRepository
         }
     }
 
-    /// <summary>
-    /// Maps ProductResponse DTO to Product Model
-    /// TODO: Use ProductAdapter when available
-    /// </summary>
-    private Product MapToModel(dynamic dto)
-    {
-        return new Product
-        {
-            Id = dto.Id,
-            Name = dto.Name ?? string.Empty,
-            Description = dto.Description ?? string.Empty,
-            SellingPrice = dto.Price,
-            Quantity = dto.Stock,
-            ImageUrl = dto.ImageUrl,
-            CategoryId = dto.CategoryId,
-            CreatedAt = dto.CreatedAt,
-            UpdatedAt = dto.UpdatedAt
-        };
-    }
+    // DTO Mapping methods removed - now using ProductAdapter
 }

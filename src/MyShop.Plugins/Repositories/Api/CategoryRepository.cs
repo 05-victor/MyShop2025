@@ -1,3 +1,4 @@
+using MyShop.Shared.Adapters;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Categories;
@@ -29,7 +30,7 @@ public class CategoryRepository : ICategoryRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    var categories = apiResponse.Result.Select(MapToCategory).ToList();
+                    var categories = CategoryAdapter.ToModelList(apiResponse.Result);
                     return Result<IEnumerable<Category>>.Success(categories);
                 }
             }
@@ -53,7 +54,7 @@ public class CategoryRepository : ICategoryRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    var category = MapToCategory(apiResponse.Result);
+                    var category = CategoryAdapter.ToModel(apiResponse.Result);
                     return Result<Category>.Success(category);
                 }
             }
@@ -83,7 +84,7 @@ public class CategoryRepository : ICategoryRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    var createdCategory = MapToCategory(apiResponse.Result);
+                    var createdCategory = CategoryAdapter.ToModel(apiResponse.Result);
                     return Result<Category>.Success(createdCategory);
                 }
             }
@@ -113,7 +114,7 @@ public class CategoryRepository : ICategoryRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    var updatedCategory = MapToCategory(apiResponse.Result);
+                    var updatedCategory = CategoryAdapter.ToModel(apiResponse.Result);
                     return Result<Category>.Success(updatedCategory);
                 }
             }
@@ -141,20 +142,5 @@ public class CategoryRepository : ICategoryRepository
         {
             return Result<bool>.Failure($"Error deleting category: {ex.Message}");
         }
-    }
-
-    /// <summary>
-    /// Map CategoryResponse DTO to Category domain model
-    /// </summary>
-    private static Category MapToCategory(MyShop.Shared.DTOs.Responses.CategoryResponse dto)
-    {
-        return new Category
-        {
-            Id = dto.Id,
-            Name = dto.Name,
-            Description = dto.Description,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        };
     }
 }

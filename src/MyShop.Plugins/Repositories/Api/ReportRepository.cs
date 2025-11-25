@@ -1,3 +1,4 @@
+using MyShop.Shared.Adapters;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Reports;
@@ -27,7 +28,7 @@ public class ReportRepository : IReportRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    var report = MapToSalesReport(apiResponse.Result);
+                    var report = ReportAdapter.ToModel(apiResponse.Result);
                     return Result<SalesReport>.Success(report);
                 }
             }
@@ -82,8 +83,7 @@ public class ReportRepository : IReportRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    var products = apiResponse.Result
-                        .Select(MapToProductPerformance)
+                    var products = ReportAdapter.ToProductPerformanceList(apiResponse.Result)
                         .OrderByDescending(p => p.TotalRevenue)
                         .Take(topCount)
                         .ToList();
@@ -119,44 +119,5 @@ public class ReportRepository : IReportRepository
         {
             return Result<SalesTrend>.Failure($"Error retrieving sales trend: {ex.Message}");
         }
-    }
-
-    /// <summary>
-    /// Map SalesReportResponse DTO to SalesReport domain model
-    /// </summary>
-    private static SalesReport MapToSalesReport(MyShop.Shared.DTOs.Responses.SalesReportResponse dto)
-    {
-        return new SalesReport
-        {
-            SalesAgentId = dto.SalesAgentId,
-            StartDate = dto.StartDate,
-            EndDate = dto.EndDate,
-            TotalOrders = dto.TotalOrders,
-            TotalRevenue = dto.TotalRevenue,
-            TotalCommission = dto.TotalCommission,
-            CompletedOrders = dto.CompletedOrders,
-            PendingOrders = dto.PendingOrders,
-            CancelledOrders = dto.CancelledOrders,
-            AverageOrderValue = dto.AverageOrderValue,
-            ConversionRate = dto.ConversionRate
-        };
-    }
-
-    /// <summary>
-    /// Map ProductPerformanceResponse DTO to ProductPerformance domain model
-    /// </summary>
-    private static ProductPerformance MapToProductPerformance(MyShop.Shared.DTOs.Responses.ProductPerformanceResponse dto)
-    {
-        return new ProductPerformance
-        {
-            ProductId = dto.ProductId,
-            ProductName = dto.ProductName,
-            CategoryName = dto.CategoryName,
-            TotalSold = dto.TotalSold,
-            TotalRevenue = dto.TotalRevenue,
-            TotalCommission = dto.TotalCommission,
-            Clicks = dto.Clicks,
-            ConversionRate = dto.ConversionRate
-        };
     }
 }

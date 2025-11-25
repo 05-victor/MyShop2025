@@ -1,3 +1,4 @@
+using MyShop.Shared.Adapters;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Commission;
@@ -28,7 +29,7 @@ public class CommissionRepository : ICommissionRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    var commissions = apiResponse.Result.Select(MapToCommission).ToList();
+                    var commissions = CommissionAdapter.ToModelList(apiResponse.Result);
                     return Result<IEnumerable<Commission>>.Success(commissions);
                 }
             }
@@ -52,7 +53,7 @@ public class CommissionRepository : ICommissionRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    var summary = MapToCommissionSummary(apiResponse.Result);
+                    var summary = CommissionAdapter.ToModel(apiResponse.Result);
                     return Result<CommissionSummary>.Success(summary);
                 }
             }
@@ -132,42 +133,5 @@ public class CommissionRepository : ICommissionRepository
         {
             return Result<IEnumerable<Commission>>.Failure($"Error retrieving commissions by date range: {ex.Message}");
         }
-    }
-
-    /// <summary>
-    /// Map CommissionResponse DTO to Commission domain model
-    /// </summary>
-    private static Commission MapToCommission(MyShop.Shared.DTOs.Responses.CommissionResponse dto)
-    {
-        return new Commission
-        {
-            Id = dto.Id,
-            OrderId = dto.OrderId,
-            SalesAgentId = dto.SalesAgentId,
-            OrderNumber = dto.OrderNumber,
-            OrderAmount = dto.OrderAmount,
-            CommissionRate = dto.CommissionRate,
-            CommissionAmount = dto.CommissionAmount,
-            Status = dto.Status,
-            CreatedDate = dto.CreatedDate,
-            PaidDate = dto.PaidDate
-        };
-    }
-
-    /// <summary>
-    /// Map CommissionSummaryResponse DTO to CommissionSummary domain model
-    /// </summary>
-    private static CommissionSummary MapToCommissionSummary(MyShop.Shared.DTOs.Responses.CommissionSummaryResponse dto)
-    {
-        return new CommissionSummary
-        {
-            TotalEarnings = dto.TotalEarnings,
-            PendingCommission = dto.PendingCommission,
-            PaidCommission = dto.PaidCommission,
-            TotalOrders = dto.TotalOrders,
-            AverageCommission = dto.AverageCommission,
-            ThisMonthEarnings = dto.ThisMonthEarnings,
-            LastMonthEarnings = dto.LastMonthEarnings
-        };
     }
 }

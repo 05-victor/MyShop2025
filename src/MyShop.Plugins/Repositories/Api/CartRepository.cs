@@ -1,3 +1,4 @@
+﻿using MyShop.Shared.Adapters;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Cart;
@@ -28,7 +29,7 @@ public class CartRepository : ICartRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result?.Items != null)
                 {
-                    var items = apiResponse.Result.Items.Select(MapToCartItem).ToList();
+                    var items = CartAdapter.ToModelList(apiResponse.Result);
                     return Result<IEnumerable<CartItem>>.Success(items);
                 }
             }
@@ -176,25 +177,5 @@ public class CartRepository : ICartRepository
         {
             return Result<CartSummary>.Failure($"Error retrieving cart summary: {ex.Message}");
         }
-    }
-
-    /// <summary>
-    /// Map CartItemResponse DTO to CartItem domain model
-    /// </summary>
-    private static CartItem MapToCartItem(MyShop.Shared.DTOs.Responses.CartItemResponse dto)
-    {
-        return new CartItem
-        {
-            Id = dto.Id,
-            UserId = Guid.Empty, // Not provided by API response
-            ProductId = dto.ProductId,
-            ProductName = dto.ProductName,
-            ProductImage = dto.ProductImage,
-            Price = dto.Price,
-            Quantity = dto.Quantity,
-            CategoryName = dto.CategoryName,
-            StockAvailable = dto.StockAvailable,
-            AddedAt = DateTime.UtcNow
-        };
     }
 }

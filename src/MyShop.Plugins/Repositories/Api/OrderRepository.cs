@@ -1,3 +1,4 @@
+﻿using MyShop.Shared.Adapters;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Orders;
@@ -29,7 +30,7 @@ public class OrderRepository : IOrderRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    var orders = apiResponse.Result.Select(MapToOrder).ToList();
+                    var orders = OrderAdapter.ToModelList(apiResponse.Result);
                     return Result<IEnumerable<Order>>.Success(orders);
                 }
             }
@@ -53,7 +54,7 @@ public class OrderRepository : IOrderRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    var order = MapToOrder(apiResponse.Result);
+                    var order = OrderAdapter.ToModel(apiResponse.Result);
                     return Result<Order>.Success(order);
                 }
             }
@@ -80,7 +81,7 @@ public class OrderRepository : IOrderRepository
                 {
                     var orders = apiResponse.Result
                         .Where(o => o.CustomerId == customerId)
-                        .Select(MapToOrder)
+                        .Select(OrderAdapter.ToModel)
                         .ToList();
                     return Result<IEnumerable<Order>>.Success(orders);
                 }
@@ -108,7 +109,7 @@ public class OrderRepository : IOrderRepository
                 {
                     var orders = apiResponse.Result
                         .Where(o => o.CustomerId == salesAgentId) // May need adjustment based on backend schema
-                        .Select(MapToOrder)
+                        .Select(OrderAdapter.ToModel)
                         .ToList();
                     return Result<IEnumerable<Order>>.Success(orders);
                 }
@@ -145,7 +146,7 @@ public class OrderRepository : IOrderRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    var createdOrder = MapToOrder(apiResponse.Result);
+                    var createdOrder = OrderAdapter.ToModel(apiResponse.Result);
                     return Result<Order>.Success(createdOrder);
                 }
             }
@@ -206,46 +207,5 @@ public class OrderRepository : IOrderRepository
         {
             return Result<bool>.Failure($"Error deleting order: {ex.Message}");
         }
-    }
-
-    /// <summary>
-    /// Map OrderResponse DTO to Order domain model
-    /// </summary>
-    private static Order MapToOrder(MyShop.Shared.DTOs.Responses.OrderResponse dto)
-    {
-        return new Order
-        {
-            Id = dto.Id,
-            OrderCode = dto.OrderNumber,
-            CustomerId = dto.CustomerId,
-            CustomerName = dto.CustomerName,
-            CustomerAddress = dto.ShippingAddress,
-            Status = dto.Status,
-            FinalPrice = dto.TotalAmount,
-            Subtotal = dto.TotalAmount, // May need adjustment if backend provides subtotal
-            Notes = dto.Notes,
-            OrderDate = dto.CreatedAt,
-            CreatedAt = dto.CreatedAt,
-            UpdatedAt = dto.UpdatedAt,
-            Items = dto.Items.Select(MapToOrderItem).ToList(),
-            OrderItems = dto.Items.Select(MapToOrderItem).ToList()
-        };
-    }
-
-    /// <summary>
-    /// Map OrderItemResponse DTO to OrderItem domain model
-    /// </summary>
-    private static OrderItem MapToOrderItem(MyShop.Shared.DTOs.Responses.OrderItemResponse dto)
-    {
-        return new OrderItem
-        {
-            Id = dto.Id,
-            ProductId = dto.ProductId,
-            ProductName = dto.ProductName,
-            Quantity = dto.Quantity,
-            UnitPrice = dto.UnitPrice,
-            Total = dto.Subtotal,
-            TotalPrice = dto.Subtotal
-        };
     }
 }

@@ -1,3 +1,4 @@
+using MyShop.Shared.Adapters;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Profile;
@@ -29,7 +30,7 @@ public class ProfileRepository : IProfileRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    var profile = MapToProfileData(apiResponse.Result);
+                    var profile = ProfileAdapter.ToModel(apiResponse.Result);
                     return Result<ProfileData>.Success(profile);
                 }
             }
@@ -68,7 +69,7 @@ public class ProfileRepository : IProfileRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    var updatedProfile = MapToProfileData(apiResponse.Result);
+                    var updatedProfile = ProfileAdapter.ToModel(apiResponse.Result);
                     return Result<ProfileData>.Success(updatedProfile);
                 }
             }
@@ -86,24 +87,5 @@ public class ProfileRepository : IProfileRepository
         // Note: Profile deletion typically happens when user account is deleted
         // May need dedicated backend endpoint
         return Result<bool>.Failure("Profile deletion not supported via API");
-    }
-
-    /// <summary>
-    /// Map ProfileResponse DTO to ProfileData domain model
-    /// </summary>
-    private static ProfileData MapToProfileData(MyShop.Shared.DTOs.Responses.ProfileResponse dto)
-    {
-        return new ProfileData
-        {
-            UserId = dto.UserId,
-            Avatar = dto.Avatar,
-            FullName = dto.FullName,
-            PhoneNumber = dto.PhoneNumber,
-            Email = dto.Email,
-            Address = dto.Address,
-            JobTitle = dto.JobTitle,
-            CreatedAt = dto.CreatedAt,
-            UpdatedAt = dto.UpdatedAt
-        };
     }
 }
