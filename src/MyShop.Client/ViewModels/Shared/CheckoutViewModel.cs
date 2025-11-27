@@ -1,11 +1,19 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using MyShop.Client.Facades;
+using MyShop.Core.Interfaces.Facades;
 
 namespace MyShop.Client.ViewModels.Shared;
 
 public partial class CheckoutViewModel : ObservableObject
 {
+    private readonly ICartFacade _cartFacade;
+
+    public CheckoutViewModel(ICartFacade cartFacade)
+    {
+        _cartFacade = cartFacade;
+    }
     [ObservableProperty]
     private string _fullName = string.Empty;
 
@@ -50,11 +58,6 @@ public partial class CheckoutViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _isPaymentExpired = false;
-
-    public CheckoutViewModel()
-    {
-        // Data will be passed from CartViewModel when navigating to checkout
-    }
 
     [RelayCommand]
     private void BackToCart()

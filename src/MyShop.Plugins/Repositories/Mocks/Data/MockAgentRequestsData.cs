@@ -62,28 +62,73 @@ public static class MockAgentRequestsData
 
     private static void InitializeDefaultData()
     {
-        _agentRequests = new List<MockAgentRequestData>
-        {
-            new MockAgentRequestData
-            {
-                Id = "40000000-0000-0000-0000-000000000001",
-                UserId = "00000000-0000-0000-0000-000000000012",
-                UserName = "Nguyễn Văn A",
-                Email = "nguyen.van.a@example.com",
-                PhoneNumber = "+84902000001",
-                AvatarUrl = "ms-appx:///Assets/Images/avatars/avatar-placeholder.png",
-                RequestedAt = DateTime.Parse("2025-11-20T09:30:00Z"),
-                Status = "Pending",
-                Notes = "Tôi muốn trở thành sales agent để giới thiệu sản phẩm cho bạn bè và gia đình"
-            }
-        };
-        System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsData] Initialized with default data");
+        // Initialize empty list - data should be loaded from agent-requests.json
+        _agentRequests = new List<MockAgentRequestData>();
+        System.Diagnostics.Debug.WriteLine("[MockAgentRequestsData] JSON file not found - initialized with empty agent requests list");
     }
 
     public static Task<IReadOnlyList<MockAgentRequestData>> GetAllAsync()
     {
         EnsureDataLoaded();
         return Task.FromResult<IReadOnlyList<MockAgentRequestData>>(_agentRequests!.AsReadOnly());
+    }
+
+    public static async Task<(List<MockAgentRequestData> Items, int TotalCount)> GetPagedAsync(
+        int page = 1,
+        int pageSize = 10,
+        string? status = null,
+        string? searchQuery = null,
+        string sortBy = "requestedAt",
+        bool sortDescending = true)
+    {
+        EnsureDataLoaded();
+
+        // Simulate network delay
+        await Task.Delay(300);
+
+        var query = _agentRequests!.AsQueryable();
+
+        // Filter by status
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            query = query.Where(r => r.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Search filter
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            var lowerQuery = searchQuery.ToLower();
+            query = query.Where(r =>
+                r.UserName.ToLower().Contains(lowerQuery) ||
+                r.Email.ToLower().Contains(lowerQuery) ||
+                r.PhoneNumber.Contains(searchQuery) ||
+                r.Notes.ToLower().Contains(lowerQuery));
+        }
+
+        // Sorting
+        query = sortBy.ToLower() switch
+        {
+            "username" => sortDescending
+                ? query.OrderByDescending(r => r.UserName)
+                : query.OrderBy(r => r.UserName),
+            "email" => sortDescending
+                ? query.OrderByDescending(r => r.Email)
+                : query.OrderBy(r => r.Email),
+            "status" => sortDescending
+                ? query.OrderByDescending(r => r.Status)
+                : query.OrderBy(r => r.Status),
+            "requestedat" => sortDescending
+                ? query.OrderByDescending(r => r.RequestedAt)
+                : query.OrderBy(r => r.RequestedAt),
+            _ => sortDescending
+                ? query.OrderByDescending(r => r.RequestedAt)
+                : query.OrderBy(r => r.RequestedAt)
+        };
+
+        var totalCount = query.Count();
+        var pagedData = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+        return (pagedData, totalCount);
     }
 
     public static async Task<bool> ApproveAsync(Guid requestId, Guid reviewerId)
@@ -125,6 +170,43 @@ public static class MockAgentRequestsData
         request.Notes += $" | Rejection reason: {reason}";
 
         return true;
+    }
+
+    public static async Task<MyShop.Shared.Models.AgentRequest?> CreateAsync(MyShop.Shared.Models.AgentRequest agentRequest)
+    {
+        EnsureDataLoaded();
+
+        // Simulate network delay
+        await Task.Delay(300);
+
+        try
+        {
+            var newMockRequest = new MockAgentRequestData
+            {
+                Id = agentRequest.Id.ToString(),
+                UserId = agentRequest.UserId.ToString(),
+                UserName = agentRequest.FullName,
+                Email = agentRequest.Email,
+                PhoneNumber = agentRequest.PhoneNumber,
+                AvatarUrl = agentRequest.AvatarUrl ?? "ms-appx:///Assets/Images/avatars/avatar-placeholder.png",
+                RequestedAt = agentRequest.RequestedAt,
+                Status = agentRequest.Status,
+                ReviewedBy = agentRequest.ReviewedBy?.ToString(),
+                ReviewedAt = agentRequest.ReviewedAt,
+                Notes = $"Experience: {agentRequest.Experience}\n\nMotivation: {agentRequest.Reason}"
+            };
+
+            _agentRequests!.Add(newMockRequest);
+
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsData] Created new agent request: {agentRequest.Id}");
+
+            return agentRequest;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsData] CreateAsync error: {ex.Message}");
+            return null;
+        }
     }
 
     /// <summary>

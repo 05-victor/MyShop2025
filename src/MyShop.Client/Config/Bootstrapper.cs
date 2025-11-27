@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MyShop.Client.Config;
-using MyShop.Client.Helpers;
+using MyShop.Client.Services;
 using MyShop.Client.Strategies;
 using MyShop.Client.ViewModels.Admin;
 using MyShop.Client.ViewModels.Shell;
@@ -24,7 +24,7 @@ using MyShop.Plugins.API.Reports;
 using MyShop.Plugins.API.Commission;
 using MyShop.Plugins.Repositories.Api;
 using MyShop.Plugins.Repositories.Mocks;
-using MyShop.Plugins.Storage;
+using MyShop.Plugins.Infrastructure;
 using Refit;
 
 namespace MyShop.Client.Config
@@ -198,6 +198,31 @@ namespace MyShop.Client.Config
                     services.AddTransient<MyShop.Core.Interfaces.Services.IToastService, Services.ToastService>();
                     services.AddTransient<MyShop.Core.Interfaces.Services.IDialogService, Services.DialogService>();
                     services.AddSingleton<MyShop.Core.Interfaces.Services.IValidationService, Services.ValidationService>();
+                    services.AddSingleton<MyShop.Core.Interfaces.Services.IExportService, Services.ExportService>();
+
+                    // ===== Facades (Application Core - aggregates multiple services) =====
+                    // Authentication & User Management
+                    services.AddScoped<MyShop.Core.Interfaces.Facades.IAuthFacade, Facades.AuthFacade>();
+                    services.AddScoped<MyShop.Core.Interfaces.Facades.IProfileFacade, Facades.ProfileFacade>();
+                    services.AddScoped<MyShop.Core.Interfaces.Facades.IUserFacade, Facades.Users.UserFacade>();
+                    
+                    // Product & Catalog
+                    services.AddScoped<MyShop.Core.Interfaces.Facades.IProductFacade, Facades.ProductFacade>();
+                    services.AddScoped<MyShop.Core.Interfaces.Facades.ICategoryFacade, Facades.Products.CategoryFacade>();
+                    
+                    // Shopping & Orders
+                    services.AddScoped<MyShop.Core.Interfaces.Facades.ICartFacade, Facades.CartFacade>();
+                    services.AddScoped<MyShop.Core.Interfaces.Facades.IOrderFacade, Facades.OrderFacade>();
+                    
+                    // Dashboard & Reports
+                    services.AddScoped<MyShop.Core.Interfaces.Facades.IDashboardFacade, Facades.DashboardFacade>();
+                    services.AddScoped<MyShop.Core.Interfaces.Facades.IReportFacade, Facades.Reports.ReportFacade>();
+                    
+                    // Sales Agent Management
+                    services.AddScoped<MyShop.Core.Interfaces.Facades.ICommissionFacade, Facades.Reports.CommissionFacade>();
+                    services.AddScoped<MyShop.Core.Interfaces.Facades.IAgentRequestFacade, Facades.Users.AgentRequestFacade>();
+                    
+                    System.Diagnostics.Debug.WriteLine("[Bootstrapper] All 11 Facades registered successfully");
 
                     // ===== MediatR (CQRS) =====
                     services.AddMediatR(cfg =>
@@ -229,6 +254,7 @@ namespace MyShop.Client.Config
                     
                     // Customer ViewModels
                     services.AddTransient<ViewModels.Customer.CustomerDashboardViewModel>();
+                    services.AddTransient<ViewModels.Customer.BecomeAgentViewModel>();
                     
                     // SalesAgent ViewModels
                     services.AddTransient<ViewModels.SalesAgent.SalesAgentDashboardViewModel>();

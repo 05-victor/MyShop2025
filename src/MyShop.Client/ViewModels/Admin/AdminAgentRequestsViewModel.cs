@@ -1,7 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyShop.Client.ViewModels.Base;
-using MyShop.Core.Interfaces.Repositories;
+using MyShop.Client.Facades;
+using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Services;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -21,17 +22,10 @@ public enum AgentRequestTab
     Rejected = 3
 }
 
-public partial class AdminAgentRequestsViewModel : BaseViewModel
+public partial class AdminAgentRequestsViewModel : PagedViewModelBase<AgentRequestItem>
 {
-        private readonly IToastService _toastHelper;
-        private readonly IAgentRequestRepository _agentRequestRepository;
-
-        [ObservableProperty]
-        private ObservableCollection<AgentRequestItem> _requests = new();
-
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(HasNoRequests))]
-        private ObservableCollection<AgentRequestItem> _filteredRequests = new();
+        private readonly IAgentRequestFacade _agentRequestFacade;
+        private readonly MyShop.Core.Interfaces.Services.IDialogService _dialogService;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(CurrentFilterStatus))]
@@ -40,7 +34,7 @@ public partial class AdminAgentRequestsViewModel : BaseViewModel
         /// <summary>
         /// Gets whether there are no requests to display
         /// </summary>
-        public bool HasNoRequests => FilteredRequests?.Count == 0;
+        public bool HasNoRequests => Items?.Count == 0;
 
         /// <summary>
         /// Gets the current filter status based on selected tab
@@ -55,22 +49,21 @@ public partial class AdminAgentRequestsViewModel : BaseViewModel
         };
 
         public AdminAgentRequestsViewModel(
-            IToastService toastHelper, 
-            IAgentRequestRepository agentRequestRepository)
+            IAgentRequestFacade agentRequestFacade,
+            MyShop.Core.Interfaces.Services.IDialogService dialogService,
+            IToastService toastService,
+            INavigationService navigationService)
+            : base(toastService, navigationService)
         {
-            _toastHelper = toastHelper;
-            _agentRequestRepository = agentRequestRepository;
-            
-            // Load data on initialization
+            _agentRequestFacade = agentRequestFacade;
+            _dialogService = dialogService;
+            PageSize = Core.Common.PaginationConstants.AgentRequestsPageSize;
             _ = InitializeAsync();
         }
 
-        /// <summary>
-        /// Initialize and load data
-        /// </summary>
         public async Task InitializeAsync()
         {
-            await LoadAgentRequestsAsync();
+            await LoadDataAsync();
         }
 
         /// <summary>
@@ -78,109 +71,39 @@ public partial class AdminAgentRequestsViewModel : BaseViewModel
         /// </summary>
         partial void OnSelectedTabIndexChanged(int value)
         {
-            ApplyFilter();
+            CurrentPage = 1;
+            _ = LoadPageAsync();
         }
 
-        /// <summary>
-        /// Applies the current filter based on selected tab
-        /// </summary>
-        private void ApplyFilter()
-        {
-            if (CurrentFilterStatus == "All")
-            {
-                FilteredRequests = new ObservableCollection<AgentRequestItem>(Requests);
-            }
-            else
-            {
-                FilteredRequests = new ObservableCollection<AgentRequestItem>(
-                    Requests.Where(r => r.Status == CurrentFilterStatus)
-                );
-            }
-        }
-
-        [RelayCommand]
-        private void FilterByStatus(string status)
-        {
-            // Legacy method - now handled by OnSelectedTabIndexChanged
-            // Can be removed if no longer needed
-            if (status == "All")
-            {
-                FilteredRequests = new ObservableCollection<AgentRequestItem>(Requests);
-            }
-            else
-            {
-                FilteredRequests = new ObservableCollection<AgentRequestItem>(
-                    Requests.Where(r => r.Status == status)
-                );
-            }
-        }
-
-        [RelayCommand]
-        private async Task RefreshAsync()
-        {
-            await _toastHelper.ShowInfo("Refreshing agent requests...");
-            await LoadAgentRequestsAsync();
-            await _toastHelper.ShowSuccess("✅ Refreshed successfully");
-        }
-
-        [RelayCommand]
-        private async Task ApproveRequest(AgentRequestItem request)
-        {
-            var result = await _agentRequestRepository.ApproveAsync(Guid.Parse(request.Id));
-            
-            if (!result.IsSuccess || !result.Data)
-            {
-                await _toastHelper.ShowError("Failed to approve request");
-                return;
-            }
-
-            request.Status = "Approved";
-            request.IsPending = Visibility.Collapsed;
-            
-            await _toastHelper.ShowSuccess($"✅ Approved {request.FullName}'s request");
-            
-            // Refresh filtered list based on current tab
-            ApplyFilter();
-        }
-
-        [RelayCommand]
-        private async Task RejectRequest(AgentRequestItem request)
-        {
-            var result = await _agentRequestRepository.RejectAsync(Guid.Parse(request.Id));
-            
-            if (!result.IsSuccess || !result.Data)
-            {
-                await _toastHelper.ShowError("Failed to reject request");
-                return;
-            }
-
-            request.Status = "Rejected";
-            request.IsPending = Visibility.Collapsed;
-            
-            await _toastHelper.ShowWarning($"❌ Rejected {request.FullName}'s request");
-            
-            // Refresh filtered list based on current tab
-            ApplyFilter();
-        }
-
-        /// <summary>
-        /// Load agent requests from repository
-        /// </summary>
-        private async Task LoadAgentRequestsAsync()
+        protected override async Task LoadPageAsync()
         {
             try
             {
-                var result = await _agentRequestRepository.GetAllAsync();
+                SetLoadingState(true);
+
+                var statusFilter = CurrentFilterStatus == "All" ? null : CurrentFilterStatus;
+
+                var result = await _agentRequestFacade.GetPagedAsync(
+                    page: CurrentPage,
+                    pageSize: PageSize,
+                    status: statusFilter,
+                    searchQuery: SearchQuery);
+
                 if (!result.IsSuccess || result.Data == null)
                 {
+                    await _toastHelper?.ShowError(result.ErrorMessage ?? "Failed to load agent requests");
+                    Items.Clear();
+                    UpdatePagingInfo(0);
                     return;
                 }
 
-                Requests = new ObservableCollection<AgentRequestItem>(
-                    result.Data.Select(r => new AgentRequestItem
+                Items.Clear();
+                foreach (var r in result.Data.Items)
+                {
+                    Items.Add(new AgentRequestItem
                     {
                         Id = r.Id.ToString(),
-                        Username = r.Email.Split('@')[0], // Extract username from email
+                        Username = r.Email.Split('@')[0],
                         FullName = r.FullName,
                         Email = r.Email,
                         Phone = r.PhoneNumber,
@@ -190,22 +113,101 @@ public partial class AdminAgentRequestsViewModel : BaseViewModel
                         Reason = string.IsNullOrEmpty(r.Notes) ? "I would like to become a sales agent to expand my professional opportunities." : r.Notes,
                         Status = r.Status,
                         IsPending = r.Status == "Pending" ? Visibility.Visible : Visibility.Collapsed,
-                        RejectionReason = string.Empty, // Will be populated when rejection is implemented
-                        HasRejectionReason = Visibility.Collapsed // Will be Visible when rejection reason exists
-                    })
-                );
+                        RejectionReason = string.Empty,
+                        HasRejectionReason = Visibility.Collapsed
+                    });
+                }
 
-                // Initialize filtered list according to current tab
-                ApplyFilter();
+                UpdatePagingInfo(result.Data.TotalCount);
 
-                System.Diagnostics.Debug.WriteLine($"[AdminAgentRequestsViewModel] Loaded {Requests.Count} agent requests");
+                System.Diagnostics.Debug.WriteLine($"[AdminAgentRequestsViewModel] Loaded page {CurrentPage}/{TotalPages} ({Items.Count} items, {TotalItems} total)");
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[AdminAgentRequestsViewModel] Error loading requests: {ex.Message}");
-                _toastHelper.ShowError("Failed to load agent requests");
+                await _toastHelper?.ShowError($"Error loading requests: {ex.Message}");
+                Items.Clear();
+                UpdatePagingInfo(0);
+            }
+            finally
+            {
+                SetLoadingState(false);
+                OnPropertyChanged(nameof(HasNoRequests));
             }
         }
+
+        [RelayCommand]
+        private async Task ApproveRequest(AgentRequestItem request)
+        {
+            try
+            {
+                var confirmed = await _dialogService.ShowConfirmationAsync(
+                    "Approve Agent Request",
+                    $"Are you sure you want to approve the request from {request.FullName}? This will grant them sales agent access.");
+
+                if (!confirmed.IsSuccess || confirmed.Data == false) return;
+
+                SetLoadingState(true);
+
+                var result = await _agentRequestFacade.ApproveRequestAsync(Guid.Parse(request.Id));
+                
+                if (result.IsSuccess)
+                {
+                    await _toastHelper.ShowSuccess($"Agent request from {request.FullName} has been approved.");
+                    await RefreshAsync();
+                }
+                else
+                {
+                    await _toastHelper.ShowError($"Failed to approve request: {result.ErrorMessage}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error approving request: {ex.Message}");
+                await _toastHelper.ShowError("An error occurred while approving the request.");
+            }
+            finally
+            {
+                SetLoadingState(false);
+            }
+        }
+
+        [RelayCommand]
+        private async Task RejectRequest(AgentRequestItem request)
+        {
+            try
+            {
+                var confirmed = await _dialogService.ShowConfirmationAsync(
+                    "Reject Agent Request",
+                    $"Are you sure you want to reject the request from {request.FullName}?");
+
+                if (!confirmed.IsSuccess || confirmed.Data == false) return;
+
+                SetLoadingState(true);
+
+                var result = await _agentRequestFacade.RejectRequestAsync(Guid.Parse(request.Id), "Rejected by administrator");
+                
+                if (result.IsSuccess)
+                {
+                    await _toastHelper.ShowSuccess($"Agent request from {request.FullName} has been rejected.");
+                    await RefreshAsync();
+                }
+                else
+                {
+                    await _toastHelper.ShowError($"Failed to reject request: {result.ErrorMessage}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error rejecting request: {ex.Message}");
+                await _toastHelper.ShowError("An error occurred while rejecting the request.");
+            }
+            finally
+            {
+                SetLoadingState(false);
+            }
+        }
+
     }
 
     public partial class AgentRequestItem : ObservableObject

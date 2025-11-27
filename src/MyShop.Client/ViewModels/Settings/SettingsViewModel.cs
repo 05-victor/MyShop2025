@@ -31,24 +31,28 @@ public partial class SettingsViewModel : ObservableObject
     // Settings properties
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private string _theme = "System";
+    private string _theme = "Light"; // Changed default from System to Light
 
-    public ObservableCollection<ThemeOption> ThemeOptions { get; } = new()
-    {
-        new ThemeOption { Name = "System Default", Value = "System", Icon = "\uE771" },
-        new ThemeOption { Name = "Light", Value = "Light", Icon = "\uE706" },
-        new ThemeOption { Name = "Dark", Value = "Dark", Icon = "\uE708" }
-    };
+    // TODO: Uncomment when Appearance tab UI is implemented
+    // Theme options collection causes WinUI binding issues with emoji characters when not bound to UI
+    // public ObservableCollection<ThemeOption> ThemeOptions { get; } = new()
+    // {
+    //     new ThemeOption { Name = "System Default", Value = "System", Icon = "\uE771" },
+    //     new ThemeOption { Name = "Light", Value = "Light", Icon = "\uE706" },
+    //     new ThemeOption { Name = "Dark", Value = "Dark", Icon = "\uE708" }
+    // };
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private string _language = "vi-VN";
+    private string _language = "en-US"; // Changed default from vi-VN to en-US
 
-    public ObservableCollection<LanguageOption> LanguageOptions { get; } = new()
-    {
-        new LanguageOption { Code = "vi-VN", Name = "Tiếng Việt", Flag = "🇻🇳" },
-        new LanguageOption { Code = "en-US", Name = "English", Flag = "🇺🇸" }
-    };
+    // TODO: Uncomment when Appearance tab UI is implemented
+    // Language options collection causes WinUI binding issues with emoji characters when not bound to UI
+    // public ObservableCollection<LanguageOption> LanguageOptions { get; } = new()
+    // {
+    //     new LanguageOption { Code = "vi-VN", Name = "Tiếng Việt", Flag = "🇻🇳" },
+    //     new LanguageOption { Code = "en-US", Name = "English", Flag = "🇺🇸" }
+    // };
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
@@ -61,11 +65,11 @@ public partial class SettingsViewModel : ObservableObject
     // Page size preferences
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private int _productsPageSize = 20;
+    private int _productsPageSize = Core.Common.PaginationConstants.ProductsPageSize;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private int _ordersPageSize = 15;
+    private int _ordersPageSize = Core.Common.PaginationConstants.OrdersPageSize;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
@@ -173,13 +177,15 @@ public partial class SettingsViewModel : ObservableObject
     {
         try
         {
+            IsLoading = true;
+
             var savePicker = new FileSavePicker();
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
             WinRT.Interop.InitializeWithWindow.Initialize(savePicker, hwnd);
 
             savePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
             savePicker.FileTypeChoices.Add("JSON Settings", new List<string> { ".json" });
-            savePicker.SuggestedFileName = "myshop-settings";
+            savePicker.SuggestedFileName = $"myshop-settings-{DateTime.Now:yyyyMMdd-HHmmss}";
 
             var file = await savePicker.PickSaveFileAsync();
             if (file != null)
@@ -187,17 +193,26 @@ public partial class SettingsViewModel : ObservableObject
                 var result = await _settingsStorage.GetAsync();
                 if (!result.IsSuccess || result.Data == null)
                 {
+                    await _toastHelper.ShowError("Failed to load current settings for export.");
                     return;
                 }
                 
                 var settings = result.Data;
                 var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
                 await FileIO.WriteTextAsync(file, json);
+
+                await _toastHelper.ShowSuccess($"Settings exported to {file.Name}");
+                System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Settings exported to: {file.Path}");
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // Silently fail
+            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Export error: {ex.Message}");
+            await _toastHelper.ShowError("Failed to export settings.");
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 
@@ -206,6 +221,8 @@ public partial class SettingsViewModel : ObservableObject
     {
         try
         {
+            IsLoading = true;
+
             var openPicker = new FileOpenPicker();
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
             WinRT.Interop.InitializeWithWindow.Initialize(openPicker, hwnd);
@@ -217,21 +234,68 @@ public partial class SettingsViewModel : ObservableObject
             if (file != null)
             {
                 var json = await FileIO.ReadTextAsync(file);
-                var settings = JsonSerializer.Deserialize<AppSettings>(json);
+                var settings = JsonSerializer.Deserialize<AppSettings>(json, new JsonSerializerOptions 
+                { 
+                    PropertyNameCaseInsensitive = true 
+                });
+
                 if (settings != null)
                 {
-                    var result = await _settingsStorage.SaveAsync(settings);
-                    if (result.IsSuccess)
+                    // Validate settings before applying
+                    if (ValidateImportedSettings(settings))
                     {
-                        await LoadAsync();
+                        var result = await _settingsStorage.SaveAsync(settings);
+                        if (result.IsSuccess)
+                        {
+                            await LoadAsync();
+                            await _toastHelper.ShowSuccess($"Settings imported from {file.Name}");
+                            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Settings imported from: {file.Path}");
+                        }
+                        else
+                        {
+                            await _toastHelper.ShowError("Failed to save imported settings.");
+                        }
                     }
+                    else
+                    {
+                        await _toastHelper.ShowError("Invalid settings file format.");
+                    }
+                }
+                else
+                {
+                    await _toastHelper.ShowError("Failed to parse settings file.");
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // Silently fail
+            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Import error: {ex.Message}");
+            await _toastHelper.ShowError("Failed to import settings.");
         }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private bool ValidateImportedSettings(AppSettings settings)
+    {
+        // Basic validation
+        if (settings == null) return false;
+        
+        // Validate theme
+        if (!string.IsNullOrEmpty(settings.Theme) && 
+            !new[] { "System", "Light", "Dark" }.Contains(settings.Theme))
+        {
+            return false;
+        }
+
+        // Validate page sizes
+        if (settings.ProductsPageSize < 1 || settings.ProductsPageSize > 200) return false;
+        if (settings.OrdersPageSize < 1 || settings.OrdersPageSize > 200) return false;
+        if (settings.CustomersPageSize < 1 || settings.CustomersPageSize > 200) return false;
+
+        return true;
     }
 
     /// <summary>
@@ -409,24 +473,41 @@ public partial class SettingsViewModel : ObservableObject
         try
         {
             // Apply theme
-            if (App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement root)
+            if (App.MainWindow == null)
             {
-                var requestedTheme = Theme.ToLower() switch
-                {
-                    "light" => Microsoft.UI.Xaml.ElementTheme.Light,
-                    "dark" => Microsoft.UI.Xaml.ElementTheme.Dark,
-                    _ => Microsoft.UI.Xaml.ElementTheme.Default
-                };
-
-                root.RequestedTheme = requestedTheme;
-                System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Applied theme: {requestedTheme}");
+                System.Diagnostics.Debug.WriteLine("[SettingsViewModel] App.MainWindow is null, cannot apply theme");
+                return;
             }
 
+            if (App.MainWindow.Content is not Microsoft.UI.Xaml.FrameworkElement root)
+            {
+                System.Diagnostics.Debug.WriteLine("[SettingsViewModel] App.MainWindow.Content is not a FrameworkElement");
+                return;
+            }
+
+            var requestedTheme = Theme switch
+            {
+                "Light" => Microsoft.UI.Xaml.ElementTheme.Light,
+                "Dark" => Microsoft.UI.Xaml.ElementTheme.Dark,
+                "System" => Microsoft.UI.Xaml.ElementTheme.Default,
+                _ => Microsoft.UI.Xaml.ElementTheme.Default
+            };
+
+            // Dispatch to UI thread to avoid threading issues
+            App.MainWindow.DispatcherQueue.TryEnqueue(() =>
+            {
+                try
+                {
+                    root.RequestedTheme = requestedTheme;
+                    System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Applied theme: {Theme} -> {requestedTheme}");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Theme application error: {ex.Message}");
+                }
+            });
+
             // Apply language (requires app restart for full effect)
-            // For immediate effect on current page, you would need to:
-            // 1. Update resource dictionaries
-            // 2. Re-bind all text elements
-            // For simplicity, show a notification that language will apply on restart
             if (Language != _originalSettings?.Language)
             {
                 System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Language changed to: {Language}");

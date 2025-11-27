@@ -58,24 +58,9 @@ public static class MockProductData
 
     private static void InitializeDefaultData()
     {
-        _products = new List<ProductDataModel>
-        {
-            new ProductDataModel
-            {
-                Id = "20000000-0000-0000-0000-000000000001",
-                SKU = "IP15-PRO-256",
-                Name = "iPhone 15 Pro 256GB",
-                Manufacturer = "Apple",
-                DeviceType = "Smartphone",
-                ImportPrice = 25000000,
-                SellingPrice = 29990000,
-                Quantity = 45,
-                CommissionRate = 0.05,
-                Status = "AVAILABLE",
-                Description = "iPhone 15 Pro with A17 Pro chip",
-                CreatedAt = DateTime.Parse("2024-09-15T10:00:00Z")
-            }
-        };
+        // Initialize empty list - data should be loaded from products.json
+        _products = new List<ProductDataModel>();
+        System.Diagnostics.Debug.WriteLine("[MockProductData] JSON file not found - initialized with empty product list");
     }
 
     public static async Task<List<Product>> GetAllAsync()
@@ -318,6 +303,95 @@ public static class MockProductData
                 CreatedAt = p.CreatedAt,
                 UpdatedAt = p.UpdatedAt
             }).ToList();
+    }
+
+    /// <summary>
+    /// Get paged products with server-side filtering and sorting (mock)
+    /// </summary>
+    public static async Task<(List<Product> Items, int TotalCount)> GetPagedAsync(
+        int page = 1,
+        int pageSize = 20,
+        string? searchQuery = null,
+        string? categoryName = null,
+        decimal? minPrice = null,
+        decimal? maxPrice = null,
+        string sortBy = "name",
+        bool sortDescending = false)
+    {
+        EnsureDataLoaded();
+
+        // Simulate network delay
+        await Task.Delay(300);
+
+        var query = _products!.AsEnumerable();
+
+        // Apply search filter
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            var lowerQuery = searchQuery.ToLower();
+            query = query.Where(p => 
+                p.Name.ToLower().Contains(lowerQuery) ||
+                (p.SKU != null && p.SKU.ToLower().Contains(lowerQuery)) ||
+                (p.Manufacturer != null && p.Manufacturer.ToLower().Contains(lowerQuery)));
+        }
+
+        // Apply category filter
+        if (!string.IsNullOrWhiteSpace(categoryName))
+        {
+            query = query.Where(p => p.DeviceType != null && p.DeviceType.Equals(categoryName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Apply price filters
+        if (minPrice.HasValue)
+        {
+            query = query.Where(p => p.SellingPrice >= minPrice.Value);
+        }
+        if (maxPrice.HasValue)
+        {
+            query = query.Where(p => p.SellingPrice <= maxPrice.Value);
+        }
+
+        // Apply sorting
+        query = sortBy.ToLower() switch
+        {
+            "name" => sortDescending ? query.OrderByDescending(p => p.Name) : query.OrderBy(p => p.Name),
+            "price" => sortDescending ? query.OrderByDescending(p => p.SellingPrice) : query.OrderBy(p => p.SellingPrice),
+            "rating" => sortDescending ? query.OrderByDescending(p => p.Rating) : query.OrderBy(p => p.Rating),
+            "date" => sortDescending ? query.OrderByDescending(p => p.CreatedAt) : query.OrderBy(p => p.CreatedAt),
+            _ => query.OrderBy(p => p.Name)
+        };
+
+        var totalCount = query.Count();
+
+        // Apply paging
+        var pagedData = query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(p => new Product
+            {
+                Id = Guid.Parse(p.Id),
+                SKU = p.SKU,
+                Name = p.Name,
+                Manufacturer = p.Manufacturer,
+                DeviceType = p.DeviceType,
+                ImportPrice = p.ImportPrice,
+                SellingPrice = p.SellingPrice,
+                Quantity = p.Quantity,
+                CommissionRate = p.CommissionRate,
+                Rating = p.Rating,
+                RatingCount = p.RatingCount,
+                Status = p.Status,
+                Description = p.Description,
+                ImageUrl = p.ImageUrl,
+                CategoryId = !string.IsNullOrEmpty(p.CategoryId) ? Guid.Parse(p.CategoryId) : null,
+                CreatedAt = p.CreatedAt,
+                UpdatedAt = p.UpdatedAt
+            })
+            .ToList();
+
+        System.Diagnostics.Debug.WriteLine($"[MockProductData] GetPagedAsync: Page {page}/{Math.Ceiling(totalCount / (double)pageSize)}, Total: {totalCount}");
+
+        return (pagedData, totalCount);
     }
 
     private static async Task SaveDataToJsonAsync()

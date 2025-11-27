@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Dispatching;
+using MyShop.Core.Interfaces.Services;
 using System;
 
 namespace MyShop.Client.ViewModels.Base
@@ -7,6 +8,7 @@ namespace MyShop.Client.ViewModels.Base
     /// <summary>
     /// Base ViewModel với common properties và behaviors
     /// Kế thừa từ ObservableObject của CommunityToolkit.Mvvm
+    /// Enhanced with common service dependencies
     /// </summary>
     public abstract partial class BaseViewModel : ObservableObject
     {
@@ -24,6 +26,34 @@ namespace MyShop.Client.ViewModels.Base
         /// Set by the View when created
         /// </summary>
         protected DispatcherQueue? DispatcherQueue { get; set; }
+
+        /// <summary>
+        /// Toast service for showing notifications
+        /// Injected via constructor - child classes can use _toastHelper directly
+        /// </summary>
+        protected readonly IToastService? _toastHelper;
+
+        /// <summary>
+        /// Navigation service for page navigation
+        /// Injected via constructor - child classes can use _navigationService directly
+        /// </summary>
+        protected readonly INavigationService? _navigationService;
+
+        /// <summary>
+        /// Default constructor for ViewModels without common dependencies
+        /// </summary>
+        protected BaseViewModel()
+        {
+        }
+
+        /// <summary>
+        /// Constructor with common service dependencies
+        /// </summary>
+        protected BaseViewModel(IToastService? toastService = null, INavigationService? navigationService = null)
+        {
+            _toastHelper = toastService;
+            _navigationService = navigationService;
+        }
 
         /// <summary>
         /// Run action on UI thread safely

@@ -7,7 +7,7 @@ using MyShop.Client.ViewModels.Shell;
 using MyShop.Shared.Models;
 using MyShop.Client.Views.Customer;
 using MyShop.Client.Views.Shared;
-using MyShop.Client.Helpers;
+using MyShop.Client.Services;
 using MyShop.Core.Interfaces.Services;
 
 namespace MyShop.Client.Views.Shell
@@ -175,6 +175,25 @@ namespace MyShop.Client.Views.Shell
                 return "settings";
 
             return null;
+        }
+
+        /// <summary>
+        /// Handle logout navigation item tap
+        /// </summary>
+        private async void LogoutItem_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            try
+            {
+                // Execute logout command
+                if (ViewModel.LogoutCommand.CanExecute(null))
+                {
+                    await ViewModel.LogoutCommand.ExecuteAsync(null);
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("Failed to logout", ex);
+            }
         }
     }
 }

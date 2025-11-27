@@ -92,4 +92,28 @@ public class MockCategoryRepository : ICategoryRepository
             return Result<bool>.Failure($"Failed to delete category: {ex.Message}");
         }
     }
+
+    public async Task<Result<PagedList<Category>>> GetPagedAsync(
+        int page = 1,
+        int pageSize = 20,
+        string? searchQuery = null,
+        string sortBy = "name",
+        bool sortDescending = false)
+    {
+        try
+        {
+            var (items, totalCount) = await MockCategoryData.GetPagedAsync(
+                page, pageSize, searchQuery, sortBy, sortDescending);
+
+            var pagedList = new PagedList<Category>(items, totalCount, page, pageSize);
+
+            System.Diagnostics.Debug.WriteLine($"[MockCategoryRepository] GetPagedAsync: Page {page}/{pagedList.TotalPages}, Total {totalCount}");
+            return Result<PagedList<Category>>.Success(pagedList);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockCategoryRepository] GetPagedAsync error: {ex.Message}");
+            return Result<PagedList<Category>>.Failure($"Failed to get paged categories: {ex.Message}");
+        }
+    }
 }

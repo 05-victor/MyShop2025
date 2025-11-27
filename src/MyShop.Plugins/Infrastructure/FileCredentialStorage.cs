@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 
-namespace MyShop.Plugins.Storage;
+namespace MyShop.Plugins.Infrastructure;
 
 /// <summary>
 /// File-based credential storage for development/testing

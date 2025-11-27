@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using MyShop.Client.Common.Helpers;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Services;
 
@@ -21,7 +22,7 @@ public class DialogService : IDialogService
     {
         try
         {
-            var xamlRoot = ResolveXamlRoot();
+            var xamlRoot = XamlRootHelper.ResolveXamlRoot(_xamlRoot);
             if (xamlRoot is null)
             {
                 System.Diagnostics.Debug.WriteLine("DialogService could not resolve XamlRoot.");
@@ -51,7 +52,7 @@ public class DialogService : IDialogService
     {
         try
         {
-            var xamlRoot = ResolveXamlRoot();
+            var xamlRoot = XamlRootHelper.ResolveXamlRoot(_xamlRoot);
             if (xamlRoot is null)
             {
                 System.Diagnostics.Debug.WriteLine("DialogService could not resolve XamlRoot.");
@@ -104,15 +105,4 @@ public class DialogService : IDialogService
         }
     }
 
-    private XamlRoot? ResolveXamlRoot()
-    {
-        if (_xamlRoot != null)
-            return _xamlRoot;
-
-        var main = App.MainWindow;
-        if (main?.Content?.XamlRoot != null)
-            return main.Content.XamlRoot;
-
-        return null;
-    }
 }

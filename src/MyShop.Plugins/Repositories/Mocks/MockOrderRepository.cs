@@ -250,4 +250,78 @@ public class MockOrderRepository : IOrderRepository
             return 0;
         }
     }
+
+    public async Task<Result<PagedList<Order>>> GetPagedAsync(
+        int page = 1,
+        int pageSize = 20,
+        string? status = null,
+        Guid? customerId = null,
+        Guid? salesAgentId = null,
+        DateTime? startDate = null,
+        DateTime? endDate = null,
+        string sortBy = "orderDate",
+        bool sortDescending = true)
+    {
+        try
+        {
+            var allOrders = await MockOrderData.GetAllAsync();
+            var query = allOrders.AsEnumerable();
+
+            // Apply filters
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                query = query.Where(o => o.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (customerId.HasValue)
+            {
+                query = query.Where(o => o.CustomerId == customerId.Value);
+            }
+
+            if (salesAgentId.HasValue)
+            {
+                query = query.Where(o => o.SalesAgentId == salesAgentId.Value);
+            }
+
+            if (startDate.HasValue)
+            {
+                query = query.Where(o => o.OrderDate >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(o => o.OrderDate <= endDate.Value);
+            }
+
+            // Apply sorting
+            query = sortBy.ToLower() switch
+            {
+                "orderdate" => sortDescending 
+                    ? query.OrderByDescending(o => o.OrderDate) 
+                    : query.OrderBy(o => o.OrderDate),
+                "finalprice" or "amount" => sortDescending 
+                    ? query.OrderByDescending(o => o.FinalPrice) 
+                    : query.OrderBy(o => o.FinalPrice),
+                "status" => sortDescending 
+                    ? query.OrderByDescending(o => o.Status) 
+                    : query.OrderBy(o => o.Status),
+                _ => sortDescending 
+                    ? query.OrderByDescending(o => o.OrderDate) 
+                    : query.OrderBy(o => o.OrderDate)
+            };
+
+            var totalCount = query.Count();
+            var items = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var pagedList = new PagedList<Order>(items, totalCount, page, pageSize);
+
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetPagedAsync: Page {page}/{pagedList.TotalPages}, Total {totalCount}");
+            return Result<PagedList<Order>>.Success(pagedList);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetPagedAsync error: {ex.Message}");
+            return Result<PagedList<Order>>.Failure($"Failed to get paged orders: {ex.Message}");
+        }
+    }
 }

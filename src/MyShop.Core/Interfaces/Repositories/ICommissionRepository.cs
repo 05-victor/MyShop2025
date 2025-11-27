@@ -35,4 +35,22 @@ public interface ICommissionRepository
     /// Get commission history with date range filter
     /// </summary>
     Task<Result<IEnumerable<Commission>>> GetByDateRangeAsync(Guid salesAgentId, DateTime startDate, DateTime endDate);
+    
+    /// <summary>
+    /// Get total earned commission for a sales agent
+    /// </summary>
+    Task<decimal> GetTotalEarnedAsync(Guid salesAgentId);
+    
+    /// <summary>
+    /// Get paginated commissions for a sales agent with filtering
+    /// </summary>
+    Task<Result<PagedList<Commission>>> GetPagedAsync(
+        Guid salesAgentId,
+        int page = 1,
+        int pageSize = Common.PaginationConstants.DefaultPageSize,
+        string? status = null,
+        DateTime? startDate = null,
+        DateTime? endDate = null,
+        string sortBy = "createdDate",
+        bool sortDescending = true);
 }

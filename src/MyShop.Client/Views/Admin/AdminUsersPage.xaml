@@ -1,62 +1,73 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="MyShop.Client.Views.Admin.AdminUsersPage"
+    x:Name="RootPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Background="#F8FAFC"
+    xmlns:skeletons="using:MyShop.Client.Views.Components.Skeletons"
+    xmlns:viewmodels="using:MyShop.Client.ViewModels.Admin"
+    Background="#F5F7FA"
     mc:Ignorable="d">
 
+    <Page.Transitions>
+        <TransitionCollection>
+            <EntranceThemeTransition FromVerticalOffset="50"/>
+        </TransitionCollection>
+    </Page.Transitions>
+
     <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
         <converters:CountToVisibilityConverter x:Key="CountToVisibility" />
         <converters:CountToVisibilityConverter x:Key="InvertCountToVisibility" IsInverted="True" />
+        <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
+        <converters:BoolToStringConverter x:Key="BoolToStringConverter" />
+        <converters:BoolToGlyphConverter x:Key="BoolToGlyphConverter" />
 
-        <Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Background" Value="White" />
-            <Setter Property="CornerRadius" Value="12" />
-            <Setter Property="BorderBrush" Value="#E5E7EB" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Padding" Value="24" />
-        </Style>
     </Page.Resources>
 
     <Grid>
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel Padding="32" Spacing="24">
+        <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <Grid Padding="24" RowSpacing="16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
                 <!--  Header  -->
-                <Grid>
+                <Grid Grid.Row="0">
                     <StackPanel>
-                        <TextBlock
-                            Foreground="#111827"
-                            Style="{StaticResource DisplayHeadingStyle}"
-                            Text="Users Management" />
-                        <TextBlock
-                            Margin="0,8,0,0"
-                            FontSize="14"
-                            Foreground="#6B7280"
-                            Text="Manage all users in the system" />
+                        <TextBlock Text="Users Management"
+                                  FontSize="28"
+                                  FontWeight="Bold"
+                                  Foreground="#1B1D1F" />
+                        <TextBlock Margin="0,8,0,0"
+                                  FontSize="14"
+                                  Foreground="#4A5568"
+                                  Text="Manage all users in the system" />
                     </StackPanel>
-                    <Button
-                        Padding="16,12"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Center"
-                        Background="#2563EB"
-                        CornerRadius="8"
-                        Foreground="White">
-                        <Button.Content>
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon FontSize="16" Glyph="&#xE710;" />
-                                <TextBlock Text="Add New User" />
-                            </StackPanel>
-                        </Button.Content>
+                    <Button Style="{StaticResource PrimaryButtonStyle}"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center"
+                           MinWidth="140"
+                           ToolTipService.ToolTip="Create a new user account">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon FontSize="16" Glyph="&#xE710;" />
+                            <TextBlock Text="Add New User" />
+                        </StackPanel>
                     </Button>
                 </Grid>
 
+                
+                <!-- Main Content -->
+                <StackPanel Grid.Row="1" Spacing="20">
+                
                 <!--  Filters Card  -->
-                <Border Style="{StaticResource CardStyle}">
+                <Border Style="{StaticResource CardWithShadowStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -69,7 +80,8 @@
                             Width="300"
                             HorizontalAlignment="Left"
                             BorderBrush="#E5E7EB"
-                            PlaceholderText="Search users...">
+                            PlaceholderText="Search users..."
+                            Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                             <TextBox.Resources>
                                 <Style TargetType="TextBox">
                                     <Setter Property="Padding" Value="12" />
@@ -106,31 +118,62 @@
                 </Border>
 
                 <!--  Users Table  -->
-                <Border Style="{StaticResource CardStyle}">
+                <Border Style="{StaticResource CardWithShadowStyle}">
                     <StackPanel Spacing="0">
+
+                        <!--  Loading Skeleton  -->
+                        <skeletons:UserListSkeleton
+                            Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
 
                         <!--  Empty State - shown when no users  -->
                         <StackPanel
-                            Padding="48"
+                            Padding="80,60"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
-                            Spacing="16"
+                            Spacing="20"
                             Visibility="Collapsed">
-                            <FontIcon
-                                FontSize="64"
-                                Foreground="#D1D5DB"
-                                Glyph="&#xE77B;" />
+                            <StackPanel.ChildrenTransitions>
+                                <TransitionCollection>
+                                    <EntranceThemeTransition FromVerticalOffset="50" />
+                                </TransitionCollection>
+                            </StackPanel.ChildrenTransitions>
+                            
+                            <Viewbox Width="120" Height="120">
+                                <Grid>
+                                    <Ellipse Width="120" Height="120" Fill="#F3F4F6" />
+                                    <FontIcon
+                                        FontSize="64"
+                                        Foreground="#9CA3AF"
+                                        Glyph="&#xE77B;" />
+                                </Grid>
+                            </Viewbox>
+                            
                             <TextBlock
-                                FontSize="18"
+                                FontSize="20"
                                 FontWeight="SemiBold"
-                                Foreground="#6B7280"
+                                Foreground="#374151"
                                 Text="No users found"
                                 TextAlignment="Center" />
                             <TextBlock
                                 FontSize="14"
-                                Foreground="#9CA3AF"
-                                Text="Add your first user to get started"
-                                TextAlignment="Center" />
+                                Foreground="#6B7280"
+                                Text="Start by adding your first user to the system"
+                                TextAlignment="Center"
+                                MaxWidth="300"
+                                TextWrapping="Wrap" />
+                            
+                            <Button
+                                Margin="0,12,0,0"
+                                Padding="16,10"
+                                Background="#2563EB"
+                                Foreground="White"
+                                CornerRadius="8"
+                                ToolTipService.ToolTip="Create a new user account">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon FontSize="16" Glyph="&#xE710;" />
+                                    <TextBlock Text="Add First User" />
+                                </StackPanel>
+                            </Button>
                         </StackPanel>
 
                         <!--  Table Header  -->
@@ -179,389 +222,153 @@
                                 Text="Actions" />
                         </Grid>
 
-                        <!--  Sample User Row 1  -->
-                        <Grid
-                            Padding="16"
-                            BorderBrush="#E5E7EB"
-                            BorderThickness="0,1,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="3*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="2*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="3*" />
-                            </Grid.ColumnDefinitions>
+                        <!--  Users List  -->
+                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}">
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="viewmodels:UserViewModel">
+                                    <Grid
+                                        Padding="16"
+                                        BorderBrush="#E5E7EB"
+                                        BorderThickness="0,1,0,0">
+                                        <Grid.ChildrenTransitions>
+                                            <TransitionCollection>
+                                                <EntranceThemeTransition />
+                                                <RepositionThemeTransition />
+                                            </TransitionCollection>
+                                        </Grid.ChildrenTransitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="3*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="3*" />
+                                        </Grid.ColumnDefinitions>
 
-                            <!--  User Info  -->
-                            <StackPanel
-                                Grid.Column="0"
-                                Orientation="Horizontal"
-                                Spacing="12">
-                                <PersonPicture
-                                    Width="40"
-                                    Height="40"
-                                    DisplayName="John Doe" />
-                                <StackPanel VerticalAlignment="Center">
-                                    <TextBlock
-                                        FontSize="14"
-                                        FontWeight="SemiBold"
-                                        Foreground="#111827"
-                                        Text="John Doe" />
-                                    <TextBlock
-                                        FontSize="12"
-                                        Foreground="#6B7280"
-                                        Text="john.doe@example.com" />
-                                </StackPanel>
-                            </StackPanel>
+                                        <!--  User Info  -->
+                                        <StackPanel
+                                            Grid.Column="0"
+                                            Orientation="Horizontal"
+                                            Spacing="12">
+                                            <PersonPicture
+                                                Width="40"
+                                                Height="40"
+                                                DisplayName="{x:Bind Name, Mode=OneWay}" />
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock
+                                                    FontSize="14"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="#111827"
+                                                    Text="{x:Bind Name, Mode=OneWay}" />
+                                                <TextBlock
+                                                    FontSize="12"
+                                                    Foreground="#6B7280"
+                                                    Text="{x:Bind Email, Mode=OneWay}" />
+                                            </StackPanel>
+                                        </StackPanel>
 
-                            <!--  Role Badge  -->
-                            <Border
-                                Grid.Column="1"
-                                Padding="8,4"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Center"
-                                Background="#FEE2E2"
-                                CornerRadius="6">
-                                <TextBlock
-                                    FontSize="12"
-                                    FontWeight="SemiBold"
-                                    Foreground="#DC2626"
-                                    Text="Admin" />
-                            </Border>
+                                        <!--  Role Badge  -->
+                                        <Border
+                                            Grid.Column="1"
+                                            Padding="8,4"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center"
+                                            Background="{x:Bind RoleBgColor, Mode=OneWay}"
+                                            CornerRadius="6">
+                                            <TextBlock
+                                                FontSize="12"
+                                                FontWeight="SemiBold"
+                                                Foreground="{x:Bind RoleColor, Mode=OneWay}"
+                                                Text="{x:Bind Role, Mode=OneWay}" />
+                                        </Border>
 
-                            <!--  Phone  -->
-                            <TextBlock
-                                Grid.Column="2"
-                                VerticalAlignment="Center"
-                                FontSize="14"
-                                Foreground="#111827"
-                                Text="+1 234 567 8900" />
+                                        <!--  Phone  -->
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            VerticalAlignment="Center"
+                                            FontSize="14"
+                                            Foreground="#111827"
+                                            Text="{x:Bind Phone, Mode=OneWay}" />
 
-                            <!--  Status Badge  -->
-                            <Border
-                                Grid.Column="3"
-                                Padding="8,4"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Center"
-                                Background="#D1FAE5"
-                                CornerRadius="6">
-                                <StackPanel Orientation="Horizontal" Spacing="4">
-                                    <Ellipse
-                                        Width="6"
-                                        Height="6"
-                                        Fill="#10B981" />
-                                    <TextBlock
-                                        FontSize="12"
-                                        FontWeight="SemiBold"
-                                        Foreground="#10B981"
-                                        Text="Active" />
-                                </StackPanel>
-                            </Border>
+                                        <!--  Status Badge  -->
+                                        <Border
+                                            Grid.Column="3"
+                                            Padding="8,4"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center"
+                                            Background="{x:Bind StatusBgColor, Mode=OneWay}"
+                                            CornerRadius="6">
+                                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                                <Ellipse
+                                                    Width="6"
+                                                    Height="6"
+                                                    Fill="{x:Bind StatusColor, Mode=OneWay}" />
+                                                <TextBlock
+                                                    FontSize="12"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="{x:Bind StatusColor, Mode=OneWay}"
+                                                    Text="{x:Bind Status, Mode=OneWay}" />
+                                            </StackPanel>
+                                        </Border>
 
-                            <!--  Actions  -->
-                            <StackPanel
-                                Grid.Column="4"
-                                HorizontalAlignment="Right"
-                                Orientation="Horizontal"
-                                Spacing="8">
-                                <Button
-                                    Padding="8"
-                                    Background="Transparent"
-                                    BorderBrush="#E5E7EB"
-                                    ToolTipService.ToolTip="Change Role">
-                                    <FontIcon
-                                        FontSize="16"
-                                        Foreground="#6B7280"
-                                        Glyph="&#xE8AB;" />
-                                </Button>
-                                <Button
-                                    Padding="8"
-                                    Background="Transparent"
-                                    BorderBrush="#E5E7EB"
-                                    ToolTipService.ToolTip="Reset Password">
-                                    <FontIcon
-                                        FontSize="16"
-                                        Foreground="#6B7280"
-                                        Glyph="&#xE72E;" />
-                                </Button>
-                                <Button
-                                    Padding="8"
-                                    Background="Transparent"
-                                    BorderBrush="#E5E7EB"
-                                    ToolTipService.ToolTip="Edit Tax Rate">
-                                    <FontIcon
-                                        FontSize="16"
-                                        Foreground="#6B7280"
-                                        Glyph="&#xE8C8;" />
-                                </Button>
-                                <Button
-                                    Padding="8"
-                                    Background="#FEE2E2"
-                                    BorderBrush="#FEE2E2"
-                                    ToolTipService.ToolTip="Deactivate">
-                                    <FontIcon
-                                        FontSize="16"
-                                        Foreground="#DC2626"
-                                        Glyph="&#xE8D8;" />
-                                </Button>
-                            </StackPanel>
-                        </Grid>
-
-                        <!--  Sample User Row 2  -->
-                        <Grid
-                            Padding="16"
-                            BorderBrush="#E5E7EB"
-                            BorderThickness="0,1,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="3*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="2*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="3*" />
-                            </Grid.ColumnDefinitions>
-
-                            <!--  User Info  -->
-                            <StackPanel
-                                Grid.Column="0"
-                                Orientation="Horizontal"
-                                Spacing="12">
-                                <PersonPicture
-                                    Width="40"
-                                    Height="40"
-                                    DisplayName="Jane Smith" />
-                                <StackPanel VerticalAlignment="Center">
-                                    <TextBlock
-                                        FontSize="14"
-                                        FontWeight="SemiBold"
-                                        Foreground="#111827"
-                                        Text="Jane Smith" />
-                                    <TextBlock
-                                        FontSize="12"
-                                        Foreground="#6B7280"
-                                        Text="jane.smith@example.com" />
-                                </StackPanel>
-                            </StackPanel>
-
-                            <!--  Role Badge  -->
-                            <Border
-                                Grid.Column="1"
-                                Padding="8,4"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Center"
-                                Background="#DBEAFE"
-                                CornerRadius="6">
-                                <TextBlock
-                                    FontSize="12"
-                                    FontWeight="SemiBold"
-                                    Foreground="#2563EB"
-                                    Text="Salesman" />
-                            </Border>
-
-                            <!--  Phone  -->
-                            <TextBlock
-                                Grid.Column="2"
-                                VerticalAlignment="Center"
-                                FontSize="14"
-                                Foreground="#111827"
-                                Text="+1 234 567 8901" />
-
-                            <!--  Status Badge  -->
-                            <Border
-                                Grid.Column="3"
-                                Padding="8,4"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Center"
-                                Background="#D1FAE5"
-                                CornerRadius="6">
-                                <StackPanel Orientation="Horizontal" Spacing="4">
-                                    <Ellipse
-                                        Width="6"
-                                        Height="6"
-                                        Fill="#10B981" />
-                                    <TextBlock
-                                        FontSize="12"
-                                        FontWeight="SemiBold"
-                                        Foreground="#10B981"
-                                        Text="Active" />
-                                </StackPanel>
-                            </Border>
-
-                            <!--  Actions  -->
-                            <StackPanel
-                                Grid.Column="4"
-                                HorizontalAlignment="Right"
-                                Orientation="Horizontal"
-                                Spacing="8">
-                                <Button
-                                    Padding="8"
-                                    Background="Transparent"
-                                    BorderBrush="#E5E7EB"
-                                    ToolTipService.ToolTip="Change Role">
-                                    <FontIcon
-                                        FontSize="16"
-                                        Foreground="#6B7280"
-                                        Glyph="&#xE8AB;" />
-                                </Button>
-                                <Button
-                                    Padding="8"
-                                    Background="Transparent"
-                                    BorderBrush="#E5E7EB"
-                                    ToolTipService.ToolTip="Reset Password">
-                                    <FontIcon
-                                        FontSize="16"
-                                        Foreground="#6B7280"
-                                        Glyph="&#xE72E;" />
-                                </Button>
-                                <Button
-                                    Padding="8"
-                                    Background="Transparent"
-                                    BorderBrush="#E5E7EB"
-                                    ToolTipService.ToolTip="Edit Tax Rate">
-                                    <FontIcon
-                                        FontSize="16"
-                                        Foreground="#6B7280"
-                                        Glyph="&#xE8C8;" />
-                                </Button>
-                                <Button
-                                    Padding="8"
-                                    Background="#FEE2E2"
-                                    BorderBrush="#FEE2E2"
-                                    ToolTipService.ToolTip="Deactivate">
-                                    <FontIcon
-                                        FontSize="16"
-                                        Foreground="#DC2626"
-                                        Glyph="&#xE8D8;" />
-                                </Button>
-                            </StackPanel>
-                        </Grid>
-
-                        <!--  Sample User Row 3  -->
-                        <Grid
-                            Padding="16"
-                            BorderBrush="#E5E7EB"
-                            BorderThickness="0,1,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="3*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="2*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="3*" />
-                            </Grid.ColumnDefinitions>
-
-                            <!--  User Info  -->
-                            <StackPanel
-                                Grid.Column="0"
-                                Orientation="Horizontal"
-                                Spacing="12">
-                                <PersonPicture
-                                    Width="40"
-                                    Height="40"
-                                    DisplayName="Mike Johnson" />
-                                <StackPanel VerticalAlignment="Center">
-                                    <TextBlock
-                                        FontSize="14"
-                                        FontWeight="SemiBold"
-                                        Foreground="#111827"
-                                        Text="Mike Johnson" />
-                                    <TextBlock
-                                        FontSize="12"
-                                        Foreground="#6B7280"
-                                        Text="mike.johnson@example.com" />
-                                </StackPanel>
-                            </StackPanel>
-
-                            <!--  Role Badge  -->
-                            <Border
-                                Grid.Column="1"
-                                Padding="8,4"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Center"
-                                Background="#D1FAE5"
-                                CornerRadius="6">
-                                <TextBlock
-                                    FontSize="12"
-                                    FontWeight="SemiBold"
-                                    Foreground="#10B981"
-                                    Text="Customer" />
-                            </Border>
-
-                            <!--  Phone  -->
-                            <TextBlock
-                                Grid.Column="2"
-                                VerticalAlignment="Center"
-                                FontSize="14"
-                                Foreground="#111827"
-                                Text="+1 234 567 8902" />
-
-                            <!--  Status Badge (Inactive)  -->
-                            <Border
-                                Grid.Column="3"
-                                Padding="8,4"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Center"
-                                Background="#F3F4F6"
-                                CornerRadius="6">
-                                <StackPanel Orientation="Horizontal" Spacing="4">
-                                    <Ellipse
-                                        Width="6"
-                                        Height="6"
-                                        Fill="#6B7280" />
-                                    <TextBlock
-                                        FontSize="12"
-                                        FontWeight="SemiBold"
-                                        Foreground="#6B7280"
-                                        Text="Inactive" />
-                                </StackPanel>
-                            </Border>
-
-                            <!--  Actions  -->
-                            <StackPanel
-                                Grid.Column="4"
-                                HorizontalAlignment="Right"
-                                Orientation="Horizontal"
-                                Spacing="8">
-                                <Button
-                                    Padding="8"
-                                    Background="Transparent"
-                                    BorderBrush="#E5E7EB"
-                                    ToolTipService.ToolTip="Change Role">
-                                    <FontIcon
-                                        FontSize="16"
-                                        Foreground="#6B7280"
-                                        Glyph="&#xE8AB;" />
-                                </Button>
-                                <Button
-                                    Padding="8"
-                                    Background="Transparent"
-                                    BorderBrush="#E5E7EB"
-                                    ToolTipService.ToolTip="Reset Password">
-                                    <FontIcon
-                                        FontSize="16"
-                                        Foreground="#6B7280"
-                                        Glyph="&#xE72E;" />
-                                </Button>
-                                <Button
-                                    Padding="8"
-                                    Background="Transparent"
-                                    BorderBrush="#E5E7EB"
-                                    ToolTipService.ToolTip="Edit Tax Rate">
-                                    <FontIcon
-                                        FontSize="16"
-                                        Foreground="#6B7280"
-                                        Glyph="&#xE8C8;" />
-                                </Button>
-                                <Button
-                                    Padding="8"
-                                    Background="#D1FAE5"
-                                    BorderBrush="#D1FAE5"
-                                    ToolTipService.ToolTip="Activate">
-                                    <FontIcon
-                                        FontSize="16"
-                                        Foreground="#10B981"
-                                        Glyph="&#xE73E;" />
-                                </Button>
-                            </StackPanel>
-                        </Grid>
+                                        <!--  Actions  -->
+                                        <StackPanel
+                                            Grid.Column="4"
+                                            HorizontalAlignment="Right"
+                                            Orientation="Horizontal"
+                                            Spacing="8">
+                                            <Button
+                                                Padding="8"
+                                                Background="Transparent"
+                                                BorderBrush="#E5E7EB"
+                                                Command="{Binding ElementName=RootPage, Path=ViewModel.ChangeRoleCommand}"
+                                                CommandParameter="{x:Bind}"
+                                                ToolTipService.ToolTip="Change Role">
+                                                <FontIcon
+                                                    FontSize="16"
+                                                    Foreground="#6B7280"
+                                                    Glyph="&#xE8AB;" />
+                                            </Button>
+                                            <Button
+                                                Padding="8"
+                                                Background="Transparent"
+                                                BorderBrush="#E5E7EB"
+                                                Command="{Binding ElementName=RootPage, Path=ViewModel.ResetPasswordCommand}"
+                                                CommandParameter="{x:Bind}"
+                                                ToolTipService.ToolTip="Reset Password">
+                                                <FontIcon
+                                                    FontSize="16"
+                                                    Foreground="#6B7280"
+                                                    Glyph="&#xE72E;" />
+                                            </Button>
+                                            <Button
+                                                Padding="8"
+                                                Background="Transparent"
+                                                BorderBrush="#E5E7EB"
+                                                Command="{Binding ElementName=RootPage, Path=ViewModel.EditTaxRateCommand}"
+                                                CommandParameter="{x:Bind}"
+                                                ToolTipService.ToolTip="Edit Tax Rate">
+                                                <FontIcon
+                                                    FontSize="16"
+                                                    Foreground="#6B7280"
+                                                    Glyph="&#xE8C8;" />
+                                            </Button>
+                                            <Button
+                                                Padding="8"
+                                                Background="{x:Bind IsActive, Mode=OneWay, Converter={StaticResource BoolToColorConverter}, ConverterParameter='#FEE2E2|#D1FAE5'}"
+                                                BorderBrush="{x:Bind IsActive, Mode=OneWay, Converter={StaticResource BoolToColorConverter}, ConverterParameter='#FEE2E2|#D1FAE5'}"
+                                                Command="{Binding ElementName=RootPage, Path=ViewModel.ToggleUserStatusCommand}"
+                                                CommandParameter="{x:Bind}"
+                                                ToolTipService.ToolTip="{x:Bind IsActive, Mode=OneWay, Converter={StaticResource BoolToStringConverter}, ConverterParameter='Deactivate|Activate'}">
+                                                <FontIcon
+                                                    FontSize="16"
+                                                    Foreground="{x:Bind IsActive, Mode=OneWay, Converter={StaticResource BoolToColorConverter}, ConverterParameter='#DC2626|#10B981'}"
+                                                    Glyph="{x:Bind IsActive, Mode=OneWay, Converter={StaticResource BoolToGlyphConverter}, ConverterParameter='&#xE8D8;|&#xE73E;'}" />
+                                            </Button>
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
 
                     </StackPanel>
                 </Border>
@@ -614,8 +421,9 @@
                             CornerRadius="8" />
                     </StackPanel>
                 </Grid>
-
-            </StackPanel>
+                </StackPanel>
+            </Grid>
         </ScrollViewer>
+        </RefreshContainer>
     </Grid>
 </Page>

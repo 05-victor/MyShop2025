@@ -143,4 +143,58 @@ public class CategoryRepository : ICategoryRepository
             return Result<bool>.Failure($"Error deleting category: {ex.Message}");
         }
     }
+
+    public async Task<Result<PagedList<Category>>> GetPagedAsync(
+        int page = 1,
+        int pageSize = 20,
+        string? searchQuery = null,
+        string sortBy = "name",
+        bool sortDescending = false)
+    {
+        try
+        {
+            // Note: Backend API doesn't support server-side paging yet
+            // Fallback: fetch all categories and apply client-side paging/filtering
+            var allCategoriesResult = await GetAllAsync();
+            if (!allCategoriesResult.IsSuccess || allCategoriesResult.Data == null)
+            {
+                return Result<PagedList<Category>>.Failure(allCategoriesResult.ErrorMessage ?? "Failed to retrieve categories");
+            }
+
+            var query = allCategoriesResult.Data.AsEnumerable();
+
+            // Apply filters
+            if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                var search = searchQuery.ToLower();
+                query = query.Where(c => 
+                    c.Name.ToLower().Contains(search) ||
+                    (c.Description != null && c.Description.ToLower().Contains(search)));
+            }
+
+            // Apply sorting
+            query = sortBy.ToLower() switch
+            {
+                "name" => sortDescending 
+                    ? query.OrderByDescending(c => c.Name) 
+                    : query.OrderBy(c => c.Name),
+                "description" => sortDescending 
+                    ? query.OrderByDescending(c => c.Description) 
+                    : query.OrderBy(c => c.Description),
+                _ => sortDescending 
+                    ? query.OrderByDescending(c => c.Name) 
+                    : query.OrderBy(c => c.Name)
+            };
+
+            var totalCount = query.Count();
+            var items = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var pagedList = new PagedList<Category>(items, totalCount, page, pageSize);
+            return Result<PagedList<Category>>.Success(pagedList);
+        }
+        catch (Exception ex)
+        {
+            return Result<PagedList<Category>>.Failure($"Error retrieving paged categories: {ex.Message}");
+        }
+    }
 }

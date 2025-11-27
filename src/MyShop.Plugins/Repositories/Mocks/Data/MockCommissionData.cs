@@ -58,19 +58,9 @@ public static class MockCommissionData
 
     private static void InitializeDefaultData()
     {
-        _commissions = new List<CommissionDataModel>
-        {
-            new CommissionDataModel
-            {
-                Id = "40000000-0000-0000-0000-000000000001",
-                SalesAgentId = "00000000-0000-0000-0000-000000000002",
-                SalesAgentName = "Trần Văn Nam",
-                OrderId = "30000000-0000-0000-0000-000000000001",
-                Amount = 1499500,
-                Status = "PENDING",
-                CreatedAt = DateTime.Parse("2025-11-05T14:30:00Z")
-            }
-        };
+        // Initialize empty list - data should be loaded from commissions.json
+        _commissions = new List<CommissionDataModel>();
+        System.Diagnostics.Debug.WriteLine("[MockCommissionData] JSON file not found - initialized with empty commission list");
     }
 
     public static async Task<List<Commission>> GetAllAsync()
@@ -199,6 +189,71 @@ public static class MockCommissionData
             .Select(MapToCommission)
             .OrderByDescending(c => c.CreatedAt)
             .ToList();
+    }
+
+    public static async Task<(List<Commission> Items, int TotalCount)> GetPagedAsync(
+        Guid salesAgentId,
+        int page = 1,
+        int pageSize = 20,
+        string? status = null,
+        DateTime? startDate = null,
+        DateTime? endDate = null,
+        string sortBy = "createdDate",
+        bool sortDescending = true)
+    {
+        EnsureDataLoaded();
+
+        // Simulate network delay
+        await Task.Delay(300);
+
+        var query = _commissions!
+            .Where(c => c.SalesAgentId == salesAgentId.ToString())
+            .AsEnumerable();
+
+        // Apply filters
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            query = query.Where(c => c.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (startDate.HasValue)
+        {
+            query = query.Where(c => c.CreatedAt >= startDate.Value);
+        }
+
+        if (endDate.HasValue)
+        {
+            query = query.Where(c => c.CreatedAt <= endDate.Value);
+        }
+
+        // Apply sorting
+        query = sortBy.ToLower() switch
+        {
+            "createddate" or "createdat" => sortDescending
+                ? query.OrderByDescending(c => c.CreatedAt)
+                : query.OrderBy(c => c.CreatedAt),
+            "amount" => sortDescending
+                ? query.OrderByDescending(c => c.Amount)
+                : query.OrderBy(c => c.Amount),
+            "status" => sortDescending
+                ? query.OrderByDescending(c => c.Status)
+                : query.OrderBy(c => c.Status),
+            "paiddate" or "paidat" => sortDescending
+                ? query.OrderByDescending(c => c.PaidAt ?? DateTime.MinValue)
+                : query.OrderBy(c => c.PaidAt ?? DateTime.MinValue),
+            _ => sortDescending
+                ? query.OrderByDescending(c => c.CreatedAt)
+                : query.OrderBy(c => c.CreatedAt)
+        };
+
+        var totalCount = query.Count();
+        var pagedData = query.Skip((page - 1) * pageSize).Take(pageSize)
+            .Select(MapToCommission)
+            .ToList();
+
+        System.Diagnostics.Debug.WriteLine($"[MockCommissionData] GetPagedAsync: Page {page}/{Math.Ceiling(totalCount / (double)pageSize)}, Total: {totalCount}");
+
+        return (pagedData, totalCount);
     }
 
     private static Commission MapToCommission(CommissionDataModel data)

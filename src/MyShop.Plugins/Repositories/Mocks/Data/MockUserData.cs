@@ -59,21 +59,10 @@ public static class MockUserData
 
     private static void InitializeDefaultData()
     {
-        _users = new List<UserDataModel>
-        {
-            new UserDataModel
-            {
-                Id = "00000000-0000-0000-0000-000000000001",
-                Username = "admin",
-                Email = "admin@myshop.com",
-                PhoneNumber = "+84901000001",
-                FullName = "Nguyễn Quản Trị",
-                Role = "Admin",
-                Status = "Active",
-                EmailVerified = true,
-                CreatedAt = DateTime.Parse("2023-01-15T00:00:00Z")
-            }
-        };
+        // Initialize empty list - data should be loaded from JSON
+        // If JSON file is missing, system will not have any users
+        _users = new List<UserDataModel>();
+        System.Diagnostics.Debug.WriteLine("[MockUserData] JSON file not found - initialized with empty user list");
     }
 
     public static async Task<List<User>> GetAllAsync()
@@ -84,6 +73,85 @@ public static class MockUserData
         await Task.Delay(350);
 
         return _users!.Select(MapToUser).ToList();
+    }
+
+    public static async Task<(List<User> Items, int TotalCount)> GetPagedAsync(
+        int page = 1,
+        int pageSize = 20,
+        string? role = null,
+        string? status = null,
+        string? searchQuery = null,
+        string sortBy = "createdAt",
+        bool sortDescending = true)
+    {
+        EnsureDataLoaded();
+
+        // Simulate network delay
+        await Task.Delay(350);
+
+        var query = _users!.AsQueryable();
+
+        // Filter by role (match against roleNames array)
+        if (!string.IsNullOrWhiteSpace(role))
+        {
+            // Map UI role names to JSON role names: Admin->ADMIN, Salesman->SALESAGENT, Customer->USER
+            var jsonRoleName = role.ToUpper() switch
+            {
+                "ADMIN" => "ADMIN",
+                "SALESMAN" => "SALESAGENT",
+                "CUSTOMER" => "USER",
+                _ => role.ToUpper()
+            };
+            query = query.Where(u => u.RoleNames != null && u.RoleNames.Any(r => r.Equals(jsonRoleName, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        // Filter by status
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            query = query.Where(u => u.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Search filter
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            var lowerQuery = searchQuery.ToLower();
+            query = query.Where(u =>
+                u.Username.ToLower().Contains(lowerQuery) ||
+                (u.FullName != null && u.FullName.ToLower().Contains(lowerQuery)) ||
+                u.Email.ToLower().Contains(lowerQuery) ||
+                (u.PhoneNumber != null && u.PhoneNumber.Contains(searchQuery)));
+        }
+
+        // Sorting
+        query = sortBy.ToLower() switch
+        {
+            "username" => sortDescending
+                ? query.OrderByDescending(u => u.Username)
+                : query.OrderBy(u => u.Username),
+            "fullname" => sortDescending
+                ? query.OrderByDescending(u => u.FullName ?? "")
+                : query.OrderBy(u => u.FullName ?? ""),
+            "email" => sortDescending
+                ? query.OrderByDescending(u => u.Email)
+                : query.OrderBy(u => u.Email),
+            "role" => sortDescending
+                ? query.OrderByDescending(u => u.PrimaryRole)
+                : query.OrderBy(u => u.PrimaryRole),
+            "status" => sortDescending
+                ? query.OrderByDescending(u => u.Status)
+                : query.OrderBy(u => u.Status),
+            "createdat" => sortDescending
+                ? query.OrderByDescending(u => u.CreatedAt)
+                : query.OrderBy(u => u.CreatedAt),
+            _ => sortDescending
+                ? query.OrderByDescending(u => u.CreatedAt)
+                : query.OrderBy(u => u.CreatedAt)
+        };
+
+        var totalCount = query.Count();
+        var pagedData = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+        return (pagedData.Select(MapToUser).ToList(), totalCount);
     }
 
     public static async Task<User?> GetByIdAsync(Guid id)
@@ -118,6 +186,16 @@ public static class MockUserData
             throw new InvalidOperationException("Email already registered");
         }
 
+        // Map UserRole enum to JSON roleNames format
+        var primaryRole = user.Roles?.FirstOrDefault() ?? UserRole.Customer;
+        var jsonRoleName = primaryRole switch
+        {
+            UserRole.Admin => "ADMIN",
+            UserRole.Salesman => "SALESAGENT",
+            UserRole.Customer => "USER",
+            _ => "USER"
+        };
+        
         var newUserData = new UserDataModel
         {
             Id = user.Id.ToString(),
@@ -125,7 +203,7 @@ public static class MockUserData
             Email = user.Email,
             PhoneNumber = user.PhoneNumber,
             FullName = user.FullName,
-            Role = user.Roles?.FirstOrDefault().ToString() ?? "Customer",
+            RoleNames = new List<string> { jsonRoleName },
             Status = "Active",
             EmailVerified = false,
             AvatarUrl = user.Avatar,
@@ -191,8 +269,17 @@ public static class MockUserData
         // Simulate network delay
         await Task.Delay(300);
 
+        // Map UI role names to JSON role names
+        var jsonRoleName = role.ToUpper() switch
+        {
+            "ADMIN" => "ADMIN",
+            "SALESMAN" => "SALESAGENT",
+            "CUSTOMER" => "USER",
+            _ => role.ToUpper()
+        };
+        
         return _users!
-            .Where(u => u.Role.Equals(role, StringComparison.OrdinalIgnoreCase))
+            .Where(u => u.RoleNames != null && u.RoleNames.Any(r => r.Equals(jsonRoleName, StringComparison.OrdinalIgnoreCase)))
             .Select(MapToUser)
             .ToList();
     }
@@ -220,12 +307,15 @@ public static class MockUserData
 
     private static User MapToUser(UserDataModel data)
     {
-        // Parse role
-        var role = UserRole.Customer;
-        if (data.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
-            role = UserRole.Admin;
-        else if (data.Role.Equals("Salesman", StringComparison.OrdinalIgnoreCase))
-            role = UserRole.Salesman;
+        // Parse role from roleNames array (JSON uses ADMIN, SALESAGENT, USER)
+        var primaryRoleName = data.PrimaryRole.ToUpper();
+        var role = primaryRoleName switch
+        {
+            "ADMIN" => UserRole.Admin,
+            "SALESAGENT" => UserRole.Salesman,
+            "USER" => UserRole.Customer,
+            _ => UserRole.Customer
+        };
 
         return new User
         {
@@ -282,11 +372,14 @@ public static class MockUserData
         public string Email { get; set; } = string.Empty;
         public string? PhoneNumber { get; set; }
         public string? FullName { get; set; }
-        public string Role { get; set; } = "Customer";
+        public List<string>? RoleNames { get; set; }
         public string Status { get; set; } = "Active";
         public bool EmailVerified { get; set; }
         public string? AvatarUrl { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? LastLoginAt { get; set; }
+        
+        // Helper property to get primary role from roleNames array
+        public string PrimaryRole => RoleNames?.FirstOrDefault() ?? "USER";
     }
 }

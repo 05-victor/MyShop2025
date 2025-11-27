@@ -4,28 +4,29 @@ using System.Text.Json;
 namespace MyShop.Plugins.Mocks.Data;
 
 /// <summary>
-/// Mock data provider for profiles - loads from JSON file
+/// Mock data provider for profiles - reads from users.json
+/// Profile data is part of user data, not separate
 /// </summary>
 public static class MockProfileData
 {
-    private static List<ProfileDataModel>? _profiles;
+    private static List<UserDataModel>? _users;
     private static readonly object _lock = new object();
     private static readonly string _jsonFilePath = Path.Combine(
-        AppDomain.CurrentDomain.BaseDirectory, "Mocks", "Data", "Json", "profiles.json");
+        AppDomain.CurrentDomain.BaseDirectory, "Mocks", "Data", "Json", "users.json");
 
     private static void EnsureDataLoaded()
     {
-        if (_profiles != null) return;
+        if (_users != null) return;
 
         lock (_lock)
         {
-            if (_profiles != null) return;
+            if (_users != null) return;
 
             try
             {
                 if (!File.Exists(_jsonFilePath))
                 {
-                    System.Diagnostics.Debug.WriteLine($"Profiles JSON file not found at: {_jsonFilePath}");
+                    System.Diagnostics.Debug.WriteLine($"Users JSON file not found at: {_jsonFilePath}");
                     InitializeDefaultData();
                     return;
                 }
@@ -36,12 +37,12 @@ public static class MockProfileData
                     PropertyNameCaseInsensitive = true
                 };
 
-                var data = JsonSerializer.Deserialize<ProfileDataContainer>(jsonString, options);
+                var data = JsonSerializer.Deserialize<UserDataContainer>(jsonString, options);
 
-                if (data?.Profiles != null)
+                if (data?.Users != null)
                 {
-                    _profiles = data.Profiles;
-                    System.Diagnostics.Debug.WriteLine($"Loaded {_profiles.Count} profiles from profiles.json");
+                    _users = data.Users;
+                    System.Diagnostics.Debug.WriteLine($"Loaded {_users.Count} users from users.json");
                 }
                 else
                 {
@@ -50,7 +51,7 @@ public static class MockProfileData
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error loading profiles.json: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error loading users.json: {ex.Message}");
                 InitializeDefaultData();
             }
         }
@@ -58,92 +59,84 @@ public static class MockProfileData
 
     private static void InitializeDefaultData()
     {
-        _profiles = new List<ProfileDataModel>();
+        _users = new List<UserDataModel>();
     }
 
     public static async Task<ProfileData?> GetByUserIdAsync(Guid userId)
     {
         EnsureDataLoaded();
+        await Task.Delay(250); // Simulate network delay
 
-        // Simulate network delay
-        await Task.Delay(250);
-
-        var profileData = _profiles!.FirstOrDefault(p => p.UserId == userId.ToString());
-        if (profileData == null) return null;
+        var user = _users!.FirstOrDefault(u => u.Id == userId.ToString());
+        if (user == null) return null;
 
         return new ProfileData
         {
-            UserId = Guid.Parse(profileData.UserId),
-            Avatar = profileData.Avatar,
-            FullName = profileData.FullName,
-            PhoneNumber = profileData.PhoneNumber,
-            Email = profileData.Email,
-            Address = profileData.Address,
-            JobTitle = profileData.JobTitle,
-            CreatedAt = profileData.CreatedAt,
-            UpdatedAt = profileData.UpdatedAt
+            UserId = Guid.Parse(user.Id),
+            Avatar = user.Avatar,
+            FullName = user.FullName,
+            PhoneNumber = user.PhoneNumber,
+            Email = user.Email,
+            Address = user.Address,
+            JobTitle = user.JobTitle,
+            CreatedAt = user.CreatedAt,
+            UpdatedAt = user.UpdatedAt
         };
     }
 
     public static async Task<ProfileData> CreateAsync(ProfileData profile)
     {
         EnsureDataLoaded();
+        await Task.Delay(400); // Simulate network delay
 
-        // Simulate network delay
-        await Task.Delay(400);
-
-        var newProfile = new ProfileDataModel
+        // For profile creation, we need to update existing user or create new one
+        var user = _users!.FirstOrDefault(u => u.Id == profile.UserId.ToString());
+        
+        if (user != null)
         {
-            UserId = profile.UserId.ToString(),
-            Avatar = profile.Avatar,
-            FullName = profile.FullName,
-            PhoneNumber = profile.PhoneNumber,
-            Email = profile.Email,
-            Address = profile.Address,
-            JobTitle = profile.JobTitle,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = null
-        };
+            // Update existing user's profile fields
+            user.Avatar = profile.Avatar;
+            user.FullName = profile.FullName;
+            user.PhoneNumber = profile.PhoneNumber;
+            user.Email = profile.Email;
+            user.Address = profile.Address;
+            user.JobTitle = profile.JobTitle;
+            user.UpdatedAt = DateTime.UtcNow;
+        }
+        else
+        {
+            // Should not happen in normal flow, but handle it
+            System.Diagnostics.Debug.WriteLine($"[MockProfileData] Warning: User {profile.UserId} not found for profile creation");
+        }
 
-        _profiles!.Add(newProfile);
-
-        // Persist to JSON
         await SaveDataToJsonAsync();
-
         return profile;
     }
 
     public static async Task<ProfileData> UpdateAsync(ProfileData profile)
     {
         EnsureDataLoaded();
+        await Task.Delay(400); // Simulate network delay
 
-        // Simulate network delay
-        await Task.Delay(400);
-
-        var existing = _profiles!.FirstOrDefault(p => p.UserId == profile.UserId.ToString());
+        var user = _users!.FirstOrDefault(u => u.Id == profile.UserId.ToString());
         
-        if (existing == null)
+        if (user != null)
         {
-            // Create new profile
-            existing = new ProfileDataModel
-            {
-                UserId = profile.UserId.ToString(),
-                CreatedAt = DateTime.UtcNow
-            };
-            _profiles.Add(existing);
+            // Update user's profile fields
+            user.Avatar = profile.Avatar;
+            user.FullName = profile.FullName;
+            user.PhoneNumber = profile.PhoneNumber;
+            user.Email = profile.Email;
+            user.Address = profile.Address;
+            user.JobTitle = profile.JobTitle;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await SaveDataToJsonAsync();
         }
-
-        // Update properties
-        existing.Avatar = profile.Avatar;
-        existing.FullName = profile.FullName;
-        existing.PhoneNumber = profile.PhoneNumber;
-        existing.Email = profile.Email;
-        existing.Address = profile.Address;
-        existing.JobTitle = profile.JobTitle;
-        existing.UpdatedAt = DateTime.UtcNow;
-
-        // Persist to JSON
-        await SaveDataToJsonAsync();
+        else
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockProfileData] Warning: User {profile.UserId} not found for profile update");
+        }
 
         return profile;
     }
@@ -151,18 +144,19 @@ public static class MockProfileData
     public static async Task<bool> DeleteAsync(Guid userId)
     {
         EnsureDataLoaded();
+        await Task.Delay(300); // Simulate network delay
 
-        // Simulate network delay
-        await Task.Delay(300);
+        var user = _users!.FirstOrDefault(u => u.Id == userId.ToString());
+        if (user == null) return false;
 
-        var profile = _profiles!.FirstOrDefault(p => p.UserId == userId.ToString());
-        if (profile == null) return false;
+        // Clear profile fields (don't delete user, just clear profile data)
+        user.Avatar = null;
+        user.FullName = null;
+        user.Address = null;
+        user.JobTitle = null;
+        user.UpdatedAt = DateTime.UtcNow;
 
-        _profiles.Remove(profile);
-
-        // Persist to JSON
         await SaveDataToJsonAsync();
-
         return true;
     }
 
@@ -170,44 +164,70 @@ public static class MockProfileData
     {
         try
         {
-            var container = new ProfileDataContainer
+            // Need to read current data to preserve roles
+            var currentJson = await File.ReadAllTextAsync(_jsonFilePath);
+            var options = new JsonSerializerOptions
             {
-                Profiles = _profiles!
+                PropertyNameCaseInsensitive = true
+            };
+            var currentData = JsonSerializer.Deserialize<UserDataContainer>(currentJson, options);
+
+            var container = new UserDataContainer
+            {
+                Users = _users!,
+                Roles = currentData?.Roles ?? new List<RoleDataModel>()
             };
 
-            var options = new JsonSerializerOptions
+            var writeOptions = new JsonSerializerOptions
             {
                 WriteIndented = true,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
 
-            var jsonString = JsonSerializer.Serialize(container, options);
+            var jsonString = JsonSerializer.Serialize(container, writeOptions);
             await File.WriteAllTextAsync(_jsonFilePath, jsonString);
 
-            System.Diagnostics.Debug.WriteLine("Successfully saved profiles data to JSON");
+            System.Diagnostics.Debug.WriteLine("Successfully saved user data to JSON");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error saving profiles.json: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"Error saving users.json: {ex.Message}");
         }
     }
 
-    // Data container classes for JSON deserialization
-    private class ProfileDataContainer
+    // Data container classes for JSON serialization/deserialization
+    private class UserDataContainer
     {
-        public List<ProfileDataModel> Profiles { get; set; } = new();
+        public List<UserDataModel> Users { get; set; } = new();
+        public List<RoleDataModel> Roles { get; set; } = new();
     }
 
-    private class ProfileDataModel
+    private class UserDataModel
     {
-        public string UserId { get; set; } = string.Empty;
-        public string? Avatar { get; set; }
-        public string? FullName { get; set; }
+        public string Id { get; set; } = string.Empty;
+        public string Username { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string? Password { get; set; }
         public string? PhoneNumber { get; set; }
-        public string? Email { get; set; }
+        public string? FullName { get; set; }
+        public string? Avatar { get; set; }
         public string? Address { get; set; }
         public string? JobTitle { get; set; }
+        public List<string> RoleNames { get; set; } = new();
+        public string? Status { get; set; }
+        public bool IsEmailVerified { get; set; }
+        public bool IsTrialActive { get; set; }
+        public DateTime? TrialStartDate { get; set; }
+        public DateTime? TrialEndDate { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public DateTime? LastLoginAt { get; set; }
+    }
+
+    private class RoleDataModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

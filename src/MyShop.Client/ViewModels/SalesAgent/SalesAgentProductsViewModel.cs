@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MyShop.Core.Interfaces.Repositories;
+using MyShop.Client.Facades;
+using MyShop.Core.Interfaces.Facades;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ namespace MyShop.Client.ViewModels.SalesAgent;
 
 public partial class SalesAgentProductsViewModel : ObservableObject
 {
-    private readonly IProductRepository _productRepository;
+    private readonly IProductFacade _productFacade;
     private List<MyShop.Shared.Models.Product> _allProducts = new();
 
     [ObservableProperty]
@@ -27,9 +28,9 @@ public partial class SalesAgentProductsViewModel : ObservableObject
     [ObservableProperty]
     private int _totalPages = 1;
 
-    public SalesAgentProductsViewModel(IProductRepository productRepository)
+    public SalesAgentProductsViewModel(IProductFacade productFacade)
     {
-        _productRepository = productRepository;
+        _productFacade = productFacade;
         Products = new ObservableCollection<ProductViewModel>();
     }
 
@@ -42,7 +43,7 @@ public partial class SalesAgentProductsViewModel : ObservableObject
     {
         try
         {
-            var result = await _productRepository.GetAllAsync();
+            var result = await _productFacade.LoadProductsAsync();
             if (!result.IsSuccess || result.Data == null)
             {
                 Products = new ObservableCollection<ProductViewModel>();
@@ -50,7 +51,7 @@ public partial class SalesAgentProductsViewModel : ObservableObject
             }
             
             Products = new ObservableCollection<ProductViewModel>(
-                result.Data.Select(p => new ProductViewModel
+                result.Data.Items.Select(p => new ProductViewModel
                 {
                     Id = p.Id,
                     Name = p.Name,

@@ -102,29 +102,42 @@
                     BorderBrush="#E5E7EB"
                     BorderThickness="1"
                     CornerRadius="16"
-                    Padding="48"
+                    Padding="64,48"
                     Visibility="{x:Bind ViewModel.HasNoRequests, Mode=OneWay}">
                     <Border.Shadow>
                         <ThemeShadow />
                     </Border.Shadow>
                     <StackPanel
                         HorizontalAlignment="Center"
-                        Spacing="16">
-                        <FontIcon
-                            FontSize="48"
-                            Foreground="#9CA3AF"
-                            Glyph="&#xE823;"
+                        Spacing="20">
+                        <Viewbox Width="100" Height="100">
+                            <Grid>
+                                <Ellipse Width="100" Height="100" Fill="#F3F4F6" />
+                                <FontIcon
+                                    FontSize="48"
+                                    Foreground="#9CA3AF"
+                                    Glyph="&#xE823;" />
+                            </Grid>
+                        </Viewbox>
+                        <TextBlock
+                            FontSize="18"
+                            FontWeight="SemiBold"
+                            Foreground="#374151"
+                            Text="No agent requests"
                             HorizontalAlignment="Center" />
                         <TextBlock
-                            FontSize="16"
+                            FontSize="14"
                             Foreground="#6B7280"
-                            Text="No requests found"
-                            HorizontalAlignment="Center" />
+                            Text="There are currently no pending agent requests"
+                            HorizontalAlignment="Center"
+                            TextWrapping="Wrap"
+                            MaxWidth="300"
+                            TextAlignment="Center" />
                     </StackPanel>
                 </Border>
 
                 <!--  Request Cards  -->
-                <ItemsRepeater ItemsSource="{x:Bind ViewModel.FilteredRequests, Mode=OneWay}">
+                <ItemsRepeater ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}">
                     <ItemsRepeater.Layout>
                         <StackLayout Spacing="16" />
                     </ItemsRepeater.Layout>
@@ -315,6 +328,63 @@
                         </DataTemplate>
                     </ItemsRepeater.ItemTemplate>
                 </ItemsRepeater>
+
+                <!--  Pagination Controls  -->
+                <Border
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="#E5E7EB"
+                    BorderThickness="1"
+                    CornerRadius="16"
+                    Padding="20">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <!--  Previous Button  -->
+                        <Button
+                            Grid.Column="0"
+                            Command="{x:Bind ViewModel.PreviousPageCommand}"
+                            Style="{StaticResource DefaultButtonStyle}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon FontSize="14" Glyph="&#xE76B;" />
+                                <TextBlock Text="Previous" />
+                            </StackPanel>
+                        </Button>
+
+                        <!--  Page Info  -->
+                        <StackPanel
+                            Grid.Column="1"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Spacing="4">
+                            <TextBlock
+                                FontSize="14"
+                                FontWeight="SemiBold"
+                                Foreground="#111827"
+                                HorizontalAlignment="Center"
+                                Text="{x:Bind ViewModel.PageInfoText, Mode=OneWay}" />
+                            <TextBlock
+                                FontSize="12"
+                                Foreground="#6B7280"
+                                HorizontalAlignment="Center"
+                                Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}" />
+                        </StackPanel>
+
+                        <!--  Next Button  -->
+                        <Button
+                            Grid.Column="2"
+                            Command="{x:Bind ViewModel.NextPageCommand}"
+                            Style="{StaticResource DefaultButtonStyle}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="Next" />
+                                <FontIcon FontSize="14" Glyph="&#xE76C;" />
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </Border>
             </StackPanel>
         </ScrollViewer>
     </Grid>

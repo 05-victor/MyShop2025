@@ -58,9 +58,10 @@ public static class MockDashboardData
 
     private static void InitializeDefaultData()
     {
+        // Initialize empty dashboard - data should be loaded from dashboard.json
         _dashboardData = new DashboardDataModel
         {
-            Date = "2025-11-10",
+            Date = DateTime.UtcNow.ToString("yyyy-MM-dd"),
             TotalProducts = 0,
             TodayOrders = 0,
             TodayRevenue = 0,
@@ -69,42 +70,340 @@ public static class MockDashboardData
             LowStockProducts = new List<LowStockProductData>(),
             TopSellingProducts = new List<TopSellingProductData>()
         };
+        System.Diagnostics.Debug.WriteLine("[MockDashboardData] JSON file not found - initialized with empty dashboard");
     }
 
-    public static async Task<DashboardSummary> GetDashboardSummaryAsync()
+    public static async Task<DashboardSummary> GetDashboardSummaryAsync(string period = "current")
     {
         EnsureDataLoaded();
 
         // Simulate network delay
         await Task.Delay(400);
 
+        // Calculate date ranges based on period
+        var now = DateTime.Now;
+        var (startDate, endDate) = period.ToLower() switch
+        {
+            "last" => (new DateTime(now.Year, now.Month, 1).AddMonths(-1), new DateTime(now.Year, now.Month, 1).AddDays(-1)),
+            "last3" => (new DateTime(now.Year, now.Month, 1).AddMonths(-3), new DateTime(now.Year, now.Month, 1).AddDays(-1)),
+            _ => (new DateTime(now.Year, now.Month, 1), now) // Current month
+        };
+
+        // Get real orders data for calculation
+        var allOrders = await MockOrderData.GetAllAsync();
+        System.Diagnostics.Debug.WriteLine($"[MockDashboardData] Total orders loaded: {allOrders.Count}");
+        
+        var periodOrders = allOrders.Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate).ToList();
+        System.Diagnostics.Debug.WriteLine($"[MockDashboardData] Orders in period ({startDate:yyyy-MM-dd} to {endDate:yyyy-MM-dd}): {periodOrders.Count}");
+        
+        var today = DateTime.Today;
+        var weekStart = today.AddDays(-(int)today.DayOfWeek);
+
+        // Get all products for counts
+        var allProducts = await MockProductData.GetAllAsync();
+        System.Diagnostics.Debug.WriteLine($"[MockDashboardData] Total products loaded: {allProducts.Count}");
+
+        // Calculate real statistics
+        var todayOrders = allOrders.Count(o => o.OrderDate.Date == today);
+        var todayRevenue = allOrders.Where(o => o.OrderDate.Date == today && o.Status == "PAID").Sum(o => o.FinalPrice);
+        var weekRevenue = allOrders.Where(o => o.OrderDate >= weekStart && o.Status == "PAID").Sum(o => o.FinalPrice);
+        var monthRevenue = periodOrders.Where(o => o.Status == "PAID").Sum(o => o.FinalPrice);
+
+        // Get low stock products (quantity < 10)
+        var lowStockProducts = await MockProductData.GetLowStockAsync(10);
+
+        // Calculate top selling products from orders in period
+        var topProducts = periodOrders
+            .SelectMany(o => o.OrderItems)
+            .GroupBy(item => item.ProductId)
+            .Select(g => new
+            {
+                ProductId = g.Key,
+                SoldCount = g.Sum(item => item.Quantity),
+                Revenue = g.Sum(item => item.TotalPrice)
+            })
+            .OrderByDescending(p => p.Revenue)
+            .Take(5)
+            .ToList();
+
+        var topSellingProducts = new List<TopSellingProduct>();
+        foreach (var top in topProducts)
+        {
+            var product = allProducts.FirstOrDefault(p => p.Id == top.ProductId);
+            if (product != null)
+            {
+                topSellingProducts.Add(new TopSellingProduct
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    CategoryName = product.DeviceType ?? product.CategoryName ?? "Unknown",
+                    SoldCount = top.SoldCount,
+                    Revenue = top.Revenue,
+                    ImageUrl = product.ImageUrl
+                });
+            }
+        }
+
+        // Calculate sales by category for the period
+        var totalOrderItems = periodOrders.Sum(o => o.OrderItems?.Count ?? 0);
+        System.Diagnostics.Debug.WriteLine($"[MockDashboardData] Period orders: {periodOrders.Count}, Total order items: {totalOrderItems}, All products: {allProducts.Count}");
+        
+        var salesByCategory = periodOrders
+            .SelectMany(o => o.OrderItems ?? new List<OrderItem>())
+            .Join(allProducts, item => item.ProductId, product => product.Id, (item, product) => new
+            {
+                Category = product.DeviceType ?? product.CategoryName ?? "Unknown",
+                Revenue = item.TotalPrice
+            })
+            .GroupBy(x => x.Category)
+            .Select(g => new CategorySales
+            {
+                CategoryName = g.Key,
+                TotalRevenue = g.Sum(x => x.Revenue),
+                OrderCount = g.Count(),
+                Percentage = 0 // Will calculate after
+            })
+            .OrderByDescending(c => c.TotalRevenue)
+            .ToList();
+
+        System.Diagnostics.Debug.WriteLine($"[MockDashboardData] Sales by category count: {salesByCategory.Count}");
+
+        // Calculate percentages
+        var totalRevenue = salesByCategory.Sum(c => c.TotalRevenue);
+        if (totalRevenue > 0)
+        {
+            foreach (var category in salesByCategory)
+            {
+                category.Percentage = Math.Round((double)(category.TotalRevenue / totalRevenue * 100), 2);
+                System.Diagnostics.Debug.WriteLine($"[MockDashboardData] Category: {category.CategoryName} - {category.Percentage}%");
+            }
+        }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockDashboardData] WARNING: Total revenue is 0!");
+        }
+
         return new DashboardSummary
         {
-            Date = DateTime.TryParse(_dashboardData!.Date, out var date) ? date : DateTime.Today,
-            TotalProducts = _dashboardData.TotalProducts,
-            TodayOrders = _dashboardData.TodayOrders,
-            TodayRevenue = _dashboardData.TodayRevenue,
-            WeekRevenue = _dashboardData.WeekRevenue,
-            MonthRevenue = _dashboardData.MonthRevenue,
-            LowStockProducts = _dashboardData.LowStockProducts?.Select(p => new LowStockProduct
+            Date = now,
+            TotalProducts = allProducts.Count,
+            TodayOrders = todayOrders,
+            TodayRevenue = todayRevenue,
+            WeekRevenue = weekRevenue,
+            MonthRevenue = monthRevenue,
+            LowStockProducts = lowStockProducts.Select(p => new LowStockProduct
             {
-                Id = Guid.Parse(p.Id),
+                Id = p.Id,
                 Name = p.Name,
-                CategoryName = p.CategoryName,
+                CategoryName = p.DeviceType ?? p.CategoryName ?? "Unknown",
                 Quantity = p.Quantity,
                 ImageUrl = p.ImageUrl,
                 Status = p.Status
-            }).ToList() ?? new List<LowStockProduct>(),
-            TopSellingProducts = _dashboardData.TopSellingProducts?.Select(p => new TopSellingProduct
-            {
-                Id = Guid.Parse(p.Id),
-                Name = p.Name,
-                CategoryName = p.CategoryName,
-                SoldCount = p.SoldCount,
-                Revenue = p.Revenue,
-                ImageUrl = p.ImageUrl
-            }).ToList() ?? new List<TopSellingProduct>()
+            }).ToList(),
+            TopSellingProducts = topSellingProducts,
+            SalesByCategory = salesByCategory,
+            RecentOrders = periodOrders
+                .OrderByDescending(o => o.OrderDate)
+                .Take(10)
+                .Select(o => new RecentOrder
+                {
+                    Id = o.Id,
+                    CustomerName = o.CustomerName ?? "Unknown",
+                    OrderDate = o.OrderDate,
+                    TotalAmount = o.FinalPrice,
+                    Status = o.Status,
+                    SalesAgentName = o.SalesAgentName
+                })
+                .ToList()
         };
+    }
+
+    public static async Task<RevenueChartData> GetRevenueChartAsync(string period = "daily")
+    {
+        await Task.Delay(300);
+
+        // Generate mock chart data based on period
+        var chartData = new RevenueChartData
+        {
+            Labels = new List<string>(),
+            Data = new List<decimal>()
+        };
+
+        var random = new Random(42); // Seed for consistent mock data
+
+        switch (period.ToLower())
+        {
+            case "daily":
+                // Last 7 days
+                for (int i = 6; i >= 0; i--)
+                {
+                    var day = DateTime.Today.AddDays(-i);
+                    chartData.Labels.Add(day.ToString("MM/dd"));
+                    chartData.Data.Add(15000 + random.Next(-3000, 8000));
+                }
+                break;
+
+            case "weekly":
+                // Last 12 weeks
+                for (int i = 11; i >= 0; i--)
+                {
+                    var week = DateTime.Today.AddDays(-i * 7);
+                    chartData.Labels.Add($"W{week.DayOfYear / 7}");
+                    chartData.Data.Add(80000 + random.Next(-15000, 30000));
+                }
+                break;
+
+            case "monthly":
+                // Last 12 months
+                for (int i = 11; i >= 0; i--)
+                {
+                    var month = DateTime.Today.AddMonths(-i);
+                    chartData.Labels.Add(month.ToString("MMM yyyy"));
+                    chartData.Data.Add(250000 + random.Next(-50000, 100000));
+                }
+                break;
+
+            case "yearly":
+                // Last 5 years
+                for (int i = 4; i >= 0; i--)
+                {
+                    var year = DateTime.Today.AddYears(-i);
+                    chartData.Labels.Add(year.Year.ToString());
+                    chartData.Data.Add(2500000 + random.Next(-500000, 1000000));
+                }
+                break;
+
+            default:
+                chartData.Labels.Add("No Data");
+                chartData.Data.Add(0);
+                break;
+        }
+
+        return chartData;
+    }
+
+    public static async Task<List<TopSalesAgent>> GetTopSalesAgentsAsync(string period = "current", int topCount = 5)
+    {
+        await Task.Delay(300);
+
+        // Calculate date ranges based on period
+        var now = DateTime.Now;
+        var (startDate, endDate) = period.ToLower() switch
+        {
+            "last" => (new DateTime(now.Year, now.Month, 1).AddMonths(-1), new DateTime(now.Year, now.Month, 1).AddDays(-1)),
+            "last3" => (new DateTime(now.Year, now.Month, 1).AddMonths(-3), new DateTime(now.Year, now.Month, 1).AddDays(-1)),
+            _ => (new DateTime(now.Year, now.Month, 1), now) // Current month
+        };
+
+        // Get all orders in period
+        var allOrders = await MockOrderData.GetAllAsync();
+        var periodOrders = allOrders.Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate && o.Status == "PAID").ToList();
+
+        // Get all users (SalesAgents)
+        var allUsers = await MockUserData.GetAllAsync();
+        var salesAgents = allUsers.Where(u => u.Roles.Contains(Shared.Models.Enums.UserRole.Salesman)).ToList();
+
+        // Calculate sales by agent
+        var agentSales = periodOrders
+            .Where(o => !string.IsNullOrEmpty(o.SalesAgentName))
+            .GroupBy(o => o.SalesAgentName)
+            .Select(g => new
+            {
+                AgentName = g.Key,
+                TotalGMV = g.Sum(o => o.FinalPrice),
+                OrderCount = g.Count()
+            })
+            .OrderByDescending(a => a.TotalGMV)
+            .Take(topCount)
+            .ToList();
+
+        var topAgents = new List<TopSalesAgent>();
+        var random = new Random(42);
+
+        foreach (var sale in agentSales)
+        {
+            // Find matching user
+            var user = salesAgents.FirstOrDefault(u => u.Username == sale.AgentName || u.FullName == sale.AgentName);
+            var commission = sale.TotalGMV * 0.05m; // 5% commission
+
+            topAgents.Add(new TopSalesAgent
+            {
+                Id = user?.Id.ToString() ?? Guid.NewGuid().ToString(),
+                Name = sale.AgentName,
+                Email = user?.Email ?? $"{sale.AgentName.ToLower().Replace(" ", ".")}@example.com",
+                Avatar = user?.Avatar ?? $"ms-appx:///Assets/Avatars/avatar{random.Next(1, 6)}.png",
+                GMV = sale.TotalGMV,
+                Commission = commission,
+                OrderCount = sale.OrderCount,
+                Rating = 4.5 + (random.NextDouble() * 0.5), // Random rating between 4.5-5.0
+                Status = "Active"
+            });
+        }
+
+        // If no sales agents found, return mock data
+        if (topAgents.Count == 0)
+        {
+            topAgents = new List<TopSalesAgent>
+            {
+                new() { 
+                    Id = Guid.NewGuid().ToString(),
+                    Name = "Michael Chen", 
+                    Email = "michael.chen@example.com", 
+                    Avatar = "ms-appx:///Assets/Avatars/avatar1.png", 
+                    GMV = 127450m, 
+                    Commission = 6372.50m,
+                    OrderCount = 45,
+                    Rating = 4.9, 
+                    Status = "Active" 
+                },
+                new() { 
+                    Id = Guid.NewGuid().ToString(),
+                    Name = "Sarah Johnson", 
+                    Email = "sarah.johnson@example.com", 
+                    Avatar = "ms-appx:///Assets/Avatars/avatar2.png", 
+                    GMV = 98320m, 
+                    Commission = 4916.00m,
+                    OrderCount = 38,
+                    Rating = 4.8, 
+                    Status = "Active" 
+                },
+                new() { 
+                    Id = Guid.NewGuid().ToString(),
+                    Name = "David Park", 
+                    Email = "david.park@example.com", 
+                    Avatar = "ms-appx:///Assets/Avatars/avatar3.png", 
+                    GMV = 87650m, 
+                    Commission = 4382.50m,
+                    OrderCount = 32,
+                    Rating = 4.7, 
+                    Status = "Active" 
+                },
+                new() { 
+                    Id = Guid.NewGuid().ToString(),
+                    Name = "Emma Wilson", 
+                    Email = "emma.wilson@example.com", 
+                    Avatar = "ms-appx:///Assets/Avatars/avatar4.png", 
+                    GMV = 76890m, 
+                    Commission = 3844.50m,
+                    OrderCount = 28,
+                    Rating = 4.9, 
+                    Status = "Active" 
+                },
+                new() { 
+                    Id = Guid.NewGuid().ToString(),
+                    Name = "James Lee", 
+                    Email = "james.lee@example.com", 
+                    Avatar = "ms-appx:///Assets/Avatars/avatar5.png", 
+                    GMV = 65430m, 
+                    Commission = 3271.50m,
+                    OrderCount = 25,
+                    Rating = 4.6, 
+                    Status = "Active" 
+                }
+            };
+        }
+
+        return topAgents;
     }
 
     // Data container classes for JSON deserialization

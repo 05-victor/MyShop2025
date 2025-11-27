@@ -42,6 +42,63 @@ public class MockAgentRequestsRepository : IAgentRequestRepository
         }
     }
 
+    public async Task<Result<PagedList<AgentRequest>>> GetPagedAsync(
+        int page = 1,
+        int pageSize = 10,
+        string? status = null,
+        string? searchQuery = null,
+        string sortBy = "requestedAt",
+        bool sortDescending = true)
+    {
+        try
+        {
+            var (mockData, totalCount) = await MockAgentRequestsData.GetPagedAsync(
+                page, pageSize, status, searchQuery, sortBy, sortDescending);
+
+            var requests = mockData.Select(m => new AgentRequest
+            {
+                Id = Guid.Parse(m.Id),
+                UserId = Guid.Parse(m.UserId),
+                FullName = m.UserName,
+                Email = m.Email,
+                PhoneNumber = m.PhoneNumber,
+                AvatarUrl = m.AvatarUrl,
+                RequestedAt = m.RequestedAt,
+                Status = m.Status,
+                ReviewedBy = m.ReviewedBy,
+                ReviewedAt = m.ReviewedAt,
+                Notes = m.Notes
+            }).ToList();
+
+            var pagedList = new PagedList<AgentRequest>(requests, totalCount, page, pageSize);
+
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] GetPagedAsync returned page {page}/{pagedList.TotalPages} ({requests.Count} items, {totalCount} total)");
+            return Result<PagedList<AgentRequest>>.Success(pagedList);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] GetPagedAsync error: {ex.Message}");
+            return Result<PagedList<AgentRequest>>.Failure($"Failed to get paged agent requests: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<AgentRequest>> CreateAsync(AgentRequest agentRequest)
+    {
+        try
+        {
+            var result = await MockAgentRequestsData.CreateAsync(agentRequest);
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] CreateAsync result: {result != null}");
+            return result != null
+                ? Result<AgentRequest>.Success(result)
+                : Result<AgentRequest>.Failure("Failed to create agent request");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] CreateAsync error: {ex.Message}");
+            return Result<AgentRequest>.Failure($"Failed to create request: {ex.Message}");
+        }
+    }
+
     public async Task<Result<bool>> ApproveAsync(Guid id)
     {
         try

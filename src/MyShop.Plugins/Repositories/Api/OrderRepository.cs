@@ -123,6 +123,49 @@ public class OrderRepository : IOrderRepository
         }
     }
 
+    public async Task<Result<IEnumerable<Order>>> GetBySalesAgentAsync(Guid salesAgentId)
+    {
+        return await GetBySalesAgentIdAsync(salesAgentId);
+    }
+
+    public async Task<Result<IEnumerable<Order>>> GetByStatusAsync(string status)
+    {
+        try
+        {
+            var allOrdersResult = await GetAllAsync();
+            if (!allOrdersResult.IsSuccess || allOrdersResult.Data == null)
+            {
+                return Result<IEnumerable<Order>>.Failure("Failed to retrieve orders");
+            }
+
+            var filteredOrders = allOrdersResult.Data.Where(o => o.Status.Equals(status, StringComparison.OrdinalIgnoreCase)).ToList();
+            return Result<IEnumerable<Order>>.Success(filteredOrders);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<Order>>.Failure($"Error retrieving orders by status: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<IEnumerable<Order>>> GetByDateRangeAsync(DateTime fromDate, DateTime toDate)
+    {
+        try
+        {
+            var allOrdersResult = await GetAllAsync();
+            if (!allOrdersResult.IsSuccess || allOrdersResult.Data == null)
+            {
+                return Result<IEnumerable<Order>>.Failure("Failed to retrieve orders");
+            }
+
+            var filteredOrders = allOrdersResult.Data.Where(o => o.OrderDate >= fromDate && o.OrderDate <= toDate).ToList();
+            return Result<IEnumerable<Order>>.Success(filteredOrders);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<Order>>.Failure($"Error retrieving orders by date range: {ex.Message}");
+        }
+    }
+
     public async Task<Result<Order>> CreateAsync(Order order)
     {
         try
@@ -196,6 +239,34 @@ public class OrderRepository : IOrderRepository
         }
     }
 
+    public async Task<Result<bool>> MarkAsPaidAsync(Guid orderId)
+    {
+        return await UpdateStatusAsync(orderId, "PAID");
+    }
+
+    public async Task<Result<bool>> CancelAsync(Guid orderId, string reason)
+    {
+        try
+        {
+            var request = new UpdateOrderStatusRequest
+            {
+                Status = "CANCELLED",
+                Notes = $"Cancelled: {reason}"
+            };
+
+            var response = await _api.UpdateStatusAsync(orderId, request);
+            if (response.IsSuccessStatusCode && response.Content?.Result == true)
+            {
+                return Result<bool>.Success(true);
+            }
+            return Result<bool>.Failure("Failed to cancel order");
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error cancelling order: {ex.Message}");
+        }
+    }
+
     public async Task<Result<bool>> DeleteAsync(Guid id)
     {
         try
@@ -206,6 +277,129 @@ public class OrderRepository : IOrderRepository
         catch (Exception ex)
         {
             return Result<bool>.Failure($"Error deleting order: {ex.Message}");
+        }
+    }
+
+    public async Task<decimal> GetTodayRevenueAsync()
+    {
+        try
+        {
+            var allOrdersResult = await GetAllAsync();
+            if (!allOrdersResult.IsSuccess || allOrdersResult.Data == null)
+            {
+                return 0;
+            }
+
+            var today = DateTime.Today;
+            var revenue = allOrdersResult.Data
+                .Where(o => o.OrderDate.Date == today && o.Status == "PAID")
+                .Sum(o => o.FinalPrice);
+
+            return revenue;
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
+    public async Task<decimal> GetRevenueByDateRangeAsync(DateTime fromDate, DateTime toDate)
+    {
+        try
+        {
+            var allOrdersResult = await GetAllAsync();
+            if (!allOrdersResult.IsSuccess || allOrdersResult.Data == null)
+            {
+                return 0;
+            }
+
+            var revenue = allOrdersResult.Data
+                .Where(o => o.OrderDate >= fromDate && o.OrderDate <= toDate && o.Status == "PAID")
+                .Sum(o => o.FinalPrice);
+
+            return revenue;
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
+    public async Task<Result<PagedList<Order>>> GetPagedAsync(
+        int page = 1,
+        int pageSize = 20,
+        string? status = null,
+        Guid? customerId = null,
+        Guid? salesAgentId = null,
+        DateTime? startDate = null,
+        DateTime? endDate = null,
+        string sortBy = "orderDate",
+        bool sortDescending = true)
+    {
+        try
+        {
+            // Note: Backend API doesn't support server-side paging yet
+            // Fallback: fetch all orders and apply client-side paging/filtering
+            var allOrdersResult = await GetAllAsync();
+            if (!allOrdersResult.IsSuccess || allOrdersResult.Data == null)
+            {
+                return Result<PagedList<Order>>.Failure(allOrdersResult.ErrorMessage ?? "Failed to retrieve orders");
+            }
+
+            var query = allOrdersResult.Data.AsEnumerable();
+
+            // Apply filters
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                query = query.Where(o => o.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (customerId.HasValue)
+            {
+                query = query.Where(o => o.CustomerId == customerId.Value);
+            }
+
+            if (salesAgentId.HasValue)
+            {
+                query = query.Where(o => o.SalesAgentId == salesAgentId.Value);
+            }
+
+            if (startDate.HasValue)
+            {
+                query = query.Where(o => o.OrderDate >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(o => o.OrderDate <= endDate.Value);
+            }
+
+            // Apply sorting
+            query = sortBy.ToLower() switch
+            {
+                "orderdate" => sortDescending 
+                    ? query.OrderByDescending(o => o.OrderDate) 
+                    : query.OrderBy(o => o.OrderDate),
+                "finalprice" or "amount" => sortDescending 
+                    ? query.OrderByDescending(o => o.FinalPrice) 
+                    : query.OrderBy(o => o.FinalPrice),
+                "status" => sortDescending 
+                    ? query.OrderByDescending(o => o.Status) 
+                    : query.OrderBy(o => o.Status),
+                _ => sortDescending 
+                    ? query.OrderByDescending(o => o.OrderDate) 
+                    : query.OrderBy(o => o.OrderDate)
+            };
+
+            var totalCount = query.Count();
+            var items = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var pagedList = new PagedList<Order>(items, totalCount, page, pageSize);
+            return Result<PagedList<Order>>.Success(pagedList);
+        }
+        catch (Exception ex)
+        {
+            return Result<PagedList<Order>>.Failure($"Error retrieving paged orders: {ex.Message}");
         }
     }
 }

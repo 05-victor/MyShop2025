@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="MyShop.Client.Views.Components.Skeletons.ProductGridSkeleton"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:skeletons="using:MyShop.Client.Views.Components.Skeletons"
+    mc:Ignorable="d">
+
+    <ItemsWrapGrid
+        ItemHeight="400"
+        ItemWidth="280"
+        MaximumRowsOrColumns="4"
+        Orientation="Horizontal">
+        
+        <!-- Skeleton Cards (8 items) -->
+        <Border
+            Width="260"
+            Height="380"
+            Margin="8"
+            Background="White"
+            CornerRadius="12"
+            BorderBrush="#E5E7EB"
+            BorderThickness="1"
+            Padding="16">
+            <StackPanel Spacing="12">
+                <!-- Image Skeleton -->
+                <skeletons:SkeletonLoader Height="160" />
+                
+                <!-- Title Skeleton -->
+                <skeletons:SkeletonLoader Width="200" Height="20" />
+                
+                <!-- Price Skeleton -->
+                <skeletons:SkeletonLoader Width="100" Height="24" />
+                
+                <!-- Description Lines -->
+                <skeletons:SkeletonLoader Width="220" Height="14" />
+                <skeletons:SkeletonLoader Width="180" Height="14" />
+                
+                <!-- Rating Skeleton -->
+                <skeletons:SkeletonLoader Width="120" Height="16" />
+                
+                <!-- Button Skeleton -->
+                <skeletons:SkeletonLoader Height="36" />
+            </StackPanel>
+        </Border>
+
+        <Border
+            Width="260"
+            Height="380"
+            Margin="8"
+            Background="White"
+            CornerRadius="12"
+            BorderBrush="#E5E7EB"
+            BorderThickness="1"
+            Padding="16">
+            <StackPanel Spacing="12">
+                <skeletons:SkeletonLoader Height="160" />
+                <skeletons:SkeletonLoader Width="200" Height="20" />
+                <skeletons:SkeletonLoader Width="100" Height="24" />
+                <skeletons:SkeletonLoader Width="220" Height="14" />
+                <skeletons:SkeletonLoader Width="180" Height="14" />
+                <skeletons:SkeletonLoader Width="120" Height="16" />
+                <skeletons:SkeletonLoader Height="36" />
+            </StackPanel>
+        </Border>
+
+        <Border
+            Width="260"
+            Height="380"
+            Margin="8"
+            Background="White"
+            CornerRadius="12"
+            BorderBrush="#E5E7EB"
+            BorderThickness="1"
+            Padding="16">
+            <StackPanel Spacing="12">
+                <skeletons:SkeletonLoader Height="160" />
+                <skeletons:SkeletonLoader Width="200" Height="20" />
+                <skeletons:SkeletonLoader Width="100" Height="24" />
+                <skeletons:SkeletonLoader Width="220" Height="14" />
+                <skeletons:SkeletonLoader Width="180" Height="14" />
+                <skeletons:SkeletonLoader Width="120" Height="16" />
+                <skeletons:SkeletonLoader Height="36" />
+            </StackPanel>
+        </Border>
+
+        <Border
+            Width="260"
+            Height="380"
+            Margin="8"
+            Background="White"
+            CornerRadius="12"
+            BorderBrush="#E5E7EB"
+            BorderThickness="1"
+            Padding="16">
+            <StackPanel Spacing="12">
+                <skeletons:SkeletonLoader Height="160" />
+                <skeletons:SkeletonLoader Width="200" Height="20" />
+                <skeletons:SkeletonLoader Width="100" Height="24" />
+                <skeletons:SkeletonLoader Width="220" Height="14" />
+                <skeletons:SkeletonLoader Width="180" Height="14" />
+                <skeletons:SkeletonLoader Width="120" Height="16" />
+                <skeletons:SkeletonLoader Height="36" />
+            </StackPanel>
+        </Border>
+
+        <Border
+            Width="260"
+            Height="380"
+            Margin="8"
+            Background="White"
+            CornerRadius="12"
+            BorderBrush="#E5E7EB"
+            BorderThickness="1"
+            Padding="16">
+            <StackPanel Spacing="12">
+                <skeletons:SkeletonLoader Height="160" />
+                <skeletons:SkeletonLoader Width="200" Height="20" />
+                <skeletons:SkeletonLoader Width="100" Height="24" />
+                <skeletons:SkeletonLoader Width="220" Height="14" />
+                <skeletons:SkeletonLoader Width="180" Height="14" />
+                <skeletons:SkeletonLoader Width="120" Height="16" />
+                <skeletons:SkeletonLoader Height="36" />
+            </StackPanel>
+        </Border>
+
+        <Border
+            Width="260"
+            Height="380"
+            Margin="8"
+            Background="White"
+            CornerRadius="12"
+            BorderBrush="#E5E7EB"
+            BorderThickness="1"
+            Padding="16">
+            <StackPanel Spacing="12">
+                <skeletons:SkeletonLoader Height="160" />
+                <skeletons:SkeletonLoader Width="200" Height="20" />
+                <skeletons:SkeletonLoader Width="100" Height="24" />
+                <skeletons:SkeletonLoader Width="220" Height="14" />
+                <skeletons:SkeletonLoader Width="180" Height="14" />
+                <skeletons:SkeletonLoader Width="120" Height="16" />
+                <skeletons:SkeletonLoader Height="36" />
+            </StackPanel>
+        </Border>
+
+        <Border
+            Width="260"
+            Height="380"
+            Margin="8"
+            Background="White"
+            CornerRadius="12"
+            BorderBrush="#E5E7EB"
+            BorderThickness="1"
+            Padding="16">
+            <StackPanel Spacing="12">
+                <skeletons:SkeletonLoader Height="160" />
+                <skeletons:SkeletonLoader Width="200" Height="20" />
+                <skeletons:SkeletonLoader Width="100" Height="24" />
+                <skeletons:SkeletonLoader Width="220" Height="14" />
+                <skeletons:SkeletonLoader Width="180" Height="14" />
+                <skeletons:SkeletonLoader Width="120" Height="16" />
+                <skeletons:SkeletonLoader Height="36" />
+            </StackPanel>
+        </Border>
+
+        <Border
+            Width="260"
+            Height="380"
+            Margin="8"
+            Background="White"
+            CornerRadius="12"
+            BorderBrush="#E5E7EB"
+            BorderThickness="1"
+            Padding="16">
+            <StackPanel Spacing="12">
+                <skeletons:SkeletonLoader Height="160" />
+                <skeletons:SkeletonLoader Width="200" Height="20" />
+                <skeletons:SkeletonLoader Width="100" Height="24" />
+                <skeletons:SkeletonLoader Width="220" Height="14" />
+                <skeletons:SkeletonLoader Width="180" Height="14" />
+                <skeletons:SkeletonLoader Width="120" Height="16" />
+                <skeletons:SkeletonLoader Height="36" />
+            </StackPanel>
+        </Border>
+    </ItemsWrapGrid>
+</UserControl>

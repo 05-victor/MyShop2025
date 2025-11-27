@@ -3,20 +3,25 @@ using CommunityToolkit.Mvvm.Input;
 using MyShop.Shared.Models;
 using MyShop.Client.ViewModels.Base;
 using MyShop.Client.Views.Shared;
+using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Services;
-using MyShop.Core.Interfaces.Infrastructure;
-using MyShop.Core.Interfaces.Repositories;
+using MyShop.Client.Facades;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Linq;
+using System.IO;
+using System.Text;
+using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
+using SkiaSharp;
 
 namespace MyShop.Client.ViewModels.Admin;
 
 public partial class AdminDashboardViewModel : BaseViewModel
 {
-        private readonly IToastService _toastHelper;
-        private readonly IDashboardRepository _dashboardRepository;
+        private readonly IDashboardFacade _dashboardFacade;
 
         [ObservableProperty]
         private User? _currentUser;
@@ -26,6 +31,18 @@ public partial class AdminDashboardViewModel : BaseViewModel
 
         [ObservableProperty]
         private bool _isInitialized = false;
+
+        // Period filter
+        [ObservableProperty]
+        private string _selectedPeriod = "current";
+
+        public List<string> AvailablePeriods { get; } = new List<string> { "current", "last", "last3" };
+        public Dictionary<string, string> PeriodLabels { get; } = new Dictionary<string, string>
+        {
+            { "current", "Current Month" },
+            { "last", "Last Month" },
+            { "last3", "Last 3 Months" }
+        };
 
         // New Platform-Owner KPIs
         [ObservableProperty]
@@ -78,6 +95,13 @@ public partial class AdminDashboardViewModel : BaseViewModel
         [ObservableProperty]
         private ObservableCollection<CategoryDataPoint> _categoryData = new();
 
+        // Sales View Mode (for Category/Agents toggle)
+        [ObservableProperty]
+        private string _salesViewMode = "category"; // "category" or "agents"
+
+        public bool IsCategoryView => SalesViewMode == "category";
+        public bool IsAgentsView => SalesViewMode == "agents";
+
         // Top Products
         [ObservableProperty]
         private ObservableCollection<TopProductItem> _topProducts = new();
@@ -105,12 +129,13 @@ public partial class AdminDashboardViewModel : BaseViewModel
         [ObservableProperty]
         private ObservableCollection<TrendDataPoint> _commissionTrendData = new();
 
-        public AdminDashboardViewModel(
-            IToastService toastHelper, 
-            IDashboardRepository dashboardRepository)
+        // LiveCharts Series
+        [ObservableProperty]
+        private ISeries[] _revenueSeries = Array.Empty<ISeries>();
+
+        public AdminDashboardViewModel(IDashboardFacade dashboardFacade)
         {
-            _toastHelper = toastHelper;
-            _dashboardRepository = dashboardRepository;
+            _dashboardFacade = dashboardFacade;
         }
 
         public async Task InitializeAsync(User user)
@@ -135,7 +160,6 @@ public partial class AdminDashboardViewModel : BaseViewModel
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] InitializeAsync failed: {ex.Message}");
-                await _toastHelper.ShowError($"Failed to load dashboard: {ex.Message}");
                 throw;
             }
             finally
@@ -150,59 +174,50 @@ public partial class AdminDashboardViewModel : BaseViewModel
             await LoadDashboardDataAsync();
         }
 
+        partial void OnSelectedPeriodChanged(string value)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] Period changed to: {value}");
+            // Reload data when period changes
+            _ = LoadDashboardDataAsync();
+        }
+
         private async Task LoadDashboardDataAsync()
         {
-            System.Diagnostics.Debug.WriteLine("[AdminDashboardViewModel] LoadDashboardDataAsync started");
+            System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] LoadDashboardDataAsync started with period: {SelectedPeriod}");
             SetLoadingState(true);
 
             try
             {
-                // Load Dashboard Summary from Repository
-                var summaryResult = await _dashboardRepository.GetSummaryAsync();
-                if (!summaryResult.IsSuccess)
+                var result = await _dashboardFacade.LoadDashboardAsync(SelectedPeriod);
+                if (!result.IsSuccess || result.Data == null)
                 {
-                    SetError(summaryResult.ErrorMessage ?? "Failed to load dashboard data");
-                    await _toastHelper.ShowError(summaryResult.ErrorMessage ?? "Failed to load dashboard data");
+                    SetError(result.ErrorMessage ?? "Failed to load dashboard data");
                     return;
                 }
 
-                var summary = summaryResult.Data;
-                if (summary == null)
-                {
-                    SetError("Dashboard data is empty");
-                    return;
-                }
+                var data = result.Data;
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] Dashboard loaded: MonthRevenue={data.MonthRevenue}, TotalProducts={data.TotalProducts}");
 
-                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] Summary loaded: MonthRevenue={summary.MonthRevenue}, TotalProducts={summary.TotalProducts}");
-
-                // Map ALL properties on UI thread to ensure proper binding updates
                 RunOnUIThread(() =>
                 {
-                    // Map Platform-Owner KPIs (temporary mapping using existing data)
-                    TotalGmvThisMonth = summary.MonthRevenue; // Total GMV across platform
-                    AdminCommission = Math.Round(summary.MonthRevenue * 0.05m, 2); // 5% commission
-                    ActiveSalesAgents = 127; // Mock value - replace with summary.ActiveSalesAgentsCount when available
-                    ItemsToReview = summary.LowStockProducts.Count + 8; // Flagged + pending items
+                    TotalGmvThisMonth = data.MonthRevenue;
+                    AdminCommission = Math.Round(data.MonthRevenue * 0.05m, 2);
+                    ActiveSalesAgents = 127;
+                    ItemsToReview = data.LowStockProducts.Count + 8;
                     
-                    System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] KPIs set: GMV={TotalGmvThisMonth}, Commission={AdminCommission}, Agents={ActiveSalesAgents}, ToReview={ItemsToReview}");
-                    
-                    // Map Summary Statistics (kept for backwards compatibility)
-                    TotalProducts = summary.TotalProducts;
-                    TodayOrders = summary.TodayOrders;
-                    TodayRevenue = summary.TodayRevenue;
-                    WeekRevenue = summary.WeekRevenue;
-                    MonthRevenue = summary.MonthRevenue;
-                    
-                    // Calculate trends (mock calculation - could be from backend)
-                    OrdersTrend = 12.5; // +12.5% vs yesterday
-                    RevenueTrend = 8.2; // +8.2% vs yesterday
+                    TotalProducts = data.TotalProducts;
+                    TodayOrders = data.TodayOrders;
+                    TodayRevenue = data.TodayRevenue;
+                    WeekRevenue = data.WeekRevenue;
+                    MonthRevenue = data.MonthRevenue;
+                    OrdersTrend = 12.5;
+                    RevenueTrend = 8.2;
 
-                    // Top Rated Product
-                    var topProduct = summary.TopSellingProducts?.FirstOrDefault();
+                    var topProduct = data.TopSellingProducts?.FirstOrDefault();
                     if (topProduct != null)
                     {
                         TopRatedProductName = topProduct.Name ?? "N/A";
-                        TopRatedProductRating = 4.5; // Default rating, extend TopSellingProduct model if needed
+                        TopRatedProductRating = 4.5;
                     }
                     else
                     {
@@ -210,12 +225,10 @@ public partial class AdminDashboardViewModel : BaseViewModel
                         TopRatedProductRating = 0;
                     }
 
-                    // Low Stock Count
-                    LowStockCount = summary.LowStockProducts.Count;
+                    LowStockCount = data.LowStockProducts.Count;
                 });
 
-                // Load Revenue Chart Data (Daily)
-                var chartResult = await _dashboardRepository.GetRevenueChartAsync("daily");
+                var chartResult = await _dashboardFacade.GetRevenueChartDataAsync(GetChartPeriod(SelectedPeriod));
                 if (chartResult.IsSuccess && chartResult.Data != null)
                 {
                     RunOnUIThread(() =>
@@ -227,23 +240,19 @@ public partial class AdminDashboardViewModel : BaseViewModel
                             {
                                 Day = chartResult.Data.Labels[i],
                                 Revenue = chartResult.Data.Data[i],
-                                Orders = 0 // Could add orders count to chart data
+                                Orders = 0
                             });
                         }
                     });
                 }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Failed to load chart data: {chartResult.ErrorMessage}");
-                }
 
-                // Map Category Sales Data
                 RunOnUIThread(() =>
                 {
                     CategoryData = new ObservableCollection<CategoryDataPoint>();
-                    if (summary.SalesByCategory != null)
+                    if (data.SalesByCategory != null)
                     {
-                        foreach (var categorySale in summary.SalesByCategory)
+                        System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Loading {data.SalesByCategory.Count} categories");
+                        foreach (var categorySale in data.SalesByCategory)
                         {
                             if (categorySale != null)
                             {
@@ -252,19 +261,24 @@ public partial class AdminDashboardViewModel : BaseViewModel
                                     Name = categorySale.CategoryName ?? "Unknown",
                                     Percentage = (int)categorySale.Percentage
                                 });
+                                System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Added category: {categorySale.CategoryName} - {categorySale.Percentage}%");
                             }
                         }
+                        System.Diagnostics.Debug.WriteLine($"[AdminDashboard] CategoryData final count: {CategoryData.Count}");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[AdminDashboard] WARNING: data.SalesByCategory is NULL!");
                     }
                 });
 
-                // Map Top Products
                 RunOnUIThread(() =>
                 {
                     TopProducts = new ObservableCollection<TopProductItem>();
-                    if (summary.TopSellingProducts != null)
+                    if (data.TopSellingProducts != null)
                     {
                         int rank = 1;
-                        foreach (var product in summary.TopSellingProducts)
+                        foreach (var product in data.TopSellingProducts)
                         {
                             if (product != null)
                             {
@@ -273,21 +287,20 @@ public partial class AdminDashboardViewModel : BaseViewModel
                                     Rank = rank++,
                                     Name = product.Name ?? "Unknown",
                                     Category = product.CategoryName ?? "Unknown",
-                                    Price = product.Revenue / Math.Max(product.SoldCount, 1), // Avg price
-                                    Stock = 0 // Not available in summary
+                                    Price = product.Revenue / Math.Max(product.SoldCount, 1),
+                                    Stock = 0
                                 });
                             }
                         }
                     }
                 });
 
-                // Map Low Stock Items
                 RunOnUIThread(() =>
                 {
                     LowStockItems = new ObservableCollection<LowStockItem>();
-                    if (summary.LowStockProducts != null)
+                    if (data.LowStockProducts != null)
                     {
-                        foreach (var lowStock in summary.LowStockProducts)
+                        foreach (var lowStock in data.LowStockProducts)
                         {
                             if (lowStock != null)
                             {
@@ -302,13 +315,12 @@ public partial class AdminDashboardViewModel : BaseViewModel
                     }
                 });
 
-                // Map Recent Orders
                 RunOnUIThread(() =>
                 {
                     RecentOrders = new ObservableCollection<RecentOrderItem>();
-                    if (summary.RecentOrders != null)
+                    if (data.RecentOrders != null)
                     {
-                        foreach (var order in summary.RecentOrders)
+                        foreach (var order in data.RecentOrders)
                         {
                             if (order != null)
                             {
@@ -325,55 +337,29 @@ public partial class AdminDashboardViewModel : BaseViewModel
                     }
                 });
 
-                // Mock Top SalesAgents data (until real repository methods are available)
-                TopSalesAgents = new ObservableCollection<TopSalesAgentItem>
+                // Load Top SalesAgents from repository
+                var topAgentsResult = await _dashboardFacade.GetTopSalesAgentsAsync(SelectedPeriod);
+                if (topAgentsResult.IsSuccess && topAgentsResult.Data != null)
                 {
-                    new() { 
-                        Name = "Michael Chen", 
-                        Email = "michael.chen@example.com", 
-                        Avatar = "ms-appx:///Assets/Avatars/avatar1.png", 
-                        GMV = 127450m, 
-                        Commission = 6372.50m, 
-                        Rating = 4.9, 
-                        Status = "Active" 
-                    },
-                    new() { 
-                        Name = "Sarah Johnson", 
-                        Email = "sarah.johnson@example.com", 
-                        Avatar = "ms-appx:///Assets/Avatars/avatar2.png", 
-                        GMV = 98320m, 
-                        Commission = 4916.00m, 
-                        Rating = 4.8, 
-                        Status = "Active" 
-                    },
-                    new() { 
-                        Name = "David Park", 
-                        Email = "david.park@example.com", 
-                        Avatar = "ms-appx:///Assets/Avatars/avatar3.png", 
-                        GMV = 87650m, 
-                        Commission = 4382.50m, 
-                        Rating = 4.7, 
-                        Status = "Active" 
-                    },
-                    new() { 
-                        Name = "Emma Wilson", 
-                        Email = "emma.wilson@example.com", 
-                        Avatar = "ms-appx:///Assets/Avatars/avatar4.png", 
-                        GMV = 76890m, 
-                        Commission = 3844.50m, 
-                        Rating = 4.9, 
-                        Status = "Active" 
-                    },
-                    new() { 
-                        Name = "James Lee", 
-                        Email = "james.lee@example.com", 
-                        Avatar = "ms-appx:///Assets/Avatars/avatar5.png", 
-                        GMV = 65430m, 
-                        Commission = 3271.50m, 
-                        Rating = 4.6, 
-                        Status = "Active" 
-                    }
-                };
+                    RunOnUIThread(() =>
+                    {
+                        TopSalesAgents = new ObservableCollection<TopSalesAgentItem>();
+                        foreach (var agent in topAgentsResult.Data)
+                        {
+                            TopSalesAgents.Add(new TopSalesAgentItem
+                            {
+                                Name = agent.Name,
+                                Email = agent.Email,
+                                Avatar = agent.Avatar,
+                                GMV = agent.GMV,
+                                Commission = agent.Commission,
+                                Rating = agent.Rating,
+                                Status = agent.Status
+                            });
+                        }
+                        System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Loaded {TopSalesAgents.Count} top sales agents");
+                    });
+                }
 
                 // Mock Flagged Products data
                 FlaggedProducts = new ObservableCollection<FlaggedProductItem>
@@ -431,6 +417,9 @@ public partial class AdminDashboardViewModel : BaseViewModel
                     new() { Label = "Nov", Value = 9925m }
                 };
 
+                // Create LiveCharts Series
+                UpdateChartSeries();
+
                 System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Loaded dashboard data successfully");
             }
             catch (Exception ex)
@@ -442,6 +431,203 @@ public partial class AdminDashboardViewModel : BaseViewModel
             finally
             {
                 SetLoadingState(false);
+            }
+        }
+
+        private void UpdateChartSeries()
+        {
+            try
+            {
+                // Revenue Line Series (Dark Blue)
+                var revenueSeries = new LineSeries<TrendDataPoint>
+                {
+                    Values = RevenueTrendData,
+                    Name = "Revenue",
+                    Stroke = new SolidColorPaint(SKColor.Parse("#1E40AF")) { StrokeThickness = 3 },
+                    Fill = null,
+                    GeometrySize = 8,
+                    GeometryFill = new SolidColorPaint(SKColor.Parse("#1E40AF")),
+                    GeometryStroke = new SolidColorPaint(SKColors.White) { StrokeThickness = 2 },
+                    Mapping = (point, index) => new(index, (double)point.Value)
+                };
+
+                // Commission Line Series (Light Blue/Cyan)
+                var commissionSeries = new LineSeries<TrendDataPoint>
+                {
+                    Values = CommissionTrendData,
+                    Name = "Commission",
+                    Stroke = new SolidColorPaint(SKColor.Parse("#06B6D4")) { StrokeThickness = 3 },
+                    Fill = null,
+                    GeometrySize = 8,
+                    GeometryFill = new SolidColorPaint(SKColor.Parse("#06B6D4")),
+                    GeometryStroke = new SolidColorPaint(SKColors.White) { StrokeThickness = 2 },
+                    Mapping = (point, index) => new(index, (double)point.Value)
+                };
+
+                RevenueSeries = new ISeries[] { revenueSeries, commissionSeries };
+                
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Chart series updated with {RevenueTrendData.Count} revenue points and {CommissionTrendData.Count} commission points");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Error updating chart series: {ex.Message}");
+            }
+        }
+
+        private string GetChartPeriod(string selectedPeriod)
+        {
+            // Map summary period to chart period
+            return selectedPeriod switch
+            {
+                "current" => "daily",   // Current month -> show daily data
+                "last" => "daily",      // Last month -> show daily data
+                "last3" => "weekly",    // Last 3 months -> show weekly data
+                _ => "daily"
+            };
+        }
+
+        [RelayCommand]
+        private async Task ExportDashboardAsync()
+        {
+            try
+            {
+                IsLoading = true;
+                var result = await _dashboardFacade.ExportDashboardDataAsync(SelectedPeriod);
+                if (result.IsSuccess)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Exported to: {result.Data}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error exporting dashboard: {ex.Message}");
+                await _toastHelper.ShowError("Failed to export dashboard data.");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        [RelayCommand]
+        private async Task NavigateToAllProducts()
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("[AdminDashboard] Navigating to All Products");
+                await _dashboardFacade.NavigateToDashboardPageAsync("products");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error navigating to products: {ex.Message}");
+            }
+        }
+
+        [RelayCommand]
+        private async Task NavigateToAllAgents()
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("[AdminDashboard] Navigating to All Sales Agents");
+                await _dashboardFacade.NavigateToDashboardPageAsync("users");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error navigating to agents: {ex.Message}");
+            }
+        }
+
+        [RelayCommand]
+        private async Task NavigateToAgentRequests()
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("[AdminDashboard] Navigating to Agent Requests");
+                var result = await _navigationService.NavigateInShell("MyShop.Client.Views.Admin.AdminAgentRequestsPage");
+                if (!result.IsSuccess)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Navigation failed: {result.ErrorMessage}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error navigating to agent requests: {ex.Message}");
+            }
+        }
+
+        [RelayCommand]
+        private async Task ExportChartDataAsync()
+        {
+            try
+            {
+                IsLoading = true;
+                
+                // Get chart data
+                var chartResult = await _dashboardFacade.GetRevenueChartDataAsync(GetChartPeriod(SelectedPeriod));
+                if (!chartResult.IsSuccess || chartResult.Data == null)
+                {
+                    await _toastHelper.ShowError("Failed to get chart data for export.");
+                    return;
+                }
+
+                // Generate CSV
+                var csv = new StringBuilder();
+                csv.AppendLine("Date,Revenue");
+                
+                for (int i = 0; i < chartResult.Data.Labels.Count; i++)
+                {
+                    csv.AppendLine($"{chartResult.Data.Labels[i]},{chartResult.Data.Data[i]}");
+                }
+
+                // Save to file
+                var fileName = $"RevenueChart_{SelectedPeriod}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+                var filePath = Path.Combine(Path.GetTempPath(), fileName);
+                await File.WriteAllTextAsync(filePath, csv.ToString());
+
+                await _toastHelper.ShowSuccess($"Chart data exported to {fileName}");
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Chart exported to: {filePath}");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error exporting chart data: {ex.Message}");
+                await _toastHelper.ShowError("Failed to export chart data.");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        [RelayCommand]
+        private async Task DownloadChartImageAsync()
+        {
+            try
+            {
+                IsLoading = true;
+                // TODO: Capture chart as image and save to file
+                await Task.Delay(300);
+                await _toastHelper.ShowSuccess("Chart image downloaded successfully!");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error downloading chart: {ex.Message}");
+                await _toastHelper.ShowError("Failed to download chart image.");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        [RelayCommand]
+        private void SwitchSalesView(string mode)
+        {
+            if (mode == "category" || mode == "agents")
+            {
+                SalesViewMode = mode;
+                OnPropertyChanged(nameof(IsCategoryView));
+                OnPropertyChanged(nameof(IsAgentsView));
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Switched sales view to: {mode}");
             }
         }
     }

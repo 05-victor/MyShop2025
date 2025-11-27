@@ -11,6 +11,9 @@
                 
                 <!-- MyShop 2025 Design System -->
                 <ResourceDictionary Source="Themes/Generic.xaml"/>
+                
+                <!-- COPILOT-FIX: Fallback resources to prevent XAML crashes from missing keys -->
+                <ResourceDictionary Source="Themes/FallbackResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

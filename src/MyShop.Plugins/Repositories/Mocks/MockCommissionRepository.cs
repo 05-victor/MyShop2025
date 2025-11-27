@@ -102,4 +102,31 @@ public class MockCommissionRepository : ICommissionRepository
             return 0m;
         }
     }
+
+    public async Task<Result<PagedList<Commission>>> GetPagedAsync(
+        Guid salesAgentId,
+        int page = 1,
+        int pageSize = 20,
+        string? status = null,
+        DateTime? startDate = null,
+        DateTime? endDate = null,
+        string sortBy = "createdDate",
+        bool sortDescending = true)
+    {
+        try
+        {
+            var (items, totalCount) = await MockCommissionData.GetPagedAsync(
+                salesAgentId, page, pageSize, status, startDate, endDate, sortBy, sortDescending);
+
+            var pagedList = new PagedList<Commission>(items, totalCount, page, pageSize);
+
+            System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] GetPagedAsync: Page {page}/{pagedList.TotalPages}, Total {totalCount}");
+            return Result<PagedList<Commission>>.Success(pagedList);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] GetPagedAsync error: {ex.Message}");
+            return Result<PagedList<Commission>>.Failure($"Failed to get paged commissions: {ex.Message}");
+        }
+    }
 }

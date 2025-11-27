@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
 using MyShop.Client.ViewModels.Shared;
+using Windows.System;
 
 namespace MyShop.Client.Views.Shared
 {
@@ -22,6 +23,20 @@ namespace MyShop.Client.Views.Shared
             this.DataContext = ViewModel;
 
             Loaded += OnPageLoaded;
+            SetupKeyboardShortcuts();
+        }
+
+        private void SetupKeyboardShortcuts()
+        {
+            // Ctrl+Enter: Submit registration
+            var registerShortcut = new KeyboardAccelerator { Key = VirtualKey.Enter, Modifiers = VirtualKeyModifiers.Control };
+            registerShortcut.Invoked += async (s, e) => { if (ViewModel.CanRegister) await ViewModel.AttemptRegisterCommand.ExecuteAsync(null); e.Handled = true; };
+            KeyboardAccelerators.Add(registerShortcut);
+
+            // Ctrl+G: Google sign up
+            var googleShortcut = new KeyboardAccelerator { Key = VirtualKey.G, Modifiers = VirtualKeyModifiers.Control };
+            googleShortcut.Invoked += async (s, e) => { await ViewModel.GoogleLoginCommand.ExecuteAsync(null); e.Handled = true; };
+            KeyboardAccelerators.Add(googleShortcut);
         }
 
         /// <summary>

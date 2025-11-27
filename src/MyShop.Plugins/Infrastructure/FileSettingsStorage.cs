@@ -3,7 +3,7 @@ using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Shared.Models;
 using System.Text.Json;
 
-namespace MyShop.Plugins.Storage;
+namespace MyShop.Plugins.Infrastructure;
 
 /// <summary>
 /// File-based implementation of ISettingsStorage

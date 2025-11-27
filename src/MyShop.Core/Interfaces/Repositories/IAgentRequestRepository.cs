@@ -14,6 +14,22 @@ public interface IAgentRequestRepository
     Task<Result<IEnumerable<AgentRequest>>> GetAllAsync();
 
     /// <summary>
+    /// Get paged agent requests with filtering
+    /// </summary>
+    Task<Result<PagedList<AgentRequest>>> GetPagedAsync(
+        int page = 1,
+        int pageSize = Common.PaginationConstants.AgentRequestsPageSize,
+        string? status = null,
+        string? searchQuery = null,
+        string sortBy = "requestedAt",
+        bool sortDescending = true);
+
+    /// <summary>
+    /// Create new agent request
+    /// </summary>
+    Task<Result<AgentRequest>> CreateAsync(AgentRequest agentRequest);
+
+    /// <summary>
     /// Approve an agent request
     /// </summary>
     Task<Result<bool>> ApproveAsync(Guid id);

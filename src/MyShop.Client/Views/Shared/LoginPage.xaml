@@ -204,7 +204,8 @@
                            Style="{StaticResource PrimaryButtonStyle}"
                            Margin="0,8,0,0"
                            AutomationProperties.Name="Sign in button"
-                           AutomationProperties.HelpText="Click to sign in with your credentials">
+                           AutomationProperties.HelpText="Click to sign in with your credentials"
+                           ToolTipService.ToolTip="Sign in to your MyShop account">
                         <StackPanel Orientation="Horizontal" 
                                    Spacing="{StaticResource Gap_SM}" 
                                    HorizontalAlignment="Center">
@@ -243,7 +244,8 @@
                     <!-- Google Login Button -->
                     <Button Command="{x:Bind ViewModel.GoogleLoginCommand}"
                            Style="{StaticResource SecondaryButtonStyle}"
-                           AutomationProperties.Name="Sign in with Google">
+                           AutomationProperties.Name="Sign in with Google"
+                           ToolTipService.ToolTip="Sign in using your Google account">
                         <StackPanel Orientation="Horizontal" 
                                    Spacing="{StaticResource Gap_MD}">
                             <Image Source="/Assets/Google.png" 

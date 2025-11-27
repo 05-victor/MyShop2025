@@ -9,11 +9,21 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:pagination="using:MyShop.Client.Views.Components.Pagination"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Admin"
+    xmlns:skeletons="using:MyShop.Client.Views.Components.Skeletons"
+    xmlns:converters="using:MyShop.Client.Common.Converters"
     x:Name="MyPage"
     Background="#F3F4F6"
     mc:Ignorable="d">
 
+    <Page.Transitions>
+        <TransitionCollection>
+            <NavigationThemeTransition />
+        </TransitionCollection>
+    </Page.Transitions>
+
     <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
 
         <!--  Card style (giống card trắng bo góc trong React)  -->
         <Style x:Key="CardBorderStyle" TargetType="Border">
@@ -43,8 +53,9 @@
     </Page.Resources>
 
     <Grid>
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel Padding="32" Spacing="24">
+        <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Padding="32" Spacing="24">
 
                 <!--  PAGE TITLE  -->
                 <TextBlock
@@ -70,7 +81,8 @@
                             BorderThickness="1"
                             Click="ExportButton_Click"
                             CornerRadius="8"
-                            Foreground="#111827">
+                            Foreground="#111827"
+                            ToolTipService.ToolTip="Export products to CSV file">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon
                                     Width="24"
@@ -91,7 +103,8 @@
                         BorderThickness="1"
                         Command="{x:Bind ViewModel.RefreshCommand}"
                         CornerRadius="8"
-                        Foreground="#111827">
+                        Foreground="#111827"
+                        ToolTipService.ToolTip="Reload product list from server">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon
                                 Width="24"
@@ -224,13 +237,27 @@
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
+                        <!--  Loading Skeleton  -->
+                        <skeletons:SkeletonTable
+                            Grid.Row="0"
+                            Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+
                         <!--  Table  -->
+                        <!-- COPILOT-FIX: Changed to {Binding} - dynamic API data -->
                         <ListView
                             x:Name="ProductsListView"
                             Grid.Row="0"
                             BorderThickness="0"
                             IsItemClickEnabled="False"
-                            ItemsSource="{x:Bind ViewModel.Products, Mode=OneWay}">
+                            ItemsSource="{Binding Items, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                            <ListView.ItemContainerTransitions>
+                                <TransitionCollection>
+                                    <EntranceThemeTransition />
+                                    <RepositionThemeTransition />
+                                    <AddDeleteThemeTransition />
+                                </TransitionCollection>
+                            </ListView.ItemContainerTransitions>
                             <ListView.Resources>
                                 <!--  để ListView trong suốt, giữ border ngoài  -->
                                 <Style TargetType="ListView">
@@ -301,8 +328,7 @@
 
                             <!--  1 row  -->
                             <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <!--  Sau này đổi sang x:DataType cho mạnh  -->
+                                <DataTemplate x:DataType="viewmodels:ProductRow">
                                     <Grid Padding="-8,4,0,4">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="1*" />
@@ -325,7 +351,7 @@
                                             CornerRadius="8">
                                             <Rectangle RadiusX="8" RadiusY="8">
                                                 <Rectangle.Fill>
-                                                    <ImageBrush ImageSource="{Binding Image}" Stretch="UniformToFill" />
+                                                    <ImageBrush ImageSource="{x:Bind Image}" Stretch="UniformToFill" />
                                                 </Rectangle.Fill>
                                             </Rectangle>
                                         </Border>
@@ -335,31 +361,31 @@
                                             Grid.Column="1"
                                             VerticalAlignment="Center"
                                             Spacing="2">
-                                            <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Text="{x:Bind Name}" TextTrimming="CharacterEllipsis" />
                                             <TextBlock
                                                 FontSize="12"
                                                 Foreground="#6B7280"
-                                                Text="{Binding Sku}" />
+                                                Text="{x:Bind Sku}" />
                                         </StackPanel>
 
                                         <!--  Category  -->
                                         <TextBlock
                                             Grid.Column="2"
                                             VerticalAlignment="Center"
-                                            Text="{Binding Category}" />
+                                            Text="{x:Bind Category}" />
                                         <!--  Price  -->
                                         <TextBlock
                                             Grid.Column="3"
                                             VerticalAlignment="Center"
                                             Foreground="#10B981"
-                                            Text="{Binding Price}" />
+                                            Text="{x:Bind Price}" />
 
                                         <!--  Import price  -->
                                         <TextBlock
                                             Grid.Column="4"
                                             VerticalAlignment="Center"
                                             Foreground="#6B7280"
-                                            Text="{Binding ImportPrice}" />
+                                            Text="{x:Bind ImportPrice}" />
 
                                         <!--  Stock badge  -->
                                         <!--<Border Grid.Column="5"
@@ -368,7 +394,7 @@
                                         -->
                                         <!--  TODO: sau này dùng converter đổi màu theo Stock  -->
                                         <!--
-                                            <TextBlock Text="{Binding Stock}"
+                                            <TextBlock Text="{x:Bind Stock}"
                                                        Foreground="White"
                                                        FontSize="12"/>
                                         </Border>-->
@@ -383,35 +409,35 @@
                                                 VerticalAlignment="Center"
                                                 FontSize="12"
                                                 Foreground="White"
-                                                Text="{Binding Stock}" />
+                                                Text="{x:Bind Stock}" />
                                         </Border>
                                         <!--  Price  -->
                                         <TextBlock
                                             Grid.Column="3"
                                             VerticalAlignment="Center"
                                             Foreground="#10B981"
-                                            Text="{Binding Price}" />
+                                            Text="{x:Bind Price}" />
 
                                         <!--  Import price  -->
                                         <TextBlock
                                             Grid.Column="4"
                                             VerticalAlignment="Center"
                                             Foreground="#6B7280"
-                                            Text="{Binding ImportPrice}" />
+                                            Text="{x:Bind ImportPrice}" />
 
                                         <!--  Stock badge  -->
                                         <badges:StockBadge
                                             Grid.Column="5"
                                             HorizontalAlignment="Left"
                                             LowStockThreshold="10"
-                                            Stock="{Binding Stock}" />
+                                            Stock="{x:Bind Stock}" />
 
                                         <!--  Rating  -->
                                         <StackPanel
                                             Grid.Column="6"
                                             Orientation="Horizontal"
                                             Spacing="4">
-                                            <TextBlock VerticalAlignment="Center" Text="{Binding Rating}" />
+                                            <TextBlock VerticalAlignment="Center" Text="{x:Bind Rating}" />
                                             <FontIcon
                                                 FontSize="14"
                                                 Foreground="#F59E0B"
@@ -426,7 +452,7 @@
                                             <!--  Edit  -->
                                             <Button
                                                 Command="{Binding DataContext.EditProductCommand, ElementName=MyPage}"
-                                                CommandParameter="{Binding}"
+                                                CommandParameter="{x:Bind}"
                                                 Style="{StaticResource IconGhostButtonStyle}">
                                                 <FontIcon Foreground="#2563EB" Glyph="&#xE70F;" />
                                                 <!--  Edit icon  -->
@@ -435,7 +461,7 @@
                                             <!--  Delete  -->
                                             <Button
                                                 Command="{Binding DataContext.DeleteProductCommand, ElementName=MyPage}"
-                                                CommandParameter="{Binding}"
+                                                CommandParameter="{x:Bind}"
                                                 Style="{StaticResource IconGhostButtonStyle}">
                                                 <FontIcon Foreground="#DC2626" Glyph="&#xE74D;" />
                                                 <!--  Trash  -->
@@ -444,7 +470,7 @@
                                             <!--  View  -->
                                             <Button
                                                 Command="{Binding DataContext.ViewProductCommand, ElementName=MyPage}"
-                                                CommandParameter="{Binding}"
+                                                CommandParameter="{x:Bind}"
                                                 Style="{StaticResource IconGhostButtonStyle}">
                                                 <FontIcon Foreground="#6B7280" Glyph="&#xE8A7;" />
                                                 <!--  View  -->
@@ -455,92 +481,75 @@
                             </ListView.ItemTemplate>
                         </ListView>
 
-                        <!--  Sau này sẽ xóa(1)  -->
-
-                        <!--  Pagination  -->
-                        <!--<Grid
-                            Grid.Row="1"
-                            Margin="0,8,0,0"
-                            Padding="16,8,16,0"
-                            BorderBrush="#E5E7EB"
-                            BorderThickness="1,1,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>-->
-
-                        <!--  Left: summary  -->
-                        <!--<TextBlock
-                                Grid.Column="0"
-                                VerticalAlignment="Center"
-                                FontSize="12"
-                                Foreground="#6B7280"
-                                Text="Showing 1 to 8 of 8 products" />-->
-                        <!--  Sau này binding: Showing {StartIndex} to {EndIndex} of {TotalProducts}  -->
-
-                        <!--  Right: Prev / Page / Next  -->
-                        <!--<StackPanel
-                                Grid.Column="1"
-                                Orientation="Horizontal"
-                                Spacing="8">
-                                <Button
-                                    Padding="8,4"
-                                    Background="White"
-                                    BorderBrush="#E5E7EB"
-                                    BorderThickness="1"
-                                    Click="PrevPageButton_Click"
-                                    CornerRadius="6">
-                                    <StackPanel Orientation="Horizontal" Spacing="4">
-                                        <FontIcon
-                                            Width="16"
-                                            Height="16"
-                                            Glyph="&#xE76B;" />
-                                        <TextBlock FontSize="12" Text="Prev" />
-                                    </StackPanel>
-                                </Button>
-
-                                <TextBlock
-                                    VerticalAlignment="Center"
-                                    FontSize="12"
-                                    Foreground="#6B7280"
-                                    Text="Page 1 of 1" />
-                        -->
-                        <!--  sau này binding CurrentPage / TotalPages  -->
-
-                        <!--<Button
-                                    Padding="8,4"
-                                    Background="White"
-                                    BorderBrush="#E5E7EB"
-                                    BorderThickness="1"
-                                    Click="NextPageButton_Click"
-                                    CornerRadius="6">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock FontSize="12" Text="Next" />
-                                        <FontIcon
-                                            Width="16"
-                                            Height="16"
-                                            Glyph="&#xE76C;" />
-                                    </StackPanel>
-                                </Button>
-                            </StackPanel>
-                        </Grid>-->
-                        <!--  Sau này sẽ xóa(1)  -->
-
-
-
-                        <!--  Pagination  -->
-                        <pagination:PaginationControl
+                        <Grid
                             Grid.Row="1"
                             Margin="0,16,0,0"
-                            CurrentPage="1"
-                            PageSize="10"
-                            TotalItems="8" />
+                            Padding="16,12"
+                            Background="Transparent"
+                            BorderBrush="#E5E7EB"
+                            BorderThickness="0,1,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <!--  Previous Button  -->
+                            <Button
+                                Grid.Column="0"
+                                Padding="12,8"
+                                Background="White"
+                                BorderBrush="#E5E7EB"
+                                BorderThickness="1"
+                                Command="{x:Bind ViewModel.PreviousPageCommand}"
+                                CornerRadius="8">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon FontSize="14" Glyph="&#xE76B;" />
+                                    <TextBlock Text="Previous" />
+                                </StackPanel>
+                            </Button>
+
+                            <!--  Page Info  -->
+                            <StackPanel
+                                Grid.Column="1"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Spacing="4">
+                                <TextBlock
+                                    FontSize="14"
+                                    FontWeight="SemiBold"
+                                    Foreground="#111827"
+                                    HorizontalAlignment="Center"
+                                    Text="{x:Bind ViewModel.PageInfoText, Mode=OneWay}" />
+                                <TextBlock
+                                    FontSize="12"
+                                    Foreground="#6B7280"
+                                    HorizontalAlignment="Center"
+                                    Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}" />
+                            </StackPanel>
+
+                            <!--  Next Button  -->
+                            <Button
+                                Grid.Column="2"
+                                Padding="12,8"
+                                Background="White"
+                                BorderBrush="#E5E7EB"
+                                BorderThickness="1"
+                                Command="{x:Bind ViewModel.NextPageCommand}"
+                                CornerRadius="8">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="Next" />
+                                    <FontIcon FontSize="14" Glyph="&#xE76C;" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
 
                     </Grid>
                 </Border>
 
             </StackPanel>
         </ScrollViewer>
+        </RefreshContainer>
 
         <!--  ADD PRODUCT DIALOG (BEFORE: Dialog trong React)  -->
         <ContentDialog
@@ -639,6 +648,5 @@
                 </StackPanel>
             </StackPanel>
         </ContentDialog>
-
     </Grid>
 </Page>

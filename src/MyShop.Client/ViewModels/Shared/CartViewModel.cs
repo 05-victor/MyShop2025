@@ -1,8 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Client.Views.Shared;
-using MyShop.Core.Interfaces.Repositories;
+using MyShop.Client.Facades;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -12,10 +13,10 @@ namespace MyShop.Client.ViewModels.Shared;
 
 public partial class CartViewModel : ObservableObject
 {
-    private readonly ICartRepository _cartRepository;
-    private readonly IAuthRepository _authRepository;
+    private readonly ICartFacade _cartFacade;
     private readonly INavigationService _navigationService;
-    private readonly IToastService _toastHelper;
+    private readonly IDialogService _dialogService;
+    private readonly IToastService _toastService;
 
     [ObservableProperty]
     private ObservableCollection<CartItemViewModel> _items = new();
@@ -42,15 +43,15 @@ public partial class CartViewModel : ObservableObject
     private bool _isLoading = false;
 
     public CartViewModel(
-        ICartRepository cartRepository,
-        IAuthRepository authRepository,
+        ICartFacade cartFacade,
         INavigationService navigationService,
-        IToastService toastHelper)
+        IDialogService dialogService,
+        IToastService toastService)
     {
-        _cartRepository = cartRepository;
-        _authRepository = authRepository;
+        _cartFacade = cartFacade;
         _navigationService = navigationService;
-        _toastHelper = toastHelper;
+        _dialogService = dialogService;
+        _toastService = toastService;
     }
 
     public async Task InitializeAsync()
@@ -64,48 +65,43 @@ public partial class CartViewModel : ObservableObject
 
         try
         {
-            var userIdResult = await _authRepository.GetCurrentUserIdAsync();
+            var result = await _cartFacade.LoadCartAsync();
             
-            if (!userIdResult.IsSuccess || userIdResult.Data == Guid.Empty)
+            if (!result.IsSuccess || result.Data == null)
             {
                 Items.Clear();
                 IsEmpty = true;
                 return;
             }
 
-            var userId = userIdResult.Data;
-
-            // Load cart items
-            var cartItemsResult = await _cartRepository.GetCartItemsAsync(userId);
+            var cartItems = result.Data;
 
             Items.Clear();
-            if (cartItemsResult.IsSuccess && cartItemsResult.Data != null)
+            foreach (var item in cartItems)
             {
-                foreach (var item in cartItemsResult.Data)
+                Items.Add(new CartItemViewModel
                 {
-                    Items.Add(new CartItemViewModel
-                    {
-                        ProductId = item.ProductId,
-                        Name = item.ProductName,
-                        Category = item.CategoryName ?? "",
-                        Price = item.Price,
-                        Quantity = item.Quantity,
-                        ImageUrl = item.ProductImage ?? "ms-appx:///Assets/Images/products/product-placeholder.png",
-                        Stock = item.StockAvailable
-                    });
-                }
+                    ProductId = item.ProductId,
+                    Name = item.ProductName,
+                    Category = item.CategoryName ?? "",
+                    Price = item.Price,
+                    Quantity = item.Quantity,
+                    ImageUrl = item.ProductImage ?? "ms-appx:///Assets/Images/products/product-placeholder.png",
+                    Stock = item.StockAvailable
+                });
             }
 
-            // Load cart summary
-            var summaryResult = await _cartRepository.GetCartSummaryAsync(userId);
+            // Get cart summary for totals
+            var summaryResult = await _cartFacade.GetCartSummaryAsync();
             if (summaryResult.IsSuccess && summaryResult.Data != null)
             {
                 Subtotal = summaryResult.Data.Subtotal;
                 Tax = summaryResult.Data.Tax;
                 ShippingFee = summaryResult.Data.ShippingFee;
                 Total = summaryResult.Data.Total;
-                ItemCount = summaryResult.Data.ItemCount;
+                ItemCount = summaryResult.Data.TotalItems;
             }
+
             IsEmpty = Items.Count == 0;
 
             System.Diagnostics.Debug.WriteLine($"[CartViewModel] Loaded {Items.Count} items, Total: {Total:N0} VND");
@@ -113,7 +109,6 @@ public partial class CartViewModel : ObservableObject
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[CartViewModel] Error loading cart: {ex.Message}");
-            _toastHelper.ShowError("Failed to load cart");
         }
         finally
         {
@@ -124,35 +119,12 @@ public partial class CartViewModel : ObservableObject
     [RelayCommand]
     private async Task IncreaseQuantityAsync(CartItemViewModel item)
     {
-        if (item.Quantity >= item.Stock)
+        var result = await _cartFacade.UpdateCartItemQuantityAsync(item.ProductId, item.Quantity + 1);
+        
+        if (result.IsSuccess)
         {
-            await _toastHelper.ShowWarning("Maximum stock reached");
-            return;
-        }
-
-        try
-        {
-            var userIdResult = await _authRepository.GetCurrentUserIdAsync();
-            if (!userIdResult.IsSuccess) return;
-
-            var userId = userIdResult.Data;
-            var newQuantity = item.Quantity + 1;
-
-            var result = await _cartRepository.UpdateQuantityAsync(userId, item.ProductId, newQuantity);
-            
-            if (result.IsSuccess && result.Data)
-            {
-                item.Quantity = newQuantity;
-                await RefreshTotalsAsync();
-            }
-            else
-            {
-                await _toastHelper.ShowError("Failed to update quantity");
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[CartViewModel] Error increasing quantity: {ex.Message}");
+            item.Quantity++;
+            await RefreshTotalsAsync();
         }
     }
 
@@ -161,98 +133,58 @@ public partial class CartViewModel : ObservableObject
     {
         if (item.Quantity <= 1)
         {
-            // Remove item if quantity becomes 0
             await RemoveItemAsync(item);
             return;
         }
 
-        try
+        var result = await _cartFacade.UpdateCartItemQuantityAsync(item.ProductId, item.Quantity - 1);
+        
+        if (result.IsSuccess)
         {
-            var userIdResult = await _authRepository.GetCurrentUserIdAsync();
-            if (!userIdResult.IsSuccess) return;
-
-            var userId = userIdResult.Data;
-            var newQuantity = item.Quantity - 1;
-
-            var result = await _cartRepository.UpdateQuantityAsync(userId, item.ProductId, newQuantity);
-            
-            if (result.IsSuccess && result.Data)
-            {
-                item.Quantity = newQuantity;
-                await RefreshTotalsAsync();
-            }
-            else
-            {
-                await _toastHelper.ShowError("Failed to update quantity");
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[CartViewModel] Error decreasing quantity: {ex.Message}");
+            item.Quantity--;
+            await RefreshTotalsAsync();
         }
     }
 
     [RelayCommand]
     private async Task RemoveItemAsync(CartItemViewModel item)
     {
-        try
-        {
-            var userIdResult = await _authRepository.GetCurrentUserIdAsync();
-            if (!userIdResult.IsSuccess) return;
+        var confirmed = await _dialogService.ShowConfirmationAsync(
+            "Remove Item",
+            $"Are you sure you want to remove '{item.Name}' from your cart?");
 
-            var userId = userIdResult.Data;
+        if (!confirmed.IsSuccess || !confirmed.Data) return;
 
-            var result = await _cartRepository.RemoveFromCartAsync(userId, item.ProductId);
-            
-            if (result.IsSuccess && result.Data)
-            {
-                Items.Remove(item);
-                await RefreshTotalsAsync();
-                IsEmpty = Items.Count == 0;
-                await _toastHelper.ShowSuccess($"Removed {item.Name} from cart");
-            }
-            else
-            {
-                await _toastHelper.ShowError("Failed to remove item");
-            }
-        }
-        catch (Exception ex)
+        var result = await _cartFacade.RemoveFromCartAsync(item.ProductId);
+        
+        if (result.IsSuccess)
         {
-            System.Diagnostics.Debug.WriteLine($"[CartViewModel] Error removing item: {ex.Message}");
+            Items.Remove(item);
+            await RefreshTotalsAsync();
+            IsEmpty = Items.Count == 0;
         }
     }
 
     [RelayCommand]
     private async Task ClearCartAsync()
     {
-        try
-        {
-            var userIdResult = await _authRepository.GetCurrentUserIdAsync();
-            if (!userIdResult.IsSuccess) return;
+        var confirmed = await _dialogService.ShowConfirmationAsync(
+            "Clear Cart",
+            $"Are you sure you want to remove all {Items.Count} items from your cart? This action cannot be undone.");
 
-            var userId = userIdResult.Data;
+        if (!confirmed.IsSuccess || !confirmed.Data) return;
 
-            var result = await _cartRepository.ClearCartAsync(userId);
-            
-            if (result.IsSuccess && result.Data)
-            {
-                Items.Clear();
-                Subtotal = 0;
-                Tax = 0;
-                ShippingFee = 0;
-                Total = 0;
-                ItemCount = 0;
-                IsEmpty = true;
-                await _toastHelper.ShowSuccess("Cart cleared");
-            }
-            else
-            {
-                await _toastHelper.ShowError("Failed to clear cart");
-            }
-        }
-        catch (Exception ex)
+        var result = await _cartFacade.ClearCartAsync();
+        
+        if (result.IsSuccess)
         {
-            System.Diagnostics.Debug.WriteLine($"[CartViewModel] Error clearing cart: {ex.Message}");
+            Items.Clear();
+            Subtotal = 0;
+            Tax = 0;
+            ShippingFee = 0;
+            Total = 0;
+            ItemCount = 0;
+            IsEmpty = true;
         }
     }
 
@@ -265,9 +197,10 @@ public partial class CartViewModel : ObservableObject
     [RelayCommand]
     private async Task ProceedToCheckoutAsync()
     {
-        if (IsEmpty)
+        // Check if cart is empty
+        if (IsEmpty || Items.Count == 0)
         {
-            await _toastHelper.ShowWarning("Your cart is empty");
+            await _toastService.ShowInfo("Please add items to your cart before checkout");
             return;
         }
 
@@ -276,26 +209,15 @@ public partial class CartViewModel : ObservableObject
 
     private async Task RefreshTotalsAsync()
     {
-        try
-        {
-            var userIdResult = await _authRepository.GetCurrentUserIdAsync();
-            if (!userIdResult.IsSuccess) return;
+        var result = await _cartFacade.GetCartSummaryAsync();
 
-            var userId = userIdResult.Data;
-            var summaryResult = await _cartRepository.GetCartSummaryAsync(userId);
-
-            if (summaryResult.IsSuccess && summaryResult.Data != null)
-            {
-                Subtotal = summaryResult.Data.Subtotal;
-                Tax = summaryResult.Data.Tax;
-                ShippingFee = summaryResult.Data.ShippingFee;
-                Total = summaryResult.Data.Total;
-                ItemCount = summaryResult.Data.ItemCount;
-            }
-        }
-        catch (Exception ex)
+        if (result.IsSuccess && result.Data != null)
         {
-            System.Diagnostics.Debug.WriteLine($"[CartViewModel] Error refreshing totals: {ex.Message}");
+            Subtotal = result.Data.Subtotal;
+            Tax = result.Data.Tax;
+            ShippingFee = result.Data.ShippingFee;
+            Total = result.Data.Total;
+            ItemCount = result.Data.TotalItems;
         }
     }
 }

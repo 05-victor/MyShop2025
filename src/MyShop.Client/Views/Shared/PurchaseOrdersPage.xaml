@@ -114,27 +114,36 @@
 
                 <!-- Filters -->
                 <Border Style="{StaticResource CardStyle}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
+                    <StackPanel Spacing="16">
+                        <!-- Search Box -->
+                        <TextBox
+                            PlaceholderText="Search by order ID or customer..."
+                            Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            CornerRadius="8"
+                            BorderBrush="#E5E7EB" />
+                        
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
 
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <Button Content="All (24)" Padding="12,8" Background="#2563EB" Foreground="White" CornerRadius="8"/>
-                            <Button Content="Pending (3)" Padding="12,8" Background="Transparent" BorderBrush="#E5E7EB" Foreground="#6B7280" CornerRadius="8"/>
-                            <Button Content="Processing (1)" Padding="12,8" Background="Transparent" BorderBrush="#E5E7EB" Foreground="#6B7280" CornerRadius="8"/>
-                            <Button Content="Shipped (5)" Padding="12,8" Background="Transparent" BorderBrush="#E5E7EB" Foreground="#6B7280" CornerRadius="8"/>
-                            <Button Content="Delivered (15)" Padding="12,8" Background="Transparent" BorderBrush="#E5E7EB" Foreground="#6B7280" CornerRadius="8"/>
-                        </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Content="All (24)" Padding="12,8" Background="#2563EB" Foreground="White" CornerRadius="8"/>
+                                <Button Content="Pending (3)" Padding="12,8" Background="Transparent" BorderBrush="#E5E7EB" Foreground="#6B7280" CornerRadius="8"/>
+                                <Button Content="Processing (1)" Padding="12,8" Background="Transparent" BorderBrush="#E5E7EB" Foreground="#6B7280" CornerRadius="8"/>
+                                <Button Content="Shipped (5)" Padding="12,8" Background="Transparent" BorderBrush="#E5E7EB" Foreground="#6B7280" CornerRadius="8"/>
+                                <Button Content="Delivered (15)" Padding="12,8" Background="Transparent" BorderBrush="#E5E7EB" Foreground="#6B7280" CornerRadius="8"/>
+                            </StackPanel>
 
-                        <ComboBox Grid.Column="1" Width="200" PlaceholderText="Sort by" BorderBrush="#E5E7EB">
-                            <ComboBoxItem Content="Newest First" IsSelected="True"/>
-                            <ComboBoxItem Content="Oldest First"/>
-                            <ComboBoxItem Content="Highest Amount"/>
-                            <ComboBoxItem Content="Lowest Amount"/>
-                        </ComboBox>
-                    </Grid>
+                            <ComboBox Grid.Column="1" Width="200" PlaceholderText="Sort by" BorderBrush="#E5E7EB">
+                                <ComboBoxItem Content="Newest First" IsSelected="True"/>
+                                <ComboBoxItem Content="Oldest First"/>
+                                <ComboBoxItem Content="Highest Amount"/>
+                                <ComboBoxItem Content="Lowest Amount"/>
+                            </ComboBox>
+                        </Grid>
+                    </StackPanel>
                 </Border>
 
                 <!-- Sample Order Card -->

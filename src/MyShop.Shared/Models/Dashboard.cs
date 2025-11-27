@@ -75,3 +75,19 @@ public class RevenueChartData
     public List<string> Labels { get; set; } = new();
     public List<decimal> Data { get; set; } = new();
 }
+
+/// <summary>
+/// Top performing sales agent with performance metrics
+/// </summary>
+public class TopSalesAgent
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string Avatar { get; set; } = string.Empty;
+    public decimal GMV { get; set; } // Gross Merchandise Value
+    public decimal Commission { get; set; }
+    public int OrderCount { get; set; }
+    public double Rating { get; set; }
+    public string Status { get; set; } = string.Empty;
+}

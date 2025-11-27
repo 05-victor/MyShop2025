@@ -1,20 +1,15 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MyShop.Core.Interfaces.Services;
-using MyShop.Core.Interfaces.Repositories;
+using MyShop.Client.Facades;
+using MyShop.Core.Interfaces.Facades;
 using System;
 using System.Threading.Tasks;
 
 namespace MyShop.Client.ViewModels.Settings;
 
-/// <summary>
-/// ViewModel for Trial Activation dialog
-/// Validates and submits admin activation code
-/// </summary>
 public partial class TrialActivationViewModel : ObservableObject
 {
-    private readonly IAuthRepository _authRepository;
-    private readonly IToastService _toastHelper;
+    private readonly IAuthFacade _authFacade;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsFormValid))]
@@ -52,38 +47,29 @@ public partial class TrialActivationViewModel : ObservableObject
 
     public bool CanSubmit => !string.IsNullOrWhiteSpace(AdminCode) && !IsLoading;
 
-    public TrialActivationViewModel(
-        IAuthRepository authRepository,
-        IToastService toastHelper)
+    public TrialActivationViewModel(IAuthFacade authFacade)
     {
-        _authRepository = authRepository;
-        _toastHelper = toastHelper;
+        _authFacade = authFacade;
     }
 
-    /// <summary>
-    /// Activate trial with admin code
-    /// </summary>
     [RelayCommand]
     private async Task ActivateTrialAsync()
     {
+        IsLoading = true;
+        ErrorMessage = string.Empty;
+        AdminCodeError = string.Empty;
+
         try
         {
-            IsLoading = true;
-            ErrorMessage = string.Empty;
-            AdminCodeError = string.Empty; // Clear previous errors
-
-            // Call real API
-            var result = await _authRepository.ActivateTrialAsync(AdminCode);
+            var result = await _authFacade.ActivateTrialAsync(AdminCode);
 
             if (result.IsSuccess)
             {
-                _toastHelper.ShowSuccess("Trial account activated successfully!");
                 IsSuccess = true;
                 AdminCode = string.Empty;
             }
             else
             {
-                // Show error from API
                 AdminCodeError = result.ErrorMessage ?? "Invalid admin code";
                 ErrorMessage = result.ErrorMessage ?? "Activation failed. Please verify your admin code.";
             }

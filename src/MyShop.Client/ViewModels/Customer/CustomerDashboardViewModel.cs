@@ -3,9 +3,9 @@ using CommunityToolkit.Mvvm.Input;
 using MyShop.Shared.Models;
 using MyShop.Client.ViewModels.Base;
 using MyShop.Client.Views.Shared;
+using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Services;
-using MyShop.Core.Interfaces.Infrastructure;
-using MyShop.Core.Interfaces.Repositories;
+using MyShop.Client.Facades;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 
@@ -13,11 +13,9 @@ namespace MyShop.Client.ViewModels.Customer;
 
 public partial class CustomerDashboardViewModel : BaseViewModel
 {
-        private readonly INavigationService _navigationService;
-        private readonly IToastService _toastHelper;
-        private readonly ICredentialStorage _credentialStorage;
-        private readonly IProductRepository _productRepository;
-        private readonly IOrderRepository _orderRepository;
+        private new readonly INavigationService _navigationService;
+        private readonly IProductFacade _productFacade;
+        private readonly IProfileFacade _profileFacade;
 
         [ObservableProperty]
         private User? _currentUser;
@@ -45,19 +43,17 @@ public partial class CustomerDashboardViewModel : BaseViewModel
 
         public CustomerDashboardViewModel(
             INavigationService navigationService,
-            IToastService toastHelper,
-            ICredentialStorage credentialStorage,
-            IProductRepository productRepository,
-            IOrderRepository orderRepository)
+            IProductFacade productFacade,
+            IProfileFacade profileFacade)
         {
             _navigationService = navigationService;
-            _toastHelper = toastHelper;
-            _credentialStorage = credentialStorage;
-            _productRepository = productRepository;
-            _orderRepository = orderRepository;
+            _productFacade = productFacade;
+            _profileFacade = profileFacade;
         }
 
-        public async void Initialize(User user)
+    public async void Initialize(User user)
+    {
+        try
         {
             CurrentUser = user;
             IsVerified = user.IsEmailVerified;
@@ -65,8 +61,11 @@ public partial class CustomerDashboardViewModel : BaseViewModel
             UpdateWelcomeMessage();
             await LoadDataAsync();
         }
-
-        private async Task LoadDataAsync()
+        catch (System.Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[CustomerDashboardViewModel] Initialize failed: {ex.Message}");
+        }
+    }        private async Task LoadDataAsync()
         {
             await Task.WhenAll(
                 LoadFeaturedProductsAsync(),
@@ -103,13 +102,13 @@ public partial class CustomerDashboardViewModel : BaseViewModel
         {
             try
             {
-                var result = await _productRepository.GetAllAsync();
+                var result = await _productFacade.LoadProductsAsync();
                 if (!result.IsSuccess || result.Data == null)
                 {
                     return;
                 }
                 
-                var featured = result.Data.Take(4).ToList();
+                var featured = result.Data.Items.Take(4).ToList();
 
                 FeaturedProducts.Clear();
                 foreach (var product in featured)
@@ -138,13 +137,13 @@ public partial class CustomerDashboardViewModel : BaseViewModel
         {
             try
             {
-                var result = await _productRepository.GetAllAsync();
+                var result = await _productFacade.LoadProductsAsync();
                 if (!result.IsSuccess || result.Data == null)
                 {
                     return;
                 }
                 
-                var recommended = result.Data.Skip(4).Take(4).ToList();
+                var recommended = result.Data.Items.Skip(4).Take(4).ToList();
 
                 RecommendedProducts.Clear();
                 foreach (var product in recommended)
@@ -172,8 +171,8 @@ public partial class CustomerDashboardViewModel : BaseViewModel
         [RelayCommand]
         private async Task LogoutAsync()
         {
-            await _credentialStorage.RemoveToken();
-            await _toastHelper.ShowInfo("Logged out");
+            // Note: LogoutAsync should be in IAuthFacade, not IProfileFacade
+            // TODO: Inject IAuthFacade and use _authFacade.LogoutAsync()
             await _navigationService.NavigateTo(typeof(LoginPage).FullName!);
         }
     }

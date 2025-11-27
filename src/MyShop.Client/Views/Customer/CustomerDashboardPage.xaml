@@ -9,7 +9,13 @@
     xmlns:components="using:MyShop.Client.Views.Components"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     mc:Ignorable="d"
-    Background="#F3F4F6">
+    Background="#F5F7FA">
+
+    <Page.Transitions>
+        <TransitionCollection>
+            <EntranceThemeTransition FromVerticalOffset="50"/>
+        </TransitionCollection>
+    </Page.Transitions>
 
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
@@ -18,7 +24,13 @@
     </Page.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Padding="32" Spacing="32">
+        <Grid Padding="24" RowSpacing="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <StackPanel Grid.Row="0" Spacing="16">
             
             <!-- Become Admin Banner (shows when first user) -->
             <components:BecomeAdminBanner 
@@ -38,11 +50,8 @@
             </InfoBar>
 
             <!-- Welcome Section -->
-            <Border Background="White" 
-                   CornerRadius="16" 
-                   BorderBrush="#E5E7EB" 
-                   BorderThickness="1"
-                   Padding="32">
+            <Border Style="{StaticResource CardWithShadowStyle}"
+                   Padding="24">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -51,27 +60,30 @@
 
                     <StackPanel Grid.Column="0" Spacing="8">
                         <TextBlock Text="{x:Bind ViewModel.WelcomeMessage, Mode=OneWay}"
-                                  Style="{StaticResource DisplayHeadingStyle}"
+                                  FontSize="28"
+                                  FontWeight="Bold"
                                   TextWrapping="Wrap"
-                                  Foreground="#111827"/>
+                                  Foreground="#1B1D1F"/>
                         <TextBlock Text="Discover amazing products and great deals"
-                                  FontSize="16"
-                                  Foreground="#6B7280"/>
+                                  FontSize="14"
+                                  Foreground="#4A5568"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" 
                                Orientation="Horizontal" 
                                Spacing="12"
                                VerticalAlignment="Center">
-                        <Button Padding="16,10"
-                               Background="#1A4D8F"
-                               Foreground="White"
-                               BorderThickness="0"
-                               CornerRadius="8">
-                            <Button.Resources>
-                                <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#153d73"/>
-                                <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#0f2f5a"/>
-                            </Button.Resources>
+                        <Button Click="OnBecomeAgentClick"
+                               BorderBrush="#E5E7EB"
+                               Background="White"
+                               MinWidth="160">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE735;" FontSize="16" Foreground="#00AEEF"/>
+                                <TextBlock Text="Become Agent" FontSize="14" FontWeight="SemiBold" Foreground="#1B1D1F"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource PrimaryButtonStyle}"
+                               MinWidth="120">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon Glyph="&#xE719;" FontSize="16"/>
                                 <TextBlock Text="Shop Now" FontSize="14" FontWeight="SemiBold"/>
@@ -81,6 +93,11 @@
                 </Grid>
             </Border>
 
+            </StackPanel>
+            
+            <!-- Main Content -->
+            <StackPanel Grid.Row="1" Spacing="20">
+            
             <!-- Featured Products Section -->
             <StackPanel Spacing="16">
                 <Grid>
@@ -101,7 +118,8 @@
                                     Foreground="#00AEEF"/>
                 </Grid>
 
-                <ItemsRepeater ItemsSource="{x:Bind ViewModel.FeaturedProducts, Mode=OneWay}">
+                <!-- COPILOT-FIX: Changed to {Binding} - async loaded API data -->
+                <ItemsRepeater ItemsSource="{Binding FeaturedProducts, Mode=OneWay}">
                     <ItemsRepeater.Layout>
                         <UniformGridLayout MinItemWidth="250" 
                                          MinItemHeight="320" 
@@ -111,11 +129,7 @@
                     </ItemsRepeater.Layout>
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate x:DataType="viewmodels:FeaturedProductItem">
-                            <Border Background="White" 
-                                   CornerRadius="12" 
-                                   BorderBrush="#E5E7EB"
-                                   BorderThickness="1"
-                                   Padding="16">
+                            <Border Style="{StaticResource ProductCardStyle}">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="180"/>
@@ -221,7 +235,8 @@
                                     Foreground="#00AEEF"/>
                 </Grid>
 
-                <ItemsRepeater ItemsSource="{x:Bind ViewModel.RecommendedProducts, Mode=OneWay}">
+                <!-- COPILOT-FIX: Changed to {Binding} - async loaded API data -->
+                <ItemsRepeater ItemsSource="{Binding RecommendedProducts, Mode=OneWay}">
                     <ItemsRepeater.Layout>
                         <UniformGridLayout MinItemWidth="250" 
                                          MinItemHeight="320" 
@@ -231,11 +246,7 @@
                     </ItemsRepeater.Layout>
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate x:DataType="viewmodels:RecommendedProductItem">
-                            <Border Background="White" 
-                                   CornerRadius="12" 
-                                   BorderBrush="#E5E7EB"
-                                   BorderThickness="1"
-                                   Padding="16">
+                            <Border Style="{StaticResource ProductCardStyle}">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="180"/>
@@ -321,6 +332,7 @@
                 </ItemsRepeater>
             </StackPanel>
 
-        </StackPanel>
+            </StackPanel>
+        </Grid>
     </ScrollViewer>
 </Page>

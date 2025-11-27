@@ -6,13 +6,19 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="#F8FAFC">
+    Background="#F5F7FA">
+
+    <Page.Transitions>
+        <TransitionCollection>
+            <EntranceThemeTransition FromVerticalOffset="50"/>
+        </TransitionCollection>
+    </Page.Transitions>
 
     <Page.Resources>
         <Style x:Key="CardStyle" TargetType="Border">
             <Setter Property="Background" Value="White"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="BorderBrush" Value="#D0D7E2"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="24"/>
         </Style>
@@ -26,23 +32,22 @@
 
         <Style x:Key="InputBoxStyle" TargetType="TextBox">
             <Setter Property="Height" Value="40"/>
+            <Setter Property="CornerRadius" Value="10"/>
             <Setter Property="Padding" Value="12,8"/>
-            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderBrush" Value="#D0D7E2"/>
             <Setter Property="Background" Value="White"/>
         </Style>
     </Page.Resources>
 
     <Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel Padding="32" Spacing="24" MaxWidth="1200">
+            <StackPanel Padding="24" Spacing="20" MaxWidth="1200">
 
                 <!-- Header -->
                 <Grid>
                     <StackPanel Orientation="Horizontal" Spacing="16">
-                        <Button Padding="12,8" 
-                               Background="White"
-                               BorderBrush="#E5E7EB"
-                               CornerRadius="8">
+                        <Button Style="{StaticResource SecondaryButtonStyle}"
+                               MinWidth="120">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon Glyph="&#xE72B;" FontSize="16"/>
                                 <TextBlock Text="Back to Cart"/>
@@ -51,11 +56,11 @@
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="Checkout" 
                                       FontSize="28" 
-                                      FontWeight="SemiBold"
-                                      Foreground="#111827"/>
+                                      FontWeight="Bold"
+                                      Foreground="#1B1D1F"/>
                             <TextBlock Text="Complete your purchase" 
                                       FontSize="14" 
-                                      Foreground="#6B7280"/>
+                                      Foreground="#4A5568"/>
                         </StackPanel>
                     </StackPanel>
                 </Grid>
@@ -258,19 +263,10 @@
                             </StackPanel>
 
                             <!-- Continue to Payment Button -->
-                            <Button Content="Continue to Payment"
-                                   Background="#2563EB"
-                                   Foreground="White"
-                                   Padding="16"
-                                   CornerRadius="8"
+                            <Button Style="{StaticResource PrimaryButtonStyle}"
+                                   Content="Continue to Payment"
                                    HorizontalAlignment="Stretch"
-                                   Height="48"
-                                   Margin="0,16,0,0">
-                                <Button.Resources>
-                                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#1D4ED8"/>
-                                    <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#1E40AF"/>
-                                </Button.Resources>
-                            </Button>
+                                   Margin="0,16,0,0" />
 
                             <TextBlock Text="By proceeding, you agree to our terms and conditions" 
                                       FontSize="11" 
