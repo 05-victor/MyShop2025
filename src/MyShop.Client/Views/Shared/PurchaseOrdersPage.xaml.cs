@@ -18,7 +18,14 @@ namespace MyShop.Client.Views.Shared
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            await ViewModel.InitializeAsync();
+            try
+            {
+                await ViewModel.InitializeAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersPage] OnNavigatedTo failed: {ex.Message}");
+            }
         }
     }
 }

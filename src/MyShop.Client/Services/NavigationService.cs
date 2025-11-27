@@ -1,7 +1,6 @@
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Linq;
-using MyShop.Client.Helpers;
 using MyShop.Core.Common;
 
 namespace MyShop.Client.Services;
@@ -23,7 +22,7 @@ public class NavigationService : MyShop.Core.Interfaces.Services.INavigationServ
     public void Initialize(Frame frame)
     {
         _rootFrame = frame ?? throw new ArgumentNullException(nameof(frame));
-        AppLogger.Debug("NavigationService initialized with root Frame");
+        LoggingService.Instance.Information("NavigationService initialized with root Frame");
     }
 
     /// <summary>
@@ -38,7 +37,7 @@ public class NavigationService : MyShop.Core.Interfaces.Services.INavigationServ
                 return Result<Unit>.Failure("Shell frame must be of type Frame");
 
             _shellFrame = frame;
-            AppLogger.Debug("Shell ContentFrame registered for in-shell navigation");
+            LoggingService.Instance.Debug("Shell ContentFrame registered for in-shell navigation");
             return Result<Unit>.Success(Unit.Value);
         }
         catch (Exception ex)
@@ -55,7 +54,7 @@ public class NavigationService : MyShop.Core.Interfaces.Services.INavigationServ
         try
         {
             _shellFrame = null;
-            AppLogger.Debug("Shell ContentFrame unregistered");
+            LoggingService.Instance.Debug("Shell ContentFrame unregistered");
             return Result<Unit>.Success(Unit.Value);
         }
         catch (Exception ex)
@@ -113,25 +112,44 @@ public class NavigationService : MyShop.Core.Interfaces.Services.INavigationServ
         try
         {
             if (_rootFrame is null)
+            {
+                LoggingService.Instance.Error("[Root] NavigationService not initialized");
                 return Result<Unit>.Failure("NavigationService must be initialized before use.");
+            }
 
             if (pageType == null)
+            {
+                LoggingService.Instance.Error("[Root] Page type is null");
                 return Result<Unit>.Failure("Page type cannot be null");
+            }
 
             if (_rootFrame.CurrentSourcePageType == pageType && parameter == null)
             {
-                AppLogger.Debug($"Skipping root navigation - already on {pageType.Name}");
+                LoggingService.Instance.Debug($"[Root] Skipping navigation - already on {pageType.Name}");
                 return Result<Unit>.Success(Unit.Value);
             }
 
-            AppLogger.Info($"[Root] Navigating to {pageType.Name}...");
-            _rootFrame.Navigate(pageType, parameter);
-            AppLogger.Success($"[Root] Navigation to {pageType.Name} completed");
-            return Result<Unit>.Success(Unit.Value);
+            // Use NavigationLogger.SafeNavigate instead of direct Frame.Navigate
+            var success = NavigationLogger.SafeNavigate(_rootFrame, pageType, parameter, "Root");
+            
+            if (success)
+            {
+                return Result<Unit>.Success(Unit.Value);
+            }
+            else
+            {
+                return Result<Unit>.Failure($"Navigation to {pageType.Name} failed: Frame.Navigate returned false");
+            }
         }
         catch (Exception ex)
         {
-            AppLogger.Error($"[Root] Navigation to {pageType.Name} failed", ex);
+            LoggingService.Instance.Error($"[Root] Navigation to {pageType.Name} failed", ex);
+            NavigationLogger.LogNavigationFailure(
+                _rootFrame?.CurrentSourcePageType?.Name ?? "Unknown",
+                pageType.Name,
+                ex,
+                parameter
+            );
             return Result<Unit>.Failure($"Navigation to {pageType.Name} failed: {ex.Message}");
         }
     }
@@ -144,25 +162,44 @@ public class NavigationService : MyShop.Core.Interfaces.Services.INavigationServ
         try
         {
             if (_shellFrame == null)
+            {
+                LoggingService.Instance.Error("[Shell] Shell frame not registered");
                 return Result<Unit>.Failure("Shell frame not registered.");
+            }
 
             if (pageType == null)
+            {
+                LoggingService.Instance.Error("[Shell] Page type is null");
                 return Result<Unit>.Failure("Page type cannot be null");
+            }
 
             if (_shellFrame.CurrentSourcePageType == pageType && parameter == null)
             {
-                AppLogger.Debug($"Skipping in-shell navigation - already on {pageType.Name}");
+                LoggingService.Instance.Debug($"[Shell] Skipping navigation - already on {pageType.Name}");
                 return Result<Unit>.Success(Unit.Value);
             }
 
-            AppLogger.Info($"[Shell] Navigating to {pageType.Name}...");
-            _shellFrame.Navigate(pageType, parameter);
-            AppLogger.Success($"[Shell] Navigation to {pageType.Name} completed");
-            return Result<Unit>.Success(Unit.Value);
+            // Use NavigationLogger.SafeNavigate instead of direct Frame.Navigate
+            var success = NavigationLogger.SafeNavigate(_shellFrame, pageType, parameter, "Shell");
+            
+            if (success)
+            {
+                return Result<Unit>.Success(Unit.Value);
+            }
+            else
+            {
+                return Result<Unit>.Failure($"In-shell navigation to {pageType.Name} failed: Frame.Navigate returned false");
+            }
         }
         catch (Exception ex)
         {
-            AppLogger.Error($"[Shell] Navigation to {pageType.Name} failed", ex);
+            LoggingService.Instance.Error($"[Shell] Navigation to {pageType.Name} failed", ex);
+            NavigationLogger.LogNavigationFailure(
+                _shellFrame?.CurrentSourcePageType?.Name ?? "Unknown",
+                pageType.Name,
+                ex,
+                parameter
+            );
             return Result<Unit>.Failure($"In-shell navigation to {pageType.Name} failed: {ex.Message}");
         }
     }
@@ -195,13 +232,13 @@ public class NavigationService : MyShop.Core.Interfaces.Services.INavigationServ
         {
             if (_rootFrame?.CanGoBack == true)
             {
-                AppLogger.Debug("Navigating back");
+                LoggingService.Instance.Debug("Navigating back");
                 _rootFrame.GoBack();
                 return Result<Unit>.Success(Unit.Value);
             }
             else
             {
-                AppLogger.Warning("Cannot navigate back - no pages in back stack");
+                LoggingService.Instance.Warning("Cannot navigate back - no pages in back stack");
                 return Result<Unit>.Failure("Cannot navigate back - no pages in back stack");
             }
         }
@@ -226,7 +263,7 @@ public class NavigationService : MyShop.Core.Interfaces.Services.INavigationServ
             if (_rootFrame != null)
             {
                 _rootFrame.BackStack.Clear();
-                AppLogger.Debug("Navigation stack cleared");
+                LoggingService.Instance.Debug("Navigation stack cleared");
                 return Result<Unit>.Success(Unit.Value);
             }
             return Result<Unit>.Failure("Root frame not initialized");

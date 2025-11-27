@@ -58,5 +58,10 @@ namespace MyShop.Client.Views.Customer
             // Navigate to AdminDashboard
             await _navigationService.NavigateTo(typeof(Shell.AdminDashboardShell).FullName!, upgradedUser);
         }
+
+        private void OnBecomeAgentClick(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            _navigationService.NavigateTo(typeof(BecomeAgentPage).FullName!);
+        }
     }
 }

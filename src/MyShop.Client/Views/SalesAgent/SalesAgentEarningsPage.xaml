@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="MyShop.Client.Views.SalesAgent.EarningsPage"
+    x:Name="RootPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:cards="using:MyShop.Client.Views.Components.Cards"
+    xmlns:viewmodels="using:MyShop.Client.ViewModels.SalesAgent"
     mc:Ignorable="d"
     Background="#F3F4F6">
 
@@ -188,135 +190,72 @@
                                       Foreground="#6B7280"/>
                         </Grid>
 
-                        <!-- Table Body (Mock Data) -->
+                        <!-- Table Body -->
                         <ScrollViewer Grid.Row="2" MaxHeight="400">
-                            <StackPanel>
-                                <!-- Row 1 -->
-                                <Grid Padding="0,12" 
-                                     BorderBrush="#E5E7EB"
-                                     BorderThickness="0,0,0,1">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="100"/>
-                                    </Grid.ColumnDefinitions>
+                            <ItemsRepeater ItemsSource="{x:Bind ViewModel.Commissions, Mode=OneWay}">
+                                <ItemsRepeater.ItemTemplate>
+                                    <DataTemplate x:DataType="viewmodels:CommissionViewModel">
+                                        <Grid Padding="0,12" 
+                                             BorderBrush="#E5E7EB"
+                                             BorderThickness="0,0,0,1">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="100"/>
+                                            </Grid.ColumnDefinitions>
 
-                                    <TextBlock Grid.Column="0" Text="ORD-001" 
-                                              FontSize="13" FontFamily="Consolas"
-                                              Foreground="#6B7280"/>
-                                    <TextBlock Grid.Column="1" Text="iPhone 15 Pro" 
-                                              FontSize="14" Foreground="#111827"
-                                              TextTrimming="CharacterEllipsis"/>
-                                    <TextBlock Grid.Column="2" Text="John Doe" 
-                                              FontSize="14" Foreground="#6B7280"/>
-                                    <TextBlock Grid.Column="3" Text="$1,199" 
-                                              FontSize="14" FontWeight="SemiBold"
-                                              Foreground="#111827"/>
-                                    <TextBlock Grid.Column="4" Text="$119.90" 
-                                              FontSize="14" Foreground="#DC2626"/>
-                                    <TextBlock Grid.Column="5" Text="$1,079.10" 
-                                              FontSize="14" FontWeight="Bold"
-                                              Foreground="#10B981"/>
-                                    <Border Grid.Column="6"
-                                           Background="#D1FAE5"
-                                           CornerRadius="999"
-                                           Padding="8,4"
-                                           HorizontalAlignment="Left">
-                                        <TextBlock Text="Paid"
-                                                  FontSize="12"
-                                                  FontWeight="SemiBold"
-                                                  Foreground="#10B981"/>
-                                    </Border>
-                                </Grid>
-
-                                <!-- Row 2 -->
-                                <Grid Padding="0,12" 
-                                     BorderBrush="#E5E7EB"
-                                     BorderThickness="0,0,0,1">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="100"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <TextBlock Grid.Column="0" Text="ORD-002" 
-                                              FontSize="13" FontFamily="Consolas"
-                                              Foreground="#6B7280"/>
-                                    <TextBlock Grid.Column="1" Text="MacBook Pro 16 inch" 
-                                              FontSize="14" Foreground="#111827"
-                                              TextTrimming="CharacterEllipsis"/>
-                                    <TextBlock Grid.Column="2" Text="Jane Smith" 
-                                              FontSize="14" Foreground="#6B7280"/>
-                                    <TextBlock Grid.Column="3" Text="$2,499" 
-                                              FontSize="14" FontWeight="SemiBold"
-                                              Foreground="#111827"/>
-                                    <TextBlock Grid.Column="4" Text="$249.90" 
-                                              FontSize="14" Foreground="#DC2626"/>
-                                    <TextBlock Grid.Column="5" Text="$2,249.10" 
-                                              FontSize="14" FontWeight="Bold"
-                                              Foreground="#10B981"/>
-                                    <Border Grid.Column="6"
-                                           Background="#DFF0FF"
-                                           CornerRadius="999"
-                                           Padding="8,4"
-                                           HorizontalAlignment="Left">
-                                        <TextBlock Text="Approved"
-                                                  FontSize="12"
-                                                  FontWeight="SemiBold"
-                                                  Foreground="#3B82F6"/>
-                                    </Border>
-                                </Grid>
-
-                                <!-- Row 3 -->
-                                <Grid Padding="0,12" 
-                                     BorderBrush="#E5E7EB"
-                                     BorderThickness="0,0,0,1">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="100"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <TextBlock Grid.Column="0" Text="ORD-003" 
-                                              FontSize="13" FontFamily="Consolas"
-                                              Foreground="#6B7280"/>
-                                    <TextBlock Grid.Column="1" Text="AirPods Pro 2" 
-                                              FontSize="14" Foreground="#111827"
-                                              TextTrimming="CharacterEllipsis"/>
-                                    <TextBlock Grid.Column="2" Text="Mike Johnson" 
-                                              FontSize="14" Foreground="#6B7280"/>
-                                    <TextBlock Grid.Column="3" Text="$249" 
-                                              FontSize="14" FontWeight="SemiBold"
-                                              Foreground="#111827"/>
-                                    <TextBlock Grid.Column="4" Text="$24.90" 
-                                              FontSize="14" Foreground="#DC2626"/>
-                                    <TextBlock Grid.Column="5" Text="$224.10" 
-                                              FontSize="14" FontWeight="Bold"
-                                              Foreground="#10B981"/>
-                                    <Border Grid.Column="6"
-                                           Background="#FEF3C7"
-                                           CornerRadius="999"
-                                           Padding="8,4"
-                                           HorizontalAlignment="Left">
-                                        <TextBlock Text="Pending"
-                                                  FontSize="12"
-                                                  FontWeight="SemiBold"
-                                                  Foreground="#F59E0B"/>
-                                    </Border>
-                                </Grid>
-                            </StackPanel>
+                                            <TextBlock Grid.Column="0" 
+                                                      Text="{x:Bind OrderId, Mode=OneWay}" 
+                                                      FontSize="13" 
+                                                      FontFamily="Consolas"
+                                                      Foreground="#6B7280"/>
+                                            
+                                            <TextBlock Grid.Column="1" 
+                                                      Text="{x:Bind ProductName, Mode=OneWay}" 
+                                                      FontSize="14" 
+                                                      Foreground="#111827"
+                                                      TextTrimming="CharacterEllipsis"/>
+                                            
+                                            <TextBlock Grid.Column="2" 
+                                                      Text="{x:Bind CustomerName, Mode=OneWay}" 
+                                                      FontSize="14" 
+                                                      Foreground="#6B7280"/>
+                                            
+                                            <TextBlock Grid.Column="3" 
+                                                      Text="{x:Bind SaleAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" 
+                                                      FontSize="14" 
+                                                      FontWeight="SemiBold"
+                                                      Foreground="#111827"/>
+                                            
+                                            <TextBlock Grid.Column="4" 
+                                                      Text="{x:Bind CommissionAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" 
+                                                      FontSize="14" 
+                                                      Foreground="#DC2626"/>
+                                            
+                                            <TextBlock Grid.Column="5" 
+                                                      Text="{x:Bind NetIncome, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" 
+                                                      FontSize="14" 
+                                                      FontWeight="Bold"
+                                                      Foreground="#10B981"/>
+                                            
+                                            <Border Grid.Column="6"
+                                                   Background="{x:Bind StatusBgColor, Mode=OneWay}"
+                                                   CornerRadius="999"
+                                                   Padding="8,4"
+                                                   HorizontalAlignment="Left">
+                                                <TextBlock Text="{x:Bind Status, Mode=OneWay}"
+                                                          FontSize="12"
+                                                          FontWeight="SemiBold"
+                                                          Foreground="{x:Bind StatusColor, Mode=OneWay}"/>
+                                            </Border>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsRepeater.ItemTemplate>
+                            </ItemsRepeater>
                         </ScrollViewer>
                     </Grid>
                 </cards:DataTableCard.TableContent>

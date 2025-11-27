@@ -84,7 +84,8 @@
             <StackPanel>
                 <TextBlock Text="Items Ordered" Style="{StaticResource SectionHeaderStyle}"/>
                 
-                <ItemsControl ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}">
+                <!-- COPILOT-FIX: Changed to {Binding} - dynamic order items -->
+                <ItemsControl ItemsSource="{Binding Items, Mode=OneWay}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:OrderItemViewModel">
                             <Border Background="White"

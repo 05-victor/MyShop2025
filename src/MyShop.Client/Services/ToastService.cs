@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using MyShop.Client.Common.Helpers;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Services;
 using System;
@@ -76,22 +77,9 @@ public class ToastService : IToastService
         }
     }
 
-    private XamlRoot? ResolveXamlRoot()
-    {
-        if (_xamlRoot != null)
-            return _xamlRoot;
-
-        // Try to reuse App.MainWindow if available
-        var main = App.MainWindow;
-        if (main?.Content?.XamlRoot != null)
-            return main.Content.XamlRoot;
-
-        return null;
-    }
-
     private async Task ShowDialogAsync(string title, string content)
     {
-        var xamlRoot = ResolveXamlRoot();
+        var xamlRoot = XamlRootHelper.ResolveXamlRoot(_xamlRoot);
         if (xamlRoot is null)
         {
             System.Diagnostics.Debug.WriteLine("ToastService could not resolve XamlRoot. Skipping dialog.");
@@ -131,7 +119,7 @@ public class ToastService : IToastService
     {
         try
         {
-            var xamlRoot = ResolveXamlRoot();
+            var xamlRoot = XamlRootHelper.ResolveXamlRoot(_xamlRoot);
             if (xamlRoot is null)
             {
                 System.Diagnostics.Debug.WriteLine("ToastService could not resolve XamlRoot. Returning Cancel.");

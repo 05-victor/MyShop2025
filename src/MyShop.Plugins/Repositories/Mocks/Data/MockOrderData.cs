@@ -1,4 +1,4 @@
-using MyShop.Shared.Models;
+﻿using MyShop.Shared.Models;
 using System.Text.Json;
 
 namespace MyShop.Plugins.Mocks.Data;
@@ -58,20 +58,9 @@ public static class MockOrderData
 
     private static void InitializeDefaultData()
     {
-        _orders = new List<OrderDataModel>
-        {
-            new OrderDataModel
-            {
-                Id = "30000000-0000-0000-0000-000000000001",
-                CustomerId = "00000000-0000-0000-0000-000000000012",
-                CustomerName = "Nguyễn Văn A",
-                SalesAgentId = "00000000-0000-0000-0000-000000000002",
-                FinalPrice = 29990000,
-                Status = "PAID",
-                CreatedAt = DateTime.Parse("2025-11-05T14:30:00Z"),
-                Items = new List<OrderItemDataModel>()
-            }
-        };
+        // Initialize empty list - data should be loaded from orders.json
+        _orders = new List<OrderDataModel>();
+        System.Diagnostics.Debug.WriteLine("[MockOrderData] JSON file not found - initialized with empty order list");
     }
 
     public static async Task<List<Order>> GetAllAsync()
@@ -123,9 +112,7 @@ public static class MockOrderData
                 ProductId = i.ProductId.ToString(),
                 ProductName = i.ProductName,
                 Quantity = i.Quantity,
-                UnitSalePrice = i.UnitPrice,
-                TotalPrice = i.TotalPrice,
-                CreatedAt = DateTime.UtcNow
+                UnitPrice = i.UnitPrice
             }).ToList() ?? new List<OrderItemDataModel>()
         };
 
@@ -229,33 +216,57 @@ public static class MockOrderData
 
     private static Order MapToOrder(OrderDataModel data)
     {
-        return new Order
+        try
         {
-            Id = Guid.Parse(data.Id),
-            OrderDate = data.OrderDate ?? data.CreatedAt,
-            CustomerId = !string.IsNullOrEmpty(data.CustomerId) ? Guid.Parse(data.CustomerId) : null,
-            CustomerName = data.CustomerName ?? string.Empty,
-            CustomerPhone = data.CustomerPhone,
-            CustomerAddress = data.CustomerAddress,
-            SalesAgentId = !string.IsNullOrEmpty(data.SalesAgentId) ? Guid.Parse(data.SalesAgentId) : null,
-            Subtotal = data.Subtotal,
-            Discount = data.Discount,
-            FinalPrice = data.FinalPrice,
-            Status = data.Status,
-            Notes = data.Notes,
-            CreatedAt = data.CreatedAt,
-            UpdatedAt = data.UpdatedAt,
-            OrderItems = data.Items?.Select(i => new OrderItem
+            return new Order
             {
-                Id = Guid.Parse(i.Id),
-                OrderId = Guid.Parse(i.OrderId),
-                ProductId = Guid.Parse(i.ProductId),
-                ProductName = i.ProductName,
-                Quantity = i.Quantity,
-                UnitPrice = i.UnitSalePrice,
-                TotalPrice = i.TotalPrice
-            }).ToList() ?? new List<OrderItem>()
-        };
+                Id = Guid.TryParse(data.Id, out var orderId) ? orderId : Guid.NewGuid(),
+                OrderDate = data.OrderDate ?? data.CreatedAt,
+                CustomerId = !string.IsNullOrEmpty(data.CustomerId) && Guid.TryParse(data.CustomerId, out var custId) ? custId : null,
+                CustomerName = data.CustomerName ?? string.Empty,
+                CustomerPhone = data.CustomerPhone,
+                CustomerAddress = data.CustomerAddress,
+                SalesAgentId = !string.IsNullOrEmpty(data.SalesAgentId) && Guid.TryParse(data.SalesAgentId, out var agentId) ? agentId : null,
+                SalesAgentName = data.SalesAgentName,
+                Subtotal = data.Subtotal,
+                Discount = data.Discount,
+                FinalPrice = data.FinalPrice,
+                Status = data.Status,
+                Notes = data.Notes,
+                CreatedAt = data.CreatedAt,
+                UpdatedAt = data.UpdatedAt,
+                OrderItems = data.Items?.Where(i => !string.IsNullOrEmpty(i.Id) && 
+                                                     !string.IsNullOrEmpty(i.ProductId))
+                    .Select(i => {
+                        try
+                        {
+                            return new OrderItem
+                            {
+                                Id = Guid.TryParse(i.Id, out var itemId) ? itemId : Guid.NewGuid(),
+                                OrderId = Guid.TryParse(data.Id, out var oId) ? oId : Guid.NewGuid(),
+                                ProductId = Guid.TryParse(i.ProductId, out var pId) ? pId : Guid.NewGuid(),
+                                ProductName = i.ProductName,
+                                Quantity = i.Quantity,
+                                UnitPrice = i.UnitPrice,
+                                TotalPrice = i.TotalPrice
+                            };
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[MockOrderData] Error mapping order item: {ex.Message}");
+                            return null;
+                        }
+                    })
+                    .Where(item => item != null)
+                    .Cast<OrderItem>()
+                    .ToList() ?? new List<OrderItem>()
+            };
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockOrderData] Error mapping order {data.Id}: {ex.Message}");
+            throw;
+        }
     }
 
     private static async Task SaveDataToJsonAsync()
@@ -296,9 +307,11 @@ public static class MockOrderData
         public DateTime? OrderDate { get; set; }
         public string? CustomerId { get; set; }
         public string? CustomerName { get; set; }
+        public string? CustomerEmail { get; set; }
         public string? CustomerPhone { get; set; }
         public string? CustomerAddress { get; set; }
         public string SalesAgentId { get; set; } = string.Empty;
+        public string? SalesAgentName { get; set; }
         public decimal Subtotal { get; set; }
         public decimal Discount { get; set; }
         public decimal FinalPrice { get; set; }
@@ -306,19 +319,20 @@ public static class MockOrderData
         public string? Notes { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        
+        [System.Text.Json.Serialization.JsonPropertyName("orderItems")]
         public List<OrderItemDataModel>? Items { get; set; }
     }
 
     private class OrderItemDataModel
     {
         public string Id { get; set; } = string.Empty;
-        public string OrderId { get; set; } = string.Empty;
+        public string? OrderId { get; set; }
         public string ProductId { get; set; } = string.Empty;
         public string? ProductName { get; set; }
         public int Quantity { get; set; }
-        public decimal UnitSalePrice { get; set; }
+        public decimal UnitPrice { get; set; }
         public decimal TotalPrice { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
+        public decimal? CommissionRate { get; set; }
     }
 }

@@ -11,12 +11,21 @@
     <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
     <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+    <converters:BoolToButtonBackgroundConverter x:Key="BoolToButtonBackgroundConverter"/>
+    <converters:BoolToButtonForegroundConverter x:Key="BoolToButtonForegroundConverter"/>
     
     <!-- Null/Empty Converters -->
     <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
     <converters:EmptyStringToVisibilityConverter x:Key="EmptyStringToVisibilityConverter"/>
     
+    <!-- Count/Collection Converters -->
+    <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+    <converters:CountToVisibilityConverter x:Key="InverseCountToVisibilityConverter" IsInverted="True"/>
+    
     <!-- String Converters -->
     <converters:StringFormatConverter x:Key="StringFormatConverter"/>
+    
+    <!-- Password Converters -->
+    <converters:PasswordStrengthToColorConverter x:Key="PasswordStrengthToColorConverter"/>
 
 </ResourceDictionary>

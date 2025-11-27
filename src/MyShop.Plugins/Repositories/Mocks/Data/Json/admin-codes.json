@@ -1,0 +1,70 @@
+{
+  "adminCodes": [
+    {
+      "code": "ADMIN-MASTER-2025",
+      "type": "Master",
+      "description": "Master admin code for first-time setup",
+      "status": "Used",
+      "usedBy": "00000000-0000-0000-0000-000000000001",
+      "usedAt": "2025-01-15T08:30:00Z",
+      "maxUses": 1,
+      "currentUses": 1,
+      "createdAt": "2025-01-01T00:00:00Z",
+      "expiresAt": null
+    },
+    {
+      "code": "ADMIN-TEMP-2025",
+      "type": "Temporary",
+      "description": "Temporary admin code for emergency access",
+      "status": "Active",
+      "usedBy": null,
+      "usedAt": null,
+      "maxUses": 3,
+      "currentUses": 0,
+      "createdAt": "2025-11-01T00:00:00Z",
+      "expiresAt": "2025-12-01T23:59:59Z"
+    },
+    {
+      "code": "ADMIN-BACKUP-2025",
+      "type": "Backup",
+      "description": "Backup admin code for recovery",
+      "status": "Active",
+      "usedBy": null,
+      "usedAt": null,
+      "maxUses": 1,
+      "currentUses": 0,
+      "createdAt": "2025-11-15T00:00:00Z",
+      "expiresAt": "2026-11-15T23:59:59Z"
+    },
+    {
+      "code": "ADMIN123",
+      "type": "Legacy",
+      "description": "Legacy admin code - still active for compatibility",
+      "status": "Active",
+      "usedBy": null,
+      "usedAt": null,
+      "maxUses": 999,
+      "currentUses": 0,
+      "createdAt": "2025-01-01T00:00:00Z",
+      "expiresAt": "2026-12-31T23:59:59Z"
+    },
+    {
+      "code": "TRIAL001",
+      "type": "Trial",
+      "description": "Trial admin code for testing",
+      "status": "Active",
+      "usedBy": null,
+      "usedAt": null,
+      "maxUses": 999,
+      "currentUses": 0,
+      "createdAt": "2025-01-01T00:00:00Z",
+      "expiresAt": "2026-12-31T23:59:59Z"
+    }
+  ],
+  "settings": {
+    "requireCodeForFirstUser": true,
+    "requireCodeForAdditionalAdmins": false,
+    "allowMultipleAdmins": true,
+    "defaultCodeExpiry": 365
+  }
+}

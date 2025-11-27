@@ -172,5 +172,149 @@ public class ProductRepository : IProductRepository
         }
     }
 
-    // DTO Mapping methods removed - now using ProductAdapter
+    public async Task<Result<IEnumerable<Product>>> GetLowStockAsync(int threshold = 10)
+    {
+        try
+        {
+            var allProductsResult = await GetAllAsync();
+            if (!allProductsResult.IsSuccess || allProductsResult.Data == null)
+            {
+                return Result<IEnumerable<Product>>.Failure("Failed to retrieve products");
+            }
+
+            var lowStockProducts = allProductsResult.Data.Where(p => p.Quantity < threshold).ToList();
+            return Result<IEnumerable<Product>>.Success(lowStockProducts);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error in GetLowStockAsync: {ex.Message}");
+            return Result<IEnumerable<Product>>.Failure($"Error retrieving low stock products: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<IEnumerable<Product>>> GetByCategoryAsync(Guid categoryId)
+    {
+        try
+        {
+            var allProductsResult = await GetAllAsync();
+            if (!allProductsResult.IsSuccess || allProductsResult.Data == null)
+            {
+                return Result<IEnumerable<Product>>.Failure("Failed to retrieve products");
+            }
+
+            var categoryProducts = allProductsResult.Data.Where(p => p.CategoryId == categoryId).ToList();
+            return Result<IEnumerable<Product>>.Success(categoryProducts);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error in GetByCategoryAsync: {ex.Message}");
+            return Result<IEnumerable<Product>>.Failure($"Error retrieving products by category: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<IEnumerable<Product>>> SearchAsync(string query)
+    {
+        try
+        {
+            var allProductsResult = await GetAllAsync();
+            if (!allProductsResult.IsSuccess || allProductsResult.Data == null)
+            {
+                return Result<IEnumerable<Product>>.Failure("Failed to retrieve products");
+            }
+
+            var search = query.ToLower();
+            var searchResults = allProductsResult.Data.Where(p =>
+                p.Name.ToLower().Contains(search) ||
+                (p.SKU != null && p.SKU.ToLower().Contains(search)) ||
+                (p.Description != null && p.Description.ToLower().Contains(search))).ToList();
+
+            return Result<IEnumerable<Product>>.Success(searchResults);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error in SearchAsync: {ex.Message}");
+            return Result<IEnumerable<Product>>.Failure($"Error searching products: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<PagedList<Product>>> GetPagedAsync(
+        int page = 1,
+        int pageSize = 20,
+        string? searchQuery = null,
+        string? categoryName = null,
+        decimal? minPrice = null,
+        decimal? maxPrice = null,
+        string sortBy = "name",
+        bool sortDescending = false)
+    {
+        try
+        {
+            // Note: Backend API doesn't support server-side paging yet
+            // Fallback: fetch all products and apply client-side paging/filtering
+            var allProductsResult = await GetAllAsync();
+            if (!allProductsResult.IsSuccess || allProductsResult.Data == null)
+            {
+                return Result<PagedList<Product>>.Failure(allProductsResult.ErrorMessage ?? "Failed to retrieve products");
+            }
+
+            var query = allProductsResult.Data.AsEnumerable();
+
+            // Apply filters
+            if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                var search = searchQuery.ToLower();
+                query = query.Where(p => 
+                    p.Name.ToLower().Contains(search) ||
+                    (p.SKU != null && p.SKU.ToLower().Contains(search)) ||
+                    (p.Description != null && p.Description.ToLower().Contains(search)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(categoryName))
+            {
+                query = query.Where(p => p.CategoryName != null && 
+                    p.CategoryName.Equals(categoryName, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (minPrice.HasValue)
+            {
+                query = query.Where(p => p.SellingPrice >= minPrice.Value);
+            }
+
+            if (maxPrice.HasValue)
+            {
+                query = query.Where(p => p.SellingPrice <= maxPrice.Value);
+            }
+
+            // Apply sorting
+            query = sortBy.ToLower() switch
+            {
+                "name" => sortDescending 
+                    ? query.OrderByDescending(p => p.Name) 
+                    : query.OrderBy(p => p.Name),
+                "price" or "sellingprice" => sortDescending 
+                    ? query.OrderByDescending(p => p.SellingPrice) 
+                    : query.OrderBy(p => p.SellingPrice),
+                "stock" or "quantity" => sortDescending 
+                    ? query.OrderByDescending(p => p.Quantity) 
+                    : query.OrderBy(p => p.Quantity),
+                "category" or "categoryname" => sortDescending 
+                    ? query.OrderByDescending(p => p.CategoryName) 
+                    : query.OrderBy(p => p.CategoryName),
+                _ => sortDescending 
+                    ? query.OrderByDescending(p => p.Name) 
+                    : query.OrderBy(p => p.Name)
+            };
+
+            var totalCount = query.Count();
+            var items = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var pagedList = new PagedList<Product>(items, totalCount, page, pageSize);
+            return Result<PagedList<Product>>.Success(pagedList);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error in GetPagedAsync: {ex.Message}");
+            return Result<PagedList<Product>>.Failure($"Error retrieving paged products: {ex.Message}");
+        }
+    }
 }

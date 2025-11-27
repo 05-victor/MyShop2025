@@ -20,11 +20,12 @@ public class DashboardRepository : IDashboardRepository
         _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
     }
 
-    public async Task<Result<DashboardSummary>> GetSummaryAsync()
+    public async Task<Result<DashboardSummary>> GetSummaryAsync(string period = "current")
     {
         try
         {
-            Debug.WriteLine("[DashboardRepository] Fetching dashboard summary from API");
+            Debug.WriteLine($"[DashboardRepository] Fetching dashboard summary from API (period: {period})");
+            // Note: Backend API may need to support period parameter in the future
             var refitResponse = await _apiClient.GetSummaryAsync();
 
             // Check Refit outer wrapper (HTTP status)
@@ -103,6 +104,29 @@ public class DashboardRepository : IDashboardRepository
         {
             Debug.WriteLine($"[DashboardRepository] Unexpected Error: {ex.Message}");
             return Result<RevenueChartData>.Failure("An unexpected error occurred while loading chart data. Please try again.", ex);
+        }
+    }
+
+    /// <summary>
+    /// TODO: Temporary implementation - will be replaced with real API call when backend is ready
+    /// Gets top performing sales agents by GMV
+    /// </summary>
+    public async Task<Result<List<TopSalesAgent>>> GetTopSalesAgentsAsync(string period = "current", int topCount = 5)
+    {
+        try
+        {
+            Debug.WriteLine($"[DashboardRepository] Temporary: GetTopSalesAgentsAsync not yet implemented in API");
+            
+            // TODO: Replace with real API call when endpoint is ready
+            // For now, return empty list to avoid errors
+            await Task.CompletedTask; // Keep async signature
+            
+            return Result<List<TopSalesAgent>>.Success(new List<TopSalesAgent>());
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[DashboardRepository] Error in GetTopSalesAgentsAsync: {ex.Message}");
+            return Result<List<TopSalesAgent>>.Failure("An error occurred while fetching top sales agents.", ex);
         }
     }
 

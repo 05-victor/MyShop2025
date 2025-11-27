@@ -134,4 +134,89 @@ public class CommissionRepository : ICommissionRepository
             return Result<IEnumerable<Commission>>.Failure($"Error retrieving commissions by date range: {ex.Message}");
         }
     }
+
+    public async Task<decimal> GetTotalEarnedAsync(Guid salesAgentId)
+    {
+        try
+        {
+            var summaryResult = await GetSummaryAsync(salesAgentId);
+            if (summaryResult.IsSuccess && summaryResult.Data != null)
+            {
+                return summaryResult.Data.TotalEarnings;
+            }
+            return 0m;
+        }
+        catch
+        {
+            return 0m;
+        }
+    }
+
+    public async Task<Result<PagedList<Commission>>> GetPagedAsync(
+        Guid salesAgentId,
+        int page = 1,
+        int pageSize = 20,
+        string? status = null,
+        DateTime? startDate = null,
+        DateTime? endDate = null,
+        string sortBy = "createdDate",
+        bool sortDescending = true)
+    {
+        try
+        {
+            // Note: Backend API doesn't support server-side paging yet
+            // Fallback: fetch all commissions and apply client-side paging/filtering
+            var allCommissionsResult = await GetBySalesAgentIdAsync(salesAgentId);
+            
+            if (!allCommissionsResult.IsSuccess || allCommissionsResult.Data == null)
+            {
+                return Result<PagedList<Commission>>.Failure(allCommissionsResult.ErrorMessage ?? "Failed to retrieve commissions");
+            }
+
+            var query = allCommissionsResult.Data.AsEnumerable();
+
+            // Apply filters
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                query = query.Where(c => c.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (startDate.HasValue)
+            {
+                query = query.Where(c => c.CreatedDate >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(c => c.CreatedDate <= endDate.Value);
+            }
+
+            // Apply sorting
+            query = sortBy.ToLower() switch
+            {
+                "createddate" => sortDescending 
+                    ? query.OrderByDescending(c => c.CreatedDate) 
+                    : query.OrderBy(c => c.CreatedDate),
+                "commissionamount" or "amount" => sortDescending 
+                    ? query.OrderByDescending(c => c.CommissionAmount) 
+                    : query.OrderBy(c => c.CommissionAmount),
+                "status" => sortDescending 
+                    ? query.OrderByDescending(c => c.Status) 
+                    : query.OrderBy(c => c.Status),
+                _ => sortDescending 
+                    ? query.OrderByDescending(c => c.CreatedDate) 
+                    : query.OrderBy(c => c.CreatedDate)
+            };
+
+            var totalCount = query.Count();
+            var items = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var pagedList = new PagedList<Commission>(items, totalCount, page, pageSize);
+            return Result<PagedList<Commission>>.Success(pagedList);
+        }
+        catch (Exception ex)
+        {
+            return Result<PagedList<Commission>>.Failure($"Error retrieving paged commissions: {ex.Message}");
+        }
+    }
 }

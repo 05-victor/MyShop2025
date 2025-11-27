@@ -20,6 +20,23 @@ public class MockUserRepository : IUserRepository
         _credentialStorage = credentialStorage;
     }
 
+    public async Task<Result<bool>> HasAnyUsersAsync()
+    {
+        try
+        {
+            await Task.Delay(50); // Simulate database check
+            var users = await MockUserData.GetAllAsync();
+            var hasUsers = users.Count > 0;
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] HasAnyUsersAsync returned {hasUsers} ({users.Count} users)");
+            return Result<bool>.Success(hasUsers);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] HasAnyUsersAsync error: {ex.Message}");
+            return Result<bool>.Failure($"Failed to check users: {ex.Message}");
+        }
+    }
+
     public async Task<Result<IEnumerable<User>>> GetAllAsync()
     {
         try
@@ -32,6 +49,32 @@ public class MockUserRepository : IUserRepository
         {
             System.Diagnostics.Debug.WriteLine($"[MockUserRepository] GetAllAsync error: {ex.Message}");
             return Result<IEnumerable<User>>.Failure($"Failed to get users: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<PagedList<User>>> GetPagedAsync(
+        int page = 1,
+        int pageSize = 20,
+        string? role = null,
+        string? status = null,
+        string? searchQuery = null,
+        string sortBy = "createdAt",
+        bool sortDescending = true)
+    {
+        try
+        {
+            var (users, totalCount) = await MockUserData.GetPagedAsync(
+                page, pageSize, role, status, searchQuery, sortBy, sortDescending);
+
+            var pagedList = new PagedList<User>(users, totalCount, page, pageSize);
+
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] GetPagedAsync returned page {page}/{pagedList.TotalPages} ({users.Count} items, {totalCount} total)");
+            return Result<PagedList<User>>.Success(pagedList);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] GetPagedAsync error: {ex.Message}");
+            return Result<PagedList<User>>.Failure($"Failed to get paged users: {ex.Message}");
         }
     }
 

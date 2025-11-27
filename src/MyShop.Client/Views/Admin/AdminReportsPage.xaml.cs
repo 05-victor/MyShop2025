@@ -13,7 +13,65 @@ public sealed partial class AdminReportsPage : Page
 
     public AdminReportsPage()
     {
-        ViewModel = App.Current.Services.GetRequiredService<AdminReportsViewModel>();
-        InitializeComponent();
+        // COPILOT-FIX STEP 2: Enhanced constructor with comprehensive error handling
+        try
+        {
+            Services.LoggingService.Instance.Debug("[AdminReportsPage] Constructor start");
+            
+            // Resolve ViewModel
+            ViewModel = App.Current.Services.GetRequiredService<AdminReportsViewModel>();
+            Services.LoggingService.Instance.Debug("[AdminReportsPage] ViewModel resolved");
+        }
+        catch (Exception ex)
+        {
+            Services.LoggingService.Instance.Error($"[AdminReportsPage] DI FAILED - ViewModel resolution", ex);
+            throw; // Re-throw to surface the actual DI issue
+        }
+
+        // STEP 2: Wrap InitializeComponent with detailed logging
+        try
+        {
+            Services.LoggingService.Instance.Debug("[AdminReportsPage] Calling InitializeComponent");
+            this.InitializeComponent();
+            Services.LoggingService.Instance.Debug("[AdminReportsPage] InitializeComponent SUCCESS");
+            
+            // CRITICAL FIX: Set DataContext so {Binding} resolves to ViewModel
+            this.DataContext = ViewModel;
+        }
+        catch (Exception ex)
+        {
+            Services.LoggingService.Instance.Error($"[AdminReportsPage] XAML PARSE FAILED", ex);
+            Services.LoggingService.Instance.Error($"Exception Type: {ex.GetType().FullName}");
+            Services.LoggingService.Instance.Error($"Message: {ex.Message}");
+            Services.LoggingService.Instance.Error($"StackTrace: {ex.StackTrace}");
+            
+            // Create minimal fallback UI
+            this.Content = new Microsoft.UI.Xaml.Controls.TextBlock
+            {
+                Text = $"❌ XAML CRASH in AdminReportsPage\n\nType: {ex.GetType().Name}\nMessage: {ex.Message}\n\nLogs: {Services.LoggingService.Instance.GetLogDirectory()}",
+                Margin = new Microsoft.UI.Xaml.Thickness(24),
+                Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Red),
+                TextWrapping = Microsoft.UI.Xaml.TextWrapping.Wrap,
+                FontFamily = new Microsoft.UI.Xaml.Media.FontFamily("Consolas")
+            };
+            return;
+        }
+    }
+
+    // COPILOT-FIX: Initialize ViewModel in OnNavigatedTo to avoid constructor crash
+    protected override void OnNavigatedTo(Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
+    {
+        try
+        {
+            base.OnNavigatedTo(e);
+            Services.NavigationLogger.LogNavigatedTo(nameof(AdminReportsPage), e.Parameter);
+            
+            // Initialize ViewModel after page is loaded and UI thread is ready
+            _ = ViewModel.InitializeCommand.ExecuteAsync(null);
+        }
+        catch (Exception ex)
+        {
+            Services.LoggingService.Instance.Error($"[AdminReportsPage] OnNavigatedTo failed", ex);
+        }
     }
 }

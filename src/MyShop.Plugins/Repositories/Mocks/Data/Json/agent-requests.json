@@ -129,6 +129,45 @@
       "reviewedBy": "Nguyễn Quản Trị",
       "reviewedAt": "2025-11-15T14:20:00Z",
       "notes": "Influencer có nhiều follower, đã phê duyệt"
+    },
+    {
+      "id": "40000000-0000-0000-0000-000000000011",
+      "userId": "00000000-0000-0000-0000-000000000022",
+      "userName": "Lý Thị K",
+      "email": "ly.thi.k@example.com",
+      "phoneNumber": "+84902000010",
+      "avatarUrl": "ms-appx:///Assets/Images/avatars/avatar-placeholder.png",
+      "requestedAt": "2025-11-14T12:00:00Z",
+      "status": "Approved",
+      "reviewedBy": "Nguyễn Quản Trị",
+      "reviewedAt": "2025-11-15T14:20:00Z",
+      "notes": "Influencer có nhiều follower, đã phê duyệt"
+    },
+    {
+      "id": "40000000-0000-0000-0000-000000000012",
+      "userId": "00000000-0000-0000-0000-000000000023",
+      "userName": "Lý Thị K",
+      "email": "ly.thi.k@example.com",
+      "phoneNumber": "+84902000010",
+      "avatarUrl": "ms-appx:///Assets/Images/avatars/avatar-placeholder.png",
+      "requestedAt": "2025-11-14T12:00:00Z",
+      "status": "Approved",
+      "reviewedBy": "Nguyễn Quản Trị",
+      "reviewedAt": "2025-11-15T14:20:00Z",
+      "notes": "Influencer có nhiều follower, đã phê duyệt"
+    },
+    {
+      "id": "40000000-0000-0000-0000-000000000013",
+      "userId": "00000000-0000-0000-0000-000000000024",
+      "userName": "Lý Thị K",
+      "email": "ly.thi.k@example.com",
+      "phoneNumber": "+84902000010",
+      "avatarUrl": "ms-appx:///Assets/Images/avatars/avatar-placeholder.png",
+      "requestedAt": "2025-11-14T12:00:00Z",
+      "status": "Approved",
+      "reviewedBy": "Nguyễn Quản Trị",
+      "reviewedAt": "2025-11-15T14:20:00Z",
+      "notes": "Influencer có nhiều follower, đã phê duyệt"
     }
   ]
 }

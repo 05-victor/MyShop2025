@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
 using MyShop.Client.Config;
-using MyShop.Client.Helpers;
+using MyShop.Client.Services;
 using MyShop.Client.Views.Shared;
 using System;
 using System.Threading.Tasks;
@@ -12,7 +12,6 @@ using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Client.Strategies;
-using MyShop.Client.Services;
 
 namespace MyShop.Client
 {
@@ -27,7 +26,37 @@ namespace MyShop.Client
         {
             this.InitializeComponent();
             
-            // Add unhandled exception handler for detailed logging
+            // Initialize Logging Service FIRST (before any other code)
+            try
+            {
+                LoggingService.Instance.Initialize();
+            }
+            catch (Exception ex)
+            {
+                // Fallback to Debug if logging init fails
+                System.Diagnostics.Debug.WriteLine($"Failed to initialize LoggingService: {ex.Message}");
+            }
+            
+            // COPILOT-FIX: Add comprehensive global exception handlers
+            // Catch exceptions from non-UI threads and background tasks
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+            {
+                var exception = e.ExceptionObject as Exception;
+                LoggingService.Instance.Fatal("AppDomain Unhandled Exception", exception);
+                System.Diagnostics.Debug.WriteLine($"[FATAL] AppDomain Exception: {exception?.Message}");
+            };
+
+            TaskScheduler.UnobservedTaskException += (s, e) =>
+            {
+                LoggingService.Instance.Error("Unobserved Task Exception", e.Exception);
+                System.Diagnostics.Debug.WriteLine($"[ERROR] Unobserved Task: {e.Exception.Message}");
+                e.SetObserved(); // Prevent app crash
+            };
+            
+            // Initialize Global Exception Handlers
+            GlobalExceptionHandler.Initialize();
+            
+            // Add WinUI-specific unhandled exception handler
             this.UnhandledException += App_UnhandledException;
             
             _host = Bootstrapper.CreateHost();
@@ -41,35 +70,20 @@ namespace MyShop.Client
             {
                 var exceptionMessage = e.Message ?? "No message";
                 var exception = e.Exception;
-                var exceptionType = exception?.GetType().FullName ?? "Unknown";
-                var innerException = exception?.InnerException;
                 
-                System.Diagnostics.Debug.WriteLine("═══════════════════════════════════════════════════════");
-                System.Diagnostics.Debug.WriteLine("❌ [ERROR] [App.xaml.App_UnhandledException] Unhandled exception caught by global handler");
-                System.Diagnostics.Debug.WriteLine($"   Exception: {exceptionType}");
-                System.Diagnostics.Debug.WriteLine($"   Message: {exceptionMessage}");
-                System.Diagnostics.Debug.WriteLine($"   HRESULT: {exception?.HResult:X8}");
+                // Log via new LoggingService
+                LoggingService.Instance.Fatal("WinUI Unhandled Exception", exception);
                 
                 if (exception != null)
                 {
-                    System.Diagnostics.Debug.WriteLine($"   Stack Trace:");
-                    System.Diagnostics.Debug.WriteLine($"{exception.StackTrace}");
+                    // Log to Debug output as well for immediate visibility
+                    System.Diagnostics.Debug.WriteLine("═══════════════════════════════════════════════════════");
+                    System.Diagnostics.Debug.WriteLine("❌ [FATAL] WinUI Unhandled Exception");
+                    System.Diagnostics.Debug.WriteLine($"   Type: {exception.GetType().FullName}");
+                    System.Diagnostics.Debug.WriteLine($"   Message: {exceptionMessage}");
+                    System.Diagnostics.Debug.WriteLine($"   HRESULT: 0x{exception.HResult:X8}");
+                    System.Diagnostics.Debug.WriteLine("═══════════════════════════════════════════════════════");
                 }
-                
-                if (innerException != null)
-                {
-                    System.Diagnostics.Debug.WriteLine($"   Inner Exception: {innerException.GetType().FullName}");
-                    System.Diagnostics.Debug.WriteLine($"   Inner Message: {innerException.Message}");
-                    System.Diagnostics.Debug.WriteLine($"   Inner Stack:");
-                    System.Diagnostics.Debug.WriteLine($"{innerException.StackTrace}");
-                }
-                
-                System.Diagnostics.Debug.WriteLine("═══════════════════════════════════════════════════════");
-                
-                // Also log via AppLogger for file output
-                AppLogger.Separator("UNHANDLED EXCEPTION");
-                AppLogger.Error("Unhandled exception caught by global handler", e.Exception);
-                AppLogger.Separator();
             }
             catch (Exception logEx)
             {
@@ -84,55 +98,54 @@ namespace MyShop.Client
         {
             try
             {
-                AppLogger.Separator("APP LAUNCH");
-                AppLogger.Custom("🚀", "APP", "Starting MyShop2025...");
+                LoggingService.Instance.Information("═══════════════════════════════════════════════════════");
+                LoggingService.Instance.Information("MyShop2025 Client Starting...");
+                LoggingService.Instance.Information("═══════════════════════════════════════════════════════");
                 
-                AppLogger.Info("Creating MainWindow...");
+                LoggingService.Instance.Information("Creating MainWindow...");
                 MainWindow = new MainWindow();
-                AppLogger.Success("MainWindow created");
+                LoggingService.Instance.Information("MainWindow created successfully");
 
                 // Force Light theme app-wide at runtime
                 if (MainWindow.Content is FrameworkElement root)
                 {
-                    AppLogger.Debug("Setting Light theme");
+                    LoggingService.Instance.Debug("Setting Light theme");
                     root.RequestedTheme = ElementTheme.Light;
                 }
 
-                AppLogger.Info("Initializing NavigationService...");
+                LoggingService.Instance.Information("Initializing NavigationService...");
                 var navigationService = Services.GetRequiredService<INavigationService>();
                 
                 // Cast to concrete type to call Initialize (WinUI-specific method)
                 if (navigationService is NavigationService navService)
                 {
                     navService.Initialize(MainWindow.RootFrame);
-                    AppLogger.Success("NavigationService initialized with Frame");
+                    LoggingService.Instance.Information("NavigationService initialized successfully");
                 }
                 else
                 {
                     throw new InvalidOperationException("NavigationService implementation must be NavigationService class");
                 }
-                
-                AppLogger.Success("NavigationService ready");
 
-                AppLogger.Info("Checking for saved credentials...");
+                LoggingService.Instance.Information("Checking for saved credentials...");
                 var credentialStorage = Services.GetRequiredService<ICredentialStorage>();
                 var token = credentialStorage.GetToken();
                 bool isLoggedIn = false;
 
                 if (!string.IsNullOrEmpty(token))
                 {
-                    AppLogger.Debug($"Token found: {token.Substring(0, Math.Min(20, token.Length))}...");
+                    LoggingService.Instance.Debug($"Token found (length: {token.Length})");
                     try
                     {
-                        AppLogger.Info("Validating token...");
+                        LoggingService.Instance.Information("Validating saved token...");
                         var authRepository = Services.GetRequiredService<IAuthRepository>();
                         var result = await authRepository.GetCurrentUserAsync();
 
                         if (result.IsSuccess && result.Data != null)
                         {
                             var user = result.Data;
-                            AppLogger.Auth("Auto-login", user.Username, true);
-                            AppLogger.Info($"User roles: {string.Join(", ", user.Roles)}");
+                            LoggingService.Instance.LogAuth("Auto-login", user.Username, true);
+                            LoggingService.Instance.Information($"User roles: {string.Join(", ", user.Roles)}");
                             
                             // Use strategy pattern để navigate
                             var roleStrategyFactory = Services.GetRequiredService<IRoleStrategyFactory>();
@@ -140,50 +153,49 @@ namespace MyShop.Client
                             var strategy = roleStrategyFactory.GetStrategy(primaryRole);
                             var pageType = strategy.GetDashboardPageType();
                             
-                            AppLogger.Navigation("Startup", pageType.Name, user);
-                            navigationService.NavigateTo(pageType.FullName!, user);
-                            AppLogger.Success("Dashboard loaded");
+                            LoggingService.Instance.LogNavigation("Startup", pageType.Name, user, true);
+                            await navigationService.NavigateTo(pageType.FullName!, user);
+                            LoggingService.Instance.Information("Dashboard loaded successfully");
                             isLoggedIn = true;
                         }
                         else
                         {
-                            AppLogger.Warning($"Token validation failed: {result.ErrorMessage}");
+                            LoggingService.Instance.Warning($"Token validation failed: {result.ErrorMessage}");
                             await credentialStorage.RemoveToken();
                         }
                     }
                     catch (Exception ex)
                     {
-                        AppLogger.Error("Auto-login failed", ex);
+                        LoggingService.Instance.Error("Auto-login failed", ex);
                         await credentialStorage.RemoveToken();
                     }
                 }
                 else
                 {
-                    AppLogger.Info("No saved token found");
+                    LoggingService.Instance.Information("No saved token found - showing login page");
                 }
 
                 if (!isLoggedIn)
                 {
-                    AppLogger.Navigation("Startup", "LoginPage");
-                    navigationService.NavigateTo(typeof(LoginPage).FullName!);
+                    LoggingService.Instance.LogNavigation("Startup", "LoginPage", null, true);
+                    await navigationService.NavigateTo(typeof(LoginPage).FullName!);
                 }
 
-                AppLogger.Info("Activating MainWindow...");
+                LoggingService.Instance.Information("Activating MainWindow...");
                 MainWindow.Activate();
-                AppLogger.Success("App startup complete!");
-                AppLogger.Separator();
+                LoggingService.Instance.Information("═══════════════════════════════════════════════════════");
+                LoggingService.Instance.Information("MyShop2025 Client Startup Complete!");
+                LoggingService.Instance.Information("═══════════════════════════════════════════════════════");
             }
             catch (Exception ex)
             {
-                AppLogger.Separator("CRITICAL STARTUP ERROR");
-                AppLogger.Error("OnLaunched failed", ex);
-                AppLogger.Separator();
+                LoggingService.Instance.Fatal("Application startup failed", ex);
                 
                 // Show error dialog
                 var errorDialog = new Microsoft.UI.Xaml.Controls.ContentDialog
                 {
                     Title = "Application Error",
-                    Content = $"Failed to start application:\n\n{ex.Message}\n\nCheck Output window for details.",
+                    Content = $"Failed to start application:\n\n{ex.Message}\n\nCheck log files in:\n{LoggingService.Instance.GetLogDirectory()}",
                     CloseButtonText = "Exit"
                 };
                 

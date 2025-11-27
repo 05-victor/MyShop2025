@@ -1,6 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MyShop.Core.Interfaces.Repositories;
+using MyShop.Client.Facades;
+using MyShop.Client.ViewModels.Base;
+using MyShop.Core.Interfaces.Facades;
+using MyShop.Core.Interfaces.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -8,12 +11,9 @@ using System.Threading.Tasks;
 
 namespace MyShop.Client.ViewModels.SalesAgent;
 
-public partial class SalesAgentOrdersViewModel : ObservableObject
+public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewModel>
 {
-    private readonly IOrderRepository _orderRepository;
-
-    [ObservableProperty]
-    private ObservableCollection<OrderViewModel> _orders;
+    private readonly IOrderFacade _orderFacade;
 
     [ObservableProperty]
     private string _selectedStatus = "All";
@@ -30,53 +30,90 @@ public partial class SalesAgentOrdersViewModel : ObservableObject
     [ObservableProperty]
     private int _cancelledOrders;
 
-    public SalesAgentOrdersViewModel(IOrderRepository orderRepository)
+    public SalesAgentOrdersViewModel(
+        IOrderFacade orderFacade,
+        IToastService toastService,
+        INavigationService navigationService)
+        : base(toastService, navigationService)
     {
-        _orderRepository = orderRepository;
-        Orders = new ObservableCollection<OrderViewModel>();
+        _orderFacade = orderFacade;
+        PageSize = Core.Common.PaginationConstants.OrdersPageSize;
     }
 
     public async Task InitializeAsync()
     {
-        await LoadOrdersAsync();
+        await LoadDataAsync();
     }
 
-    private ObservableCollection<OrderViewModel> _allOrders = new();
+    partial void OnSelectedStatusChanged(string value)
+    {
+        CurrentPage = 1;
+        _ = LoadPageAsync();
+    }
 
-    private async Task LoadOrdersAsync()
+    protected override async Task LoadPageAsync()
     {
         try
         {
-            var result = await _orderRepository.GetAllAsync();
+            SetLoadingState(true);
+
+            var statusFilter = SelectedStatus == "All" ? null : SelectedStatus;
+
+            var result = await _orderFacade.LoadOrdersPagedAsync(
+                page: CurrentPage,
+                pageSize: PageSize,
+                status: statusFilter,
+                searchQuery: SearchQuery);
+
             if (!result.IsSuccess || result.Data == null)
             {
-                _allOrders = new ObservableCollection<OrderViewModel>();
+                await _toastHelper?.ShowError(result.ErrorMessage ?? "Failed to load orders");
+                Items.Clear();
+                UpdatePagingInfo(0);
+                UpdateStats();
                 return;
             }
-            
-            _allOrders = new ObservableCollection<OrderViewModel>(
-                result.Data.Select(o => new OrderViewModel
+
+            Items.Clear();
+            foreach (var o in result.Data.Items)
+            {
+                var firstProduct = o.Items?.FirstOrDefault()?.ProductName ?? "No products";
+                var additionalCount = (o.Items?.Count ?? 0) - 1;
+                var productDesc = additionalCount > 0 
+                    ? $"{firstProduct} +{additionalCount} more" 
+                    : firstProduct;
+
+                Items.Add(new OrderViewModel
                 {
                     OrderId = $"ORD-{o.Id.ToString().Substring(0, 8)}",
                     CustomerName = o.CustomerName,
                     CustomerEmail = $"{o.CustomerName.ToLower().Replace(" ", ".")}@example.com",
+                    ProductDescription = productDesc,
                     OrderDate = o.OrderDate,
                     Status = o.Status,
                     StatusColor = GetStatusColor(o.Status),
                     StatusBgColor = GetStatusBgColor(o.Status),
                     TotalAmount = o.FinalPrice,
                     CommissionAmount = o.FinalPrice * 0.10m
-                })
-            );
+                });
+            }
 
-            ApplyFilters();
+            UpdatePagingInfo(result.Data.TotalCount);
+            UpdateStats();
+
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentOrdersViewModel] Loaded page {CurrentPage}/{TotalPages} ({Items.Count} items, {TotalItems} total)");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[SalesOrdersViewModel] Error loading orders: {ex.Message}");
-            _allOrders = new ObservableCollection<OrderViewModel>();
-            Orders = new ObservableCollection<OrderViewModel>();
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentOrdersViewModel] Error loading orders: {ex.Message}");
+            await _toastHelper?.ShowError($"Error loading orders: {ex.Message}");
+            Items.Clear();
+            UpdatePagingInfo(0);
             UpdateStats();
+        }
+        finally
+        {
+            SetLoadingState(false);
         }
     }
 
@@ -98,30 +135,16 @@ public partial class SalesAgentOrdersViewModel : ObservableObject
 
     private void UpdateStats()
     {
-        TotalOrders = Orders.Count;
-        PendingOrders = Orders.Count(o => o.Status == "Pending");
-        CompletedOrders = Orders.Count(o => o.Status == "Completed" || o.Status == "Delivered");
-        CancelledOrders = Orders.Count(o => o.Status == "Cancelled");
+        TotalOrders = Items.Count;
+        PendingOrders = Items.Count(o => o.Status == "Pending");
+        CompletedOrders = Items.Count(o => o.Status == "Completed" || o.Status == "Delivered");
+        CancelledOrders = Items.Count(o => o.Status == "Cancelled");
     }
 
     [RelayCommand]
     private void FilterByStatus(string status)
     {
         SelectedStatus = status;
-        ApplyFilters();
-    }
-
-    private void ApplyFilters()
-    {
-        var filtered = _allOrders.AsEnumerable();
-
-        if (SelectedStatus != "All")
-        {
-            filtered = filtered.Where(o => o.Status.Equals(SelectedStatus, StringComparison.OrdinalIgnoreCase));
-        }
-
-        Orders = new ObservableCollection<OrderViewModel>(filtered);
-        UpdateStats();
     }
 
     [RelayCommand]
@@ -130,6 +153,29 @@ public partial class SalesAgentOrdersViewModel : ObservableObject
         System.Diagnostics.Debug.WriteLine($"[SalesOrdersViewModel] View order details: {order.OrderId}");
         // Navigation will be implemented when OrderDetailsPage is created
         // _navigationService.Navigate(typeof(OrderDetailsPage), order.OrderId);
+    }
+
+    [RelayCommand]
+    private async Task ExportOrdersAsync()
+    {
+        try
+        {
+            var status = SelectedStatus == "All" ? null : SelectedStatus;
+            var result = await _orderFacade.ExportOrdersToCsvAsync(status: status);
+            
+            if (result.IsSuccess)
+            {
+                System.Diagnostics.Debug.WriteLine($"[SalesOrdersViewModel] Orders exported to: {result.Data}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[SalesOrdersViewModel] Export failed: {result.ErrorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesOrdersViewModel] Export error: {ex.Message}");
+        }
     }
 }
 
@@ -143,6 +189,9 @@ public partial class OrderViewModel : ObservableObject
 
     [ObservableProperty]
     private string _customerEmail = string.Empty;
+
+    [ObservableProperty]
+    private string _productDescription = string.Empty;
 
     [ObservableProperty]
     private DateTime _orderDate;

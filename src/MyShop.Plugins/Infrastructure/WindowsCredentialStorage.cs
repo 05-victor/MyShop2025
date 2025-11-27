@@ -2,7 +2,7 @@ using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Infrastructure;
 using Windows.Security.Credentials;
 
-namespace MyShop.Plugins.Storage;
+namespace MyShop.Plugins.Infrastructure;
 
 /// <summary>
 /// Windows PasswordVault implementation for secure credential storage

@@ -21,25 +21,44 @@
 
     <NavigationView
         x:Name="Nav"
-        CompactPaneLength="56"
+        CompactPaneLength="48"
         IsBackButtonVisible="Collapsed"
-        IsPaneToggleButtonVisible="False"
+        IsPaneToggleButtonVisible="True"
         IsSettingsVisible="False"
-        OpenPaneLength="220"
-        PaneDisplayMode="Left"
-        SelectionChanged="Nav_SelectionChanged">
+        OpenPaneLength="260"
+        PaneDisplayMode="Auto"
+        SelectionChanged="Nav_SelectionChanged"
+        CompactModeThresholdWidth="641"
+        ExpandedModeThresholdWidth="1008">
 
         <NavigationView.PaneHeader>
-            <StackPanel Padding="20,24" Spacing="8">
-                <avatars:UserAvatar 
-                    DisplayName="{x:Bind ViewModel.CurrentUser.FullName, Mode=OneWay, FallbackValue='Customer'}"
-                    ImageSource="{x:Bind ViewModel.CurrentUser.Avatar, Mode=OneWay, FallbackValue=''}"
-                    Size="Medium"
-                    IsEmailVerified="{x:Bind ViewModel.CurrentUser.IsEmailVerified, Mode=OneWay, FallbackValue=False}"
-                    ShowVerificationBadge="True"/>
-                <TextBlock FontSize="18" FontWeight="Bold" Foreground="White" Text="MyShop2025" />
-                <TextBlock FontSize="12" Foreground="#9CA3AF" Text="Welcome back!" />
-            </StackPanel>
+            <Grid Height="72" Padding="16,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Logo/Icon -->
+                <Border Grid.Column="0" Width="48" Height="48" 
+                        Background="#00AEEF" CornerRadius="12" 
+                        VerticalAlignment="Center">
+                    <FontIcon Glyph="&#xE719;" FontSize="24" Foreground="White"/>
+                </Border>
+                
+                <!-- Title - Only visible when pane is open -->
+                <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center"
+                            Visibility="{x:Bind Nav.IsPaneOpen, Mode=OneWay}">
+                    <TextBlock
+                        FontSize="18"
+                        FontWeight="Bold"
+                        Foreground="White"
+                        Text="MyShop2025" />
+                    <TextBlock
+                        FontSize="11"
+                        Foreground="#9CA3AF"
+                        Text="Welcome back!" />
+                </StackPanel>
+            </Grid>
         </NavigationView.PaneHeader>
 
         <!-- CUSTOMER MENU ITEMS -->
@@ -60,6 +79,9 @@
                 <NavigationViewItem.Icon>
                     <FontIcon Glyph="&#xE7BF;" />
                 </NavigationViewItem.Icon>
+                <NavigationViewItem.InfoBadge>
+                    <InfoBadge Value="{x:Bind ViewModel.CartCount, Mode=OneWay}" />
+                </NavigationViewItem.InfoBadge>
             </NavigationViewItem>
 
             <NavigationViewItem Content="Purchase Orders" Tag="purchaseOrders">
@@ -67,6 +89,8 @@
                     <FontIcon Glyph="&#xE7B8;" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
+
+            <NavigationViewItemSeparator/>
 
             <NavigationViewItem Content="Profile" Tag="profile">
                 <NavigationViewItem.Icon>
@@ -82,44 +106,11 @@
         </NavigationView.MenuItems>
 
         <NavigationView.PaneFooter>
-            <StackPanel Padding="16" Background="#0F172A" Spacing="12">
-                <Border Padding="12" Background="#334155" CornerRadius="8">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <avatars:UserAvatar 
-                            Grid.Column="0"
-                            Margin="0,0,12,0"
-                            DisplayName="{x:Bind ViewModel.CurrentUser.FullName, Mode=OneWay, FallbackValue='Customer'}"
-                            ImageSource="{x:Bind ViewModel.CurrentUser.Avatar, Mode=OneWay, FallbackValue=''}"
-                            Size="Small"
-                            IsEmailVerified="{x:Bind ViewModel.CurrentUser.IsEmailVerified, Mode=OneWay, FallbackValue=False}"
-                            ShowVerificationBadge="True"/>
-
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock Text="{x:Bind ViewModel.CurrentUser.Username, Mode=OneWay, FallbackValue='Customer'}"
-                                      FontSize="14" FontWeight="SemiBold" Foreground="White"
-                                      TextTrimming="CharacterEllipsis" />
-                            <TextBlock Text="{x:Bind ViewModel.CurrentUser.Email, Mode=OneWay, FallbackValue='customer@myshop.com'}"
-                                      FontSize="11" Foreground="#9CA3AF"
-                                      TextTrimming="CharacterEllipsis" />
-                        </StackPanel>
-                    </Grid>
-                </Border>
-
-                <Button Padding="12,10" HorizontalAlignment="Stretch"
-                       Background="#DC2626" BorderThickness="0"
-                       Command="{x:Bind ViewModel.LogoutCommand}"
-                       CornerRadius="6" Foreground="White">
-                    <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="8">
-                        <FontIcon FontSize="14" Foreground="White" Glyph="&#xE7E8;" />
-                        <TextBlock FontSize="14" FontWeight="SemiBold" Text="Logout" />
-                    </StackPanel>
-                </Button>
-            </StackPanel>
+            <NavigationViewItem Content="Logout" Tag="logout" Tapped="LogoutItem_Tapped">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE7E8;" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
         </NavigationView.PaneFooter>
 
         <Frame x:Name="ContentFrame" />

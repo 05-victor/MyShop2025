@@ -23,6 +23,25 @@ public class UserRepository : IUserRepository
         _profileApi = profileApi;
     }
 
+    public async Task<Result<bool>> HasAnyUsersAsync()
+    {
+        try
+        {
+            var allUsersResult = await GetAllAsync();
+            if (!allUsersResult.IsSuccess)
+            {
+                return Result<bool>.Failure(allUsersResult.ErrorMessage ?? "Failed to check users");
+            }
+
+            var hasUsers = allUsersResult.Data?.Any() == true;
+            return Result<bool>.Success(hasUsers);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error checking users: {ex.Message}");
+        }
+    }
+
     public async Task<Result<IEnumerable<User>>> GetAllAsync()
     {
         try
@@ -121,6 +140,92 @@ public class UserRepository : IUserRepository
         catch (Exception ex)
         {
             return Result<User>.Failure($"Error uploading avatar: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<PagedList<User>>> GetPagedAsync(
+        int page = 1,
+        int pageSize = 20,
+        string? role = null,
+        string? status = null,
+        string? searchQuery = null,
+        string sortBy = "createdAt",
+        bool sortDescending = true)
+    {
+        try
+        {
+            // Note: Backend API doesn't support server-side paging yet
+            // Fallback: fetch all users and apply client-side paging/filtering
+            var allUsersResult = await GetAllAsync();
+            if (!allUsersResult.IsSuccess || allUsersResult.Data == null)
+            {
+                return Result<PagedList<User>>.Failure(allUsersResult.ErrorMessage ?? "Failed to retrieve users");
+            }
+
+            var query = allUsersResult.Data.AsEnumerable();
+
+            // Apply filters
+            if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                var search = searchQuery.ToLower();
+                query = query.Where(u => 
+                    u.Username.ToLower().Contains(search) ||
+                    u.Email.ToLower().Contains(search) ||
+                    (u.FullName != null && u.FullName.ToLower().Contains(search)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(role))
+            {
+                if (Enum.TryParse<UserRole>(role, true, out var userRole))
+                {
+                    query = query.Where(u => u.HasRole(userRole));
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                // Note: User model doesn't have Status property yet
+                // For now, filter based on trial status or skip
+                // TODO: Add Status property to User model or use alternative filtering
+                var isActive = status.Equals("active", StringComparison.OrdinalIgnoreCase);
+                if (isActive)
+                {
+                    query = query.Where(u => !u.IsTrialActive || (u.TrialEndDate == null || u.TrialEndDate > DateTime.UtcNow));
+                }
+            }
+
+            // Apply sorting
+            query = sortBy.ToLower() switch
+            {
+                "username" => sortDescending 
+                    ? query.OrderByDescending(u => u.Username) 
+                    : query.OrderBy(u => u.Username),
+                "email" => sortDescending 
+                    ? query.OrderByDescending(u => u.Email) 
+                    : query.OrderBy(u => u.Email),
+                "fullname" => sortDescending 
+                    ? query.OrderByDescending(u => u.FullName) 
+                    : query.OrderBy(u => u.FullName),
+                "role" => sortDescending 
+                    ? query.OrderByDescending(u => u.GetPrimaryRole()) 
+                    : query.OrderBy(u => u.GetPrimaryRole()),
+                "createdat" => sortDescending 
+                    ? query.OrderByDescending(u => u.CreatedAt) 
+                    : query.OrderBy(u => u.CreatedAt),
+                _ => sortDescending 
+                    ? query.OrderByDescending(u => u.CreatedAt) 
+                    : query.OrderBy(u => u.CreatedAt)
+            };
+
+            var totalCount = query.Count();
+            var items = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var pagedList = new PagedList<User>(items, totalCount, page, pageSize);
+            return Result<PagedList<User>>.Success(pagedList);
+        }
+        catch (Exception ex)
+        {
+            return Result<PagedList<User>>.Failure($"Error retrieving paged users: {ex.Message}");
         }
     }
 }

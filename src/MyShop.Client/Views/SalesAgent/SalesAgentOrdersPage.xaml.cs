@@ -18,7 +18,14 @@ namespace MyShop.Client.Views.SalesAgent
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            await ViewModel.InitializeAsync();
+            try
+            {
+                await ViewModel.InitializeAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentOrdersPage] OnNavigatedTo failed: {ex.Message}");
+            }
         }
     }
 }

@@ -9,11 +9,13 @@
     xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Admin"
+    xmlns:charts="using:MyShop.Client.Views.Components.Charts"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
 
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
 
         <!--  Style cho các Card  -->
         <Style x:Key="CardStyle" TargetType="Border">
@@ -25,7 +27,9 @@
         </Style>
     </Page.Resources>
 
-    <ScrollViewer>
+    <Grid>
+        <!-- Main Content -->
+        <ScrollViewer Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
         <StackPanel Padding="24" Spacing="24">
 
             <Grid>
@@ -54,40 +58,66 @@
 
             <!--  Header với Filters  -->
             <Border Style="{StaticResource CardStyle}">
-                <Grid ColumnSpacing="16" RowSpacing="16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
+                <StackPanel Spacing="16">
+                    <!--  First Row: Preset Date Range and Category  -->
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
-                    <ComboBox
-                        HorizontalAlignment="Stretch"
-                        DisplayMemberPath="Display"
-                        Header="Date Range"
-                        ItemsSource="{x:Bind ViewModel.DateRanges}"
-                        SelectedItem="{x:Bind ViewModel.SelectedDateRange, Mode=TwoWay}"
-                        SelectedValuePath="Value" />
+                        <ComboBox
+                            Grid.Column="0"
+                            HorizontalAlignment="Stretch"
+                            DisplayMemberPath="Display"
+                            Header="Quick Date Range"
+                            ItemsSource="{Binding DateRanges, Mode=OneWay}"
+                            SelectedItem="{x:Bind ViewModel.SelectedDateRange, Mode=TwoWay}"
+                            SelectedValuePath="Value" />
 
-                    <ComboBox
-                        Grid.Column="2"
-                        HorizontalAlignment="Stretch"
-                        Header="Category"
-                        ItemsSource="{x:Bind ViewModel.Categories}"
-                        SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}" />
+                        <ComboBox
+                            Grid.Column="1"
+                            HorizontalAlignment="Stretch"
+                            Header="Category"
+                            ItemsSource="{Binding Categories, Mode=OneWay}"
+                            SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}" />
+                    </Grid>
 
-                    <Button
-                        Grid.Column="4"
-                        VerticalAlignment="Bottom"
-                        Command="{x:Bind ViewModel.ExportReportCommand}">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon FontSize="16" Glyph="&#xE896;" />
-                            <TextBlock Text="Export" />
-                        </StackPanel>
-                    </Button>
-                </Grid>
+                    <!--  Second Row: Custom Date Range  -->
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <CalendarDatePicker
+                            Grid.Column="0"
+                            HorizontalAlignment="Stretch"
+                            Date="{x:Bind ViewModel.StartDate, Mode=TwoWay}"
+                            Header="Custom Start Date"
+                            PlaceholderText="Select start date" />
+
+                        <CalendarDatePicker
+                            Grid.Column="1"
+                            HorizontalAlignment="Stretch"
+                            Date="{x:Bind ViewModel.EndDate, Mode=TwoWay}"
+                            Header="Custom End Date"
+                            PlaceholderText="Select end date" />
+
+                        <Button
+                            Grid.Column="3"
+                            VerticalAlignment="Bottom"
+                            Command="{x:Bind ViewModel.ExportReportCommand}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon FontSize="16" Glyph="&#xE896;" />
+                                <TextBlock Text="Export Report" />
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </StackPanel>
             </Border>
 
             <!--  Charts Grid  -->
@@ -102,60 +132,46 @@
                 </Grid.RowDefinitions>
 
                 <!--  Revenue Trend  -->
-                <Border
+                <charts:LineChartCard
                     Grid.Row="0"
                     Grid.Column="0"
-                    Style="{StaticResource CardStyle}">
-                    <StackPanel>
-                        <TextBlock
-                            Margin="0,0,0,16"
-                            Style="{StaticResource SubtitleTextBlockStyle}"
-                            Text="Revenue Trend" />
-                        <lvc:CartesianChart Height="300" Series="{x:Bind ViewModel.RevenueSeries}" />
-                    </StackPanel>
-                </Border>
+                    Title="Revenue Trend"
+                    Series="{Binding RevenueSeries, Mode=OneWay}"
+                    ChartHeight="300"
+                    ShowLegend="Visible"
+                    Legend1Text="Revenue"
+                    ShowMenu="Visible" />
 
                 <!--  Orders per Category  -->
-                <Border
+                <charts:BarChartCard
                     Grid.Row="0"
                     Grid.Column="1"
-                    Style="{StaticResource CardStyle}">
-                    <StackPanel>
-                        <TextBlock
-                            Margin="0,0,0,16"
-                            Style="{StaticResource SubtitleTextBlockStyle}"
-                            Text="Orders per Category" />
-                        <lvc:CartesianChart Height="300" Series="{x:Bind ViewModel.OrdersByCategorySeries}" />
-                    </StackPanel>
-                </Border>
+                    Title="Orders per Category"
+                    Series="{Binding OrdersByCategorySeries, Mode=OneWay}"
+                    ChartHeight="300"
+                    ShowMenu="Visible" />
 
                 <!--  Admin Only - Product Rating Breakdown  -->
-                <Border
+                <charts:PieChartCard
                     Grid.Row="1"
                     Grid.Column="0"
-                    Style="{StaticResource CardStyle}"
-                    Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <StackPanel>
-                        <TextBlock
-                            Margin="0,0,0,16"
-                            Style="{StaticResource SubtitleTextBlockStyle}"
-                            Text="Product Rating Breakdown" />
-                        <lvc:PieChart Height="300" Series="{x:Bind ViewModel.RatingDistributionSeries}" />
-                    </StackPanel>
-                </Border>
+                    Title="Product Rating Breakdown"
+                    Series="{Binding RatingDistributionSeries, Mode=OneWay}"
+                    ChartHeight="300"
+                    ShowMenu="Visible" />
 
                 <!--  Admin Only - Salesperson Contributions  -->
                 <Border
                     Grid.Row="1"
                     Grid.Column="1"
-                    Style="{StaticResource CardStyle}"
-                    Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    Style="{StaticResource CardStyle}">
                     <StackPanel>
                         <TextBlock
                             Margin="0,0,0,16"
                             Style="{StaticResource SubtitleTextBlockStyle}"
                             Text="Salesperson Contributions" />
-                        <ItemsControl ItemsSource="{x:Bind ViewModel.SalespersonData}">
+                        <!-- COPILOT-FIX STEP 6: Changed to {Binding} to prevent ItemsControl crash -->
+                        <ItemsControl ItemsSource="{Binding SalespersonData, Mode=OneWay}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Grid
@@ -216,7 +232,8 @@
                         Margin="0,0,0,16"
                         Style="{StaticResource SubtitleTextBlockStyle}"
                         Text="Product Summary" />
-                    <controls:DataGrid AutoGenerateColumns="False" ItemsSource="{x:Bind ViewModel.FilteredProducts}">
+                    <!-- COPILOT-FIX STEP 6: Changed {x:Bind} to {Binding Mode=OneWay} to prevent DataGrid crash -->
+                    <controls:DataGrid AutoGenerateColumns="False" ItemsSource="{Binding FilteredProducts, Mode=OneWay}">
                         <controls:DataGrid.Columns>
                             <controls:DataGridTextColumn
                                 Width="*"
@@ -254,7 +271,7 @@
                                 </controls:DataGridTemplateColumn.CellTemplate>
                             </controls:DataGridTemplateColumn>
 
-                            <controls:DataGridTemplateColumn Header="My Commission" Visibility="{x:Bind ViewModel.IsSalesAgent, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <controls:DataGridTemplateColumn Header="My Commission" Visibility="Collapsed">
                                 <controls:DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock><Run Text="$" /><Run Text="{Binding Commission}" /></TextBlock>
@@ -262,22 +279,7 @@
                                 </controls:DataGridTemplateColumn.CellTemplate>
                             </controls:DataGridTemplateColumn>
 
-                            <controls:DataGridTemplateColumn Header="Status">
-                                <controls:DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Border
-                                            Padding="6,4"
-                                            Background="{Binding Stock, Converter={StaticResource StockToBrushConverter}}"
-                                            CornerRadius="10">
-                                            <TextBlock
-                                                HorizontalAlignment="Center"
-                                                FontSize="12"
-                                                Foreground="White"
-                                                Text="{Binding Stock, Converter={StaticResource StockToTextConverter}}" />
-                                        </Border>
-                                    </DataTemplate>
-                                </controls:DataGridTemplateColumn.CellTemplate>
-                            </controls:DataGridTemplateColumn>
+                            <controls:DataGridTextColumn Binding="{Binding Stock}" Header="Stock" />
 
                         </controls:DataGrid.Columns>
                     </controls:DataGrid>
@@ -296,4 +298,21 @@
             </Button>
         </StackPanel>
     </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Grid Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+              Background="{ThemeResource LayerFillColorDefaultBrush}">
+            <StackPanel HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Spacing="24">
+                <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                              Width="64"
+                              Height="64" />
+                <TextBlock Text="Loading reports..."
+                           FontSize="18"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Grid>
+    </Grid>
 </Page>

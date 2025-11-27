@@ -1,0 +1,145 @@
+{
+  "plans": [
+    {
+      "id": "plan-trial",
+      "name": "Trial",
+      "displayName": "Dùng Thử Miễn Phí",
+      "price": 0,
+      "currency": "VND",
+      "billingCycle": "monthly",
+      "durationDays": 30,
+      "maxUsers": 5,
+      "maxProducts": 100,
+      "maxOrders": 50,
+      "description": "Dùng thử đầy đủ tính năng cơ bản trong 30 ngày",
+      "features": [
+        "Quản lý tối đa 100 sản phẩm",
+        "Quản lý đơn hàng cơ bản",
+        "Quản lý khách hàng",
+        "Báo cáo cơ bản",
+        "Tối đa 5 người dùng",
+        "Hỗ trợ email"
+      ],
+      "limitations": [
+        "Không xuất dữ liệu",
+        "Không quản lý đại lý",
+        "Không API access"
+      ],
+      "isPopular": false,
+      "isTrial": true
+    },
+    {
+      "id": "plan-starter",
+      "name": "Starter",
+      "displayName": "Gói Khởi Đầu",
+      "price": 299000,
+      "currency": "VND",
+      "billingCycle": "monthly",
+      "durationDays": 30,
+      "maxUsers": 10,
+      "maxProducts": 500,
+      "maxOrders": 200,
+      "description": "Phù hợp cho cửa hàng nhỏ mới bắt đầu",
+      "features": [
+        "Quản lý tối đa 500 sản phẩm",
+        "Quản lý đơn hàng nâng cao",
+        "Quản lý khách hàng",
+        "Quản lý kho hàng cơ bản",
+        "Báo cáo cơ bản",
+        "Tối đa 10 người dùng",
+        "Hỗ trợ email",
+        "Xuất báo cáo Excel"
+      ],
+      "limitations": [
+        "Không quản lý đại lý",
+        "Không API access",
+        "Không tùy chỉnh giao diện"
+      ],
+      "isPopular": false,
+      "isTrial": false
+    },
+    {
+      "id": "plan-professional",
+      "name": "Professional",
+      "displayName": "Gói Chuyên Nghiệp",
+      "price": 799000,
+      "currency": "VND",
+      "billingCycle": "monthly",
+      "durationDays": 30,
+      "maxUsers": 20,
+      "maxProducts": 2000,
+      "maxOrders": 1000,
+      "description": "Dành cho doanh nghiệp vừa và nhỏ",
+      "features": [
+        "Quản lý không giới hạn sản phẩm",
+        "Quản lý đơn hàng nâng cao",
+        "Quản lý khách hàng nâng cao",
+        "Quản lý đại lý bán hàng",
+        "Quản lý kho hàng nâng cao",
+        "Báo cáo & phân tích nâng cao",
+        "Tối đa 20 người dùng",
+        "Hỗ trợ email + chat",
+        "Xuất/nhập dữ liệu Excel",
+        "Thông báo email tự động",
+        "Tùy chỉnh giao diện cơ bản"
+      ],
+      "limitations": [
+        "Không API access",
+        "Không multi-warehouse"
+      ],
+      "isPopular": true,
+      "isTrial": false
+    },
+    {
+      "id": "plan-enterprise",
+      "name": "Enterprise",
+      "displayName": "Gói Doanh Nghiệp",
+      "price": 1999000,
+      "currency": "VND",
+      "billingCycle": "monthly",
+      "durationDays": 30,
+      "maxUsers": -1,
+      "maxProducts": -1,
+      "maxOrders": -1,
+      "description": "Giải pháp toàn diện cho doanh nghiệp lớn",
+      "features": [
+        "Không giới hạn sản phẩm",
+        "Không giới hạn đơn hàng",
+        "Không giới hạn người dùng",
+        "Quản lý đại lý bán hàng nâng cao",
+        "Quản lý đa kho hàng",
+        "Báo cáo & phân tích chuyên sâu",
+        "API access đầy đủ",
+        "Tích hợp tùy chỉnh",
+        "Hỗ trợ ưu tiên 24/7",
+        "Thông báo email + SMS",
+        "Tùy chỉnh giao diện nâng cao",
+        "Xuất/nhập dữ liệu đa định dạng",
+        "Sao lưu dữ liệu tự động",
+        "Đào tạo & hỗ trợ on-site"
+      ],
+      "limitations": [],
+      "isPopular": false,
+      "isTrial": false
+    }
+  ],
+  "upgradeInfo": {
+    "currentPlan": "plan-professional",
+    "currentPlanExpiresAt": "2026-09-05T10:15:00Z",
+    "upgradeUrl": "https://myshop.com/upgrade",
+    "contactSalesUrl": "https://myshop.com/contact-sales",
+    "contactEmail": "sales@myshop.com",
+    "contactPhone": "+84-28-3822-1234",
+    "promotions": [
+      {
+        "id": "promo-2025-nov",
+        "title": "Khuyến Mãi Cuối Năm",
+        "description": "Giảm 20% khi nâng cấp lên gói Professional hoặc Enterprise",
+        "discountPercent": 20,
+        "validFrom": "2025-11-01T00:00:00Z",
+        "validUntil": "2025-12-31T23:59:59Z",
+        "applicablePlans": ["plan-professional", "plan-enterprise"]
+      }
+    ]
+  }
+}

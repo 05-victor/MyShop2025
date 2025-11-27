@@ -10,13 +10,60 @@
 
     <!-- Base Input Style cho TextBox -->
     <Style x:Key="BaseInputStyle" TargetType="TextBox">
-        <Setter Property="Height" Value="44"/>
-        <Setter Property="Padding" Value="12"/>
-        <Setter Property="FontSize" Value="{StaticResource FontSize_Base}"/>
-        <Setter Property="CornerRadius" Value="{StaticResource Radius_MD}"/>
-        <Setter Property="BorderThickness" Value="{StaticResource BorderThickness_Thin}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource BorderDefaultBrush}"/>
-        <Setter Property="Background" Value="{StaticResource WhiteBrush}"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Padding" Value="12,4"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="#D0D7E2"/>
+        <Setter Property="Background" Value="#FFFFFF"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Grid>
+                        <Border x:Name="BorderElement"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding CornerRadius}">
+                            <ScrollViewer x:Name="ContentElement"
+                                        Padding="{TemplateBinding Padding}"
+                                        HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                                        VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"/>
+                        </Border>
+                        <TextBlock x:Name="PlaceholderTextContentPresenter"
+                                  Text="{TemplateBinding PlaceholderText}"
+                                  Foreground="#6B7280"
+                                  Margin="12,0,12,0"
+                                  VerticalAlignment="Center"
+                                  IsHitTestVisible="False"/>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal"/>
+                                <VisualState x:Name="PointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="BorderElement.BorderBrush" Value="#9CA3AF"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Focused">
+                                    <VisualState.Setters>
+                                        <Setter Target="BorderElement.BorderBrush" Value="#1A4D8F"/>
+                                        <Setter Target="BorderElement.BorderThickness" Value="2"/>
+                                        <Setter Target="PlaceholderTextContentPresenter.Visibility" Value="Collapsed"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Target="BorderElement.Background" Value="#F3F4F6"/>
+                                        <Setter Target="BorderElement.BorderBrush" Value="#E5E7EB"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!-- Base Password Style cho PasswordBox -->

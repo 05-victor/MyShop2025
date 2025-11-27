@@ -58,30 +58,9 @@ public static class MockCategoryData
 
     private static void InitializeDefaultData()
     {
-        _categories = new List<CategoryDataModel>
-        {
-            new CategoryDataModel
-            {
-                Id = "10000000-0000-0000-0000-000000000001",
-                Name = "Smartphones",
-                Description = "Điện thoại thông minh",
-                CreatedAt = DateTime.Parse("2024-01-15T10:00:00Z")
-            },
-            new CategoryDataModel
-            {
-                Id = "10000000-0000-0000-0000-000000000002",
-                Name = "Tablets",
-                Description = "Máy tính bảng",
-                CreatedAt = DateTime.Parse("2024-01-15T10:00:00Z")
-            },
-            new CategoryDataModel
-            {
-                Id = "10000000-0000-0000-0000-000000000003",
-                Name = "Laptops",
-                Description = "Laptop gaming, văn phòng",
-                CreatedAt = DateTime.Parse("2024-01-15T10:00:00Z")
-            }
-        };
+        // Initialize empty list - data should be loaded from categories.json
+        _categories = new List<CategoryDataModel>();
+        System.Diagnostics.Debug.WriteLine("[MockCategoryData] JSON file not found - initialized with empty category list");
     }
 
     public static async Task<List<Category>> GetAllAsync()
@@ -217,6 +196,58 @@ public static class MockCategoryData
     private class CategoryDataContainer
     {
         public List<CategoryDataModel> Categories { get; set; } = new();
+    }
+
+    public static async Task<(List<Category> Items, int TotalCount)> GetPagedAsync(
+        int page = 1,
+        int pageSize = 20,
+        string? searchQuery = null,
+        string sortBy = "name",
+        bool sortDescending = false)
+    {
+        EnsureDataLoaded();
+
+        // Simulate network delay
+        await Task.Delay(250);
+
+        var query = _categories!.AsEnumerable();
+
+        // Apply search filter
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            var lowerQuery = searchQuery.ToLower();
+            query = query.Where(c =>
+                c.Name.ToLower().Contains(lowerQuery) ||
+                (c.Description != null && c.Description.ToLower().Contains(lowerQuery)));
+        }
+
+        // Apply sorting
+        query = sortBy.ToLower() switch
+        {
+            "name" => sortDescending
+                ? query.OrderByDescending(c => c.Name)
+                : query.OrderBy(c => c.Name),
+            "createdat" => sortDescending
+                ? query.OrderByDescending(c => c.CreatedAt)
+                : query.OrderBy(c => c.CreatedAt),
+            _ => query.OrderBy(c => c.Name)
+        };
+
+        var totalCount = query.Count();
+        var pagedData = query.Skip((page - 1) * pageSize).Take(pageSize)
+            .Select(c => new Category
+            {
+                Id = Guid.Parse(c.Id),
+                Name = c.Name,
+                Description = c.Description,
+                CreatedAt = c.CreatedAt,
+                UpdatedAt = c.UpdatedAt
+            })
+            .ToList();
+
+        System.Diagnostics.Debug.WriteLine($"[MockCategoryData] GetPagedAsync: Page {page}/{Math.Ceiling(totalCount / (double)pageSize)}, Total: {totalCount}");
+
+        return (pagedData, totalCount);
     }
 
     private class CategoryDataModel

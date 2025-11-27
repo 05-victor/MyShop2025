@@ -12,10 +12,8 @@ public static class MockAuthData
 {
     private static List<MockUserData>? _users;
     private static List<MockRoleData>? _roles;
-    private static List<MockProfileData>? _profiles;
-    private static List<MockAdminCodeData>? _adminCodes;
     private static readonly object _lock = new object();
-    private static readonly string _jsonFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Mocks", "Data", "Json", "auth.json");
+    private static readonly string _jsonFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Mocks", "Data", "Json", "users.json");
 
     private static void EnsureDataLoaded()
     {
@@ -40,15 +38,13 @@ public static class MockAuthData
                     PropertyNameCaseInsensitive = true
                 };
                 
-                var data = JsonSerializer.Deserialize<AuthDataContainer>(jsonString, options);
+                var data = JsonSerializer.Deserialize<UserDataContainer>(jsonString, options);
                 
                 if (data?.Users != null)
                 {
                     _users = data.Users;
                     _roles = data.Roles ?? new List<MockRoleData>();
-                    _profiles = data.Profiles ?? new List<MockProfileData>();
-                    _adminCodes = data.AdminCodes ?? new List<MockAdminCodeData>();
-                    System.Diagnostics.Debug.WriteLine($"Loaded {_users.Count} users from auth.json");
+                    System.Diagnostics.Debug.WriteLine($"Loaded {_users.Count} users from users.json");
                 }
                 else
                 {
@@ -57,7 +53,7 @@ public static class MockAuthData
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error loading auth.json: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error loading users.json: {ex.Message}");
                 InitializeDefaultData();
             }
         }
@@ -65,49 +61,18 @@ public static class MockAuthData
 
     private static void InitializeDefaultData()
     {
-        _users = new List<MockUserData>
+        // Initialize empty lists - data should be loaded from users.json
+        _users = new List<MockUserData>();
+        
+        // Roles are static and defined in the system
+        _roles = new List<MockRoleData>
         {
-            new MockUserData
-            {
-                Id = "00000000-0000-0000-0000-000000000001",
-                Username = "admin",
-                Email = "admin@myshop.com",
-                Password = "admin123",
-                PhoneNumber = "0901234567",
-                FullName = "Administrator",
-                RoleNames = new List<string> { "ADMIN" },
-                IsEmailVerified = true,
-                CreatedAt = DateTime.Parse("2024-05-10T08:30:00Z")
-            },
-            new MockUserData
-            {
-                Id = "00000000-0000-0000-0000-000000000002",
-                Username = "salesman",
-                Email = "sales@myshop.com",
-                Password = "sales123",
-                PhoneNumber = "0902345678",
-                FullName = "Sales Agent",
-                RoleNames = new List<string> { "SALESAGENT" },
-                IsEmailVerified = true,
-                CreatedAt = DateTime.Parse("2024-08-15T10:00:00Z")
-            },
-            new MockUserData
-            {
-                Id = "00000000-0000-0000-0000-000000000003",
-                Username = "customer",
-                Email = "customer@myshop.com",
-                Password = "customer123",
-                PhoneNumber = "0903456789",
-                FullName = "Customer User",
-                RoleNames = new List<string> { "USER" },
-                IsEmailVerified = true,
-                CreatedAt = DateTime.Parse("2025-10-01T12:30:00Z")
-            }
+            new MockRoleData { Name = "ADMIN", Description = "Administrator" },
+            new MockRoleData { Name = "SALESAGENT", Description = "Sales Agent" },
+            new MockRoleData { Name = "USER", Description = "Customer" }
         };
-
-        _roles = new List<MockRoleData>();
-        _profiles = new List<MockProfileData>();
-        _adminCodes = new List<MockAdminCodeData>();
+        
+        System.Diagnostics.Debug.WriteLine("[MockAuthData] JSON file not found - initialized with empty user list");
     }
 
     public static async Task<Result<User>> LoginAsync(string usernameOrEmail, string password)
@@ -317,17 +282,16 @@ public static class MockAuthData
             return Result<User>.Failure("User not found");
         }
 
-        // Validate admin code (remove hyphens for comparison)
-        var cleanCode = adminCode.Replace("-", "").ToUpper();
-        var validCode = _adminCodes!.FirstOrDefault(c => 
-            c.Code.Replace("-", "").ToUpper() == cleanCode && 
-            c.IsActive && 
-            c.ExpiresAt > DateTime.UtcNow);
+        // Validate admin code using MockAdminCodesData
+        var validCode = await MockAdminCodesData.ValidateCodeAsync(adminCode);
 
         if (validCode == null)
         {
             return Result<User>.Failure("Invalid or expired admin code");
         }
+
+        // Mark code as used
+        await MockAdminCodesData.MarkAsUsedAsync(adminCode, userId);
 
         // Deactivate trial for this user
         user.IsTrialActive = false;
@@ -378,12 +342,10 @@ public static class MockAuthData
     {
         try
         {
-            var container = new AuthDataContainer
+            var container = new UserDataContainer
             {
                 Users = _users!,
-                Roles = _roles!,
-                Profiles = _profiles!,
-                AdminCodes = _adminCodes!
+                Roles = _roles!
             };
 
             var options = new JsonSerializerOptions
@@ -395,11 +357,11 @@ public static class MockAuthData
             var jsonString = JsonSerializer.Serialize(container, options);
             await File.WriteAllTextAsync(_jsonFilePath, jsonString);
             
-            System.Diagnostics.Debug.WriteLine("Successfully saved auth data to JSON");
+            System.Diagnostics.Debug.WriteLine("Successfully saved user data to JSON");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error saving auth.json: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"Error saving users.json: {ex.Message}");
         }
     }
 
@@ -458,12 +420,10 @@ public static class MockAuthData
     }
 
     // Data container classes for JSON deserialization
-    private class AuthDataContainer
+    private class UserDataContainer
     {
         public List<MockUserData> Users { get; set; } = new();
         public List<MockRoleData> Roles { get; set; } = new();
-        public List<MockProfileData> Profiles { get; set; } = new();
-        public List<MockAdminCodeData> AdminCodes { get; set; } = new();
     }
 
     private class MockUserData
@@ -490,26 +450,5 @@ public static class MockAuthData
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
-    }
-
-    private class MockProfileData
-    {
-        public string UserId { get; set; } = string.Empty;
-        public string? Avatar { get; set; }
-        public string? FullName { get; set; }
-        public string? PhoneNumber { get; set; }
-        public string? Address { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
-    }
-
-    private class MockAdminCodeData
-    {
-        public string Code { get; set; } = string.Empty;
-        public bool IsActive { get; set; }
-        public DateTime ExpiresAt { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime? DeactivatedAt { get; set; }
     }
 }

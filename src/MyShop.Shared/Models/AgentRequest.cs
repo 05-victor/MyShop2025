@@ -16,4 +16,11 @@ public class AgentRequest
     public string? ReviewedBy { get; set; }
     public DateTime? ReviewedAt { get; set; }
     public string Notes { get; set; } = string.Empty; // reason / experience combined
+    
+    // Extended application details
+    public string Reason { get; set; } = string.Empty;
+    public string Experience { get; set; } = string.Empty;
+    public string Address { get; set; } = string.Empty;
+    public string? BusinessName { get; set; }
+    public string? TaxId { get; set; }
 }

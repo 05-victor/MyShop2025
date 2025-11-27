@@ -134,4 +134,31 @@ public class MockProductRepository : IProductRepository
             return Result<IEnumerable<Product>>.Failure($"Failed to search products: {ex.Message}");
         }
     }
+
+    public async Task<Result<PagedList<Product>>> GetPagedAsync(
+        int page = 1,
+        int pageSize = 20,
+        string? searchQuery = null,
+        string? categoryName = null,
+        decimal? minPrice = null,
+        decimal? maxPrice = null,
+        string sortBy = "name",
+        bool sortDescending = false)
+    {
+        try
+        {
+            var (items, totalCount) = await MockProductData.GetPagedAsync(
+                page, pageSize, searchQuery, categoryName, minPrice, maxPrice, sortBy, sortDescending);
+
+            var pagedList = new PagedList<Product>(items, totalCount, page, pageSize);
+            
+            System.Diagnostics.Debug.WriteLine($"[MockProductRepository] GetPagedAsync: Page {page}, Size {pageSize}, Total {totalCount}");
+            return Result<PagedList<Product>>.Success(pagedList);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockProductRepository] GetPagedAsync error: {ex.Message}");
+            return Result<PagedList<Product>>.Failure($"Failed to get paged products: {ex.Message}");
+        }
+    }
 }

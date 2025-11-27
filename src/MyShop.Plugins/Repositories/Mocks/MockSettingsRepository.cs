@@ -16,7 +16,7 @@ public class MockSettingsRepository
             var settings = new AppSettings
             {
                 UserId = userId,
-                PageSize = 20,
+                PageSize = Core.Common.PaginationConstants.DefaultPageSize,
                 LastOpenedPage = "DASHBOARD",
                 Theme = "LIGHT",
                 Language = "vi",

@@ -1,0 +1,53 @@
+{
+  "searchHistory": [
+    {
+      "id": "90000000-0000-0000-0000-000000000001",
+      "userId": "00000000-0000-0000-0000-000000000001",
+      "query": "iPhone 15",
+      "searchedAt": "2025-11-26T10:30:00Z",
+      "resultCount": 12,
+      "clickedProductId": "10000000-0000-0000-0000-000000000001"
+    },
+    {
+      "id": "90000000-0000-0000-0000-000000000002",
+      "userId": "00000000-0000-0000-0000-000000000001",
+      "query": "MacBook Pro",
+      "searchedAt": "2025-11-26T09:45:00Z",
+      "resultCount": 8,
+      "clickedProductId": "10000000-0000-0000-0000-000000000005"
+    },
+    {
+      "id": "90000000-0000-0000-0000-000000000003",
+      "userId": "00000000-0000-0000-0000-000000000001",
+      "query": "Samsung Galaxy",
+      "searchedAt": "2025-11-25T16:20:00Z",
+      "resultCount": 15,
+      "clickedProductId": null
+    },
+    {
+      "id": "90000000-0000-0000-0000-000000000004",
+      "userId": "00000000-0000-0000-0000-000000000002",
+      "query": "Dell XPS",
+      "searchedAt": "2025-11-25T14:10:00Z",
+      "resultCount": 6,
+      "clickedProductId": "10000000-0000-0000-0000-000000000010"
+    },
+    {
+      "id": "90000000-0000-0000-0000-000000000005",
+      "userId": "00000000-0000-0000-0000-000000000001",
+      "query": "AirPods Pro",
+      "searchedAt": "2025-11-24T11:30:00Z",
+      "resultCount": 4,
+      "clickedProductId": "10000000-0000-0000-0000-000000000015"
+    }
+  ],
+  "searchSettings": {
+    "maxHistoryItems": 50,
+    "historyExpiryDays": 90,
+    "maxSuggestions": 10,
+    "minQueryLength": 2,
+    "enableRecentSearches": true,
+    "enableProductSuggestions": true,
+    "enableCategorySuggestions": true
+  }
+}
