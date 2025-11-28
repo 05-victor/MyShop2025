@@ -389,6 +389,13 @@ public class OrderFacade : IOrderFacade
 
             _toastService.ShowSuccess($"Exported {orders.Count} orders");
             System.Diagnostics.Debug.WriteLine($"[OrderFacade] Exported {orders.Count} orders to {exportResult.Data}");
+
+            // Open Explorer and select the exported file
+            if (!string.IsNullOrEmpty(exportResult.Data))
+            {
+                StorageConstants.OpenExplorerAndSelectFile(exportResult.Data);
+            }
+
             return exportResult;
         }
         catch (Exception ex)

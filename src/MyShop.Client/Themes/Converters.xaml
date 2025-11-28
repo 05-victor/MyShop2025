@@ -24,6 +24,7 @@
     
     <!-- String Converters -->
     <converters:StringFormatConverter x:Key="StringFormatConverter"/>
+    <converters:StringToImageSourceConverter x:Key="StringToImageSourceConverter"/>
     
     <!-- Password Converters -->
     <converters:PasswordStrengthToColorConverter x:Key="PasswordStrengthToColorConverter"/>

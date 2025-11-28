@@ -2,7 +2,10 @@ using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using System;
 using System.Collections.Generic;
+using System.Text;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace MyShop.Client.Views.Components.Charts
 {
@@ -12,6 +15,80 @@ namespace MyShop.Client.Views.Components.Charts
         {
             this.InitializeComponent();
         }
+
+        #region Events
+
+        /// <summary>
+        /// Event raised when user requests to refresh data
+        /// </summary>
+        public event EventHandler? RefreshRequested;
+
+        /// <summary>
+        /// Event raised when user requests to export data
+        /// </summary>
+        public event EventHandler<string>? ExportRequested;
+
+        #endregion
+
+        #region Menu Event Handlers
+
+        private void RefreshMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            RefreshRequested?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void CopyDataMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var csvData = GetSeriesAsCsv();
+                var dataPackage = new DataPackage();
+                dataPackage.SetText(csvData);
+                Clipboard.SetContent(dataPackage);
+                
+                Services.LoggingService.Instance.Debug($"[{Title}] Data copied to clipboard");
+            }
+            catch (Exception ex)
+            {
+                Services.LoggingService.Instance.Error($"[{Title}] Failed to copy data", ex);
+            }
+        }
+
+        private void ExportMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var csvData = GetSeriesAsCsv();
+            ExportRequested?.Invoke(this, csvData);
+        }
+
+        private string GetSeriesAsCsv()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"Chart: {Title}");
+            sb.AppendLine("Category,Value");
+
+            if (Series != null)
+            {
+                int seriesIndex = 0;
+                foreach (var series in Series)
+                {
+                    sb.AppendLine($"Series {seriesIndex + 1}: {series.Name ?? "Unnamed"}");
+                    if (series.Values != null)
+                    {
+                        int index = 0;
+                        foreach (var value in series.Values)
+                        {
+                            sb.AppendLine($"{index},{value}");
+                            index++;
+                        }
+                    }
+                    seriesIndex++;
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        #endregion
 
         #region Dependency Properties
 

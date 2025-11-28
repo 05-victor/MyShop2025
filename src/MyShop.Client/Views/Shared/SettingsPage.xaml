@@ -116,7 +116,9 @@
                                             <Button
                                                 HorizontalAlignment="Stretch"
                                                 Background="#2563EB"
-                                                Foreground="White">
+                                                Foreground="White"
+                                                IsEnabled="False"
+                                                ToolTipService.ToolTip="Coming soon - Subscription management">
                                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                                     <FontIcon FontSize="14" Glyph="&#xE734;" />
                                                     <TextBlock Text="Upgrade to Pro - $49/month" />
@@ -166,7 +168,8 @@
                                                 PlaceholderText="MYSHOP-15DAY-XXXX-XXXX"
                                                 Style="{StaticResource BaseInputStyle}" />
 
-                                            <Button HorizontalAlignment="Left" Background="{ThemeResource AccentFillColorDefaultBrush}" Foreground="White">
+                                            <Button HorizontalAlignment="Left" Background="{ThemeResource AccentFillColorDefaultBrush}" Foreground="White"
+                                                    IsEnabled="False" ToolTipService.ToolTip="Coming soon - Trial activation">
                                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                                     <FontIcon FontSize="14" Glyph="&#xE73E;" />
                                                     <TextBlock Text="Activate Trial Code" />
@@ -434,7 +437,7 @@
                                                     <TextBlock Text="Email Alerts" FontWeight="SemiBold" />
                                                     <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Receive email notifications for important events" TextWrapping="Wrap" />
                                                 </StackPanel>
-                                                <ToggleSwitch Grid.Column="1" IsOn="True" OffContent="" OnContent="" />
+                                                <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.NotificationsEnabled, Mode=TwoWay}" OffContent="" OnContent="" />
                                             </Grid>
                                         </Border>
 
@@ -519,7 +522,7 @@
                                         <StackPanel Spacing="8">
                                             <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
                                                 <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Version" />
-                                                <TextBlock HorizontalAlignment="Right" FontWeight="SemiBold" Text="2.0.0" />
+                                                <TextBlock HorizontalAlignment="Right" FontWeight="SemiBold" Text="{x:Bind ViewModel.AppVersion}" />
                                             </Grid>
                                             <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
                                                 <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Release Date" />
@@ -535,7 +538,7 @@
                                             </Grid>
                                         </StackPanel>
 
-                                        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="© 2025 MyShop. All rights reserved." TextAlignment="Center" />
+                                        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind ViewModel.ReleaseYear}" TextAlignment="Center" />
                                     </StackPanel>
                                 </Border>
 
@@ -582,6 +585,136 @@
                                                 </StackPanel>
                                             </Button>
                                         </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabViewItem>
+
+                    <!--  Developer Tab  -->
+                    <TabViewItem Header="Developer" IsClosable="False">
+                        <TabViewItem.IconSource>
+                            <FontIconSource Glyph="&#xE943;" />
+                        </TabViewItem.IconSource>
+                        <ScrollViewer>
+                            <StackPanel Padding="0,24" Spacing="24">
+                                <!--  Data Source Card  -->
+                                <Border
+                                    Padding="24"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
+                                    <StackPanel Spacing="16">
+                                        <TextBlock FontSize="16" FontWeight="SemiBold" Text="Data Source" />
+                                        
+                                        <Border Padding="0,12" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="Use Mock Data" FontWeight="SemiBold" />
+                                                    <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Use local mock data instead of real API" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                                <ToggleSwitch x:Name="MockDataToggle" Grid.Column="1" 
+                                                              IsOn="{x:Bind ViewModel.UseMockData, Mode=TwoWay}" 
+                                                              OffContent="" OnContent="" 
+                                                              Toggled="MockDataToggle_Toggled"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <InfoBar x:Name="MockModeWarning"
+                                                 IsOpen="{x:Bind ViewModel.UseMockData, Mode=OneWay}"
+                                                 Severity="Warning"
+                                                 Title="Mock Mode Active"
+                                                 Message="Data changes will not be persisted. Restart the app to apply changes."
+                                                 IsClosable="False" />
+
+                                        <StackPanel Spacing="8">
+                                            <TextBlock Style="{StaticResource InputLabelStyle}" Text="API Server URL" />
+                                            <TextBox x:Name="ServerUrlTextBox"
+                                                     Style="{StaticResource BaseInputStyle}" 
+                                                     PlaceholderText="https://api.myshop.com"
+                                                     Text="{x:Bind ViewModel.ServerUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                        </StackPanel>
+
+                                        <Button Click="ConfigureServer_Click">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <FontIcon FontSize="14" Glyph="&#xE713;" />
+                                                <TextBlock Text="Advanced Server Configuration" />
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </Border>
+
+                                <!--  Debug Info Card  -->
+                                <Border
+                                    Padding="24"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
+                                    <StackPanel Spacing="16">
+                                        <TextBlock FontSize="16" FontWeight="SemiBold" Text="Debug Information" />
+
+                                        <StackPanel Spacing="8">
+                                            <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Data Mode" />
+                                                <TextBlock HorizontalAlignment="Right" FontWeight="SemiBold" 
+                                                           Text="{x:Bind ViewModel.DataModeDisplay, Mode=OneWay}" />
+                                            </Grid>
+                                            <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Current User" />
+                                                <TextBlock HorizontalAlignment="Right" FontWeight="SemiBold" 
+                                                           Text="{x:Bind ViewModel.CurrentUserEmail, Mode=OneWay}" />
+                                            </Grid>
+                                            <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="User Role" />
+                                                <TextBlock HorizontalAlignment="Right" FontWeight="SemiBold" 
+                                                           Text="{x:Bind ViewModel.CurrentUserRole, Mode=OneWay}" />
+                                            </Grid>
+                                            <Grid Padding="0,8">
+                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Build Configuration" />
+                                                <TextBlock HorizontalAlignment="Right" FontWeight="SemiBold" 
+                                                           Text="{x:Bind ViewModel.BuildConfiguration}" />
+                                            </Grid>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!--  Developer Actions  -->
+                                <Border
+                                    Padding="24"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
+                                    <StackPanel Spacing="16">
+                                        <TextBlock FontSize="16" FontWeight="SemiBold" Text="Developer Actions" />
+
+                                        <StackPanel Orientation="Horizontal" Spacing="12">
+                                            <Button Click="OpenLogsFolder_Click">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <FontIcon FontSize="14" Glyph="&#xE8A5;" />
+                                                    <TextBlock Text="Open Logs Folder" />
+                                                </StackPanel>
+                                            </Button>
+                                            <Button Click="OpenExportsFolder_Click">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <FontIcon FontSize="14" Glyph="&#xE8B7;" />
+                                                    <TextBlock Text="Open Exports Folder" />
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+
+                                        <Button Click="CopyDebugInfo_Click">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <FontIcon FontSize="14" Glyph="&#xE8C8;" />
+                                                <TextBlock Text="Copy Debug Info to Clipboard" />
+                                            </StackPanel>
+                                        </Button>
                                     </StackPanel>
                                 </Border>
                             </StackPanel>

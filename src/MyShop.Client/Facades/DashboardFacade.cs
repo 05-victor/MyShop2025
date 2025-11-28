@@ -9,6 +9,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 
 namespace MyShop.Client.Facades;
 
@@ -233,6 +235,22 @@ public class DashboardFacade : IDashboardFacade
     {
         try
         {
+            // Show file save picker first
+            var savePicker = new FileSavePicker();
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+            WinRT.Interop.InitializeWithWindow.Initialize(savePicker, hwnd);
+
+            savePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+            savePicker.FileTypeChoices.Add("CSV Files", new List<string> { ".csv" });
+            savePicker.SuggestedFileName = $"Dashboard_{period}_{DateTime.Now:yyyyMMdd_HHmmss}";
+
+            var file = await savePicker.PickSaveFileAsync();
+            if (file == null)
+            {
+                // User cancelled the picker
+                return Result<string>.Success(string.Empty);
+            }
+
             var dashboardResult = await LoadDashboardAsync(period);
             if (!dashboardResult.IsSuccess || dashboardResult.Data == null)
             {
@@ -285,14 +303,12 @@ public class DashboardFacade : IDashboardFacade
                 csv.AppendLine($"\"{category.CategoryName}\",\"{category.TotalRevenue:F2}\",\"{category.Percentage:F2}%\"");
             }
 
-            // Save to temp file
-            var fileName = $"Dashboard_{period}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-            var filePath = Path.Combine(Path.GetTempPath(), fileName);
-            await File.WriteAllTextAsync(filePath, csv.ToString());
+            // Write to user-selected file
+            await FileIO.WriteTextAsync(file, csv.ToString());
 
-            _toastService.ShowSuccess($"Dashboard data exported to {fileName}");
-            System.Diagnostics.Debug.WriteLine($"[DashboardFacade] Exported dashboard to {filePath}");
-            return Result<string>.Success(filePath);
+            _toastService.ShowSuccess($"Dashboard data exported to {file.Name}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade] Exported dashboard to {file.Path}");
+            return Result<string>.Success(file.Path);
         }
         catch (Exception ex)
         {

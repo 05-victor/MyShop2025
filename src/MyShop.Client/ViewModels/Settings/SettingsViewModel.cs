@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MyShop.Client.Config;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Shared.Models;
@@ -7,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -27,6 +30,68 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private string _errorMessage = string.Empty;
 
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
+
+    // About info - read from assembly
+    public string AppVersion => Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0";
+    public string ReleaseYear => $"© {DateTime.Now.Year} MyShop. All rights reserved.";
+
+    // Developer tab properties
+    public bool UseMockData
+    {
+        get => AppConfig.Instance.UseMockData;
+        set
+        {
+            if (AppConfig.Instance.UseMockData != value)
+            {
+                // Note: This only updates the in-memory value
+                // Actual config change requires editing appsettings.json
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(DataModeDisplay));
+            }
+        }
+    }
+
+    public string ServerUrl
+    {
+        get => AppConfig.Instance.ApiBaseUrl ?? "https://localhost:7120";
+        set => OnPropertyChanged();
+    }
+
+    public string DataModeDisplay => UseMockData ? "Mock Data" : "Real API";
+    
+    [ObservableProperty]
+    private string _currentUserEmail = "Not logged in";
+    
+    [ObservableProperty]
+    private string _currentUserRole = "Unknown";
+    
+#if DEBUG
+    public string BuildConfiguration => "Debug";
+#else
+    public string BuildConfiguration => "Release";
+#endif
+
+    /// <summary>
+    /// Gets formatted debug information for clipboard copy
+    /// </summary>
+    public string GetDebugInfo()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("=== MyShop 2025 Debug Info ===");
+        sb.AppendLine($"Version: {AppVersion}");
+        sb.AppendLine($"Build: {BuildConfiguration}");
+        sb.AppendLine($"Data Mode: {DataModeDisplay}");
+        sb.AppendLine($"Server URL: {ServerUrl}");
+        sb.AppendLine($"User: {CurrentUserEmail}");
+        sb.AppendLine($"Role: {CurrentUserRole}");
+        sb.AppendLine($"Theme: {Theme}");
+        sb.AppendLine($"Language: {Language}");
+        sb.AppendLine($"OS: {Environment.OSVersion}");
+        sb.AppendLine($".NET: {Environment.Version}");
+        sb.AppendLine($"Timestamp: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+        sb.AppendLine("==============================");
+        return sb.ToString();
+    }
 
     // Settings properties
     [ObservableProperty]
@@ -290,10 +355,13 @@ public partial class SettingsViewModel : ObservableObject
             return false;
         }
 
-        // Validate page sizes
-        if (settings.ProductsPageSize < 1 || settings.ProductsPageSize > 200) return false;
-        if (settings.OrdersPageSize < 1 || settings.OrdersPageSize > 200) return false;
-        if (settings.CustomersPageSize < 1 || settings.CustomersPageSize > 200) return false;
+        // Validate page sizes via Pagination object
+        if (settings.Pagination != null)
+        {
+            if (settings.Pagination.ProductsPageSize < 1 || settings.Pagination.ProductsPageSize > 200) return false;
+            if (settings.Pagination.OrdersPageSize < 1 || settings.Pagination.OrdersPageSize > 200) return false;
+            if (settings.Pagination.CustomersPageSize < 1 || settings.Pagination.CustomersPageSize > 200) return false;
+        }
 
         return true;
     }
@@ -322,9 +390,9 @@ public partial class SettingsViewModel : ObservableObject
             Language = settings.Language;
             NotificationsEnabled = settings.NotificationsEnabled;
             RestoreLastPage = settings.RestoreLastPage;
-            ProductsPageSize = settings.ProductsPageSize;
-            OrdersPageSize = settings.OrdersPageSize;
-            CustomersPageSize = settings.CustomersPageSize;
+            ProductsPageSize = settings.Pagination.ProductsPageSize;
+            OrdersPageSize = settings.Pagination.OrdersPageSize;
+            CustomersPageSize = settings.Pagination.CustomersPageSize;
             EnableSoundNotifications = settings.EnableSoundNotifications;
             NotifyOnLowStock = settings.NotifyOnLowStock;
             NotifyOnNewOrders = settings.NotifyOnNewOrders;
@@ -366,9 +434,12 @@ public partial class SettingsViewModel : ObservableObject
                 Language = Language,
                 NotificationsEnabled = NotificationsEnabled,
                 RestoreLastPage = RestoreLastPage,
-                ProductsPageSize = ProductsPageSize,
-                OrdersPageSize = OrdersPageSize,
-                CustomersPageSize = CustomersPageSize,
+                Pagination = new PaginationSettings
+                {
+                    ProductsPageSize = ProductsPageSize,
+                    OrdersPageSize = OrdersPageSize,
+                    CustomersPageSize = CustomersPageSize
+                },
                 EnableSoundNotifications = EnableSoundNotifications,
                 NotifyOnLowStock = NotifyOnLowStock,
                 NotifyOnNewOrders = NotifyOnNewOrders,
@@ -453,9 +524,9 @@ public partial class SettingsViewModel : ObservableObject
                Language != _originalSettings.Language ||
                NotificationsEnabled != _originalSettings.NotificationsEnabled ||
                RestoreLastPage != _originalSettings.RestoreLastPage ||
-               ProductsPageSize != _originalSettings.ProductsPageSize ||
-               OrdersPageSize != _originalSettings.OrdersPageSize ||
-               CustomersPageSize != _originalSettings.CustomersPageSize ||
+               ProductsPageSize != _originalSettings.Pagination.ProductsPageSize ||
+               OrdersPageSize != _originalSettings.Pagination.OrdersPageSize ||
+               CustomersPageSize != _originalSettings.Pagination.CustomersPageSize ||
                EnableSoundNotifications != _originalSettings.EnableSoundNotifications ||
                NotifyOnLowStock != _originalSettings.NotifyOnLowStock ||
                NotifyOnNewOrders != _originalSettings.NotifyOnNewOrders ||

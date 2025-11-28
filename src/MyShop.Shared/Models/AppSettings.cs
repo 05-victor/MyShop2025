@@ -26,10 +26,10 @@ public class AppSettings
     /// </summary>
     public bool RestoreLastPage { get; set; } = true;
 
-    // Page size preferences
-    public int ProductsPageSize { get; set; } = 20;
-    public int OrdersPageSize { get; set; } = 15;
-    public int CustomersPageSize { get; set; } = 20;
+    /// <summary>
+    /// Pagination settings for all entity types
+    /// </summary>
+    public PaginationSettings Pagination { get; set; } = new();
 
     // Extended notification settings
     public bool EnableSoundNotifications { get; set; } = true;

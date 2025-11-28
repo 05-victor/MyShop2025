@@ -21,9 +21,8 @@ namespace MyShop.Client.ViewModels.Admin;
 public partial class AdminReportsViewModel : BaseViewModel
 {
     private readonly IReportFacade _reportFacade;
-    private bool _isLoadingData; // Prevent recursive filter calls
 
-    // --- Filters ---
+    // --- Filters (no auto-reload, user must click Apply Filters) ---
     [ObservableProperty]
     private DateRangeOption? _selectedDateRange;
 
@@ -71,9 +70,12 @@ public partial class AdminReportsViewModel : BaseViewModel
             new() { Display = "This Year", Value = "year" },
         };
 
-        // Initialize with last 30 days
+        // Set default selection to "This Week"
+        _selectedDateRange = DateRanges[0];
+
+        // Initialize with last 7 days (matching "This Week")
         _endDate = DateTimeOffset.Now;
-        _startDate = DateTimeOffset.Now.AddDays(-30);
+        _startDate = DateTimeOffset.Now.AddDays(-7);
 
         // Initialize collections to prevent DataGrid crash
         Categories = new ObservableCollection<string> { "All", "Electronics", "Clothing", "Home & Garden", "Food" };
@@ -134,36 +136,28 @@ public partial class AdminReportsViewModel : BaseViewModel
         }
     }
 
-    // --- Filter Logic ---
-    partial void OnSelectedDateRangeChanged(DateRangeOption? value)
+    // NOTE: Filter property changes no longer auto-reload
+    // User must click "Apply Filters" button to reduce API calls
+
+    /// <summary>
+    /// Apply current filter settings and reload data
+    /// </summary>
+    [RelayCommand]
+    private async Task ApplyFiltersAsync()
     {
-        if (!_isLoadingData && !IsLoading)
+        SetLoadingState(true);
+        try
         {
-            _ = LoadReportDataAsync();
+            await LoadReportDataAsync();
+            await _toastHelper?.ShowSuccess("Filters applied successfully");
         }
-    }
-    
-    partial void OnSelectedCategoryChanged(string? value)
-    {
-        if (!_isLoadingData && !IsLoading)
+        catch (Exception ex)
         {
-            _ = LoadReportDataAsync();
+            await _toastHelper?.ShowError($"Failed to apply filters: {ex.Message}");
         }
-    }
-    
-    partial void OnStartDateChanged(DateTimeOffset? value)
-    {
-        if (!_isLoadingData && !IsLoading)
+        finally
         {
-            _ = LoadReportDataAsync();
-        }
-    }
-    
-    partial void OnEndDateChanged(DateTimeOffset? value)
-    {
-        if (!_isLoadingData && !IsLoading)
-        {
-            _ = LoadReportDataAsync();
+            SetLoadingState(false);
         }
     }
 
@@ -180,14 +174,15 @@ public partial class AdminReportsViewModel : BaseViewModel
                     StartDate.Value.DateTime,
                     EndDate.Value.DateTime);
                 
-                if (result.IsSuccess)
+                if (result.IsSuccess && !string.IsNullOrEmpty(result.Data))
                 {
-                    await _toastHelper?.ShowSuccess($"Report exported to: {result.Data}");
+                    // Toast already shown by facade
                 }
-                else
+                else if (!result.IsSuccess)
                 {
                     await _toastHelper?.ShowError(result.ErrorMessage ?? "Export failed");
                 }
+                // Empty result means user cancelled the picker
             }
             else
             {
@@ -195,14 +190,15 @@ public partial class AdminReportsViewModel : BaseViewModel
                 var period = SelectedDateRange?.Value ?? "month";
                 var result = await _reportFacade.ExportSalesReportAsync(period);
                 
-                if (result.IsSuccess)
+                if (result.IsSuccess && !string.IsNullOrEmpty(result.Data))
                 {
-                    await _toastHelper?.ShowSuccess($"Report exported to: {result.Data}");
+                    // Toast already shown by facade
                 }
-                else
+                else if (!result.IsSuccess)
                 {
                     await _toastHelper?.ShowError(result.ErrorMessage ?? "Export failed");
                 }
+                // Empty result means user cancelled the picker
             }
         }
         catch (Exception ex)
@@ -217,11 +213,10 @@ public partial class AdminReportsViewModel : BaseViewModel
 
     private async Task LoadReportDataAsync()
     {
-        _isLoadingData = true;
         try
         {
             // Load sales report data
-            var period = SelectedDateRange?.Value ?? "month";
+            var period = SelectedDateRange?.Value ?? "week";
             var salesResult = await _reportFacade.GetSalesReportAsync(period);
 
             if (salesResult.IsSuccess && salesResult.Data != null)
@@ -235,12 +230,12 @@ public partial class AdminReportsViewModel : BaseViewModel
                 EndDate?.DateTime,
                 top: 50);
 
-            if (performanceResult.IsSuccess && performanceResult.Data != null)
+            List<ProductPerformance> products;
+            if (performanceResult.IsSuccess && performanceResult.Data != null && performanceResult.Data.Count > 0)
             {
-                System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Loaded {performanceResult.Data.Count} products");
+                System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Loaded {performanceResult.Data.Count} products from API");
                 
-                // Thread-safe collection modification
-                var products = performanceResult.Data.Take(20).Select(product => new ProductPerformance
+                products = performanceResult.Data.Take(20).Select(product => new ProductPerformance
                 {
                     Name = product.ProductName,
                     Category = product.CategoryName,
@@ -250,44 +245,56 @@ public partial class AdminReportsViewModel : BaseViewModel
                     Stock = 100,
                     Commission = product.TotalCommission
                 }).ToList();
-
-                Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
-                {
-                    FilteredProducts.Clear();
-                    foreach (var p in products)
-                    {
-                        FilteredProducts.Add(p);
-                    }
-                });
             }
+            else
+            {
+                // Use mock data when API not available
+                System.Diagnostics.Debug.WriteLine("[AdminReportsViewModel] Using mock product performance data");
+                products = GetMockProductPerformance();
+            }
+
+            Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
+            {
+                FilteredProducts.Clear();
+                foreach (var p in products)
+                {
+                    FilteredProducts.Add(p);
+                }
+            });
 
             // Load agent performance for Salesperson Data
             var agentResult = await _reportFacade.GetAgentPerformanceAsync(
                 StartDate?.DateTime,
                 EndDate?.DateTime);
 
-            if (agentResult.IsSuccess && agentResult.Data != null)
+            List<Salesperson> agents;
+            if (agentResult.IsSuccess && agentResult.Data != null && agentResult.Data.Count > 0)
             {
-                System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Loaded {agentResult.Data.Count} agents");
+                System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Loaded {agentResult.Data.Count} agents from API");
                 
-                // Thread-safe collection modification
-                var agents = agentResult.Data.Select(agent => new Salesperson
+                agents = agentResult.Data.Select(agent => new Salesperson
                 {
                     Name = agent.AgentName,
                     Sales = agent.TotalOrders,
                     Revenue = agent.TotalRevenue,
                     Initials = GetInitials(agent.AgentName)
                 }).ToList();
-
-                Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
-                {
-                    SalespersonData.Clear();
-                    foreach (var a in agents)
-                    {
-                        SalespersonData.Add(a);
-                    }
-                });
             }
+            else
+            {
+                // Use mock data when API not available
+                System.Diagnostics.Debug.WriteLine("[AdminReportsViewModel] Using mock salesperson data");
+                agents = GetMockSalespersonData();
+            }
+
+            Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
+            {
+                SalespersonData.Clear();
+                foreach (var a in agents)
+                {
+                    SalespersonData.Add(a);
+                }
+            });
 
             System.Diagnostics.Debug.WriteLine("[AdminReportsViewModel] All data loaded successfully");
         }
@@ -295,12 +302,86 @@ public partial class AdminReportsViewModel : BaseViewModel
         {
             System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Error loading report data: {ex.Message}");
             System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] StackTrace: {ex.StackTrace}");
-        }
-        finally
-        {
-            _isLoadingData = false;
+            
+            // Load mock data on error
+            Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
+            {
+                FilteredProducts.Clear();
+                foreach (var p in GetMockProductPerformance())
+                {
+                    FilteredProducts.Add(p);
+                }
+                
+                SalespersonData.Clear();
+                foreach (var a in GetMockSalespersonData())
+                {
+                    SalespersonData.Add(a);
+                }
+            });
         }
     }
+
+    /// <summary>
+    /// Get mock product performance data for display
+    /// </summary>
+    private List<ProductPerformance> GetMockProductPerformance()
+    {
+        return new List<ProductPerformance>
+        {
+            new() { Name = "iPhone 14 Pro Max", Category = "Smartphones", Sold = 156, Revenue = 171444, Rating = 4.8, Stock = 45, Commission = 8572 },
+            new() { Name = "MacBook Pro 16\"", Category = "Laptops", Sold = 89, Revenue = 222411, Rating = 4.9, Stock = 23, Commission = 11120 },
+            new() { Name = "AirPods Pro 2", Category = "Audio", Sold = 312, Revenue = 77688, Rating = 4.7, Stock = 8, Commission = 3884 },
+            new() { Name = "iPad Pro 12.9\"", Category = "Tablets", Sold = 67, Revenue = 80333, Rating = 4.6, Stock = 34, Commission = 4017 },
+            new() { Name = "Apple Watch Ultra", Category = "Wearables", Sold = 98, Revenue = 78302, Rating = 4.5, Stock = 56, Commission = 3915 },
+            new() { Name = "Samsung Galaxy S23", Category = "Smartphones", Sold = 134, Revenue = 120466, Rating = 4.4, Stock = 67, Commission = 6023 },
+            new() { Name = "Sony WH-1000XM5", Category = "Audio", Sold = 189, Revenue = 66087, Rating = 4.8, Stock = 12, Commission = 3304 },
+            new() { Name = "Dell XPS 15", Category = "Laptops", Sold = 45, Revenue = 89955, Rating = 4.5, Stock = 19, Commission = 4498 },
+        };
+    }
+
+    /// <summary>
+    /// Get mock salesperson data for display
+    /// </summary>
+    private List<Salesperson> GetMockSalespersonData()
+    {
+        return new List<Salesperson>
+        {
+            new() { Name = "John Doe", Sales = 45, Revenue = 12450, Initials = "JD" },
+            new() { Name = "Sarah Smith", Sales = 38, Revenue = 9870, Initials = "SS" },
+            new() { Name = "Mike Johnson", Sales = 32, Revenue = 8520, Initials = "MJ" },
+            new() { Name = "Emma Wilson", Sales = 28, Revenue = 7340, Initials = "EW" },
+        };
+    }
+
+    /// <summary>
+    /// View details of a product
+    /// </summary>
+    [RelayCommand]
+    private void ViewProductDetails(ProductPerformance? product)
+    {
+        if (product == null) return;
+        ViewProductDetailsRequested?.Invoke(this, product);
+    }
+
+    /// <summary>
+    /// View details of a salesperson
+    /// </summary>
+    [RelayCommand]
+    private void ViewSalespersonDetails(Salesperson? salesperson)
+    {
+        if (salesperson == null) return;
+        ViewSalespersonDetailsRequested?.Invoke(this, salesperson);
+    }
+
+    /// <summary>
+    /// Event raised when product details should be shown
+    /// </summary>
+    public event EventHandler<ProductPerformance>? ViewProductDetailsRequested;
+
+    /// <summary>
+    /// Event raised when salesperson details should be shown
+    /// </summary>
+    public event EventHandler<Salesperson>? ViewSalespersonDetailsRequested;
 
     private static string GetInitials(string name)
     {

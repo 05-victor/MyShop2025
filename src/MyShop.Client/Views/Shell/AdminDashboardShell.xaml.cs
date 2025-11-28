@@ -8,6 +8,7 @@ using MyShop.Shared.Models;
 using MyShop.Client.Views.Admin;
 using MyShop.Client.Views.Shared;
 using MyShop.Client.Services;
+using MyShop.Client.Extensions;
 using MyShop.Core.Interfaces.Services;
 
 namespace MyShop.Client.Views.Shell
@@ -160,6 +161,13 @@ namespace MyShop.Client.Views.Shell
         /// </summary>
         private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
         {
+            // Scroll the new page to top
+            if (e.Content is Page page)
+            {
+                // Delay slightly to ensure visual tree is loaded
+                page.Loaded += (s, args) => page.ScrollToTop();
+            }
+
             // Map the navigated page type to its corresponding NavigationView tag
             var tag = GetNavigationTagForPageType(e.SourcePageType);
             

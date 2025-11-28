@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MyShop.Core.Common;
 using MyShop.Shared.Models;
 using MyShop.Client.ViewModels.Base;
 using MyShop.Client.Views.Shared;
@@ -133,7 +134,8 @@ public partial class AdminDashboardViewModel : BaseViewModel
         [ObservableProperty]
         private ISeries[] _revenueSeries = Array.Empty<ISeries>();
 
-        public AdminDashboardViewModel(IDashboardFacade dashboardFacade)
+        public AdminDashboardViewModel(IDashboardFacade dashboardFacade, INavigationService navigationService)
+            : base(navigationService: navigationService)
         {
             _dashboardFacade = dashboardFacade;
         }
@@ -177,8 +179,21 @@ public partial class AdminDashboardViewModel : BaseViewModel
         partial void OnSelectedPeriodChanged(string value)
         {
             System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] Period changed to: {value}");
-            // Reload data when period changes
-            _ = LoadDashboardDataAsync();
+            // Reload data when period changes with loading indicator
+            _ = ReloadDashboardOnPeriodChangeAsync();
+        }
+
+        private async Task ReloadDashboardOnPeriodChangeAsync()
+        {
+            try
+            {
+                IsLoading = true;
+                await LoadDashboardDataAsync();
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         private async Task LoadDashboardDataAsync()
@@ -515,7 +530,11 @@ public partial class AdminDashboardViewModel : BaseViewModel
             try
             {
                 System.Diagnostics.Debug.WriteLine("[AdminDashboard] Navigating to All Products");
-                await _dashboardFacade.NavigateToDashboardPageAsync("products");
+                var result = await _navigationService.NavigateInShell("MyShop.Client.Views.Admin.AdminProductsPage", CurrentUser);
+                if (!result.IsSuccess)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Navigation failed: {result.ErrorMessage}");
+                }
             }
             catch (Exception ex)
             {
@@ -529,7 +548,11 @@ public partial class AdminDashboardViewModel : BaseViewModel
             try
             {
                 System.Diagnostics.Debug.WriteLine("[AdminDashboard] Navigating to All Sales Agents");
-                await _dashboardFacade.NavigateToDashboardPageAsync("users");
+                var result = await _navigationService.NavigateInShell("MyShop.Client.Views.Admin.AdminUsersPage", CurrentUser);
+                if (!result.IsSuccess)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Navigation failed: {result.ErrorMessage}");
+                }
             }
             catch (Exception ex)
             {
@@ -543,7 +566,7 @@ public partial class AdminDashboardViewModel : BaseViewModel
             try
             {
                 System.Diagnostics.Debug.WriteLine("[AdminDashboard] Navigating to Agent Requests");
-                var result = await _navigationService.NavigateInShell("MyShop.Client.Views.Admin.AdminAgentRequestsPage");
+                var result = await _navigationService.NavigateInShell("MyShop.Client.Views.Admin.AdminAgentRequestsPage", CurrentUser);
                 if (!result.IsSuccess)
                 {
                     System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Navigation failed: {result.ErrorMessage}");
@@ -581,7 +604,7 @@ public partial class AdminDashboardViewModel : BaseViewModel
 
                 // Save to file
                 var fileName = $"RevenueChart_{SelectedPeriod}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-                var filePath = Path.Combine(Path.GetTempPath(), fileName);
+                var filePath = StorageConstants.GetExportFilePath(fileName);
                 await File.WriteAllTextAsync(filePath, csv.ToString());
 
                 await _toastHelper.ShowSuccess($"Chart data exported to {fileName}");

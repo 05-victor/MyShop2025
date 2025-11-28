@@ -3,6 +3,7 @@
     x:Class="MyShop.Client.Views.Shared.PurchaseOrdersPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:components="using:MyShop.Client.Views.Components"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -116,11 +117,9 @@
                 <Border Style="{StaticResource CardStyle}">
                     <StackPanel Spacing="16">
                         <!-- Search Box -->
-                        <TextBox
+                        <components:SearchBox
                             PlaceholderText="Search by order ID or customer..."
-                            Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            CornerRadius="8"
-                            BorderBrush="#E5E7EB" />
+                            Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         
                         <Grid>
                             <Grid.ColumnDefinitions>

@@ -4,6 +4,8 @@ using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Shared.Models;
 using System.Text;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 
 namespace MyShop.Client.Facades.Reports;
 
@@ -91,35 +93,52 @@ public class ReportFacade : IReportFacade
     {
         try
         {
-            var reportResult = await GetSalesReportAsync(period);
-            if (!reportResult.IsSuccess || reportResult.Data == null)
+            // Show file save picker first
+            var savePicker = new FileSavePicker();
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+            WinRT.Interop.InitializeWithWindow.Initialize(savePicker, hwnd);
+
+            savePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+            savePicker.FileTypeChoices.Add("CSV Files", new List<string> { ".csv" });
+            savePicker.SuggestedFileName = $"SalesReport_{period}_{DateTime.Now:yyyyMMdd_HHmmss}";
+
+            var file = await savePicker.PickSaveFileAsync();
+            if (file == null)
             {
-                await _toastService.ShowError("Failed to load sales report for export");
-                return Result<string>.Failure("Failed to load sales report");
+                // User cancelled the picker
+                return Result<string>.Success(string.Empty);
             }
 
-            var report = reportResult.Data;
+            var reportResult = await GetSalesReportAsync(period);
+            
             var csv = new StringBuilder();
-
             csv.AppendLine("SALES REPORT");
             csv.AppendLine($"Period,{period}");
             csv.AppendLine($"Export Date,{DateTime.Now:yyyy-MM-dd HH:mm:ss}");
             csv.AppendLine();
 
-            csv.AppendLine("SUMMARY");
-            csv.AppendLine("Metric,Value");
-            csv.AppendLine($"Total Revenue,\"{report.TotalRevenue:F2}\"");
-            csv.AppendLine($"Total Orders,\"{report.TotalOrders}\"");
-            csv.AppendLine($"Average Order Value,\"{report.AverageOrderValue:F2}\"");
-            csv.AppendLine();
+            if (reportResult.IsSuccess && reportResult.Data != null)
+            {
+                var report = reportResult.Data;
+                csv.AppendLine("SUMMARY");
+                csv.AppendLine("Metric,Value");
+                csv.AppendLine($"Total Revenue,\"{report.TotalRevenue:F2}\"");
+                csv.AppendLine($"Total Orders,\"{report.TotalOrders}\"");
+                csv.AppendLine($"Average Order Value,\"{report.AverageOrderValue:F2}\"");
+            }
+            else
+            {
+                csv.AppendLine("SUMMARY");
+                csv.AppendLine("Note,No data available for this period");
+            }
 
-            var fileName = $"SalesReport_{period}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-            var filePath = Path.Combine(Path.GetTempPath(), fileName);
-            await File.WriteAllTextAsync(filePath, csv.ToString());
+            // Write to user-selected file
+            await FileIO.WriteTextAsync(file, csv.ToString());
 
-            await _toastService.ShowSuccess($"Sales report exported to {fileName}");
-            System.Diagnostics.Debug.WriteLine($"[ReportFacade] Exported sales report to {filePath}");
-            return Result<string>.Success(filePath);
+            await _toastService.ShowSuccess($"Sales report exported to {file.Name}");
+            System.Diagnostics.Debug.WriteLine($"[ReportFacade] Exported sales report to {file.Path}");
+
+            return Result<string>.Success(file.Path);
         }
         catch (Exception ex)
         {
@@ -133,36 +152,49 @@ public class ReportFacade : IReportFacade
     {
         try
         {
-            var performanceResult = await GetProductPerformanceAsync(startDate, endDate, top: 1000);
-            if (!performanceResult.IsSuccess || performanceResult.Data == null)
+            // Show file save picker first
+            var savePicker = new FileSavePicker();
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+            WinRT.Interop.InitializeWithWindow.Initialize(savePicker, hwnd);
+
+            savePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+            savePicker.FileTypeChoices.Add("CSV Files", new List<string> { ".csv" });
+            savePicker.SuggestedFileName = $"ProductPerformance_{DateTime.Now:yyyyMMdd_HHmmss}";
+
+            var file = await savePicker.PickSaveFileAsync();
+            if (file == null)
             {
-                await _toastService.ShowError("Failed to load product performance for export");
-                return Result<string>.Failure("Failed to load product performance");
+                // User cancelled the picker
+                return Result<string>.Success(string.Empty);
             }
 
-            var products = performanceResult.Data;
+            var performanceResult = await GetProductPerformanceAsync(startDate, endDate, top: 1000);
+            
             var csv = new StringBuilder();
-
             csv.AppendLine("PRODUCT PERFORMANCE REPORT");
             csv.AppendLine($"Date Range,{startDate?.ToString("yyyy-MM-dd") ?? "All"} to {endDate?.ToString("yyyy-MM-dd") ?? "All"}");
             csv.AppendLine($"Export Date,{DateTime.Now:yyyy-MM-dd HH:mm:ss}");
             csv.AppendLine();
 
             csv.AppendLine("Product Name,Category,Units Sold,Revenue,Commission,Clicks,Conversion Rate");
-            foreach (var product in products)
+            
+            if (performanceResult.IsSuccess && performanceResult.Data != null)
             {
-                csv.AppendLine($"\"{product.ProductName}\",\"{product.CategoryName ?? "N/A"}\"," +
-                    $"\"{product.TotalSold}\",\"{product.TotalRevenue:F2}\"," +
-                    $"\"{product.TotalCommission:F2}\",\"{product.Clicks}\",\"{product.ConversionRate:F2}%\"");
+                foreach (var product in performanceResult.Data)
+                {
+                    csv.AppendLine($"\"{product.ProductName}\",\"{product.CategoryName ?? "N/A"}\"," +
+                        $"\"{product.TotalSold}\",\"{product.TotalRevenue:F2}\"," +
+                        $"\"{product.TotalCommission:F2}\",\"{product.Clicks}\",\"{product.ConversionRate:F2}%\"");
+                }
             }
 
-            var fileName = $"ProductPerformance_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-            var filePath = Path.Combine(Path.GetTempPath(), fileName);
-            await File.WriteAllTextAsync(filePath, csv.ToString());
+            // Write to user-selected file
+            await FileIO.WriteTextAsync(file, csv.ToString());
 
-            await _toastService.ShowSuccess($"Product performance exported to {fileName}");
-            System.Diagnostics.Debug.WriteLine($"[ReportFacade] Exported {products.Count} products to {filePath}");
-            return Result<string>.Success(filePath);
+            await _toastService.ShowSuccess($"Product performance exported to {file.Name}");
+            System.Diagnostics.Debug.WriteLine($"[ReportFacade] Exported product performance to {file.Path}");
+
+            return Result<string>.Success(file.Path);
         }
         catch (Exception ex)
         {

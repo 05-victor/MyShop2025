@@ -208,6 +208,32 @@ public partial class AdminAgentRequestsViewModel : PagedViewModelBase<AgentReque
             }
         }
 
+        [RelayCommand]
+        private async Task ViewProfile(AgentRequestItem request)
+        {
+            try
+            {
+                if (request == null)
+                {
+                    await _toastHelper.ShowError("Invalid request");
+                    return;
+                }
+
+                System.Diagnostics.Debug.WriteLine($"[AdminAgentRequestsViewModel] Showing profile dialog for: {request.FullName}");
+                
+                // Show profile dialog
+                var dialog = Views.Dialogs.ViewProfileDialog.FromAgentRequest(request);
+                dialog.XamlRoot = App.MainWindow?.Content?.XamlRoot;
+                
+                await dialog.ShowAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminAgentRequestsViewModel] Error viewing profile: {ex.Message}");
+                await _toastHelper.ShowError("An error occurred while opening the profile.");
+            }
+        }
+
     }
 
     public partial class AgentRequestItem : ObservableObject

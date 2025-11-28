@@ -4,6 +4,7 @@
     x:Name="RootPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:components="using:MyShop.Client.Views.Components"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -26,7 +27,7 @@
         <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
         <converters:BoolToStringConverter x:Key="BoolToStringConverter" />
         <converters:BoolToGlyphConverter x:Key="BoolToGlyphConverter" />
-
+        <converters:StringToImageSourceConverter x:Key="StringToImageSourceConverter" />
     </Page.Resources>
 
     <Grid>
@@ -54,6 +55,7 @@
                            HorizontalAlignment="Right"
                            VerticalAlignment="Center"
                            MinWidth="140"
+                           Command="{x:Bind ViewModel.AddNewUserCommand}"
                            ToolTipService.ToolTip="Create a new user account">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon FontSize="16" Glyph="&#xE710;" />
@@ -73,47 +75,60 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
                         <!--  Search  -->
-                        <TextBox
+                        <components:SearchBox
                             Width="300"
                             HorizontalAlignment="Left"
-                            BorderBrush="#E5E7EB"
                             PlaceholderText="Search users..."
-                            Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                            <TextBox.Resources>
-                                <Style TargetType="TextBox">
-                                    <Setter Property="Padding" Value="12" />
-                                </Style>
-                            </TextBox.Resources>
-                        </TextBox>
+                            Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
                         <!--  Role Filter  -->
                         <ComboBox
+                            x:Name="RoleComboBox"
                             Grid.Column="1"
                             Width="150"
                             Margin="12,0"
                             Padding="12"
                             BorderBrush="#E5E7EB"
-                            PlaceholderText="All Roles">
-                            <ComboBoxItem Content="All Roles" IsSelected="True" />
-                            <ComboBoxItem Content="Admin" />
-                            <ComboBoxItem Content="Salesman" />
-                            <ComboBoxItem Content="Customer" />
+                            PlaceholderText="All Roles"
+                            SelectionChanged="RoleComboBox_SelectionChanged">
+                            <ComboBoxItem Content="All Roles" Tag="All Roles" IsSelected="True" />
+                            <ComboBoxItem Content="Admin" Tag="Admin" />
+                            <ComboBoxItem Content="Salesman" Tag="Salesman" />
+                            <ComboBoxItem Content="Customer" Tag="Customer" />
                         </ComboBox>
 
                         <!--  Status Filter  -->
                         <ComboBox
+                            x:Name="StatusComboBox"
                             Grid.Column="2"
                             Width="150"
+                            Margin="0,0,12,0"
                             Padding="12"
                             BorderBrush="#E5E7EB"
-                            PlaceholderText="All Status">
-                            <ComboBoxItem Content="All Status" IsSelected="True" />
-                            <ComboBoxItem Content="Active" />
-                            <ComboBoxItem Content="Inactive" />
+                            PlaceholderText="All Status"
+                            SelectionChanged="StatusComboBox_SelectionChanged">
+                            <ComboBoxItem Content="All Status" Tag="All Status" IsSelected="True" />
+                            <ComboBoxItem Content="Active" Tag="Active" />
+                            <ComboBoxItem Content="Inactive" Tag="Inactive" />
                         </ComboBox>
+
+                        <!--  Export Button  -->
+                        <Button
+                            Grid.Column="3"
+                            Padding="12,8"
+                            BorderBrush="#E5E7EB"
+                            CornerRadius="8"
+                            Click="ExportButton_Click"
+                            ToolTipService.ToolTip="Export users to CSV">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon FontSize="14" Glyph="&#xE898;" />
+                                <TextBlock Text="Export" />
+                            </StackPanel>
+                        </Button>
                     </Grid>
                 </Border>
 
@@ -252,7 +267,8 @@
                                             <PersonPicture
                                                 Width="40"
                                                 Height="40"
-                                                DisplayName="{x:Bind Name, Mode=OneWay}" />
+                                                DisplayName="{x:Bind Name, Mode=OneWay}"
+                                                ProfilePicture="{x:Bind Avatar, Mode=OneWay, Converter={StaticResource StringToImageSourceConverter}}" />
                                             <StackPanel VerticalAlignment="Center">
                                                 <TextBlock
                                                     FontSize="14"
@@ -383,7 +399,7 @@
                             VerticalAlignment="Center"
                             FontSize="14"
                             Foreground="#6B7280"
-                            Text="Showing 1-10 of 45 users" />
+                            Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}" />
                     </StackPanel>
                     <StackPanel
                         HorizontalAlignment="Right"
@@ -394,31 +410,33 @@
                             Background="Transparent"
                             BorderBrush="#E5E7EB"
                             Content="Previous"
-                            CornerRadius="8" />
-                        <Button
+                            CornerRadius="8"
+                            IsEnabled="{x:Bind ViewModel.HasPreviousPage, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.PreviousPageCommand}" />
+                        <Border
                             Padding="12,8"
                             Background="#2563EB"
-                            Content="1"
-                            CornerRadius="8"
-                            Foreground="White" />
-                        <Button
-                            Padding="12,8"
-                            Background="Transparent"
-                            BorderBrush="#E5E7EB"
-                            Content="2"
-                            CornerRadius="8" />
-                        <Button
-                            Padding="12,8"
-                            Background="Transparent"
-                            BorderBrush="#E5E7EB"
-                            Content="3"
-                            CornerRadius="8" />
+                            CornerRadius="8">
+                            <TextBlock
+                                Foreground="White"
+                                Text="{x:Bind ViewModel.CurrentPage, Mode=OneWay}" />
+                        </Border>
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            Foreground="#6B7280"
+                            Text="/" />
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            Foreground="#6B7280"
+                            Text="{x:Bind ViewModel.TotalPages, Mode=OneWay}" />
                         <Button
                             Padding="12,8"
                             Background="Transparent"
                             BorderBrush="#E5E7EB"
                             Content="Next"
-                            CornerRadius="8" />
+                            CornerRadius="8"
+                            IsEnabled="{x:Bind ViewModel.HasNextPage, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.NextPageCommand}" />
                     </StackPanel>
                 </Grid>
                 </StackPanel>

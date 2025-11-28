@@ -1,9 +1,14 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using MyShop.Core.Common;
 using MyShop.Client.ViewModels.Settings;
+using MyShop.Client.Views.Dialogs;
 using MyShop.Client.Services;
 using System;
+using System.Diagnostics;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace MyShop.Client.Views.Shared;
 
@@ -85,6 +90,89 @@ public sealed partial class SettingsPage : Page
         finally
         {
             AppLogger.Exit();
+        }
+    }
+
+    private async void MockDataToggle_Toggled(object sender, RoutedEventArgs e)
+    {
+        // Show warning that restart is required
+        if (sender is ToggleSwitch toggle)
+        {
+            var dialog = new ContentDialog
+            {
+                Title = "Restart Required",
+                Content = "Changing the data source requires restarting the application. Would you like to save this setting?",
+                PrimaryButtonText = "Save & Restart Later",
+                CloseButtonText = "Cancel",
+                XamlRoot = this.XamlRoot
+            };
+
+            var result = await dialog.ShowAsync();
+            if (result != ContentDialogResult.Primary)
+            {
+                // Revert toggle
+                toggle.IsOn = !toggle.IsOn;
+            }
+        }
+    }
+
+    private async void ConfigureServer_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var dialog = new ServerConfigDialog
+            {
+                XamlRoot = this.XamlRoot
+            };
+            await dialog.ShowAsync();
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("Failed to open server config dialog", ex);
+        }
+    }
+
+    private void OpenLogsFolder_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var logsPath = StorageConstants.LogsDirectory;
+            if (!System.IO.Directory.Exists(logsPath))
+            {
+                System.IO.Directory.CreateDirectory(logsPath);
+            }
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = logsPath,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("Failed to open logs folder", ex);
+        }
+    }
+
+    private void OpenExportsFolder_Click(object sender, RoutedEventArgs e)
+    {
+        StorageConstants.OpenExportsFolder();
+    }
+
+    private void CopyDebugInfo_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var debugInfo = ViewModel.GetDebugInfo();
+            var dataPackage = new DataPackage();
+            dataPackage.SetText(debugInfo);
+            Clipboard.SetContent(dataPackage);
+            
+            // Could show a toast notification here
+            AppLogger.Info("Debug info copied to clipboard");
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("Failed to copy debug info", ex);
         }
     }
 }

@@ -94,7 +94,7 @@
         </TabView>
 
         <!--  Requests Cards  -->
-        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer x:Name="PageScrollViewer" Grid.Row="2" VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="16">
                 <!--  Empty State  -->
                 <Border
@@ -178,7 +178,8 @@
                                             Width="48"
                                             Height="48"
                                             Margin="0,0,16,0"
-                                            ProfilePicture="{x:Bind Avatar}" />
+                                            DisplayName="{x:Bind FullName}"
+                                            ProfilePicture="{x:Bind Avatar, Converter={StaticResource StringToImageSourceConverter}}" />
 
                                         <!--  Name, Badge, Email, Date  -->
                                         <StackPanel Grid.Column="1" Spacing="8">
@@ -316,7 +317,10 @@
                                                 <TextBlock Foreground="#DC2626" Text="Reject" />
                                             </StackPanel>
                                         </Button>
-                                        <Button Style="{StaticResource DefaultButtonStyle}">
+                                        <Button 
+                                            Command="{Binding DataContext.ViewProfileCommand, ElementName=MyPage}"
+                                            CommandParameter="{x:Bind}"
+                                            Style="{StaticResource DefaultButtonStyle}">
                                             <StackPanel Orientation="Horizontal" Spacing="8">
                                                 <FontIcon FontSize="14" Glyph="&#xE77B;" />
                                                 <TextBlock Text="View Profile" />

@@ -9,6 +9,7 @@ using MyShop.Client.Services;
 using MyShop.Client.Strategies;
 using MyShop.Client.ViewModels.Admin;
 using MyShop.Client.ViewModels.Shell;
+using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Core.Interfaces.Infrastructure;
@@ -32,11 +33,19 @@ namespace MyShop.Client.Config
     /// <summary>
     /// Centralized Dependency Injection configuration
     /// Tách biệt DI logic khỏi App.xaml.cs
+    /// 
+    /// Storage Strategy:
+    /// - Uses SecureCredentialStorage (DPAPI encrypted) for all modes
+    /// - Uses FileSettingsStorage with per-user support
+    /// - Removed WindowsCredentialStorage dependency
     /// </summary>
     public static class Bootstrapper
     {
         public static IHost CreateHost()
         {
+            // Ensure base storage directories exist before anything else
+            StorageConstants.EnsureBaseDirectoriesExist();
+
             return Host.CreateDefaultBuilder()
                 .ConfigureAppConfiguration((context, config) =>
                 {
@@ -51,15 +60,21 @@ namespace MyShop.Client.Config
                     // Check if using Mock Data
                     var useMockData = context.Configuration.GetValue<bool>("UseMockData");
                     System.Diagnostics.Debug.WriteLine($"[Bootstrapper] UseMockData={useMockData}");
+                    System.Diagnostics.Debug.WriteLine($"[Bootstrapper] EnableDeveloperOptions={AppConfig.Instance.EnableDeveloperOptions}");
+
+                    // ===== Storage (Unified - Same for Mock and Real) =====
+                    // Use SecureCredentialStorage (DPAPI encrypted) for ALL modes
+                    // This is more secure than FileCredentialStorage and more flexible than WindowsCredentialStorage
+                    services.AddSingleton<ICredentialStorage, SecureCredentialStorage>();
+                    services.AddSingleton<ISettingsStorage, FileSettingsStorage>();
+                    
+                    System.Diagnostics.Debug.WriteLine("[Bootstrapper] Using SecureCredentialStorage (DPAPI encrypted)");
+                    System.Diagnostics.Debug.WriteLine("[Bootstrapper] Using FileSettingsStorage (per-user preferences)");
 
                     if (useMockData)
                     {
                         // ===== Mock Mode - No HTTP Clients =====
                         System.Diagnostics.Debug.WriteLine("[Bootstrapper] Using MOCK DATA mode");
-                        
-                        // ===== Storage (Mock - Simple File Storage) =====
-                        services.AddSingleton<ICredentialStorage, FileCredentialStorage>();
-                        services.AddSingleton<ISettingsStorage, FileSettingsStorage>();
                         
                         // ===== Repositories (Mock - from Plugins) =====
                         services.AddScoped<IAuthRepository, MockAuthRepository>();
@@ -80,19 +95,6 @@ namespace MyShop.Client.Config
                     {
                         // ===== Real API Mode =====
                         System.Diagnostics.Debug.WriteLine("[Bootstrapper] Using REAL API mode");
-
-                        // ===== Storage (Production - Windows PasswordVault or File) =====
-                        var useWindowsStorage = context.Configuration.GetValue<bool>("UseWindowsCredentialStorage");
-                        if (useWindowsStorage)
-                        {
-                            services.AddSingleton<ICredentialStorage, WindowsCredentialStorage>();
-                            System.Diagnostics.Debug.WriteLine("[Bootstrapper] Using Windows PasswordVault");
-                        }
-                        else
-                        {
-                            services.AddSingleton<ICredentialStorage, FileCredentialStorage>();
-                            System.Diagnostics.Debug.WriteLine("[Bootstrapper] Using File Storage");
-                        }
 
                         // ===== HTTP & API Clients (from Plugins) =====
                         services.AddTransient<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
@@ -176,9 +178,6 @@ namespace MyShop.Client.Config
                                 client.Timeout = TimeSpan.FromSeconds(AppConfig.Instance.RequestTimeoutSeconds);
                             })
                             .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
-
-                        // ===== Storage (Production) =====
-                        services.AddSingleton<ISettingsStorage, FileSettingsStorage>();
 
                         // ===== Repositories (Real - from Plugins) =====
                         services.AddScoped<IAuthRepository, AuthRepository>();

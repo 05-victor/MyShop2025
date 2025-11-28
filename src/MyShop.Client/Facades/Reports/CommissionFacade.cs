@@ -112,7 +112,7 @@ public class CommissionFacade : ICommissionFacade
             }
 
             var fileName = $"Commissions_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-            var filePath = Path.Combine(Path.GetTempPath(), fileName);
+            var filePath = StorageConstants.GetExportFilePath(fileName);
             await File.WriteAllTextAsync(filePath, csv.ToString());
 
             await _toastService.ShowSuccess($"Exported {commissions.Count} commissions to {fileName}");

@@ -27,5 +27,17 @@ namespace MyShop.Client.Views.SalesAgent
                 System.Diagnostics.Debug.WriteLine($"[SalesAgentOrdersPage] OnNavigatedTo failed: {ex.Message}");
             }
         }
+
+        private void StatusComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // Guard: ViewModel may be null during page initialization
+            if (ViewModel == null) return;
+            
+            if (StatusComboBox.SelectedItem is ComboBoxItem item)
+            {
+                var status = item.Tag?.ToString() ?? "All";
+                ViewModel.SelectedStatus = status;
+            }
+        }
     }
 }

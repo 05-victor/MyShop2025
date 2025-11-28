@@ -3,6 +3,7 @@
     x:Class="MyShop.Client.Views.Shared.ProductBrowsePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:components="using:MyShop.Client.Views.Components"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -88,8 +89,7 @@
                                           FontWeight="SemiBold" 
                                           Foreground="#1B1D1F"
                                           Margin="0,0,0,8"/>
-                                <TextBox Style="{StaticResource BaseInputStyle}"
-                                        PlaceholderText="Search products..." />
+                                <components:SearchBox PlaceholderText="Search products..." />
                             </StackPanel>
 
                             <!--  Category  -->

@@ -1,7 +1,15 @@
 {
   "appSettings": {
     "userId": "00000000-0000-0000-0000-000000000001",
-    "pageSize": 10,
+    "pagination": {
+      "defaultPageSize": 10,
+      "productsPageSize": 10,
+      "ordersPageSize": 10,
+      "customersPageSize": 10,
+      "usersPageSize": 10,
+      "agentRequestsPageSize": 10,
+      "commissionsPageSize": 10
+    },
     "lastOpenedPage": "DASHBOARD",
     "theme": "LIGHT",
     "language": "vi",

@@ -9,6 +9,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 
 namespace MyShop.Client.Facades;
 
@@ -239,6 +241,22 @@ public class ProductFacade : IProductFacade
     {
         try
         {
+            // Show file save picker first
+            var savePicker = new FileSavePicker();
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+            WinRT.Interop.InitializeWithWindow.Initialize(savePicker, hwnd);
+
+            savePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+            savePicker.FileTypeChoices.Add("CSV Files", new List<string> { ".csv" });
+            savePicker.SuggestedFileName = $"Products_{DateTime.Now:yyyyMMdd_HHmmss}";
+
+            var file = await savePicker.PickSaveFileAsync();
+            if (file == null)
+            {
+                // User cancelled the picker
+                return Result<string>.Success(string.Empty);
+            }
+
             // Load filtered products with large page size to get all
             var result = await _productRepository.GetPagedAsync(
                 1, 10000, searchQuery, categoryName, minPrice, maxPrice, "name", false);
@@ -250,31 +268,31 @@ public class ProductFacade : IProductFacade
 
             var products = result.Data.Items;
 
-            // Use ExportService to generate CSV
-            var exportResult = await _exportService.ExportToCsvAsync(
-                products,
-                "Products",
-                product => new Dictionary<string, string>
-                {
-                    ["SKU"] = product.SKU ?? string.Empty,
-                    ["Name"] = product.Name,
-                    ["Category"] = product.CategoryName ?? string.Empty,
-                    ["Import Price"] = product.ImportPrice.ToString("F2"),
-                    ["Selling Price"] = product.SellingPrice.ToString("F2"),
-                    ["Stock"] = product.Quantity.ToString(),
-                    ["Manufacturer"] = product.Manufacturer ?? string.Empty,
-                    ["Device Type"] = product.DeviceType ?? string.Empty,
-                    ["Commission Rate"] = product.CommissionRate.ToString("F2"),
-                    ["Status"] = product.Status ?? string.Empty
-                });
-
-            if (!exportResult.IsSuccess)
+            // Generate CSV content
+            var csv = new StringBuilder();
+            csv.AppendLine("SKU,Name,Category,Import Price,Selling Price,Stock,Manufacturer,Device Type,Commission Rate,Status");
+            
+            foreach (var product in products)
             {
-                return exportResult;
+                csv.AppendLine($"\"{product.SKU ?? string.Empty}\"," +
+                    $"\"{product.Name}\"," +
+                    $"\"{product.CategoryName ?? string.Empty}\"," +
+                    $"\"{product.ImportPrice:F2}\"," +
+                    $"\"{product.SellingPrice:F2}\"," +
+                    $"\"{product.Quantity}\"," +
+                    $"\"{product.Manufacturer ?? string.Empty}\"," +
+                    $"\"{product.DeviceType ?? string.Empty}\"," +
+                    $"\"{product.CommissionRate:F2}\"," +
+                    $"\"{product.Status ?? string.Empty}\"");
             }
 
-            await _toastService.ShowSuccess($"Exported {products.Count} products");
-            return exportResult;
+            // Write to user-selected file
+            await FileIO.WriteTextAsync(file, csv.ToString());
+
+            await _toastService.ShowSuccess($"Exported {products.Count} products to {file.Name}");
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] Exported products to {file.Path}");
+
+            return Result<string>.Success(file.Path);
         }
         catch (Exception ex)
         {

@@ -87,6 +87,8 @@ public static class MockProductData
             Description = p.Description,
             ImageUrl = p.ImageUrl,
             CategoryId = !string.IsNullOrEmpty(p.CategoryId) ? Guid.Parse(p.CategoryId) : null,
+            CategoryName = p.DeviceType, // Map DeviceType to CategoryName for display
+            Category = p.DeviceType, // Also set Category for backward compatibility
             CreatedAt = p.CreatedAt,
             UpdatedAt = p.UpdatedAt
         }).ToList();
@@ -119,6 +121,8 @@ public static class MockProductData
             Description = productData.Description,
             ImageUrl = productData.ImageUrl,
             CategoryId = !string.IsNullOrEmpty(productData.CategoryId) ? Guid.Parse(productData.CategoryId) : null,
+            CategoryName = productData.DeviceType, // Map DeviceType to CategoryName for display
+            Category = productData.DeviceType, // Also set Category for backward compatibility
             CreatedAt = productData.CreatedAt,
             UpdatedAt = productData.UpdatedAt
         };
@@ -175,7 +179,10 @@ public static class MockProductData
         existing.SKU = product.SKU;
         existing.Name = product.Name;
         existing.Manufacturer = product.Manufacturer;
-        existing.DeviceType = product.DeviceType;
+        // DeviceType stores category - use CategoryName or DeviceType from product
+        existing.DeviceType = !string.IsNullOrEmpty(product.CategoryName) 
+            ? product.CategoryName 
+            : (!string.IsNullOrEmpty(product.DeviceType) ? product.DeviceType : existing.DeviceType);
         existing.ImportPrice = (int)product.ImportPrice;
         existing.SellingPrice = (int)product.SellingPrice;
         existing.Quantity = product.Quantity;
@@ -234,6 +241,8 @@ public static class MockProductData
                 Description = p.Description,
                 ImageUrl = p.ImageUrl,
                 CategoryId = !string.IsNullOrEmpty(p.CategoryId) ? Guid.Parse(p.CategoryId) : null,
+                CategoryName = p.DeviceType, // Map DeviceType to CategoryName for display
+                Category = p.DeviceType, // Also set Category for backward compatibility
                 CreatedAt = p.CreatedAt,
                 UpdatedAt = p.UpdatedAt
             }).ToList();
@@ -271,6 +280,8 @@ public static class MockProductData
                 Description = p.Description,
                 ImageUrl = p.ImageUrl,
                 CategoryId = !string.IsNullOrEmpty(p.CategoryId) ? Guid.Parse(p.CategoryId) : null,
+                CategoryName = p.DeviceType, // Map DeviceType to CategoryName for display
+                Category = p.DeviceType, // Also set Category for backward compatibility
                 CreatedAt = p.CreatedAt,
                 UpdatedAt = p.UpdatedAt
             }).ToList();
@@ -300,6 +311,8 @@ public static class MockProductData
                 Description = p.Description,
                 ImageUrl = p.ImageUrl,
                 CategoryId = !string.IsNullOrEmpty(p.CategoryId) ? Guid.Parse(p.CategoryId) : null,
+                CategoryName = p.DeviceType, // Map DeviceType to CategoryName for display
+                Category = p.DeviceType, // Also set Category for backward compatibility
                 CreatedAt = p.CreatedAt,
                 UpdatedAt = p.UpdatedAt
             }).ToList();
@@ -384,6 +397,8 @@ public static class MockProductData
                 Description = p.Description,
                 ImageUrl = p.ImageUrl,
                 CategoryId = !string.IsNullOrEmpty(p.CategoryId) ? Guid.Parse(p.CategoryId) : null,
+                CategoryName = p.DeviceType, // Map DeviceType to CategoryName for display
+                Category = p.DeviceType, // Also set Category for backward compatibility
                 CreatedAt = p.CreatedAt,
                 UpdatedAt = p.UpdatedAt
             })

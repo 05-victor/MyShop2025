@@ -4,6 +4,7 @@ using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Client.Views.Shared;
+using MyShop.Plugins.Infrastructure;
 using MyShop.Shared.Models;
 using System;
 using System.Linq;
@@ -14,12 +15,17 @@ namespace MyShop.Client.Facades;
 /// <summary>
 /// Implementation of IAuthFacade - aggregates auth-related services
 /// Follows Facade pattern to simplify complex subsystem interactions
+/// 
+/// Storage Integration:
+/// - On login: Sets current user ID for per-user storage
+/// - On logout: Clears current user and credentials
 /// </summary>
 public class AuthFacade : IAuthFacade
 {
     private readonly IAuthRepository _authRepository;
     private readonly IUserRepository _userRepository;
     private readonly ICredentialStorage _credentialStorage;
+    private readonly ISettingsStorage _settingsStorage;
     private readonly IValidationService _validationService;
     private readonly INavigationService _navigationService;
     private readonly IToastService _toastService;
@@ -28,6 +34,7 @@ public class AuthFacade : IAuthFacade
         IAuthRepository authRepository,
         IUserRepository userRepository,
         ICredentialStorage credentialStorage,
+        ISettingsStorage settingsStorage,
         IValidationService validationService,
         INavigationService navigationService,
         IToastService toastService)
@@ -35,6 +42,7 @@ public class AuthFacade : IAuthFacade
         _authRepository = authRepository ?? throw new ArgumentNullException(nameof(authRepository));
         _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         _credentialStorage = credentialStorage ?? throw new ArgumentNullException(nameof(credentialStorage));
+        _settingsStorage = settingsStorage ?? throw new ArgumentNullException(nameof(settingsStorage));
         _validationService = validationService ?? throw new ArgumentNullException(nameof(validationService));
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
         _toastService = toastService ?? throw new ArgumentNullException(nameof(toastService));
@@ -69,13 +77,16 @@ public class AuthFacade : IAuthFacade
 
             var user = loginResult.Data;
 
-            // Step 3: Save token if remember me
+            // Step 3: Set current user for per-user storage
+            SetCurrentUserForStorage(user.Id.ToString());
+
+            // Step 4: Save token if remember me
             if (rememberMe && !string.IsNullOrEmpty(user.Token))
             {
                 await _credentialStorage.SaveToken(user.Token);
             }
 
-            // Step 4: Show success notification
+            // Step 5: Show success notification
             await _toastService.ShowSuccess($"Welcome back, {user.Username}!");
 
             return Result<User>.Success(user);
@@ -95,10 +106,13 @@ public class AuthFacade : IAuthFacade
             // Step 1: Clear stored credentials
             await _credentialStorage.RemoveToken();
 
-            // Step 2: Show notification
+            // Step 2: Clear current user from storage services
+            ClearCurrentUserFromStorage();
+
+            // Step 3: Show notification
             await _toastService.ShowInfo("You have been logged out");
 
-            // Step 3: Navigate to login page
+            // Step 4: Navigate to login page
             await _navigationService.NavigateTo(typeof(LoginPage).FullName!);
 
             return Result<Unit>.Success(Unit.Value);
@@ -123,7 +137,15 @@ public class AuthFacade : IAuthFacade
 
             // Validate token by fetching current user
             var result = await _authRepository.GetCurrentUserAsync();
-            return result.IsSuccess && result.Data != null;
+            
+            if (result.IsSuccess && result.Data != null)
+            {
+                // Ensure storage services know the current user
+                SetCurrentUserForStorage(result.Data.Id.ToString());
+                return true;
+            }
+            
+            return false;
         }
         catch
         {
@@ -142,6 +164,9 @@ public class AuthFacade : IAuthFacade
                 return Result<User>.Failure(result.ErrorMessage ?? "Failed to get current user");
             }
 
+            // Ensure storage services know the current user
+            SetCurrentUserForStorage(result.Data.Id.ToString());
+
             return Result<User>.Success(result.Data);
         }
         catch (Exception ex)
@@ -150,6 +175,70 @@ public class AuthFacade : IAuthFacade
             return Result<User>.Failure("Failed to retrieve user information", ex);
         }
     }
+
+    #region Storage User Management
+
+    /// <summary>
+    /// Set current user for per-user storage (credentials, settings, exports)
+    /// </summary>
+    private void SetCurrentUserForStorage(string userId)
+    {
+        try
+        {
+            // Set global user ID in StorageConstants (used by ExportService etc.)
+            StorageConstants.SetCurrentUser(userId);
+
+            // Set user on SecureCredentialStorage
+            if (_credentialStorage is SecureCredentialStorage secureStorage)
+            {
+                secureStorage.SetCurrentUser(userId);
+            }
+
+            // Set user on FileSettingsStorage
+            if (_settingsStorage is FileSettingsStorage fileSettingsStorage)
+            {
+                fileSettingsStorage.SetCurrentUser(userId);
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[AuthFacade] Set current user for storage: {userId}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AuthFacade] Failed to set storage user: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Clear current user from storage services (on logout)
+    /// </summary>
+    private void ClearCurrentUserFromStorage()
+    {
+        try
+        {
+            // Clear global user ID from StorageConstants
+            StorageConstants.ClearCurrentUser();
+
+            // Clear from SecureCredentialStorage
+            if (_credentialStorage is SecureCredentialStorage secureStorage)
+            {
+                secureStorage.ClearCurrentUser();
+            }
+
+            // Clear from FileSettingsStorage
+            if (_settingsStorage is FileSettingsStorage fileSettingsStorage)
+            {
+                fileSettingsStorage.ClearCurrentUser();
+            }
+
+            System.Diagnostics.Debug.WriteLine("[AuthFacade] Cleared current user from storage");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AuthFacade] Failed to clear storage user: {ex.Message}");
+        }
+    }
+
+    #endregion
 
     /// <inheritdoc/>
     public async Task<Result<User>> RegisterAsync(string username, string email, string phoneNumber, string password, string role)

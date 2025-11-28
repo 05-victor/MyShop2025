@@ -102,7 +102,8 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
                     StatusColor = isActiveUser ? "#10B981" : "#6B7280",
                     StatusBgColor = isActiveUser ? "#D1FAE5" : "#F3F4F6",
                     IsActive = isActiveUser,
-                    FullName = u.FullName ?? u.Username
+                    FullName = u.FullName ?? u.Username,
+                    Avatar = u.Avatar ?? string.Empty
                 };
             }).ToList();
 
@@ -298,4 +299,7 @@ public partial class UserViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _isActive = true;
+
+    [ObservableProperty]
+    private string _avatar = string.Empty;
 }

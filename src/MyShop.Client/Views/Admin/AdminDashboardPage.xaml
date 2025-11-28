@@ -55,13 +55,15 @@
                                Spacing="12"
                                VerticalAlignment="Center">
                         <!-- Month Selector -->
-                        <ComboBox Width="180"
+                        <ComboBox x:Name="PeriodComboBox"
+                                 Width="180"
                                  Height="40"
                                  SelectedIndex="0"
-                                 CornerRadius="12">
-                            <ComboBoxItem Content="Current Month"/>
-                            <ComboBoxItem Content="Last Month"/>
-                            <ComboBoxItem Content="Last 3 Months"/>
+                                 CornerRadius="12"
+                                 SelectionChanged="PeriodComboBox_SelectionChanged">
+                            <ComboBoxItem Content="Current Month" Tag="current" IsSelected="True"/>
+                            <ComboBoxItem Content="Last Month" Tag="last"/>
+                            <ComboBoxItem Content="Last 3 Months" Tag="last3"/>
                         </ComboBox>
 
                         <!-- Export Button -->
@@ -70,7 +72,8 @@
                                CornerRadius="12"
                                Background="#1A4D8F"
                                Foreground="White"
-                               BorderThickness="0">
+                               BorderThickness="0"
+                               Command="{x:Bind ViewModel.ExportDashboardCommand}">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon Glyph="&#xE896;" FontSize="16"/>
                                 <TextBlock Text="Export" FontSize="14" FontWeight="SemiBold"/>
@@ -311,7 +314,8 @@
                                                 
                                                 <!-- Agent Name & Avatar -->
                                                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                                                    <PersonPicture ProfilePicture="{x:Bind Avatar}"
+                                                    <PersonPicture ProfilePicture="{x:Bind Avatar, Converter={StaticResource StringToImageSourceConverter}}"
+                                                                 DisplayName="{x:Bind Name}"
                                                                  Width="32" Height="32"/>
                                                     <StackPanel VerticalAlignment="Center" Spacing="2">
                                                         <TextBlock Text="{x:Bind Name}" 
@@ -437,7 +441,8 @@
 
                                             <!-- Agent Info with Avatar -->
                                             <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                                                <PersonPicture ProfilePicture="{x:Bind Avatar}"
+                                                <PersonPicture ProfilePicture="{x:Bind Avatar, Converter={StaticResource StringToImageSourceConverter}}"
+                                                             DisplayName="{x:Bind Name}"
                                                              Width="40" Height="40"/>
                                                 <StackPanel VerticalAlignment="Center">
                                                     <TextBlock Text="{x:Bind Name}" 

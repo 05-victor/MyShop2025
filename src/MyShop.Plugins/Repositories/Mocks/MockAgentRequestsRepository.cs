@@ -10,6 +10,27 @@ namespace MyShop.Plugins.Repositories.Mocks;
 /// </summary>
 public class MockAgentRequestsRepository : IAgentRequestRepository
 {
+    /// <summary>
+    /// Batch load users by IDs to avoid N+1 query problem
+    /// </summary>
+    private static async Task<Dictionary<Guid, User>> GetUsersByIdsAsync(List<Guid> userIds)
+    {
+        var result = new Dictionary<Guid, User>();
+        if (userIds.Count == 0) return result;
+
+        // Load all users once (no network delay per item)
+        var allUsers = await MyShop.Plugins.Mocks.Data.MockUserData.GetAllAsync();
+        
+        foreach (var user in allUsers)
+        {
+            if (userIds.Contains(user.Id))
+            {
+                result[user.Id] = user;
+            }
+        }
+        
+        return result;
+    }
 
     public async Task<Result<IEnumerable<AgentRequest>>> GetAllAsync()
     {
@@ -17,20 +38,37 @@ public class MockAgentRequestsRepository : IAgentRequestRepository
         {
             var mockData = await MockAgentRequestsData.GetAllAsync();
             
-            var requests = mockData.Select(m => new AgentRequest
+            // Batch load all users to avoid N+1 query problem
+            var userIds = mockData.Select(m => Guid.Parse(m.UserId)).Distinct().ToList();
+            var usersDict = await GetUsersByIdsAsync(userIds);
+            
+            var requests = new List<AgentRequest>();
+            foreach (var m in mockData)
             {
-                Id = Guid.Parse(m.Id),
-                UserId = Guid.Parse(m.UserId),
-                FullName = m.UserName,
-                Email = m.Email,
-                PhoneNumber = m.PhoneNumber,
-                AvatarUrl = m.AvatarUrl,
-                RequestedAt = m.RequestedAt,
-                Status = m.Status,
-                ReviewedBy = m.ReviewedBy,
-                ReviewedAt = m.ReviewedAt,
-                Notes = m.Notes
-            }).OrderByDescending(r => r.RequestedAt).ToList();
+                var agent = new AgentRequest
+                {
+                    Id = Guid.Parse(m.Id),
+                    UserId = Guid.Parse(m.UserId),
+                    RequestedAt = m.RequestedAt,
+                    Status = m.Status,
+                    ReviewedBy = m.ReviewedBy,
+                    ReviewedAt = m.ReviewedAt,
+                    Notes = m.Notes
+                };
+
+                // Enrich with user profile from cached users
+                if (usersDict.TryGetValue(agent.UserId, out var user))
+                {
+                    agent.FullName = user.FullName ?? user.Username;
+                    agent.Email = user.Email;
+                    agent.PhoneNumber = user.PhoneNumber ?? string.Empty;
+                    agent.AvatarUrl = user.Avatar ?? string.Empty;
+                }
+
+                requests.Add(agent);
+            }
+
+            requests = requests.OrderByDescending(r => r.RequestedAt).ToList();
 
             System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] GetAllAsync returned {requests.Count} requests");
             return Result<IEnumerable<AgentRequest>>.Success(requests);
@@ -55,20 +93,35 @@ public class MockAgentRequestsRepository : IAgentRequestRepository
             var (mockData, totalCount) = await MockAgentRequestsData.GetPagedAsync(
                 page, pageSize, status, searchQuery, sortBy, sortDescending);
 
-            var requests = mockData.Select(m => new AgentRequest
+            // Batch load all users to avoid N+1 query problem
+            var userIds = mockData.Select(m => Guid.Parse(m.UserId)).Distinct().ToList();
+            var usersDict = await GetUsersByIdsAsync(userIds);
+
+            var requests = new List<AgentRequest>();
+            foreach (var m in mockData)
             {
-                Id = Guid.Parse(m.Id),
-                UserId = Guid.Parse(m.UserId),
-                FullName = m.UserName,
-                Email = m.Email,
-                PhoneNumber = m.PhoneNumber,
-                AvatarUrl = m.AvatarUrl,
-                RequestedAt = m.RequestedAt,
-                Status = m.Status,
-                ReviewedBy = m.ReviewedBy,
-                ReviewedAt = m.ReviewedAt,
-                Notes = m.Notes
-            }).ToList();
+                var agent = new AgentRequest
+                {
+                    Id = Guid.Parse(m.Id),
+                    UserId = Guid.Parse(m.UserId),
+                    RequestedAt = m.RequestedAt,
+                    Status = m.Status,
+                    ReviewedBy = m.ReviewedBy,
+                    ReviewedAt = m.ReviewedAt,
+                    Notes = m.Notes
+                };
+
+                // Enrich with user profile from cached users
+                if (usersDict.TryGetValue(agent.UserId, out var user))
+                {
+                    agent.FullName = user.FullName ?? user.Username;
+                    agent.Email = user.Email;
+                    agent.PhoneNumber = user.PhoneNumber ?? string.Empty;
+                    agent.AvatarUrl = user.Avatar ?? string.Empty;
+                }
+
+                requests.Add(agent);
+            }
 
             var pagedList = new PagedList<AgentRequest>(requests, totalCount, page, pageSize);
 
@@ -86,7 +139,20 @@ public class MockAgentRequestsRepository : IAgentRequestRepository
     {
         try
         {
-            var result = await MockAgentRequestsData.CreateAsync(agentRequest);
+            // Ensure we do not duplicate user info; only store request linked to UserId
+            var normalizedRequest = new AgentRequest
+            {
+                Id = agentRequest.Id != Guid.Empty ? agentRequest.Id : Guid.NewGuid(),
+                UserId = agentRequest.UserId,
+                RequestedAt = DateTime.UtcNow,
+                Status = string.IsNullOrWhiteSpace(agentRequest.Status) ? "Pending" : agentRequest.Status,
+                ReviewedBy = null,
+                ReviewedAt = null,
+                Notes = string.IsNullOrWhiteSpace(agentRequest.Notes) ?
+                    $"Experience: {agentRequest.Experience}\n\nMotivation: {agentRequest.Reason}" : agentRequest.Notes
+            };
+
+            var result = await MockAgentRequestsData.CreateAsync(normalizedRequest);
             System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] CreateAsync result: {result != null}");
             return result != null
                 ? Result<AgentRequest>.Success(result)

@@ -75,13 +75,26 @@ public class ExportService : IExportService
             // Generate unique filename with timestamp
             var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
             var fullFileName = $"{fileName}_{timestamp}.csv";
-            var tempPath = Path.Combine(Path.GetTempPath(), fullFileName);
+
+            // Get export directory - use user-specific if available, otherwise temp
+            string exportDirectory;
+            if (!string.IsNullOrEmpty(StorageConstants.CurrentUserId))
+            {
+                exportDirectory = StorageConstants.GetUserExportsDirectory(StorageConstants.CurrentUserId);
+                StorageConstants.EnsureDirectoryExists(exportDirectory);
+            }
+            else
+            {
+                exportDirectory = Path.GetTempPath();
+            }
+
+            var exportPath = Path.Combine(exportDirectory, fullFileName);
 
             // Write to file
-            await File.WriteAllTextAsync(tempPath, csv.ToString());
+            await File.WriteAllTextAsync(exportPath, csv.ToString());
 
-            System.Diagnostics.Debug.WriteLine($"[ExportService] Exported {data.Count()} rows to {fullFileName}");
-            return Result<string>.Success(tempPath);
+            System.Diagnostics.Debug.WriteLine($"[ExportService] Exported {data.Count()} rows to {exportPath}");
+            return Result<string>.Success(exportPath);
         }
         catch (Exception ex)
         {

@@ -16,6 +16,7 @@
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+        <converters:StockToStatusConverter x:Key="StockToStatusConverter" />
 
         <!--  Style cho các Card  -->
         <Style x:Key="CardStyle" TargetType="Border">
@@ -59,7 +60,13 @@
             <!--  Header với Filters  -->
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel Spacing="16">
-                    <!--  First Row: Preset Date Range and Category  -->
+                    <TextBlock
+                        FontSize="16"
+                        FontWeight="SemiBold"
+                        Foreground="#111827"
+                        Text="Filters" />
+
+                    <!--  First Row: Quick Date Range and Category  -->
                     <Grid ColumnSpacing="16">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -67,21 +74,35 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
-                        <ComboBox
-                            Grid.Column="0"
-                            HorizontalAlignment="Stretch"
-                            DisplayMemberPath="Display"
-                            Header="Quick Date Range"
-                            ItemsSource="{Binding DateRanges, Mode=OneWay}"
-                            SelectedItem="{x:Bind ViewModel.SelectedDateRange, Mode=TwoWay}"
-                            SelectedValuePath="Value" />
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock
+                                FontSize="12"
+                                Foreground="#6B7280"
+                                Text="Quick Date Range" />
+                            <ComboBox
+                                x:Name="DateRangeComboBox"
+                                HorizontalAlignment="Stretch"
+                                BorderBrush="#E5E7EB"
+                                DisplayMemberPath="Display"
+                                ItemsSource="{Binding DateRanges, Mode=OneWay}"
+                                SelectedIndex="0"
+                                SelectionChanged="DateRangeComboBox_SelectionChanged"
+                                SelectedValuePath="Value" />
+                        </StackPanel>
 
-                        <ComboBox
-                            Grid.Column="1"
-                            HorizontalAlignment="Stretch"
-                            Header="Category"
-                            ItemsSource="{Binding Categories, Mode=OneWay}"
-                            SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}" />
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock
+                                FontSize="12"
+                                Foreground="#6B7280"
+                                Text="Category" />
+                            <ComboBox
+                                x:Name="CategoryComboBox"
+                                HorizontalAlignment="Stretch"
+                                BorderBrush="#E5E7EB"
+                                ItemsSource="{Binding Categories, Mode=OneWay}"
+                                SelectedIndex="0"
+                                SelectionChanged="CategoryComboBox_SelectionChanged" />
+                        </StackPanel>
                     </Grid>
 
                     <!--  Second Row: Custom Date Range  -->
@@ -90,34 +111,89 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <CalendarDatePicker
-                            Grid.Column="0"
-                            HorizontalAlignment="Stretch"
-                            Date="{x:Bind ViewModel.StartDate, Mode=TwoWay}"
-                            Header="Custom Start Date"
-                            PlaceholderText="Select start date" />
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock
+                                FontSize="12"
+                                Foreground="#6B7280"
+                                Text="Custom Start Date" />
+                            <CalendarDatePicker
+                                x:Name="StartDatePicker"
+                                HorizontalAlignment="Stretch"
+                                BorderBrush="#E5E7EB"
+                                DateChanged="StartDatePicker_DateChanged"
+                                PlaceholderText="Select start date" />
+                        </StackPanel>
 
-                        <CalendarDatePicker
-                            Grid.Column="1"
-                            HorizontalAlignment="Stretch"
-                            Date="{x:Bind ViewModel.EndDate, Mode=TwoWay}"
-                            Header="Custom End Date"
-                            PlaceholderText="Select end date" />
-
-                        <Button
-                            Grid.Column="3"
-                            VerticalAlignment="Bottom"
-                            Command="{x:Bind ViewModel.ExportReportCommand}">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon FontSize="16" Glyph="&#xE896;" />
-                                <TextBlock Text="Export Report" />
-                            </StackPanel>
-                        </Button>
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock
+                                FontSize="12"
+                                Foreground="#6B7280"
+                                Text="Custom End Date" />
+                            <CalendarDatePicker
+                                x:Name="EndDatePicker"
+                                HorizontalAlignment="Stretch"
+                                BorderBrush="#E5E7EB"
+                                DateChanged="EndDatePicker_DateChanged"
+                                PlaceholderText="Select end date" />
+                        </StackPanel>
                     </Grid>
+
+                    <!--  Apply Filters Button  -->
+                    <Button
+                        Margin="0,8,0,0"
+                        Padding="16,10"
+                        HorizontalAlignment="Right"
+                        Background="#1A4D8F"
+                        BorderThickness="0"
+                        Click="ApplyFiltersButton_Click"
+                        CornerRadius="8"
+                        Foreground="White">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon FontSize="14" Glyph="&#xE71C;" />
+                            <TextBlock Text="Apply Filters" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
+            </Border>
+
+            <!--  Export Section  -->
+            <Border Style="{StaticResource CardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                        <TextBlock
+                            FontSize="16"
+                            FontWeight="SemiBold"
+                            Foreground="#111827"
+                            Text="Export Report" />
+                        <TextBlock
+                            FontSize="13"
+                            Foreground="#6B7280"
+                            Text="Download the current report data as a CSV file" />
+                    </StackPanel>
+
+                    <Button
+                        Grid.Column="1"
+                        Height="44"
+                        Padding="16,0"
+                        Background="#1A4D8F"
+                        BorderThickness="0"
+                        Click="ExportButton_Click"
+                        CornerRadius="12"
+                        Foreground="White"
+                        ToolTipService.ToolTip="Export report to CSV file">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon FontSize="16" Glyph="&#xE896;" />
+                            <TextBlock Text="Export CSV" FontSize="14" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
             </Border>
 
             <!--  Charts Grid  -->
@@ -133,6 +209,7 @@
 
                 <!--  Revenue Trend  -->
                 <charts:LineChartCard
+                    x:Name="RevenueChart"
                     Grid.Row="0"
                     Grid.Column="0"
                     Title="Revenue Trend"
@@ -140,30 +217,39 @@
                     ChartHeight="300"
                     ShowLegend="Visible"
                     Legend1Text="Revenue"
-                    ShowMenu="Visible" />
+                    ShowMenu="Visible"
+                    RefreshRequested="Chart_RefreshRequested"
+                    ExportRequested="Chart_ExportRequested" />
 
                 <!--  Orders per Category  -->
                 <charts:BarChartCard
+                    x:Name="OrdersChart"
                     Grid.Row="0"
                     Grid.Column="1"
                     Title="Orders per Category"
                     Series="{Binding OrdersByCategorySeries, Mode=OneWay}"
                     ChartHeight="300"
-                    ShowMenu="Visible" />
+                    ShowMenu="Visible"
+                    RefreshRequested="Chart_RefreshRequested"
+                    ExportRequested="Chart_ExportRequested" />
 
                 <!--  Admin Only - Product Rating Breakdown  -->
                 <charts:PieChartCard
+                    x:Name="RatingsChart"
                     Grid.Row="1"
                     Grid.Column="0"
                     Title="Product Rating Breakdown"
                     Series="{Binding RatingDistributionSeries, Mode=OneWay}"
                     ChartHeight="300"
-                    ShowMenu="Visible" />
+                    ShowMenu="Visible"
+                    RefreshRequested="Chart_RefreshRequested"
+                    ExportRequested="Chart_ExportRequested" />
 
                 <!--  Admin Only - Salesperson Contributions  -->
                 <Border
                     Grid.Row="1"
                     Grid.Column="1"
+                    x:Name="SalespersonCard"
                     Style="{StaticResource CardStyle}">
                     <StackPanel>
                         <TextBlock
@@ -182,6 +268,7 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <Border
@@ -206,6 +293,7 @@
                                         </StackPanel>
                                         <StackPanel
                                             Grid.Column="2"
+                                            Margin="0,0,12,0"
                                             HorizontalAlignment="Right"
                                             VerticalAlignment="Center">
                                             <TextBlock FontWeight="SemiBold" Foreground="Green">
@@ -217,6 +305,18 @@
                                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                 Text="revenue" />
                                         </StackPanel>
+                                        <!--  View Details Button  -->
+                                        <Button
+                                            Grid.Column="3"
+                                            Padding="8"
+                                            VerticalAlignment="Center"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Click="ViewSalespersonDetails_Click"
+                                            Tag="{Binding}"
+                                            ToolTipService.ToolTip="View details">
+                                            <FontIcon FontSize="14" Foreground="#6B7280" Glyph="&#xE8A7;" />
+                                        </Button>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -226,14 +326,19 @@
             </Grid>
 
             <!--  Summary Table  -->
-            <Border Style="{StaticResource CardStyle}">
+            <Border x:Name="ProductSummaryCard" Style="{StaticResource CardStyle}">
                 <StackPanel>
                     <TextBlock
                         Margin="0,0,0,16"
                         Style="{StaticResource SubtitleTextBlockStyle}"
                         Text="Product Summary" />
                     <!-- COPILOT-FIX STEP 6: Changed {x:Bind} to {Binding Mode=OneWay} to prevent DataGrid crash -->
-                    <controls:DataGrid AutoGenerateColumns="False" ItemsSource="{Binding FilteredProducts, Mode=OneWay}">
+                    <controls:DataGrid 
+                        x:Name="ProductSummaryDataGrid"
+                        AutoGenerateColumns="False" 
+                        ItemsSource="{Binding FilteredProducts, Mode=OneWay}"
+                        IsReadOnly="True"
+                        SelectionMode="Single">
                         <controls:DataGrid.Columns>
                             <controls:DataGridTextColumn
                                 Width="*"
@@ -259,43 +364,63 @@
                             <controls:DataGridTemplateColumn Header="Total Revenue">
                                 <controls:DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock><Run Text="$" /><Run Text="{Binding Revenue}" /></TextBlock>
+                                        <TextBlock Foreground="#10B981"><Run Text="$" /><Run Text="{Binding Revenue}" /></TextBlock>
                                     </DataTemplate>
                                 </controls:DataGridTemplateColumn.CellTemplate>
                             </controls:DataGridTemplateColumn>
                             <controls:DataGridTemplateColumn Header="Avg Rating">
                                 <controls:DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock><Run Text="{Binding Rating}" /><Run Text=" ★" /></TextBlock>
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <TextBlock Text="{Binding Rating}" />
+                                            <FontIcon FontSize="12" Foreground="#F59E0B" Glyph="&#xE735;" />
+                                        </StackPanel>
                                     </DataTemplate>
                                 </controls:DataGridTemplateColumn.CellTemplate>
                             </controls:DataGridTemplateColumn>
 
-                            <controls:DataGridTemplateColumn Header="My Commission" Visibility="Collapsed">
+                            <controls:DataGridTemplateColumn Header="Status">
                                 <controls:DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock><Run Text="$" /><Run Text="{Binding Commission}" /></TextBlock>
+                                        <Border
+                                            Padding="8,4"
+                                            HorizontalAlignment="Left"
+                                            CornerRadius="4">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="#D1FAE5" />
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock FontSize="12" FontWeight="SemiBold" Foreground="#059669">
+                                                <TextBlock.Text>
+                                                    <Binding Path="Stock" Converter="{StaticResource StockToStatusConverter}" FallbackValue="In Stock" />
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                        </Border>
                                     </DataTemplate>
                                 </controls:DataGridTemplateColumn.CellTemplate>
                             </controls:DataGridTemplateColumn>
 
-                            <controls:DataGridTextColumn Binding="{Binding Stock}" Header="Stock" />
+                            <controls:DataGridTemplateColumn Header="Actions">
+                                <controls:DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button
+                                            Padding="8"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Click="ViewProductDetails_Click"
+                                            Tag="{Binding}"
+                                            ToolTipService.ToolTip="View details">
+                                            <FontIcon FontSize="14" Foreground="#6B7280" Glyph="&#xE8A7;" />
+                                        </Button>
+                                    </DataTemplate>
+                                </controls:DataGridTemplateColumn.CellTemplate>
+                            </controls:DataGridTemplateColumn>
 
                         </controls:DataGrid.Columns>
                     </controls:DataGrid>
                 </StackPanel>
             </Border>
-
-            <!--  Generate Full Report Button  -->
-            <Button
-                Padding="32,8"
-                HorizontalAlignment="Center"
-                Command="{x:Bind ViewModel.ExportReportCommand}">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon FontSize="16" Glyph="&#xE896;" />
-                    <TextBlock Text="Generate Full Report" />
-                </StackPanel>
-            </Button>
         </StackPanel>
     </ScrollViewer>
 
@@ -314,5 +439,88 @@
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Grid>
+
+        <!-- Product Details Dialog -->
+        <ContentDialog
+            x:Name="ProductDetailsDialog"
+            Title="Product Performance Details"
+            PrimaryButtonText="Close"
+            DefaultButton="Primary"
+            MinWidth="500">
+            <StackPanel Spacing="16" MinWidth="400">
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" FontWeight="SemiBold" Text="Product:" />
+                    <TextBlock x:Name="ProductDetailName" Grid.Row="0" Grid.Column="1" />
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" FontWeight="SemiBold" Text="Category:" />
+                    <Border Grid.Row="1" Grid.Column="1" Padding="8,4" HorizontalAlignment="Left" CornerRadius="4" BorderThickness="1" BorderBrush="{ThemeResource TextFillColorDisabledBrush}">
+                        <TextBlock x:Name="ProductDetailCategory" FontSize="12" />
+                    </Border>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" FontWeight="SemiBold" Text="Total Orders:" />
+                    <TextBlock x:Name="ProductDetailOrders" Grid.Row="2" Grid.Column="1" />
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" FontWeight="SemiBold" Text="Revenue:" />
+                    <TextBlock x:Name="ProductDetailRevenue" Grid.Row="3" Grid.Column="1" Foreground="#10B981" />
+
+                    <TextBlock Grid.Row="4" Grid.Column="0" FontWeight="SemiBold" Text="Rating:" />
+                    <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                        <TextBlock x:Name="ProductDetailRating" />
+                        <FontIcon FontSize="12" Foreground="#F59E0B" Glyph="&#xE735;" />
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="5" Grid.Column="0" FontWeight="SemiBold" Text="Stock:" />
+                    <TextBlock x:Name="ProductDetailStock" Grid.Row="5" Grid.Column="1" />
+                </Grid>
+            </StackPanel>
+        </ContentDialog>
+
+        <!-- Salesperson Details Dialog -->
+        <ContentDialog
+            x:Name="SalespersonDetailsDialog"
+            Title="Salesperson Performance Details"
+            PrimaryButtonText="Close"
+            DefaultButton="Primary"
+            MinWidth="500">
+            <StackPanel Spacing="16" MinWidth="400">
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" FontWeight="SemiBold" Text="Name:" />
+                    <TextBlock x:Name="SalespersonDetailName" Grid.Row="0" Grid.Column="1" />
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" FontWeight="SemiBold" Text="Total Sales:" />
+                    <TextBlock x:Name="SalespersonDetailSales" Grid.Row="1" Grid.Column="1" />
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" FontWeight="SemiBold" Text="Revenue:" />
+                    <TextBlock x:Name="SalespersonDetailRevenue" Grid.Row="2" Grid.Column="1" Foreground="#10B981" />
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" FontWeight="SemiBold" Text="Commission:" />
+                    <TextBlock x:Name="SalespersonDetailCommission" Grid.Row="3" Grid.Column="1" Foreground="#8B5CF6" />
+                </Grid>
+            </StackPanel>
+        </ContentDialog>
     </Grid>
 </Page>

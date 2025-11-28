@@ -310,11 +310,15 @@ public class UserFacade : IUserFacade
             }
 
             var fileName = $"Users_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-            var filePath = Path.Combine(Path.GetTempPath(), fileName);
+            var filePath = StorageConstants.GetExportFilePath(fileName);
             await File.WriteAllTextAsync(filePath, csv.ToString());
 
             await _toastService.ShowSuccess($"Exported {users.Count} users to {fileName}");
             System.Diagnostics.Debug.WriteLine($"[UserFacade] Exported {users.Count} users to {filePath}");
+
+            // Open Explorer and select the exported file
+            StorageConstants.OpenExplorerAndSelectFile(filePath);
+
             return Result<string>.Success(filePath);
         }
         catch (Exception ex)

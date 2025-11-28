@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using MyShop.Client.ViewModels.Admin;
@@ -65,6 +66,42 @@ public sealed partial class AdminUsersPage : Page
             Services.LoggingService.Instance.Error($"[AdminUsersPage] OnNavigatedTo failed", ex);
         }
     }
+
+    #region Filter Handlers
+
+    private void RoleComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        // Guard: ViewModel may be null during page initialization
+        if (ViewModel == null) return;
+        
+        if (RoleComboBox.SelectedItem is ComboBoxItem item)
+        {
+            var role = item.Tag?.ToString() ?? "All Roles";
+            ViewModel.SelectedRole = role;
+        }
+    }
+
+    private void StatusComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        // Guard: ViewModel may be null during page initialization
+        if (ViewModel == null) return;
+        
+        if (StatusComboBox.SelectedItem is ComboBoxItem item)
+        {
+            var status = item.Tag?.ToString() ?? "All Status";
+            ViewModel.SelectedStatus = status;
+        }
+    }
+
+    private async void ExportButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.ExportUsersCommand.CanExecute(null))
+        {
+            await ViewModel.ExportUsersCommand.ExecuteAsync(null);
+        }
+    }
+
+    #endregion
 
     private async void RefreshContainer_RefreshRequested(RefreshContainer sender, RefreshRequestedEventArgs args)
     {
