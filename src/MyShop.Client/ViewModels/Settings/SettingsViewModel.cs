@@ -3,10 +3,11 @@ using CommunityToolkit.Mvvm.Input;
 using MyShop.Client.Config;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Core.Interfaces.Infrastructure;
-using MyShop.Shared.Models;
+using MyShop.Plugins.Repositories.Mocks;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -14,6 +15,10 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+
+// Use alias to avoid ambiguity with MockSettingsRepository.AppSettings
+using AppSettings = MyShop.Shared.Models.AppSettings;
+using PaginationSettings = MyShop.Shared.Models.PaginationSettings;
 
 namespace MyShop.Client.ViewModels.Settings;
 
@@ -25,9 +30,17 @@ public partial class SettingsViewModel : ObservableObject
 {
     private readonly ISettingsStorage _settingsStorage;
     private readonly IToastService _toastHelper;
+    private readonly IPaginationService _paginationService;
+    private readonly MockSettingsRepository _mockSettingsRepository;
 
     [ObservableProperty] private bool _isLoading = false;
     [ObservableProperty] private string _errorMessage = string.Empty;
+
+    // Trial properties
+    [ObservableProperty] private int _trialDaysRemaining = 15;
+    [ObservableProperty] private string _upgradeProUrl = "https://facebook.com";
+    [ObservableProperty] private string _supportUrl = "https://facebook.com/myshop.support";
+    [ObservableProperty] private string _trialCode = string.Empty;
 
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
 
@@ -191,15 +204,94 @@ public partial class SettingsViewModel : ObservableObject
 
     public SettingsViewModel(
         ISettingsStorage settingsStorage,
-        IToastService toastHelper)
+        IToastService toastHelper,
+        IPaginationService paginationService)
     {
         _settingsStorage = settingsStorage;
         _toastHelper = toastHelper;
+        _paginationService = paginationService;
+        _mockSettingsRepository = new MockSettingsRepository();
     }
 
     partial void OnErrorMessageChanged(string value)
     {
         OnPropertyChanged(nameof(HasError));
+    }
+
+    /// <summary>
+    /// Open the Upgrade Pro URL in browser
+    /// </summary>
+    [RelayCommand]
+    private async Task OpenUpgradeProAsync()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(UpgradeProUrl))
+            {
+                await Windows.System.Launcher.LaunchUriAsync(new Uri(UpgradeProUrl));
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[SettingsViewModel] Failed to open upgrade URL: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Activate trial code to extend trial period
+    /// </summary>
+    [RelayCommand]
+    private async Task ActivateTrialCodeAsync()
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(TrialCode))
+            {
+                await _toastHelper.ShowWarning("Please enter a trial code.");
+                return;
+            }
+
+            // Validate trial code format (MYSHOP-XXDAY-XXXX-XXXX)
+            var result = await _mockSettingsRepository.ActivateTrialCodeAsync(TrialCode.Trim().ToUpperInvariant());
+            if (result.IsSuccess && result.Data > 0)
+            {
+                TrialDaysRemaining += result.Data;
+                TrialCode = string.Empty;
+                await _toastHelper.ShowSuccess($"Trial extended by {result.Data} days! Total: {TrialDaysRemaining} days remaining.");
+                Debug.WriteLine($"[SettingsViewModel] Trial activated: +{result.Data} days");
+            }
+            else
+            {
+                await _toastHelper.ShowError(result.ErrorMessage ?? "Invalid or expired trial code.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[SettingsViewModel] Failed to activate trial code: {ex.Message}");
+            await _toastHelper.ShowError("Failed to activate trial code.");
+        }
+    }
+
+    /// <summary>
+    /// Load trial/system settings from mock repository
+    /// </summary>
+    private async Task LoadSystemSettingsAsync()
+    {
+        try
+        {
+            var systemSettings = await _mockSettingsRepository.GetSystemSettingsAsync();
+            if (systemSettings != null)
+            {
+                TrialDaysRemaining = systemSettings.RemainingTrialDays;
+                UpgradeProUrl = systemSettings.UpgradeProUrl;
+                SupportUrl = systemSettings.SupportUrl;
+                Debug.WriteLine($"[SettingsViewModel] System settings loaded: TrialDays={TrialDaysRemaining}, UpgradeUrl={UpgradeProUrl}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[SettingsViewModel] Failed to load system settings: {ex.Message}");
+        }
     }
 
     [RelayCommand]
@@ -377,6 +469,9 @@ public partial class SettingsViewModel : ObservableObject
             IsLoading = true;
             ErrorMessage = string.Empty;
 
+            // Load system settings (trial info, upgrade URL, etc.)
+            await LoadSystemSettingsAsync();
+
             var result = await _settingsStorage.GetAsync();
             if (!result.IsSuccess || result.Data == null)
             {
@@ -458,6 +553,10 @@ public partial class SettingsViewModel : ObservableObject
 
             // Update original settings
             _originalSettings = settings;
+            
+            // Sync with global PaginationService so all ViewModels get updated values
+            _paginationService.Initialize(settings.Pagination);
+            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] PaginationService synced: Products={ProductsPageSize}, Orders={OrdersPageSize}");
 
             await _toastHelper.ShowSuccess("Settings saved successfully!");
             
@@ -538,11 +637,25 @@ public partial class SettingsViewModel : ObservableObject
 
     /// <summary>
     /// Apply theme and language settings immediately
+    /// Only applies if there are actual changes to theme/language
     /// </summary>
     private void ApplyThemeAndLanguage()
     {
         try
         {
+            // Only apply theme if it actually changed
+            if (_originalSettings != null && Theme == _originalSettings.Theme)
+            {
+                System.Diagnostics.Debug.WriteLine("[SettingsViewModel] Theme unchanged, skipping apply");
+                // Still check language change
+                if (Language != _originalSettings.Language)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Language changed to: {Language}");
+                    _ = _toastHelper.ShowInfo("Language changes will take effect after app restart.");
+                }
+                return;
+            }
+            
             // Apply theme
             if (App.MainWindow == null)
             {
@@ -579,7 +692,7 @@ public partial class SettingsViewModel : ObservableObject
             });
 
             // Apply language (requires app restart for full effect)
-            if (Language != _originalSettings?.Language)
+            if (_originalSettings != null && Language != _originalSettings.Language)
             {
                 System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Language changed to: {Language}");
                 _ = _toastHelper.ShowInfo("Language changes will take effect after app restart.");

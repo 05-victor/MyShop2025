@@ -11,8 +11,8 @@
       "commissionsPageSize": 10
     },
     "lastOpenedPage": "DASHBOARD",
-    "theme": "LIGHT",
-    "language": "vi",
+    "theme": "light",
+    "language": "en-US",
     "notifications": {
       "emailNotifications": true,
       "lowStockAlerts": true,
@@ -33,6 +33,9 @@
     "defaultCurrency": "VND",
     "taxRate": 0.1,
     "trialPeriodDays": 15,
+    "trialStartDate": "2025-11-15T00:00:00Z",
+    "upgradeProUrl": "https://facebook.com",
+    "supportUrl": "https://facebook.com/myshop.support",
     "features": {
       "googleLogin": false,
       "emailVerification": true,

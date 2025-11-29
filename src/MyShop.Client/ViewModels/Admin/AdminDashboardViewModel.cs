@@ -628,7 +628,7 @@ public partial class AdminDashboardViewModel : BaseViewModel
             {
                 IsLoading = true;
                 // TODO: Capture chart as image and save to file
-                await Task.Delay(300);
+                await Task.Delay(50);
                 await _toastHelper.ShowSuccess("Chart image downloaded successfully!");
             }
             catch (Exception ex)

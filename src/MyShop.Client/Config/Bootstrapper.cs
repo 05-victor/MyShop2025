@@ -198,6 +198,10 @@ namespace MyShop.Client.Config
                     services.AddTransient<MyShop.Core.Interfaces.Services.IDialogService, Services.DialogService>();
                     services.AddSingleton<MyShop.Core.Interfaces.Services.IValidationService, Services.ValidationService>();
                     services.AddSingleton<MyShop.Core.Interfaces.Services.IExportService, Services.ExportService>();
+                    
+                    // ===== Pagination Service (Global runtime settings) =====
+                    services.AddSingleton<MyShop.Core.Interfaces.Services.IPaginationService, PaginationService>();
+                    System.Diagnostics.Debug.WriteLine("[Bootstrapper] PaginationService registered as Singleton");
 
                     // ===== Facades (Application Core - aggregates multiple services) =====
                     // Authentication & User Management

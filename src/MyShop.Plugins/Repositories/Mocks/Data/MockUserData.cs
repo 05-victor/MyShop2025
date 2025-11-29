@@ -206,7 +206,7 @@ public static class MockUserData
             RoleNames = new List<string> { jsonRoleName },
             Status = "Active",
             EmailVerified = false,
-            AvatarUrl = user.Avatar,
+            Avatar = user.Avatar,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -235,7 +235,7 @@ public static class MockUserData
         existing.Email = user.Email;
         existing.PhoneNumber = user.PhoneNumber;
         existing.FullName = user.FullName;
-        existing.AvatarUrl = user.Avatar;
+        existing.Avatar = user.Avatar;
         existing.LastLoginAt = user.LastLogin;
 
         // Persist to JSON
@@ -324,7 +324,7 @@ public static class MockUserData
             Email = data.Email,
             PhoneNumber = data.PhoneNumber,
             FullName = data.FullName,
-            Avatar = data.AvatarUrl,
+            Avatar = data.Avatar,
             Roles = new List<UserRole> { role },
             Token = $"mock_token_{data.Id}",
             CreatedAt = data.CreatedAt,
@@ -375,7 +375,7 @@ public static class MockUserData
         public List<string>? RoleNames { get; set; }
         public string Status { get; set; } = "Active";
         public bool EmailVerified { get; set; }
-        public string? AvatarUrl { get; set; }
+        public string? Avatar { get; set; }  // Changed from AvatarUrl to match JSON field name
         public DateTime CreatedAt { get; set; }
         public DateTime? LastLoginAt { get; set; }
         

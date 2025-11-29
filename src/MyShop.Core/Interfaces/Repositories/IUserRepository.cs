@@ -33,6 +33,13 @@ public interface IUserRepository
         bool sortDescending = true);
 
     /// <summary>
+    /// Create a new user (admin function)
+    /// </summary>
+    /// <param name="user">User to create</param>
+    /// <returns>Created user with assigned ID</returns>
+    Task<Result<User>> CreateUserAsync(User user);
+
+    /// <summary>
     /// Update user profile information
     /// </summary>
     /// <param name="request">Profile update data</param>

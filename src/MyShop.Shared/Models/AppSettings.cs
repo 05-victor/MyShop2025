@@ -9,12 +9,12 @@ public class AppSettings
     /// <summary>
     /// Theme preference: "Light", "Dark", or "System"
     /// </summary>
-    public string Theme { get; set; } = "System";
+    public string Theme { get; set; } = "Light";
 
     /// <summary>
     /// Language preference: "vi-VN" or "en-US"
     /// </summary>
-    public string Language { get; set; } = "vi-VN";
+    public string Language { get; set; } = "en-US";
 
     /// <summary>
     /// Enable toast notifications

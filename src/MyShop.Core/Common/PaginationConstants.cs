@@ -1,16 +1,37 @@
 namespace MyShop.Core.Common;
 
 /// <summary>
-/// Default pagination values for the application.
+/// FALLBACK pagination values - used ONLY when settings haven't loaded yet.
 /// 
-/// IMPORTANT: These are COMPILE-TIME DEFAULTS only!
-/// - Used as default parameter values in method signatures
-/// - Used as fallback when settings haven't loaded yet
-/// 
-/// For RUNTIME values (user-configurable page sizes):
-/// - Inject IPaginationService 
-/// - Call Initialize() after settings load
-/// - Use GetPageSize()/SetPageSize() for dynamic values
+/// ┌──────────────────────────────────────────────────────────────────────┐
+/// │  PAGINATION ARCHITECTURE                                             │
+/// ├──────────────────────────────────────────────────────────────────────┤
+/// │                                                                      │
+/// │  RUNTIME FLOW:                                                       │
+/// │  1. App starts → Load settings from FileSettingsStorage              │
+/// │  2. Initialize IPaginationService with loaded values                 │
+/// │  3. All ViewModels inject IPaginationService and use its values      │
+/// │  4. User changes settings → Save to storage + sync service           │
+/// │  5. All ViewModels automatically get updated values                  │
+/// │                                                                      │
+/// │  COMPONENTS:                                                         │
+/// │                                                                      │
+/// │  ► PaginationConstants (this file) - FALLBACK ONLY                   │
+/// │    - Used as default when file doesn't exist                         │
+/// │    - Used as default parameter in method signatures                  │
+/// │    - DO NOT use directly in ViewModels for runtime values            │
+/// │                                                                      │
+/// │  ► IPaginationService (Singleton)                                    │
+/// │    - RUNTIME source of truth for page sizes                          │
+/// │    - Inject this in ViewModels                                       │
+/// │    - Initialized from AppSettings.Pagination on startup              │
+/// │    - Synced when user saves settings                                 │
+/// │                                                                      │
+/// │  ► FileSettingsStorage (AppData/Local/MyShop2025)                    │
+/// │    - Persists user preferences to JSON file                          │
+/// │    - Contains AppSettings with Pagination property                   │
+/// │                                                                      │
+/// └──────────────────────────────────────────────────────────────────────┘
 /// </summary>
 public static class PaginationConstants
 {

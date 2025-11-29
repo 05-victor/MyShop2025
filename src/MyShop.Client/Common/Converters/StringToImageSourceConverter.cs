@@ -7,73 +7,76 @@ namespace MyShop.Client.Common.Converters;
 
 /// <summary>
 /// Converter để chuyển đổi string URL thành ImageSource cho WinUI3
-/// Hỗ trợ cả URL tuyệt đối (http/https), ms-appx:/// và relative paths
-/// Đặc biệt hỗ trợ unpackaged apps
+/// Hỗ trợ cả URL tuyệt đối (http/https), ms-appx:/// paths, và local file paths
 /// </summary>
 public class StringToImageSourceConverter : IValueConverter
 {
     public object? Convert(object value, Type targetType, object parameter, string language)
     {
+        System.Diagnostics.Debug.WriteLine($"[StringToImageSourceConverter] Input value: '{value}' (type: {value?.GetType().Name ?? "null"})");
+        
         if (value is not string imageUrl || string.IsNullOrWhiteSpace(imageUrl))
         {
+            System.Diagnostics.Debug.WriteLine($"[StringToImageSourceConverter] Returning null - empty or not string");
             return null;
         }
 
         try
         {
-            // Case 1: Absolute file path (C:\..., D:\...)
-            if (Path.IsPathRooted(imageUrl) && File.Exists(imageUrl))
+            // Nếu là absolute URL (http/https)
+            if (imageUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                imageUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
-                var bitmap = new BitmapImage();
-                bitmap.UriSource = new Uri(imageUrl);
-                return bitmap;
-            }
-
-            // Case 2: Absolute URL (http/https)
-            if (imageUrl.StartsWith("http://") || imageUrl.StartsWith("https://"))
-            {
+                System.Diagnostics.Debug.WriteLine($"[StringToImageSourceConverter] Loading HTTP URL: {imageUrl}");
                 return new BitmapImage(new Uri(imageUrl));
             }
 
-            // Case 3: ms-appx:/// URI - convert to file path for unpackaged app
-            if (imageUrl.StartsWith("ms-appx:///"))
+            // Nếu là local file path (absolute path like C:\...)
+            if (Path.IsPathRooted(imageUrl) && File.Exists(imageUrl))
             {
-                // For unpackaged apps, convert ms-appx:/// to actual file path
-                var relativePath = imageUrl.Replace("ms-appx:///", "");
-                var baseDir = AppContext.BaseDirectory;
-                var fullPath = Path.Combine(baseDir, relativePath);
+                System.Diagnostics.Debug.WriteLine($"[StringToImageSourceConverter] Loading local file: {imageUrl}");
+                return new BitmapImage(new Uri(imageUrl));
+            }
+
+            // Nếu là ms-appx:/// path - convert to actual file path for unpackaged app
+            if (imageUrl.StartsWith("ms-appx:///", StringComparison.OrdinalIgnoreCase))
+            {
+                // Extract relative path from ms-appx:///
+                var relativePath = imageUrl.Substring("ms-appx:///".Length);
+                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                var fullPath = Path.Combine(baseDir, relativePath.Replace('/', Path.DirectorySeparatorChar));
+
+                System.Diagnostics.Debug.WriteLine($"[StringToImageSourceConverter] ms-appx path detected");
+                System.Diagnostics.Debug.WriteLine($"[StringToImageSourceConverter] BaseDir: {baseDir}");
+                System.Diagnostics.Debug.WriteLine($"[StringToImageSourceConverter] FullPath: {fullPath}");
+                System.Diagnostics.Debug.WriteLine($"[StringToImageSourceConverter] File.Exists: {File.Exists(fullPath)}");
 
                 if (File.Exists(fullPath))
                 {
-                    var bitmap = new BitmapImage();
-                    bitmap.UriSource = new Uri(fullPath);
+                    var bitmap = new BitmapImage(new Uri(fullPath));
+                    System.Diagnostics.Debug.WriteLine($"[StringToImageSourceConverter] SUCCESS - Created BitmapImage");
                     return bitmap;
                 }
-
-                // Fallback: try ms-appx URI directly (may work in some cases)
-                System.Diagnostics.Debug.WriteLine($"[StringToImageSourceConverter] File not found at '{fullPath}', trying ms-appx URI directly");
-                return new BitmapImage(new Uri(imageUrl));
+                
+                System.Diagnostics.Debug.WriteLine($"[StringToImageSourceConverter] File not found: {fullPath}");
+                return null;
             }
 
-            // Case 4: Relative path without ms-appx prefix
-            var baseDirectory = AppContext.BaseDirectory;
-            var absolutePath = Path.Combine(baseDirectory, imageUrl.TrimStart('/').Replace('/', '\\'));
-            
-            if (File.Exists(absolutePath))
+            // Nếu là relative path, try to resolve from app directory
+            var appRelativePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, imageUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+            if (File.Exists(appRelativePath))
             {
-                var bitmap = new BitmapImage();
-                bitmap.UriSource = new Uri(absolutePath);
-                return bitmap;
+                System.Diagnostics.Debug.WriteLine($"[StringToImageSourceConverter] Loading relative path: {appRelativePath}");
+                return new BitmapImage(new Uri(appRelativePath));
             }
 
-            // Final fallback: try as ms-appx URI
-            var msAppxUri = $"ms-appx:///{imageUrl.TrimStart('/')}";
-            System.Diagnostics.Debug.WriteLine($"[StringToImageSourceConverter] Trying ms-appx URI: {msAppxUri}");
-            return new BitmapImage(new Uri(msAppxUri));
+            System.Diagnostics.Debug.WriteLine($"[StringToImageSourceConverter] Could not resolve path: {imageUrl}");
+            return null;
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[StringToImageSourceConverter] Failed to convert '{imageUrl}': {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[StringToImageSourceConverter] EXCEPTION: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[StringToImageSourceConverter] StackTrace: {ex.StackTrace}");
             return null;
         }
     }

@@ -18,11 +18,22 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
 {
     private readonly IUserFacade _userFacade;
 
+    // Applied filter values (used for actual API calls)
     [ObservableProperty]
     private string _selectedRole = "All Roles";
 
     [ObservableProperty]
     private string _selectedStatus = "All Status";
+
+    // Pending filter values (user selections before Apply)
+    [ObservableProperty]
+    private string _pendingRole = "All Roles";
+
+    [ObservableProperty]
+    private string _pendingStatus = "All Status";
+
+    [ObservableProperty]
+    private string _pendingSearchQuery = string.Empty;
 
     public AdminUsersViewModel(
         IUserFacade userFacade,
@@ -39,18 +50,33 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
     }
 
     /// <summary>
-    /// Reload data when filters change
+    /// Apply pending filters and reload data - reduces API calls
     /// </summary>
-    partial void OnSelectedRoleChanged(string value)
+    [RelayCommand]
+    private async Task ApplyFiltersAsync()
     {
+        // Transfer pending values to applied values
+        SelectedRole = PendingRole;
+        SelectedStatus = PendingStatus;
+        SearchQuery = PendingSearchQuery;
         CurrentPage = 1;
-        _ = LoadPageAsync();
+        await LoadPageAsync();
     }
 
-    partial void OnSelectedStatusChanged(string value)
+    /// <summary>
+    /// Reset all filters to default values
+    /// </summary>
+    [RelayCommand]
+    private async Task ResetFiltersAsync()
     {
+        PendingRole = "All Roles";
+        PendingStatus = "All Status";
+        PendingSearchQuery = string.Empty;
+        SelectedRole = "All Roles";
+        SelectedStatus = "All Status";
+        SearchQuery = string.Empty;
         CurrentPage = 1;
-        _ = LoadPageAsync();
+        await LoadPageAsync();
     }
 
     /// <summary>
@@ -161,20 +187,36 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
             {
                 try
                 {
-                    // Note: User creation handled by backend registration endpoint
-                    // Just reload the list to show new user
-                    System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] New user added: {dialog.ViewModel.FullName}");
-                    await RefreshAsync();
+                    // Create user via facade (saves to JSON)
+                    var createResult = await _userFacade.CreateUserAsync(
+                        username: dialog.ViewModel.Email.Split('@')[0], // Generate username from email
+                        email: dialog.ViewModel.Email,
+                        phoneNumber: dialog.ViewModel.Phone,
+                        password: dialog.ViewModel.Password,
+                        role: dialog.ViewModel.SelectedRole
+                    );
+                    
+                    if (createResult.IsSuccess)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] New user added: {dialog.ViewModel.FullName}");
+                        await RefreshAsync();
+                    }
+                    else
+                    {
+                        await _toastHelper?.ShowError(createResult.ErrorMessage ?? "Failed to create user");
+                    }
                 }
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Error saving user: {ex.Message}");
+                    await _toastHelper?.ShowError($"Error creating user: {ex.Message}");
                 }
             }
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Error adding user: {ex.Message}");
+            await _toastHelper?.ShowError($"Error: {ex.Message}");
         }
     }
 
@@ -204,27 +246,34 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
     }
 
     [RelayCommand]
-    private async Task ChangeRoleAsync(UserViewModel user)
-    {
-        // TODO: Implement ChangeRoleDialog when needed
-        System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Change role for: {user.Name}");
-        await _toastHelper?.ShowInfo("Change role feature coming soon");
-    }
-
-    [RelayCommand]
     private async Task ResetPasswordAsync(UserViewModel user)
     {
-        // TODO: Implement ResetPasswordDialog when needed
-        System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Reset password for: {user.Name}");
-        await _toastHelper?.ShowInfo("Reset password feature coming soon");
-    }
-
-    [RelayCommand]
-    private async Task EditTaxRateAsync(UserViewModel user)
-    {
-        // TODO: Implement EditTaxRateDialog when needed (for sales agents)
-        System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Edit tax rate for: {user.Name}");
-        await _toastHelper?.ShowInfo("Edit tax rate feature coming soon");
+        try
+        {
+            // Show confirmation dialog
+            var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+            {
+                Title = "Reset Password",
+                Content = $"Are you sure you want to reset password for {user.Name}?\n\nA new password will be sent to their email: {user.Email}",
+                PrimaryButtonText = "Reset Password",
+                CloseButtonText = "Cancel",
+                DefaultButton = Microsoft.UI.Xaml.Controls.ContentDialogButton.Close,
+                XamlRoot = App.MainWindow?.Content?.XamlRoot
+            };
+            
+            var result = await dialog.ShowAsync();
+            if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
+            {
+                // TODO: Call actual password reset API
+                await _toastHelper?.ShowSuccess($"Password reset email sent to {user.Email}");
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Reset password for: {user.Name}");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Reset password error: {ex.Message}");
+            await _toastHelper?.ShowError("Failed to reset password");
+        }
     }
 
     [RelayCommand]

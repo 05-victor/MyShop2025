@@ -156,16 +156,41 @@ public class UserFacade : IUserFacade
                 return Result<User>.Failure(error);
             }
 
-            var validRoles = new[] { "Customer", "SalesAgent", "Admin" };
-            if (!validRoles.Contains(role, StringComparer.OrdinalIgnoreCase))
+            // Map role string to UserRole enum
+            var userRole = role switch
             {
-                await _toastService.ShowError($"Invalid role. Valid roles: {string.Join(", ", validRoles)}");
-                return Result<User>.Failure("Invalid role");
-            }
+                "Admin" => Shared.Models.Enums.UserRole.Admin,
+                "Sales Agent" or "SalesAgent" or "Salesman" => Shared.Models.Enums.UserRole.Salesman,
+                "Customer" or _ => Shared.Models.Enums.UserRole.Customer
+            };
 
-            // Create user via repository (mock implementation)
-            await _toastService.ShowSuccess($"User '{username}' created successfully");
-            return Result<User>.Failure("CreateUser not fully implemented in repository");
+            // Create user object with default avatar
+            var newUser = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = username,
+                Email = email,
+                PhoneNumber = phoneNumber,
+                FullName = username, // Will be updated by user later
+                Avatar = "ms-appx:///Assets/Images/user/avatar-placeholder.png",
+                Roles = new List<Shared.Models.Enums.UserRole> { userRole },
+                CreatedAt = DateTime.UtcNow,
+                IsEmailVerified = false
+            };
+
+            // Save to repository (persists to JSON)
+            var result = await _userRepository.CreateUserAsync(newUser);
+            
+            if (result.IsSuccess && result.Data != null)
+            {
+                await _toastService.ShowSuccess($"User '{username}' created successfully");
+                return result;
+            }
+            else
+            {
+                await _toastService.ShowError(result.ErrorMessage ?? "Failed to create user");
+                return result;
+            }
         }
         catch (Exception ex)
         {

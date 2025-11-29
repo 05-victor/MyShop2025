@@ -26,7 +26,7 @@ public partial class AddUserDialogViewModel : ObservableObject
     public ObservableCollection<string> AvailableRoles { get; } = new()
     {
         "Customer",
-        "Sales Agent",
+        "Salesman",
         "Admin"
     };
 

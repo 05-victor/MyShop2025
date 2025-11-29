@@ -1,41 +1,45 @@
+using MyShop.Core.Common;
+using MyShop.Plugins.Mocks.Data;
+
 namespace MyShop.Plugins.Repositories.Mocks;
 
 /// <summary>
-/// Mock repository for Settings - provides hardcoded mock data
-/// Note: No MockSettingsData exists yet, using inline defaults
+/// Mock repository for Settings - loads data from settings.json
+/// Provides full CRUD operations for testing settings functionality
 /// </summary>
 public class MockSettingsRepository
 {
-
     public async Task<AppSettings?> GetAppSettingsAsync(Guid userId)
     {
         try
         {
-            await Task.Delay(200);
-            
+            var data = await MockSettingsData.GetAppSettingsAsync(userId);
+            if (data == null) return null;
+
             var settings = new AppSettings
             {
                 UserId = userId,
-                PageSize = Core.Common.PaginationConstants.DefaultPageSize,
-                LastOpenedPage = "DASHBOARD",
-                Theme = "LIGHT",
-                Language = "vi",
-                CreatedAt = DateTime.UtcNow.AddMonths(-6),
+                PageSize = data.Pagination?.DefaultPageSize ?? Core.Common.PaginationConstants.DefaultPageSize,
+                LastOpenedPage = data.LastOpenedPage,
+                Theme = data.Theme.ToUpper(),
+                Language = data.Language,
+                CreatedAt = data.CreatedAt,
+                UpdatedAt = data.UpdatedAt,
                 Notifications = new NotificationSettings
                 {
-                    EmailNotifications = true,
-                    LowStockAlerts = true,
-                    NewOrderAlerts = true,
-                    LowStockThreshold = 10
+                    EmailNotifications = data.Notifications?.EmailNotifications ?? true,
+                    LowStockAlerts = data.Notifications?.LowStockAlerts ?? true,
+                    NewOrderAlerts = data.Notifications?.NewOrderAlerts ?? true,
+                    LowStockThreshold = data.Notifications?.LowStockThreshold ?? 10
                 },
                 Display = new DisplaySettings
                 {
-                    ShowProductImages = true,
-                    CompactMode = false,
-                    ShowRevenueDashboard = true
+                    ShowProductImages = data.Display?.ShowProductImages ?? true,
+                    CompactMode = data.Display?.CompactMode ?? false,
+                    ShowRevenueDashboard = data.Display?.ShowRevenueDashboard ?? true
                 }
             };
-            
+
             System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] GetAppSettingsAsync for user: {userId}");
             return settings;
         }
@@ -50,10 +54,43 @@ public class MockSettingsRepository
     {
         try
         {
-            await Task.Delay(300);
-            
+            var data = new MockSettingsData.AppSettingsData
+            {
+                UserId = settings.UserId.ToString(),
+                Pagination = new MockSettingsData.PaginationData
+                {
+                    DefaultPageSize = settings.PageSize,
+                    ProductsPageSize = settings.PageSize,
+                    OrdersPageSize = settings.PageSize,
+                    CustomersPageSize = settings.PageSize,
+                    UsersPageSize = settings.PageSize,
+                    AgentRequestsPageSize = settings.PageSize,
+                    CommissionsPageSize = settings.PageSize
+                },
+                LastOpenedPage = settings.LastOpenedPage,
+                Theme = settings.Theme.ToLower(),
+                Language = settings.Language,
+                CreatedAt = settings.CreatedAt,
+                UpdatedAt = DateTime.UtcNow,
+                Notifications = new MockSettingsData.NotificationsData
+                {
+                    EmailNotifications = settings.Notifications?.EmailNotifications ?? true,
+                    LowStockAlerts = settings.Notifications?.LowStockAlerts ?? true,
+                    NewOrderAlerts = settings.Notifications?.NewOrderAlerts ?? true,
+                    LowStockThreshold = settings.Notifications?.LowStockThreshold ?? 10
+                },
+                Display = new MockSettingsData.DisplayData
+                {
+                    ShowProductImages = settings.Display?.ShowProductImages ?? true,
+                    CompactMode = settings.Display?.CompactMode ?? false,
+                    ShowRevenueDashboard = settings.Display?.ShowRevenueDashboard ?? true
+                }
+            };
+
+            var result = await MockSettingsData.UpdateAppSettingsAsync(data);
+            if (result == null) return null;
+
             settings.UpdatedAt = DateTime.UtcNow;
-            
             System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] Updated app settings");
             return settings;
         }
@@ -68,28 +105,32 @@ public class MockSettingsRepository
     {
         try
         {
-            await Task.Delay(150);
-            
+            var data = await MockSettingsData.GetSystemSettingsAsync();
+            if (data == null) return null;
+
             var settings = new SystemSettings
             {
-                ApplicationName = "MyShop 2025",
-                Version = "1.0.0",
-                DefaultCurrency = "VND",
-                TaxRate = 10.0,
-                TrialPeriodDays = 30,
+                ApplicationName = data.ApplicationName,
+                Version = data.Version,
+                DefaultCurrency = data.DefaultCurrency,
+                TaxRate = data.TaxRate * 100, // Convert from decimal to percentage
+                TrialPeriodDays = data.TrialPeriodDays,
+                TrialStartDate = data.TrialStartDate,
+                UpgradeProUrl = data.UpgradeProUrl,
+                SupportUrl = data.SupportUrl,
                 Features = new FeatureFlags
                 {
-                    GoogleLogin = true,
-                    EmailVerification = false,
-                    TrialActivation = true,
-                    AdminCodeVerification = true,
-                    DatabaseBackup = false,
-                    ProductImport = true,
-                    ProductExport = true
+                    GoogleLogin = data.Features?.GoogleLogin ?? false,
+                    EmailVerification = data.Features?.EmailVerification ?? true,
+                    TrialActivation = data.Features?.TrialActivation ?? true,
+                    AdminCodeVerification = data.Features?.AdminCodeVerification ?? true,
+                    DatabaseBackup = data.Features?.DatabaseBackup ?? false,
+                    ProductImport = data.Features?.ProductImport ?? false,
+                    ProductExport = data.Features?.ProductExport ?? false
                 }
             };
-            
-            System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] GetSystemSettingsAsync");
+
+            System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] GetSystemSettingsAsync - UpgradeUrl: {settings.UpgradeProUrl}");
             return settings;
         }
         catch (Exception ex)
@@ -99,26 +140,64 @@ public class MockSettingsRepository
         }
     }
 
+    public async Task<SystemSettings?> UpdateSystemSettingsAsync(SystemSettings settings)
+    {
+        try
+        {
+            var data = new MockSettingsData.SystemSettingsData
+            {
+                ApplicationName = settings.ApplicationName,
+                Version = settings.Version,
+                DefaultCurrency = settings.DefaultCurrency,
+                TaxRate = settings.TaxRate / 100, // Convert from percentage to decimal
+                TrialPeriodDays = settings.TrialPeriodDays,
+                TrialStartDate = settings.TrialStartDate,
+                UpgradeProUrl = settings.UpgradeProUrl,
+                SupportUrl = settings.SupportUrl,
+                Features = new MockSettingsData.FeatureFlagsData
+                {
+                    GoogleLogin = settings.Features?.GoogleLogin ?? false,
+                    EmailVerification = settings.Features?.EmailVerification ?? true,
+                    TrialActivation = settings.Features?.TrialActivation ?? true,
+                    AdminCodeVerification = settings.Features?.AdminCodeVerification ?? true,
+                    DatabaseBackup = settings.Features?.DatabaseBackup ?? false,
+                    ProductImport = settings.Features?.ProductImport ?? false,
+                    ProductExport = settings.Features?.ProductExport ?? false
+                }
+            };
+
+            var result = await MockSettingsData.UpdateSystemSettingsAsync(data);
+            System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] Updated system settings");
+            return settings;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] UpdateSystemSettingsAsync error: {ex.Message}");
+            return null;
+        }
+    }
+
     public async Task<BusinessSettings?> GetBusinessSettingsAsync()
     {
         try
         {
-            await Task.Delay(150);
-            
+            var data = await MockSettingsData.GetBusinessSettingsAsync();
+            if (data == null) return null;
+
             var settings = new BusinessSettings
             {
-                StoreName = "MyShop 2025",
-                StoreAddress = "123 Nguyễn Huệ, Quận 1, TP.HCM",
-                StorePhone = "0901234567",
-                StoreEmail = "contact@myshop2025.vn",
-                StoreWebsite = "https://myshop2025.vn",
-                BusinessRegistrationNumber = "0123456789",
-                TaxCode = "0123456789-001",
-                BankName = "Vietcombank",
-                BankAccountNumber = "1234567890",
-                BankAccountName = "CONG TY TNHH MYSHOP 2025"
+                StoreName = data.StoreName,
+                StoreAddress = data.StoreAddress,
+                StorePhone = data.StorePhone,
+                StoreEmail = data.StoreEmail,
+                StoreWebsite = data.StoreWebsite,
+                BusinessRegistrationNumber = data.BusinessRegistrationNumber,
+                TaxCode = data.TaxCode,
+                BankName = data.BankName,
+                BankAccountNumber = data.BankAccountNumber,
+                BankAccountName = data.BankAccountName
             };
-            
+
             System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] GetBusinessSettingsAsync");
             return settings;
         }
@@ -126,6 +205,65 @@ public class MockSettingsRepository
         {
             System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] GetBusinessSettingsAsync error: {ex.Message}");
             return null;
+        }
+    }
+
+    public async Task<BusinessSettings?> UpdateBusinessSettingsAsync(BusinessSettings settings)
+    {
+        try
+        {
+            var data = new MockSettingsData.BusinessSettingsData
+            {
+                StoreName = settings.StoreName,
+                StoreAddress = settings.StoreAddress,
+                StorePhone = settings.StorePhone,
+                StoreEmail = settings.StoreEmail,
+                StoreWebsite = settings.StoreWebsite,
+                BusinessRegistrationNumber = settings.BusinessRegistrationNumber,
+                TaxCode = settings.TaxCode,
+                BankName = settings.BankName,
+                BankAccountNumber = settings.BankAccountNumber,
+                BankAccountName = settings.BankAccountName
+            };
+
+            var result = await MockSettingsData.UpdateBusinessSettingsAsync(data);
+            System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] Updated business settings");
+            return settings;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] UpdateBusinessSettingsAsync error: {ex.Message}");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Activate a trial code to extend trial period
+    /// Loads valid codes from activation-codes.json
+    /// </summary>
+    public async Task<Result<int>> ActivateTrialCodeAsync(string trialCode)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(trialCode))
+            {
+                return Result<int>.Failure("Trial code cannot be empty.");
+            }
+
+            var (success, daysToAdd, errorMessage) = await MockActivationCodesData.ActivateCodeAsync(trialCode);
+            
+            if (success)
+            {
+                System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] Trial code activated: +{daysToAdd} days");
+                return Result<int>.Success(daysToAdd);
+            }
+
+            return Result<int>.Failure(errorMessage ?? "Invalid trial code.");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] ActivateTrialCodeAsync error: {ex.Message}");
+            return Result<int>.Failure($"Failed to activate trial code: {ex.Message}");
         }
     }
 }
@@ -167,7 +305,23 @@ public class SystemSettings
     public string DefaultCurrency { get; set; } = "VND";
     public double TaxRate { get; set; }
     public int TrialPeriodDays { get; set; }
+    public DateTime? TrialStartDate { get; set; }
+    public string UpgradeProUrl { get; set; } = "https://facebook.com";
+    public string SupportUrl { get; set; } = "https://facebook.com/myshop.support";
     public FeatureFlags? Features { get; set; }
+    
+    /// <summary>
+    /// Calculate remaining trial days based on TrialStartDate and TrialPeriodDays
+    /// </summary>
+    public int RemainingTrialDays
+    {
+        get
+        {
+            if (TrialStartDate == null) return TrialPeriodDays;
+            var elapsed = (DateTime.UtcNow - TrialStartDate.Value).Days;
+            return Math.Max(0, TrialPeriodDays - elapsed);
+        }
+    }
 }
 
 public class FeatureFlags

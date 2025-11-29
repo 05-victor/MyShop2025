@@ -78,6 +78,42 @@ public class MockUserRepository : IUserRepository
         }
     }
 
+    public async Task<Result<User>> CreateUserAsync(User user)
+    {
+        try
+        {
+            // Set default avatar if not provided
+            if (string.IsNullOrEmpty(user.Avatar))
+            {
+                user.Avatar = "ms-appx:///Assets/Images/user/avatar-placeholder.png";
+            }
+
+            // Set creation timestamp
+            user.CreatedAt = DateTime.UtcNow;
+
+            // Generate ID if not set
+            if (user.Id == Guid.Empty)
+            {
+                user.Id = Guid.NewGuid();
+            }
+
+            var createdUser = await MockUserData.CreateAsync(user);
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] User created: {createdUser.Username} with ID {createdUser.Id}");
+            return Result<User>.Success(createdUser);
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Username or email already exists
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] CreateUserAsync validation error: {ex.Message}");
+            return Result<User>.Failure(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] CreateUserAsync error: {ex.Message}");
+            return Result<User>.Failure($"Failed to create user: {ex.Message}");
+        }
+    }
+
     public async Task<Result<User>> UpdateProfileAsync(UpdateProfileRequest request)
     {
         try

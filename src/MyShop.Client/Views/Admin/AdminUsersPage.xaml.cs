@@ -77,7 +77,7 @@ public sealed partial class AdminUsersPage : Page
         if (RoleComboBox.SelectedItem is ComboBoxItem item)
         {
             var role = item.Tag?.ToString() ?? "All Roles";
-            ViewModel.SelectedRole = role;
+            ViewModel.PendingRole = role;
         }
     }
 
@@ -89,7 +89,7 @@ public sealed partial class AdminUsersPage : Page
         if (StatusComboBox.SelectedItem is ComboBoxItem item)
         {
             var status = item.Tag?.ToString() ?? "All Status";
-            ViewModel.SelectedStatus = status;
+            ViewModel.PendingStatus = status;
         }
     }
 

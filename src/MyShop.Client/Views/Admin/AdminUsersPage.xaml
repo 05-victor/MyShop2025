@@ -67,59 +67,128 @@
                 
                 <!-- Main Content -->
                 <StackPanel Grid.Row="1" Spacing="20">
+
+                <!--  Search Card  -->
+                <Border Style="{StaticResource CardWithShadowStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Spacing="4">
+                            <TextBlock
+                                FontSize="14"
+                                FontWeight="SemiBold"
+                                Foreground="#374151"
+                                Text="Search Users" />
+                            <TextBlock
+                                FontSize="12"
+                                Foreground="#6B7280"
+                                Text="Find users by name, email, or phone number" />
+                        </StackPanel>
+
+                        <components:SearchBox
+                            Grid.Column="1"
+                            Width="350"
+                            HorizontalAlignment="Right"
+                            PlaceholderText="Search users..."
+                            Text="{x:Bind ViewModel.PendingSearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </Grid>
+                </Border>
                 
                 <!--  Filters Card  -->
                 <Border Style="{StaticResource CardWithShadowStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <!--  Search  -->
-                        <components:SearchBox
-                            Width="300"
-                            HorizontalAlignment="Left"
-                            PlaceholderText="Search users..."
-                            Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-
                         <!--  Role Filter  -->
-                        <ComboBox
-                            x:Name="RoleComboBox"
-                            Grid.Column="1"
-                            Width="150"
-                            Margin="12,0"
-                            Padding="12"
-                            BorderBrush="#E5E7EB"
-                            PlaceholderText="All Roles"
-                            SelectionChanged="RoleComboBox_SelectionChanged">
-                            <ComboBoxItem Content="All Roles" Tag="All Roles" IsSelected="True" />
-                            <ComboBoxItem Content="Admin" Tag="Admin" />
-                            <ComboBoxItem Content="Salesman" Tag="Salesman" />
-                            <ComboBoxItem Content="Customer" Tag="Customer" />
-                        </ComboBox>
+                        <StackPanel Spacing="4">
+                            <TextBlock
+                                FontSize="12"
+                                FontWeight="SemiBold"
+                                Foreground="#6B7280"
+                                Text="Role" />
+                            <ComboBox
+                                x:Name="RoleComboBox"
+                                Width="150"
+                                Padding="12"
+                                BorderBrush="#E5E7EB"
+                                PlaceholderText="All Roles"
+                                SelectionChanged="RoleComboBox_SelectionChanged">
+                                <ComboBoxItem Content="All Roles" Tag="All Roles" IsSelected="True" />
+                                <ComboBoxItem Content="Admin" Tag="Admin" />
+                                <ComboBoxItem Content="Salesman" Tag="Salesman" />
+                                <ComboBoxItem Content="Customer" Tag="Customer" />
+                            </ComboBox>
+                        </StackPanel>
 
                         <!--  Status Filter  -->
-                        <ComboBox
-                            x:Name="StatusComboBox"
-                            Grid.Column="2"
-                            Width="150"
-                            Margin="0,0,12,0"
-                            Padding="12"
+                        <StackPanel Grid.Column="1" Margin="16,0,0,0" Spacing="4">
+                            <TextBlock
+                                FontSize="12"
+                                FontWeight="SemiBold"
+                                Foreground="#6B7280"
+                                Text="Status" />
+                            <ComboBox
+                                x:Name="StatusComboBox"
+                                Width="150"
+                                Padding="12"
+                                BorderBrush="#E5E7EB"
+                                PlaceholderText="All Status"
+                                SelectionChanged="StatusComboBox_SelectionChanged">
+                                <ComboBoxItem Content="All Status" Tag="All Status" IsSelected="True" />
+                                <ComboBoxItem Content="Active" Tag="Active" />
+                                <ComboBoxItem Content="Inactive" Tag="Inactive" />
+                            </ComboBox>
+                        </StackPanel>
+
+                        <!--  Apply Filters Button  -->
+                        <Button
+                            Grid.Column="3"
+                            Padding="16,10"
+                            VerticalAlignment="Bottom"
+                            Background="#2563EB"
+                            Foreground="White"
+                            BorderBrush="#2563EB"
+                            CornerRadius="8"
+                            Command="{x:Bind ViewModel.ApplyFiltersCommand}"
+                            ToolTipService.ToolTip="Apply filters">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon FontSize="14" Glyph="&#xE71C;" Foreground="White" />
+                                <TextBlock Text="Apply" />
+                            </StackPanel>
+                        </Button>
+
+                        <!--  Reset Filters Button  -->
+                        <Button
+                            Grid.Column="4"
+                            Margin="8,0,0,0"
+                            Padding="16,10"
+                            VerticalAlignment="Bottom"
                             BorderBrush="#E5E7EB"
-                            PlaceholderText="All Status"
-                            SelectionChanged="StatusComboBox_SelectionChanged">
-                            <ComboBoxItem Content="All Status" Tag="All Status" IsSelected="True" />
-                            <ComboBoxItem Content="Active" Tag="Active" />
-                            <ComboBoxItem Content="Inactive" Tag="Inactive" />
-                        </ComboBox>
+                            CornerRadius="8"
+                            Command="{x:Bind ViewModel.ResetFiltersCommand}"
+                            ToolTipService.ToolTip="Reset all filters">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon FontSize="14" Glyph="&#xE72C;" />
+                                <TextBlock Text="Reset" />
+                            </StackPanel>
+                        </Button>
 
                         <!--  Export Button  -->
                         <Button
-                            Grid.Column="3"
-                            Padding="12,8"
+                            Grid.Column="5"
+                            Margin="8,0,0,0"
+                            Padding="16,10"
+                            VerticalAlignment="Bottom"
                             BorderBrush="#E5E7EB"
                             CornerRadius="8"
                             Click="ExportButton_Click"
@@ -336,18 +405,6 @@
                                                 Padding="8"
                                                 Background="Transparent"
                                                 BorderBrush="#E5E7EB"
-                                                Command="{Binding ElementName=RootPage, Path=ViewModel.ChangeRoleCommand}"
-                                                CommandParameter="{x:Bind}"
-                                                ToolTipService.ToolTip="Change Role">
-                                                <FontIcon
-                                                    FontSize="16"
-                                                    Foreground="#6B7280"
-                                                    Glyph="&#xE8AB;" />
-                                            </Button>
-                                            <Button
-                                                Padding="8"
-                                                Background="Transparent"
-                                                BorderBrush="#E5E7EB"
                                                 Command="{Binding ElementName=RootPage, Path=ViewModel.ResetPasswordCommand}"
                                                 CommandParameter="{x:Bind}"
                                                 ToolTipService.ToolTip="Reset Password">
@@ -355,18 +412,6 @@
                                                     FontSize="16"
                                                     Foreground="#6B7280"
                                                     Glyph="&#xE72E;" />
-                                            </Button>
-                                            <Button
-                                                Padding="8"
-                                                Background="Transparent"
-                                                BorderBrush="#E5E7EB"
-                                                Command="{Binding ElementName=RootPage, Path=ViewModel.EditTaxRateCommand}"
-                                                CommandParameter="{x:Bind}"
-                                                ToolTipService.ToolTip="Edit Tax Rate">
-                                                <FontIcon
-                                                    FontSize="16"
-                                                    Foreground="#6B7280"
-                                                    Glyph="&#xE8C8;" />
                                             </Button>
                                             <Button
                                                 Padding="8"

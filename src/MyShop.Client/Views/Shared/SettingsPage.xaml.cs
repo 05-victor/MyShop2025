@@ -15,6 +15,8 @@ namespace MyShop.Client.Views.Shared;
 public sealed partial class SettingsPage : Page
 {
     public SettingsViewModel ViewModel { get; }
+    private bool _isDialogOpen = false;
+    private bool _isInitializing = true;
 
     public SettingsPage()
     {
@@ -72,15 +74,15 @@ public sealed partial class SettingsPage : Page
         KeyboardAccelerators.Add(importShortcut);
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
         AppLogger.Enter();
         try
         {
             base.OnNavigatedTo(e);
             
-            // Load settings
-            _ = ViewModel.LoadCommand.ExecuteAsync(null);
+            // Load settings and wait for completion
+            await ViewModel.LoadCommand.ExecuteAsync(null);
             AppLogger.Success("Settings loaded");
         }
         catch (Exception ex)
@@ -89,29 +91,48 @@ public sealed partial class SettingsPage : Page
         }
         finally
         {
+            // Allow toggle events only after load completes
+            _isInitializing = false;
             AppLogger.Exit();
         }
     }
 
     private async void MockDataToggle_Toggled(object sender, RoutedEventArgs e)
     {
+        // Skip during page initialization
+        if (_isInitializing) return;
+        
+        // Prevent opening multiple dialogs
+        if (_isDialogOpen) return;
+        
         // Show warning that restart is required
         if (sender is ToggleSwitch toggle)
         {
-            var dialog = new ContentDialog
+            try
             {
-                Title = "Restart Required",
-                Content = "Changing the data source requires restarting the application. Would you like to save this setting?",
-                PrimaryButtonText = "Save & Restart Later",
-                CloseButtonText = "Cancel",
-                XamlRoot = this.XamlRoot
-            };
+                _isDialogOpen = true;
+                
+                var dialog = new ContentDialog
+                {
+                    Title = "Restart Required",
+                    Content = "Changing the data source requires restarting the application. Would you like to save this setting?",
+                    PrimaryButtonText = "Save & Restart Later",
+                    CloseButtonText = "Cancel",
+                    XamlRoot = this.XamlRoot
+                };
 
-            var result = await dialog.ShowAsync();
-            if (result != ContentDialogResult.Primary)
+                var result = await dialog.ShowAsync();
+                if (result != ContentDialogResult.Primary)
+                {
+                    // Revert toggle without triggering event again
+                    toggle.Toggled -= MockDataToggle_Toggled;
+                    toggle.IsOn = !toggle.IsOn;
+                    toggle.Toggled += MockDataToggle_Toggled;
+                }
+            }
+            finally
             {
-                // Revert toggle
-                toggle.IsOn = !toggle.IsOn;
+                _isDialogOpen = false;
             }
         }
     }

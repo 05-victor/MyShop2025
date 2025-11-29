@@ -131,7 +131,9 @@ public partial class ProfileViewModel : BaseViewModel
 
     public ProfileViewModel(
         IProfileFacade profileFacade,
-        INavigationService navigationService)
+        INavigationService navigationService,
+        IToastService toastService)
+        : base(toastService, navigationService)
     {
         _profileFacade = profileFacade ?? throw new ArgumentNullException(nameof(profileFacade));
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));

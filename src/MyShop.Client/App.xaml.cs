@@ -1,9 +1,11 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
 using MyShop.Client.Config;
 using MyShop.Client.Services;
 using MyShop.Client.Views.Shared;
+using MyShop.Core.Interfaces.Infrastructure;
+using MyShop.Core.Interfaces.Services;
 using System;
 using System.Threading.Tasks;
 
@@ -61,6 +63,41 @@ namespace MyShop.Client
             
             _host = Bootstrapper.CreateHost();
         }
+        
+        /// <summary>
+        /// Initialize PaginationService from saved user settings.
+        /// Must be called before any ViewModels that use pagination.
+        /// </summary>
+        private async Task InitializePaginationServiceAsync()
+        {
+            try
+            {
+                LoggingService.Instance.Information("Initializing PaginationService from settings...");
+                
+                var settingsStorage = Services.GetRequiredService<ISettingsStorage>();
+                var paginationService = Services.GetRequiredService<IPaginationService>();
+                
+                var result = await settingsStorage.GetAsync();
+                if (result.IsSuccess && result.Data != null)
+                {
+                    var settings = result.Data;
+                    // Create PaginationSettings from AppSettings.Pagination
+                    var paginationSettings = settings.Pagination ?? new MyShop.Shared.Models.PaginationSettings();
+                    
+                    paginationService.Initialize(paginationSettings);
+                    LoggingService.Instance.Information($"PaginationService initialized: Products={paginationSettings.ProductsPageSize}, Orders={paginationSettings.OrdersPageSize}");
+                }
+                else
+                {
+                    LoggingService.Instance.Warning("Settings not found, using default pagination values");
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.Error("Failed to initialize PaginationService", ex);
+                // Continue with default values - service already has defaults
+            }
+        }
 
         private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
         {
@@ -101,6 +138,9 @@ namespace MyShop.Client
                 LoggingService.Instance.Information("═══════════════════════════════════════════════════════");
                 LoggingService.Instance.Information("MyShop2025 Client Starting...");
                 LoggingService.Instance.Information("═══════════════════════════════════════════════════════");
+                
+                // ===== Initialize Global Pagination Service from saved settings =====
+                await InitializePaginationServiceAsync();
                 
                 LoggingService.Instance.Information("Creating MainWindow...");
                 MainWindow = new MainWindow();

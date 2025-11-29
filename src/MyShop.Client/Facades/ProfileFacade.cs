@@ -212,27 +212,29 @@ public class ProfileFacade : IProfileFacade
     {
         try
         {
-            // Step 1: Create avatars folder in local storage
-            var localFolder = ApplicationData.Current.LocalFolder;
-            var assetsFolder = await localFolder.CreateFolderAsync("Assets", CreationCollisionOption.OpenIfExists);
-            var avatarsFolder = await assetsFolder.CreateFolderAsync("Avatars", CreationCollisionOption.OpenIfExists);
-
-            // Step 2: Generate unique filename
+            // Step 1: Get user ID and avatar directory using StorageConstants
             var userIdResult = await _authRepository.GetCurrentUserIdAsync();
             var userId = userIdResult.IsSuccess ? userIdResult.Data.ToString() : Guid.NewGuid().ToString();
+            
+            // Use StorageConstants for consistent path management (works in unpackaged WinUI 3)
+            var avatarDirectory = StorageConstants.GetUserAvatarDirectory(userId!);
+            StorageConstants.EnsureDirectoryExists(avatarDirectory);
+
+            // Step 2: Generate unique filename
             var extension = Path.GetExtension(file.Name);
             var fileName = $"{userId}_avatar{extension}";
+            var targetPath = Path.Combine(avatarDirectory, fileName);
 
-            // Step 3: Copy file to local storage
-            var savedFile = await file.CopyAsync(avatarsFolder, fileName, NameCollisionOption.ReplaceExisting);
+            // Step 3: Copy file to local storage using standard .NET file I/O
+            using var sourceStream = await file.OpenStreamForReadAsync();
+            using var targetStream = new FileStream(targetPath, FileMode.Create, FileAccess.Write);
+            await sourceStream.CopyToAsync(targetStream);
 
-            // Step 4: Return local path
-            var localPath = savedFile.Path;
-            System.Diagnostics.Debug.WriteLine($"[ProfileFacade] Avatar saved to: {localPath}");
+            System.Diagnostics.Debug.WriteLine($"[ProfileFacade] Avatar saved to: {targetPath}");
 
             await _toastService.ShowSuccess("Avatar updated successfully!");
 
-            return Result<string>.Success(localPath);
+            return Result<string>.Success(targetPath);
         }
         catch (Exception ex)
         {
@@ -246,35 +248,54 @@ public class ProfileFacade : IProfileFacade
     {
         try
         {
-            // Step 1: Create avatars folder in local storage
-            var localFolder = ApplicationData.Current.LocalFolder;
-            var assetsFolder = await localFolder.CreateFolderAsync("Assets", CreationCollisionOption.OpenIfExists);
-            var avatarsFolder = await assetsFolder.CreateFolderAsync("Avatars", CreationCollisionOption.OpenIfExists);
+            // Validate stream
+            if (fileStream == null)
+            {
+                return Result<string>.Failure("File stream is null");
+            }
 
-            // Step 2: Generate unique filename with user ID
+            if (!fileStream.CanRead)
+            {
+                return Result<string>.Failure("File stream is not readable");
+            }
+
+            // Step 1: Get user ID and avatar directory using StorageConstants
             var userIdResult = await _authRepository.GetCurrentUserIdAsync();
             var userId = userIdResult.IsSuccess ? userIdResult.Data.ToString() : Guid.NewGuid().ToString();
+            
+            // Use StorageConstants for consistent path management (works in unpackaged WinUI 3)
+            var avatarDirectory = StorageConstants.GetUserAvatarDirectory(userId!);
+            StorageConstants.EnsureDirectoryExists(avatarDirectory);
+
+            // Step 2: Generate unique filename
             var extension = Path.GetExtension(fileName);
             var uniqueFileName = $"{userId}_avatar{extension}";
+            var targetPath = Path.Combine(avatarDirectory, uniqueFileName);
 
-            // Step 3: Save stream to file
-            var targetFile = await avatarsFolder.CreateFileAsync(uniqueFileName, CreationCollisionOption.ReplaceExisting);
-            using (var targetStream = await targetFile.OpenStreamForWriteAsync())
+            System.Diagnostics.Debug.WriteLine($"[ProfileFacade] Saving avatar to: {targetPath}");
+
+            // Step 3: Reset stream position if seekable
+            if (fileStream.CanSeek)
+            {
+                fileStream.Position = 0;
+            }
+
+            // Step 4: Save stream to file using standard .NET file I/O
+            using (var targetStream = new FileStream(targetPath, FileMode.Create, FileAccess.Write))
             {
                 await fileStream.CopyToAsync(targetStream);
             }
 
-            // Step 4: Return local path
-            var localPath = targetFile.Path;
-            System.Diagnostics.Debug.WriteLine($"[ProfileFacade] Avatar saved from stream to: {localPath}");
+            System.Diagnostics.Debug.WriteLine($"[ProfileFacade] Avatar saved from stream to: {targetPath}");
 
             await _toastService.ShowSuccess("Avatar updated successfully!");
 
-            return Result<string>.Success(localPath);
+            return Result<string>.Success(targetPath);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[ProfileFacade] SaveAvatarLocallyAsync(stream) failed: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[ProfileFacade] Stack trace: {ex.StackTrace}");
             return Result<string>.Failure("Failed to save avatar from stream", ex);
         }
     }

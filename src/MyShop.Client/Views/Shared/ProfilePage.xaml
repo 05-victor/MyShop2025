@@ -70,10 +70,6 @@
     </Page.Resources>
 
     <Grid>
-        <!-- ToggleButton ẩn để điều khiển trạng thái IsEditing và EmailVerified cho mục đích demo -->
-        <!--Nếu sau này không làm gì nữa sẽ xóa-->
-        <ToggleButton x:Name="EditModeToggle" IsChecked="False" Visibility="Collapsed" />
-        <ToggleButton x:Name="EmailVerifiedToggle" IsChecked="False" Visibility="Collapsed" />
 
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="0">
@@ -259,14 +255,12 @@
                              Severity="Warning"
                              BorderBrush="{StaticResource WarningBrush}"
                              Background="{StaticResource WarningBackgroundBrush}"
-                             IsOpen="{Binding IsChecked, ElementName=EmailVerifiedToggle, Converter={StaticResource InverseBoolConverter}}"
+                             IsOpen="{x:Bind ViewModel.IsEmailVerified, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
                              IsClosable="False"
                              Margin="0,0,0,24">
                         <InfoBar.Content>
                             <StackPanel Orientation="Horizontal" Spacing="4">
-                                <HyperlinkButton Content="Resend verification email" />
-                                <TextBlock Text=" or " VerticalAlignment="Center"/>
-                                <HyperlinkButton Content="I've verified (demo)" Click="VerifyEmailButton_Click" />
+                                <HyperlinkButton Content="Resend verification email" Click="ResendVerificationButton_Click" />
                             </StackPanel>
                         </InfoBar.Content>
                     </InfoBar>
@@ -276,7 +270,7 @@
                              Severity="Success"
                              BorderBrush="{StaticResource SuccessBrush}"
                              Background="{StaticResource SuccessBackgroundBrush}"
-                             IsOpen="{Binding IsChecked, ElementName=EmailVerifiedToggle}"
+                             IsOpen="{x:Bind ViewModel.IsEmailVerified, Mode=OneWay}"
                              IsClosable="False"
                              Margin="0,0,0,24"/>
 
@@ -298,9 +292,9 @@
 
                                 <!-- Edit/Save/Cancel Buttons -->
                                 <Button Grid.Column="1" Content="Edit Profile" Click="EditButton_Click"
-                                        Visibility="{Binding IsChecked, ElementName=EditModeToggle, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+                                        Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8"
-                                            Visibility="{Binding IsChecked, ElementName=EditModeToggle, Converter={StaticResource BoolToVisibility}}">
+                                            Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
                                     <Button Content="Cancel" Click="CancelButton_Click" />
                                     <Button Style="{ThemeResource AccentButtonStyle}" Background="{StaticResource AdminBlueBrush}" Click="SaveButton_Click">
                                         <StackPanel Orientation="Horizontal" Spacing="8">
@@ -324,35 +318,35 @@
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
 
-                                <TextBox Grid.Row="0" Grid.Column="0" Header="First Name" Text="{x:Bind ViewModel.FirstName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{Binding IsChecked, ElementName=EditModeToggle}"/>
-                                <TextBox Grid.Row="0" Grid.Column="1" Header="Last Name" Text="{x:Bind ViewModel.LastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{Binding IsChecked, ElementName=EditModeToggle}"/>
-                                <TextBox Grid.Row="1" Grid.Column="0" Header="Username" Text="{x:Bind ViewModel.Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{Binding IsChecked, ElementName=EditModeToggle}"/>
+                                <TextBox Grid.Row="0" Grid.Column="0" Header="First Name" Text="{x:Bind ViewModel.FirstName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
+                                <TextBox Grid.Row="0" Grid.Column="1" Header="Last Name" Text="{x:Bind ViewModel.LastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
+                                <TextBox Grid.Row="1" Grid.Column="0" Header="Username" Text="{x:Bind ViewModel.Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
                                 
                                 <!-- Email with Badge -->
                                 <StackPanel Grid.Row="1" Grid.Column="1">
                                     <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,4">
                                         <TextBlock Text="Email" />
                                         <Border BorderBrush="{StaticResource SuccessBrush}" BorderThickness="1" CornerRadius="12" Padding="8,2"
-                                                Visibility="{Binding IsChecked, ElementName=EmailVerifiedToggle, Converter={StaticResource BoolToVisibility}}">
+                                                Visibility="{x:Bind ViewModel.IsEmailVerified, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
                                             <StackPanel Orientation="Horizontal" Spacing="4">
                                                 <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE930;" FontSize="12" Foreground="{StaticResource SuccessBrush}"/>
                                                 <TextBlock Text="Verified" FontSize="12" Foreground="{StaticResource SuccessBrush}"/>
                                             </StackPanel>
                                         </Border>
                                         <Border BorderBrush="{StaticResource WarningBrush}" BorderThickness="1" CornerRadius="12" Padding="8,2"
-                                                Visibility="{Binding IsChecked, ElementName=EmailVerifiedToggle, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                                Visibility="{x:Bind ViewModel.IsEmailVerified, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                             <StackPanel Orientation="Horizontal" Spacing="4">
                                                 <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE715;" FontSize="12" Foreground="{StaticResource WarningBrush}"/>
                                                 <TextBlock Text="Unverified" FontSize="12" Foreground="{StaticResource WarningBrush}"/>
                                             </StackPanel>
                                         </Border>
                                     </StackPanel>
-                                    <TextBox Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{Binding IsChecked, ElementName=EditModeToggle}"/>
+                                    <TextBox Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
                                 </StackPanel>
                                 
-                                <TextBox Grid.Row="2" Grid.Column="0" Header="Phone Number" Text="{x:Bind ViewModel.PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{Binding IsChecked, ElementName=EditModeToggle}"/>
-                                <TextBox Grid.Row="2" Grid.Column="1" Header="Department" Text="{x:Bind ViewModel.Department, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{Binding IsChecked, ElementName=EditModeToggle}"/>
-                                <TextBox Grid.Row="3" Grid.ColumnSpan="2" Header="Job Title" Text="{x:Bind ViewModel.JobTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{Binding IsChecked, ElementName=EditModeToggle}"/>
+                                <TextBox Grid.Row="2" Grid.Column="0" Header="Phone Number" Text="{x:Bind ViewModel.PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
+                                <TextBox Grid.Row="2" Grid.Column="1" Header="Department" Text="{x:Bind ViewModel.Department, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
+                                <TextBox Grid.Row="3" Grid.ColumnSpan="2" Header="Job Title" Text="{x:Bind ViewModel.JobTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
                             </Grid>
                         </StackPanel>
                     </Border>

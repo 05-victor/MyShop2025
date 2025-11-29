@@ -103,7 +103,7 @@
                                                         FontSize="32"
                                                         FontWeight="Bold"
                                                         Foreground="#F59E0B"
-                                                        Text="15" />
+                                                        Text="{x:Bind ViewModel.TrialDaysRemaining, Mode=OneWay}" />
                                                     <TextBlock
                                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                         Text="days left" />
@@ -117,8 +117,8 @@
                                                 HorizontalAlignment="Stretch"
                                                 Background="#2563EB"
                                                 Foreground="White"
-                                                IsEnabled="False"
-                                                ToolTipService.ToolTip="Coming soon - Subscription management">
+                                                Command="{x:Bind ViewModel.OpenUpgradeProCommand}"
+                                                ToolTipService.ToolTip="Open upgrade page in browser">
                                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                                     <FontIcon FontSize="14" Glyph="&#xE734;" />
                                                     <TextBlock Text="Upgrade to Pro - $49/month" />
@@ -166,10 +166,12 @@
                                                 x:Name="TrialCodeTextBox"
                                                 MaxLength="24"
                                                 PlaceholderText="MYSHOP-15DAY-XXXX-XXXX"
+                                                Text="{x:Bind ViewModel.TrialCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                 Style="{StaticResource BaseInputStyle}" />
 
                                             <Button HorizontalAlignment="Left" Background="{ThemeResource AccentFillColorDefaultBrush}" Foreground="White"
-                                                    IsEnabled="False" ToolTipService.ToolTip="Coming soon - Trial activation">
+                                                    Command="{x:Bind ViewModel.ActivateTrialCodeCommand}"
+                                                    ToolTipService.ToolTip="Enter a valid trial code to extend your trial">
                                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                                     <FontIcon FontSize="14" Glyph="&#xE73E;" />
                                                     <TextBlock Text="Activate Trial Code" />
