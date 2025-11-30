@@ -33,7 +33,27 @@ public static class CartAdapter
     /// </summary>
     public static List<CartItem> ToModelList(CartResponse dto)
     {
-        return dto.Items.Select(ToModel).ToList();
+        var list = dto.Items.Select(ToModel).ToList();
+
+        // Assign UserId and timestamps from CartResponse to each item if available
+        foreach (var item in list)
+        {
+            item.UserId = dto.UserId;
+            // try to preserve AddedAt if provided in DTO item
+            var dtoItem = dto.Items.FirstOrDefault(i => i.Id == item.Id);
+            if (dtoItem != null && dtoItem.AddedAt.HasValue)
+            {
+                item.AddedAt = dtoItem.AddedAt.Value;
+                item.CreatedAt = dtoItem.AddedAt.Value;
+            }
+            else
+            {
+                item.AddedAt = DateTime.UtcNow;
+                item.CreatedAt = DateTime.UtcNow;
+            }
+        }
+
+        return list;
     }
 
     /// <summary>

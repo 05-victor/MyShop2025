@@ -169,15 +169,26 @@ namespace MyShop.Client.ViewModels.Base
         protected void UpdatePagingInfo(int totalItems)
         {
             TotalItems = totalItems;
-            TotalPages = (int)Math.Ceiling((double)totalItems / PageSize);
+            TotalPages = PageSize > 0 ? Math.Max(1, (int)Math.Ceiling((double)totalItems / PageSize)) : 1;
+            
+            // Ensure CurrentPage is valid
+            if (CurrentPage > TotalPages && TotalPages > 0)
+            {
+                CurrentPage = TotalPages;
+            }
+            
             OnPropertyChanged(nameof(PageInfoText));
             OnPropertyChanged(nameof(ItemsInfoText));
             OnPropertyChanged(nameof(HasPreviousPage));
             OnPropertyChanged(nameof(HasNextPage));
+            
+            // Notify commands that their CanExecute state may have changed
+            NextPageCommand.NotifyCanExecuteChanged();
+            PreviousPageCommand.NotifyCanExecuteChanged();
         }
 
-        private bool CanGoToNextPage() => HasNextPage && !IsLoading;
-        private bool CanGoToPreviousPage() => HasPreviousPage && !IsLoading;
+        private bool CanGoToNextPage() => CurrentPage < TotalPages && !IsLoading;
+        private bool CanGoToPreviousPage() => CurrentPage > 1 && !IsLoading;
 
         /// <summary>
         /// Override SetLoadingState to also update command states

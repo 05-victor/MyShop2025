@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 using System;
 using System.Threading.Tasks;
@@ -10,9 +11,11 @@ namespace MyShop.Client.Views.Dialogs
     public sealed partial class EmailVerificationDialog : ContentDialog
     {
         private readonly IToastService _toastHelper;
+        private readonly IAuthRepository _authRepository;
         private DispatcherTimer? _countdownTimer;
         private int _countdownSeconds = 60;
         private bool _isResending = false;
+        private string _userId = string.Empty;
 
         public string UserEmail { get; set; } = string.Empty;
         public event EventHandler<bool>? VerificationChecked;
@@ -21,8 +24,9 @@ namespace MyShop.Client.Views.Dialogs
         {
             this.InitializeComponent();
             
-            // Get ToastHelper from DI
+            // Get services from DI
             _toastHelper = App.Current.Services.GetRequiredService<IToastService>();
+            _authRepository = App.Current.Services.GetRequiredService<IAuthRepository>();
         }
 
         public EmailVerificationDialog(string email, IToastService toastHelper) : this()
@@ -30,6 +34,33 @@ namespace MyShop.Client.Views.Dialogs
             UserEmail = email;
             _toastHelper = toastHelper;
             EmailText.Text = email;
+            
+            // Send initial verification email
+            _ = SendVerificationEmailAsync();
+        }
+
+        private async Task SendVerificationEmailAsync()
+        {
+            try
+            {
+                // Get current user ID
+                var userIdResult = await _authRepository.GetCurrentUserIdAsync();
+                if (userIdResult.IsSuccess)
+                {
+                    _userId = userIdResult.Data.ToString();
+                    
+                    // Send verification email
+                    var result = await _authRepository.SendVerificationEmailAsync(_userId);
+                    if (result.IsSuccess)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[EmailVerificationDialog] Verification code sent to {UserEmail}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[EmailVerificationDialog] Error sending verification: {ex.Message}");
+            }
         }
 
         private async void ResendButton_Click(object sender, RoutedEventArgs e)
@@ -40,38 +71,46 @@ namespace MyShop.Client.Views.Dialogs
             {
                 _isResending = true;
                 ResendButton.IsEnabled = false;
+                ErrorMessage.Visibility = Visibility.Collapsed;
                 
                 // Show loading state
                 ResendIcon.Glyph = "\uE895"; // Loading icon
                 ResendText.Text = "Sending...";
 
-                // Simulate API call (replace with actual repository call)
-                await Task.Delay(1500);
+                // Call repository to resend verification email
+                var result = await _authRepository.SendVerificationEmailAsync(_userId);
 
-                // Show success message
-                SuccessMessage.Visibility = Visibility.Visible;
-                _toastHelper.ShowSuccess($"✅ Email sent! Check your inbox - Verification email sent to {UserEmail}");
+                if (result.IsSuccess)
+                {
+                    // Show success message
+                    SuccessMessage.Visibility = Visibility.Visible;
+                    _ = _toastHelper.ShowSuccess($"Verification code sent to {UserEmail}");
 
-                // Hide success message after 3 seconds
-                await Task.Delay(3000);
-                SuccessMessage.Visibility = Visibility.Collapsed;
+                    // Hide success message after 3 seconds
+                    // await Task.Delay(3000);
+                    SuccessMessage.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    _ = _toastHelper.ShowError(result.ErrorMessage ?? "Failed to send verification code");
+                }
 
                 // Reset button state
                 ResendIcon.Glyph = "\uE72C"; // Refresh icon
-                ResendText.Text = "Resend Email";
+                ResendText.Text = "Resend Code";
 
                 // Start countdown
                 StartCountdown();
             }
             catch (Exception ex)
             {
-                _toastHelper.ShowError("Failed to send email. Please try again.");
+                _ = _toastHelper.ShowError("Failed to send code. Please try again.");
                 System.Diagnostics.Debug.WriteLine($"Error resending email: {ex.Message}");
                 
                 // Reset button
                 ResendButton.IsEnabled = true;
                 ResendIcon.Glyph = "\uE72C";
-                ResendText.Text = "Resend Email";
+                ResendText.Text = "Resend Code";
             }
             finally
             {
@@ -112,25 +151,50 @@ namespace MyShop.Client.Views.Dialogs
 
             try
             {
-                // Check verification status from backend
-                var isVerified = await CheckVerificationStatusAsync();
-
-                if (isVerified)
+                var otpCode = OtpInput.Text?.Trim() ?? string.Empty;
+                
+                if (string.IsNullOrWhiteSpace(otpCode))
                 {
-                    _toastHelper.ShowSuccess("✅ Email verified successfully!");
+                    args.Cancel = true;
+                    ErrorText.Text = "Please enter the verification code.";
+                    ErrorMessage.Visibility = Visibility.Visible;
+                    deferral.Complete();
+                    return;
+                }
+
+                if (otpCode.Length != 6 || !System.Text.RegularExpressions.Regex.IsMatch(otpCode, @"^\d{6}$"))
+                {
+                    args.Cancel = true;
+                    ErrorText.Text = "Please enter a valid 6-digit code.";
+                    ErrorMessage.Visibility = Visibility.Visible;
+                    deferral.Complete();
+                    return;
+                }
+
+                // Call repository to verify OTP
+                var result = await _authRepository.VerifyEmailAsync(_userId, otpCode);
+
+                if (result.IsSuccess)
+                {
+                    _ = _toastHelper.ShowSuccess("Email verified successfully!");
                     VerificationChecked?.Invoke(this, true);
+                    // Dialog will close
                 }
                 else
                 {
                     args.Cancel = true; // Prevent dialog close
-                    _toastHelper.ShowInfo("Please click the link in your email first - Verification may take a few moments to process");
+                    ErrorText.Text = result.ErrorMessage ?? "Invalid verification code. Please try again.";
+                    ErrorMessage.Visibility = Visibility.Visible;
+                    OtpInput.Text = string.Empty; // Clear invalid code
+                    OtpInput.Focus(FocusState.Programmatic);
                 }
             }
             catch (Exception ex)
             {
                 args.Cancel = true;
-                _toastHelper.ShowError("Failed to check verification status");
-                System.Diagnostics.Debug.WriteLine($"Error checking verification: {ex.Message}");
+                ErrorText.Text = "Failed to verify code. Please try again.";
+                ErrorMessage.Visibility = Visibility.Visible;
+                System.Diagnostics.Debug.WriteLine($"Error verifying code: {ex.Message}");
             }
             finally
             {
@@ -142,15 +206,6 @@ namespace MyShop.Client.Views.Dialogs
         {
             // Just close dialog
             _countdownTimer?.Stop();
-        }
-
-        private async Task<bool> CheckVerificationStatusAsync()
-        {
-            // Call profile repository to check email verification status
-            // This assumes IProfileRepository has a method to get current user profile
-            // For now, return false until backend implements verification check endpoint
-            await Task.CompletedTask;
-            return false;
         }
 
         protected override void OnApplyTemplate()

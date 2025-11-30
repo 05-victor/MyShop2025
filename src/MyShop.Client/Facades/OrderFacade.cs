@@ -44,83 +44,77 @@ public class OrderFacade : IOrderFacade
         DateTime? startDate = null,
         DateTime? endDate = null,
         int page = 1,
-        int pageSize = 20)
+        int pageSize = 20,
+        Guid? customerId = null,
+        Guid? salesAgentId = null)
     {
         try
         {
             // Validate paging parameters
             if (page < 1)
             {
-                _toastService.ShowError("Page number must be at least 1");
+                _ = _toastService.ShowError("Page number must be at least 1");
                 return Result<PagedList<Order>>.Failure("Invalid page number");
             }
 
             if (pageSize < 1 || pageSize > 100)
             {
-                _toastService.ShowError("Page size must be between 1 and 100");
+                _ = _toastService.ShowError("Page size must be between 1 and 100");
                 return Result<PagedList<Order>>.Failure("Invalid page size");
             }
 
             // Validate date range
             if (startDate.HasValue && endDate.HasValue && startDate.Value > endDate.Value)
             {
-                _toastService.ShowError("Start date cannot be after end date");
+                _ = _toastService.ShowError("Start date cannot be after end date");
                 return Result<PagedList<Order>>.Failure("Invalid date range");
             }
 
-            // Get all orders from repository
-            var result = await _orderRepository.GetAllAsync();
+            // Use Repository's GetPagedAsync - filter by customerId or salesAgentId
+            var result = await _orderRepository.GetPagedAsync(
+                page: page,
+                pageSize: pageSize,
+                status: status,
+                customerId: customerId,
+                salesAgentId: salesAgentId,
+                startDate: startDate,
+                endDate: endDate,
+                sortDescending: true);
+
             if (!result.IsSuccess || result.Data == null)
             {
-                _toastService.ShowError("Failed to load orders");
+                _ = _toastService.ShowError("Failed to load orders");
                 return Result<PagedList<Order>>.Failure(result.ErrorMessage ?? "Failed to load orders");
             }
 
-            var orders = result.Data;
+            var pagedResult = result.Data;
 
-            // Apply filters
+            // Apply search query filter (client-side for text search)
             if (!string.IsNullOrWhiteSpace(searchQuery))
             {
                 var query = searchQuery.ToLower();
-                orders = orders.Where(o =>
+                var filteredItems = pagedResult.Items.Where(o =>
                     o.Id.ToString().Contains(query) ||
+                    (o.OrderCode?.ToLower().Contains(query) ?? false) ||
                     (o.CustomerName?.ToLower().Contains(query) ?? false) ||
                     (o.CustomerPhone?.ToLower().Contains(query) ?? false) ||
-                    (o.CustomerAddress?.ToLower().Contains(query) ?? false)
+                    (o.CustomerAddress?.ToLower().Contains(query) ?? false) ||
+                    // Search in product names within order items
+                    (o.OrderItems?.Any(item => item.ProductName?.ToLower().Contains(query) ?? false) ?? false) ||
+                    (o.Items?.Any(item => item.ProductName?.ToLower().Contains(query) ?? false) ?? false)
                 ).ToList();
+                
+                // Update count to match filtered items for current page view
+                pagedResult = new PagedList<Order>(filteredItems, filteredItems.Count, page, pageSize);
             }
 
-            if (!string.IsNullOrWhiteSpace(status))
-            {
-                orders = orders.Where(o => o.Status?.Equals(status, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
-            }
-
-            if (startDate.HasValue)
-            {
-                orders = orders.Where(o => o.OrderDate >= startDate.Value).ToList();
-            }
-
-            if (endDate.HasValue)
-            {
-                orders = orders.Where(o => o.OrderDate <= endDate.Value).ToList();
-            }
-
-            // Order by date descending
-            orders = orders.OrderByDescending(o => o.OrderDate).ToList();
-
-            // Calculate paging
-            var totalItems = orders.Count();
-            var pagedOrders = orders.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-            var pagedResult = new PagedList<Order>(pagedOrders, totalItems, page, pageSize);
-
-            System.Diagnostics.Debug.WriteLine($"[OrderFacade] Loaded {pagedOrders.Count} orders (page {page}/{pagedResult.TotalPages})");
+            System.Diagnostics.Debug.WriteLine($"[OrderFacade] Loaded {pagedResult.Items.Count} orders (page {page}/{pagedResult.TotalPages}, total: {pagedResult.TotalCount})");
             return Result<PagedList<Order>>.Success(pagedResult);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[OrderFacade] Error loading orders: {ex.Message}");
-            await _toastService.ShowError($"Error loading orders: {ex.Message}");
+            _ = _toastService.ShowError($"Error loading orders: {ex.Message}");
             return Result<PagedList<Order>>.Failure($"Error: {ex.Message}");
         }
     }
@@ -131,9 +125,59 @@ public class OrderFacade : IOrderFacade
         string? status = null,
         string? searchQuery = null,
         string sortBy = "orderDate",
-        bool sortDescending = true)
+        bool sortDescending = true,
+        Guid? customerId = null,
+        Guid? salesAgentId = null)
     {
-        return await LoadOrdersAsync(searchQuery, status, null, null, page, pageSize);
+        try
+        {
+            // Call repository with explicit sort parameters so sorting works
+            var result = await _orderRepository.GetPagedAsync(
+                page: page,
+                pageSize: pageSize,
+                status: status,
+                customerId: customerId,
+                salesAgentId: salesAgentId,
+                startDate: null,
+                endDate: null,
+                sortBy: sortBy,
+                sortDescending: sortDescending);
+
+            if (!result.IsSuccess || result.Data == null)
+            {
+                _ = _toastService.ShowError("Failed to load orders");
+                return Result<PagedList<Order>>.Failure(result.ErrorMessage ?? "Failed to load orders");
+            }
+
+            var pagedResult = result.Data;
+
+            // Apply search query filter (client-side for text search)
+            if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                var query = searchQuery.ToLower();
+                var filteredItems = pagedResult.Items.Where(o =>
+                    (o.OrderCode?.ToLower().Contains(query) ?? false) ||
+                    (o.CustomerName?.ToLower().Contains(query) ?? false) ||
+                    (o.CustomerPhone?.ToLower().Contains(query) ?? false) ||
+                    (o.CustomerAddress?.ToLower().Contains(query) ?? false) ||
+                    // Search in product names within order items
+                    (o.OrderItems?.Any(item => item.ProductName?.ToLower().Contains(query) ?? false) ?? false) ||
+                    (o.Items?.Any(item => item.ProductName?.ToLower().Contains(query) ?? false) ?? false)
+                ).ToList();
+
+                // Update count to match filtered items for current page view
+                pagedResult = new PagedList<Order>(filteredItems, filteredItems.Count, page, pageSize);
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[OrderFacade] Loaded {pagedResult.Items.Count} orders (page {page}/{pagedResult.TotalPages}, total: {pagedResult.TotalCount})");
+            return Result<PagedList<Order>>.Success(pagedResult);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[OrderFacade] Error loading paged orders: {ex.Message}");
+            _ = _toastService.ShowError($"Error loading orders: {ex.Message}");
+            return Result<PagedList<Order>>.Failure($"Error: {ex.Message}");
+        }
     }
 
     public Task<Result<Order>> GetOrderByIdAsync(Guid orderId)
@@ -171,7 +215,7 @@ public class OrderFacade : IOrderFacade
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[OrderFacade] Error creating order: {ex.Message}");
-            _toastService.ShowError($"Error creating order: {ex.Message}");
+            _ = _toastService.ShowError($"Error creating order: {ex.Message}");
             return Result<Order>.Failure($"Error: {ex.Message}");
         }
     }
@@ -184,7 +228,7 @@ public class OrderFacade : IOrderFacade
             var validStatuses = new[] { "Pending", "Processing", "Shipping", "Completed", "Cancelled" };
             if (!validStatuses.Contains(newStatus, StringComparer.OrdinalIgnoreCase))
             {
-                _toastService.ShowError($"Invalid status. Valid values: {string.Join(", ", validStatuses)}");
+                _ = _toastService.ShowError($"Invalid status. Valid values: {string.Join(", ", validStatuses)}");
                 return Result<Order>.Failure("Invalid order status");
             }
 
@@ -192,7 +236,7 @@ public class OrderFacade : IOrderFacade
             var orderResult = await _orderRepository.GetByIdAsync(orderId);
             if (!orderResult.IsSuccess || orderResult.Data == null)
             {
-                _toastService.ShowError("Order not found");
+                _ = _toastService.ShowError("Order not found");
                 return Result<Order>.Failure("Order not found");
             }
 
@@ -201,13 +245,13 @@ public class OrderFacade : IOrderFacade
             // Validate status transition
             if (order.Status == "Completed" && newStatus != "Completed")
             {
-                _toastService.ShowError("Cannot change status of completed order");
+                _ = _toastService.ShowError("Cannot change status of completed order");
                 return Result<Order>.Failure("Order already completed");
             }
 
             if (order.Status == "Cancelled")
             {
-                _toastService.ShowError("Cannot change status of cancelled order");
+                _ = _toastService.ShowError("Cannot change status of cancelled order");
                 return Result<Order>.Failure("Order already cancelled");
             }
 
@@ -218,18 +262,18 @@ public class OrderFacade : IOrderFacade
             var updateResult = await _orderRepository.UpdateAsync(order);
             if (!updateResult.IsSuccess)
             {
-                _toastService.ShowError("Failed to update order status");
+                _ = _toastService.ShowError("Failed to update order status");
                 return Result<Order>.Failure("Failed to update status");
             }
 
-            _toastService.ShowSuccess($"Order status updated to {newStatus}");
+            _ = _toastService.ShowSuccess($"Order status updated to {newStatus}");
             System.Diagnostics.Debug.WriteLine($"[OrderFacade] Order {orderId} status updated to {newStatus}");
             return Result<Order>.Success(order);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[OrderFacade] Error updating status: {ex.Message}");
-            _toastService.ShowError($"Error updating status: {ex.Message}");
+            _ = _toastService.ShowError($"Error updating status: {ex.Message}");
             return Result<Order>.Failure($"Error: {ex.Message}");
         }
     }
@@ -241,7 +285,7 @@ public class OrderFacade : IOrderFacade
             // Validate reason
             if (string.IsNullOrWhiteSpace(reason))
             {
-                _toastService.ShowError("Please provide a reason for cancellation");
+                _ = _toastService.ShowError("Please provide a reason for cancellation");
                 return Result<Unit>.Failure("Cancellation reason is required");
             }
 
@@ -249,7 +293,7 @@ public class OrderFacade : IOrderFacade
             var orderResult = await _orderRepository.GetByIdAsync(orderId);
             if (!orderResult.IsSuccess || orderResult.Data == null)
             {
-                _toastService.ShowError("Order not found");
+                _ = _toastService.ShowError("Order not found");
                 return Result<Unit>.Failure("Order not found");
             }
 
@@ -258,13 +302,13 @@ public class OrderFacade : IOrderFacade
             // Validate can cancel
             if (order.Status == "Cancelled")
             {
-                _toastService.ShowError("Order is already cancelled");
+                _ = _toastService.ShowError("Order is already cancelled");
                 return Result<Unit>.Failure("Order already cancelled");
             }
 
             if (order.Status == "Completed")
             {
-                _toastService.ShowError("Cannot cancel completed order");
+                _ = _toastService.ShowError("Cannot cancel completed order");
                 return Result<Unit>.Failure("Cannot cancel completed order");
             }
 
@@ -275,18 +319,18 @@ public class OrderFacade : IOrderFacade
             var updateResult = await _orderRepository.UpdateAsync(order);
             if (!updateResult.IsSuccess)
             {
-                _toastService.ShowError("Failed to cancel order");
+                _ = _toastService.ShowError("Failed to cancel order");
                 return Result<Unit>.Failure("Failed to cancel order");
             }
 
-            _toastService.ShowSuccess($"Order cancelled: {reason}");
+            _ = _toastService.ShowSuccess($"Order cancelled: {reason}");
             System.Diagnostics.Debug.WriteLine($"[OrderFacade] Order {orderId} cancelled. Reason: {reason}");
             return Result<Unit>.Success(Unit.Value);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[OrderFacade] Error cancelling order: {ex.Message}");
-            _toastService.ShowError($"Error cancelling order: {ex.Message}");
+            _ = _toastService.ShowError($"Error cancelling order: {ex.Message}");
             return Result<Unit>.Failure($"Error: {ex.Message}");
         }
     }
@@ -298,7 +342,7 @@ public class OrderFacade : IOrderFacade
             var result = await _orderRepository.GetAllAsync();
             if (!result.IsSuccess || result.Data == null)
             {
-                _toastService.ShowError("Failed to load customer orders");
+                _ = _toastService.ShowError("Failed to load customer orders");
                 return Result<List<Order>>.Failure("Failed to load orders");
             }
 
@@ -313,7 +357,7 @@ public class OrderFacade : IOrderFacade
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[OrderFacade] Error loading customer orders: {ex.Message}");
-            _toastService.ShowError($"Error loading orders: {ex.Message}");
+            _ = _toastService.ShowError($"Error loading orders: {ex.Message}");
             return Result<List<Order>>.Failure($"Error: {ex.Message}");
         }
     }
@@ -325,7 +369,7 @@ public class OrderFacade : IOrderFacade
             var result = await _orderRepository.GetAllAsync();
             if (!result.IsSuccess || result.Data == null)
             {
-                _toastService.ShowError("Failed to load agent orders");
+                _ = _toastService.ShowError("Failed to load agent orders");
                 return Result<List<Order>>.Failure("Failed to load orders");
             }
 
@@ -340,7 +384,7 @@ public class OrderFacade : IOrderFacade
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[OrderFacade] Error loading agent orders: {ex.Message}");
-            _toastService.ShowError($"Error loading orders: {ex.Message}");
+            _ = _toastService.ShowError($"Error loading orders: {ex.Message}");
             return Result<List<Order>>.Failure($"Error: {ex.Message}");
         }
     }
@@ -348,53 +392,127 @@ public class OrderFacade : IOrderFacade
     public async Task<Result<string>> ExportOrdersToCsvAsync(
         string? status = null,
         DateTime? startDate = null,
-        DateTime? endDate = null)
+        DateTime? endDate = null,
+        Guid? customerId = null,
+        Guid? salesAgentId = null)
     {
         try
         {
-            // Load orders with filters
-            var result = await LoadOrdersAsync(null, status, startDate, endDate, 1, int.MaxValue);
-            if (!result.IsSuccess || result.Data?.Items == null)
+            System.Diagnostics.Debug.WriteLine($"[OrderFacade.Export] Starting export with customerId: {customerId}, salesAgentId: {salesAgentId}");
+            
+            // Load orders efficiently - filter at repository level
+            IEnumerable<Order> orders;
+            
+            if (salesAgentId.HasValue)
             {
-                _toastService.ShowError("Failed to load orders for export");
-                return Result<string>.Failure("Failed to load orders");
+                // Sales Agent view - load orders for this agent
+                var agentResult = await _orderRepository.GetBySalesAgentIdAsync(salesAgentId.Value);
+                if (!agentResult.IsSuccess || agentResult.Data == null)
+                {
+                    _ = _toastService.ShowError("Failed to load orders for export");
+                    return Result<string>.Failure("Failed to load orders");
+                }
+                orders = agentResult.Data;
+                System.Diagnostics.Debug.WriteLine($"[OrderFacade.Export] Loaded {orders.Count()} orders for SalesAgentId: {salesAgentId.Value}");
+            }
+            else if (customerId.HasValue)
+            {
+                // Customer view - load orders for this customer
+                var userResult = await _orderRepository.GetByCustomerIdAsync(customerId.Value);
+                if (!userResult.IsSuccess || userResult.Data == null)
+                {
+                    _ = _toastService.ShowError("Failed to load orders for export");
+                    return Result<string>.Failure("Failed to load orders");
+                }
+                orders = userResult.Data;
+                System.Diagnostics.Debug.WriteLine($"[OrderFacade.Export] Loaded {orders.Count()} orders for CustomerId: {customerId.Value}");
+            }
+            else
+            {
+                // Admin view - load all orders
+                var allResult = await _orderRepository.GetAllAsync();
+                if (!allResult.IsSuccess || allResult.Data == null)
+                {
+                    _ = _toastService.ShowError("Failed to load orders for export");
+                    return Result<string>.Failure("Failed to load orders");
+                }
+                orders = allResult.Data;
+                System.Diagnostics.Debug.WriteLine($"[OrderFacade.Export] Loaded {orders.Count()} total orders");
             }
 
-            var orders = result.Data.Items;
+            // Apply status filter (client-side)
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                orders = orders.Where(o => o.Status?.Equals(status, StringComparison.OrdinalIgnoreCase) ?? false);
+            }
 
-            // Use ExportService to generate CSV
-            var exportResult = await _exportService.ExportToCsvAsync(
-                orders,
-                "Orders",
-                order => new Dictionary<string, string>
-                {
-                    ["Order ID"] = order.Id.ToString(),
-                    ["Order Code"] = order.OrderCode ?? string.Empty,
-                    ["Order Date"] = order.OrderDate.ToString("yyyy-MM-dd HH:mm"),
-                    ["Customer Name"] = order.CustomerName ?? string.Empty,
-                    ["Customer Phone"] = order.CustomerPhone ?? string.Empty,
-                    ["Customer Address"] = order.CustomerAddress ?? string.Empty,
-                    ["Status"] = order.Status ?? string.Empty,
-                    ["Subtotal"] = order.Subtotal.ToString("F2"),
-                    ["Final Price"] = order.FinalPrice.ToString("F2"),
-                    ["Sales Agent"] = order.SalesAgentName ?? string.Empty,
-                    ["Items Count"] = (order.Items?.Count ?? 0).ToString()
-                });
+            // Apply date filters (client-side)
+            if (startDate.HasValue)
+            {
+                orders = orders.Where(o => o.OrderDate >= startDate.Value);
+            }
+            if (endDate.HasValue)
+            {
+                orders = orders.Where(o => o.OrderDate <= endDate.Value);
+            }
+
+            var ordersList = orders.OrderByDescending(o => o.OrderDate).ToList();
+            System.Diagnostics.Debug.WriteLine($"[OrderFacade.Export] After filtering: {ordersList.Count} orders to export");
+
+            if (ordersList.Count == 0)
+            {
+                _ = _toastService.ShowWarning("No orders to export");
+                return Result<string>.Success(string.Empty);
+            }
+
+            // Build CSV content
+            var csv = new System.Text.StringBuilder();
+            csv.AppendLine("Order Code,Order Date,Customer Name,Customer Phone,Status,Total Amount,Products,Items Count");
+            
+            foreach (var order in ordersList)
+            {
+                // Use OrderItems (from JSON) or Items as fallback
+                var orderItems = order.OrderItems?.Count > 0 ? order.OrderItems : order.Items;
+                var itemsCount = orderItems?.Count ?? 0;
+                var productNames = itemsCount > 0 
+                    ? string.Join("; ", orderItems!.Select(i => $"{i.ProductName} x{i.Quantity}"))
+                    : "No products";
+                
+                csv.AppendLine($"\"{order.OrderCode ?? string.Empty}\"," +
+                    $"\"{order.OrderDate:yyyy-MM-dd HH:mm}\"," +
+                    $"\"{order.CustomerName ?? string.Empty}\"," +
+                    $"\"{order.CustomerPhone ?? string.Empty}\"," +
+                    $"\"{order.Status ?? string.Empty}\"," +
+                    $"\"{order.FinalPrice:N0}\"," +
+                    $"\"{productNames.Replace("\"", "\"\"")}\"," +
+                    $"\"{itemsCount}\"");
+            }
+
+            // Use ExportService with FileSavePicker
+            var suggestedFileName = $"Orders_{DateTime.Now:yyyyMMdd_HHmmss}";
+            var exportResult = await _exportService.ExportWithPickerAsync(suggestedFileName, csv.ToString());
 
             if (!exportResult.IsSuccess)
             {
-                _toastService.ShowError("Failed to export orders");
+                _ = _toastService.ShowError("Failed to export orders");
                 return exportResult;
             }
 
-            _toastService.ShowSuccess($"Exported {orders.Count} orders");
-            System.Diagnostics.Debug.WriteLine($"[OrderFacade] Exported {orders.Count} orders to {exportResult.Data}");
+            // Empty path means user cancelled
+            if (string.IsNullOrEmpty(exportResult.Data))
+            {
+                return Result<string>.Success(string.Empty);
+            }
+
+            _ = _toastService.ShowSuccess($"Exported {ordersList.Count} orders successfully!");
+            System.Diagnostics.Debug.WriteLine($"[OrderFacade] Exported {ordersList.Count} orders to {exportResult.Data}");
+
             return exportResult;
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[OrderFacade] Error exporting orders: {ex.Message}");
-            _toastService.ShowError($"Error exporting orders: {ex.Message}");
+            _ = _toastService.ShowError($"Error exporting orders: {ex.Message}");
             return Result<string>.Failure($"Error: {ex.Message}");
         }
     }

@@ -6,15 +6,17 @@ namespace MyShop.Shared.DTOs.Responses;
 public class OrderResponse
 {
     public Guid Id { get; set; }
-    public DateTime OrderDate { get; set; }
-    public string? Status { get; set; }
-    public string? PaymentStatus { get; set; }
-    public int TotalAmount { get; set; }
-    public int DiscountAmount { get; set; }
-    public int ShippingFee { get; set; }
-    public int TaxAmount { get; set; }
-    public int GrandTotal { get; set; }
-    public string? Note { get; set; }
+    public string OrderNumber { get; set; } = string.Empty;
+    public Guid CustomerId { get; set; }
+    public string CustomerName { get; set; } = string.Empty;
+    public string CustomerEmail { get; set; } = string.Empty;
+    public Guid? SalesAgentId { get; set; }
+    public string? SalesAgentName { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public decimal TotalAmount { get; set; }
+    public ShippingAddressResponse? ShippingAddress { get; set; }
+    public string PaymentMethod { get; set; } = string.Empty;
+    public string? Notes { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
@@ -31,6 +33,20 @@ public class OrderResponse
 
     // Order items
     public List<OrderItemResponse>? OrderItems { get; set; }
+}
+
+public class ShippingAddressResponse
+{
+    public string? Street { get; set; }
+    public string? District { get; set; }
+    public string? City { get; set; }
+    public string? PostalCode { get; set; }
+}
+
+public class TrackingResponse
+{
+    public string? Carrier { get; set; }
+    public string? TrackingNumber { get; set; }
 }
 
 /// <summary>

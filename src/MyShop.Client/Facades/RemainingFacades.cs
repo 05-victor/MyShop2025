@@ -460,7 +460,7 @@ public class UserFacade : IUserFacade
             }
 
             var fileName = $"Users_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-            var filePath = Path.Combine(Path.GetTempPath(), fileName);
+            var filePath = StorageConstants.GetExportFilePath(fileName);
             await File.WriteAllTextAsync(filePath, csv.ToString());
 
             await _toastService.ShowSuccess($"Exported {users.Count} users to {fileName}");
@@ -581,9 +581,9 @@ public class CommissionFacade : ICommissionFacade
                     $"\"{commission.CreatedDate:yyyy-MM-dd HH:mm}\",\"{commission.PaidDate?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"}\"");
             }
 
-            // Save to temp file
+            // Save to user exports directory
             var fileName = $"Commissions_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-            var filePath = Path.Combine(Path.GetTempPath(), fileName);
+            var filePath = StorageConstants.GetExportFilePath(fileName);
             await File.WriteAllTextAsync(filePath, csv.ToString());
 
             await _toastService.ShowSuccess($"Exported {commissions.Count} commissions to {fileName}");
@@ -785,7 +785,7 @@ public class ReportFacade : IReportFacade
 
             // Save file
             var fileName = $"SalesReport_{period}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-            var filePath = Path.Combine(Path.GetTempPath(), fileName);
+            var filePath = StorageConstants.GetExportFilePath(fileName);
             await File.WriteAllTextAsync(filePath, csv.ToString());
 
             await _toastService.ShowSuccess($"Sales report exported to {fileName}");
@@ -831,7 +831,7 @@ public class ReportFacade : IReportFacade
 
             // Save file
             var fileName = $"ProductPerformance_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-            var filePath = Path.Combine(Path.GetTempPath(), fileName);
+            var filePath = StorageConstants.GetExportFilePath(fileName);
             await File.WriteAllTextAsync(filePath, csv.ToString());
 
             await _toastService.ShowSuccess($"Product performance exported to {fileName}");

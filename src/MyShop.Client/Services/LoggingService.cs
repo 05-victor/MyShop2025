@@ -1,3 +1,4 @@
+using MyShop.Core.Common;
 using Serilog;
 using Serilog.Events;
 using System;
@@ -16,6 +17,12 @@ namespace MyShop.Client.Services;
 /// - Debug output for development
 /// - Structured logging with properties
 /// - Automatic cleanup of old logs (30 days retention)
+/// 
+/// Log Location:
+/// - Development (StoreLogsInProject=true): MyShop.Client/Logs/
+/// - Production (StoreLogsInProject=false): AppData/Local/MyShop2025/logs/
+/// 
+/// Toggle in ApiConfig.json: "StoreLogsInProject": true/false
 /// </summary>
 public sealed class LoggingService : IDisposable
 {
@@ -42,26 +49,87 @@ public sealed class LoggingService : IDisposable
 
     private LoggingService()
     {
-        // Determine log directory (project Logs folder)
-        var assemblyLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
-        var binFolder = Path.GetDirectoryName(assemblyLocation);
-        var projectRoot = Directory.GetParent(binFolder!)?.Parent?.Parent?.Parent?.FullName;
-
-        if (projectRoot != null)
-        {
-            _logDirectory = Path.Combine(projectRoot, "Logs");
-        }
-        else
-        {
-            // Fallback to AppData
-            _logDirectory = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "MyShop2025",
-                "Logs"
-            );
-        }
-
+        // Determine log directory based on configuration
+        _logDirectory = DetermineLogDirectory();
         Directory.CreateDirectory(_logDirectory);
+    }
+
+    /// <summary>
+    /// Determine the log directory based on settings
+    /// 
+    /// Priority:
+    /// 1. If StoreLogsInProject=true AND we can find project root → Project/Logs
+    /// 2. Otherwise → AppData/Local/MyShop2025/logs
+    /// </summary>
+    private string DetermineLogDirectory()
+    {
+        // Check if we should store logs in project (development mode)
+        var storeInProject = Config.AppConfig.Instance.StoreLogsInProject;
+        
+        if (storeInProject)
+        {
+            // Try to find project root from assembly location
+            var projectLogDir = TryGetProjectLogDirectory();
+            
+            if (!string.IsNullOrEmpty(projectLogDir))
+            {
+                // Update StorageConstants with the project log directory
+                StorageConstants.LogSettings.ProjectLogDirectory = projectLogDir;
+                StorageConstants.LogSettings.StoreInProjectDirectory = true;
+                
+                System.Diagnostics.Debug.WriteLine($"[LoggingService] Using PROJECT log directory: {projectLogDir}");
+                return projectLogDir;
+            }
+            
+            System.Diagnostics.Debug.WriteLine("[LoggingService] Could not determine project root, falling back to AppData");
+        }
+
+        // Use AppData location (production mode or fallback)
+        StorageConstants.LogSettings.StoreInProjectDirectory = false;
+        StorageConstants.EnsureDirectoryExists(StorageConstants.LogsDirectory);
+        
+        System.Diagnostics.Debug.WriteLine($"[LoggingService] Using APPDATA log directory: {StorageConstants.LogsDirectory}");
+        return StorageConstants.LogsDirectory;
+    }
+
+    /// <summary>
+    /// Try to find the project's Logs directory
+    /// Returns null if project root cannot be determined
+    /// </summary>
+    private string? TryGetProjectLogDirectory()
+    {
+        try
+        {
+            var assemblyLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            
+            // Handle single-file publish (Location is empty)
+            if (string.IsNullOrEmpty(assemblyLocation))
+            {
+                assemblyLocation = AppContext.BaseDirectory;
+            }
+
+            var binFolder = Path.GetDirectoryName(assemblyLocation);
+            
+            // Navigate up from bin/x64/Debug/net10.0-windows... to project root
+            // Structure: Project/bin/x64/Debug/net10.0-windows/...
+            var current = binFolder;
+            
+            for (int i = 0; i < 6 && current != null; i++)
+            {
+                var potentialProjectFile = Path.Combine(current, "MyShop.Client.csproj");
+                if (File.Exists(potentialProjectFile))
+                {
+                    return Path.Combine(current, "Logs");
+                }
+                current = Directory.GetParent(current)?.FullName;
+            }
+
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     /// <summary>

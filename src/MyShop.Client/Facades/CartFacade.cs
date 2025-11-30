@@ -354,7 +354,6 @@ public class CartFacade : ICartFacade
             // Clear cart after successful order
             await _cartRepository.ClearCartAsync(userIdResult.Data);
 
-            await _toastService.ShowSuccess($"Order created successfully! Order #{orderResult.Data.OrderCode}");
             return Result<Order>.Success(orderResult.Data);
         }
         catch (Exception ex)

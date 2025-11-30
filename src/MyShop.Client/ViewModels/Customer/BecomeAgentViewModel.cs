@@ -12,7 +12,7 @@ namespace MyShop.Client.ViewModels.Customer;
 public partial class BecomeAgentViewModel : BaseViewModel
 {
     private readonly IAgentRequestFacade _agentRequestFacade;
-    private readonly INavigationService _navigationService;
+    private readonly new INavigationService _navigationService;
     private readonly IToastService _toastService;
 
     // Personal Information
@@ -143,16 +143,16 @@ public partial class BecomeAgentViewModel : BaseViewModel
 
             if (result.IsSuccess)
             {
-                await _toastService.ShowSuccess(
+                _ = _toastService.ShowSuccess(
                     "Application Submitted! Your sales agent application has been submitted successfully. We'll review it and get back to you soon."
                 );
 
                 // Navigate back to dashboard
-                _navigationService.GoBack();
+                _ = _navigationService.GoBack();
             }
             else
             {
-                await _toastService.ShowError(
+                _ = _toastService.ShowError(
                     $"Submission Failed: {result.ErrorMessage ?? "Failed to submit application. Please try again."}"
                 );
             }
@@ -160,7 +160,7 @@ public partial class BecomeAgentViewModel : BaseViewModel
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[BecomeAgentViewModel] Error submitting application: {ex.Message}");
-            await _toastService.ShowError(
+            _ = _toastService.ShowError(
                 "Error: An unexpected error occurred. Please try again later."
             );
         }

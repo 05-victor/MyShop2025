@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Navigation;
 using Windows.System;
 using MyShop.Client.ViewModels.Shared;
 
@@ -17,6 +18,12 @@ public sealed partial class CartPage : Page
         ViewModel = App.Current.Services.GetRequiredService<CartViewModel>();
         this.DataContext = ViewModel;
         SetupKeyboardShortcuts();
+    }
+
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+        await ViewModel.InitializeAsync();
     }
 
     private void SetupKeyboardShortcuts()

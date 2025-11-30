@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using MyShop.Client.ViewModels.Shared;
 using MyShop.Client.Views.Dialogs;
+using MyShop.Core.Interfaces.Services;
 
 namespace MyShop.Client.Views.Shared;
 
@@ -284,12 +285,33 @@ public sealed partial class ProfilePage : Page
     }
 
     /// <summary>
-    /// Verify email (demo only - for testing UI)
+    /// Resend verification email and show OTP dialog
     /// </summary>
-    private void VerifyEmailButton_Click(object sender, RoutedEventArgs e)
+    private async void ResendVerificationButton_Click(object sender, RoutedEventArgs e)
     {
-        // This is demo UI - actual email verification would come from backend
-        // For now, just a placeholder for the demo interface
+        try
+        {
+            // Show email verification dialog with OTP input
+            var dialog = new EmailVerificationDialog(ViewModel.Email, App.Current.Services.GetRequiredService<IToastService>())
+            {
+                XamlRoot = this.XamlRoot
+            };
+
+            dialog.VerificationChecked += async (s, isVerified) =>
+            {
+                if (isVerified)
+                {
+                    // Reload profile to update email verification status
+                    await ViewModel.LoadCommand.ExecuteAsync(null);
+                }
+            };
+
+            await dialog.ShowAsync();
+        }
+        catch (Exception ex)
+        {
+            Services.LoggingService.Instance.Error("[ProfilePage] ResendVerificationButton_Click failed", ex);
+        }
     }
 
     /// <summary>

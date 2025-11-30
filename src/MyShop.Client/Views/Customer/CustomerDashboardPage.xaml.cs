@@ -18,6 +18,7 @@ namespace MyShop.Client.Views.Customer
         private readonly IToastService _toastHelper;
         private readonly ICredentialStorage _credentialStorage;
         private readonly IAuthRepository _authRepository;
+        private User? _currentUser;
 
         public CustomerDashboardPage()
         {
@@ -35,28 +36,40 @@ namespace MyShop.Client.Views.Customer
             base.OnNavigatedTo(e);
             if (e.Parameter is User user)
             {
+                _currentUser = user;
                 ViewModel.Initialize(user);
+                
+                // Set current user ID for BecomeAdminBanner
+                if (this.FindName("BecomeAdminBannerControl") is Components.BecomeAdminBanner banner)
+                {
+                    banner.CurrentUserId = user.Id;
+                }
             }
         }
 
-        private async void OnActivationSuccessful(object sender, User upgradedUser)
+        private async void OnActivationSuccessful(object sender, LicenseInfo license)
         {
-            // Save hasAdmin flag to localStorage
-            // Note: ICredentialStorage only supports tokens
-            System.Diagnostics.Debug.WriteLine("[CustomerDashboardPage] Admin flag should be saved");
-
-            // Note: Token saving would happen via backend API
-            // _credentialStorage.SaveToken expects a token string, not User object
-            System.Diagnostics.Debug.WriteLine("[CustomerDashboardPage] User upgraded to admin");
+            System.Diagnostics.Debug.WriteLine($"[CustomerDashboardPage] Activation successful: Type={license.Type}");
 
             // Show success message
-            await _toastHelper.ShowSuccess($"🎉 Welcome, {upgradedUser.FullName}! You are now an Admin.");
+            string message;
+            if (license.IsPermanent)
+            {
+                message = "🎉 You are now a permanent Admin!";
+            }
+            else
+            {
+                message = $"🎉 You are now an Admin with {license.RemainingDays} days trial!";
+            }
+            await _toastHelper.ShowSuccess(message);
 
-            // Wait a moment for user to see the toast
-            await Task.Delay(1500);
-
-            // Navigate to AdminDashboard
-            await _navigationService.NavigateTo(typeof(Shell.AdminDashboardShell).FullName!, upgradedUser);
+            // Reload current user to get updated role
+            if (_currentUser != null)
+            {
+                // Navigate to AdminDashboard with updated user info
+                // Note: User role has been updated in the backend, need to refresh
+                await _navigationService.NavigateTo(typeof(Shell.AdminDashboardShell).FullName!, _currentUser);
+            }
         }
 
         private void OnBecomeAgentClick(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)

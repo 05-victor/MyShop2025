@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using MyShop.Client.Facades;
 using MyShop.Client.ViewModels.Base;
 using MyShop.Core.Interfaces.Facades;
+using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 using System;
 using System.Collections.ObjectModel;
@@ -14,9 +15,17 @@ namespace MyShop.Client.ViewModels.SalesAgent;
 public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewModel>
 {
     private readonly IOrderFacade _orderFacade;
+    private readonly IAuthRepository _authRepository;
+    private Guid? _currentSalesAgentId;
 
     [ObservableProperty]
     private string _selectedStatus = "All";
+
+    [ObservableProperty]
+    private string _sortBy = "date";
+
+    [ObservableProperty]
+    private bool _sortDescending = true;
 
     [ObservableProperty]
     private int _totalOrders;
@@ -30,25 +39,54 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
     [ObservableProperty]
     private int _cancelledOrders;
 
+    [ObservableProperty]
+    private ObservableCollection<string> _searchSuggestions = new();
+
     public SalesAgentOrdersViewModel(
         IOrderFacade orderFacade,
+        IAuthRepository authRepository,
         IToastService toastService,
         INavigationService navigationService)
         : base(toastService, navigationService)
     {
         _orderFacade = orderFacade;
+        _authRepository = authRepository;
         PageSize = Core.Common.PaginationConstants.OrdersPageSize;
     }
 
     public async Task InitializeAsync()
     {
+        // Get current sales agent ID
+        var userIdResult = await _authRepository.GetCurrentUserIdAsync();
+        if (userIdResult.IsSuccess)
+        {
+            _currentSalesAgentId = userIdResult.Data;
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentOrdersViewModel] Current SalesAgentId: {_currentSalesAgentId}");
+        }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentOrdersViewModel] Failed to get current user ID");
+        }
+        
         await LoadDataAsync();
     }
 
-    partial void OnSelectedStatusChanged(string value)
+    [RelayCommand]
+    private async Task ApplyFiltersAsync()
     {
         CurrentPage = 1;
-        _ = LoadPageAsync();
+        await LoadPageAsync();
+    }
+
+    [RelayCommand]
+    private async Task ResetFiltersAsync()
+    {
+        SelectedStatus = "All";
+        SearchQuery = string.Empty;
+        SortBy = "date";
+        SortDescending = true;
+        CurrentPage = 1;
+        await LoadPageAsync();
     }
 
     protected override async Task LoadPageAsync()
@@ -63,7 +101,8 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
                 page: CurrentPage,
                 pageSize: PageSize,
                 status: statusFilter,
-                searchQuery: SearchQuery);
+                searchQuery: SearchQuery,
+                salesAgentId: _currentSalesAgentId);  // Filter by current sales agent
 
             if (!result.IsSuccess || result.Data == null)
             {
@@ -77,8 +116,10 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
             Items.Clear();
             foreach (var o in result.Data.Items)
             {
-                var firstProduct = o.Items?.FirstOrDefault()?.ProductName ?? "No products";
-                var additionalCount = (o.Items?.Count ?? 0) - 1;
+                // Use OrderItems (from JSON) or Items as fallback
+                var orderItems = o.OrderItems?.Count > 0 ? o.OrderItems : o.Items;
+                var firstProduct = orderItems?.FirstOrDefault()?.ProductName ?? "No products";
+                var additionalCount = (orderItems?.Count ?? 0) - 1;
                 var productDesc = additionalCount > 0 
                     ? $"{firstProduct} +{additionalCount} more" 
                     : firstProduct;
@@ -158,23 +199,21 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
     [RelayCommand]
     private async Task ExportOrdersAsync()
     {
+        SetLoadingState(true);
         try
         {
             var status = SelectedStatus == "All" ? null : SelectedStatus;
-            var result = await _orderFacade.ExportOrdersToCsvAsync(status: status);
-            
-            if (result.IsSuccess)
-            {
-                System.Diagnostics.Debug.WriteLine($"[SalesOrdersViewModel] Orders exported to: {result.Data}");
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine($"[SalesOrdersViewModel] Export failed: {result.ErrorMessage}");
-            }
+            // Export only current sales agent's orders
+            await _orderFacade.ExportOrdersToCsvAsync(status: status, salesAgentId: _currentSalesAgentId);
         }
         catch (Exception ex)
         {
+            await _toastHelper?.ShowError($"Export failed: {ex.Message}");
             System.Diagnostics.Debug.WriteLine($"[SalesOrdersViewModel] Export error: {ex.Message}");
+        }
+        finally
+        {
+            SetLoadingState(false);
         }
     }
 }

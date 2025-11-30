@@ -9,6 +9,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 
 namespace MyShop.Client.Facades;
 
@@ -250,30 +252,49 @@ public class ProductFacade : IProductFacade
 
             var products = result.Data.Items;
 
-            // Use ExportService to generate CSV
-            var exportResult = await _exportService.ExportToCsvAsync(
-                products,
-                "Products",
-                product => new Dictionary<string, string>
-                {
-                    ["SKU"] = product.SKU ?? string.Empty,
-                    ["Name"] = product.Name,
-                    ["Category"] = product.CategoryName ?? string.Empty,
-                    ["Import Price"] = product.ImportPrice.ToString("F2"),
-                    ["Selling Price"] = product.SellingPrice.ToString("F2"),
-                    ["Stock"] = product.Quantity.ToString(),
-                    ["Manufacturer"] = product.Manufacturer ?? string.Empty,
-                    ["Device Type"] = product.DeviceType ?? string.Empty,
-                    ["Commission Rate"] = product.CommissionRate.ToString("F2"),
-                    ["Status"] = product.Status ?? string.Empty
-                });
+            if (products.Count == 0)
+            {
+                await _toastService.ShowWarning("No products to export");
+                return Result<string>.Success(string.Empty);
+            }
+
+            // Generate CSV content
+            var csv = new StringBuilder();
+            csv.AppendLine("SKU,Name,Category,Import Price,Selling Price,Stock,Manufacturer,Device Type,Commission Rate,Status");
+            
+            foreach (var product in products)
+            {
+                csv.AppendLine($"\"{product.SKU ?? string.Empty}\"," +
+                    $"\"{product.Name}\"," +
+                    $"\"{product.CategoryName ?? string.Empty}\"," +
+                    $"\"{product.ImportPrice:F2}\"," +
+                    $"\"{product.SellingPrice:F2}\"," +
+                    $"\"{product.Quantity}\"," +
+                    $"\"{product.Manufacturer ?? string.Empty}\"," +
+                    $"\"{product.DeviceType ?? string.Empty}\"," +
+                    $"\"{product.CommissionRate:F2}\"," +
+                    $"\"{product.Status ?? string.Empty}\"");
+            }
+
+            // Use ExportService with FileSavePicker (reusable)
+            var suggestedFileName = $"Products_{DateTime.Now:yyyyMMdd_HHmmss}";
+            var exportResult = await _exportService.ExportWithPickerAsync(suggestedFileName, csv.ToString());
 
             if (!exportResult.IsSuccess)
             {
+                await _toastService.ShowError("Failed to export products");
                 return exportResult;
             }
 
-            await _toastService.ShowSuccess($"Exported {products.Count} products");
+            // Empty path means user cancelled
+            if (string.IsNullOrEmpty(exportResult.Data))
+            {
+                return Result<string>.Success(string.Empty);
+            }
+
+            await _toastService.ShowSuccess($"Exported {products.Count} products successfully!");
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] Exported {products.Count} products to {exportResult.Data}");
+
             return exportResult;
         }
         catch (Exception ex)

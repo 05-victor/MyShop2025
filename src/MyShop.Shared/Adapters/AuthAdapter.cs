@@ -75,9 +75,9 @@ public static class AuthAdapter
             
             if (normalized == "ADMIN")
                 roles.Add(UserRole.Admin);
-            else if (normalized == "SALEMAN" || normalized == "SALESMAN")
+            else if (normalized == "SALEMAN" || normalized == "SALESMAN" || normalized == "SALESAGENT")
                 roles.Add(UserRole.Salesman);
-            else if (normalized == "CUSTOMER")
+            else if (normalized == "CUSTOMER" || normalized == "USER")
                 roles.Add(UserRole.Customer);
         }
 

@@ -28,15 +28,55 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
     private ObservableCollection<CommissionViewModel> _commissions = new();
 
     [ObservableProperty]
-    private string _selectedPeriod = "This Month";
+    private string _selectedPeriod = "All Time";
+
+    [ObservableProperty]
+    private string _selectedStatus = "All";
+
+    [ObservableProperty]
+    private string _searchQuery = string.Empty;
+
+    [ObservableProperty]
+    private int _currentPage = 1;
+
+    [ObservableProperty]
+    private int _pageSize = 20;
+
+    [ObservableProperty]
+    private int _totalItems;
 
     public SalesAgentEarningsViewModel(ICommissionFacade commissionFacade)
     {
         _commissionFacade = commissionFacade;
     }
 
-    public async Task InitializeAsync()
+    [RelayCommand]
+    private async Task InitializeAsync()
     {
+        await LoadCommissionsAsync();
+    }
+
+    [RelayCommand]
+    private async Task RefreshAsync()
+    {
+        CurrentPage = 1;
+        await LoadCommissionsAsync();
+    }
+
+    [RelayCommand]
+    private async Task ApplyFiltersAsync()
+    {
+        CurrentPage = 1;
+        await LoadCommissionsAsync();
+    }
+
+    [RelayCommand]
+    private async Task ResetFiltersAsync()
+    {
+        SelectedStatus = "All";
+        SearchQuery = string.Empty;
+        SelectedPeriod = "All Time";
+        CurrentPage = 1;
         await LoadCommissionsAsync();
     }
 
@@ -53,18 +93,27 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
             }
 
             var pagedList = result.Data;
-            // Note: PagedList doesn't have TotalEarnings, PendingCommission, etc.
-            // These should be fetched separately via GetCommissionSummaryAsync
-            TotalEarnings = 0; // TODO: Fetch from GetCommissionSummaryAsync
-            PendingCommission = 0; // TODO: Fetch from GetCommissionSummaryAsync
-            PaidCommission = 0; // TODO: Fetch from GetCommissionSummaryAsync
+            TotalItems = pagedList.TotalCount;
             TotalSales = pagedList.TotalCount;
 
-            Commissions.Clear();
-            foreach (var commission in pagedList.Items.Take(20))
+            // Filter by search query and status
+            var items = pagedList.Items.AsEnumerable();
+            
+            if (!string.IsNullOrWhiteSpace(SearchQuery))
             {
-                // TODO: Backend should return CustomerName in CommissionResponse
-                // For now, using OrderNumber as product description
+                var query = SearchQuery.ToLower();
+                items = items.Where(c => 
+                    c.OrderNumber.ToLower().Contains(query));
+            }
+
+            if (SelectedStatus != "All")
+            {
+                items = items.Where(c => c.Status == SelectedStatus);
+            }
+
+            Commissions.Clear();
+            foreach (var commission in items.Skip((CurrentPage - 1) * PageSize).Take(PageSize))
+            {
                 var customerName = $"Customer #{commission.OrderNumber.Split('-').Last()}";
                 
                 Commissions.Add(new CommissionViewModel

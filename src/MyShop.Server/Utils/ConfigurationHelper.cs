@@ -3,12 +3,16 @@ using MyShop.Server.Services.Implementations;
 namespace MyShop.Server.Utils
 {
     /// <summary>
-    /// Utility program to generate encoded configuration values
-    /// Run this to get encoded values for your appsettings.json
+    /// Utility class to generate encoded configuration values.
+    /// Call GenerateEncodedConfig() to get encoded values for your appsettings.json.
     /// </summary>
-    public class ConfigurationHelper
+    public static class ConfigurationHelper
     {
-        public static void Main(string[] args)
+        /// <summary>
+        /// Generates encoded configuration values and prints them to console.
+        /// This is a utility method, not an entry point.
+        /// </summary>
+        public static void GenerateEncodedConfig()
         {
             Console.WriteLine("=== Configuration Encoder ===");
             Console.WriteLine();
@@ -40,10 +44,6 @@ namespace MyShop.Server.Utils
             Console.WriteLine("=== Copy this to your appsettings.json ===");
             Console.WriteLine($"\"ApiEndpoint\": \"{encodedEndpoint}\",");
             Console.WriteLine($"\"ApiKey\": \"{encodedApiKey}\",");
-            Console.WriteLine();
-
-            Console.WriteLine("Press any key to exit...");
-            Console.ReadKey();
         }
     }
 }

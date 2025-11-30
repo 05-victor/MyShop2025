@@ -72,7 +72,7 @@ namespace MyShop.Client.Extensions
             }
 
             // Show blocking message
-            toastHelper.ShowWarning($"Email verification required to {actionName}");
+            _ = toastHelper.ShowWarning($"Email verification required to {actionName}");
 
             // Show verification dialog
             var verified = await user.ShowEmailVerificationDialogAsync(
@@ -82,7 +82,7 @@ namespace MyShop.Client.Extensions
 
             if (!verified)
             {
-                toastHelper.ShowInfo("Action cancelled - email not verified");
+                _ = toastHelper.ShowInfo("Action cancelled - email not verified");
             }
 
             return verified;

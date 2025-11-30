@@ -51,11 +51,26 @@
                         Background="Transparent"
                         BorderThickness="0"
                         CornerRadius="6"
+                        ToolTipService.ToolTip="Chart options"
                         Visibility="{Binding ShowMenu, ElementName=RootControl, Mode=OneWay}">
                     <Button.Flyout>
                         <MenuFlyout Placement="BottomEdgeAlignedRight">
-                            <MenuFlyoutItem Text="Export Data" Icon="Save"/>
-                            <MenuFlyoutItem Text="View Details" Icon="View"/>
+                            <MenuFlyoutItem Text="Refresh" Click="RefreshMenuItem_Click">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE72C;"/>
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Text="Copy Data" Click="CopyDataMenuItem_Click">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE8C8;"/>
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutSeparator/>
+                            <MenuFlyoutItem Text="Export CSV" Click="ExportMenuItem_Click">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE896;"/>
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
                         </MenuFlyout>
                     </Button.Flyout>
                     <FontIcon Glyph="&#xE712;" FontSize="16" Foreground="#6B7280"/>

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using MyShop.Client.ViewModels.Shell;
@@ -8,7 +9,9 @@ using MyShop.Shared.Models;
 using MyShop.Client.Views.Customer;
 using MyShop.Client.Views.Shared;
 using MyShop.Client.Services;
+using MyShop.Client.Extensions;
 using MyShop.Core.Interfaces.Services;
+using MyShop.Core.Interfaces.Repositories;
 
 namespace MyShop.Client.Views.Shell
 {
@@ -16,23 +19,55 @@ namespace MyShop.Client.Views.Shell
     {
         public DashboardShellViewModel ViewModel { get; }
         private readonly INavigationService _navigationService;
+        private readonly ISystemActivationRepository _activationRepository;
         private NavigationViewItem? _currentContentItem;
         private bool _isRestoringSelection;
         private bool _isInitialized;
+        private User? _currentUser;
 
         public CustomerDashboardShell()
         {
             InitializeComponent();
             ViewModel = App.Current.Services.GetRequiredService<DashboardShellViewModel>();
             _navigationService = App.Current.Services.GetRequiredService<INavigationService>();
+            _activationRepository = App.Current.Services.GetRequiredService<ISystemActivationRepository>();
             DataContext = ViewModel;
 
             // Register the shell's ContentFrame for in-shell navigation
-            Loaded += (s, e) => _navigationService.RegisterShellFrame(ContentFrame);
+            Loaded += (s, e) =>
+            {
+                _navigationService.RegisterShellFrame(ContentFrame);
+                _ = CheckBecomeAdminVisibilityAsync();
+            };
             Unloaded += (s, e) => _navigationService.UnregisterShellFrame();
 
             // Subscribe to ContentFrame navigation to sync NavigationView selection
             ContentFrame.Navigated += ContentFrame_Navigated;
+        }
+
+        /// <summary>
+        /// Check if "Become Admin" button should be visible
+        /// Only show when no admin exists in the system
+        /// </summary>
+        private async System.Threading.Tasks.Task CheckBecomeAdminVisibilityAsync()
+        {
+            try
+            {
+                var result = await _activationRepository.HasAnyAdminAsync();
+                var hasAdmin = result.IsSuccess && result.Data;
+                var visibility = hasAdmin ? Visibility.Collapsed : Visibility.Visible;
+                
+                BecomeAdminItem.Visibility = visibility;
+                BecomeAdminSeparator.Visibility = visibility;
+                
+                System.Diagnostics.Debug.WriteLine($"[CustomerDashboardShell] BecomeAdmin visibility: {visibility} (HasAdmin: {hasAdmin})");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[CustomerDashboardShell] Error checking admin: {ex.Message}");
+                BecomeAdminItem.Visibility = Visibility.Collapsed;
+                BecomeAdminSeparator.Visibility = Visibility.Collapsed;
+            }
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -41,6 +76,7 @@ namespace MyShop.Client.Views.Shell
 
             if (e.Parameter is User user)
             {
+                _currentUser = user;
                 ViewModel.Initialize(user);
                 if (_isInitialized) return;
                 _isInitialized = true;
@@ -94,7 +130,7 @@ namespace MyShop.Client.Views.Shell
                     NavigateToPage(typeof(SettingsPage), ViewModel.CurrentUser);
                     break;
                 default:
-                    AppLogger.Warning($"Customer menu item '{tag}' not implemented yet");
+                    LoggingService.Instance.Warning($"Customer menu item '{tag}' not implemented yet");
                     RestoreSelection();
                     break;
             }
@@ -111,7 +147,7 @@ namespace MyShop.Client.Views.Shell
             }
             catch (Exception ex)
             {
-                AppLogger.Error($"Failed to navigate to {pageType.Name}", ex);
+                LoggingService.Instance.Error($"Failed to navigate to {pageType.Name}", ex);
             }
         }
 
@@ -130,6 +166,12 @@ namespace MyShop.Client.Views.Shell
         /// </summary>
         private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
         {
+            // Scroll the new page to top
+            if (e.Content is Page page)
+            {
+                page.Loaded += (s, args) => page.ScrollToTop();
+            }
+
             // Map the navigated page type to its corresponding NavigationView tag
             var tag = GetNavigationTagForPageType(e.SourcePageType);
             
@@ -184,6 +226,23 @@ namespace MyShop.Client.Views.Shell
         {
             try
             {
+                // Show confirmation dialog
+                var dialog = new ContentDialog
+                {
+                    Title = "Logout",
+                    Content = "Are you sure you want to logout?",
+                    PrimaryButtonText = "Logout",
+                    CloseButtonText = "Cancel",
+                    DefaultButton = ContentDialogButton.Close,
+                    XamlRoot = this.XamlRoot
+                };
+
+                var result = await dialog.ShowAsync();
+                if (result != ContentDialogResult.Primary)
+                {
+                    return;
+                }
+
                 // Execute logout command
                 if (ViewModel.LogoutCommand.CanExecute(null))
                 {
@@ -192,8 +251,123 @@ namespace MyShop.Client.Views.Shell
             }
             catch (Exception ex)
             {
-                AppLogger.Error("Failed to logout", ex);
+                LoggingService.Instance.Error("Failed to logout", ex);
             }
+        }
+
+        /// <summary>
+        /// Handle "Become Admin" button tap - show activation code dialog
+        /// </summary>
+        private async void BecomeAdminItem_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            try
+            {
+                // Create activation dialog
+                var activationCodeBox = new TextBox
+                {
+                    PlaceholderText = "MYSHOP-XXXX-XXXX-XXXX",
+                    MaxLength = 22,
+                    CharacterCasing = CharacterCasing.Upper,
+                    HorizontalAlignment = HorizontalAlignment.Stretch
+                };
+
+                var infoText = new TextBlock
+                {
+                    Text = "Enter your admin activation code to become the system administrator.\n\nDemo codes:\n• MYSHOP-PERM-2025-ADMIN (Permanent)\n• MYSHOP-TRIAL-2025-001 (Trial 14 days)",
+                    TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(0, 0, 0, 16),
+                    Foreground = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["TextFillColorSecondaryBrush"]
+                };
+
+                var contentPanel = new StackPanel { Spacing = 8 };
+                contentPanel.Children.Add(infoText);
+                contentPanel.Children.Add(activationCodeBox);
+
+                var dialog = new ContentDialog
+                {
+                    Title = "Become Admin",
+                    Content = contentPanel,
+                    PrimaryButtonText = "Activate",
+                    CloseButtonText = "Cancel",
+                    DefaultButton = ContentDialogButton.Primary,
+                    XamlRoot = this.XamlRoot
+                };
+
+                var result = await dialog.ShowAsync();
+                if (result != ContentDialogResult.Primary)
+                {
+                    return;
+                }
+
+                var code = activationCodeBox.Text?.Trim();
+                if (string.IsNullOrEmpty(code))
+                {
+                    await ShowErrorDialogAsync("Please enter an activation code.");
+                    return;
+                }
+
+                // Validate and activate code
+                if (_currentUser == null)
+                {
+                    await ShowErrorDialogAsync("User information not available.");
+                    return;
+                }
+
+                var activateResult = await _activationRepository.ActivateCodeAsync(code, _currentUser.Id);
+                
+                if (activateResult.IsSuccess && activateResult.Data != null)
+                {
+                    var license = activateResult.Data;
+                    var licenseType = license.IsPermanent ? "Permanent" : $"Trial ({license.RemainingDays} days)";
+                    
+                    // Show success and prompt to re-login
+                    var successDialog = new ContentDialog
+                    {
+                        Title = "Activation Successful! 🎉",
+                        Content = $"You are now the system administrator!\n\nLicense Type: {licenseType}\n\nPlease log out and log back in to access admin features.",
+                        PrimaryButtonText = "Logout Now",
+                        CloseButtonText = "Later",
+                        DefaultButton = ContentDialogButton.Primary,
+                        XamlRoot = this.XamlRoot
+                    };
+
+                    var successResult = await successDialog.ShowAsync();
+                    
+                    // Hide the Become Admin button
+                    BecomeAdminItem.Visibility = Visibility.Collapsed;
+                    BecomeAdminSeparator.Visibility = Visibility.Collapsed;
+                    
+                    if (successResult == ContentDialogResult.Primary)
+                    {
+                        // Logout
+                        if (ViewModel.LogoutCommand.CanExecute(null))
+                        {
+                            await ViewModel.LogoutCommand.ExecuteAsync(null);
+                        }
+                    }
+                }
+                else
+                {
+                    await ShowErrorDialogAsync(activateResult.ErrorMessage ?? "Invalid activation code.");
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.Error("Failed to activate admin code", ex);
+                await ShowErrorDialogAsync($"An error occurred: {ex.Message}");
+            }
+        }
+
+        private async System.Threading.Tasks.Task ShowErrorDialogAsync(string message)
+        {
+            var errorDialog = new ContentDialog
+            {
+                Title = "Error",
+                Content = message,
+                CloseButtonText = "OK",
+                XamlRoot = this.XamlRoot
+            };
+            await errorDialog.ShowAsync();
         }
     }
 }

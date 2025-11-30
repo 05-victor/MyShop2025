@@ -71,5 +71,59 @@ namespace MyShop.Client.Views.SalesAgent
             base.OnNavigatedFrom(e);
             NavigationLogger.LogNavigatedFrom(nameof(SalesAgentDashboardPage));
         }
+
+        private async void RefreshContainer_RefreshRequested(RefreshContainer sender, RefreshRequestedEventArgs args)
+        {
+            using var deferral = args.GetDeferral();
+            try
+            {
+                if (ViewModel.RefreshCommand?.CanExecute(null) == true)
+                {
+                    await ViewModel.RefreshCommand.ExecuteAsync(null);
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.Error("Failed to refresh dashboard", ex);
+            }
+        }
+
+        /// <summary>
+        /// Handle chart Refresh menu click
+        /// </summary>
+        private async void LineChart_RefreshRequested(object sender, EventArgs e)
+        {
+            try
+            {
+                LoggingService.Instance.Debug("Chart refresh requested");
+                if (ViewModel.RefreshCommand?.CanExecute(null) == true)
+                {
+                    await ViewModel.RefreshCommand.ExecuteAsync(null);
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.Error("Failed to refresh chart data", ex);
+            }
+        }
+
+        /// <summary>
+        /// Handle chart Export CSV menu click
+        /// </summary>
+        private async void LineChart_ExportRequested(object sender, string csvData)
+        {
+            try
+            {
+                LoggingService.Instance.Debug("Chart export requested");
+                if (ViewModel.ExportCommand?.CanExecute(null) == true)
+                {
+                    await ViewModel.ExportCommand.ExecuteAsync(null);
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.Error("Failed to export chart data", ex);
+            }
+        }
     }
 }

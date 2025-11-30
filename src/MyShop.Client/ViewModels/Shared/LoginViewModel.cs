@@ -201,7 +201,7 @@ public partial class LoginViewModel : BaseViewModel
         var actionResult = await _toastHelper.ShowConnectionErrorAsync(
             "Cannot connect to server. Please check your network connection and ensure the server is running.");
 
-        if (!actionResult.IsSuccess || actionResult.Data == null)
+        if (!actionResult.IsSuccess || actionResult.Data == ConnectionErrorAction.Cancel)
         {
             return;
         }
@@ -306,7 +306,7 @@ public partial class LoginViewModel : BaseViewModel
             }
             */
 
-            await Task.Delay(1000); // Simulate network delay
+            // await Task.Delay(1000); // Simulate network delay
             await _toastHelper.ShowWarning("Google OAuth2 login will be implemented in a future update. Please use username/password login.");
         }
         catch (Exception ex) 

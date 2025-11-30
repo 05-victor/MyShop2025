@@ -24,7 +24,7 @@ public class MockUserRepository : IUserRepository
     {
         try
         {
-            await Task.Delay(50); // Simulate database check
+            // await Task.Delay(50); // Simulate database check
             var users = await MockUserData.GetAllAsync();
             var hasUsers = users.Count > 0;
             System.Diagnostics.Debug.WriteLine($"[MockUserRepository] HasAnyUsersAsync returned {hasUsers} ({users.Count} users)");
@@ -78,6 +78,42 @@ public class MockUserRepository : IUserRepository
         }
     }
 
+    public async Task<Result<User>> CreateUserAsync(User user)
+    {
+        try
+        {
+            // Set default avatar if not provided
+            if (string.IsNullOrEmpty(user.Avatar))
+            {
+                user.Avatar = "ms-appx:///Assets/Images/user/avatar-placeholder.png";
+            }
+
+            // Set creation timestamp
+            user.CreatedAt = DateTime.UtcNow;
+
+            // Generate ID if not set
+            if (user.Id == Guid.Empty)
+            {
+                user.Id = Guid.NewGuid();
+            }
+
+            var createdUser = await MockUserData.CreateAsync(user);
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] User created: {createdUser.Username} with ID {createdUser.Id}");
+            return Result<User>.Success(createdUser);
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Username or email already exists
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] CreateUserAsync validation error: {ex.Message}");
+            return Result<User>.Failure(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] CreateUserAsync error: {ex.Message}");
+            return Result<User>.Failure($"Failed to create user: {ex.Message}");
+        }
+    }
+
     public async Task<Result<User>> UpdateProfileAsync(UpdateProfileRequest request)
     {
         try
@@ -126,7 +162,7 @@ public class MockUserRepository : IUserRepository
     {
         try
         {
-            await Task.Delay(600);
+            // await Task.Delay(600);
 
             var token = _credentialStorage.GetToken();
             if (string.IsNullOrEmpty(token))
@@ -169,7 +205,7 @@ public class MockUserRepository : IUserRepository
             // Simulate upload with progress
             for (int i = 0; i <= 100; i += 20)
             {
-                await Task.Delay(100);
+                // await Task.Delay(100);
                 progress?.Report(i / 100.0);
             }
 

@@ -13,7 +13,7 @@ public static class MockReportData
     public static async Task<SalesReport> GetSalesReportAsync(Guid salesAgentId, DateTime? startDate = null, DateTime? endDate = null)
     {
         // Simulate network delay
-        await Task.Delay(500);
+        // await Task.Delay(500);
 
         var start = startDate ?? DateTime.UtcNow.AddMonths(-1);
         var end = endDate ?? DateTime.UtcNow;
@@ -54,7 +54,7 @@ public static class MockReportData
     public static async Task<ProductReport> GetProductReportAsync(DateTime startDate, DateTime endDate)
     {
         // Simulate network delay
-        await Task.Delay(450);
+        // await Task.Delay(450);
 
         lock (_lock)
         {
@@ -97,7 +97,7 @@ public static class MockReportData
     public static async Task<CommissionReport> GetCommissionReportAsync(Guid salesAgentId, DateTime startDate, DateTime endDate)
     {
         // Simulate network delay
-        await Task.Delay(400);
+        // await Task.Delay(400);
 
         lock (_lock)
         {
@@ -121,7 +121,7 @@ public static class MockReportData
     public static async Task<InventoryReport> GetInventoryReportAsync()
     {
         // Simulate network delay
-        await Task.Delay(350);
+        // await Task.Delay(350);
 
         lock (_lock)
         {
@@ -139,7 +139,7 @@ public static class MockReportData
 
     public static async Task<PerformanceMetrics> GetPerformanceMetricsAsync(Guid salesAgentId)
     {
-        await Task.Delay(400);
+        // await Task.Delay(400);
 
         var random = new Random();
         var totalClicks = random.Next(1000, 5000);
@@ -162,7 +162,7 @@ public static class MockReportData
 
     public static async Task<IEnumerable<ProductPerformance>> GetTopProductsAsync(Guid salesAgentId, int topCount = 10)
     {
-        await Task.Delay(350);
+        // await Task.Delay(350);
 
         var products = new List<ProductPerformance>();
         var random = new Random();
@@ -199,7 +199,7 @@ public static class MockReportData
 
     public static async Task<SalesTrend> GetSalesTrendAsync(Guid salesAgentId, string period = "monthly")
     {
-        await Task.Delay(400);
+        // await Task.Delay(400);
 
         var random = new Random();
         var trend = new SalesTrend { Period = period };

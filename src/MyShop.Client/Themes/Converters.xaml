@@ -24,6 +24,10 @@
     
     <!-- String Converters -->
     <converters:StringFormatConverter x:Key="StringFormatConverter"/>
+    <converters:StringToImageSourceConverter x:Key="StringToImageSourceConverter"/>
+    
+    <!-- Currency/Number Converters -->
+    <converters:CurrencyConverter x:Key="CurrencyConverter"/>
     
     <!-- Password Converters -->
     <converters:PasswordStrengthToColorConverter x:Key="PasswordStrengthToColorConverter"/>

@@ -32,8 +32,9 @@
             
             <StackPanel Grid.Row="0" Spacing="16">
             
-            <!-- Become Admin Banner (shows when first user) -->
+            <!-- Become Admin Banner (shows when no admin exists) -->
             <components:BecomeAdminBanner 
+                x:Name="BecomeAdminBannerControl"
                 Visibility="{x:Bind ViewModel.ShowBecomeAdminBanner, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
                 ActivationSuccessful="OnActivationSuccessful"/>
 

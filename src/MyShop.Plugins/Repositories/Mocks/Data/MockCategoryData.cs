@@ -68,7 +68,7 @@ public static class MockCategoryData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(250);
+        // await Task.Delay(250);
 
         return _categories!.Select(c => new Category
         {
@@ -85,7 +85,7 @@ public static class MockCategoryData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(150);
+        // await Task.Delay(150);
 
         var categoryData = _categories!.FirstOrDefault(c => c.Id == id.ToString());
         if (categoryData == null) return null;
@@ -105,7 +105,7 @@ public static class MockCategoryData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(400);
+        // await Task.Delay(400);
 
         var newCategoryData = new CategoryDataModel
         {
@@ -129,7 +129,7 @@ public static class MockCategoryData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(350);
+        // await Task.Delay(350);
 
         var existing = _categories!.FirstOrDefault(c => c.Id == category.Id.ToString());
         if (existing == null)
@@ -153,7 +153,7 @@ public static class MockCategoryData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(300);
+        // await Task.Delay(300);
 
         var category = _categories!.FirstOrDefault(c => c.Id == id.ToString());
         if (category == null) return false;
@@ -208,7 +208,7 @@ public static class MockCategoryData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(250);
+        // await Task.Delay(250);
 
         var query = _categories!.AsEnumerable();
 

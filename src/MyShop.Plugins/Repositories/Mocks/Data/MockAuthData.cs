@@ -80,7 +80,7 @@ public static class MockAuthData
         EnsureDataLoaded();
         
         // Simulate network delay
-        await Task.Delay(500);
+        // await Task.Delay(500);
 
         var user = _users!.FirstOrDefault(u =>
             (u.Username.Equals(usernameOrEmail, StringComparison.OrdinalIgnoreCase) ||
@@ -133,7 +133,7 @@ public static class MockAuthData
         EnsureDataLoaded();
         
         // Simulate network delay
-        await Task.Delay(800);
+        // await Task.Delay(800);
 
         // Check if username exists
         if (_users!.Any(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase)))
@@ -197,7 +197,7 @@ public static class MockAuthData
         EnsureDataLoaded();
         
         // Simulate network delay
-        await Task.Delay(300);
+        // await Task.Delay(300);
 
         // Extract user ID from token
         if (!token.StartsWith("mock_token_"))
@@ -260,7 +260,7 @@ public static class MockAuthData
         EnsureDataLoaded();
         
         // Simulate network delay
-        await Task.Delay(500);
+        // await Task.Delay(500);
 
         // Extract user ID from token
         if (!token.StartsWith("mock_token_"))
@@ -282,16 +282,16 @@ public static class MockAuthData
             return Result<User>.Failure("User not found");
         }
 
-        // Validate admin code using MockAdminCodesData
-        var validCode = await MockAdminCodesData.ValidateCodeAsync(adminCode);
+        // Validate admin code using MockSystemActivationData
+        var validCode = await MockSystemActivationData.ValidateCodeAsync(adminCode);
 
         if (validCode == null)
         {
             return Result<User>.Failure("Invalid or expired admin code");
         }
 
-        // Mark code as used
-        await MockAdminCodesData.MarkAsUsedAsync(adminCode, userId);
+        // Mark code as used via ActivateCodeAsync
+        await MockSystemActivationData.ActivateCodeAsync(adminCode, userId);
 
         // Deactivate trial for this user
         user.IsTrialActive = false;
@@ -371,7 +371,7 @@ public static class MockAuthData
     public static async Task<User?> GetUserByIdAsync(string userId)
     {
         EnsureDataLoaded();
-        await Task.Delay(100); // Simulate network delay
+        // await Task.Delay(100); // Simulate network delay
 
         var user = _users!.FirstOrDefault(u => u.Id.Equals(userId, StringComparison.OrdinalIgnoreCase));
         if (user == null) return null;
@@ -409,7 +409,7 @@ public static class MockAuthData
     public static async Task UpdateEmailVerificationAsync(string userId, bool isVerified)
     {
         EnsureDataLoaded();
-        await Task.Delay(100);
+        // await Task.Delay(100);
 
         var user = _users!.FirstOrDefault(u => u.Id.Equals(userId, StringComparison.OrdinalIgnoreCase));
         if (user != null)

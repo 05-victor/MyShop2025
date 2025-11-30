@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="MyShop.Client.Views.Components.Cards.SimpleStatCard"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    x:Name="RootControl">
+
+    <!--
+    SimpleStatCard Component
+    ========================
+    A simpler version of KPICard for basic stats display (no trends, no icons).
+    
+    Usage:
+    <cards:SimpleStatCard 
+        Label="Total Orders"
+        Value="156"
+        ValueColor="#111827"/>
+    -->
+
+    <Border Style="{StaticResource CardWithShadowStyle}">
+        <StackPanel Spacing="8">
+            <!-- Label -->
+            <TextBlock Text="{Binding Label, ElementName=RootControl, Mode=OneWay}"
+                       FontSize="14"
+                       Foreground="{Binding LabelColor, ElementName=RootControl, Mode=OneWay}"/>
+
+            <!-- Value -->
+            <TextBlock Text="{Binding Value, ElementName=RootControl, Mode=OneWay}"
+                       FontSize="32"
+                       FontWeight="Bold"
+                       Foreground="{Binding ValueColor, ElementName=RootControl, Mode=OneWay}"/>
+
+            <!-- Subtitle (optional) -->
+            <TextBlock Text="{Binding Subtitle, ElementName=RootControl, Mode=OneWay}"
+                       FontSize="12"
+                       Foreground="#6B7280"
+                       Visibility="{Binding Subtitle, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+        </StackPanel>
+    </Border>
+</UserControl>

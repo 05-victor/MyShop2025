@@ -214,7 +214,7 @@ public partial class RegisterViewModel : ObservableObject
             IsLoading = true;
             ErrorMessage = string.Empty;
             System.Diagnostics.Debug.WriteLine("[RegisterViewModel] Google Register requested - OAuth2 integration pending");
-            await Task.Delay(800);
+            // await Task.Delay(800);
             ErrorMessage = "Google Sign-Up coming soon";
         }
         finally

@@ -43,6 +43,18 @@ namespace MyShop.Client.Views.Admin
             }
         }
 
+        private void PeriodComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // Guard: ViewModel may be null during page initialization
+            if (ViewModel == null) return;
+            
+            if (PeriodComboBox.SelectedItem is ComboBoxItem item)
+            {
+                var period = item.Tag?.ToString() ?? "current";
+                ViewModel.SelectedPeriod = period;
+            }
+        }
+
         private async void ViewAllAgents_Click(object sender, RoutedEventArgs e)
         {
             await ViewModel.NavigateToAllAgentsCommand.ExecuteAsync(null);

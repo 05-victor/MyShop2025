@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="MyShop.Client.Views.Components.Forms.LabeledComboBox"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    x:Name="RootControl">
+
+    <!--
+    LabeledComboBox Component
+    =========================
+    A reusable ComboBox with label on top.
+    
+    Usage (Static Items):
+    <forms:LabeledComboBox 
+        Label="Category"
+        PlaceholderText="All Categories"
+        SelectedIndex="0"
+        SelectionChanged="OnCategoryChanged">
+        <ComboBoxItem Content="All Categories" Tag=""/>
+        <ComboBoxItem Content="Electronics" Tag="Electronics"/>
+    </forms:LabeledComboBox>
+    
+    Usage (Bound Items):
+    <forms:LabeledComboBox 
+        Label="Sort By"
+        ItemsSource="{x:Bind ViewModel.SortOptions}"
+        SelectedItem="{x:Bind ViewModel.SelectedSort, Mode=TwoWay}"
+        DisplayMemberPath="Name"/>
+    -->
+
+    <StackPanel Spacing="4">
+        <TextBlock Text="{Binding Label, ElementName=RootControl, Mode=OneWay}"
+                   FontSize="12"
+                   Foreground="#6B7280"/>
+        <ComboBox x:Name="InnerComboBox"
+                  HorizontalAlignment="Stretch"
+                  BorderBrush="#E5E7EB"
+                  BorderThickness="1"
+                  PlaceholderText="{Binding PlaceholderText, ElementName=RootControl, Mode=OneWay}"
+                  ItemsSource="{Binding ItemsSource, ElementName=RootControl, Mode=OneWay}"
+                  SelectedItem="{Binding SelectedItem, ElementName=RootControl, Mode=TwoWay}"
+                  SelectedIndex="{Binding SelectedIndex, ElementName=RootControl, Mode=TwoWay}"
+                  SelectedValue="{Binding SelectedValue, ElementName=RootControl, Mode=TwoWay}"
+                  SelectedValuePath="{Binding SelectedValuePath, ElementName=RootControl, Mode=OneWay}"
+                  DisplayMemberPath="{Binding DisplayMemberPath, ElementName=RootControl, Mode=OneWay}"
+                  SelectionChanged="InnerComboBox_SelectionChanged"/>
+    </StackPanel>
+</UserControl>

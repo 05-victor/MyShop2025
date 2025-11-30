@@ -5,6 +5,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:MyShop.Client.ViewModels.Shared"
+    xmlns:converters="using:MyShop.Client.Common.Converters"
     mc:Ignorable="d"
     Background="#F5F7FA">
 
@@ -15,6 +17,9 @@
     </Page.Transitions>
 
     <Page.Resources>
+        <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        
         <Style x:Key="CardStyle" TargetType="Border">
             <Setter Property="Background" Value="White"/>
             <Setter Property="CornerRadius" Value="16"/>
@@ -37,16 +42,60 @@
             <Setter Property="BorderBrush" Value="#D0D7E2"/>
             <Setter Property="Background" Value="White"/>
         </Style>
+        
+        <DataTemplate x:Key="CheckoutItemTemplate" x:DataType="vm:CheckoutItem">
+            <Grid Padding="0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Width="64" Height="64" Background="#F9FAFB" CornerRadius="8">
+                    <Image Stretch="UniformToFill">
+                        <Image.Source>
+                            <BitmapImage UriSource="{x:Bind ImageUrl}" 
+                                        DecodePixelWidth="128"
+                                        DecodePixelHeight="128"/>
+                        </Image.Source>
+                    </Image>
+                </Border>
+
+                <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="{x:Bind Name}" 
+                              FontSize="14" 
+                              FontWeight="SemiBold" 
+                              Foreground="#111827"
+                              TextTrimming="CharacterEllipsis"
+                              MaxLines="2"/>
+                    <TextBlock FontSize="12" Foreground="#6B7280">
+                        <Run Text="Qty: "/><Run Text="{x:Bind Quantity}"/>
+                    </TextBlock>
+                </StackPanel>
+
+                <TextBlock Grid.Column="2" 
+                          Text="{x:Bind TotalFormatted}" 
+                          FontSize="14" 
+                          FontWeight="SemiBold" 
+                          Foreground="#111827"
+                          VerticalAlignment="Center"/>
+            </Grid>
+        </DataTemplate>
     </Page.Resources>
 
     <Grid>
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel Padding="24" Spacing="20" MaxWidth="1200">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <Grid Padding="24" MaxWidth="1200" HorizontalAlignment="Center">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
                 <!-- Header -->
-                <Grid>
+                <Grid Grid.Row="0" Margin="0,0,0,20">
                     <StackPanel Orientation="Horizontal" Spacing="16">
                         <Button Style="{StaticResource SecondaryButtonStyle}"
+                               Command="{x:Bind ViewModel.BackToCartCommand}"
                                MinWidth="120">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon Glyph="&#xE72B;" FontSize="16"/>
@@ -65,14 +114,14 @@
                     </StackPanel>
                 </Grid>
 
-                <Grid>
+                <Grid Grid.Row="1" ColumnSpacing="24">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*" MinWidth="400"/>
+                        <ColumnDefinition Width="360"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- Left Column: Forms & Content -->
-                    <StackPanel Grid.Column="0" Spacing="24" Margin="0,0,24,0">
+                    <StackPanel Grid.Column="0" Spacing="24">
 
                         <!-- Shipping Information Form -->
                         <Border Style="{StaticResource CardStyle}">
@@ -98,12 +147,14 @@
                                     <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,8,0">
                                         <TextBlock Text="Full Name *" Style="{StaticResource InputLabelStyle}"/>
                                         <TextBox Style="{StaticResource InputBoxStyle}" 
+                                                Text="{x:Bind ViewModel.FullName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                 PlaceholderText="John Doe"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Row="0" Grid.Column="1" Margin="8,0,0,0">
                                         <TextBlock Text="Email Address *" Style="{StaticResource InputLabelStyle}"/>
                                         <TextBox Style="{StaticResource InputBoxStyle}" 
+                                                Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                 PlaceholderText="john@example.com"/>
                                     </StackPanel>
 
@@ -111,19 +162,21 @@
                                     <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,16,8,0">
                                         <TextBlock Text="Phone Number *" Style="{StaticResource InputLabelStyle}"/>
                                         <TextBox Style="{StaticResource InputBoxStyle}" 
-                                                PlaceholderText="+1 (555) 000-0000"/>
+                                                Text="{x:Bind ViewModel.Phone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                PlaceholderText="+84 (555) 000-0000"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Row="1" Grid.Column="1" Margin="8,16,0,0">
                                         <TextBlock Text="Country *" Style="{StaticResource InputLabelStyle}"/>
                                         <TextBox Style="{StaticResource InputBoxStyle}" 
-                                                Text="United States"/>
+                                                Text="{x:Bind ViewModel.Country, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                     </StackPanel>
 
                                     <!-- Row 3: Address (full width) -->
                                     <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,16,0,0">
                                         <TextBlock Text="Street Address *" Style="{StaticResource InputLabelStyle}"/>
                                         <TextBox Style="{StaticResource InputBoxStyle}" 
+                                                Text="{x:Bind ViewModel.Address, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                 PlaceholderText="123 Main Street, Apt 4B"/>
                                     </StackPanel>
 
@@ -131,13 +184,15 @@
                                     <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,16,8,0">
                                         <TextBlock Text="City *" Style="{StaticResource InputLabelStyle}"/>
                                         <TextBox Style="{StaticResource InputBoxStyle}" 
-                                                PlaceholderText="New York"/>
+                                                Text="{x:Bind ViewModel.City, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                PlaceholderText="Ho Chi Minh City"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Row="3" Grid.Column="1" Margin="8,16,0,0">
                                         <TextBlock Text="ZIP Code *" Style="{StaticResource InputLabelStyle}"/>
                                         <TextBox Style="{StaticResource InputBoxStyle}" 
-                                                PlaceholderText="10001"/>
+                                                Text="{x:Bind ViewModel.ZipCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                PlaceholderText="700000"/>
                                     </StackPanel>
                                 </Grid>
                             </StackPanel>
@@ -146,70 +201,14 @@
                         <!-- Order Items -->
                         <Border Style="{StaticResource CardStyle}">
                             <StackPanel Spacing="16">
-                                <TextBlock Text="Order Items (2)" 
-                                          FontSize="18" 
-                                          FontWeight="SemiBold" 
-                                          Foreground="#111827"/>
+                                <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="#111827">
+                                    <Run Text="Order Items ("/>
+                                    <Run Text="{x:Bind ViewModel.OrderItems.Count, Mode=OneWay}"/>
+                                    <Run Text=")"/>
+                                </TextBlock>
 
-                                <!-- Sample Order Item 1 -->
-                                <Grid BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Padding="0,0,0,16">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <Border Width="64" Height="64" Background="#F9FAFB" CornerRadius="8">
-                                        <Image Source="/Assets/placeholder-product.png" Stretch="UniformToFill"/>
-                                    </Border>
-
-                                    <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center">
-                                        <TextBlock Text="iPhone 14 Pro Max" 
-                                                  FontSize="14" 
-                                                  FontWeight="SemiBold" 
-                                                  Foreground="#111827"/>
-                                        <TextBlock Text="Qty: 1" 
-                                                  FontSize="12" 
-                                                  Foreground="#6B7280"/>
-                                    </StackPanel>
-
-                                    <TextBlock Grid.Column="2" 
-                                              Text="$1,299.00" 
-                                              FontSize="14" 
-                                              FontWeight="SemiBold" 
-                                              Foreground="#111827"
-                                              VerticalAlignment="Center"/>
-                                </Grid>
-
-                                <!-- Sample Order Item 2 -->
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <Border Width="64" Height="64" Background="#F9FAFB" CornerRadius="8">
-                                        <Image Source="/Assets/placeholder-product.png" Stretch="UniformToFill"/>
-                                    </Border>
-
-                                    <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center">
-                                        <TextBlock Text="AirPods Pro" 
-                                                  FontSize="14" 
-                                                  FontWeight="SemiBold" 
-                                                  Foreground="#111827"/>
-                                        <TextBlock Text="Qty: 2" 
-                                                  FontSize="12" 
-                                                  Foreground="#6B7280"/>
-                                    </StackPanel>
-
-                                    <TextBlock Grid.Column="2" 
-                                              Text="$498.00" 
-                                              FontSize="14" 
-                                              FontWeight="SemiBold" 
-                                              Foreground="#111827"
-                                              VerticalAlignment="Center"/>
-                                </Grid>
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.OrderItems, Mode=OneWay}"
+                                             ItemTemplate="{StaticResource CheckoutItemTemplate}"/>
                             </StackPanel>
                         </Border>
 
@@ -227,21 +226,21 @@
                             <StackPanel Spacing="12">
                                 <Grid>
                                     <TextBlock Text="Subtotal" Foreground="#6B7280" FontSize="14"/>
-                                    <TextBlock Text="$1,797.00" 
+                                    <TextBlock Text="{x:Bind ViewModel.SubtotalFormatted, Mode=OneWay}" 
                                               HorizontalAlignment="Right" 
                                               Foreground="#111827" 
                                               FontSize="14"/>
                                 </Grid>
                                 <Grid>
                                     <TextBlock Text="Shipping" Foreground="#6B7280" FontSize="14"/>
-                                    <TextBlock Text="$10.00" 
+                                    <TextBlock Text="{x:Bind ViewModel.ShippingFormatted, Mode=OneWay}" 
                                               HorizontalAlignment="Right" 
                                               Foreground="#111827" 
                                               FontSize="14"/>
                                 </Grid>
                                 <Grid>
                                     <TextBlock Text="Tax (8%)" Foreground="#6B7280" FontSize="14"/>
-                                    <TextBlock Text="$143.76" 
+                                    <TextBlock Text="{x:Bind ViewModel.TaxFormatted, Mode=OneWay}" 
                                               HorizontalAlignment="Right" 
                                               Foreground="#111827" 
                                               FontSize="14"/>
@@ -254,7 +253,7 @@
                                               FontSize="18" 
                                               FontWeight="SemiBold" 
                                               Foreground="#111827"/>
-                                    <TextBlock Text="$1,950.76" 
+                                    <TextBlock Text="{x:Bind ViewModel.TotalFormatted, Mode=OneWay}" 
                                               FontSize="20" 
                                               FontWeight="Bold"
                                               HorizontalAlignment="Right" 
@@ -262,13 +261,69 @@
                                 </Grid>
                             </StackPanel>
 
-                            <!-- Continue to Payment Button -->
-                            <Button Style="{StaticResource PrimaryButtonStyle}"
-                                   Content="Continue to Payment"
-                                   HorizontalAlignment="Stretch"
-                                   Margin="0,16,0,0" />
+                            <!-- QR Code Payment Section -->
+                            <Border Height="1" Background="#E5E7EB" Margin="0,8"/>
+                            
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Payment via QR Code" 
+                                          FontSize="16" 
+                                          FontWeight="SemiBold" 
+                                          Foreground="#111827"
+                                          HorizontalAlignment="Center"/>
+                                
+                                <TextBlock Text="Scan to pay with your banking app" 
+                                          FontSize="12" 
+                                          Foreground="#6B7280"
+                                          HorizontalAlignment="Center"/>
+                                
+                                <!-- QR Code Image Only -->
+                                <Border Background="White" 
+                                       CornerRadius="12" 
+                                       Padding="12"
+                                       HorizontalAlignment="Center"
+                                       BorderBrush="#E5E7EB"
+                                       BorderThickness="1">
+                                    <Image x:Name="QrCodeImage" 
+                                          Source="ms-appx:///Assets/payment-qr.png" 
+                                          Width="200"
+                                          Height="200"
+                                          Stretch="Uniform"
+                                          ImageFailed="QrCodeImage_ImageFailed"/>
+                                </Border>
+                                
+                                <!-- Fallback placeholder when image fails -->
+                                <Border x:Name="QrPlaceholder" 
+                                       Visibility="Collapsed"
+                                       Background="#F3F4F6" 
+                                       CornerRadius="12"
+                                       Padding="24"
+                                       HorizontalAlignment="Center">
+                                    <StackPanel HorizontalAlignment="Center" Spacing="8">
+                                        <FontIcon Glyph="&#xED14;" FontSize="48" Foreground="#9CA3AF"/>
+                                        <TextBlock Text="QR Code" FontSize="14" Foreground="#6B7280" 
+                                                  HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Add payment-qr.png to Assets" FontSize="11" Foreground="#9CA3AF" 
+                                                  HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
 
-                            <TextBlock Text="By proceeding, you agree to our terms and conditions" 
+                            <!-- Confirm Payment Button -->
+                            <Button Style="{StaticResource PrimaryButtonStyle}"
+                                   Command="{x:Bind ViewModel.ConfirmPaymentCommand}"
+                                   IsEnabled="{x:Bind ViewModel.IsProcessing, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                                   HorizontalAlignment="Stretch"
+                                   Margin="0,16,0,0">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <ProgressRing IsActive="{x:Bind ViewModel.IsProcessing, Mode=OneWay}"
+                                                 Visibility="{x:Bind ViewModel.IsProcessing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                 Width="16" Height="16"
+                                                 Foreground="White"/>
+                                    <TextBlock Text="I've Made the Payment"/>
+                                </StackPanel>
+                            </Button>
+
+                            <TextBlock Text="Your order will be processed once payment is confirmed" 
                                       FontSize="11" 
                                       Foreground="#9CA3AF" 
                                       TextAlignment="Center"
@@ -278,7 +333,7 @@
 
                 </Grid>
 
-            </StackPanel>
+            </Grid>
         </ScrollViewer>
     </Grid>
 </Page>

@@ -63,8 +63,8 @@
                     <!-- Activation Code Input -->
                     <Grid>
                         <TextBox x:Name="ActivationCodeInput"
-                                PlaceholderText="MYSHOP-ADMIN-2025-XXXXX"
-                                MaxLength="25"
+                                PlaceholderText="MYSHOP-XXXX-XXXX-XXXX"
+                                MaxLength="22"
                                 Background="#FFFFFF1A"
                                 BorderBrush="#FFFFFF4D"
                                 BorderThickness="1"
@@ -72,11 +72,12 @@
                                 CornerRadius="6"
                                 Padding="12,10"
                                 FontFamily="Consolas"
+                                CharacterCasing="Upper"
                                 TextChanged="ActivationCodeInput_TextChanged"/>
                         
                         <!-- Character Counter -->
                         <TextBlock x:Name="CharCounterText"
-                                  Text="0/25"
+                                  Text="0/22"
                                   FontSize="11"
                                   FontFamily="Consolas"
                                   Foreground="#BEEFFF"
@@ -125,8 +126,9 @@
                                               TextWrapping="Wrap"/>
                                     <Border Background="#FEF3C7" CornerRadius="4" Padding="8">
                                         <StackPanel Spacing="4">
-                                            <TextBlock Text="For testing:" FontWeight="SemiBold"/>
-                                            <TextBlock Text="MYSHOP-ADMIN-2025" FontFamily="Consolas" FontWeight="Bold"/>
+                                            <TextBlock Text="Demo codes:" FontWeight="SemiBold"/>
+                                            <TextBlock Text="• MYSHOP-PERM-2025-ADMIN (Permanent)" FontFamily="Consolas" FontSize="11"/>
+                                            <TextBlock Text="• MYSHOP-TRIAL-2025-001 (14 days)" FontFamily="Consolas" FontSize="11"/>
                                         </StackPanel>
                                     </Border>
                                 </StackPanel>

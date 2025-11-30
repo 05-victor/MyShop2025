@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
-using MyShop.Client.ViewModels.Admin;
+using MyShop.Client.ViewModels.SalesAgent;
+using System;
 
 namespace MyShop.Client.Views.SalesAgent;
 
@@ -9,7 +10,7 @@ namespace MyShop.Client.Views.SalesAgent;
 /// </summary>
 public sealed partial class SalesAgentReportsPage : Page
 {
-    public AdminReportsViewModel ViewModel { get; }
+    public SalesAgentReportsViewModel ViewModel { get; }
 
     public SalesAgentReportsPage()
     {
@@ -19,7 +20,7 @@ public sealed partial class SalesAgentReportsPage : Page
             Services.LoggingService.Instance.Debug("[SalesAgentReportsPage] Constructor start");
             
             // Resolve ViewModel
-            ViewModel = App.Current.Services.GetRequiredService<AdminReportsViewModel>();
+            ViewModel = App.Current.Services.GetRequiredService<SalesAgentReportsViewModel>();
             Services.LoggingService.Instance.Debug("[SalesAgentReportsPage] ViewModel resolved");
         }
         catch (Exception ex)
@@ -72,6 +73,22 @@ public sealed partial class SalesAgentReportsPage : Page
         catch (Exception ex)
         {
             Services.LoggingService.Instance.Error($"[SalesAgentReportsPage] OnNavigatedTo failed", ex);
+        }
+    }
+
+    private async void RefreshContainer_RefreshRequested(RefreshContainer sender, RefreshRequestedEventArgs args)
+    {
+        using var deferral = args.GetDeferral();
+        try
+        {
+            if (ViewModel.RefreshCommand?.CanExecute(null) == true)
+            {
+                await ViewModel.RefreshCommand.ExecuteAsync(null);
+            }
+        }
+        catch (Exception ex)
+        {
+            Services.LoggingService.Instance.Error("Failed to refresh reports", ex);
         }
     }
 }

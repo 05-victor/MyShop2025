@@ -70,7 +70,7 @@ public static class MockUserData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(350);
+        // await Task.Delay(350);
 
         return _users!.Select(MapToUser).ToList();
     }
@@ -87,7 +87,7 @@ public static class MockUserData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(350);
+        // await Task.Delay(350);
 
         var query = _users!.AsQueryable();
 
@@ -159,7 +159,7 @@ public static class MockUserData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(200);
+        // await Task.Delay(200);
 
         var userData = _users!.FirstOrDefault(u => u.Id == id.ToString());
         if (userData == null) return null;
@@ -172,7 +172,7 @@ public static class MockUserData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(500);
+        // await Task.Delay(500);
 
         // Check if username exists
         if (_users!.Any(u => u.Username.Equals(user.Username, StringComparison.OrdinalIgnoreCase)))
@@ -206,7 +206,7 @@ public static class MockUserData
             RoleNames = new List<string> { jsonRoleName },
             Status = "Active",
             EmailVerified = false,
-            AvatarUrl = user.Avatar,
+            Avatar = user.Avatar,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -223,7 +223,7 @@ public static class MockUserData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(400);
+        // await Task.Delay(400);
 
         var existing = _users!.FirstOrDefault(u => u.Id == user.Id.ToString());
         if (existing == null)
@@ -235,7 +235,7 @@ public static class MockUserData
         existing.Email = user.Email;
         existing.PhoneNumber = user.PhoneNumber;
         existing.FullName = user.FullName;
-        existing.AvatarUrl = user.Avatar;
+        existing.Avatar = user.Avatar;
         existing.LastLoginAt = user.LastLogin;
 
         // Persist to JSON
@@ -249,7 +249,7 @@ public static class MockUserData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(350);
+        // await Task.Delay(350);
 
         var user = _users!.FirstOrDefault(u => u.Id == id.ToString());
         if (user == null) return false;
@@ -267,7 +267,7 @@ public static class MockUserData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(300);
+        // await Task.Delay(300);
 
         // Map UI role names to JSON role names
         var jsonRoleName = role.ToUpper() switch
@@ -289,7 +289,7 @@ public static class MockUserData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(350);
+        // await Task.Delay(350);
 
         if (string.IsNullOrWhiteSpace(query))
         {
@@ -324,7 +324,7 @@ public static class MockUserData
             Email = data.Email,
             PhoneNumber = data.PhoneNumber,
             FullName = data.FullName,
-            Avatar = data.AvatarUrl,
+            Avatar = data.Avatar,
             Roles = new List<UserRole> { role },
             Token = $"mock_token_{data.Id}",
             CreatedAt = data.CreatedAt,
@@ -375,7 +375,7 @@ public static class MockUserData
         public List<string>? RoleNames { get; set; }
         public string Status { get; set; } = "Active";
         public bool EmailVerified { get; set; }
-        public string? AvatarUrl { get; set; }
+        public string? Avatar { get; set; }  // Changed from AvatarUrl to match JSON field name
         public DateTime CreatedAt { get; set; }
         public DateTime? LastLoginAt { get; set; }
         

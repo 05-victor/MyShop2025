@@ -1,39 +1,46 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using MyShop.Core.Common;
 using MyShop.Client.ViewModels.Settings;
+using MyShop.Client.Views.Dialogs;
 using MyShop.Client.Services;
 using System;
+using System.Diagnostics;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace MyShop.Client.Views.Shared;
 
 public sealed partial class SettingsPage : Page
 {
     public SettingsViewModel ViewModel { get; }
+    private bool _isDialogOpen = false;
+    private bool _isInitializing = true;
 
     public SettingsPage()
     {
-        AppLogger.Enter();
+        LoggingService.Instance.Debug("→ SettingsPage()");
         try
         {
             this.InitializeComponent();
-            AppLogger.Success("InitializeComponent completed");
+            LoggingService.Instance.Debug("InitializeComponent completed");
             
             // Get ViewModel from DI
             ViewModel = App.Current.Services.GetRequiredService<SettingsViewModel>();
             this.DataContext = ViewModel;
-            AppLogger.Success("ViewModel retrieved from DI and DataContext set");
+            LoggingService.Instance.Debug("ViewModel retrieved from DI and DataContext set");
             
             SetupKeyboardShortcuts();
         }
         catch (Exception ex)
         {
-            AppLogger.Error("SettingsPage constructor failed", ex);
+            LoggingService.Instance.Error("SettingsPage constructor failed", ex);
             throw;
         }
         finally
         {
-            AppLogger.Exit();
+            LoggingService.Instance.Debug("← SettingsPage()");
         }
     }
 
@@ -67,24 +74,130 @@ public sealed partial class SettingsPage : Page
         KeyboardAccelerators.Add(importShortcut);
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
-        AppLogger.Enter();
+        LoggingService.Instance.Debug("→ OnNavigatedTo");
         try
         {
             base.OnNavigatedTo(e);
             
-            // Load settings
-            _ = ViewModel.LoadCommand.ExecuteAsync(null);
-            AppLogger.Success("Settings loaded");
+            // Load settings and wait for completion
+            await ViewModel.LoadCommand.ExecuteAsync(null);
+            LoggingService.Instance.Debug("Settings loaded");
+            
+            // Wait for UI to stabilize before allowing toggle events
+            // This prevents the Toggled event from firing due to binding updates
+            await System.Threading.Tasks.Task.Delay(100);
         }
         catch (Exception ex)
         {
-            AppLogger.Error("OnNavigatedTo failed", ex);
+            LoggingService.Instance.Error("OnNavigatedTo failed", ex);
         }
         finally
         {
-            AppLogger.Exit();
+            // Allow toggle events only after load completes and UI stabilizes
+            _isInitializing = false;
+            LoggingService.Instance.Debug("← OnNavigatedTo");
+        }
+    }
+
+    private async void MockDataToggle_Toggled(object sender, RoutedEventArgs e)
+    {
+        // Skip during page initialization
+        if (_isInitializing) return;
+        
+        // Prevent opening multiple dialogs
+        if (_isDialogOpen) return;
+        
+        // Show warning that restart is required
+        if (sender is ToggleSwitch toggle)
+        {
+            try
+            {
+                _isDialogOpen = true;
+                
+                var dialog = new ContentDialog
+                {
+                    Title = "Restart Required",
+                    Content = "Changing the data source requires restarting the application. Would you like to save this setting?",
+                    PrimaryButtonText = "Save & Restart Later",
+                    CloseButtonText = "Cancel",
+                    XamlRoot = this.XamlRoot
+                };
+
+                var result = await dialog.ShowAsync();
+                if (result != ContentDialogResult.Primary)
+                {
+                    // Revert toggle without triggering event again
+                    toggle.Toggled -= MockDataToggle_Toggled;
+                    toggle.IsOn = !toggle.IsOn;
+                    toggle.Toggled += MockDataToggle_Toggled;
+                }
+            }
+            finally
+            {
+                _isDialogOpen = false;
+            }
+        }
+    }
+
+    private async void ConfigureServer_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var dialog = new ServerConfigDialog
+            {
+                XamlRoot = this.XamlRoot
+            };
+            await dialog.ShowAsync();
+        }
+        catch (Exception ex)
+        {
+            LoggingService.Instance.Error("Failed to open server config dialog", ex);
+        }
+    }
+
+    private void OpenLogsFolder_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var logsPath = StorageConstants.LogsDirectory;
+            if (!System.IO.Directory.Exists(logsPath))
+            {
+                System.IO.Directory.CreateDirectory(logsPath);
+            }
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = logsPath,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            LoggingService.Instance.Error("Failed to open logs folder", ex);
+        }
+    }
+
+    private void OpenExportsFolder_Click(object sender, RoutedEventArgs e)
+    {
+        StorageConstants.OpenExportsFolder();
+    }
+
+    private void CopyDebugInfo_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var debugInfo = ViewModel.GetDebugInfo();
+            var dataPackage = new DataPackage();
+            dataPackage.SetText(debugInfo);
+            Clipboard.SetContent(dataPackage);
+            
+            // Could show a toast notification here
+            LoggingService.Instance.Information("Debug info copied to clipboard");
+        }
+        catch (Exception ex)
+        {
+            LoggingService.Instance.Error("Failed to copy debug info", ex);
         }
     }
 }

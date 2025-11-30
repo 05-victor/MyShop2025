@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="MyShop.Client.Views.Components.Tables.UserAvatarInfo"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    x:Name="RootControl">
+
+    <!--
+    UserAvatarInfo Component
+    ========================
+    A reusable user/agent display with avatar, name, and optional secondary text.
+    
+    Usage:
+    <tables:UserAvatarInfo 
+        DisplayName="John Doe"
+        SecondaryText="john@example.com"
+        AvatarUrl="{x:Bind User.AvatarUrl}"
+        Size="Medium"/>
+        
+    Usage with ExtraContent:
+    <tables:UserAvatarInfo 
+        DisplayName="John Doe"
+        SecondaryText="john@example.com">
+        <tables:UserAvatarInfo.ExtraContent>
+            <badges:StatusBadge Text="Active" Variant="Success"/>
+        </tables:UserAvatarInfo.ExtraContent>
+    </tables:UserAvatarInfo>
+    -->
+
+    <StackPanel Orientation="Horizontal" Spacing="12">
+        <!-- Avatar -->
+        <PersonPicture x:Name="AvatarPicture"
+                      Width="{Binding AvatarSize, ElementName=RootControl, Mode=OneWay}"
+                      Height="{Binding AvatarSize, ElementName=RootControl, Mode=OneWay}"
+                      DisplayName="{Binding DisplayName, ElementName=RootControl, Mode=OneWay}"
+                      ProfilePicture="{Binding AvatarSource, ElementName=RootControl, Mode=OneWay}"/>
+
+        <!-- Name and Secondary Text -->
+        <StackPanel VerticalAlignment="Center" Spacing="4">
+            <!-- Name Row (with optional extra content) -->
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <TextBlock Text="{Binding DisplayName, ElementName=RootControl, Mode=OneWay}"
+                           FontSize="{Binding NameFontSize, ElementName=RootControl, Mode=OneWay}"
+                           FontWeight="SemiBold"
+                           Foreground="#111827"
+                           VerticalAlignment="Center"
+                           TextTrimming="CharacterEllipsis"/>
+                
+                <!-- Extra Content Slot (e.g., badges) -->
+                <ContentPresenter x:Name="ExtraContentPresenter"
+                                  Content="{Binding ExtraContent, ElementName=RootControl, Mode=OneWay}"
+                                  VerticalAlignment="Center"/>
+            </StackPanel>
+            
+            <TextBlock Text="{Binding SecondaryText, ElementName=RootControl, Mode=OneWay}"
+                       FontSize="{Binding SecondaryFontSize, ElementName=RootControl, Mode=OneWay}"
+                       Foreground="#6B7280"
+                       TextTrimming="CharacterEllipsis"
+                       Visibility="{Binding HasSecondaryText, ElementName=RootControl, Mode=OneWay}"/>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

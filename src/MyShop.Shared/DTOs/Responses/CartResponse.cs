@@ -28,4 +28,5 @@ public class CartItemResponse
     public decimal Subtotal { get; set; }
     public int StockAvailable { get; set; }
     public string? CategoryName { get; set; }
+    public DateTime? AddedAt { get; set; }
 }

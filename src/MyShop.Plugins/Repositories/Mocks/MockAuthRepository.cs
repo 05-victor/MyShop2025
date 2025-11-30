@@ -106,7 +106,7 @@ public class MockAuthRepository : IAuthRepository
         try
         {
             // Simulate sending email
-            await Task.Delay(500);
+            // await Task.Delay(500);
             System.Diagnostics.Debug.WriteLine($"[Mock] Verification email sent to user {userId}");
             System.Diagnostics.Debug.WriteLine($"[Mock] Verification code: 123456 (for testing)");
             return Result<Unit>.Success(Unit.Value);
@@ -123,7 +123,7 @@ public class MockAuthRepository : IAuthRepository
         try
         {
             // Simulate API call
-            await Task.Delay(300);
+            // await Task.Delay(300);
             
             // Check if user exists in mock data and get verification status
             var user = await MockAuthData.GetUserByIdAsync(userId);
@@ -146,7 +146,7 @@ public class MockAuthRepository : IAuthRepository
         try
         {
             // Simulate API call
-            await Task.Delay(500);
+            // await Task.Delay(500);
 
             // For demo: accept "123456" as valid code
             if (verificationCode == "123456")

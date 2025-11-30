@@ -49,36 +49,8 @@ public partial class AdminProductsViewModel : PagedViewModelBase<ProductRow>
         await LoadDataAsync();
     }
 
-    /// <summary>
-    /// Reload when filters change
-    /// </summary>
-    partial void OnSelectedCategoryChanged(string? value)
-    {
-        CurrentPage = 1;
-        _ = LoadPageAsync();
-    }
-
-    partial void OnMinPriceChanged(decimal? value)
-    {
-        CurrentPage = 1;
-        _ = LoadPageAsync();
-    }
-
-    partial void OnMaxPriceChanged(decimal? value)
-    {
-        CurrentPage = 1;
-        _ = LoadPageAsync();
-    }
-
-    partial void OnSortByChanged(string value)
-    {
-        _ = LoadPageAsync();
-    }
-
-    partial void OnSortDescendingChanged(bool value)
-    {
-        _ = LoadPageAsync();
-    }
+    // NOTE: Filter changes no longer auto-reload
+    // User must click "Apply Filters" button to reduce API calls
 
     /// <summary>
     /// Override LoadPageAsync to fetch products with server-side paging
@@ -136,17 +108,9 @@ public partial class AdminProductsViewModel : PagedViewModelBase<ProductRow>
         SetLoadingState(true);
         try
         {
-            var result = await _productFacade.ExportProductsToCsvAsync(
+            // Facade handles FileSavePicker and toast notifications
+            await _productFacade.ExportProductsToCsvAsync(
                 SearchQuery, SelectedCategory, MinPrice, MaxPrice);
-
-            if (result.IsSuccess)
-            {
-                await _toastHelper?.ShowSuccess($"Products exported to: {result.Data}");
-            }
-            else
-            {
-                await _toastHelper?.ShowError(result.ErrorMessage ?? "Export failed");
-            }
         }
         catch (Exception ex)
         {
@@ -200,18 +164,67 @@ public partial class AdminProductsViewModel : PagedViewModelBase<ProductRow>
     private async Task EditProductAsync(ProductRow? row)
     {
         if (row is null) return;
-        // TODO: Open EditProductDialog when created
-        await _toastHelper?.ShowInfo("Edit product feature coming soon");
-        System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] Edit product: {row.Name}");
+        // The View will handle showing the dialog and call UpdateProductAsync
+        EditProductRequested?.Invoke(this, row);
+    }
+
+    /// <summary>
+    /// Event raised when edit dialog should be shown
+    /// </summary>
+    public event EventHandler<ProductRow>? EditProductRequested;
+
+    /// <summary>
+    /// Event raised when view details dialog should be shown
+    /// </summary>
+    public event EventHandler<ProductRow>? ViewProductRequested;
+
+    /// <summary>
+    /// Update a product via the facade
+    /// </summary>
+    public async Task UpdateProductAsync(
+        Guid productId, string name, string sku, string description, string imageUrl,
+        decimal importPrice, decimal sellingPrice, int stock, string category)
+    {
+        SetLoadingState(true);
+        try
+        {
+            // Pass category as both CategoryName and DeviceType to ensure persistence
+            var result = await _productFacade.UpdateProductAsync(
+                productId, name, sku, description, imageUrl,
+                importPrice, sellingPrice, stock,
+                category, string.Empty, category, 0, "Active");
+
+            if (result.IsSuccess)
+            {
+                // Toast is already shown by ProductFacade, no need to show again
+                // Reload the list to show updated data
+                await LoadPageAsync();
+            }
+            else
+            {
+                await _toastHelper?.ShowError(result.ErrorMessage ?? "Failed to update product");
+            }
+        }
+        catch (Exception ex)
+        {
+            await _toastHelper?.ShowError($"Failed to update product: {ex.Message}");
+        }
+        finally
+        {
+            SetLoadingState(false);
+        }
     }
 
     [RelayCommand]
-    private async Task ViewProductAsync(ProductRow? row)
+    private Task ViewProductAsync(ProductRow? row)
     {
-        if (row is null) return;
-        // TODO: Open ProductDetailsDialog when created
-        await _toastHelper?.ShowInfo("View product details feature coming soon");
+        if (row is null) return Task.CompletedTask;
+        
+        // Raise event to show View Product Details dialog
+        ViewProductRequested?.Invoke(this, row);
         System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] View product: {row.Name}");
+        
+        return Task.CompletedTask;
     }
 
     [RelayCommand]

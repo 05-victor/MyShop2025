@@ -7,16 +7,13 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.SalesAgent"
     xmlns:cards="using:MyShop.Client.Views.Components.Cards"
+    xmlns:charts="using:MyShop.Client.Views.Components.Charts"
+    xmlns:layout="using:MyShop.Client.Views.Components.Layout"
+    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     mc:Ignorable="d"
     Background="#F5F7FA"
     x:Name="MyPage">
-
-    <Page.Transitions>
-        <TransitionCollection>
-            <EntranceThemeTransition FromVerticalOffset="50"/>
-        </TransitionCollection>
-    </Page.Transitions>
 
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
@@ -24,7 +21,17 @@
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
     </Page.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <Grid>
+        <!-- Layer 0: Dashboard Content (Hidden during loading) -->
+        <Grid x:Name="DashboardContent"
+              Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+            <Grid.Transitions>
+                <TransitionCollection>
+                    <EntranceThemeTransition FromVerticalOffset="50"/>
+                </TransitionCollection>
+            </Grid.Transitions>
+        <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid Padding="24" RowSpacing="16">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -72,14 +79,12 @@
                              Height="40"
                              CornerRadius="10"
                              BorderBrush="#D0D7E2"
-                             SelectedIndex="0">
-                        <ComboBoxItem Content="This Month"/>
-                        <ComboBoxItem Content="Last Month"/>
-                        <ComboBoxItem Content="Last 3 Months"/>
-                    </ComboBox>
+                             ItemsSource="{x:Bind ViewModel.DateRangeOptions}"
+                             SelectedIndex="{x:Bind ViewModel.SelectedDateRangeIndex, Mode=TwoWay}"/>
 
                     <Button Style="{StaticResource PrimaryButtonStyle}"
-                           MinWidth="120">
+                           MinWidth="120"
+                           Command="{x:Bind ViewModel.ExportCommand}">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon Glyph="&#xE896;" FontSize="16"/>
                             <TextBlock Text="Export" FontSize="14" FontWeight="SemiBold"/>
@@ -164,98 +169,18 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Revenue Trend Chart -->
-                <cards:ChartCard Grid.Column="0"
-                                Title="Revenue Trend (Last 30 Days)"
-                                ShowActions="Collapsed">
-                    <cards:ChartCard.ChartContent>
-                        <Border Height="300" 
-                               Background="White" 
-                               CornerRadius="8"
-                               Padding="16">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                
-                                <!-- Chart Legend -->
-                                <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,12">
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <Ellipse Width="8" Height="8" Fill="#3B82F6"/>
-                                        <TextBlock Text="Revenue" FontSize="12" Foreground="#6B7280"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <Ellipse Width="8" Height="8" Fill="#10B981"/>
-                                        <TextBlock Text="Commission" FontSize="12" Foreground="#6B7280"/>
-                                    </StackPanel>
-                                </StackPanel>
-                                
-                                <!-- Simple Bar Chart -->
-                                <Grid Grid.Row="1">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    
-                                    <!-- Week 1 -->
-                                    <StackPanel Grid.Column="0" VerticalAlignment="Bottom" Spacing="4">
-                                        <Border Height="120" Background="#3B82F6" CornerRadius="4,4,0,0" Opacity="0.8"/>
-                                        <Border Height="80" Background="#10B981" CornerRadius="4,4,0,0" Opacity="0.8"/>
-                                        <TextBlock Text="W1" FontSize="11" HorizontalAlignment="Center" Foreground="#6B7280"/>
-                                    </StackPanel>
-                                    
-                                    <!-- Week 2 -->
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Bottom" Spacing="4">
-                                        <Border Height="150" Background="#3B82F6" CornerRadius="4,4,0,0" Opacity="0.8"/>
-                                        <Border Height="95" Background="#10B981" CornerRadius="4,4,0,0" Opacity="0.8"/>
-                                        <TextBlock Text="W2" FontSize="11" HorizontalAlignment="Center" Foreground="#6B7280"/>
-                                    </StackPanel>
-                                    
-                                    <!-- Week 3 -->
-                                    <StackPanel Grid.Column="2" VerticalAlignment="Bottom" Spacing="4">
-                                        <Border Height="90" Background="#3B82F6" CornerRadius="4,4,0,0" Opacity="0.8"/>
-                                        <Border Height="60" Background="#10B981" CornerRadius="4,4,0,0" Opacity="0.8"/>
-                                        <TextBlock Text="W3" FontSize="11" HorizontalAlignment="Center" Foreground="#6B7280"/>
-                                    </StackPanel>
-                                    
-                                    <!-- Week 4 -->
-                                    <StackPanel Grid.Column="3" VerticalAlignment="Bottom" Spacing="4">
-                                        <Border Height="180" Background="#3B82F6" CornerRadius="4,4,0,0" Opacity="0.8"/>
-                                        <Border Height="110" Background="#10B981" CornerRadius="4,4,0,0" Opacity="0.8"/>
-                                        <TextBlock Text="W4" FontSize="11" HorizontalAlignment="Center" Foreground="#6B7280"/>
-                                    </StackPanel>
-                                    
-                                    <!-- Current Week -->
-                                    <StackPanel Grid.Column="4" VerticalAlignment="Bottom" Spacing="4">
-                                        <Border Height="200" Background="#3B82F6" CornerRadius="4,4,0,0"/>
-                                        <Border Height="130" Background="#10B981" CornerRadius="4,4,0,0"/>
-                                        <TextBlock Text="Now" FontSize="11" HorizontalAlignment="Center" Foreground="#111827" FontWeight="SemiBold"/>
-                                    </StackPanel>
-                                    
-                                    <!-- Projection 1 -->
-                                    <StackPanel Grid.Column="5" VerticalAlignment="Bottom" Spacing="4">
-                                        <Border Height="160" Background="#3B82F6" CornerRadius="4,4,0,0" Opacity="0.4"/>
-                                        <Border Height="100" Background="#10B981" CornerRadius="4,4,0,0" Opacity="0.4"/>
-                                        <TextBlock Text="P1" FontSize="11" HorizontalAlignment="Center" Foreground="#9CA3AF"/>
-                                    </StackPanel>
-                                    
-                                    <!-- Projection 2 -->
-                                    <StackPanel Grid.Column="6" VerticalAlignment="Bottom" Spacing="4">
-                                        <Border Height="140" Background="#3B82F6" CornerRadius="4,4,0,0" Opacity="0.3"/>
-                                        <Border Height="85" Background="#10B981" CornerRadius="4,4,0,0" Opacity="0.3"/>
-                                        <TextBlock Text="P2" FontSize="11" HorizontalAlignment="Center" Foreground="#9CA3AF"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Grid>
-                        </Border>
-                    </cards:ChartCard.ChartContent>
-                </cards:ChartCard>
+                <!-- Revenue Trend Chart (Same as Admin - using LineChartCard) -->
+                <charts:LineChartCard Grid.Column="0"
+                                     Title="Revenue &amp; Commission Trend"
+                                     Series="{x:Bind ViewModel.RevenueSeries, Mode=OneWay}"
+                                     ChartHeight="300"
+                                     ShowLegend="Visible"
+                                     ShowLegend2="Visible"
+                                     Legend1Text="Revenue"
+                                     Legend2Text="Commission"
+                                     ShowMenu="Visible"
+                                     RefreshRequested="LineChart_RefreshRequested"
+                                     ExportRequested="LineChart_ExportRequested" />
 
                 <!-- Top Performing Links -->
                 <Border Grid.Column="1"
@@ -331,7 +256,8 @@
             <!-- Recent Orders Table -->
             <cards:DataTableCard Title="Recent Orders" 
                                 ViewAllText="View All Orders"
-                                ShowViewAll="Visible">
+                                ShowViewAll="Visible"
+                                ViewAllCommand="{x:Bind ViewModel.ViewAllOrdersCommand}">
                 <cards:DataTableCard.TableContent>
                     <!-- COPILOT-FIX: Changed to {Binding} - async loaded API data -->
                     <ListView ItemsSource="{Binding RecentOrders, Mode=OneWay}" 
@@ -448,5 +374,31 @@
 
             </StackPanel>
         </Grid>
-    </ScrollViewer>
+        </ScrollViewer>
+        </RefreshContainer>
+        </Grid>
+
+        <!-- Layer 1: Loading Overlay (Shown during loading) -->
+        <Grid x:Name="LoadingOverlay"
+              Background="{ThemeResource LayerFillColorDefaultBrush}"
+              Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Spacing="24"
+                        Padding="48">
+                <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                              Width="64"
+                              Height="64" />
+                <TextBlock Text="Loading dashboard data..."
+                           FontSize="18"
+                           FontWeight="SemiBold"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="Please wait while we fetch your analytics"
+                           FontSize="14"
+                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Grid>
+    </Grid>
 </Page>

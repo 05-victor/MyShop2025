@@ -297,7 +297,7 @@ public class CategoryFacade : ICategoryFacade
         try
         {
             // Mock implementation - in real implementation, would query products by category
-            await Task.Delay(1); // Simulate async operation
+            // // await Task.Delay(1); // Simulate async operation
             var productCount = 0; // Would be actual product count from product repository
             return Result<int>.Success(productCount);
         }

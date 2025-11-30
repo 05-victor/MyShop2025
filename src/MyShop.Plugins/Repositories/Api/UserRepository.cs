@@ -228,4 +228,27 @@ public class UserRepository : IUserRepository
             return Result<PagedList<User>>.Failure($"Error retrieving paged users: {ex.Message}");
         }
     }
+
+    public async Task<Result<User>> CreateUserAsync(User user)
+    {
+        try
+        {
+            // TODO: Call actual backend API when available
+            // For now, return failure since API endpoint is not implemented
+            // Backend should implement POST /api/users endpoint
+            System.Diagnostics.Debug.WriteLine($"[UserRepository] CreateUserAsync called but API not implemented - User: {user.Username}");
+            
+            // Set default avatar if not provided
+            if (string.IsNullOrEmpty(user.Avatar))
+            {
+                user.Avatar = "ms-appx:///Assets/Images/user/avatar-placeholder.png";
+            }
+
+            return Result<User>.Failure("User creation via API not implemented. Please contact administrator.");
+        }
+        catch (Exception ex)
+        {
+            return Result<User>.Failure($"Error creating user: {ex.Message}");
+        }
+    }
 }

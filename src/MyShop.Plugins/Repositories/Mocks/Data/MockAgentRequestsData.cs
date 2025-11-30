@@ -83,8 +83,8 @@ public static class MockAgentRequestsData
     {
         EnsureDataLoaded();
 
-        // Simulate network delay
-        await Task.Delay(300);
+        // Simulate minimal network delay for better UX
+        // await Task.Delay(50);
 
         var query = _agentRequests!.AsQueryable();
 
@@ -94,26 +94,16 @@ public static class MockAgentRequestsData
             query = query.Where(r => r.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
         }
 
-        // Search filter
+        // Search filter - only search in notes since user data is enriched at repository layer
         if (!string.IsNullOrWhiteSpace(searchQuery))
         {
             var lowerQuery = searchQuery.ToLower();
-            query = query.Where(r =>
-                r.UserName.ToLower().Contains(lowerQuery) ||
-                r.Email.ToLower().Contains(lowerQuery) ||
-                r.PhoneNumber.Contains(searchQuery) ||
-                r.Notes.ToLower().Contains(lowerQuery));
+            query = query.Where(r => r.Notes.ToLower().Contains(lowerQuery));
         }
 
-        // Sorting
+        // Sorting - only sort by request-specific fields; user-field sorting done at repository layer
         query = sortBy.ToLower() switch
         {
-            "username" => sortDescending
-                ? query.OrderByDescending(r => r.UserName)
-                : query.OrderBy(r => r.UserName),
-            "email" => sortDescending
-                ? query.OrderByDescending(r => r.Email)
-                : query.OrderBy(r => r.Email),
             "status" => sortDescending
                 ? query.OrderByDescending(r => r.Status)
                 : query.OrderBy(r => r.Status),
@@ -136,7 +126,7 @@ public static class MockAgentRequestsData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(300);
+        // await Task.Delay(300);
 
         var request = _agentRequests!.FirstOrDefault(r => r.Id == requestId.ToString());
         if (request == null || request.Status != "Pending")
@@ -156,7 +146,7 @@ public static class MockAgentRequestsData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(300);
+        // await Task.Delay(300);
 
         var request = _agentRequests!.FirstOrDefault(r => r.Id == requestId.ToString());
         if (request == null || request.Status != "Pending")
@@ -177,23 +167,20 @@ public static class MockAgentRequestsData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(300);
+        // await Task.Delay(300);
 
         try
         {
+            // Only store request-specific fields; user info is fetched from users.json by userId
             var newMockRequest = new MockAgentRequestData
             {
                 Id = agentRequest.Id.ToString(),
                 UserId = agentRequest.UserId.ToString(),
-                UserName = agentRequest.FullName,
-                Email = agentRequest.Email,
-                PhoneNumber = agentRequest.PhoneNumber,
-                AvatarUrl = agentRequest.AvatarUrl ?? "ms-appx:///Assets/Images/avatars/avatar-placeholder.png",
                 RequestedAt = agentRequest.RequestedAt,
-                Status = agentRequest.Status,
+                Status = string.IsNullOrWhiteSpace(agentRequest.Status) ? "Pending" : agentRequest.Status,
                 ReviewedBy = agentRequest.ReviewedBy?.ToString(),
                 ReviewedAt = agentRequest.ReviewedAt,
-                Notes = $"Experience: {agentRequest.Experience}\n\nMotivation: {agentRequest.Reason}"
+                Notes = agentRequest.Notes
             };
 
             _agentRequests!.Add(newMockRequest);
@@ -224,14 +211,10 @@ public static class MockAgentRequestsData
     {
         public string Id { get; set; } = string.Empty;
         public string UserId { get; set; } = string.Empty;
-        public string UserName { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string PhoneNumber { get; set; } = string.Empty;
-        public string AvatarUrl { get; set; } = string.Empty;
         public DateTime RequestedAt { get; set; }
         public string Status { get; set; } = "Pending";    // Pending / Approved / Rejected
         public string? ReviewedBy { get; set; }
         public DateTime? ReviewedAt { get; set; }
-        public string Notes { get; set; } = string.Empty;  // used as Reason/Experience text for UI
+        public string Notes { get; set; } = string.Empty;  // reason/experience combined or admin notes
     }
 }
