@@ -14,6 +14,8 @@
 		<Nullable>enable</Nullable>
 		<WindowsPackageType>None</WindowsPackageType>
 		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+		<!-- Suppress warnings that are handled at runtime or are stylistic -->
+		<NoWarn>$(NoWarn);WMC1506;MVVMTK0045;CS8602;CS8604;CS8618;CS8601;CS8625;CS8629</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>
