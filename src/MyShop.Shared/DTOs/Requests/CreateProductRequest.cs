@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace MyShop.Shared.DTOs.Requests;
 
+/// <summary>
+/// Request DTO for creating a new product
+/// </summary>
 public class CreateProductRequest
 {
     public required string SKU { get; set; }
@@ -20,4 +23,9 @@ public class CreateProductRequest
     public string? Description { get; set; }
     public string? ImageUrl { get; set; }
     public required Guid CategoryId { get; set; }
+
+    /// <summary>
+    /// Optional: Sale agent ID. If not provided, will be auto-assigned to current user
+    /// </summary>
+    public Guid? SaleAgentId { get; set; }
 }

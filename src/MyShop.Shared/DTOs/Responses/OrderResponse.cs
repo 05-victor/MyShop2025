@@ -1,7 +1,7 @@
 namespace MyShop.Shared.DTOs.Responses;
 
 /// <summary>
-/// Response DTO for order details
+/// Response DTO for order information
 /// </summary>
 public class OrderResponse
 {
@@ -18,8 +18,21 @@ public class OrderResponse
     public string PaymentMethod { get; set; } = string.Empty;
     public string? Notes { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
-    public List<OrderItemResponse> Items { get; set; } = new();
+    public DateTime UpdatedAt { get; set; }
+
+    // Customer information
+    public Guid CustomerId { get; set; }
+    public string? CustomerUsername { get; set; }
+    public string? CustomerFullName { get; set; }
+    public string? CustomerEmail { get; set; }
+
+    // Sale Agent information
+    public Guid SaleAgentId { get; set; }
+    public string? SaleAgentUsername { get; set; }
+    public string? SaleAgentFullName { get; set; }
+
+    // Order items
+    public List<OrderItemResponse>? OrderItems { get; set; }
 }
 
 public class ShippingAddressResponse
@@ -37,15 +50,19 @@ public class TrackingResponse
 }
 
 /// <summary>
-/// Order item in response
+/// Response DTO for order item information
 /// </summary>
 public class OrderItemResponse
 {
     public Guid Id { get; set; }
-    public Guid ProductId { get; set; }
-    public string ProductName { get; set; } = string.Empty;
-    public string? ProductImage { get; set; }
-    public decimal UnitPrice { get; set; }
     public int Quantity { get; set; }
-    public decimal Subtotal { get; set; }
+    public int UnitSalePrice { get; set; }
+    public int TotalPrice { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+
+    // Product information
+    public Guid ProductId { get; set; }
+    public string? ProductName { get; set; }
+    public string? ProductSKU { get; set; }
 }

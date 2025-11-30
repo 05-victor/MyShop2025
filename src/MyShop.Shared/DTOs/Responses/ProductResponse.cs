@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace MyShop.Shared.DTOs.Responses;
 
+/// <summary>
+/// Response DTO for product information
+/// </summary>
 public class ProductResponse
 {
     public Guid Id { get; set; }
@@ -23,4 +26,19 @@ public class ProductResponse
     public DateTime? CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public string? CategoryName { get; set; }
+
+    /// <summary>
+    /// ID of the sale agent who published this product
+    /// </summary>
+    public Guid? SaleAgentId { get; set; }
+
+    /// <summary>
+    /// Username of the sale agent who published this product
+    /// </summary>
+    public string? SaleAgentUsername { get; set; }
+
+    /// <summary>
+    /// Full name of the sale agent who published this product
+    /// </summary>
+    public string? SaleAgentFullName { get; set; }
 }

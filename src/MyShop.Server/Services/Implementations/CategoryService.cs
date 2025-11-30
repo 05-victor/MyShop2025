@@ -1,6 +1,6 @@
-
 using MyShop.Data.Entities;
 using MyShop.Data.Repositories.Interfaces;
+using MyShop.Server.Exceptions;
 using MyShop.Server.Services.Interfaces;
 using MyShop.Server.Services.Mappings;
 using MyShop.Shared.DTOs.Requests;
@@ -18,41 +18,95 @@ public class CategoryService : ICategoryService
         _categoryRepository = categoryRepository;
         _logger = logger;   
     }
+
     public async Task<IEnumerable<CategoryResponse>> GetAllAsync()
     {
-        var categories = await _categoryRepository.GetAllAsync();
-        return categories.Select(c => CategoryMapper.ToCategoryResponse(c));
+        try
+        {
+            var categories = await _categoryRepository.GetAllAsync();
+            return categories.Select(c => CategoryMapper.ToCategoryResponse(c));
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error retrieving all categories");
+            throw InfrastructureException.DatabaseError("Failed to retrieve categories", ex);
+        }
     }
+
     public async Task<CategoryResponse?> GetByIdAsync(Guid id)
     {
-        var category = await _categoryRepository.GetByIdAsync(id);
-        return category is null ? null : CategoryMapper.ToCategoryResponse(category);
+        try
+        {
+            var category = await _categoryRepository.GetByIdAsync(id);
+            return category is null ? null : CategoryMapper.ToCategoryResponse(category);
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error retrieving category {CategoryId}", id);
+            throw InfrastructureException.DatabaseError($"Failed to retrieve category with ID {id}", ex);
+        }
     }
+
     public async Task<CategoryResponse> CreateAsync(CreateCategoryRequest createCategoryRequest)
     {
-        var category = new Category
+        // Validate required fields
+        if (string.IsNullOrWhiteSpace(createCategoryRequest.Name))
         {
-            Name = createCategoryRequest.Name,
-            Description = createCategoryRequest.Description
-        };
-        var createdCategory = await _categoryRepository.CreateAsync(category);
-        _logger.LogInformation("Created category with ID: {CategoryId}, Name: {Name}, Description: {Description}", createdCategory.Id, createdCategory.Name, createdCategory.Description);
-        return CategoryMapper.ToCategoryResponse(createdCategory);
+            throw ValidationException.ForField("Name", "Category name is required");
+        }
+
+        try
+        {
+            var category = new Category
+            {
+                Name = createCategoryRequest.Name.Trim(),
+                Description = createCategoryRequest.Description?.Trim()
+            };
+
+            var createdCategory = await _categoryRepository.CreateAsync(category);
+            _logger.LogInformation("Created category with ID: {CategoryId}, Name: {Name}", 
+                createdCategory.Id, createdCategory.Name);
+
+            return CategoryMapper.ToCategoryResponse(createdCategory);
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error creating category");
+            throw InfrastructureException.DatabaseError("Failed to create category", ex);
+        }
     }
+
     public async Task<CategoryResponse> UpdateAsync(Guid id, UpdateCategoryRequest updateCategoryRequest)
     {
         var existingCategory = await _categoryRepository.GetByIdAsync(id);
         if (existingCategory is null)
         {
-            throw new System.Collections.Generic.KeyNotFoundException("Category not found");
+            throw NotFoundException.ForEntity("Category", id);
         }
 
-        // TODO: Check nullable fields before updating
-        existingCategory.Name = updateCategoryRequest.Name;
-        existingCategory.Description = updateCategoryRequest.Description;
-        var updatedCategory = await _categoryRepository.UpdateAsync(existingCategory);
-        return CategoryMapper.ToCategoryResponse(updatedCategory);
+        try
+        {
+            // Update only non-null fields
+            if (!string.IsNullOrWhiteSpace(updateCategoryRequest.Name))
+            {
+                existingCategory.Name = updateCategoryRequest.Name.Trim();
+            }
+
+            if (updateCategoryRequest.Description != null)
+            {
+                existingCategory.Description = updateCategoryRequest.Description.Trim();
+            }
+
+            var updatedCategory = await _categoryRepository.UpdateAsync(existingCategory);
+            return CategoryMapper.ToCategoryResponse(updatedCategory);
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error updating category {CategoryId}", id);
+            throw InfrastructureException.DatabaseError($"Failed to update category with ID {id}", ex);
+        }
     }
+
     public async Task<bool> DeleteAsync(Guid id)
     {
         var existingCategory = await _categoryRepository.GetByIdAsync(id);
@@ -60,7 +114,17 @@ public class CategoryService : ICategoryService
         {
             return false;
         }
-        await _categoryRepository.DeleteAsync(id);
-        return true;
+
+        try
+        {
+            await _categoryRepository.DeleteAsync(id);
+            _logger.LogInformation("Category {CategoryId} deleted", id);
+            return true;
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error deleting category {CategoryId}", id);
+            throw InfrastructureException.DatabaseError($"Failed to delete category with ID {id}", ex);
+        }
     }
 }
