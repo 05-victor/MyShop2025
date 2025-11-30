@@ -80,7 +80,7 @@ namespace MyShop.Client.Views.Shell
                     NavigateToPage(typeof(SalesAgentProductsPage), ViewModel.CurrentUser);
                     break;
                 case "salesOrders":
-                    NavigateToPage(typeof(SalesOrdersPage), ViewModel.CurrentUser);
+                    NavigateToPage(typeof(SalesAgentOrdersPage), ViewModel.CurrentUser);
                     break;
                 case "earnings":
                     NavigateToPage(typeof(EarningsPage), ViewModel.CurrentUser);
@@ -104,7 +104,7 @@ namespace MyShop.Client.Views.Shell
                     NavigateToPage(typeof(SalesAgentReportsPage), ViewModel.CurrentUser);
                     break;
                 default:
-                    AppLogger.Warning($"SalesAgent menu item '{tag}' not implemented yet");
+                    LoggingService.Instance.Warning($"SalesAgent menu item '{tag}' not implemented yet");
                     RestoreSelection();
                     break;
             }
@@ -121,7 +121,7 @@ namespace MyShop.Client.Views.Shell
             }
             catch (Exception ex)
             {
-                AppLogger.Error($"Failed to navigate to {pageType.Name}", ex);
+                LoggingService.Instance.Error($"Failed to navigate to {pageType.Name}", ex);
             }
         }
 
@@ -179,7 +179,7 @@ namespace MyShop.Client.Views.Shell
                 return "dashboard";
             else if (pageType == typeof(SalesAgentProductsPage))
                 return "myProducts";
-            else if (pageType == typeof(SalesOrdersPage))
+            else if (pageType == typeof(SalesAgentOrdersPage))
                 return "salesOrders";
             else if (pageType == typeof(EarningsPage))
                 return "earnings";
@@ -231,7 +231,7 @@ namespace MyShop.Client.Views.Shell
             }
             catch (Exception ex)
             {
-                AppLogger.Error("Failed to logout", ex);
+                LoggingService.Instance.Error("Failed to logout", ex);
             }
         }
     }

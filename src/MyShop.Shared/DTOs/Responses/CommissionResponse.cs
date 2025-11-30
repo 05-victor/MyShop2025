@@ -8,6 +8,7 @@ public class CommissionResponse
     public Guid Id { get; set; }
     public Guid OrderId { get; set; }
     public Guid SalesAgentId { get; set; }
+    public string? SalesAgentName { get; set; }
     public string OrderNumber { get; set; } = string.Empty;
     public decimal OrderAmount { get; set; }
     public decimal CommissionRate { get; set; }

@@ -18,9 +18,13 @@ public static class OrderAdapter
         {
             Id = dto.Id,
             OrderCode = dto.OrderNumber,
+            SalesAgentId = dto.SalesAgentId,
+            SalesAgentName = dto.SalesAgentName,
             CustomerId = dto.CustomerId,
             CustomerName = dto.CustomerName,
-            CustomerAddress = dto.ShippingAddress,
+            CustomerAddress = dto.ShippingAddress != null
+                ? string.Join(", ", new[] { dto.ShippingAddress.Street, dto.ShippingAddress.District, dto.ShippingAddress.City, dto.ShippingAddress.PostalCode }.Where(s => !string.IsNullOrWhiteSpace(s)))
+                : dto.CustomerEmail,
             Status = dto.Status,
             FinalPrice = dto.TotalAmount,
             Subtotal = dto.TotalAmount, // May need adjustment if backend provides subtotal

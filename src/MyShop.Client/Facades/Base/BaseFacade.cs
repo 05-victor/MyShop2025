@@ -58,7 +58,7 @@ public abstract class BaseFacade
             
             if (!result.IsSuccess && showToastOnError)
             {
-                _toastService.ShowError(result.ErrorMessage ?? errorMessage);
+                _ = _toastService.ShowError(result.ErrorMessage ?? errorMessage);
             }
             
             return result;
@@ -69,7 +69,7 @@ public abstract class BaseFacade
             
             if (showToastOnError)
             {
-                _toastService.ShowError($"{errorMessage}: {ex.Message}");
+                _ = _toastService.ShowError($"{errorMessage}: {ex.Message}");
             }
             
             return Result<T>.Failure($"{errorMessage}: {ex.Message}");
@@ -92,7 +92,7 @@ public abstract class BaseFacade
             
             if (!result.IsSuccess && showToastOnError)
             {
-                _toastService.ShowError(result.ErrorMessage ?? errorMessage);
+                _ = _toastService.ShowError(result.ErrorMessage ?? errorMessage);
             }
             
             return result;
@@ -103,7 +103,7 @@ public abstract class BaseFacade
             
             if (showToastOnError)
             {
-                _toastService.ShowError($"{errorMessage}: {ex.Message}");
+                _ = _toastService.ShowError($"{errorMessage}: {ex.Message}");
             }
             
             return Result<bool>.Failure($"{errorMessage}: {ex.Message}");
@@ -128,7 +128,7 @@ public abstract class BaseFacade
             {
                 if (showToastOnError)
                 {
-                    _toastService.ShowError(errorMessage);
+                    _ = _toastService.ShowError(errorMessage);
                 }
                 return Result<T>.Failure(errorMessage);
             }
@@ -141,7 +141,7 @@ public abstract class BaseFacade
             
             if (showToastOnError)
             {
-                _toastService.ShowError($"{errorMessage}: {ex.Message}");
+                _ = _toastService.ShowError($"{errorMessage}: {ex.Message}");
             }
             
             return Result<T>.Failure($"{errorMessage}: {ex.Message}");
@@ -157,7 +157,7 @@ public abstract class BaseFacade
     /// </summary>
     protected void ShowSuccess(string message)
     {
-        _toastService.ShowSuccess(message);
+        _ = _toastService.ShowSuccess(message);
     }
 
     /// <summary>
@@ -165,7 +165,7 @@ public abstract class BaseFacade
     /// </summary>
     protected void ShowError(string message)
     {
-        _toastService.ShowError(message);
+        _ = _toastService.ShowError(message);
     }
 
     /// <summary>
@@ -173,7 +173,7 @@ public abstract class BaseFacade
     /// </summary>
     protected void ShowWarning(string message)
     {
-        _toastService.ShowWarning(message);
+        _ = _toastService.ShowWarning(message);
     }
 
     /// <summary>
@@ -181,7 +181,7 @@ public abstract class BaseFacade
     /// </summary>
     protected void ShowInfo(string message)
     {
-        _toastService.ShowInfo(message);
+        _ = _toastService.ShowInfo(message);
     }
 
     #endregion

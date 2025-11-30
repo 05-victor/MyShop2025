@@ -84,15 +84,15 @@ namespace MyShop.Client.Views.Dialogs
                 {
                     // Show success message
                     SuccessMessage.Visibility = Visibility.Visible;
-                    _toastHelper.ShowSuccess($"Verification code sent to {UserEmail}");
+                    _ = _toastHelper.ShowSuccess($"Verification code sent to {UserEmail}");
 
                     // Hide success message after 3 seconds
-                    await Task.Delay(3000);
+                    // await Task.Delay(3000);
                     SuccessMessage.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
-                    _toastHelper.ShowError(result.ErrorMessage ?? "Failed to send verification code");
+                    _ = _toastHelper.ShowError(result.ErrorMessage ?? "Failed to send verification code");
                 }
 
                 // Reset button state
@@ -104,7 +104,7 @@ namespace MyShop.Client.Views.Dialogs
             }
             catch (Exception ex)
             {
-                _toastHelper.ShowError("Failed to send code. Please try again.");
+                _ = _toastHelper.ShowError("Failed to send code. Please try again.");
                 System.Diagnostics.Debug.WriteLine($"Error resending email: {ex.Message}");
                 
                 // Reset button
@@ -176,7 +176,7 @@ namespace MyShop.Client.Views.Dialogs
 
                 if (result.IsSuccess)
                 {
-                    _toastHelper.ShowSuccess("Email verified successfully!");
+                    _ = _toastHelper.ShowSuccess("Email verified successfully!");
                     VerificationChecked?.Invoke(this, true);
                     // Dialog will close
                 }

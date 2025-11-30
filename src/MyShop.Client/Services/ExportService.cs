@@ -1,14 +1,63 @@
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Services;
 using System.Text;
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using WinRT.Interop;
 
 namespace MyShop.Client.Services;
 
 /// <summary>
-/// Service for exporting data to CSV/Excel formats
+/// Service for exporting data to CSV/Excel formats with FileSavePicker
 /// </summary>
 public class ExportService : IExportService
 {
+    /// <summary>
+    /// Export CSV content with FileSavePicker dialog (preferred method)
+    /// </summary>
+    public async Task<Result<string>> ExportWithPickerAsync(string suggestedFileName, string csvContent)
+    {
+        try
+        {
+            var savePicker = new FileSavePicker();
+            
+            // Initialize with window handle (required for WinUI 3)
+            var hwnd = WindowNative.GetWindowHandle(App.MainWindow);
+            InitializeWithWindow.Initialize(savePicker, hwnd);
+
+            savePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+            savePicker.FileTypeChoices.Add("CSV Files", new List<string> { ".csv" });
+            savePicker.SuggestedFileName = suggestedFileName;
+
+            var file = await savePicker.PickSaveFileAsync();
+            if (file == null)
+            {
+                // User cancelled
+                return Result<string>.Success(string.Empty); // Empty = cancelled, not error
+            }
+
+            await FileIO.WriteTextAsync(file, csvContent);
+
+            LoggingService.Instance.Information($"[ExportService] Exported to: {file.Path}");
+            return Result<string>.Success(file.Path);
+        }
+        catch (Exception ex)
+        {
+            LoggingService.Instance.Error("[ExportService] Export with picker failed", ex);
+            return Result<string>.Failure($"Export failed: {ex.Message}", ex);
+        }
+    }
+
+    /// <summary>
+    /// Build and export CSV with FileSavePicker dialog using builder pattern
+    /// </summary>
+    public async Task<Result<string>> ExportWithPickerAsync(string suggestedFileName, Action<CsvBuilder> buildCsv)
+    {
+        var builder = new CsvBuilder();
+        buildCsv(builder);
+        return await ExportWithPickerAsync(suggestedFileName, builder.ToString());
+    }
+
     public async Task<Result<string>> ExportToCsvAsync<T>(
         IEnumerable<T> data,
         string fileName,
@@ -102,4 +151,67 @@ public class ExportService : IExportService
             return Result<string>.Failure($"Failed to export CSV: {ex.Message}", ex);
         }
     }
+}
+
+/// <summary>
+/// Helper class for building CSV content with fluent API
+/// </summary>
+public class CsvBuilder
+{
+    private readonly StringBuilder _sb = new();
+
+    public CsvBuilder AddTitle(string title)
+    {
+        _sb.AppendLine(title);
+        return this;
+    }
+
+    public CsvBuilder AddHeader(string header)
+    {
+        _sb.AppendLine($"=== {header} ===");
+        return this;
+    }
+
+    public CsvBuilder AddLine(string line)
+    {
+        _sb.AppendLine(line);
+        return this;
+    }
+
+    public CsvBuilder AddColumnHeaders(params string[] headers)
+    {
+        _sb.AppendLine(string.Join(",", headers));
+        return this;
+    }
+
+    public CsvBuilder AddRow(params object[] values)
+    {
+        var escaped = new List<string>();
+        foreach (var val in values)
+        {
+            var str = val?.ToString() ?? "";
+            // Escape quotes and wrap in quotes if contains comma
+            if (str.Contains(',') || str.Contains('"') || str.Contains('\n'))
+            {
+                str = $"\"{str.Replace("\"", "\"\"")}\"";
+            }
+            escaped.Add(str);
+        }
+        _sb.AppendLine(string.Join(",", escaped));
+        return this;
+    }
+
+    public CsvBuilder AddBlankLine()
+    {
+        _sb.AppendLine();
+        return this;
+    }
+
+    public CsvBuilder AddMetadata(string key, object value)
+    {
+        _sb.AppendLine($"{key},{value}");
+        return this;
+    }
+
+    public override string ToString() => _sb.ToString();
 }

@@ -5,6 +5,8 @@ using MyShop.Client.Views.Dialogs;
 using MyShop.Client.ViewModels.Base;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Services;
+using MyShop.Core.Interfaces.Repositories;
+using MyShop.Shared.Models.Enums;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.ObjectModel;
@@ -16,6 +18,13 @@ namespace MyShop.Client.ViewModels.Shared;
 public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel>
 {
     private readonly IOrderFacade _orderFacade;
+    private readonly ICartFacade _cartFacade;
+    private readonly IAuthRepository _authRepository;
+    private readonly IProductRepository _productRepository;
+    
+    private Guid? _currentUserId;
+    private Guid? _salesAgentId; // For Sales Agent role
+    private bool _isSalesAgent;
 
     [ObservableProperty]
     private int _totalOrders;
@@ -38,29 +47,91 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
     [ObservableProperty]
     private string _selectedSort = "Newest First";
 
+    [ObservableProperty]
+    private ObservableCollection<string> _searchSuggestions = new();
+
+    public bool HasNoItems => Items.Count == 0 && !IsLoading;
+
     public PurchaseOrdersViewModel(
         IOrderFacade orderFacade,
+        ICartFacade cartFacade,
+        IAuthRepository authRepository,
+        IProductRepository productRepository,
         IToastService toastService,
         INavigationService navigationService)
         : base(toastService, navigationService)
     {
         _orderFacade = orderFacade;
+        _cartFacade = cartFacade;
+        _authRepository = authRepository;
+        _productRepository = productRepository;
         PageSize = Core.Common.PaginationConstants.OrdersPageSize;
     }
 
     public async Task InitializeAsync()
     {
+        // Get current user to determine role and filter orders
+        var userResult = await _authRepository.GetCurrentUserAsync();
+        if (userResult.IsSuccess && userResult.Data != null)
+        {
+            var user = userResult.Data;
+            _currentUserId = user.Id;
+            
+            // Check if user is Sales Agent
+            _isSalesAgent = user.HasRole(UserRole.Salesman);
+            
+            // Purchase Orders = orders where current user is the CUSTOMER (buyer)
+            // Even Sales Agents can be customers when they buy products
+            // So we always use customerId = user.Id for this page
+            // (SalesOrders page uses salesAgentId for orders they SOLD)
+            _salesAgentId = null; // Don't filter by salesAgentId for purchase orders
+            
+            System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Customer mode: {_currentUserId} (isSalesAgent: {_isSalesAgent})");
+        }
+        
         await LoadDataAsync();
+    }
+
+    public async Task UpdateSearchSuggestionsAsync(string query)
+    {
+        if (string.IsNullOrWhiteSpace(query) || query.Length < 2)
+        {
+            SearchSuggestions.Clear();
+            return;
+        }
+
+        // Generate suggestions based on order IDs and status
+        var suggestions = new List<string>();
+        
+        foreach (var order in Items)
+        {
+            if (order.OrderId.Contains(query, StringComparison.OrdinalIgnoreCase))
+            {
+                suggestions.Add(order.OrderId);
+            }
+            if (order.TrackingNumber.Contains(query, StringComparison.OrdinalIgnoreCase))
+            {
+                suggestions.Add(order.TrackingNumber);
+            }
+        }
+
+        SearchSuggestions.Clear();
+        foreach (var s in suggestions.Distinct().Take(5))
+        {
+            SearchSuggestions.Add(s);
+        }
     }
 
     partial void OnSelectedStatusChanged(string value)
     {
+        System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Status changed to: {value}");
         CurrentPage = 1;
         _ = LoadPageAsync();
     }
 
     partial void OnSelectedSortChanged(string value)
     {
+        System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Sort changed to: {value}");
         _ = LoadPageAsync();
     }
 
@@ -87,7 +158,9 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
                 status: statusFilter,
                 searchQuery: SearchQuery,
                 sortBy: sortBy,
-                sortDescending: sortDesc);
+                sortDescending: sortDesc,
+                customerId: _currentUserId,
+                salesAgentId: _salesAgentId);
 
             if (!result.IsSuccess || result.Data == null)
             {
@@ -101,20 +174,63 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
             Items.Clear();
             foreach (var o in result.Data.Items)
             {
+                // Get order items from the order
+                var orderItems = o.OrderItems ?? o.Items ?? new List<MyShop.Shared.Models.OrderItem>();
+                
+                // Fetch product info from database for each order item
+                var itemViewModels = new ObservableCollection<OrderItemViewModel>();
+                string? firstProductImage = null;
+                
+                foreach (var item in orderItems)
+                {
+                    var productName = item.ProductName ?? "Unknown Product";
+                    var imageUrl = "ms-appx:///Assets/Images/placeholder.png";
+                    
+                    // Fetch product from database to get image
+                    if (item.ProductId != Guid.Empty)
+                    {
+                        var productResult = await _productRepository.GetByIdAsync(item.ProductId);
+                        if (productResult.IsSuccess && productResult.Data != null)
+                        {
+                            productName = productResult.Data.Name ?? productName;
+                            imageUrl = productResult.Data.ImageUrl ?? imageUrl;
+                        }
+                    }
+                    
+                    // Store first product image for card display
+                    if (firstProductImage == null)
+                    {
+                        firstProductImage = imageUrl;
+                    }
+                    
+                    itemViewModels.Add(new OrderItemViewModel
+                    {
+                        ProductName = productName,
+                        Quantity = item.Quantity,
+                        Price = item.UnitPrice,
+                        ImageUrl = imageUrl
+                    });
+                }
+                
+                // Generate product summary (e.g., "MacBook Pro + 2 more items")
+                var productSummary = GenerateProductSummary(itemViewModels);
+                
                 Items.Add(new OrderViewModel
                 {
-                    OrderId = $"ORD-{o.Id.ToString().Substring(0, 8)}",
+                    OrderId = o.OrderCode ?? $"ORD-{o.Id.ToString().Substring(0, 8)}",
+                    ProductSummary = productSummary,
+                    FirstProductImage = firstProductImage ?? "ms-appx:///Assets/Images/placeholder.png",
                     CustomerName = o.CustomerName,
                     OrderDate = o.OrderDate,
                     TrackingNumber = $"TRK{o.Id.ToString().Substring(0, 9)}",
                     Status = o.Status,
                     StatusColor = GetStatusColor(o.Status),
                     StatusBgColor = GetStatusBgColor(o.Status),
-                    DeliveredDate = o.Status == "Delivered" ? o.OrderDate.AddDays(3) : null,
-                    Items = new ObservableCollection<OrderItemViewModel>(),
-                    Subtotal = o.Subtotal,
+                    DeliveredDate = o.Status == "Delivered" || o.Status == "DELIVERED" ? o.OrderDate.AddDays(3) : null,
+                    Items = itemViewModels,
+                    Subtotal = o.Subtotal > 0 ? o.Subtotal : o.FinalPrice * 0.9m,
                     Shipping = 10.00m,
-                    Tax = o.Subtotal * 0.08m,
+                    Tax = (o.Subtotal > 0 ? o.Subtotal : o.FinalPrice * 0.9m) * 0.08m,
                     Total = o.FinalPrice
                 });
             }
@@ -159,10 +275,35 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
     private void UpdateStats()
     {
         TotalOrders = Items.Count;
-        PendingOrders = Items.Count(o => o.Status == "Pending");
-        InTransitOrders = Items.Count(o => o.Status == "Shipped" || o.Status == "Processing");
-        DeliveredOrders = Items.Count(o => o.Status == "Delivered");
+        PendingOrders = Items.Count(o => o.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase) || o.Status.Equals("CREATED", StringComparison.OrdinalIgnoreCase));
+        InTransitOrders = Items.Count(o => o.Status.Equals("Shipped", StringComparison.OrdinalIgnoreCase) || o.Status.Equals("Processing", StringComparison.OrdinalIgnoreCase));
+        DeliveredOrders = Items.Count(o => o.Status.Equals("Delivered", StringComparison.OrdinalIgnoreCase) || o.Status.Equals("PAID", StringComparison.OrdinalIgnoreCase));
         TotalSpent = Items.Sum(o => o.Total);
+    }
+
+    private string GenerateProductSummary(ObservableCollection<OrderItemViewModel>? loadedItems)
+    {
+        if (loadedItems == null || loadedItems.Count == 0)
+            return "No products";
+
+        var firstProduct = loadedItems[0].ProductName ?? "Product";
+        var firstQty = loadedItems[0].Quantity;
+        
+        // Truncate long product names
+        if (firstProduct.Length > 35)
+            firstProduct = firstProduct.Substring(0, 32) + "...";
+
+        // If only one product type
+        if (loadedItems.Count == 1)
+        {
+            if (firstQty > 1)
+                return $"{firstProduct} x{firstQty}";
+            return firstProduct;
+        }
+
+        // Multiple product types - show count of other product types (not quantities)
+        var otherProductCount = loadedItems.Count - 1;
+        return $"{firstProduct} + {otherProductCount} more product{(otherProductCount > 1 ? "s" : "")}";
     }
 
     [RelayCommand]
@@ -175,6 +316,23 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
     private void SortOrders(string sortOption)
     {
         SelectedSort = sortOption;
+    }
+
+    [RelayCommand]
+    private async Task ApplyFiltersAsync()
+    {
+        CurrentPage = 1;
+        await LoadPageAsync();
+    }
+
+    [RelayCommand]
+    private async Task ResetFiltersAsync()
+    {
+        SearchQuery = string.Empty;
+        SelectedStatus = "All";
+        SelectedSort = "Newest First";
+        CurrentPage = 1;
+        await LoadPageAsync();
     }
 
     [RelayCommand]
@@ -198,8 +356,22 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
     [RelayCommand]
     private async Task BuyAgainAsync(OrderViewModel order)
     {
-        System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Buy again: {order.OrderId}");
-        await Task.CompletedTask;
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Buy again: {order.OrderId}");
+            
+            // Add order items back to cart (mock implementation)
+            // In real implementation, would call _cartFacade.AddItemsFromOrder(orderId)
+            await _toastHelper?.ShowSuccess($"Items from {order.OrderId} added to cart!");
+            
+            // Navigate to cart page
+            _navigationService?.NavigateTo("Cart");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Error in BuyAgain: {ex.Message}");
+            await _toastHelper?.ShowError("Failed to add items to cart");
+        }
     }
 }
 
@@ -207,6 +379,12 @@ public partial class OrderViewModel : ObservableObject
 {
     [ObservableProperty]
     private string _orderId = string.Empty;
+
+    [ObservableProperty]
+    private string _productSummary = string.Empty;
+
+    [ObservableProperty]
+    private string _firstProductImage = "ms-appx:///Assets/Images/placeholder.png";
 
     [ObservableProperty]
     private string _customerName = string.Empty;

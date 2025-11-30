@@ -5,11 +5,15 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:components="using:MyShop.Client.Views.Components"
+    xmlns:forms="using:MyShop.Client.Views.Components.Forms"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:skeletons="using:MyShop.Client.Views.Components.Skeletons"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Admin"
+    xmlns:layout="using:MyShop.Client.Views.Components.Layout"
+    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
+    xmlns:tables="using:MyShop.Client.Views.Components.Tables"
     Background="#F5F7FA"
     mc:Ignorable="d">
 
@@ -40,29 +44,22 @@
                     </Grid.RowDefinitions>
 
                 <!--  Header  -->
-                <Grid Grid.Row="0">
-                    <StackPanel>
-                        <TextBlock Text="Users Management"
-                                  FontSize="28"
-                                  FontWeight="Bold"
-                                  Foreground="#1B1D1F" />
-                        <TextBlock Margin="0,8,0,0"
-                                  FontSize="14"
-                                  Foreground="#4A5568"
-                                  Text="Manage all users in the system" />
-                    </StackPanel>
-                    <Button Style="{StaticResource PrimaryButtonStyle}"
-                           HorizontalAlignment="Right"
-                           VerticalAlignment="Center"
-                           MinWidth="140"
-                           Command="{x:Bind ViewModel.AddNewUserCommand}"
-                           ToolTipService.ToolTip="Create a new user account">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon FontSize="16" Glyph="&#xE710;" />
-                            <TextBlock Text="Add New User" />
-                        </StackPanel>
-                    </Button>
-                </Grid>
+                <layout:PageHeader 
+                    Grid.Row="0"
+                    Title="Users Management"
+                    Subtitle="Manage all users in the system">
+                    <layout:PageHeader.ActionContent>
+                        <Button Style="{StaticResource PrimaryButtonStyle}"
+                               MinWidth="140"
+                               Command="{x:Bind ViewModel.AddNewUserCommand}"
+                               ToolTipService.ToolTip="Create a new user account">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon FontSize="16" Glyph="&#xE710;" />
+                                <TextBlock Text="Add New User" />
+                            </StackPanel>
+                        </Button>
+                    </layout:PageHeader.ActionContent>
+                </layout:PageHeader>
 
                 
                 <!-- Main Content -->
@@ -88,12 +85,17 @@
                                 Text="Find users by name, email, or phone number" />
                         </StackPanel>
 
-                        <components:SearchBox
+                        <forms:SearchCard
+                            x:Name="UserSearchCard"
                             Grid.Column="1"
                             Width="350"
                             HorizontalAlignment="Right"
                             PlaceholderText="Search users..."
-                            Text="{x:Bind ViewModel.PendingSearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            SearchText="{x:Bind ViewModel.PendingSearchQuery, Mode=TwoWay}"
+                            ShowSearchButton="Collapsed"
+                            TextChanged="SearchCard_TextChanged"
+                            SuggestionChosen="SearchCard_SuggestionChosen"
+                            QuerySubmitted="SearchCard_QuerySubmitted" />
                     </Grid>
                 </Border>
                 
@@ -151,53 +153,36 @@
                         </StackPanel>
 
                         <!--  Apply Filters Button  -->
-                        <Button
+                        <buttons:IconButton
                             Grid.Column="3"
-                            Padding="16,10"
                             VerticalAlignment="Bottom"
-                            Background="#2563EB"
-                            Foreground="White"
-                            BorderBrush="#2563EB"
-                            CornerRadius="8"
+                            Variant="Filled"
+                            IconGlyph="&#xE71C;"
+                            Text="Apply"
                             Command="{x:Bind ViewModel.ApplyFiltersCommand}"
-                            ToolTipService.ToolTip="Apply filters">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon FontSize="14" Glyph="&#xE71C;" Foreground="White" />
-                                <TextBlock Text="Apply" />
-                            </StackPanel>
-                        </Button>
+                            ToolTipService.ToolTip="Apply filters" />
 
                         <!--  Reset Filters Button  -->
-                        <Button
+                        <buttons:IconButton
                             Grid.Column="4"
                             Margin="8,0,0,0"
-                            Padding="16,10"
                             VerticalAlignment="Bottom"
-                            BorderBrush="#E5E7EB"
-                            CornerRadius="8"
+                            Variant="Outline"
+                            IconGlyph="&#xE72C;"
+                            Text="Reset"
                             Command="{x:Bind ViewModel.ResetFiltersCommand}"
-                            ToolTipService.ToolTip="Reset all filters">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon FontSize="14" Glyph="&#xE72C;" />
-                                <TextBlock Text="Reset" />
-                            </StackPanel>
-                        </Button>
+                            ToolTipService.ToolTip="Reset all filters" />
 
                         <!--  Export Button  -->
-                        <Button
+                        <buttons:IconButton
                             Grid.Column="5"
                             Margin="8,0,0,0"
-                            Padding="16,10"
                             VerticalAlignment="Bottom"
-                            BorderBrush="#E5E7EB"
-                            CornerRadius="8"
+                            Variant="Outline"
+                            IconGlyph="&#xE898;"
+                            Text="Export"
                             Click="ExportButton_Click"
-                            ToolTipService.ToolTip="Export users to CSV">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon FontSize="14" Glyph="&#xE898;" />
-                                <TextBlock Text="Export" />
-                            </StackPanel>
-                        </Button>
+                            ToolTipService.ToolTip="Export users to CSV" />
                     </Grid>
                 </Border>
 
@@ -261,50 +246,15 @@
                         </StackPanel>
 
                         <!--  Table Header  -->
-                        <Grid
-                            Padding="16,12"
-                            Background="#F9FAFB"
-                            CornerRadius="8,8,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="3*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="2*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="3*" />
-                            </Grid.ColumnDefinitions>
-
-                            <TextBlock
-                                Grid.Column="0"
-                                FontSize="12"
-                                FontWeight="SemiBold"
-                                Foreground="#6B7280"
-                                Text="User" />
-                            <TextBlock
-                                Grid.Column="1"
-                                FontSize="12"
-                                FontWeight="SemiBold"
-                                Foreground="#6B7280"
-                                Text="Role" />
-                            <TextBlock
-                                Grid.Column="2"
-                                FontSize="12"
-                                FontWeight="SemiBold"
-                                Foreground="#6B7280"
-                                Text="Phone" />
-                            <TextBlock
-                                Grid.Column="3"
-                                FontSize="12"
-                                FontWeight="SemiBold"
-                                Foreground="#6B7280"
-                                Text="Status" />
-                            <TextBlock
-                                Grid.Column="4"
-                                HorizontalAlignment="Right"
-                                FontSize="12"
-                                FontWeight="SemiBold"
-                                Foreground="#6B7280"
-                                Text="Actions" />
-                        </Grid>
+                        <tables:TableHeader Grid.Row="0">
+                            <tables:TableHeader.Columns>
+                                <x:String>3*|User</x:String>
+                                <x:String>*|Role</x:String>
+                                <x:String>2*|Phone</x:String>
+                                <x:String>*|Status</x:String>
+                                <x:String>3*|Actions|Right</x:String>
+                            </tables:TableHeader.Columns>
+                        </tables:TableHeader>
 
                         <!--  Users List  -->
                         <ItemsRepeater ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}">
@@ -329,27 +279,11 @@
                                         </Grid.ColumnDefinitions>
 
                                         <!--  User Info  -->
-                                        <StackPanel
+                                        <tables:UserAvatarInfo
                                             Grid.Column="0"
-                                            Orientation="Horizontal"
-                                            Spacing="12">
-                                            <PersonPicture
-                                                Width="40"
-                                                Height="40"
-                                                DisplayName="{x:Bind Name, Mode=OneWay}"
-                                                ProfilePicture="{x:Bind Avatar, Mode=OneWay, Converter={StaticResource StringToImageSourceConverter}}" />
-                                            <StackPanel VerticalAlignment="Center">
-                                                <TextBlock
-                                                    FontSize="14"
-                                                    FontWeight="SemiBold"
-                                                    Foreground="#111827"
-                                                    Text="{x:Bind Name, Mode=OneWay}" />
-                                                <TextBlock
-                                                    FontSize="12"
-                                                    Foreground="#6B7280"
-                                                    Text="{x:Bind Email, Mode=OneWay}" />
-                                            </StackPanel>
-                                        </StackPanel>
+                                            DisplayName="{x:Bind Name, Mode=OneWay}"
+                                            SecondaryText="{x:Bind Email, Mode=OneWay}"
+                                            AvatarUrl="{x:Bind Avatar, Mode=OneWay}" />
 
                                         <!--  Role Badge  -->
                                         <Border
@@ -401,18 +335,12 @@
                                             HorizontalAlignment="Right"
                                             Orientation="Horizontal"
                                             Spacing="8">
-                                            <Button
-                                                Padding="8"
-                                                Background="Transparent"
-                                                BorderBrush="#E5E7EB"
+                                            <buttons:IconButton
+                                                Variant="Outline"
+                                                IconGlyph="&#xE72E;"
                                                 Command="{Binding ElementName=RootPage, Path=ViewModel.ResetPasswordCommand}"
                                                 CommandParameter="{x:Bind}"
-                                                ToolTipService.ToolTip="Reset Password">
-                                                <FontIcon
-                                                    FontSize="16"
-                                                    Foreground="#6B7280"
-                                                    Glyph="&#xE72E;" />
-                                            </Button>
+                                                ToolTipService.ToolTip="Reset Password" />
                                             <Button
                                                 Padding="8"
                                                 Background="{x:Bind IsActive, Mode=OneWay, Converter={StaticResource BoolToColorConverter}, ConverterParameter='#FEE2E2|#D1FAE5'}"

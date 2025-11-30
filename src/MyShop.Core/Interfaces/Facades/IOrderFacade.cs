@@ -12,24 +12,32 @@ public interface IOrderFacade
     /// <summary>
     /// Load orders với paging and filtering
     /// </summary>
+    /// <param name="customerId">Filter by customer ID (customer's own orders)</param>
+    /// <param name="salesAgentId">Filter by sales agent ID (sales agent's orders)</param>
     Task<Result<PagedList<Order>>> LoadOrdersAsync(
         string? searchQuery = null,
         string? status = null,
         DateTime? startDate = null,
         DateTime? endDate = null,
         int page = 1,
-        int pageSize = Common.PaginationConstants.DefaultPageSize);
+        int pageSize = Common.PaginationConstants.DefaultPageSize,
+        Guid? customerId = null,
+        Guid? salesAgentId = null);
 
     /// <summary>
     /// Load orders with paging (alias for LoadOrdersAsync)
     /// </summary>
+    /// <param name="customerId">Filter by customer ID (customer's own orders)</param>
+    /// <param name="salesAgentId">Filter by sales agent ID (sales agent's orders)</param>
     Task<Result<PagedList<Order>>> LoadOrdersPagedAsync(
         int page = 1,
         int pageSize = Common.PaginationConstants.OrdersPageSize,
         string? status = null,
         string? searchQuery = null,
         string sortBy = "orderDate",
-        bool sortDescending = true);
+        bool sortDescending = true,
+        Guid? customerId = null,
+        Guid? salesAgentId = null);
 
     /// <summary>
     /// Get order by ID with details
@@ -67,8 +75,12 @@ public interface IOrderFacade
     /// <summary>
     /// Export orders to CSV
     /// </summary>
+    /// <param name="customerId">Filter by customer ID</param>
+    /// <param name="salesAgentId">Filter by sales agent ID</param>
     Task<Result<string>> ExportOrdersToCsvAsync(
         string? status = null,
         DateTime? startDate = null,
-        DateTime? endDate = null);
+        DateTime? endDate = null,
+        Guid? customerId = null,
+        Guid? salesAgentId = null);
 }

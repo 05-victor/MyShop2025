@@ -11,8 +11,6 @@ using System.Threading.Tasks;
 
 // ===== NEW NAMESPACES - After Refactor =====
 using MyShop.Core.Interfaces.Repositories;
-using MyShop.Core.Interfaces.Services;
-using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Client.Strategies;
 
 namespace MyShop.Client

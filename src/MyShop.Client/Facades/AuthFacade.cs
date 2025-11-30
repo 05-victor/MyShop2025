@@ -29,6 +29,7 @@ public class AuthFacade : IAuthFacade
     private readonly IValidationService _validationService;
     private readonly INavigationService _navigationService;
     private readonly IToastService _toastService;
+    private readonly ISystemActivationRepository _activationRepository;
 
     public AuthFacade(
         IAuthRepository authRepository,
@@ -37,7 +38,8 @@ public class AuthFacade : IAuthFacade
         ISettingsStorage settingsStorage,
         IValidationService validationService,
         INavigationService navigationService,
-        IToastService toastService)
+        IToastService toastService,
+        ISystemActivationRepository activationRepository)
     {
         _authRepository = authRepository ?? throw new ArgumentNullException(nameof(authRepository));
         _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -46,6 +48,7 @@ public class AuthFacade : IAuthFacade
         _validationService = validationService ?? throw new ArgumentNullException(nameof(validationService));
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
         _toastService = toastService ?? throw new ArgumentNullException(nameof(toastService));
+        _activationRepository = activationRepository ?? throw new ArgumentNullException(nameof(activationRepository));
     }
 
     /// <inheritdoc/>
@@ -436,53 +439,24 @@ public class AuthFacade : IAuthFacade
     {
         try
         {
-            await Task.Delay(300); // Simulate validation delay
-
-            // Load admin-codes.json from mock data
-            var adminCodesJson = await System.IO.File.ReadAllTextAsync(
-                System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, 
-                "Repositories", "Mocks", "Data", "Json", "admin-codes.json"));
-
-            var adminCodesData = System.Text.Json.JsonSerializer.Deserialize<AdminCodesData>(
-                adminCodesJson,
-                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            if (adminCodesData?.AdminCodes == null)
+            // Use unified ISystemActivationRepository
+            var result = await _activationRepository.ValidateCodeAsync(adminCode);
+            
+            if (!result.IsSuccess || result.Data == null)
             {
-                return Result<bool>.Failure("Failed to load admin codes");
-            }
-
-            var codeEntry = adminCodesData.AdminCodes.FirstOrDefault(c => 
-                c.Code.Equals(adminCode, StringComparison.OrdinalIgnoreCase));
-
-            if (codeEntry == null)
-            {
-                System.Diagnostics.Debug.WriteLine($"[AuthFacade] Admin code not found: {adminCode}");
+                System.Diagnostics.Debug.WriteLine($"[AuthFacade] Admin code validation failed: {result.ErrorMessage}");
                 return Result<bool>.Success(false);
             }
 
-            // Check status
-            if (!codeEntry.Status.Equals("Active", StringComparison.OrdinalIgnoreCase))
+            var codeInfo = result.Data;
+            
+            if (!codeInfo.IsValid)
             {
-                System.Diagnostics.Debug.WriteLine($"[AuthFacade] Admin code status not Active: {codeEntry.Status}");
+                System.Diagnostics.Debug.WriteLine($"[AuthFacade] Admin code not valid: {adminCode}");
                 return Result<bool>.Success(false);
             }
 
-            // Check expiry
-            if (codeEntry.ExpiresAt.HasValue && codeEntry.ExpiresAt.Value < DateTime.UtcNow)
-            {
-                System.Diagnostics.Debug.WriteLine($"[AuthFacade] Admin code expired: {codeEntry.ExpiresAt}");
-                return Result<bool>.Success(false);
-            }
-
-            // Check usage limit
-            if (codeEntry.CurrentUses >= codeEntry.MaxUses)
-            {
-                System.Diagnostics.Debug.WriteLine($"[AuthFacade] Admin code usage limit reached: {codeEntry.CurrentUses}/{codeEntry.MaxUses}");
-                return Result<bool>.Success(false);
-            }
-
-            System.Diagnostics.Debug.WriteLine($"[AuthFacade] Admin code validated successfully: {adminCode}");
+            System.Diagnostics.Debug.WriteLine($"[AuthFacade] Admin code validated successfully: {adminCode}, Type: {codeInfo.Type}");
             return Result<bool>.Success(true);
         }
         catch (Exception ex)
@@ -490,20 +464,5 @@ public class AuthFacade : IAuthFacade
             System.Diagnostics.Debug.WriteLine($"[AuthFacade] ValidateAdminCodeAsync failed: {ex.Message}");
             return Result<bool>.Failure("Failed to validate admin code", ex);
         }
-    }
-
-    // Helper classes for JSON deserialization
-    private class AdminCodesData
-    {
-        public List<AdminCodeEntry>? AdminCodes { get; set; }
-    }
-
-    private class AdminCodeEntry
-    {
-        public string Code { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty;
-        public DateTime? ExpiresAt { get; set; }
-        public int MaxUses { get; set; }
-        public int CurrentUses { get; set; }
     }
 }

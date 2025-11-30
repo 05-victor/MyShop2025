@@ -68,7 +68,7 @@ public static class MockOrderData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(400);
+        // await Task.Delay(400);
 
         return _orders!.Select(MapToOrder).ToList();
     }
@@ -78,7 +78,7 @@ public static class MockOrderData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(250);
+        // await Task.Delay(250);
 
         var orderData = _orders!.FirstOrDefault(o => o.Id == id.ToString());
         if (orderData == null) return null;
@@ -91,7 +91,7 @@ public static class MockOrderData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(600);
+        // await Task.Delay(600);
 
         var newOrderData = new OrderDataModel
         {
@@ -129,7 +129,7 @@ public static class MockOrderData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(450);
+        // await Task.Delay(450);
 
         var existing = _orders!.FirstOrDefault(o => o.Id == order.Id.ToString());
         if (existing == null)
@@ -156,7 +156,7 @@ public static class MockOrderData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(350);
+        // await Task.Delay(350);
 
         var order = _orders!.FirstOrDefault(o => o.Id == id.ToString());
         if (order == null) return false;
@@ -174,7 +174,7 @@ public static class MockOrderData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(300);
+        // await Task.Delay(300);
 
         var order = _orders!.FirstOrDefault(o => o.Id == orderId.ToString());
         if (order == null) return false;
@@ -193,7 +193,7 @@ public static class MockOrderData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(300);
+        // await Task.Delay(300);
 
         return _orders!
             .Where(o => o.CustomerId == customerId.ToString())
@@ -206,7 +206,7 @@ public static class MockOrderData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(300);
+        // await Task.Delay(300);
 
         return _orders!
             .Where(o => o.SalesAgentId == salesAgentId.ToString())

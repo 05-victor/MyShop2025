@@ -162,7 +162,7 @@ namespace MyShop.Client.Views.Dialogs
                     this.Hide();
                     
                     // Small delay to ensure dialog is fully closed
-                    await Task.Delay(100);
+                    // await Task.Delay(100);
                     
                     // Now show restart dialog
                     System.Diagnostics.Debug.WriteLine("[ServerConfig] Showing restart dialog");

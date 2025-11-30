@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using System.Windows.Input;
 
 namespace MyShop.Client.Views.Components.Cards
 {
@@ -66,11 +67,32 @@ namespace MyShop.Client.Views.Components.Cards
                 typeof(DataTableCard),
                 new PropertyMetadata("View All"));
 
+        // ViewAllCommand Property
+        public ICommand ViewAllCommand
+        {
+            get => (ICommand)GetValue(ViewAllCommandProperty);
+            set => SetValue(ViewAllCommandProperty, value);
+        }
+
+        public static readonly DependencyProperty ViewAllCommandProperty =
+            DependencyProperty.Register(
+                nameof(ViewAllCommand),
+                typeof(ICommand),
+                typeof(DataTableCard),
+                new PropertyMetadata(null));
+
         // ViewAllClicked Event
         public event RoutedEventHandler? ViewAllClicked;
 
         private void ViewAllButton_Click(object sender, RoutedEventArgs e)
         {
+            // Execute command if available
+            if (ViewAllCommand?.CanExecute(null) == true)
+            {
+                ViewAllCommand.Execute(null);
+            }
+            
+            // Also fire event for backwards compatibility
             ViewAllClicked?.Invoke(this, e);
         }
     }

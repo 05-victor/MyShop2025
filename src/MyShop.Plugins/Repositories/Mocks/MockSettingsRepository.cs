@@ -239,7 +239,7 @@ public class MockSettingsRepository
 
     /// <summary>
     /// Activate a trial code to extend trial period
-    /// Loads valid codes from activation-codes.json
+    /// Uses MockSystemActivationData for unified activation logic
     /// </summary>
     public async Task<Result<int>> ActivateTrialCodeAsync(string trialCode)
     {
@@ -250,15 +250,16 @@ public class MockSettingsRepository
                 return Result<int>.Failure("Trial code cannot be empty.");
             }
 
-            var (success, daysToAdd, errorMessage) = await MockActivationCodesData.ActivateCodeAsync(trialCode);
+            // Use new unified MockSystemActivationData
+            var validCode = await MockSystemActivationData.ValidateCodeAsync(trialCode);
             
-            if (success)
+            if (validCode != null && validCode.DurationDays.HasValue && validCode.DurationDays.Value > 0)
             {
-                System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] Trial code activated: +{daysToAdd} days");
-                return Result<int>.Success(daysToAdd);
+                System.Diagnostics.Debug.WriteLine($"[MockSettingsRepository] Trial code validated: +{validCode.DurationDays.Value} days");
+                return Result<int>.Success(validCode.DurationDays.Value);
             }
 
-            return Result<int>.Failure(errorMessage ?? "Invalid trial code.");
+            return Result<int>.Failure("Invalid trial code.");
         }
         catch (Exception ex)
         {

@@ -7,6 +7,10 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Admin"
+    xmlns:layout="using:MyShop.Client.Views.Components.Layout"
+    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
+    xmlns:tables="using:MyShop.Client.Views.Components.Tables"
+    xmlns:feedback="using:MyShop.Client.Views.Components.Feedback"
     x:Name="MyPage"
     Background="#F3F4F6"
     mc:Ignorable="d">
@@ -27,34 +31,19 @@
         </Grid.RowDefinitions>
 
         <!--  Header  -->
-        <Grid Grid.Row="0" Margin="0,0,0,24">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-
-            <StackPanel Grid.Column="0">
-                <TextBlock
-                    Style="{StaticResource DisplayHeadingStyle}"
-                    Text="Agent Requests" />
-                <TextBlock
-                    Margin="0,4,0,0"
-                    FontSize="14"
-                    Foreground="#6B7280"
-                    Text="Manage salesman registration requests" />
-            </StackPanel>
-
-            <Button
-                Grid.Column="1"
-                VerticalAlignment="Center"
-                Command="{x:Bind ViewModel.RefreshCommand}"
-                Style="{StaticResource AccentButtonStyle}">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon FontSize="16" Glyph="&#xE72C;" />
-                    <TextBlock Text="Refresh" />
-                </StackPanel>
-            </Button>
-        </Grid>
+        <layout:PageHeader 
+            Grid.Row="0" 
+            Margin="0,0,0,24"
+            Title="Agent Requests"
+            Subtitle="Manage salesman registration requests">
+            <layout:PageHeader.ActionContent>
+                <buttons:IconButton
+                    Variant="Filled"
+                    IconGlyph="&#xE72C;"
+                    Text="Refresh"
+                    Command="{x:Bind ViewModel.RefreshCommand}" />
+            </layout:PageHeader.ActionContent>
+        </layout:PageHeader>
 
         <!--  Status Tabs - Using TabView  -->
         <TabView
@@ -165,62 +154,40 @@
                                         <!--  Actions  -->
                                     </Grid.RowDefinitions>
 
-                                    <!--  Header Section: Avatar + Name + Badge + Email + Date  -->
-                                    <Grid Grid.Row="0">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
+                                        <!--  Header Section: Avatar + Name + Badge + Email + Date  -->
+                                        <Grid Grid.Row="0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
 
-                                        <!--  Avatar  -->
-                                        <PersonPicture
-                                            Grid.Column="0"
-                                            Width="48"
-                                            Height="48"
-                                            Margin="0,0,16,0"
-                                            DisplayName="{x:Bind FullName}"
-                                            ProfilePicture="{x:Bind Avatar, Converter={StaticResource StringToImageSourceConverter}}" />
-
-                                        <!--  Name, Badge, Email, Date  -->
-                                        <StackPanel Grid.Column="1" Spacing="8">
-                                            <!--  Name + Status Badge  -->
-                                            <StackPanel Orientation="Horizontal" Spacing="12">
-                                                <TextBlock
-                                                    FontSize="16"
-                                                    FontWeight="SemiBold"
-                                                    Foreground="#111827"
-                                                    Text="{x:Bind FullName}"
-                                                    VerticalAlignment="Center" />
-                                                <badges:StatusBadge
-                                                    Text="{x:Bind Status}"
-                                                    Variant="Warning" />
-                                            </StackPanel>
-
-                                            <!--  Email + Date  -->
-                                            <StackPanel Orientation="Horizontal" Spacing="16">
-                                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                                    <FontIcon
-                                                        FontSize="14"
-                                                        Foreground="#6B7280"
-                                                        Glyph="&#xE715;" />
-                                                    <TextBlock
-                                                        FontSize="13"
-                                                        Foreground="#6B7280"
-                                                        Text="{x:Bind Email}" />
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                                    <FontIcon
-                                                        FontSize="14"
-                                                        Foreground="#6B7280"
-                                                        Glyph="&#xE787;" />
-                                                    <TextBlock
-                                                        FontSize="13"
-                                                        Foreground="#6B7280"
-                                                        Text="{x:Bind SubmittedDate}" />
-                                                </StackPanel>
-                                            </StackPanel>
-                                        </StackPanel>
-                                    </Grid>
+                                            <!--  User Info with Avatar  -->
+                                            <tables:UserAvatarInfo
+                                                Grid.Column="0"
+                                                Grid.ColumnSpan="2"
+                                                AvatarSize="48"
+                                                DisplayName="{x:Bind FullName}"
+                                                SecondaryText="{x:Bind Email}"
+                                                AvatarUrl="{x:Bind Avatar}">
+                                                <tables:UserAvatarInfo.ExtraContent>
+                                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                                        <badges:StatusBadge
+                                                            Text="{x:Bind Status}"
+                                                            Variant="Warning" />
+                                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                                            <FontIcon
+                                                                FontSize="14"
+                                                                Foreground="#6B7280"
+                                                                Glyph="&#xE787;" />
+                                                            <TextBlock
+                                                                FontSize="13"
+                                                                Foreground="#6B7280"
+                                                                Text="{x:Bind SubmittedDate}" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </tables:UserAvatarInfo.ExtraContent>
+                                            </tables:UserAvatarInfo>
+                                        </Grid>
 
                                     <!--  Reason & Experience Section  -->
                                     <StackPanel Grid.Row="1" Spacing="12">
@@ -263,29 +230,13 @@
                                         </StackPanel>
                                     </StackPanel>
 
-                                    <!--  Rejection Reason (only if rejected)  -->
-                                    <StackPanel
+                                    <!--  Rejection Reason (only if rejected) - Using AlertBox  -->
+                                    <feedback:AlertBox
                                         Grid.Row="2"
-                                        Spacing="8"
-                                        Visibility="{x:Bind HasRejectionReason}">
-                                        <TextBlock
-                                            FontSize="13"
-                                            FontWeight="SemiBold"
-                                            Foreground="#B91C1C"
-                                            Text="Rejection Reason:" />
-                                        <Border
-                                            Background="#FEF2F2"
-                                            BorderBrush="#FCA5A5"
-                                            BorderThickness="1"
-                                            CornerRadius="8"
-                                            Padding="12">
-                                            <TextBlock
-                                                FontSize="13"
-                                                Foreground="#DC2626"
-                                                Text="{x:Bind RejectionReason}"
-                                                TextWrapping="Wrap" />
-                                        </Border>
-                                    </StackPanel>
+                                        Variant="Error"
+                                        Title="Rejection Reason"
+                                        Message="{x:Bind RejectionReason}"
+                                        Visibility="{x:Bind HasRejectionReason}" />
 
                                     <!--  Action Buttons (only for pending)  -->
                                     <StackPanel
@@ -296,36 +247,26 @@
                                         Padding="0,16,0,0"
                                         Spacing="12"
                                         Visibility="{x:Bind IsPending}">
-                                        <Button
+                                        <buttons:IconButton
+                                            Variant="Filled"
+                                            IconGlyph="&#xE73E;"
+                                            Text="Approve"
                                             Command="{Binding DataContext.ApproveRequestCommand, ElementName=MyPage}"
-                                            CommandParameter="{x:Bind}"
-                                            Style="{StaticResource AccentButtonStyle}">
-                                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                                <FontIcon FontSize="14" Glyph="&#xE73E;" />
-                                                <TextBlock Text="Approve" />
-                                            </StackPanel>
-                                        </Button>
-                                        <Button
+                                            CommandParameter="{x:Bind}" />
+                                        <buttons:IconButton
+                                            Variant="Outline"
+                                            IconGlyph="&#xE711;"
+                                            IconColor="#DC2626"
+                                            Text="Reject"
+                                            TextColor="#DC2626"
                                             Command="{Binding DataContext.RejectRequestCommand, ElementName=MyPage}"
-                                            CommandParameter="{x:Bind}"
-                                            Style="{StaticResource DefaultButtonStyle}">
-                                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                                <FontIcon
-                                                    FontSize="14"
-                                                    Foreground="#DC2626"
-                                                    Glyph="&#xE711;" />
-                                                <TextBlock Foreground="#DC2626" Text="Reject" />
-                                            </StackPanel>
-                                        </Button>
-                                        <Button 
+                                            CommandParameter="{x:Bind}" />
+                                        <buttons:IconButton
+                                            Variant="Outline"
+                                            IconGlyph="&#xE77B;"
+                                            Text="View Profile"
                                             Command="{Binding DataContext.ViewProfileCommand, ElementName=MyPage}"
-                                            CommandParameter="{x:Bind}"
-                                            Style="{StaticResource DefaultButtonStyle}">
-                                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                                <FontIcon FontSize="14" Glyph="&#xE77B;" />
-                                                <TextBlock Text="View Profile" />
-                                            </StackPanel>
-                                        </Button>
+                                            CommandParameter="{x:Bind}" />
                                     </StackPanel>
                                 </Grid>
                             </Border>
@@ -348,15 +289,12 @@
                         </Grid.ColumnDefinitions>
 
                         <!--  Previous Button  -->
-                        <Button
+                        <buttons:IconButton
                             Grid.Column="0"
-                            Command="{x:Bind ViewModel.PreviousPageCommand}"
-                            Style="{StaticResource DefaultButtonStyle}">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon FontSize="14" Glyph="&#xE76B;" />
-                                <TextBlock Text="Previous" />
-                            </StackPanel>
-                        </Button>
+                            Variant="Outline"
+                            IconGlyph="&#xE76B;"
+                            Text="Previous"
+                            Command="{x:Bind ViewModel.PreviousPageCommand}" />
 
                         <!--  Page Info  -->
                         <StackPanel
@@ -378,15 +316,13 @@
                         </StackPanel>
 
                         <!--  Next Button  -->
-                        <Button
+                        <buttons:IconButton
                             Grid.Column="2"
-                            Command="{x:Bind ViewModel.NextPageCommand}"
-                            Style="{StaticResource DefaultButtonStyle}">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <TextBlock Text="Next" />
-                                <FontIcon FontSize="14" Glyph="&#xE76C;" />
-                            </StackPanel>
-                        </Button>
+                            Variant="Outline"
+                            IconGlyph="&#xE76C;"
+                            Text="Next"
+                            IconPosition="Right"
+                            Command="{x:Bind ViewModel.NextPageCommand}" />
                     </Grid>
                 </Border>
             </StackPanel>

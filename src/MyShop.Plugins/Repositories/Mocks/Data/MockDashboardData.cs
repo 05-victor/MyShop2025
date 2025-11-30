@@ -78,7 +78,7 @@ public static class MockDashboardData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(400);
+        // await Task.Delay(400);
 
         // Calculate date ranges based on period
         var now = DateTime.Now;
@@ -220,7 +220,7 @@ public static class MockDashboardData
 
     public static async Task<RevenueChartData> GetRevenueChartAsync(string period = "daily")
     {
-        await Task.Delay(300);
+        // await Task.Delay(300);
 
         // Generate mock chart data based on period
         var chartData = new RevenueChartData
@@ -284,7 +284,7 @@ public static class MockDashboardData
 
     public static async Task<List<TopSalesAgent>> GetTopSalesAgentsAsync(string period = "current", int topCount = 5)
     {
-        await Task.Delay(300);
+        // await Task.Delay(300);
 
         // Calculate date ranges based on period
         var now = DateTime.Now;
@@ -301,15 +301,18 @@ public static class MockDashboardData
 
         // Get all users (SalesAgents)
         var allUsers = await MockUserData.GetAllAsync();
-        var salesAgents = allUsers.Where(u => u.Roles.Contains(Shared.Models.Enums.UserRole.Salesman)).ToList();
+        var salesAgentsDict = allUsers
+            .Where(u => u.Roles.Contains(Shared.Models.Enums.UserRole.Salesman))
+            .ToDictionary(u => u.Id);
 
-        // Calculate sales by agent
+        // Calculate sales by agent - Group by SalesAgentId instead of Name
         var agentSales = periodOrders
-            .Where(o => !string.IsNullOrEmpty(o.SalesAgentName))
-            .GroupBy(o => o.SalesAgentName)
+            .Where(o => o.SalesAgentId.HasValue && o.SalesAgentId.Value != Guid.Empty)
+            .GroupBy(o => o.SalesAgentId!.Value)
             .Select(g => new
             {
-                AgentName = g.Key,
+                AgentId = g.Key,
+                AgentName = g.First().SalesAgentName, // Keep name for display
                 TotalGMV = g.Sum(o => o.FinalPrice),
                 OrderCount = g.Count()
             })
@@ -322,16 +325,16 @@ public static class MockDashboardData
 
         foreach (var sale in agentSales)
         {
-            // Find matching user
-            var user = salesAgents.FirstOrDefault(u => u.Username == sale.AgentName || u.FullName == sale.AgentName);
+            // Find matching user by ID
+            salesAgentsDict.TryGetValue(sale.AgentId, out var user);
             var commission = sale.TotalGMV * 0.05m; // 5% commission
 
             topAgents.Add(new TopSalesAgent
             {
-                Id = user?.Id.ToString() ?? Guid.NewGuid().ToString(),
-                Name = sale.AgentName,
-                Email = user?.Email ?? $"{sale.AgentName.ToLower().Replace(" ", ".")}@example.com",
-                Avatar = user?.Avatar ?? $"ms-appx:///Assets/Avatars/avatar{random.Next(1, 6)}.png",
+                Id = user?.Id.ToString() ?? sale.AgentId.ToString(),
+                Name = user?.FullName ?? sale.AgentName ?? "Unknown Agent",
+                Email = user?.Email ?? $"agent{sale.AgentId.ToString()[..8]}@example.com",
+                Avatar = user?.Avatar ?? "ms-appx:///Assets/Images/user/avatar-placeholder.png",
                 GMV = sale.TotalGMV,
                 Commission = commission,
                 OrderCount = sale.OrderCount,
@@ -349,7 +352,7 @@ public static class MockDashboardData
                     Id = Guid.NewGuid().ToString(),
                     Name = "Michael Chen", 
                     Email = "michael.chen@example.com", 
-                    Avatar = "ms-appx:///Assets/Avatars/avatar1.png", 
+                    Avatar = "ms-appx:///Assets/Images/user/avatar-placeholder.png", 
                     GMV = 127450m, 
                     Commission = 6372.50m,
                     OrderCount = 45,
@@ -360,7 +363,7 @@ public static class MockDashboardData
                     Id = Guid.NewGuid().ToString(),
                     Name = "Sarah Johnson", 
                     Email = "sarah.johnson@example.com", 
-                    Avatar = "ms-appx:///Assets/Avatars/avatar2.png", 
+                    Avatar = "ms-appx:///Assets/Images/user/avatar-placeholder.png", 
                     GMV = 98320m, 
                     Commission = 4916.00m,
                     OrderCount = 38,
@@ -371,7 +374,7 @@ public static class MockDashboardData
                     Id = Guid.NewGuid().ToString(),
                     Name = "David Park", 
                     Email = "david.park@example.com", 
-                    Avatar = "ms-appx:///Assets/Avatars/avatar3.png", 
+                    Avatar = "ms-appx:///Assets/Images/user/avatar-placeholder.png", 
                     GMV = 87650m, 
                     Commission = 4382.50m,
                     OrderCount = 32,
@@ -382,7 +385,7 @@ public static class MockDashboardData
                     Id = Guid.NewGuid().ToString(),
                     Name = "Emma Wilson", 
                     Email = "emma.wilson@example.com", 
-                    Avatar = "ms-appx:///Assets/Avatars/avatar4.png", 
+                    Avatar = "ms-appx:///Assets/Images/user/avatar-placeholder.png", 
                     GMV = 76890m, 
                     Commission = 3844.50m,
                     OrderCount = 28,
@@ -393,7 +396,7 @@ public static class MockDashboardData
                     Id = Guid.NewGuid().ToString(),
                     Name = "James Lee", 
                     Email = "james.lee@example.com", 
-                    Avatar = "ms-appx:///Assets/Avatars/avatar5.png", 
+                    Avatar = "ms-appx:///Assets/Images/user/avatar-placeholder.png", 
                     GMV = 65430m, 
                     Commission = 3271.50m,
                     OrderCount = 25,

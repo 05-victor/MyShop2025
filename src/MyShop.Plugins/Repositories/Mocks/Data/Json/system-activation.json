@@ -1,0 +1,65 @@
+{
+  "adminCodes": [
+    {
+      "code": "MYSHOP-PERM-2025-ADMIN",
+      "type": "permanent",
+      "description": "Permanent admin license - unlimited access",
+      "status": "available",
+      "usedBy": null,
+      "usedAt": null,
+      "createdAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "code": "MYSHOP-PERM-2025-MASTER",
+      "type": "permanent",
+      "description": "Master admin code for first-time setup",
+      "status": "available",
+      "usedBy": null,
+      "usedAt": null,
+      "createdAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "code": "MYSHOP-TRIAL-2025-001",
+      "type": "trial",
+      "durationDays": 14,
+      "description": "14-day trial admin license",
+      "status": "used",
+      "usedBy": "00000000-0000-0000-0000-000000000001",
+      "usedAt": "2025-11-16T00:00:00Z",
+      "createdAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "code": "MYSHOP-TRIAL-2025-002",
+      "type": "trial",
+      "durationDays": 14,
+      "description": "14-day trial admin license",
+      "status": "available",
+      "usedBy": null,
+      "usedAt": null,
+      "createdAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "code": "MYSHOP-TRIAL-2025-030",
+      "type": "trial",
+      "durationDays": 30,
+      "description": "30-day extended trial admin license",
+      "status": "available",
+      "usedBy": null,
+      "usedAt": null,
+      "createdAt": "2025-01-01T00:00:00Z"
+    }
+  ],
+  "currentLicense": {
+    "userId": "00000000-0000-0000-0000-000000000001",
+    "type": "trial",
+    "activatedAt": "2025-11-16T00:00:00Z",
+    "expiresAt": "2025-12-14T23:59:59Z",
+    "durationDays": 14,
+    "codeUsed": "MYSHOP-TRIAL-2025-001"
+  },
+  "settings": {
+    "trialDurationDays": 14,
+    "warningDaysBeforeExpiry": 1,
+    "allowMultipleAdmins": false
+  }
+}

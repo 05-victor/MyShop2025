@@ -241,22 +241,6 @@ public class ProductFacade : IProductFacade
     {
         try
         {
-            // Show file save picker first
-            var savePicker = new FileSavePicker();
-            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
-            WinRT.Interop.InitializeWithWindow.Initialize(savePicker, hwnd);
-
-            savePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
-            savePicker.FileTypeChoices.Add("CSV Files", new List<string> { ".csv" });
-            savePicker.SuggestedFileName = $"Products_{DateTime.Now:yyyyMMdd_HHmmss}";
-
-            var file = await savePicker.PickSaveFileAsync();
-            if (file == null)
-            {
-                // User cancelled the picker
-                return Result<string>.Success(string.Empty);
-            }
-
             // Load filtered products with large page size to get all
             var result = await _productRepository.GetPagedAsync(
                 1, 10000, searchQuery, categoryName, minPrice, maxPrice, "name", false);
@@ -267,6 +251,12 @@ public class ProductFacade : IProductFacade
             }
 
             var products = result.Data.Items;
+
+            if (products.Count == 0)
+            {
+                await _toastService.ShowWarning("No products to export");
+                return Result<string>.Success(string.Empty);
+            }
 
             // Generate CSV content
             var csv = new StringBuilder();
@@ -286,13 +276,26 @@ public class ProductFacade : IProductFacade
                     $"\"{product.Status ?? string.Empty}\"");
             }
 
-            // Write to user-selected file
-            await FileIO.WriteTextAsync(file, csv.ToString());
+            // Use ExportService with FileSavePicker (reusable)
+            var suggestedFileName = $"Products_{DateTime.Now:yyyyMMdd_HHmmss}";
+            var exportResult = await _exportService.ExportWithPickerAsync(suggestedFileName, csv.ToString());
 
-            await _toastService.ShowSuccess($"Exported {products.Count} products to {file.Name}");
-            System.Diagnostics.Debug.WriteLine($"[ProductFacade] Exported products to {file.Path}");
+            if (!exportResult.IsSuccess)
+            {
+                await _toastService.ShowError("Failed to export products");
+                return exportResult;
+            }
 
-            return Result<string>.Success(file.Path);
+            // Empty path means user cancelled
+            if (string.IsNullOrEmpty(exportResult.Data))
+            {
+                return Result<string>.Success(string.Empty);
+            }
+
+            await _toastService.ShowSuccess($"Exported {products.Count} products successfully!");
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] Exported {products.Count} products to {exportResult.Data}");
+
+            return exportResult;
         }
         catch (Exception ex)
         {

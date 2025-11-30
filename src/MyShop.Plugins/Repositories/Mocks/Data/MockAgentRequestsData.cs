@@ -84,7 +84,7 @@ public static class MockAgentRequestsData
         EnsureDataLoaded();
 
         // Simulate minimal network delay for better UX
-        await Task.Delay(50);
+        // await Task.Delay(50);
 
         var query = _agentRequests!.AsQueryable();
 
@@ -126,7 +126,7 @@ public static class MockAgentRequestsData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(300);
+        // await Task.Delay(300);
 
         var request = _agentRequests!.FirstOrDefault(r => r.Id == requestId.ToString());
         if (request == null || request.Status != "Pending")
@@ -146,7 +146,7 @@ public static class MockAgentRequestsData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(300);
+        // await Task.Delay(300);
 
         var request = _agentRequests!.FirstOrDefault(r => r.Id == requestId.ToString());
         if (request == null || request.Status != "Pending")
@@ -167,7 +167,7 @@ public static class MockAgentRequestsData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(300);
+        // await Task.Delay(300);
 
         try
         {

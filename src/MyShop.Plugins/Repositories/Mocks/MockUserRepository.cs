@@ -24,7 +24,7 @@ public class MockUserRepository : IUserRepository
     {
         try
         {
-            await Task.Delay(50); // Simulate database check
+            // await Task.Delay(50); // Simulate database check
             var users = await MockUserData.GetAllAsync();
             var hasUsers = users.Count > 0;
             System.Diagnostics.Debug.WriteLine($"[MockUserRepository] HasAnyUsersAsync returned {hasUsers} ({users.Count} users)");
@@ -162,7 +162,7 @@ public class MockUserRepository : IUserRepository
     {
         try
         {
-            await Task.Delay(600);
+            // await Task.Delay(600);
 
             var token = _credentialStorage.GetToken();
             if (string.IsNullOrEmpty(token))
@@ -205,7 +205,7 @@ public class MockUserRepository : IUserRepository
             // Simulate upload with progress
             for (int i = 0; i <= 100; i += 20)
             {
-                await Task.Delay(100);
+                // await Task.Delay(100);
                 progress?.Report(i / 100.0);
             }
 

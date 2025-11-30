@@ -112,5 +112,49 @@ namespace MyShop.Client.ViewModels.Base
                 ClearError();
             }
         }
+
+        /// <summary>
+        /// Show error toast notification safely (handles null toast service)
+        /// </summary>
+        protected async Task ShowErrorToast(string message)
+        {
+            if (_toastHelper != null)
+            {
+                await _toastHelper.ShowError(message);
+            }
+        }
+
+        /// <summary>
+        /// Show success toast notification safely (handles null toast service)
+        /// </summary>
+        protected async Task ShowSuccessToast(string message)
+        {
+            if (_toastHelper != null)
+            {
+                await _toastHelper.ShowSuccess(message);
+            }
+        }
+
+        /// <summary>
+        /// Show warning toast notification safely (handles null toast service)
+        /// </summary>
+        protected async Task ShowWarningToast(string message)
+        {
+            if (_toastHelper != null)
+            {
+                await _toastHelper.ShowWarning(message);
+            }
+        }
+
+        /// <summary>
+        /// Show info toast notification safely (handles null toast service)
+        /// </summary>
+        protected async Task ShowInfoToast(string message)
+        {
+            if (_toastHelper != null)
+            {
+                await _toastHelper.ShowInfo(message);
+            }
+        }
     }
 }

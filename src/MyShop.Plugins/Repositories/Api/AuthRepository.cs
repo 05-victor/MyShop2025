@@ -197,7 +197,7 @@ public class AuthRepository : IAuthRepository
         {
             // TODO: Implement real API call when backend endpoint is ready
             // For now, return not implemented
-            await Task.Delay(500); // Simulate network delay
+            // await Task.Delay(500); // Simulate network delay
             
             return Result<User>.Failure("Trial activation API not yet implemented on server. Please use mock mode for testing.");
             
@@ -234,7 +234,7 @@ public class AuthRepository : IAuthRepository
     {
         try
         {
-            await Task.Delay(500);
+            // await Task.Delay(500);
             return Result<Unit>.Failure("Email verification API not yet implemented on server. Please use mock mode for testing.");
         }
         catch (Exception ex)
@@ -248,7 +248,7 @@ public class AuthRepository : IAuthRepository
     {
         try
         {
-            await Task.Delay(500);
+            // await Task.Delay(500);
             return Result<bool>.Failure("Email verification status API not yet implemented on server. Please use mock mode for testing.");
         }
         catch (Exception ex)
@@ -262,7 +262,7 @@ public class AuthRepository : IAuthRepository
     {
         try
         {
-            await Task.Delay(500);
+            // await Task.Delay(500);
             return Result<Unit>.Failure("Email verification API not yet implemented on server. Please use mock mode for testing.");
         }
         catch (Exception ex)

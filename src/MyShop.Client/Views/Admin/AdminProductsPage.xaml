@@ -12,6 +12,11 @@
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Admin"
     xmlns:skeletons="using:MyShop.Client.Views.Components.Skeletons"
     xmlns:converters="using:MyShop.Client.Common.Converters"
+    xmlns:layout="using:MyShop.Client.Views.Components.Layout"
+    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
+    xmlns:tables="using:MyShop.Client.Views.Components.Tables"
+    xmlns:forms="using:MyShop.Client.Views.Components.Forms"
+    xmlns:cards="using:MyShop.Client.Views.Components.Cards"
     x:Name="MyPage"
     Background="#F3F4F6"
     mc:Ignorable="d">
@@ -43,14 +48,6 @@
             <Setter Property="HorizontalAlignment" Value="Left" />
         </Style>
 
-        <!--  Action icon button nhỏ  -->
-        <Style x:Key="IconGhostButtonStyle" TargetType="Button">
-            <Setter Property="Padding" Value="4" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderBrush" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
-        </Style>
-
     </Page.Resources>
 
     <Grid>
@@ -59,97 +56,38 @@
                 <StackPanel Padding="32" Spacing="24">
 
                 <!--  PAGE TITLE  -->
-                <TextBlock
-                    Foreground="#111827"
-                    Style="{StaticResource DisplayHeadingStyle}"
-                    Text="Products Management" />
-
-                <!--  HEADER ACTIONS  -->
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <!--  Left: Export  -->
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <!--  Export  -->
-                        <Button
-                            Height="44"
-                            Padding="16,0"
-                            Background="#1A4D8F"
-                            BorderThickness="0"
-                            Click="ExportButton_Click"
-                            CornerRadius="12"
-                            Foreground="White"
-                            ToolTipService.ToolTip="Export products to CSV file">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE896;" FontSize="16"/>
-                                <TextBlock Text="Export" FontSize="14" FontWeight="SemiBold"/>
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
-
-                    <!--  Right: Refresh  -->
-                    <Button
-                        Grid.Column="1"
-                        Padding="12,8"
-                        Background="White"
-                        BorderBrush="#E5E7EB"
-                        BorderThickness="1"
-                        Command="{x:Bind ViewModel.RefreshCommand}"
-                        CornerRadius="8"
-                        Foreground="#111827"
-                        ToolTipService.ToolTip="Reload product list from server">
+                <layout:PageHeader 
+                    Title="Products Management"
+                    Subtitle="View and manage all products in the system">
+                    <layout:PageHeader.ActionContent>
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon
-                                Width="24"
-                                Height="24"
-                                Glyph="&#xE72C;" />
                             <!--  Refresh  -->
-                            <TextBlock Text="Refresh" />
+                            <buttons:IconButton
+                                Variant="Outline"
+                                IconGlyph="&#xE72C;"
+                                Text="Refresh"
+                                Command="{x:Bind ViewModel.RefreshCommand}"
+                                ToolTipService.ToolTip="Reload product list from server" />
+                            <!--  Export  -->
+                            <buttons:IconButton
+                                Variant="Filled"
+                                IconGlyph="&#xE896;"
+                                Text="Export"
+                                Click="ExportButton_Click"
+                                ToolTipService.ToolTip="Export products to CSV file" />
                         </StackPanel>
-                    </Button>
-                </Grid>
+                    </layout:PageHeader.ActionContent>
+                </layout:PageHeader>
 
                 <!--  SEARCH CARD  -->
-                <Border Style="{StaticResource CardBorderStyle}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-
-                        <AutoSuggestBox
-                            x:Name="SearchAutoSuggestBox"
-                            Grid.Column="0"
-                            Height="40"
-                            BorderBrush="#E5E7EB"
-                            CornerRadius="8"
-                            PlaceholderText="Search products by name, SKU, or category..."
-                            QueryIcon="Find"
-                            Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            TextChanged="SearchAutoSuggestBox_TextChanged"
-                            SuggestionChosen="SearchAutoSuggestBox_SuggestionChosen"
-                            QuerySubmitted="SearchAutoSuggestBox_QuerySubmitted" />
-
-                        <Button
-                            Grid.Column="1"
-                            Height="40"
-                            Margin="12,0,0,0"
-                            Padding="16,0"
-                            Background="#1A4D8F"
-                            BorderThickness="0"
-                            Click="SearchButton_Click"
-                            CornerRadius="8"
-                            Foreground="White">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon FontSize="14" Glyph="&#xE721;" />
-                                <TextBlock Text="Search" FontWeight="SemiBold" />
-                            </StackPanel>
-                        </Button>
-                    </Grid>
-                </Border>
+                <forms:SearchCard
+                    x:Name="SearchCard"
+                    PlaceholderText="Search products by name, SKU, or category..."
+                    SearchText="{x:Bind ViewModel.SearchQuery, Mode=TwoWay}"
+                    TextChanged="SearchAutoSuggestBox_TextChanged"
+                    SuggestionChosen="SearchAutoSuggestBox_SuggestionChosen"
+                    QuerySubmitted="SearchAutoSuggestBox_QuerySubmitted"
+                    SearchRequested="SearchButton_Click" />
 
                 <!--  FILTERS CARD  -->
                 <Border Style="{StaticResource CardBorderStyle}">
@@ -252,20 +190,13 @@
                         </Grid>
 
                         <!--  Apply Filter Button  -->
-                        <Button
+                        <buttons:IconButton
                             Margin="0,16,0,0"
-                            Padding="16,10"
                             HorizontalAlignment="Right"
-                            Background="#1A4D8F"
-                            BorderThickness="0"
-                            Click="ApplyFiltersButton_Click"
-                            CornerRadius="8"
-                            Foreground="White">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon FontSize="14" Glyph="&#xE71C;" />
-                                <TextBlock Text="Apply Filters" FontWeight="SemiBold" />
-                            </StackPanel>
-                        </Button>
+                            Variant="Filled"
+                            IconGlyph="&#xE71C;"
+                            Text="Apply Filters"
+                            Click="ApplyFiltersButton_Click" />
                     </StackPanel>
                 </Border>
 
@@ -490,31 +421,22 @@
                                             Orientation="Horizontal"
                                             Spacing="4">
                                             <!--  View  -->
-                                            <Button
+                                            <buttons:IconButton
+                                                Variant="Ghost"
+                                                IconGlyph="&#xE8A7;"
+                                                IconColor="#6B7280"
                                                 Command="{Binding DataContext.ViewProductCommand, ElementName=MyPage}"
                                                 CommandParameter="{x:Bind}"
-                                                Style="{StaticResource IconGhostButtonStyle}"
-                                                ToolTipService.ToolTip="View details">
-                                                <FontIcon Foreground="#6B7280" Glyph="&#xE8A7;" />
-                                            </Button>
-
-                                            <!--  Edit  -->
-                                            <Button
-                                                Command="{Binding DataContext.EditProductCommand, ElementName=MyPage}"
-                                                CommandParameter="{x:Bind}"
-                                                Style="{StaticResource IconGhostButtonStyle}"
-                                                ToolTipService.ToolTip="Edit product">
-                                                <FontIcon Foreground="#2563EB" Glyph="&#xE70F;" />
-                                            </Button>
+                                                ToolTipService.ToolTip="View details" />
 
                                             <!--  Delete  -->
-                                            <Button
+                                            <buttons:IconButton
+                                                Variant="Ghost"
+                                                IconGlyph="&#xE74D;"
+                                                IconColor="#DC2626"
                                                 Command="{Binding DataContext.DeleteProductCommand, ElementName=MyPage}"
                                                 CommandParameter="{x:Bind}"
-                                                Style="{StaticResource IconGhostButtonStyle}"
-                                                ToolTipService.ToolTip="Delete product">
-                                                <FontIcon Foreground="#DC2626" Glyph="&#xE74D;" />
-                                            </Button>
+                                                ToolTipService.ToolTip="Delete product" />
                                         </StackPanel>
                                     </Grid>
                                 </DataTemplate>

@@ -103,7 +103,7 @@ public partial class AdminReportsViewModel : BaseViewModel
             System.Diagnostics.Debug.WriteLine("[AdminReportsViewModel] Data loaded, creating chart series...");
             
             // Delay chart creation to avoid SkiaSharp rendering crash
-            await Task.Delay(100);
+            // await Task.Delay(100);
             
             try
             {

@@ -4,6 +4,7 @@ using MyShop.Shared.Models;
 using MyShop.Client.ViewModels.Base;
 using MyShop.Client.Views.Shared;
 using MyShop.Core.Interfaces.Facades;
+using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Client.Facades;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ public partial class CustomerDashboardViewModel : BaseViewModel
         private new readonly INavigationService _navigationService;
         private readonly IProductFacade _productFacade;
         private readonly IProfileFacade _profileFacade;
+        private readonly ISystemActivationRepository _activationRepository;
 
         [ObservableProperty]
         private User? _currentUser;
@@ -44,11 +46,13 @@ public partial class CustomerDashboardViewModel : BaseViewModel
         public CustomerDashboardViewModel(
             INavigationService navigationService,
             IProductFacade productFacade,
-            IProfileFacade profileFacade)
+            IProfileFacade profileFacade,
+            ISystemActivationRepository activationRepository)
         {
             _navigationService = navigationService;
             _productFacade = productFacade;
             _profileFacade = profileFacade;
+            _activationRepository = activationRepository;
         }
 
     public async void Initialize(User user)
@@ -57,7 +61,7 @@ public partial class CustomerDashboardViewModel : BaseViewModel
         {
             CurrentUser = user;
             IsVerified = user.IsEmailVerified;
-            CheckAdminBanner();
+            await CheckAdminBannerAsync();
             UpdateWelcomeMessage();
             await LoadDataAsync();
         }
@@ -73,20 +77,35 @@ public partial class CustomerDashboardViewModel : BaseViewModel
             );
         }
 
-        private void CheckAdminBanner()
+        private async Task CheckAdminBannerAsync()
         {
             if (CurrentUser == null) return;
 
-            // Show banner only if:
-            // 1. No admin exists in system (hasAdmin flag not set)
-            // 2. Current user is Customer role
-            // Note: ICredentialStorage doesn't support key-value storage
-            // For now, always show banner for Customers (mock implementation)
-            var isCustomer = CurrentUser.GetPrimaryRole() == MyShop.Shared.Models.Enums.UserRole.Customer;
+            try
+            {
+                // Check if current user is Customer role
+                var isCustomer = CurrentUser.GetPrimaryRole() == MyShop.Shared.Models.Enums.UserRole.Customer;
+                
+                if (!isCustomer)
+                {
+                    ShowBecomeAdminBanner = false;
+                    return;
+                }
 
-            ShowBecomeAdminBanner = isCustomer; // Show banner for customers only
-            
-            System.Diagnostics.Debug.WriteLine($"[CustomerDashboard] isCustomer={isCustomer}, ShowBanner={ShowBecomeAdminBanner}");
+                // Check if any admin exists in the system
+                var hasAdminResult = await _activationRepository.HasAnyAdminAsync();
+                var hasAdmin = hasAdminResult.IsSuccess && hasAdminResult.Data;
+
+                // Show banner only if: Customer + No admin exists
+                ShowBecomeAdminBanner = isCustomer && !hasAdmin;
+                
+                System.Diagnostics.Debug.WriteLine($"[CustomerDashboard] isCustomer={isCustomer}, hasAdmin={hasAdmin}, ShowBanner={ShowBecomeAdminBanner}");
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[CustomerDashboard] CheckAdminBannerAsync error: {ex.Message}");
+                ShowBecomeAdminBanner = false;
+            }
         }
 
         private void UpdateWelcomeMessage()

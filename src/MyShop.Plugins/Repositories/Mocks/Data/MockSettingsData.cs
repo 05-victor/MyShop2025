@@ -154,7 +154,7 @@ public static class MockSettingsData
     public static async Task<AppSettingsData?> GetAppSettingsAsync(Guid userId)
     {
         EnsureDataLoaded();
-        await Task.Delay(100); // Simulate network delay
+        // await Task.Delay(100); // Simulate network delay
 
         // Return app settings (in a real scenario, this would be per-user)
         return _data?.AppSettings;
@@ -163,7 +163,7 @@ public static class MockSettingsData
     public static async Task<AppSettingsData?> UpdateAppSettingsAsync(AppSettingsData settings)
     {
         EnsureDataLoaded();
-        await Task.Delay(200);
+        // await Task.Delay(200);
 
         if (_data == null) return null;
 
@@ -182,7 +182,7 @@ public static class MockSettingsData
     public static async Task<SystemSettingsData?> GetSystemSettingsAsync()
     {
         EnsureDataLoaded();
-        await Task.Delay(100);
+        // await Task.Delay(100);
 
         return _data?.SystemSettings;
     }
@@ -190,7 +190,7 @@ public static class MockSettingsData
     public static async Task<SystemSettingsData?> UpdateSystemSettingsAsync(SystemSettingsData settings)
     {
         EnsureDataLoaded();
-        await Task.Delay(200);
+        // await Task.Delay(200);
 
         if (_data == null) return null;
 
@@ -208,7 +208,7 @@ public static class MockSettingsData
     public static async Task<BusinessSettingsData?> GetBusinessSettingsAsync()
     {
         EnsureDataLoaded();
-        await Task.Delay(100);
+        // await Task.Delay(100);
 
         return _data?.BusinessSettings;
     }
@@ -216,7 +216,7 @@ public static class MockSettingsData
     public static async Task<BusinessSettingsData?> UpdateBusinessSettingsAsync(BusinessSettingsData settings)
     {
         EnsureDataLoaded();
-        await Task.Delay(200);
+        // await Task.Delay(200);
 
         if (_data == null) return null;
 

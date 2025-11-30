@@ -88,6 +88,7 @@ namespace MyShop.Client.Config
                         services.AddSingleton<IReportRepository, MockReportRepository>();
                         services.AddSingleton<ICartRepository, MockCartRepository>();
                         services.AddSingleton<IAgentRequestRepository, MockAgentRequestsRepository>();
+                        services.AddSingleton<ISystemActivationRepository, MockSystemActivationRepository>();
                         
                         System.Diagnostics.Debug.WriteLine("[Bootstrapper] All Mock Repositories registered");
                     }
@@ -190,6 +191,9 @@ namespace MyShop.Client.Config
                         services.AddScoped<ICartRepository, CartRepository>();
                         services.AddScoped<IReportRepository, ReportRepository>();
                         services.AddScoped<ICommissionRepository, CommissionRepository>();
+                        
+                        // TODO: Replace with SystemActivationRepository when API is implemented
+                        services.AddSingleton<ISystemActivationRepository, MockSystemActivationRepository>();
                     }
 
                     // ===== Services (from Client.Services) =====

@@ -103,6 +103,19 @@
                     <FontIcon Glyph="&#xE713;" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
+
+            <NavigationViewItemSeparator x:Name="BecomeAdminSeparator" Visibility="Collapsed"/>
+
+            <!--  Become Admin - Only visible when no admin exists  -->
+            <NavigationViewItem x:Name="BecomeAdminItem" 
+                                Content="Become Admin" 
+                                Tag="becomeAdmin"
+                                Visibility="Collapsed"
+                                Tapped="BecomeAdminItem_Tapped">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE7EE;" Foreground="#F59E0B"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
         </NavigationView.MenuItems>
 
         <NavigationView.PaneFooter>

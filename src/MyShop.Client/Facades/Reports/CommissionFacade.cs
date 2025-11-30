@@ -9,16 +9,24 @@ namespace MyShop.Client.Facades.Reports;
 
 /// <summary>
 /// Facade for commission management operations
-/// Aggregates: ICommissionRepository, IToastService
+/// Aggregates: ICommissionRepository, IToastService, IAuthRepository, IExportService
 /// </summary>
 public class CommissionFacade : ICommissionFacade
 {
     private readonly ICommissionRepository _commissionRepository;
+    private readonly IAuthRepository _authRepository;
+    private readonly IExportService _exportService;
     private readonly IToastService _toastService;
 
-    public CommissionFacade(ICommissionRepository commissionRepository, IToastService toastService)
+    public CommissionFacade(
+        ICommissionRepository commissionRepository,
+        IAuthRepository authRepository,
+        IExportService exportService,
+        IToastService toastService)
     {
         _commissionRepository = commissionRepository ?? throw new ArgumentNullException(nameof(commissionRepository));
+        _authRepository = authRepository ?? throw new ArgumentNullException(nameof(authRepository));
+        _exportService = exportService ?? throw new ArgumentNullException(nameof(exportService));
         _toastService = toastService ?? throw new ArgumentNullException(nameof(toastService));
     }
 
@@ -26,8 +34,42 @@ public class CommissionFacade : ICommissionFacade
     {
         try
         {
-            await _toastService.ShowInfo("Commission loading - Feature coming soon");
-            return Result<PagedList<Commission>>.Failure("Not implemented");
+            // Get current user's ID if agentId is not provided
+            Guid? effectiveAgentId = agentId;
+            if (!effectiveAgentId.HasValue)
+            {
+                var userIdResult = await _authRepository.GetCurrentUserIdAsync();
+                if (userIdResult.IsSuccess)
+                {
+                    effectiveAgentId = userIdResult.Data;
+                }
+            }
+
+            if (!effectiveAgentId.HasValue)
+            {
+                await _toastService.ShowError("Unable to identify current user");
+                return Result<PagedList<Commission>>.Failure("Unable to identify current user");
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[CommissionFacade] Loading commissions for agent: {effectiveAgentId}");
+
+            var result = await _commissionRepository.GetPagedAsync(
+                salesAgentId: effectiveAgentId.Value,
+                page: page,
+                pageSize: pageSize,
+                status: status,
+                startDate: startDate,
+                endDate: endDate
+            );
+
+            if (!result.IsSuccess || result.Data == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[CommissionFacade] Failed to load commissions: {result.ErrorMessage}");
+                return Result<PagedList<Commission>>.Failure(result.ErrorMessage ?? "Failed to load commissions");
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[CommissionFacade] Loaded {result.Data.Items.Count} commissions, total: {result.Data.TotalCount}");
+            return result;
         }
         catch (Exception ex)
         {
@@ -41,8 +83,15 @@ public class CommissionFacade : ICommissionFacade
     {
         try
         {
-            await _toastService.ShowInfo("Commission summary - Feature coming soon");
-            return Result<CommissionSummary>.Failure("Not implemented");
+            var result = await _commissionRepository.GetSummaryAsync(agentId);
+            
+            if (!result.IsSuccess || result.Data == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[CommissionFacade] Failed to get summary: {result.ErrorMessage}");
+                return Result<CommissionSummary>.Failure(result.ErrorMessage ?? "Failed to get commission summary");
+            }
+
+            return result;
         }
         catch (Exception ex)
         {
@@ -81,15 +130,25 @@ public class CommissionFacade : ICommissionFacade
     {
         try
         {
-            // Note: ICommissionRepository.GetPagedAsync requires salesAgentId as first parameter
-            // If agentId is null, we can't filter by agent - would need different approach
-            if (!agentId.HasValue)
+            // Get current user's ID if agentId is not provided
+            Guid? effectiveAgentId = agentId;
+            if (!effectiveAgentId.HasValue)
             {
+                var userIdResult = await _authRepository.GetCurrentUserIdAsync();
+                if (userIdResult.IsSuccess)
+                {
+                    effectiveAgentId = userIdResult.Data;
+                }
+            }
+
+            if (!effectiveAgentId.HasValue)
+            {
+                await _toastService.ShowError("Agent ID is required to export commissions");
                 return Result<string>.Failure("Agent ID is required to export commissions");
             }
 
             var result = await _commissionRepository.GetPagedAsync(
-                salesAgentId: agentId.Value,
+                salesAgentId: effectiveAgentId.Value,
                 page: 1, pageSize: 10000,
                 status: null,
                 startDate: startDate, endDate: endDate);
@@ -111,13 +170,25 @@ public class CommissionFacade : ICommissionFacade
                     $"\"{commission.CreatedDate:yyyy-MM-dd HH:mm}\",\"{commission.PaidDate?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"}\"");
             }
 
-            var fileName = $"Commissions_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-            var filePath = StorageConstants.GetExportFilePath(fileName);
-            await File.WriteAllTextAsync(filePath, csv.ToString());
+            // Use ExportService with FileSavePicker (same pattern as OrderFacade)
+            var suggestedFileName = $"Commissions_{DateTime.Now:yyyyMMdd_HHmmss}";
+            var exportResult = await _exportService.ExportWithPickerAsync(suggestedFileName, csv.ToString());
 
-            await _toastService.ShowSuccess($"Exported {commissions.Count} commissions to {fileName}");
-            System.Diagnostics.Debug.WriteLine($"[CommissionFacade] Exported {commissions.Count} commissions to {filePath}");
-            return Result<string>.Success(filePath);
+            if (!exportResult.IsSuccess)
+            {
+                await _toastService.ShowError("Failed to export commissions");
+                return exportResult;
+            }
+
+            // Empty path means user cancelled
+            if (string.IsNullOrEmpty(exportResult.Data))
+            {
+                return Result<string>.Success(string.Empty);
+            }
+
+            await _toastService.ShowSuccess($"Exported {commissions.Count} commissions successfully!");
+            System.Diagnostics.Debug.WriteLine($"[CommissionFacade] Exported {commissions.Count} commissions to {exportResult.Data}");
+            return exportResult;
         }
         catch (Exception ex)
         {

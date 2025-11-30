@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="using:MyShop.Client.Common.Converters"
+    xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     mc:Ignorable="d"
     Title="Agent Profile"
     CloseButtonText="Close"
@@ -40,7 +41,7 @@
             </StackPanel>
 
             <!-- Divider -->
-            <Border Height="1" Background="#E5E7EB" Margin="0,4"/>
+            <layout:Divider />
 
             <!-- Contact Information -->
             <StackPanel Spacing="12">
@@ -50,42 +51,20 @@
                           Foreground="#374151"/>
                 
                 <!-- Phone -->
-                <Grid ColumnSpacing="12">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <FontIcon Grid.Column="0" 
-                             Glyph="&#xE717;" 
-                             FontSize="16" 
-                             Foreground="#6B7280"/>
-                    <TextBlock Grid.Column="1" 
-                              Text="{x:Bind Phone, Mode=OneWay}"
-                              FontSize="14"
-                              Foreground="#111827"
-                              VerticalAlignment="Center"/>
-                </Grid>
+                <layout:DetailRow
+                    IconGlyph="&#xE717;"
+                    Label="Phone"
+                    Value="{x:Bind Phone, Mode=OneWay}" />
 
                 <!-- Email -->
-                <Grid ColumnSpacing="12">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <FontIcon Grid.Column="0" 
-                             Glyph="&#xE715;" 
-                             FontSize="16" 
-                             Foreground="#6B7280"/>
-                    <TextBlock Grid.Column="1" 
-                              Text="{x:Bind Email, Mode=OneWay}"
-                              FontSize="14"
-                              Foreground="#111827"
-                              VerticalAlignment="Center"/>
-                </Grid>
+                <layout:DetailRow
+                    IconGlyph="&#xE715;"
+                    Label="Email"
+                    Value="{x:Bind Email, Mode=OneWay}" />
             </StackPanel>
 
             <!-- Divider -->
-            <Border Height="1" Background="#E5E7EB" Margin="0,4"/>
+            <layout:Divider />
 
             <!-- Request Details -->
             <StackPanel Spacing="12">
@@ -141,7 +120,7 @@
             </StackPanel>
 
             <!-- Divider -->
-            <Border Height="1" Background="#E5E7EB" Margin="0,4"/>
+            <layout:Divider />
 
             <!-- Experience Section -->
             <StackPanel Spacing="8">

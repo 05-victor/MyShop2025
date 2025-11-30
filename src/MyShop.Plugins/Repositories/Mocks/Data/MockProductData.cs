@@ -68,7 +68,7 @@ public static class MockProductData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(300);
+        // await Task.Delay(300);
 
         return _products!.Select(p => new Product
         {
@@ -99,7 +99,7 @@ public static class MockProductData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(200);
+        // await Task.Delay(200);
 
         var productData = _products!.FirstOrDefault(p => p.Id == id.ToString());
         if (productData == null) return null;
@@ -133,7 +133,7 @@ public static class MockProductData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(500);
+        // await Task.Delay(500);
 
         var newProductData = new ProductDataModel
         {
@@ -167,7 +167,7 @@ public static class MockProductData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(400);
+        // await Task.Delay(400);
 
         var existing = _products!.FirstOrDefault(p => p.Id == product.Id.ToString());
         if (existing == null)
@@ -204,7 +204,7 @@ public static class MockProductData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(300);
+        // await Task.Delay(300);
 
         var product = _products!.FirstOrDefault(p => p.Id == id.ToString());
         if (product == null) return false;
@@ -222,7 +222,7 @@ public static class MockProductData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(250);
+        // await Task.Delay(250);
 
         return _products!
             .Where(p => p.CategoryId == categoryId.ToString())
@@ -253,7 +253,7 @@ public static class MockProductData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(350);
+        // await Task.Delay(350);
 
         if (string.IsNullOrWhiteSpace(query))
         {
@@ -292,7 +292,7 @@ public static class MockProductData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(200);
+        // await Task.Delay(200);
 
         return _products!
             .Where(p => p.Quantity <= threshold)
@@ -334,7 +334,7 @@ public static class MockProductData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(300);
+        // await Task.Delay(300);
 
         var query = _products!.AsEnumerable();
 

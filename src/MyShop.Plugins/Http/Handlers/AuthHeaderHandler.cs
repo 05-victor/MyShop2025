@@ -101,7 +101,7 @@ public class AuthHeaderHandler : DelegatingHandler
             System.Diagnostics.Debug.WriteLine("[AuthHeaderHandler] Mock refresh - In production, would call refresh token endpoint");
 
             // Simulate network delay
-            await Task.Delay(500, cancellationToken);
+            // await Task.Delay(500, cancellationToken);
 
             // For now, return false to force re-login
             // When backend implements refresh token endpoint, implement actual logic

@@ -65,7 +65,7 @@ public static class MockProfileData
     public static async Task<ProfileData?> GetByUserIdAsync(Guid userId)
     {
         EnsureDataLoaded();
-        await Task.Delay(250); // Simulate network delay
+        // await Task.Delay(250); // Simulate network delay
 
         var user = _users!.FirstOrDefault(u => u.Id == userId.ToString());
         if (user == null) return null;
@@ -87,7 +87,7 @@ public static class MockProfileData
     public static async Task<ProfileData> CreateAsync(ProfileData profile)
     {
         EnsureDataLoaded();
-        await Task.Delay(400); // Simulate network delay
+        // await Task.Delay(400); // Simulate network delay
 
         // For profile creation, we need to update existing user or create new one
         var user = _users!.FirstOrDefault(u => u.Id == profile.UserId.ToString());
@@ -116,7 +116,7 @@ public static class MockProfileData
     public static async Task<ProfileData> UpdateAsync(ProfileData profile)
     {
         EnsureDataLoaded();
-        await Task.Delay(400); // Simulate network delay
+        // await Task.Delay(400); // Simulate network delay
 
         var user = _users!.FirstOrDefault(u => u.Id == profile.UserId.ToString());
         
@@ -144,7 +144,7 @@ public static class MockProfileData
     public static async Task<bool> DeleteAsync(Guid userId)
     {
         EnsureDataLoaded();
-        await Task.Delay(300); // Simulate network delay
+        // await Task.Delay(300); // Simulate network delay
 
         var user = _users!.FirstOrDefault(u => u.Id == userId.ToString());
         if (user == null) return false;

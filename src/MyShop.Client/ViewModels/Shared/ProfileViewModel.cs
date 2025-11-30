@@ -321,7 +321,7 @@ public partial class ProfileViewModel : BaseViewModel
             
             // TODO: Call ProfileFacade.SendVerificationCodeAsync()
             // For now, simulate sending
-            await Task.Delay(1000);
+            // await Task.Delay(1000);
             
             IsVerificationCodeSent = true;
             await _toastHelper.ShowSuccess($"Verification code sent to {Email}");
@@ -357,7 +357,7 @@ public partial class ProfileViewModel : BaseViewModel
 
             // TODO: Call ProfileFacade.VerifyEmailAsync(VerificationCode)
             // For now, simulate verification
-            await Task.Delay(800);
+            // await Task.Delay(800);
 
             // Mock validation - accept any 6-digit code
             if (VerificationCode.Length == 6 && VerificationCode.All(char.IsDigit))

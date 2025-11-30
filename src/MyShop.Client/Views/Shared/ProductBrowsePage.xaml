@@ -9,6 +9,10 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:MyShop.Client.ViewModels.Shared"
     xmlns:skeletons="using:MyShop.Client.Views.Components.Skeletons"
+    xmlns:forms="using:MyShop.Client.Views.Components.Forms"
+    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
+    xmlns:layout="using:MyShop.Client.Views.Components.Layout"
+    xmlns:pagination="using:MyShop.Client.Views.Components.Pagination"
     Background="#F5F7FA"
     mc:Ignorable="d">
 
@@ -19,10 +23,16 @@
     </Page.Transitions>
 
     <Page.Resources>
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
-        <converters:StringFormatConverter x:Key="StringFormatConverter" />
-        <converters:BoolToStockColorConverter x:Key="BoolToStockColorConverter" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="ms-appx:///Themes/CardStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            
+            <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+            <converters:StringFormatConverter x:Key="StringFormatConverter" />
+            <converters:BoolToStockColorConverter x:Key="BoolToStockColorConverter" />
+        </ResourceDictionary>
     </Page.Resources>
 
     <Grid>
@@ -40,156 +50,108 @@
                     </Grid.RowDefinitions>
 
                 <!-- Page Header -->
-                <StackPanel Grid.Row="0">
-                    <TextBlock Text="Shopping" 
-                              FontSize="28" 
-                              FontWeight="Bold"
-                              Foreground="#1B1D1F"/>
-                    <TextBlock Text="Explore our complete product collection" 
-                              FontSize="14" 
-                              Foreground="#4A5568"
-                              Margin="0,4,0,0"/>
-                </StackPanel>
+                <layout:PageHeader
+                    Title="Shopping"
+                    Subtitle="Explore our complete product collection">
+                    <layout:PageHeader.ActionContent>
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <buttons:IconButton
+                                Variant="Outline"
+                                IconGlyph="&#xE72C;"
+                                Text="Refresh"
+                                Command="{x:Bind ViewModel.RefreshCommand}"
+                                ToolTipService.ToolTip="Reload products" />
+                        </StackPanel>
+                    </layout:PageHeader.ActionContent>
+                </layout:PageHeader>
 
                 <!-- Main Content -->
                 <StackPanel Grid.Row="1" Spacing="20">
 
-                <!--  Filters Card  -->
-                <Border Style="{StaticResource CardWithShadowStyle}">
-                    <StackPanel Spacing="16">
-                        <StackPanel Orientation="Horizontal" Spacing="12">
-                            <FontIcon
-                                FontSize="20"
-                                Foreground="#6B7280"
-                                Glyph="&#xE71C;" />
-                            <TextBlock
-                                FontSize="18"
-                                FontWeight="SemiBold"
-                                Foreground="#111827"
-                                Text="Filters &amp; Sort" />
-                        </StackPanel>
+                <!--  SEARCH CARD with Auto-Complete  -->
+                <forms:SearchCard
+                    x:Name="ProductSearchCard"
+                    PlaceholderText="Search products..."
+                    SearchText="{x:Bind ViewModel.SearchQuery, Mode=TwoWay}"
+                    ShowSearchButton="Collapsed"
+                    TextChanged="SearchCard_TextChanged"
+                    SuggestionChosen="SearchCard_SuggestionChosen"
+                    QuerySubmitted="SearchCard_QuerySubmitted" />
 
-                        <Grid>
+                <!--  FILTERS CARD with Apply Button  -->
+                <forms:FilterCard Title="Filters &amp; Sort"
+                                  ApplyCommand="{x:Bind ViewModel.ApplyFiltersCommand}"
+                                  ResetCommand="{x:Bind ViewModel.ResetFiltersCommand}"
+                                  ShowActions="True"
+                                  ShowResetButton="True">
+                    <forms:FilterCard.FilterContent>
+                        <Grid ColumnSpacing="16" RowSpacing="16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
 
-                            <!--  Search  -->
-                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                                <TextBlock Text="Search" 
-                                          FontSize="12"
-                                          FontWeight="SemiBold" 
-                                          Foreground="#1B1D1F"
-                                          Margin="0,0,0,8"/>
-                                <components:SearchBox PlaceholderText="Search products..." />
-                            </StackPanel>
-
                             <!--  Category  -->
-                            <StackPanel Grid.Column="1" Margin="0,0,12,0">
-                                <TextBlock Text="Category" 
-                                          FontSize="12"
-                                          FontWeight="SemiBold" 
-                                          Foreground="#1B1D1F"
-                                          Margin="0,0,0,8"/>
-                                <ComboBox Width="180"
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Category" FontSize="12" FontWeight="SemiBold" Foreground="#1B1D1F" Margin="0,0,0,8"/>
+                                <ComboBox x:Name="CategoryComboBox"
+                                         HorizontalAlignment="Stretch"
                                          Height="40"
                                          CornerRadius="10"
                                          BorderBrush="#D0D7E2"
-                                         PlaceholderText="All Categories">
-                                    <ComboBoxItem Content="All Categories" />
-                                    <ComboBoxItem Content="Electronics" />
-                                    <ComboBoxItem Content="Clothing" />
-                                    <ComboBoxItem Content="Home" />
-                                    <ComboBoxItem Content="Sports" />
+                                         SelectedIndex="0"
+                                         SelectionChanged="CategoryComboBox_SelectionChanged">
+                                    <ComboBoxItem Content="All" Tag="All"/>
+                                    <ComboBoxItem Content="Laptop" Tag="Laptop"/>
+                                    <ComboBoxItem Content="Smartphone" Tag="Smartphone"/>
+                                    <ComboBoxItem Content="Tablet" Tag="Tablet"/>
+                                    <ComboBoxItem Content="Smartwatch" Tag="Smartwatch"/>
+                                    <ComboBoxItem Content="Headphone" Tag="Headphone"/>
                                 </ComboBox>
                             </StackPanel>
 
                             <!--  Brand  -->
-                            <StackPanel Grid.Column="2" Margin="0,0,12,0">
-                                <TextBlock Text="Brand" 
-                                          FontSize="12"
-                                          FontWeight="SemiBold" 
-                                          Foreground="#1B1D1F"
-                                          Margin="0,0,0,8"/>
-                                <ComboBox Width="180"
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="Brand" FontSize="12" FontWeight="SemiBold" Foreground="#1B1D1F" Margin="0,0,0,8"/>
+                                <ComboBox x:Name="BrandComboBox"
+                                         HorizontalAlignment="Stretch"
                                          Height="40"
                                          CornerRadius="10"
                                          BorderBrush="#D0D7E2"
-                                         PlaceholderText="All Brands">
-                                    <ComboBoxItem Content="All Brands" />
-                                    <ComboBoxItem Content="Apple" />
-                                    <ComboBoxItem Content="Samsung" />
-                                    <ComboBoxItem Content="Nike" />
+                                         SelectedIndex="0">
+                                    <ComboBoxItem Content="All Brands" Tag=""/>
+                                    <ComboBoxItem Content="Apple" Tag="Apple"/>
+                                    <ComboBoxItem Content="Samsung" Tag="Samsung"/>
+                                    <ComboBoxItem Content="Nike" Tag="Nike"/>
                                 </ComboBox>
                             </StackPanel>
 
                             <!--  Sort  -->
-                            <StackPanel Grid.Column="3" Margin="0,0,12,0">
-                                <TextBlock Text="Sort By" 
-                                          FontSize="12"
-                                          FontWeight="SemiBold" 
-                                          Foreground="#1B1D1F"
-                                          Margin="0,0,0,8"/>
-                                <ComboBox Width="180"
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Sort By" FontSize="12" FontWeight="SemiBold" Foreground="#1B1D1F" Margin="0,0,0,8"/>
+                                <ComboBox x:Name="SortComboBox"
+                                         HorizontalAlignment="Stretch"
                                          Height="40"
                                          CornerRadius="10"
                                          BorderBrush="#D0D7E2"
                                          SelectedIndex="0"
                                          SelectionChanged="SortComboBox_SelectionChanged">
-                                    <ComboBoxItem Content="Newest" />
-                                    <ComboBoxItem Content="Name: A to Z" />
-                                    <ComboBoxItem Content="Name: Z to A" />
-                                    <ComboBoxItem Content="Price: Low to High" />
-                                    <ComboBoxItem Content="Price: High to Low" />
-                                    <ComboBoxItem Content="Rating" />
+                                    <ComboBoxItem Content="Newest" Tag="Newest"/>
+                                    <ComboBoxItem Content="Name: A to Z" Tag="Name: A to Z"/>
+                                    <ComboBoxItem Content="Name: Z to A" Tag="Name: Z to A"/>
+                                    <ComboBoxItem Content="Price: Low to High" Tag="Price: Low to High"/>
+                                    <ComboBoxItem Content="Price: High to Low" Tag="Price: High to Low"/>
+                                    <ComboBoxItem Content="Rating" Tag="Rating"/>
                                 </ComboBox>
                             </StackPanel>
-
-                            <!--  Reset Button  -->
-                            <Button Grid.Column="4"
-                                   Height="44"
-                                   Padding="16,0"
-                                   VerticalAlignment="Bottom"
-                                   Background="#FEE2E2"
-                                   Foreground="#DC2626"
-                                   BorderThickness="0"
-                                   CornerRadius="12"
-                                   Content="Reset" />
-
-                            <!--  Price Range  -->
-                            <StackPanel
-                                Grid.Row="1"
-                                Grid.ColumnSpan="5"
-                                Margin="0,16,0,0">
-                                <TextBlock
-                                    Margin="0,0,0,8"
-                                    FontSize="12"
-                                    Foreground="#6B7280"
-                                    Text="Price Range" />
-                                <StackPanel Orientation="Horizontal" Spacing="16">
-                                    <Slider
-                                        Width="300"
-                                        Maximum="3000"
-                                        Minimum="0"
-                                        StepFrequency="50"
-                                        Value="0" />
-                                    <TextBlock
-                                        VerticalAlignment="Center"
-                                        Foreground="#111827"
-                                        Text="$0 - $3000" />
-                                </StackPanel>
-                            </StackPanel>
                         </Grid>
-                    </StackPanel>
-                </Border>
+                    </forms:FilterCard.FilterContent>
+                </forms:FilterCard>
 
                 <!--  Loading Skeleton  -->
                 <skeletons:ProductGridSkeleton
@@ -372,8 +334,8 @@
                                                    Background="#F3F6FA"
                                                    BorderBrush="#C4D0E3"
                                                    BorderThickness="1"
-                                                   Command="{Binding ElementName=ProductGridView, Path=DataContext.ViewProductDetailsCommand}"
-                                                   CommandParameter="{x:Bind}"
+                                                   Tag="{x:Bind}"
+                                                   Click="ViewProductButton_Click"
                                                    CornerRadius="12"
                                                    ToolTipService.ToolTip="View detailed product information">
                                                 <FontIcon
@@ -389,47 +351,21 @@
                     </GridView.ItemTemplate>
                 </GridView>
 
-                <!--  Load More Button for Infinite Scroll  -->
-                <StackPanel
-                    Margin="0,24,0,0"
-                    HorizontalAlignment="Center"
-                    Spacing="16"
-                    Visibility="{x:Bind ViewModel.HasMoreItems, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <Button Height="44"
-                           Padding="20,0"
-                           Background="#1A4D8F"
-                           BorderThickness="0"
-                           Command="{x:Bind ViewModel.LoadMoreProductsCommand}"
-                           CornerRadius="12"
-                           Foreground="White"
-                           FontWeight="SemiBold"
-                           ToolTipService.ToolTip="Load more products">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <ProgressRing
-                                Width="16"
-                                Height="16"
-                                Foreground="White"
-                                IsActive="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay}"
-                                Visibility="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-                            <FontIcon
-                                FontSize="16"
-                                Glyph="&#xE74A;"
-                                Visibility="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
-                            <TextBlock Text="Load More Products" Visibility="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
-                            <TextBlock Text="Loading..." Visibility="{x:Bind ViewModel.IsLoadingMore, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-                        </StackPanel>
-                    </Button>
-                    <TextBlock
-                        FontSize="12"
-                        Foreground="#6B7280"
-                        HorizontalAlignment="Center">
-                        <Run Text="Showing" />
-                        <Run FontWeight="SemiBold" Text="{x:Bind ViewModel.Products.Count, Mode=OneWay}" />
-                        <Run Text="of" />
-                        <Run FontWeight="SemiBold" Text="{x:Bind ViewModel.TotalProducts, Mode=OneWay}" />
-                        <Run Text="products" />
-                    </TextBlock>
-                </StackPanel>
+                <!--  Pagination Control  -->
+                <Border Style="{StaticResource CardWithShadowStyle}"
+                       Margin="0,24,0,0"
+                       Visibility="{x:Bind ViewModel.ShowPagination, Mode=OneWay}">
+                    <StackPanel Spacing="16" Padding="16">
+                        <pagination:PaginationControl
+                            CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
+                            TotalItems="{x:Bind ViewModel.TotalProducts, Mode=OneWay}"
+                            PageSize="12"
+                            PageChanged="OnPageChanged" />
+                        
+                        <TextBlock FontSize="12" Foreground="#6B7280" HorizontalAlignment="Center"
+                                   Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}" />
+                    </StackPanel>
+                </Border>
 
                 <!--  Pagination (Legacy - can be hidden when using infinite scroll)  -->
                 <StackPanel
@@ -483,5 +419,185 @@
                 </Grid>
             </ScrollViewer>
         </RefreshContainer>
+
+        <!--  VIEW PRODUCT DETAILS DIALOG  -->
+        <ContentDialog
+            x:Name="ViewProductDialog"
+            Title="Product Details"
+            CloseButtonText="Close"
+            DefaultButton="Close">
+            <ScrollViewer MaxHeight="500" VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="16" MinWidth="450" Padding="0,8">
+                    <!--  Product Image  -->
+                    <Border
+                        HorizontalAlignment="Center"
+                        Width="200"
+                        Height="200"
+                        Background="#F3F4F6"
+                        CornerRadius="12"
+                        BorderBrush="#E5E7EB"
+                        BorderThickness="1">
+                        <Grid>
+                            <Image
+                                x:Name="ViewProductImage"
+                                Stretch="UniformToFill" />
+                            <FontIcon
+                                x:Name="ViewProductImagePlaceholder"
+                                FontSize="48"
+                                Foreground="#9CA3AF"
+                                Glyph="&#xE8B9;"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+
+                    <!--  Product Name  -->
+                    <StackPanel Spacing="4">
+                        <TextBlock
+                            FontSize="12"
+                            FontWeight="SemiBold"
+                            Foreground="#6B7280"
+                            Text="PRODUCT NAME" />
+                        <TextBlock
+                            x:Name="ViewProductName"
+                            FontSize="18"
+                            FontWeight="Bold"
+                            Foreground="#111827"
+                            TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <!--  Category + Manufacturer Row  -->
+                    <Grid ColumnSpacing="24">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock
+                                FontSize="12"
+                                FontWeight="SemiBold"
+                                Foreground="#6B7280"
+                                Text="CATEGORY" />
+                            <Border
+                                Padding="8,4"
+                                Background="#E0E7FF"
+                                CornerRadius="4"
+                                HorizontalAlignment="Left">
+                                <TextBlock
+                                    x:Name="ViewProductCategory"
+                                    FontSize="12"
+                                    FontWeight="SemiBold"
+                                    Foreground="#3730A3" />
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock
+                                FontSize="12"
+                                FontWeight="SemiBold"
+                                Foreground="#6B7280"
+                                Text="MANUFACTURER" />
+                            <TextBlock
+                                x:Name="ViewProductManufacturer"
+                                FontSize="14"
+                                Foreground="#111827" />
+                        </StackPanel>
+                    </Grid>
+
+                    <!--  Price Section  -->
+                    <Border
+                        Background="#F0FDF4"
+                        CornerRadius="8"
+                        Padding="16">
+                        <StackPanel Spacing="4" HorizontalAlignment="Center">
+                            <TextBlock
+                                FontSize="12"
+                                FontWeight="SemiBold"
+                                Foreground="#059669"
+                                Text="PRICE"
+                                HorizontalAlignment="Center" />
+                            <TextBlock
+                                x:Name="ViewProductPrice"
+                                FontSize="28"
+                                FontWeight="Bold"
+                                Foreground="#047857"
+                                HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+
+                    <!--  Stock + Rating Row  -->
+                    <Grid ColumnSpacing="24">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock
+                                FontSize="12"
+                                FontWeight="SemiBold"
+                                Foreground="#6B7280"
+                                Text="STOCK" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock
+                                    x:Name="ViewProductStock"
+                                    FontSize="24"
+                                    FontWeight="Bold"
+                                    Foreground="#111827" />
+                                <Border
+                                    x:Name="ViewProductStockBadge"
+                                    Padding="8,4"
+                                    CornerRadius="4"
+                                    VerticalAlignment="Center">
+                                    <TextBlock
+                                        x:Name="ViewProductStockStatus"
+                                        FontSize="12"
+                                        FontWeight="SemiBold" />
+                                </Border>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock
+                                FontSize="12"
+                                FontWeight="SemiBold"
+                                Foreground="#6B7280"
+                                Text="RATING" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock
+                                    x:Name="ViewProductRating"
+                                    FontSize="24"
+                                    FontWeight="Bold"
+                                    Foreground="#111827" />
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="2">
+                                    <FontIcon FontSize="16" Foreground="#F59E0B" Glyph="&#xE735;" />
+                                    <TextBlock
+                                        x:Name="ViewProductRatingCount"
+                                        FontSize="12"
+                                        Foreground="#6B7280"
+                                        VerticalAlignment="Center" />
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+
+                    <!--  Add to Cart Button  -->
+                    <Button
+                        x:Name="DialogAddToCartButton"
+                        HorizontalAlignment="Stretch"
+                        Height="48"
+                        Background="#00AEEF"
+                        Foreground="White"
+                        CornerRadius="8"
+                        Click="DialogAddToCartButton_Click">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon FontSize="16" Glyph="&#xE7BF;" />
+                            <TextBlock Text="Add to Cart" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </ScrollViewer>
+        </ContentDialog>
     </Grid>
 </Page>

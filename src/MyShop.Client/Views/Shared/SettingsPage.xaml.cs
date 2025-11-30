@@ -20,27 +20,27 @@ public sealed partial class SettingsPage : Page
 
     public SettingsPage()
     {
-        AppLogger.Enter();
+        LoggingService.Instance.Debug("→ SettingsPage()");
         try
         {
             this.InitializeComponent();
-            AppLogger.Success("InitializeComponent completed");
+            LoggingService.Instance.Debug("InitializeComponent completed");
             
             // Get ViewModel from DI
             ViewModel = App.Current.Services.GetRequiredService<SettingsViewModel>();
             this.DataContext = ViewModel;
-            AppLogger.Success("ViewModel retrieved from DI and DataContext set");
+            LoggingService.Instance.Debug("ViewModel retrieved from DI and DataContext set");
             
             SetupKeyboardShortcuts();
         }
         catch (Exception ex)
         {
-            AppLogger.Error("SettingsPage constructor failed", ex);
+            LoggingService.Instance.Error("SettingsPage constructor failed", ex);
             throw;
         }
         finally
         {
-            AppLogger.Exit();
+            LoggingService.Instance.Debug("← SettingsPage()");
         }
     }
 
@@ -76,24 +76,28 @@ public sealed partial class SettingsPage : Page
 
     protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
-        AppLogger.Enter();
+        LoggingService.Instance.Debug("→ OnNavigatedTo");
         try
         {
             base.OnNavigatedTo(e);
             
             // Load settings and wait for completion
             await ViewModel.LoadCommand.ExecuteAsync(null);
-            AppLogger.Success("Settings loaded");
+            LoggingService.Instance.Debug("Settings loaded");
+            
+            // Wait for UI to stabilize before allowing toggle events
+            // This prevents the Toggled event from firing due to binding updates
+            await System.Threading.Tasks.Task.Delay(100);
         }
         catch (Exception ex)
         {
-            AppLogger.Error("OnNavigatedTo failed", ex);
+            LoggingService.Instance.Error("OnNavigatedTo failed", ex);
         }
         finally
         {
-            // Allow toggle events only after load completes
+            // Allow toggle events only after load completes and UI stabilizes
             _isInitializing = false;
-            AppLogger.Exit();
+            LoggingService.Instance.Debug("← OnNavigatedTo");
         }
     }
 
@@ -149,7 +153,7 @@ public sealed partial class SettingsPage : Page
         }
         catch (Exception ex)
         {
-            AppLogger.Error("Failed to open server config dialog", ex);
+            LoggingService.Instance.Error("Failed to open server config dialog", ex);
         }
     }
 
@@ -170,7 +174,7 @@ public sealed partial class SettingsPage : Page
         }
         catch (Exception ex)
         {
-            AppLogger.Error("Failed to open logs folder", ex);
+            LoggingService.Instance.Error("Failed to open logs folder", ex);
         }
     }
 
@@ -189,11 +193,11 @@ public sealed partial class SettingsPage : Page
             Clipboard.SetContent(dataPackage);
             
             // Could show a toast notification here
-            AppLogger.Info("Debug info copied to clipboard");
+            LoggingService.Instance.Information("Debug info copied to clipboard");
         }
         catch (Exception ex)
         {
-            AppLogger.Error("Failed to copy debug info", ex);
+            LoggingService.Instance.Error("Failed to copy debug info", ex);
         }
     }
 }

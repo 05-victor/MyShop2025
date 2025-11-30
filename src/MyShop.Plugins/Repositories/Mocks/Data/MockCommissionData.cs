@@ -68,7 +68,7 @@ public static class MockCommissionData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(350);
+        // await Task.Delay(350);
 
         return _commissions!.Select(MapToCommission).ToList();
     }
@@ -78,7 +78,7 @@ public static class MockCommissionData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(200);
+        // await Task.Delay(200);
 
         var commissionData = _commissions!.FirstOrDefault(c => c.Id == id.ToString());
         if (commissionData == null) return null;
@@ -91,7 +91,7 @@ public static class MockCommissionData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(300);
+        // await Task.Delay(300);
 
         return _commissions!
             .Where(c => c.SalesAgentId == salesAgentId.ToString())
@@ -104,7 +104,7 @@ public static class MockCommissionData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(250);
+        // await Task.Delay(250);
 
         return _commissions!
             .Where(c => c.SalesAgentId == salesAgentId.ToString() && c.Status == "PAID")
@@ -116,7 +116,7 @@ public static class MockCommissionData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(300);
+        // await Task.Delay(300);
 
         var agentCommissions = _commissions!
             .Where(c => c.SalesAgentId == salesAgentId.ToString())
@@ -153,7 +153,7 @@ public static class MockCommissionData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(200);
+        // await Task.Delay(200);
 
         var commissionData = _commissions!.FirstOrDefault(c => c.OrderId == orderId.ToString());
         if (commissionData == null) return null;
@@ -166,7 +166,7 @@ public static class MockCommissionData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(200);
+        // await Task.Delay(200);
 
         var commission = _commissions!.FirstOrDefault(c => c.OrderId == orderId.ToString());
         if (commission == null) return 0m;
@@ -180,7 +180,7 @@ public static class MockCommissionData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(300);
+        // await Task.Delay(300);
 
         return _commissions!
             .Where(c => c.SalesAgentId == salesAgentId.ToString() &&
@@ -204,7 +204,7 @@ public static class MockCommissionData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(300);
+        // await Task.Delay(300);
 
         var query = _commissions!
             .Where(c => c.SalesAgentId == salesAgentId.ToString())

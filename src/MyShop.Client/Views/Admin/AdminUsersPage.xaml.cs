@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using MyShop.Client.ViewModels.Admin;
+using System.Linq;
 
 namespace MyShop.Client.Views.Admin;
 
@@ -66,6 +67,58 @@ public sealed partial class AdminUsersPage : Page
             Services.LoggingService.Instance.Error($"[AdminUsersPage] OnNavigatedTo failed", ex);
         }
     }
+
+    #region Search Card Event Handlers
+
+    private void SearchCard_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+    {
+        if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+        {
+            var query = sender.Text?.ToLower() ?? string.Empty;
+            
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                sender.ItemsSource = null;
+                return;
+            }
+
+            // Generate suggestions from current users
+            var suggestions = ViewModel.Items
+                .Where(u => u.FullName.ToLower().Contains(query) ||
+                           u.Email.ToLower().Contains(query) ||
+                           (u.Phone?.ToLower().Contains(query) ?? false))
+                .Select(u => u.FullName)
+                .Distinct()
+                .Take(8)
+                .ToList();
+
+            sender.ItemsSource = suggestions;
+        }
+    }
+
+    private void SearchCard_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+    {
+        sender.Text = args.SelectedItem?.ToString() ?? string.Empty;
+    }
+
+    private async void SearchCard_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+    {
+        if (args.ChosenSuggestion != null)
+        {
+            ViewModel.PendingSearchQuery = args.ChosenSuggestion.ToString() ?? string.Empty;
+        }
+        else
+        {
+            ViewModel.PendingSearchQuery = args.QueryText;
+        }
+
+        if (ViewModel.ApplyFiltersCommand?.CanExecute(null) == true)
+        {
+            await ViewModel.ApplyFiltersCommand.ExecuteAsync(null);
+        }
+    }
+
+    #endregion
 
     #region Filter Handlers
 

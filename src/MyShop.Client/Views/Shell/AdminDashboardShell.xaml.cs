@@ -25,7 +25,7 @@ namespace MyShop.Client.Views.Shell
         {
             try
             {
-                AppLogger.Enter();
+                LoggingService.Instance.Debug("→ AdminDashboardShell.ctor");
                 InitializeComponent();
                 ViewModel = App.Current.Services.GetRequiredService<DashboardShellViewModel>();
                 _navigationService = App.Current.Services.GetRequiredService<INavigationService>();
@@ -38,11 +38,11 @@ namespace MyShop.Client.Views.Shell
                 // Subscribe to ContentFrame navigation to sync NavigationView selection
                 ContentFrame.Navigated += ContentFrame_Navigated;
 
-                AppLogger.Exit();
+                LoggingService.Instance.Debug("← AdminDashboardShell.ctor");
             }
             catch (Exception ex)
             {
-                AppLogger.Error("AdminDashboardShell constructor failed", ex);
+                LoggingService.Instance.Error("AdminDashboardShell constructor failed", ex);
                 throw;
             }
         }
@@ -51,7 +51,7 @@ namespace MyShop.Client.Views.Shell
         {
             try
             {
-                AppLogger.Enter();
+                LoggingService.Instance.Debug("→ AdminDashboardShell.OnNavigatedTo");
                 base.OnNavigatedTo(e);
 
                 if (e.Parameter is User user)
@@ -71,11 +71,11 @@ namespace MyShop.Client.Views.Shell
                         _isRestoringSelection = false;
                     }
                 }
-                AppLogger.Exit();
+                LoggingService.Instance.Debug("← AdminDashboardShell.OnNavigatedTo");
             }
             catch (Exception ex)
             {
-                AppLogger.Error("OnNavigatedTo failed", ex);
+                LoggingService.Instance.Error("OnNavigatedTo failed", ex);
                 throw;
             }
         }
@@ -142,7 +142,7 @@ namespace MyShop.Client.Views.Shell
             }
             catch (Exception ex)
             {
-                AppLogger.Error($"Failed to navigate to {pageType.Name}", ex);
+                LoggingService.Instance.Error($"Failed to navigate to {pageType.Name}", ex);
             }
         }
 
@@ -247,7 +247,7 @@ namespace MyShop.Client.Views.Shell
             }
             catch (Exception ex)
             {
-                AppLogger.Error("Failed to logout", ex);
+                LoggingService.Instance.Error("Failed to logout", ex);
             }
         }
     }

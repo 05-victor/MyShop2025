@@ -10,14 +10,30 @@ public class OrderResponse
     public Guid CustomerId { get; set; }
     public string CustomerName { get; set; } = string.Empty;
     public string CustomerEmail { get; set; } = string.Empty;
+    public Guid? SalesAgentId { get; set; }
+    public string? SalesAgentName { get; set; }
     public string Status { get; set; } = string.Empty;
     public decimal TotalAmount { get; set; }
-    public string ShippingAddress { get; set; } = string.Empty;
+    public ShippingAddressResponse? ShippingAddress { get; set; }
     public string PaymentMethod { get; set; } = string.Empty;
     public string? Notes { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public List<OrderItemResponse> Items { get; set; } = new();
+}
+
+public class ShippingAddressResponse
+{
+    public string? Street { get; set; }
+    public string? District { get; set; }
+    public string? City { get; set; }
+    public string? PostalCode { get; set; }
+}
+
+public class TrackingResponse
+{
+    public string? Carrier { get; set; }
+    public string? TrackingNumber { get; set; }
 }
 
 /// <summary>

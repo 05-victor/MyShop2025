@@ -28,15 +28,20 @@ public static class MockCartData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(250);
+        // await Task.Delay(100);
 
         var userKey = userId.ToString();
+        System.Diagnostics.Debug.WriteLine($"[MockCartData] GetCartItems: userId={userKey}");
+        
         if (!_carts!.ContainsKey(userKey))
         {
+            System.Diagnostics.Debug.WriteLine($"[MockCartData] No cart found for user {userKey}");
             return new List<CartItem>();
         }
 
-        return _carts[userKey].Select(MapToCartItem).ToList();
+        var items = _carts[userKey].Select(MapToCartItem).ToList();
+        System.Diagnostics.Debug.WriteLine($"[MockCartData] Found {items.Count} items in cart for user {userKey}");
+        return items;
     }
 
     public static async Task<CartItem> AddToCartAsync(Guid userId, Guid productId, string productName, decimal price, int quantity)
@@ -44,12 +49,15 @@ public static class MockCartData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(300);
+        // await Task.Delay(100);
 
         var userKey = userId.ToString();
+        System.Diagnostics.Debug.WriteLine($"[MockCartData] AddToCart: userId={userKey}, productId={productId}, name={productName}, qty={quantity}");
+        
         if (!_carts!.ContainsKey(userKey))
         {
             _carts[userKey] = new List<CartItemDataModel>();
+            System.Diagnostics.Debug.WriteLine($"[MockCartData] Created new cart for user {userKey}");
         }
 
         var existingItem = _carts[userKey].FirstOrDefault(i => i.ProductId == productId.ToString());
@@ -59,6 +67,7 @@ public static class MockCartData
             // Update quantity
             existingItem.Quantity += quantity;
             existingItem.UpdatedAt = DateTime.UtcNow;
+            System.Diagnostics.Debug.WriteLine($"[MockCartData] Updated existing item, new qty={existingItem.Quantity}");
         }
         else
         {
@@ -75,6 +84,7 @@ public static class MockCartData
             };
             _carts[userKey].Add(newItem);
             existingItem = newItem;
+            System.Diagnostics.Debug.WriteLine($"[MockCartData] Added new item to cart, total items={_carts[userKey].Count}");
         }
 
         return MapToCartItem(existingItem);
@@ -85,7 +95,7 @@ public static class MockCartData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(250);
+        // await Task.Delay(250);
 
         var userKey = userId.ToString();
         if (!_carts!.ContainsKey(userKey))
@@ -106,7 +116,7 @@ public static class MockCartData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(250);
+        // await Task.Delay(250);
 
         var userKey = userId.ToString();
         if (!_carts!.ContainsKey(userKey))
@@ -126,7 +136,7 @@ public static class MockCartData
         EnsureDataLoaded();
 
         // Simulate network delay
-        await Task.Delay(200);
+        // await Task.Delay(200);
 
         var userKey = userId.ToString();
         if (!_carts!.ContainsKey(userKey))

@@ -108,17 +108,9 @@ public partial class AdminProductsViewModel : PagedViewModelBase<ProductRow>
         SetLoadingState(true);
         try
         {
-            var result = await _productFacade.ExportProductsToCsvAsync(
+            // Facade handles FileSavePicker and toast notifications
+            await _productFacade.ExportProductsToCsvAsync(
                 SearchQuery, SelectedCategory, MinPrice, MaxPrice);
-
-            if (result.IsSuccess)
-            {
-                await _toastHelper?.ShowSuccess($"Products exported to: {result.Data}");
-            }
-            else
-            {
-                await _toastHelper?.ShowError(result.ErrorMessage ?? "Export failed");
-            }
         }
         catch (Exception ex)
         {

@@ -8,6 +8,14 @@ namespace MyShop.Core.Interfaces.Services;
 public interface IExportService
 {
     /// <summary>
+    /// Export CSV content with FileSavePicker dialog (preferred method)
+    /// </summary>
+    /// <param name="suggestedFileName">Suggested file name for the picker</param>
+    /// <param name="csvContent">The CSV content to write</param>
+    /// <returns>Result containing file path on success, empty string if cancelled</returns>
+    Task<Result<string>> ExportWithPickerAsync(string suggestedFileName, string csvContent);
+
+    /// <summary>
     /// Export data to CSV format
     /// </summary>
     /// <typeparam name="T">The type of data to export</typeparam>

@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyShop.Client.Config;
+using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Plugins.Repositories.Mocks;
@@ -32,15 +33,26 @@ public partial class SettingsViewModel : ObservableObject
     private readonly IToastService _toastHelper;
     private readonly IPaginationService _paginationService;
     private readonly MockSettingsRepository _mockSettingsRepository;
+    private readonly ISystemActivationRepository _activationRepository;
+    private readonly IAuthRepository _authRepository;
+    private readonly INavigationService _navigationService;
 
     [ObservableProperty] private bool _isLoading = false;
     [ObservableProperty] private string _errorMessage = string.Empty;
 
     // Trial properties
-    [ObservableProperty] private int _trialDaysRemaining = 15;
+    [ObservableProperty] private int _trialDaysRemaining = 0;
     [ObservableProperty] private string _upgradeProUrl = "https://facebook.com";
     [ObservableProperty] private string _supportUrl = "https://facebook.com/myshop.support";
     [ObservableProperty] private string _trialCode = string.Empty;
+    
+    // License/Trial visibility properties
+    [ObservableProperty] private bool _isAdmin = false;
+    [ObservableProperty] private bool _isTrialAdmin = false;
+    [ObservableProperty] private bool _isPermanentAdmin = false;
+    [ObservableProperty] private bool _showTrialTab = false;
+    [ObservableProperty] private string _licenseType = "None";
+    [ObservableProperty] private DateTime? _licenseExpiresAt = null;
 
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
 
@@ -205,11 +217,17 @@ public partial class SettingsViewModel : ObservableObject
     public SettingsViewModel(
         ISettingsStorage settingsStorage,
         IToastService toastHelper,
-        IPaginationService paginationService)
+        IPaginationService paginationService,
+        ISystemActivationRepository activationRepository,
+        IAuthRepository authRepository,
+        INavigationService navigationService)
     {
         _settingsStorage = settingsStorage;
         _toastHelper = toastHelper;
         _paginationService = paginationService;
+        _activationRepository = activationRepository;
+        _authRepository = authRepository;
+        _navigationService = navigationService;
         _mockSettingsRepository = new MockSettingsRepository();
     }
 
@@ -238,7 +256,7 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Activate trial code to extend trial period
+    /// Activate license code (supports both trial and permanent codes)
     /// </summary>
     [RelayCommand]
     private async Task ActivateTrialCodeAsync()
@@ -247,28 +265,78 @@ public partial class SettingsViewModel : ObservableObject
         {
             if (string.IsNullOrWhiteSpace(TrialCode))
             {
-                await _toastHelper.ShowWarning("Please enter a trial code.");
+                await _toastHelper.ShowWarning("Please enter an activation code.");
                 return;
             }
 
-            // Validate trial code format (MYSHOP-XXDAY-XXXX-XXXX)
-            var result = await _mockSettingsRepository.ActivateTrialCodeAsync(TrialCode.Trim().ToUpperInvariant());
-            if (result.IsSuccess && result.Data > 0)
+            // Get current user
+            var userResult = await _authRepository.GetCurrentUserAsync();
+            if (!userResult.IsSuccess || userResult.Data == null)
             {
-                TrialDaysRemaining += result.Data;
+                await _toastHelper.ShowError("Could not get current user. Please login again.");
+                return;
+            }
+
+            var currentUser = userResult.Data;
+            var code = TrialCode.Trim().ToUpperInvariant();
+
+            // Validate code first
+            var validateResult = await _activationRepository.ValidateCodeAsync(code);
+            if (!validateResult.IsSuccess || validateResult.Data == null)
+            {
+                await _toastHelper.ShowError(validateResult.ErrorMessage ?? "Invalid or already used activation code.");
+                return;
+            }
+
+            var codeInfo = validateResult.Data;
+
+            // Activate the code
+            var activateResult = await _activationRepository.ActivateCodeAsync(code, currentUser.Id);
+            if (activateResult.IsSuccess && activateResult.Data != null)
+            {
+                var license = activateResult.Data;
                 TrialCode = string.Empty;
-                await _toastHelper.ShowSuccess($"Trial extended by {result.Data} days! Total: {TrialDaysRemaining} days remaining.");
-                Debug.WriteLine($"[SettingsViewModel] Trial activated: +{result.Data} days");
+                
+                if (license.IsPermanent)
+                {
+                    // Permanent license activated
+                    IsPermanentAdmin = true;
+                    IsTrialAdmin = false;
+                    ShowTrialTab = false;
+                    LicenseType = "Permanent";
+                    LicenseExpiresAt = null;
+                    TrialDaysRemaining = 0;
+                    await _toastHelper.ShowSuccess("🎉 Permanent license activated! You now have unlimited access.");
+                    Debug.WriteLine($"[SettingsViewModel] Permanent license activated for user: {currentUser.Id}");
+                    
+                    // Navigate to Dashboard within shell
+                    await _navigationService.NavigateInShell("MyShop.Client.Views.Admin.AdminDashboardPage", currentUser);
+                }
+                else
+                {
+                    // Trial license extended
+                    TrialDaysRemaining = license.RemainingDays;
+                    LicenseExpiresAt = license.ExpiresAt;
+                    LicenseType = "Trial";
+                    IsTrialAdmin = true;
+                    IsPermanentAdmin = false;
+                    ShowTrialTab = true;
+                    await _toastHelper.ShowSuccess($"Trial extended! {license.RemainingDays} days remaining.");
+                    Debug.WriteLine($"[SettingsViewModel] Trial activated: {license.RemainingDays} days remaining");
+                    
+                    // Reload license info to ensure UI is fully updated
+                    await LoadLicenseInfoAsync();
+                }
             }
             else
             {
-                await _toastHelper.ShowError(result.ErrorMessage ?? "Invalid or expired trial code.");
+                await _toastHelper.ShowError(activateResult.ErrorMessage ?? "Failed to activate code.");
             }
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[SettingsViewModel] Failed to activate trial code: {ex.Message}");
-            await _toastHelper.ShowError("Failed to activate trial code.");
+            Debug.WriteLine($"[SettingsViewModel] Failed to activate code: {ex.Message}");
+            await _toastHelper.ShowError("Failed to activate code.");
         }
     }
 
@@ -282,15 +350,62 @@ public partial class SettingsViewModel : ObservableObject
             var systemSettings = await _mockSettingsRepository.GetSystemSettingsAsync();
             if (systemSettings != null)
             {
-                TrialDaysRemaining = systemSettings.RemainingTrialDays;
                 UpgradeProUrl = systemSettings.UpgradeProUrl;
                 SupportUrl = systemSettings.SupportUrl;
-                Debug.WriteLine($"[SettingsViewModel] System settings loaded: TrialDays={TrialDaysRemaining}, UpgradeUrl={UpgradeProUrl}");
+                Debug.WriteLine($"[SettingsViewModel] System settings loaded: UpgradeUrl={UpgradeProUrl}");
             }
+            
+            // Load license info for Trial tab visibility
+            await LoadLicenseInfoAsync();
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"[SettingsViewModel] Failed to load system settings: {ex.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// Load license info to determine Trial tab visibility
+    /// Only show Trial tab for Admin users with Trial license
+    /// </summary>
+    private async Task LoadLicenseInfoAsync()
+    {
+        try
+        {
+            var licenseResult = await _activationRepository.GetCurrentLicenseAsync();
+            if (licenseResult.IsSuccess && licenseResult.Data != null)
+            {
+                var license = licenseResult.Data;
+                IsAdmin = true;
+                IsTrialAdmin = !license.IsPermanent;
+                IsPermanentAdmin = license.IsPermanent;
+                LicenseType = license.IsPermanent ? "Permanent" : "Trial";
+                LicenseExpiresAt = license.ExpiresAt;
+                TrialDaysRemaining = license.RemainingDays;
+                
+                // Only show Trial tab for Trial admin (not Permanent admin)
+                ShowTrialTab = IsTrialAdmin;
+                
+                Debug.WriteLine($"[SettingsViewModel] License loaded: Type={LicenseType}, ExpiresAt={LicenseExpiresAt}, RemainingDays={TrialDaysRemaining}, ShowTrialTab={ShowTrialTab}");
+            }
+            else
+            {
+                // No license = not admin or no license activated
+                IsAdmin = false;
+                IsTrialAdmin = false;
+                IsPermanentAdmin = false;
+                ShowTrialTab = false;
+                LicenseType = "None";
+                LicenseExpiresAt = null;
+                TrialDaysRemaining = 0;
+                
+                Debug.WriteLine("[SettingsViewModel] No license found - hiding Trial tab");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[SettingsViewModel] Failed to load license info: {ex.Message}");
+            ShowTrialTab = false;
         }
     }
 
