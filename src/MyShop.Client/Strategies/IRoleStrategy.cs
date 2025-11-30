@@ -3,23 +3,26 @@ using MyShop.Shared.Models.Enums;
 namespace MyShop.Client.Strategies;
 
 /// <summary>
-/// Strategy interface cho role-based behavior
-/// Mỗi role sẽ có implementation riêng
+/// Strategy interface for role-based behavior.
+/// Each role will have its own implementation.
 /// </summary>
 public interface IRoleStrategy
 {
     /// <summary>
-    /// Role mà strategy này handle
+    /// Gets the role that this strategy handles.
     /// </summary>
     UserRole Role { get; }
 
     /// <summary>
-    /// Lấy page type cho dashboard của role này
+    /// Gets the page type for the dashboard of this role.
     /// </summary>
+    /// <returns>The Type of the dashboard page.</returns>
     Type GetDashboardPageType();
 
     /// <summary>
-    /// Check xem role này có thể access feature không
+    /// Checks if this role can access a specific feature.
     /// </summary>
+    /// <param name="featureName">The name of the feature to check.</param>
+    /// <returns>True if the role can access the feature, false otherwise.</returns>
     bool CanAccessFeature(string featureName);
 }

@@ -191,7 +191,7 @@
                                   FontWeight="SemiBold"
                                   Foreground="#111827"/>
 
-                        <!-- COPILOT-FIX: Changed to {Binding} - async loaded API data -->
+                        <!-- Changed to {Binding} for async loaded API data -->
                         <ListView ItemsSource="{Binding TopLinks, Mode=OneWay}" 
                                  SelectionMode="None">
                             <ListView.ItemTemplate>
@@ -259,7 +259,7 @@
                                 ShowViewAll="Visible"
                                 ViewAllCommand="{x:Bind ViewModel.ViewAllOrdersCommand}">
                 <cards:DataTableCard.TableContent>
-                    <!-- COPILOT-FIX: Changed to {Binding} - async loaded API data -->
+                    <!-- Changed to {Binding} for async loaded API data -->
                     <ListView ItemsSource="{Binding RecentOrders, Mode=OneWay}" 
                              SelectionMode="None"
                              MaxHeight="400">

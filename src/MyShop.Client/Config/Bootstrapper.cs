@@ -31,8 +31,8 @@ using Refit;
 namespace MyShop.Client.Config
 {
     /// <summary>
-    /// Centralized Dependency Injection configuration
-    /// Tách biệt DI logic khỏi App.xaml.cs
+    /// Centralized Dependency Injection configuration.
+    /// Separates DI logic from App.xaml.cs.
     /// 
     /// Storage Strategy:
     /// - Uses SecureCredentialStorage (DPAPI encrypted) for all modes
@@ -54,7 +54,7 @@ namespace MyShop.Client.Config
                 })
                 .ConfigureServices((context, services) =>
                 {
-                    // Load configuration vào AppConfig singleton
+                    // Load configuration into AppConfig singleton
                     AppConfig.Instance.LoadFromConfiguration(context.Configuration);
 
                     // Check if using Mock Data

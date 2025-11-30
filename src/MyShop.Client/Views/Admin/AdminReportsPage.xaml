@@ -165,7 +165,7 @@
                             Margin="0,0,0,16"
                             Style="{StaticResource SubtitleTextBlockStyle}"
                             Text="Salesperson Contributions" />
-                        <!-- COPILOT-FIX STEP 6: Changed to {Binding} to prevent ItemsControl crash -->
+                        <!-- Changed to {Binding} to prevent ItemsControl crash -->
                         <ItemsControl ItemsSource="{Binding SalespersonData, Mode=OneWay}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -237,8 +237,8 @@
                     <TextBlock
                         Margin="0,0,0,16"
                         Style="{StaticResource SubtitleTextBlockStyle}"
-                        Text="Product Summary" />
-                    <!-- COPILOT-FIX STEP 6: Changed {x:Bind} to {Binding Mode=OneWay} to prevent DataGrid crash -->
+                            Text="Product Summary" />
+                    <!-- Changed {x:Bind} to {Binding Mode=OneWay} to prevent DataGrid crash -->
                     <controls:DataGrid 
                         x:Name="ProductSummaryDataGrid"
                         AutoGenerateColumns="False" 

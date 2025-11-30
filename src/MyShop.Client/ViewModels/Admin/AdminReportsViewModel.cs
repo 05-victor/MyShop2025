@@ -83,8 +83,8 @@ public partial class AdminReportsViewModel : BaseViewModel
         _filteredProducts = new ObservableCollection<ProductPerformance>();
         _salespersonData = new ObservableCollection<Salesperson>();
 
-        // COPILOT-FIX: Initialize with empty arrays, charts will be created lazily in InitializeAsync
-        // This prevents SkiaSharp crash during constructor when DPI/rendering context not ready
+        // Initialize with empty arrays, charts will be created lazily in InitializeAsync.
+        // This prevents SkiaSharp crash during constructor when DPI/rendering context not ready.
         _revenueSeries = Array.Empty<ISeries>();
         _ordersByCategorySeries = Array.Empty<ISeries>();
         _ratingDistributionSeries = Array.Empty<ISeries>();

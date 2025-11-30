@@ -12,8 +12,9 @@ using Refit;
 namespace MyShop.Plugins.Repositories.Api;
 
 /// <summary>
-/// Real API implementation của IAuthRepository
-/// Wraps IAuthApi (Refit) và transform DTOs → Client Models
+/// Real API implementation of IAuthRepository.
+/// Wraps IAuthApi (Refit) and transforms DTOs to Client Models.
+/// Handles HTTP errors and network exceptions with user-friendly messages.
 /// </summary>
 public class AuthRepository : IAuthRepository
 {
@@ -277,7 +278,7 @@ public class AuthRepository : IAuthRepository
     #region Error Handling
 
     /// <summary>
-    /// Map API errors thành user-friendly messages
+    /// Map API errors to user-friendly messages.
     /// </summary>
     private string MapApiError(ApiException apiEx)
     {

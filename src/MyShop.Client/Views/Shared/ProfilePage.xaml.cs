@@ -14,7 +14,7 @@ public sealed partial class ProfilePage : Page
 
     public ProfilePage()
     {
-        // COPILOT-FIX: Wrap InitializeComponent to catch XAML parse errors
+        // Wrap InitializeComponent to catch XAML parse errors
         try
         {
             this.InitializeComponent();
@@ -33,7 +33,7 @@ public sealed partial class ProfilePage : Page
             return;
         }
         
-        // COPILOT-FIX: Wrap ViewModel resolution to catch DI errors
+        // Wrap ViewModel resolution to catch DI errors
         try
         {
             // Get ViewModel from DI
@@ -45,7 +45,7 @@ public sealed partial class ProfilePage : Page
             throw; // Re-throw to surface the actual DI issue
         }
         
-        // COPILOT-FIX: Wrap keyboard shortcuts setup
+        // Wrap keyboard shortcuts setup
         try
         {
             // Setup keyboard shortcuts
@@ -84,7 +84,7 @@ public sealed partial class ProfilePage : Page
         };
         saveShortcut.Invoked += async (s, e) => 
         { 
-            // COPILOT-FIX: Wrap async event handler with try-catch
+            // Wrap async event handler with try-catch
             try
             {
                 if (ViewModel.IsEditing && ViewModel.IsFormValid)
@@ -107,7 +107,7 @@ public sealed partial class ProfilePage : Page
         };
         cancelShortcut.Invoked += async (s, e) => 
         { 
-            // COPILOT-FIX: Wrap async event handler with try-catch
+            // Wrap async event handler with try-catch
             try
             {
                 if (ViewModel.IsEditing)
@@ -131,7 +131,7 @@ public sealed partial class ProfilePage : Page
         };
         uploadShortcut.Invoked += async (s, e) => 
         { 
-            // COPILOT-FIX: Wrap async event handler with try-catch
+            // Wrap async event handler with try-catch
             try
             {
                 if (ViewModel.SelectedAvatarFile != null && !ViewModel.IsLoading)
@@ -148,7 +148,7 @@ public sealed partial class ProfilePage : Page
         KeyboardAccelerators.Add(uploadShortcut);
     }
 
-    // COPILOT-FIX: Harden OnNavigatedTo with comprehensive error handling
+    // Harden OnNavigatedTo with comprehensive error handling
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         try
@@ -176,7 +176,6 @@ public sealed partial class ProfilePage : Page
     /// <summary>
     /// Show change password dialog
     /// </summary>
-    // COPILOT-FIX: Async void handler protected with try-catch
     private async void ChangePasswordButton_Click(object sender, RoutedEventArgs _)
     {
         try
@@ -197,7 +196,6 @@ public sealed partial class ProfilePage : Page
     /// <summary>
     /// Show trial activation dialog
     /// </summary>
-    // COPILOT-FIX: Async void handler protected with try-catch
     private async void TrialActivationButton_Click(object sender, RoutedEventArgs _)
     {
         try
@@ -224,7 +222,6 @@ public sealed partial class ProfilePage : Page
     /// <summary>
     /// Logout with confirmation
     /// </summary>
-    // COPILOT-FIX: Async void handler protected with try-catch
     private async void LogoutButton_Click(object sender, RoutedEventArgs _)
     {
         try
@@ -271,7 +268,6 @@ public sealed partial class ProfilePage : Page
     /// <summary>
     /// Save changes
     /// </summary>
-    // COPILOT-FIX: Async void handler protected with try-catch
     private async void SaveButton_Click(object sender, RoutedEventArgs e)
     {
         try

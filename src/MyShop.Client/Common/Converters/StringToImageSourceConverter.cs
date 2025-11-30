@@ -6,8 +6,8 @@ using System.IO;
 namespace MyShop.Client.Common.Converters;
 
 /// <summary>
-/// Converter để chuyển đổi string URL thành ImageSource cho WinUI3
-/// Hỗ trợ cả URL tuyệt đối (http/https), ms-appx:/// paths, và local file paths
+/// Converter to transform string URL into ImageSource for WinUI3.
+/// Supports absolute URLs (http/https), ms-appx:/// paths, and local file paths.
 /// </summary>
 public class StringToImageSourceConverter : IValueConverter
 {
@@ -23,7 +23,7 @@ public class StringToImageSourceConverter : IValueConverter
 
         try
         {
-            // Nếu là absolute URL (http/https)
+            // If absolute URL (http/https)
             if (imageUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
                 imageUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
@@ -31,14 +31,14 @@ public class StringToImageSourceConverter : IValueConverter
                 return new BitmapImage(new Uri(imageUrl));
             }
 
-            // Nếu là local file path (absolute path like C:\...)
+            // If local file path (absolute path like C:\...)
             if (Path.IsPathRooted(imageUrl) && File.Exists(imageUrl))
             {
                 System.Diagnostics.Debug.WriteLine($"[StringToImageSourceConverter] Loading local file: {imageUrl}");
                 return new BitmapImage(new Uri(imageUrl));
             }
 
-            // Nếu là ms-appx:/// path - convert to actual file path for unpackaged app
+            // If ms-appx:/// path - convert to actual file path for unpackaged app
             if (imageUrl.StartsWith("ms-appx:///", StringComparison.OrdinalIgnoreCase))
             {
                 // Extract relative path from ms-appx:///
@@ -62,7 +62,7 @@ public class StringToImageSourceConverter : IValueConverter
                 return null;
             }
 
-            // Nếu là relative path, try to resolve from app directory
+            // If relative path, try to resolve from app directory
             var appRelativePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, imageUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
             if (File.Exists(appRelativePath))
             {

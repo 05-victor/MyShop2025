@@ -242,13 +242,13 @@ public partial class AdminProductsViewModel : PagedViewModelBase<ProductRow>
 }
 
 /// <summary>
-/// Model dùng cho 1 row trong bảng Products.
-/// Mapping từ Product entity ở Shared.
+/// Model used for a single row in the Products table.
+/// Maps from the Product entity in Shared layer.
 /// </summary>
 public class ProductRow
 {
     public Guid Id { get; set; }
-    public string? Image { get; set; }  // map từ Product.ImageUrl
+    public string? Image { get; set; }  // mapped from Product.ImageUrl
     public string Name { get; set; } = string.Empty;
     public string Sku { get; set; } = string.Empty;
     public string Category { get; set; } = string.Empty;

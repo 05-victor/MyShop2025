@@ -19,11 +19,11 @@ namespace MyShop.Client {
             // RootFrame is already defined in XAML with x:Name="RootFrame"
             // No need to create it again here
 
-            // Logic điều hướng ban đầu đã được chuyển sang App.xaml.cs
+            // Initial navigation logic has been moved to App.xaml.cs
         }
 
         private void ConfigureWindow() {
-            // Cấu hình cửa sổ (kích thước, tiêu đề...)
+            // Configure window (size, title...)
             var hwnd = WindowNative.GetWindowHandle(this);
             var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
             var appWindow = AppWindow.GetFromWindowId(windowId);

@@ -7,8 +7,9 @@ using System.Text.Json;
 namespace MyShop.Plugins.Infrastructure;
 
 /// <summary>
-/// File-based credential storage for development/testing
-/// Lưu token vào file JSON - đơn giản nhưng kém bảo mật, chỉ dùng dev mode
+/// File-based credential storage for development/testing.
+/// Saves token to a JSON file - simple but insecure, use only in dev mode.
+/// For production, use SecureCredentialStorage with DPAPI encryption.
 /// </summary>
 public class FileCredentialStorage : ICredentialStorage
 {

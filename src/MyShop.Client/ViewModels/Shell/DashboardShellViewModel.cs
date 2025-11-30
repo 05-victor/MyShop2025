@@ -18,7 +18,7 @@ namespace MyShop.Client.ViewModels.Shell
         private readonly ICredentialStorage _credentialStorage;
         private readonly ICartRepository _cartRepository;
 
-        // Thông tin user hiện tại để hiển thị ở PaneHeader / PaneFooter
+        // Current user information for display in PaneHeader / PaneFooter
         [ObservableProperty]
         private User? _currentUser;
 
@@ -41,8 +41,10 @@ namespace MyShop.Client.ViewModels.Shell
         }
 
         /// <summary>
-        /// Được gọi khi Shell nhận được User từ Login / App startup
+        /// Called when Shell receives User from Login / App startup.
+        /// Initializes the dashboard with user information.
         /// </summary>
+        /// <param name="user">The authenticated user.</param>
         public async void Initialize(User user)
         {
             CurrentUser = user;
@@ -77,7 +79,7 @@ namespace MyShop.Client.ViewModels.Shell
             }
         }
 
-        // ====== Logic trước đây nằm trong AdminDashboardViewModel ======
+        // ====== Logic previously in AdminDashboardViewModel ======
 
         [RelayCommand]
         private async Task LogoutAsync()

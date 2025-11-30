@@ -16,10 +16,10 @@ using MyShop.Client.Strategies;
 namespace MyShop.Client.ViewModels.Shared;
 
 /// <summary>
-/// LoginViewModel - Refactored to use Facade Pattern
-/// Before: Injected 5 services (IMediator, INavigationService, IToastService, IRoleStrategyFactory, IValidationService)
-/// After: Injected 3 dependencies (IAuthFacade aggregates auth operations, plus navigation and strategy)
-/// Benefits: Simplified dependencies, centralized auth logic, easier testing
+/// ViewModel for the Login page. Refactored to use Facade Pattern.
+/// Before refactoring: Injected 5 services (IMediator, INavigationService, IToastService, IRoleStrategyFactory, IValidationService).
+/// After refactoring: Injected 3 dependencies (IAuthFacade aggregates auth operations, plus navigation and strategy).
+/// Benefits: Simplified dependencies, centralized auth logic, easier testing.
 /// </summary>
 public partial class LoginViewModel : BaseViewModel
 {
@@ -51,17 +51,17 @@ public partial class LoginViewModel : BaseViewModel
     private string _passwordError = string.Empty;
 
     /// <summary>
-    /// Kiểm tra username có hợp lệ không
+    /// Check if username is valid (no error message).
     /// </summary>
     public bool IsUsernameValid => string.IsNullOrWhiteSpace(UsernameError);
 
     /// <summary>
-    /// Kiểm tra password có hợp lệ không
+    /// Check if password is valid (no error message).
     /// </summary>
     public bool IsPasswordValid => string.IsNullOrWhiteSpace(PasswordError);
 
     /// <summary>
-    /// Kiểm tra form có hợp lệ không (để enable/disable nút Login)
+    /// Check if form is valid (to enable/disable Login button).
     /// </summary>
     public bool IsFormValid => 
         IsUsernameValid && 
@@ -70,10 +70,13 @@ public partial class LoginViewModel : BaseViewModel
         !string.IsNullOrWhiteSpace(Password);
 
     /// <summary>
-    /// Property for button binding (similar to RegisterViewModel.CanRegister)
+    /// Property for button binding (similar to RegisterViewModel.CanRegister).
     /// </summary>
     public bool CanLogin => IsFormValid && !IsLoading;
 
+    /// <summary>
+    /// Dynamic button text based on loading state.
+    /// </summary>
     public string LoginButtonText => IsLoading ? "Signing in..." : "Sign In";
 
     public LoginViewModel(
@@ -98,8 +101,8 @@ public partial class LoginViewModel : BaseViewModel
     }
 
     /// <summary>
-    /// Real-time validation khi username thay đổi
-    /// Validation logic now encapsulated in AuthFacade
+    /// Real-time validation when username changes.
+    /// Validation logic is now encapsulated in AuthFacade.
     /// </summary>
     partial void OnUsernameChanged(string value)
     {
@@ -111,8 +114,8 @@ public partial class LoginViewModel : BaseViewModel
     }
 
     /// <summary>
-    /// Real-time validation khi password thay đổi
-    /// Validation logic now encapsulated in AuthFacade
+    /// Real-time validation when password changes.
+    /// Validation logic is now encapsulated in AuthFacade.
     /// </summary>
     partial void OnPasswordChanged(string value)
     {
@@ -124,10 +127,16 @@ public partial class LoginViewModel : BaseViewModel
     }
 
     /// <summary>
-    /// Kiểm tra xem có thể attempt login không
+    /// Check if login can be attempted.
+    /// Uses IsFormValid and IsLoading to determine button state.
     /// </summary>
     private bool CanAttemptLogin() => IsFormValid && !IsLoading;
 
+    /// <summary>
+    /// Attempts to log in with the provided credentials.
+    /// Uses Facade Pattern: AuthFacade handles Validation → Login → Storage → Toast notification.
+    /// ViewModel only needs to call 1 method instead of orchestrating 5+ services.
+    /// </summary>
     [RelayCommand(CanExecute = nameof(CanAttemptLogin), IncludeCancelCommand = true)]
     private async Task AttemptLoginAsync(CancellationToken cancellationToken)
     {
@@ -145,9 +154,7 @@ public partial class LoginViewModel : BaseViewModel
             // Show loading overlay
             SetLoadingState(true);
 
-            // ===== USE FACADE PATTERN =====
             // AuthFacade handles: Validation → Login → Storage → Toast notification
-            // ViewModel chỉ cần gọi 1 method thay vì orchestrate 5+ services
             var result = await _authFacade.LoginAsync(Username, Password, IsRememberMe);
 
             if (result.IsSuccess && result.Data != null)
@@ -170,7 +177,7 @@ public partial class LoginViewModel : BaseViewModel
                 }
                 else
                 {
-                    // AuthFacade đã validate và return user-friendly error message
+                    // AuthFacade already validated and returned user-friendly error message
                     SetError(result.ErrorMessage ?? "Login failed. Please try again.");
                 }
             }

@@ -125,7 +125,7 @@
                         </Border>
 
                         <!--  Cart Items List  -->
-                        <!-- COPILOT-FIX: Changed to {Binding} - dynamic cart data -->
+                        <!-- Changed to {Binding} for dynamic cart data -->
                         <ItemsControl x:Name="CartItemsControl" ItemsSource="{Binding Items, Mode=OneWay}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:CartItemViewModel">

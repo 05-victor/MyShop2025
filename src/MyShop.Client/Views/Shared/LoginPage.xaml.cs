@@ -10,7 +10,7 @@ using Windows.System;
 namespace MyShop.Client.Views.Shared
 {
     /// <summary>
-    /// Login page với MVVM pattern và accessibility support
+    /// Login page with MVVM pattern and accessibility support.
     /// </summary>
     public sealed partial class LoginPage : Page
     {
@@ -43,7 +43,8 @@ namespace MyShop.Client.Views.Shared
         }
 
         /// <summary>
-        /// Khởi tạo UI sau khi page được load
+        /// Initializes the UI after page is loaded.
+        /// Configures mock mode banner and sets focus to username field.
         /// </summary>
         private void OnPageLoaded(object sender, RoutedEventArgs e)
         {

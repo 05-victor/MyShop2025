@@ -5,7 +5,8 @@ using System.Text.RegularExpressions;
 namespace MyShop.Client.Services;
 
 /// <summary>
-/// Implementation của IValidationService với các quy tắc validation chuẩn
+/// Implementation of IValidationService with standard validation rules.
+/// Validates common input types like username, password, email, and phone number.
 /// </summary>
 public class ValidationService : IValidationService
 {

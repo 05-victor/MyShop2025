@@ -5,14 +5,14 @@ using System;
 namespace MyShop.Client.Common.Converters;
 
 /// <summary>
-/// Converter để hiển thị empty state dựa trên số lượng items
-/// Nếu count = 0, trả về Visible (hiển thị empty state)
-/// Nếu count > 0, trả về Collapsed (ẩn empty state, hiển thị danh sách)
+/// Converter to show empty state based on item count.
+/// If count = 0, returns Visible (shows empty state).
+/// If count > 0, returns Collapsed (hides empty state, shows list).
 /// </summary>
     public class CountToVisibilityConverter : IValueConverter
     {
         /// <summary>
-        /// True để invert logic (hiển thị khi có items, ẩn khi empty)
+        /// Set to true to invert logic (show when items exist, hide when empty).
         /// </summary>
         public bool IsInverted { get; set; } = false;
 

@@ -7,7 +7,8 @@ using MyShop.Shared.Models;
 namespace MyShop.Client.Features.Auth.Handlers;
 
 /// <summary>
-/// Handler xử lý LoginCommand
+/// Handler that processes LoginCommand.
+/// Authenticates user and saves token if RememberMe is enabled.
 /// </summary>
 public class LoginCommandHandler : IRequestHandler<Commands.LoginCommand, Result<User>>
 {

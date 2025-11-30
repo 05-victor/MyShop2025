@@ -5,8 +5,11 @@ using MyShop.Shared.Models;
 namespace MyShop.Client.Features.Auth.Commands;
 
 /// <summary>
-/// Command để thực hiện login
+/// Command to perform user login.
 /// </summary>
+/// <param name="Username">The username to authenticate.</param>
+/// <param name="Password">The password for authentication.</param>
+/// <param name="RememberMe">Whether to persist credentials for future sessions.</param>
 public record LoginCommand(
     string Username, 
     string Password, 

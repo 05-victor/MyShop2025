@@ -3,7 +3,7 @@ using MyShop.Shared.Models.Enums;
 namespace MyShop.Client.Strategies;
 
 /// <summary>
-/// Strategy implementation cho Salesman role
+/// Strategy implementation for Salesman role.
 /// </summary>
 public class SalesmanDashboardStrategy : IRoleStrategy
 {
@@ -14,7 +14,7 @@ public class SalesmanDashboardStrategy : IRoleStrategy
 
     public bool CanAccessFeature(string featureName)
     {
-        // Salesman có quyền hạn chế
+        // Salesman has limited access
         var allowedFeatures = new[]
         {
             "Orders",

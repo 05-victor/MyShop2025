@@ -5,8 +5,8 @@ using System;
 namespace MyShop.Client.Common.Converters;
 
 /// <summary>
-/// Converter chuyển đổi null thành Visibility
-/// null → Collapsed, not null → Visible
+/// Converter to convert null to Visibility.
+/// null → Collapsed, not null → Visible.
 /// </summary>
 public class NullToVisibilityConverter : IValueConverter
 {

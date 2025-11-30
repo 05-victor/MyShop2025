@@ -214,7 +214,7 @@
                             Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
 
                         <!--  Table  -->
-                        <!-- COPILOT-FIX: Changed to {Binding} - dynamic API data -->
+                        <!-- Changed to {Binding} for dynamic API data -->
                         <ListView
                             x:Name="ProductsListView"
                             Grid.Row="0"
@@ -363,7 +363,7 @@
                                                 Style="{StaticResource StockBadgeStyle}"
                                                 Background="#10B981">
                                         -->
-                                        <!--  TODO: sau này dùng converter đổi màu theo Stock  -->
+                                        <!--  TODO: Use converter to change color based on Stock  -->
                                         <!--
                                             <TextBlock Text="{x:Bind Stock}"
                                                        Foreground="White"

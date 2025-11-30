@@ -1,6 +1,6 @@
 <!-- 
-    COPILOT-FIX: Fallback resources to prevent XAML crashes from missing StaticResource keys
-    This file provides safe default values for commonly used resources that might be missing
+    Fallback resources to prevent XAML crashes from missing StaticResource keys.
+    This file provides safe default values for commonly used resources that might be missing.
 -->
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
