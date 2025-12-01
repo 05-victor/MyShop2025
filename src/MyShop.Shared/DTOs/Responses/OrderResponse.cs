@@ -10,8 +10,6 @@ public class OrderResponse
     public Guid CustomerId { get; set; }
     public string CustomerName { get; set; } = string.Empty;
     public string CustomerEmail { get; set; } = string.Empty;
-    public Guid? SalesAgentId { get; set; }
-    public string? SalesAgentName { get; set; }
     public string Status { get; set; } = string.Empty;
     public decimal TotalAmount { get; set; }
     public ShippingAddressResponse? ShippingAddress { get; set; }
@@ -25,7 +23,7 @@ public class OrderResponse
     public string? CustomerFullName { get; set; }
 
     // Sale Agent information
-    public Guid SaleAgentId { get; set; }
+    public Guid? SaleAgentId { get; set; }
     public string? SaleAgentUsername { get; set; }
     public string? SaleAgentFullName { get; set; }
 

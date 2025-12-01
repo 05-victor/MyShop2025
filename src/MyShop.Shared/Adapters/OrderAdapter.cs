@@ -18,8 +18,8 @@ public static class OrderAdapter
         {
             Id = dto.Id,
             OrderCode = dto.OrderNumber,
-            SalesAgentId = dto.SalesAgentId,
-            SalesAgentName = dto.SalesAgentName,
+            SalesAgentId = dto.SaleAgentId,
+            SalesAgentName = dto.SaleAgentFullName ?? dto.SaleAgentUsername,
             CustomerId = dto.CustomerId,
             CustomerName = dto.CustomerName,
             CustomerAddress = dto.ShippingAddress != null
@@ -32,8 +32,8 @@ public static class OrderAdapter
             OrderDate = dto.CreatedAt,
             CreatedAt = dto.CreatedAt,
             UpdatedAt = dto.UpdatedAt,
-            Items = dto.Items.Select(ToOrderItemModel).ToList(),
-            OrderItems = dto.Items.Select(ToOrderItemModel).ToList()
+            Items = dto.OrderItems?.Select(ToOrderItemModel).ToList() ?? new List<OrderItem>(),
+            OrderItems = dto.OrderItems?.Select(ToOrderItemModel).ToList() ?? new List<OrderItem>()
         };
     }
 
@@ -48,9 +48,9 @@ public static class OrderAdapter
             ProductId = dto.ProductId,
             ProductName = dto.ProductName,
             Quantity = dto.Quantity,
-            UnitPrice = dto.UnitPrice,
-            Total = dto.Subtotal,
-            TotalPrice = dto.Subtotal
+            UnitPrice = dto.UnitSalePrice,
+            Total = dto.TotalPrice,
+            TotalPrice = dto.TotalPrice
         };
     }
 
