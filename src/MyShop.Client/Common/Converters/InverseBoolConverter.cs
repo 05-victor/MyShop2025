@@ -4,8 +4,8 @@ using System;
 namespace MyShop.Client.Common.Converters;
 
 /// <summary>
-/// Converter đảo ngược giá trị bool
-/// true → false, false → true
+/// Converter to invert boolean value.
+/// true → false, false → true.
 /// </summary>
 public class InverseBoolConverter : IValueConverter
 {

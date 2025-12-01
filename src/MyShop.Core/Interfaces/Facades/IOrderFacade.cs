@@ -4,13 +4,14 @@ using MyShop.Shared.Models;
 namespace MyShop.Core.Interfaces.Facades;
 
 /// <summary>
-/// Facade pattern for order management operations
-/// Aggregates: IOrderRepository, IProductRepository, IValidationService, IToastService
+/// Facade pattern for order management operations.
+/// Aggregates: IOrderRepository, IProductRepository, IValidationService, IToastService.
+/// Handles order creation, status updates, and filtering by customer or sales agent.
 /// </summary>
 public interface IOrderFacade
 {
     /// <summary>
-    /// Load orders với paging and filtering
+    /// Load orders with paging and filtering.
     /// </summary>
     /// <param name="customerId">Filter by customer ID (customer's own orders)</param>
     /// <param name="salesAgentId">Filter by sales agent ID (sales agent's orders)</param>

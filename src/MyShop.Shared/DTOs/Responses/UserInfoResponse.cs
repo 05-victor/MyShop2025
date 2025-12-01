@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace MyShop.Shared.DTOs.Responses;
 
 /// <summary>
-/// DTO cho thông tin người dùng
+/// DTO for user information.
 /// </summary>
 public class UserInfoResponse
     {

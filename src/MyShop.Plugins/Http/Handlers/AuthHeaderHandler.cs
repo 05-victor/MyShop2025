@@ -5,8 +5,9 @@ using System.Net.Http.Headers;
 namespace MyShop.Plugins.Http.Handlers;
 
 /// <summary>
-/// HTTP handler để tự động inject JWT token vào Authorization header
-/// Xử lý token refresh khi gặp 401 Unauthorized
+/// HTTP delegating handler for automatic JWT token injection.
+/// Adds Authorization header with Bearer token to all outgoing requests.
+/// Handles 401 Unauthorized responses with token refresh logic.
 /// </summary>
 public class AuthHeaderHandler : DelegatingHandler
 {

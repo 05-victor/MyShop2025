@@ -4,13 +4,14 @@ using MyShop.Shared.Models;
 namespace MyShop.Core.Interfaces.Facades;
 
 /// <summary>
-/// Facade pattern for user management (admin)
-/// Aggregates: IUserRepository, IAuthRepository, IValidationService, IToastService
+/// Facade pattern for user management (admin operations).
+/// Aggregates: IUserRepository, IAuthRepository, IValidationService, IToastService.
+/// Handles user CRUD, role management, and user statistics.
 /// </summary>
 public interface IUserFacade
 {
     /// <summary>
-    /// Load users với paging and filtering
+    /// Load users with paging and filtering.
     /// </summary>
     Task<Result<PagedList<User>>> LoadUsersAsync(
         string? searchQuery = null,

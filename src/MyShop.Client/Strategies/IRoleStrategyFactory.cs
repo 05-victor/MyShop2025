@@ -3,12 +3,14 @@ using MyShop.Shared.Models.Enums;
 namespace MyShop.Client.Strategies;
 
 /// <summary>
-/// Factory để lấy strategy phù hợp với role
+/// Factory to get the appropriate strategy for a role.
 /// </summary>
 public interface IRoleStrategyFactory
 {
     /// <summary>
-    /// Lấy strategy tương ứng với role
+    /// Gets the strategy corresponding to the specified role.
     /// </summary>
+    /// <param name="role">The user role to get strategy for.</param>
+    /// <returns>The role strategy instance.</returns>
     IRoleStrategy GetStrategy(UserRole role);
 }

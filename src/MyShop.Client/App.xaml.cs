@@ -37,7 +37,7 @@ namespace MyShop.Client
                 System.Diagnostics.Debug.WriteLine($"Failed to initialize LoggingService: {ex.Message}");
             }
             
-            // COPILOT-FIX: Add comprehensive global exception handlers
+            // Add comprehensive global exception handlers
             // Catch exceptions from non-UI threads and background tasks
             AppDomain.CurrentDomain.UnhandledException += (s, e) =>
             {
@@ -185,7 +185,7 @@ namespace MyShop.Client
                             LoggingService.Instance.LogAuth("Auto-login", user.Username, true);
                             LoggingService.Instance.Information($"User roles: {string.Join(", ", user.Roles)}");
                             
-                            // Use strategy pattern để navigate
+                            // Use strategy pattern to navigate
                             var roleStrategyFactory = Services.GetRequiredService<IRoleStrategyFactory>();
                             var primaryRole = user.GetPrimaryRole();
                             var strategy = roleStrategyFactory.GetStrategy(primaryRole);

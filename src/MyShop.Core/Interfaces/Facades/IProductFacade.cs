@@ -11,7 +11,7 @@ namespace MyShop.Core.Interfaces.Facades;
 public interface IProductFacade
 {
     /// <summary>
-    /// Load products với paging, search, filter
+    /// Load products with paging, search, and filter.
     /// Orchestrates: Repository.GetAll → Apply filters → Paging → Return PagedResult
     /// </summary>
     /// <param name="searchQuery">Search keyword</param>
@@ -38,7 +38,7 @@ public interface IProductFacade
     Task<Result<Product>> GetProductByIdAsync(Guid productId);
 
     /// <summary>
-    /// Add new product với validation
+    /// Add new product with validation.
     /// Orchestrates: Validation → Repository.Add → Toast notification
     /// </summary>
     Task<Result<Product>> AddProductAsync(
@@ -55,7 +55,7 @@ public interface IProductFacade
         decimal commissionRate);
 
     /// <summary>
-    /// Update product với validation
+    /// Update product with validation.
     /// </summary>
     Task<Result<Product>> UpdateProductAsync(
         Guid productId,

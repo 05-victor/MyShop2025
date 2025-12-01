@@ -4,13 +4,14 @@ using MyShop.Shared.Models;
 namespace MyShop.Core.Interfaces.Facades;
 
 /// <summary>
-/// Facade pattern for sales agent request management
-/// Aggregates: IAgentRequestRepository, IUserRepository, IValidationService, IToastService
+/// Facade pattern for sales agent request management.
+/// Aggregates: IAgentRequestRepository, IUserRepository, IValidationService, IToastService.
+/// Handles agent application submission, approval/rejection workflow, and status management.
 /// </summary>
 public interface IAgentRequestFacade
 {
     /// <summary>
-    /// Load agent requests với paging and filtering
+    /// Load agent requests with paging and filtering.
     /// </summary>
     Task<Result<PagedList<AgentRequest>>> LoadRequestsAsync(
         string? status = null,

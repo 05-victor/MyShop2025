@@ -14,7 +14,7 @@ public sealed partial class SalesAgentReportsPage : Page
 
     public SalesAgentReportsPage()
     {
-        // COPILOT-FIX STEP 2: Enhanced constructor with comprehensive error handling
+        // Enhanced constructor with comprehensive error handling
         try
         {
             Services.LoggingService.Instance.Debug("[SalesAgentReportsPage] Constructor start");
@@ -59,7 +59,7 @@ public sealed partial class SalesAgentReportsPage : Page
         }
     }
 
-    // COPILOT-FIX: Initialize ViewModel in OnNavigatedTo to avoid constructor crash
+    // Initialize ViewModel in OnNavigatedTo to avoid constructor crash
     protected override void OnNavigatedTo(Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
     {
         try

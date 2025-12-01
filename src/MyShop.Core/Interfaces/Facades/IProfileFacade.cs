@@ -15,21 +15,21 @@ public interface IProfileFacade
     Task<Result<User>> LoadProfileAsync();
 
     /// <summary>
-    /// Update profile với validation
+    /// Update profile with validation.
     /// Orchestrates: Validation → Repository.UpdateProfile → Toast notification
     /// </summary>
     Task<Result<User>> UpdateProfileAsync(string fullName, string email, string phoneNumber, string address);
 
     /// <summary>
-    /// Change password với validation
+    /// Change password with validation.
     /// Orchestrates: Validation → Repository.ChangePassword → Toast notification
     /// </summary>
     Task<Result<Unit>> ChangePasswordAsync(string currentPassword, string newPassword, string confirmPassword);
 
     /// <summary>
-    /// Pick avatar từ file picker và save locally
+    /// Pick avatar from file picker and save locally.
     /// Saves to ApplicationData.Current.LocalFolder/Assets/Avatars/
-    /// Returns local file path
+    /// Returns local file path.
     /// </summary>
     Task<Result<string>> PickAndSaveAvatarAsync();
 
@@ -47,7 +47,7 @@ public interface IProfileFacade
     Task<Result<Unit>> SendVerificationEmailAsync();
 
     /// <summary>
-    /// Verify email với OTP code
+    /// Verify email with OTP code.
     /// </summary>
     Task<Result<Unit>> VerifyEmailAsync(string otp);
 

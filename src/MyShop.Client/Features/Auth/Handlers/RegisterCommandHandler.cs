@@ -6,7 +6,8 @@ using MyShop.Shared.Models;
 namespace MyShop.Client.Features.Auth.Handlers;
 
 /// <summary>
-/// Handler xử lý RegisterCommand
+/// Handler that processes RegisterCommand.
+/// Creates a new user account with the provided information.
 /// </summary>
 public class RegisterCommandHandler : IRequestHandler<Commands.RegisterCommand, Result<User>>
 {

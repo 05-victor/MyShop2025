@@ -5,8 +5,8 @@ using System;
 namespace MyShop.Client.Common.Helpers;
 
 /// <summary>
-/// COPILOT-FIX: Helper class to safely initialize Pages with comprehensive error handling
-/// Prevents silent crashes from XAML parse errors and DI resolution failures
+/// Helper class to safely initialize Pages with comprehensive error handling.
+/// Prevents silent crashes from XAML parse errors and DI resolution failures.
 /// 
 /// Usage in Page constructor:
 /// <code>

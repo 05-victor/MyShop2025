@@ -6,9 +6,9 @@ using System;
 namespace MyShop.Client.ViewModels.Base
 {
     /// <summary>
-    /// Base ViewModel với common properties và behaviors
-    /// Kế thừa từ ObservableObject của CommunityToolkit.Mvvm
-    /// Enhanced with common service dependencies
+    /// Base ViewModel with common properties and behaviors.
+    /// Inherits from ObservableObject of CommunityToolkit.Mvvm.
+    /// Enhanced with common service dependencies.
     /// </summary>
     public abstract partial class BaseViewModel : ObservableObject
     {
@@ -78,8 +78,10 @@ namespace MyShop.Client.ViewModels.Base
         }
 
         /// <summary>
-        /// Set error message và log nó
+        /// Sets the error message and logs it.
         /// </summary>
+        /// <param name="message">The error message to display.</param>
+        /// <param name="exception">Optional exception for logging.</param>
         protected void SetError(string message, Exception? exception = null)
         {
             ErrorMessage = message;
@@ -100,8 +102,9 @@ namespace MyShop.Client.ViewModels.Base
         }
 
         /// <summary>
-        /// Set loading state và clear errors
+        /// Sets the loading state and clears errors.
         /// </summary>
+        /// <param name="isLoading">True to show loading state, false to hide it.</param>
         protected void SetLoadingState(bool isLoading)
         {
             IsLoading = isLoading;

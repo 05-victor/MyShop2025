@@ -3,8 +3,9 @@ using MyShop.Core.Common;
 namespace MyShop.Core.Interfaces.Infrastructure;
 
 /// <summary>
-/// Interface for storing and retrieving authentication credentials (JWT tokens)
-/// Cho phép swap giữa các implementation: Windows PasswordVault, File, Memory, etc.
+/// Interface for storing and retrieving authentication credentials (JWT tokens).
+/// Allows swapping between implementations: Windows PasswordVault, File, Memory, etc.
+/// Implementations should handle secure storage with encryption (e.g., DPAPI on Windows).
 /// </summary>
 public interface ICredentialStorage
 {

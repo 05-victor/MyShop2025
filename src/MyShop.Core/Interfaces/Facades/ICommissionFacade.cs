@@ -4,13 +4,14 @@ using MyShop.Shared.Models;
 namespace MyShop.Core.Interfaces.Facades;
 
 /// <summary>
-/// Facade pattern for commission/earnings management
-/// Aggregates: ICommissionRepository, IOrderRepository, IUserRepository, IToastService
+/// Facade pattern for commission/earnings management.
+/// Aggregates: ICommissionRepository, IOrderRepository, IUserRepository, IToastService.
+/// Handles commission tracking, payment status, and export functionality for sales agents.
 /// </summary>
 public interface ICommissionFacade
 {
     /// <summary>
-    /// Load commissions for sales agent với paging
+    /// Load commissions for sales agent with paging.
     /// </summary>
     Task<Result<PagedList<Commission>>> LoadCommissionsAsync(
         Guid? agentId = null,

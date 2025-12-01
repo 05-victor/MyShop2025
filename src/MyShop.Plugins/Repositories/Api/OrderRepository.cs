@@ -172,14 +172,16 @@ public class OrderRepository : IOrderRepository
         {
             var request = new CreateOrderRequest
             {
-                Items = order.Items.Select(item => new OrderItemRequest
+                CustomerId = order.CustomerId ?? Guid.Empty,
+                OrderItems = order.Items.Select(item => new CreateOrderItemRequest
                 {
                     ProductId = item.ProductId,
-                    Quantity = item.Quantity
+                    Quantity = item.Quantity,
+                    UnitSalePrice = (int)item.UnitPrice
                 }).ToList(),
-                ShippingAddress = order.CustomerAddress ?? string.Empty,
-                PaymentMethod = "CASH", // Default
-                Notes = order.Notes
+                ShippingAddress = order.CustomerAddress,
+                PaymentMethod = "CASH",
+                Note = order.Notes
             };
 
             var response = await _api.CreateAsync(request);

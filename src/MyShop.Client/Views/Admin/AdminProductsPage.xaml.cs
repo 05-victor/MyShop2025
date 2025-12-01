@@ -249,7 +249,7 @@ public sealed partial class AdminProductsPage : Page
         var name = NewNameTextBox.Text.Trim();
         if (string.IsNullOrEmpty(name))
         {
-            // Nếu muốn chặn đóng dialog khi thiếu tên:
+            // If you want to prevent dialog from closing when name is missing:
             // args.Cancel = true;
             return;
         }
@@ -269,7 +269,7 @@ public sealed partial class AdminProductsPage : Page
 
     private void AddProductDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
-        // Không cần làm gì, dialog tự đóng
+        // No action needed, dialog closes automatically
     }
 
     #endregion

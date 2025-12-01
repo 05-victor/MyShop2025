@@ -13,7 +13,7 @@ public sealed partial class AdminUsersPage : Page
 
     public AdminUsersPage()
     {
-        // COPILOT-FIX: Wrap InitializeComponent to catch XAML parse errors
+        // Wrap InitializeComponent to catch XAML parse errors
         try
         {
             this.InitializeComponent();
@@ -32,7 +32,7 @@ public sealed partial class AdminUsersPage : Page
             return;
         }
 
-        // COPILOT-FIX: Wrap ViewModel resolution to catch DI errors
+        // Wrap ViewModel resolution to catch DI errors
         try
         {
             ViewModel = App.Current.Services.GetRequiredService<AdminUsersViewModel>();
@@ -44,7 +44,7 @@ public sealed partial class AdminUsersPage : Page
         }
     }
 
-    // COPILOT-FIX: Harden OnNavigatedTo with comprehensive error handling
+    // Harden OnNavigatedTo with comprehensive error handling
     protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
         try

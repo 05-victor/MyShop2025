@@ -4,7 +4,7 @@ using MyShop.Shared.Models.Enums;
 namespace MyShop.Client.Strategies;
 
 /// <summary>
-/// Strategy implementation cho Admin role
+/// Strategy implementation for Admin role.
 /// </summary>
 public class AdminDashboardStrategy : IRoleStrategy
 {
@@ -15,7 +15,7 @@ public class AdminDashboardStrategy : IRoleStrategy
 
     public bool CanAccessFeature(string featureName)
     {
-        // Admin có quyền access tất cả features
+        // Admin has access to all features
         return true;
     }
 }

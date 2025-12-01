@@ -107,7 +107,7 @@
                             Margin="0,0,0,16"
                             Style="{StaticResource SubtitleTextBlockStyle}"
                             Text="Revenue Trend" />
-                        <!-- COPILOT-FIX: Full crash prevention -->
+                        <!-- Full crash prevention for chart rendering -->
                         <lvc:CartesianChart 
                             Height="300" 
                             MinHeight="200"
@@ -127,7 +127,7 @@
                             Margin="0,0,0,16"
                             Style="{StaticResource SubtitleTextBlockStyle}"
                             Text="Orders per Category" />
-                        <!-- COPILOT-FIX: Full crash prevention -->
+                        <!-- Full crash prevention for chart rendering -->
                         <lvc:CartesianChart 
                             Height="300" 
                             MinHeight="200"
@@ -148,7 +148,7 @@
                             Margin="0,0,0,16"
                             Style="{StaticResource SubtitleTextBlockStyle}"
                             Text="Product Rating Breakdown" />
-                        <!-- COPILOT-FIX: Full crash prevention -->
+                        <!-- Full crash prevention for chart rendering -->
                         <lvc:PieChart 
                             Height="300" 
                             MinHeight="200"
@@ -169,7 +169,7 @@
                             Margin="0,0,0,16"
                             Style="{StaticResource SubtitleTextBlockStyle}"
                             Text="Salesperson Contributions" />
-                        <!-- COPILOT-FIX STEP 6: Changed to {x:Bind} to prevent ItemsControl crash -->
+                        <!-- Changed to {x:Bind} to prevent ItemsControl crash -->
                         <ItemsControl ItemsSource="{x:Bind ViewModel.SalespersonData, Mode=OneWay}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -231,7 +231,7 @@
                         Margin="0,0,0,16"
                         Style="{StaticResource SubtitleTextBlockStyle}"
                         Text="Product Summary" />
-                    <!-- COPILOT-FIX STEP 6: Changed to {x:Bind} to prevent DataGrid crash -->
+                    <!-- Changed to {x:Bind} to prevent DataGrid crash -->
                     <controls:DataGrid AutoGenerateColumns="False" ItemsSource="{x:Bind ViewModel.FilteredProducts, Mode=OneWay}">
                         <controls:DataGrid.Columns>
                             <controls:DataGridTextColumn

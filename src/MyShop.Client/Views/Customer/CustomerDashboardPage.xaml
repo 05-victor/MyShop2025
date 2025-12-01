@@ -119,7 +119,7 @@
                                     Foreground="#00AEEF"/>
                 </Grid>
 
-                <!-- COPILOT-FIX: Changed to {Binding} - async loaded API data -->
+                <!-- Changed to {Binding} for async loaded API data -->
                 <ItemsRepeater ItemsSource="{Binding FeaturedProducts, Mode=OneWay}">
                     <ItemsRepeater.Layout>
                         <UniformGridLayout MinItemWidth="250" 
@@ -236,7 +236,7 @@
                                     Foreground="#00AEEF"/>
                 </Grid>
 
-                <!-- COPILOT-FIX: Changed to {Binding} - async loaded API data -->
+                <!-- Changed to {Binding} for async loaded API data -->
                 <ItemsRepeater ItemsSource="{Binding RecommendedProducts, Mode=OneWay}">
                     <ItemsRepeater.Layout>
                         <UniformGridLayout MinItemWidth="250" 

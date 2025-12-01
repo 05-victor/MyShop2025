@@ -3,7 +3,7 @@ using System;
 namespace MyShop.Shared.DTOs.Responses
 {
     /// <summary>
-    /// Response DTO cho thông tin quyền hạn bị loại bỏ của user.
+    /// Response DTO for removed authority information of a user.
     /// </summary>
     public class RemovedAuthorityResponse
     {
@@ -15,7 +15,7 @@ namespace MyShop.Shared.DTOs.Responses
     }
 
     /// <summary>
-    /// Response DTO cho danh sách quyền hạn hiệu lực của user.
+    /// Response DTO for the list of effective authorities of a user.
     /// </summary>
     public class EffectiveAuthoritiesResponse
     {
@@ -28,7 +28,7 @@ namespace MyShop.Shared.DTOs.Responses
     }
 
     /// <summary>
-    /// Response DTO cho kết quả kiểm tra quyền hạn.
+    /// Response DTO for authority check result.
     /// </summary>
     public class CheckAuthorityResponse
     {

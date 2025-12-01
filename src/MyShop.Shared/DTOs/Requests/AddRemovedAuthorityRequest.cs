@@ -4,27 +4,27 @@ using System.ComponentModel.DataAnnotations;
 namespace MyShop.Shared.DTOs.Requests
 {
     /// <summary>
-    /// Request DTO để thêm quyền hạn vào danh sách loại bỏ của user.
+    /// Request DTO to add an authority to user's removed authorities list.
     /// </summary>
     public class AddRemovedAuthorityRequest
     {
         /// <summary>
-        /// Tên quyền hạn cần loại bỏ.
+        /// Name of the authority to remove.
         /// </summary>
-        [Required(ErrorMessage = "Tên quyền hạn không được để trống")]
-        [MaxLength(100, ErrorMessage = "Tên quyền hạn không được vượt quá 100 ký tự")]
+        [Required(ErrorMessage = "Authority name is required")]
+        [MaxLength(100, ErrorMessage = "Authority name cannot exceed 100 characters")]
         public string AuthorityName { get; set; } = string.Empty;
 
         /// <summary>
-        /// Lý do loại bỏ quyền hạn (optional).
+        /// Reason for removing the authority (optional).
         /// </summary>
-        [MaxLength(500, ErrorMessage = "Lý do không được vượt quá 500 ký tự")]
+        [MaxLength(500, ErrorMessage = "Reason cannot exceed 500 characters")]
         public string? Reason { get; set; }
 
         /// <summary>
-        /// Username của người thực hiện loại bỏ (optional).
+        /// Username of the person performing the removal (optional).
         /// </summary>
-        [MaxLength(100, ErrorMessage = "Username không được vượt quá 100 ký tự")]
+        [MaxLength(100, ErrorMessage = "Username cannot exceed 100 characters")]
         public string? RemovedBy { get; set; }
     }
 }

@@ -5,13 +5,14 @@ using MyShop.Shared.Models.Enums;
 namespace MyShop.Shared.Adapters;
 
 /// <summary>
-/// Adapter chuyển đổi Auth DTOs ↔ Domain Models
-/// Static class for stateless DTO-to-Model transformations
+/// Adapter for converting Auth DTOs to Domain Models.
+/// Static class for stateless DTO-to-Model transformations.
+/// Handles login response, user info, and role parsing.
 /// </summary>
 public static class AuthAdapter
 {
     /// <summary>
-    /// LoginResponse (DTO) → User (Model)
+    /// Convert LoginResponse (DTO) to User (Model).
     /// </summary>
     public static User ToModel(LoginResponse dto)
     {
