@@ -1,4 +1,4 @@
-namespace MyShop.Shared.DTOs.Responses;
+﻿namespace MyShop.Shared.DTOs.Responses;
 
 /// <summary>
 /// Response DTO for order information
@@ -21,10 +21,8 @@ public class OrderResponse
     public DateTime UpdatedAt { get; set; }
 
     // Customer information
-    public Guid CustomerId { get; set; }
     public string? CustomerUsername { get; set; }
     public string? CustomerFullName { get; set; }
-    public string? CustomerEmail { get; set; }
 
     // Sale Agent information
     public Guid SaleAgentId { get; set; }
