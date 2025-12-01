@@ -7,6 +7,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:MyShop.Client.ViewModels.Shared"
+    xmlns:layout="using:MyShop.Client.Views.Components.Layout"
+    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     Background="#F5F7FA"
     mc:Ignorable="d">
 
@@ -32,44 +34,25 @@
                 </Grid.RowDefinitions>
 
                 <!--  Header  -->
-                <Grid Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel Orientation="Vertical" Spacing="16">
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Shopping Cart"
-                                      FontSize="28"
-                                      FontWeight="Bold"
-                                      Foreground="#1B1D1F" />
-                            <!--<TextBlock
-                                FontSize="14"
-                                Foreground="#6B7280"
-                                Text="{x:Bind ViewModel.ItemCount, Mode=OneWay}" />-->
+                <layout:PageHeader
+                    Title="Shopping Cart"
+                    Subtitle="Review and manage your items">
+                    <layout:PageHeader.ActionContent>
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <buttons:IconButton
+                                Variant="Outline"
+                                IconGlyph="&#xE72B;"
+                                Text="Continue Shopping"
+                                Command="{x:Bind ViewModel.ContinueShoppingCommand}" />
+                            <buttons:IconButton
+                                Variant="Outline"
+                                IconGlyph="&#xE74D;"
+                                Text="Clear Cart"
+                                IconColor="#DC2626"
+                                Command="{x:Bind ViewModel.ClearCartCommand}" />
                         </StackPanel>
-                        <Button Style="{StaticResource SecondaryButtonStyle}"
-                               Command="{x:Bind ViewModel.ContinueShoppingCommand}"
-                               MinWidth="160">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon FontSize="16" Glyph="&#xE72B;" />
-                                <TextBlock Text="Continue Shopping" />
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
-
-                    <Button Grid.Column="1"
-                           Height="44"
-                           VerticalAlignment="Bottom"
-                           Background="#FEE2E2"
-                           BorderThickness="0"
-                           Command="{x:Bind ViewModel.ClearCartCommand}"
-                           Content="Clear Cart"
-                           CornerRadius="12"
-                           Foreground="#DC2626"
-                           MinWidth="120" />
-                </Grid>
+                    </layout:PageHeader.ActionContent>
+                </layout:PageHeader>
 
                 <!-- Main Content -->
                 <Grid Grid.Row="1">
