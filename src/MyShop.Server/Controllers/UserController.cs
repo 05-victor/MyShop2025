@@ -98,7 +98,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(ApiResponse<PagedResult<UserInfoResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ApiResponse<PagedResult<UserInfoResponse>>>> GetAllAsync([FromQuery] PaginationRequest request)
