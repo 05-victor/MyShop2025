@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="MyShop.Client.Views.Components.Tables.TableHeader"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    x:Name="RootControl">
+
+    <!--
+    TableHeader Component
+    =====================
+    A reusable table header row with consistent styling.
+    
+    Usage (via Columns property with string format "Width|Header"):
+    <tables:TableHeader>
+        <tables:TableHeader.Columns>
+            <x:String>3*|USER</x:String>
+            <x:String>*|ROLE</x:String>
+            <x:String>100|STATUS</x:String>
+            <x:String>120|ACTIONS|Right</x:String>
+        </tables:TableHeader.Columns>
+    </tables:TableHeader>
+    -->
+
+    <Border Padding="16,12"
+            Background="#F9FAFB"
+            CornerRadius="8,8,0,0"
+            BorderBrush="#E5E7EB"
+            BorderThickness="0,0,0,1">
+        
+        <!-- Dynamic Header Grid -->
+        <Grid x:Name="HeaderGrid" />
+    </Border>
+</UserControl>

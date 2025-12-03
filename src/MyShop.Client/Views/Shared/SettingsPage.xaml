@@ -6,15 +6,16 @@
     xmlns:local="using:MyShop.Client.Views.Settings"
     xmlns:vm="using:MyShop.Client.ViewModels.Settings"
     xmlns:converters="using:MyShop.Client.Common.Converters"
+    xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
 
     <Page.Resources>
         <!-- Converters for visibility -->
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
-        <converters:StringToImageSourceConverter x:Key="StringToImageSource" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <converters:StringToImageSourceConverter x:Key="StringToImageSource"/>
     </Page.Resources>
 
     <Grid>
@@ -27,20 +28,18 @@
                 Width="60"
                 Height="60"
                 IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
-                Foreground="{ThemeResource AccentFillColorDefaultBrush}" />
+                Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
         </Border>
 
         <!--  Main Content  -->
         <ScrollViewer>
-            <StackPanel MaxWidth="900" Padding="40" Spacing="24">
+            <StackPanel MaxWidth="900"
+                    Padding="40"
+                    Spacing="24">
                 <!--  Header  -->
-                <StackPanel Spacing="8">
-                    <TextBlock Style="{StaticResource DisplayHeadingStyle}" Text="Settings" />
-                    <TextBlock
-                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                        Text="Customize your app preferences and manage your account"
-                        TextWrapping="Wrap" />
-                </StackPanel>
+                <layout:PageHeader
+                    Title="Settings"
+                    Subtitle="Customize your app preferences and manage your account"/>
 
                 <!--  Error Message  -->
                 <InfoBar
@@ -48,17 +47,646 @@
                     Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
                     Severity="Error"
                     Title="Error"
-                    IsClosable="True" />
+                    IsClosable="True"/>
 
                 <!--  Tabs  -->
-                <TabView IsAddTabButtonVisible="False">
-                    <!--  Trial Tab (Admin Only)  -->
-                    <TabViewItem Header="Trial" IsClosable="False">
+                <TabView IsAddTabButtonVisible="False"
+                        SelectedIndex="0">
+                    <!--  General Tab  -->
+                    <TabViewItem Header="General"
+                            IsClosable="False">
                         <TabViewItem.IconSource>
-                            <FontIconSource Glyph="&#xE8D7;" />
+                            <FontIconSource Glyph="&#xE713;"/>
                         </TabViewItem.IconSource>
                         <ScrollViewer>
-                            <StackPanel Padding="0,24" Spacing="24">
+                            <StackPanel Padding="0,24"
+                                    Spacing="24">
+                                <Border
+                                    Padding="24"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
+                                    <StackPanel Spacing="16">
+                                        <TextBlock FontSize="16"
+                                                FontWeight="SemiBold"
+                                                Text="Shop Information"/>
+
+                                        <StackPanel Spacing="8">
+                                            <TextBlock Style="{StaticResource InputLabelStyle}"
+                                                    Text="Shop Name"/>
+                                            <TextBox Style="{StaticResource BaseInputStyle}"
+                                                    PlaceholderText="MyShop 2025"
+                                                    Text="{x:Bind ViewModel.ShopName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="8">
+                                            <TextBlock Style="{StaticResource InputLabelStyle}"
+                                                    Text="Address"/>
+                                            <TextBox
+                                                Style="{StaticResource BaseInputStyle}"
+                                                AcceptsReturn="True"
+                                                Height="80"
+                                                PlaceholderText="Enter shop address"
+                                                Text="{x:Bind ViewModel.Address, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                TextWrapping="Wrap"/>
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="8">
+                                            <TextBlock Style="{StaticResource InputLabelStyle}"
+                                                    Text="Timezone"/>
+                                            <ComboBox SelectedIndex="{x:Bind ViewModel.SelectedTimezoneIndex, Mode=TwoWay}"
+                                                    HorizontalAlignment="Stretch">
+                                                <ComboBoxItem Content="(UTC-5) Eastern Time"/>
+                                                <ComboBoxItem Content="(UTC-6) Central Time"/>
+                                                <ComboBoxItem Content="(UTC-7) Mountain Time"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <Button HorizontalAlignment="Left"
+                                        Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                        Command="{x:Bind ViewModel.SaveCommand}"
+                                        Foreground="White">
+                                    <StackPanel Orientation="Horizontal"
+                                            Spacing="8">
+                                        <FontIcon FontSize="14"
+                                                Glyph="&#xE74E;"/>
+                                        <TextBlock Text="Save Changes"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabViewItem>
+
+                    <!--  Preferences Tab  -->
+                    <TabViewItem Header="Preferences"
+                            IsClosable="False">
+                        <TabViewItem.IconSource>
+                            <FontIconSource Glyph="&#xE8B8;"/>
+                        </TabViewItem.IconSource>
+                        <ScrollViewer>
+                            <StackPanel Padding="0,24"
+                                    Spacing="24">
+                                <Border
+                                    Padding="24"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
+                                    <StackPanel Spacing="16">
+                                        <TextBlock FontSize="16"
+                                                FontWeight="SemiBold"
+                                                Text="Data Display"/>
+
+                                        <StackPanel Spacing="8">
+                                            <TextBlock Style="{StaticResource InputLabelStyle}"
+                                                    Text="Products per page"/>
+                                            <ComboBox SelectedItem="{x:Bind ViewModel.ProductsPageSize, Mode=TwoWay}"
+                                                    ItemsSource="{x:Bind ViewModel.PageSizeOptions}"
+                                                    HorizontalAlignment="Stretch"/>
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="8">
+                                            <TextBlock Style="{StaticResource InputLabelStyle}"
+                                                    Text="Orders per page"/>
+                                            <ComboBox SelectedItem="{x:Bind ViewModel.OrdersPageSize, Mode=TwoWay}"
+                                                    ItemsSource="{x:Bind ViewModel.PageSizeOptions}"
+                                                    HorizontalAlignment="Stretch"/>
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="8">
+                                            <TextBlock Style="{StaticResource InputLabelStyle}"
+                                                    Text="Customers per page"/>
+                                            <ComboBox SelectedItem="{x:Bind ViewModel.CustomersPageSize, Mode=TwoWay}"
+                                                    ItemsSource="{x:Bind ViewModel.PageSizeOptions}"
+                                                    HorizontalAlignment="Stretch"/>
+                                        </StackPanel>
+
+                                        <Border Padding="0,12"
+                                                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                                BorderThickness="0,1,0,0"
+                                                Margin="0,8,0,0">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="Remember Last Page"
+                                                            FontWeight="SemiBold"/>
+                                                    <TextBlock FontSize="12"
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                            Text="Open the last page you were viewing"
+                                                            TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                                <ToggleSwitch Grid.Column="1"
+                                                        IsOn="{x:Bind ViewModel.RestoreLastPage, Mode=TwoWay}"
+                                                        OffContent=""
+                                                        OnContent=""/>
+                                            </Grid>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+
+                                <Button HorizontalAlignment="Left"
+                                        Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                        Command="{x:Bind ViewModel.SaveCommand}"
+                                        Foreground="White">
+                                    <StackPanel Orientation="Horizontal"
+                                            Spacing="8">
+                                        <FontIcon FontSize="14"
+                                                Glyph="&#xE74E;"/>
+                                        <TextBlock Text="Save Changes"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabViewItem>
+
+                    <!--  Appearance Tab  -->
+                    <TabViewItem Header="Appearance"
+                            IsClosable="False">
+                        <TabViewItem.IconSource>
+                            <FontIconSource Glyph="&#xE771;"/>
+                        </TabViewItem.IconSource>
+                        <ScrollViewer>
+                            <StackPanel Padding="0,24"
+                                    Spacing="24">
+                                <Border
+                                    Padding="24"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
+                                    <StackPanel Spacing="16">
+                                        <TextBlock FontSize="16"
+                                                FontWeight="SemiBold"
+                                                Text="Appearance Settings"/>
+                                        <TextBlock
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Text="Theme and language settings will be available in a future update."
+                                            TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabViewItem>
+
+                    <!--  Notifications Tab  -->
+                    <TabViewItem Header="Notifications"
+                            IsClosable="False">
+                        <TabViewItem.IconSource>
+                            <FontIconSource Glyph="&#xEA8F;"/>
+                        </TabViewItem.IconSource>
+                        <ScrollViewer>
+                            <StackPanel Padding="0,24"
+                                    Spacing="24">
+                                <Border
+                                    Padding="24"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
+                                    <StackPanel Spacing="12">
+                                        <TextBlock FontSize="16"
+                                                FontWeight="SemiBold"
+                                                Text="Notification Settings"/>
+
+                                        <Border Padding="0,12"
+                                                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                                BorderThickness="0,0,0,1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="Email Alerts"
+                                                            FontWeight="SemiBold"/>
+                                                    <TextBlock FontSize="12"
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                            Text="Receive email notifications for important events"
+                                                            TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                                <ToggleSwitch Grid.Column="1"
+                                                        IsOn="{x:Bind ViewModel.NotificationsEnabled, Mode=TwoWay}"
+                                                        OffContent=""
+                                                        OnContent=""/>
+                                            </Grid>
+                                        </Border>
+
+                                        <Border Padding="0,12"
+                                                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                                BorderThickness="0,0,0,1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="Sound Notifications"
+                                                            FontWeight="SemiBold"/>
+                                                    <TextBlock FontSize="12"
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                            Text="Play sounds with notifications"
+                                                            TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                                <ToggleSwitch Grid.Column="1"
+                                                        IsOn="{x:Bind ViewModel.EnableSoundNotifications, Mode=TwoWay}"
+                                                        OffContent=""
+                                                        OnContent=""/>
+                                            </Grid>
+                                        </Border>
+
+                                        <Border Padding="0,12"
+                                                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                                BorderThickness="0,0,0,1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="Order Notifications"
+                                                            FontWeight="SemiBold"/>
+                                                    <TextBlock FontSize="12"
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                            Text="Get notified when new orders are placed"
+                                                            TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                                <ToggleSwitch Grid.Column="1"
+                                                        IsOn="{x:Bind ViewModel.NotifyOnNewOrders, Mode=TwoWay}"
+                                                        OffContent=""
+                                                        OnContent=""/>
+                                            </Grid>
+                                        </Border>
+
+                                        <Border Padding="0,12">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="Low Stock Alerts"
+                                                            FontWeight="SemiBold"/>
+                                                    <TextBlock FontSize="12"
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                            Text="Receive alerts when product stock is low"
+                                                            TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                                <ToggleSwitch Grid.Column="1"
+                                                        IsOn="{x:Bind ViewModel.NotifyOnLowStock, Mode=TwoWay}"
+                                                        OffContent=""
+                                                        OnContent=""/>
+                                            </Grid>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+
+                                <Button HorizontalAlignment="Left"
+                                        Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                        Command="{x:Bind ViewModel.SaveCommand}"
+                                        Foreground="White">
+                                    <StackPanel Orientation="Horizontal"
+                                            Spacing="8">
+                                        <FontIcon FontSize="14"
+                                                Glyph="&#xE74E;"/>
+                                        <TextBlock Text="Save Changes"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabViewItem>
+
+                    <!--  About Tab  -->
+                    <TabViewItem Header="About"
+                            IsClosable="False">
+                        <TabViewItem.IconSource>
+                            <FontIconSource Glyph="&#xE946;"/>
+                        </TabViewItem.IconSource>
+                        <ScrollViewer>
+                            <StackPanel Padding="0,24"
+                                    Spacing="24">
+                                <Border
+                                    Padding="24"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
+                                    <StackPanel Spacing="24">
+                                        <StackPanel Orientation="Horizontal"
+                                                Spacing="16">
+                                            <Border Width="64"
+                                                    Height="64"
+                                                    Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                                    CornerRadius="8">
+                                                <TextBlock HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center"
+                                                        FontSize="24"
+                                                        FontWeight="Bold"
+                                                        Foreground="White"
+                                                        Text="MS"/>
+                                            </Border>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock FontSize="18"
+                                                        FontWeight="SemiBold"
+                                                        Text="MyShop 2025"/>
+                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                        Text="Admin Management Dashboard"/>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="8">
+                                            <Grid Padding="0,8"
+                                                    BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                                    BorderThickness="0,0,0,1">
+                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                        Text="Version"/>
+                                                <TextBlock HorizontalAlignment="Right"
+                                                        FontWeight="SemiBold"
+                                                        Text="{x:Bind ViewModel.AppVersion}"/>
+                                            </Grid>
+                                            <Grid Padding="0,8"
+                                                    BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                                    BorderThickness="0,0,0,1">
+                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                        Text="Release Date"/>
+                                                <TextBlock HorizontalAlignment="Right"
+                                                        FontWeight="SemiBold"
+                                                        Text="November 2025"/>
+                                            </Grid>
+                                            <Grid Padding="0,8"
+                                                    BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                                    BorderThickness="0,0,0,1">
+                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                        Text="License"/>
+                                                <TextBlock HorizontalAlignment="Right"
+                                                        FontWeight="SemiBold"
+                                                        Text="Commercial"/>
+                                            </Grid>
+                                            <Grid Padding="0,8">
+                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                        Text="Support"/>
+                                                <TextBlock HorizontalAlignment="Right"
+                                                        FontWeight="SemiBold"
+                                                        Text="support@myshop.com"/>
+                                            </Grid>
+                                        </StackPanel>
+
+                                        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                Text="{x:Bind ViewModel.ReleaseYear}"
+                                                TextAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!--  Maintenance  -->
+                                <Border
+                                    Padding="24"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
+                                    <StackPanel Spacing="16">
+                                        <TextBlock FontSize="16"
+                                                FontWeight="SemiBold"
+                                                Text="Maintenance"/>
+
+                                        <StackPanel Orientation="Horizontal"
+                                                Spacing="12">
+                                            <Button Command="{x:Bind ViewModel.CalculateCacheSizeCommand}">
+                                                <StackPanel Orientation="Horizontal"
+                                                        Spacing="8">
+                                                    <FontIcon FontSize="14"
+                                                            Glyph="&#xE9D9;"/>
+                                                    <TextBlock Text="Calculate Cache"/>
+                                                </StackPanel>
+                                            </Button>
+                                            <TextBlock VerticalAlignment="Center"
+                                                    Foreground="{ThemeResource AccentFillColorDefaultBrush}"
+                                                    Text="{x:Bind ViewModel.CacheSize, Mode=OneWay}"/>
+                                        </StackPanel>
+
+                                        <Button Command="{x:Bind ViewModel.ClearCacheCommand}">
+                                            <StackPanel Orientation="Horizontal"
+                                                    Spacing="8">
+                                                <FontIcon FontSize="14"
+                                                        Glyph="&#xE74D;"/>
+                                                <TextBlock Text="Clear Cache"/>
+                                            </StackPanel>
+                                        </Button>
+
+                                        <Border Height="1"
+                                                Background="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                                Margin="0,8"/>
+
+                                        <StackPanel Orientation="Horizontal"
+                                                Spacing="12">
+                                            <Button Command="{x:Bind ViewModel.ExportSettingsCommand}">
+                                                <StackPanel Orientation="Horizontal"
+                                                        Spacing="8">
+                                                    <FontIcon FontSize="14"
+                                                            Glyph="&#xEDE1;"/>
+                                                    <TextBlock Text="Export Settings"/>
+                                                </StackPanel>
+                                            </Button>
+                                            <Button Command="{x:Bind ViewModel.ImportSettingsCommand}">
+                                                <StackPanel Orientation="Horizontal"
+                                                        Spacing="8">
+                                                    <FontIcon FontSize="14"
+                                                            Glyph="&#xE8B5;"/>
+                                                    <TextBlock Text="Import Settings"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabViewItem>
+
+                    <!--  Developer Tab  -->
+                    <TabViewItem Header="Developer"
+                            IsClosable="False">
+                        <TabViewItem.IconSource>
+                            <FontIconSource Glyph="&#xE943;"/>
+                        </TabViewItem.IconSource>
+                        <ScrollViewer>
+                            <StackPanel Padding="0,24"
+                                    Spacing="24">
+                                <!--  Data Source Card  -->
+                                <Border
+                                    Padding="24"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
+                                    <StackPanel Spacing="16">
+                                        <TextBlock FontSize="16"
+                                                FontWeight="SemiBold"
+                                                Text="Data Source"/>
+
+                                        <Border Padding="0,12"
+                                                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                                BorderThickness="0,0,0,1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="Use Mock Data"
+                                                            FontWeight="SemiBold"/>
+                                                    <TextBlock FontSize="12"
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                            Text="Use local mock data instead of real API"
+                                                            TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                                <ToggleSwitch x:Name="MockDataToggle"
+                                                        Grid.Column="1"
+                                                              IsOn="{x:Bind ViewModel.UseMockData, Mode=TwoWay}"
+                                                              OffContent=""
+                                                        OnContent=""
+                                                              Toggled="MockDataToggle_Toggled"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <InfoBar x:Name="MockModeWarning"
+                                                 IsOpen="{x:Bind ViewModel.UseMockData, Mode=OneWay}"
+                                                 Severity="Warning"
+                                                 Title="Mock Mode Active"
+                                                 Message="Data changes will not be persisted. Restart the app to apply changes."
+                                                 IsClosable="False"/>
+
+                                        <StackPanel Spacing="8">
+                                            <TextBlock Style="{StaticResource InputLabelStyle}"
+                                                    Text="API Server URL"/>
+                                            <TextBox x:Name="ServerUrlTextBox"
+                                                     Style="{StaticResource BaseInputStyle}"
+                                                     PlaceholderText="https://api.myshop.com"
+                                                     Text="{x:Bind ViewModel.ServerUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                        </StackPanel>
+
+                                        <Button Click="ConfigureServer_Click">
+                                            <StackPanel Orientation="Horizontal"
+                                                    Spacing="8">
+                                                <FontIcon FontSize="14"
+                                                        Glyph="&#xE713;"/>
+                                                <TextBlock Text="Advanced Server Configuration"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </Border>
+
+                                <!--  Debug Info Card  -->
+                                <Border
+                                    Padding="24"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
+                                    <StackPanel Spacing="16">
+                                        <TextBlock FontSize="16"
+                                                FontWeight="SemiBold"
+                                                Text="Debug Information"/>
+
+                                        <StackPanel Spacing="8">
+                                            <Grid Padding="0,8"
+                                                    BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                                    BorderThickness="0,0,0,1">
+                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                        Text="Data Mode"/>
+                                                <TextBlock HorizontalAlignment="Right"
+                                                        FontWeight="SemiBold"
+                                                           Text="{x:Bind ViewModel.DataModeDisplay, Mode=OneWay}"/>
+                                            </Grid>
+                                            <Grid Padding="0,8"
+                                                    BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                                    BorderThickness="0,0,0,1">
+                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                        Text="Current User"/>
+                                                <TextBlock HorizontalAlignment="Right"
+                                                        FontWeight="SemiBold"
+                                                           Text="{x:Bind ViewModel.CurrentUserEmail, Mode=OneWay}"/>
+                                            </Grid>
+                                            <Grid Padding="0,8"
+                                                    BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                                    BorderThickness="0,0,0,1">
+                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                        Text="User Role"/>
+                                                <TextBlock HorizontalAlignment="Right"
+                                                        FontWeight="SemiBold"
+                                                           Text="{x:Bind ViewModel.CurrentUserRole, Mode=OneWay}"/>
+                                            </Grid>
+                                            <Grid Padding="0,8">
+                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                        Text="Build Configuration"/>
+                                                <TextBlock HorizontalAlignment="Right"
+                                                        FontWeight="SemiBold"
+                                                           Text="{x:Bind ViewModel.BuildConfiguration}"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!--  Developer Actions  -->
+                                <Border
+                                    Padding="24"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
+                                    <StackPanel Spacing="16">
+                                        <TextBlock FontSize="16"
+                                                FontWeight="SemiBold"
+                                                Text="Developer Actions"/>
+
+                                        <StackPanel Orientation="Horizontal"
+                                                Spacing="12">
+                                            <Button Click="OpenLogsFolder_Click">
+                                                <StackPanel Orientation="Horizontal"
+                                                        Spacing="8">
+                                                    <FontIcon FontSize="14"
+                                                            Glyph="&#xE8A5;"/>
+                                                    <TextBlock Text="Open Logs Folder"/>
+                                                </StackPanel>
+                                            </Button>
+                                            <Button Click="OpenExportsFolder_Click">
+                                                <StackPanel Orientation="Horizontal"
+                                                        Spacing="8">
+                                                    <FontIcon FontSize="14"
+                                                            Glyph="&#xE8B7;"/>
+                                                    <TextBlock Text="Open Exports Folder"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+
+                                        <Button Click="CopyDebugInfo_Click">
+                                            <StackPanel Orientation="Horizontal"
+                                                    Spacing="8">
+                                                <FontIcon FontSize="14"
+                                                        Glyph="&#xE8C8;"/>
+                                                <TextBlock Text="Copy Debug Info to Clipboard"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabViewItem>
+
+                    <!--  Trial Tab (Admin with Trial License Only) - Placed last to avoid being selected by default  -->
+                    <TabViewItem Header="Trial"
+                            IsClosable="False"
+                                 Visibility="{x:Bind ViewModel.ShowTrialTab, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TabViewItem.IconSource>
+                            <FontIconSource Glyph="&#xE8D7;"/>
+                        </TabViewItem.IconSource>
+                        <ScrollViewer>
+                            <StackPanel Padding="0,24"
+                                    Spacing="24">
                                 <!--  Trial Status Card  -->
                                 <Border
                                     Padding="24"
@@ -70,17 +698,22 @@
                                         <!--  Status Header  -->
                                         <Grid>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
                                             <FontIcon
                                                 Grid.Column="0"
                                                 FontSize="32"
                                                 Foreground="#F59E0B"
-                                                Glyph="&#xE7BA;" />
-                                            <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center">
-                                                <TextBlock FontSize="18" FontWeight="Bold" Text="Trial Mode Active" />
-                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Experience full features during your trial period" />
+                                                Glyph="&#xE7BA;"/>
+                                            <StackPanel Grid.Column="1"
+                                                    Margin="16,0,0,0"
+                                                    VerticalAlignment="Center">
+                                                <TextBlock FontSize="18"
+                                                        FontWeight="Bold"
+                                                        Text="Trial Mode Active"/>
+                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                        Text="Experience full features during your trial period"/>
                                             </StackPanel>
                                         </Grid>
 
@@ -91,22 +724,26 @@
                                             CornerRadius="8">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <StackPanel Spacing="4">
-                                                    <TextBlock FontWeight="SemiBold" Text="Trial Period Remaining" />
-                                                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Your trial will expire soon" />
+                                                    <TextBlock FontWeight="SemiBold"
+                                                            Text="Trial Period Remaining"/>
+                                                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                            Text="Your trial will expire soon"/>
                                                 </StackPanel>
-                                                <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                                <StackPanel Grid.Column="1"
+                                                        HorizontalAlignment="Right"
+                                                        VerticalAlignment="Center">
                                                     <TextBlock
                                                         FontSize="32"
                                                         FontWeight="Bold"
                                                         Foreground="#F59E0B"
-                                                        Text="15" />
+                                                        Text="{x:Bind ViewModel.TrialDaysRemaining, Mode=OneWay}"/>
                                                     <TextBlock
                                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                        Text="days left" />
+                                                        Text="days left"/>
                                                 </StackPanel>
                                             </Grid>
                                         </Border>
@@ -116,29 +753,37 @@
                                             <Button
                                                 HorizontalAlignment="Stretch"
                                                 Background="#2563EB"
-                                                Foreground="White">
-                                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                                    <FontIcon FontSize="14" Glyph="&#xE734;" />
-                                                    <TextBlock Text="Upgrade to Pro - $49/month" />
+                                                Foreground="White"
+                                                Command="{x:Bind ViewModel.OpenUpgradeProCommand}"
+                                                ToolTipService.ToolTip="Open upgrade page in browser">
+                                                <StackPanel Orientation="Horizontal"
+                                                        Spacing="8">
+                                                    <FontIcon FontSize="14"
+                                                            Glyph="&#xE734;"/>
+                                                    <TextBlock Text="Upgrade to Pro - $49/month"/>
                                                 </StackPanel>
                                             </Button>
 
                                             <StackPanel Spacing="8">
-                                                <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                                    <Run Text="✓" />
-                                                    <Run Text="Unlimited products and orders" />
+                                                <TextBlock FontSize="12"
+                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                    <Run Text="✓"/>
+                                                    <Run Text="Unlimited products and orders"/>
                                                 </TextBlock>
-                                                <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                                    <Run Text="✓" />
-                                                    <Run Text="Advanced analytics and reporting" />
+                                                <TextBlock FontSize="12"
+                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                    <Run Text="✓"/>
+                                                    <Run Text="Advanced analytics and reporting"/>
                                                 </TextBlock>
-                                                <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                                    <Run Text="✓" />
-                                                    <Run Text="Priority customer support" />
+                                                <TextBlock FontSize="12"
+                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                    <Run Text="✓"/>
+                                                    <Run Text="Priority customer support"/>
                                                 </TextBlock>
-                                                <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                                    <Run Text="✓" />
-                                                    <Run Text="Custom branding options" />
+                                                <TextBlock FontSize="12"
+                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                    <Run Text="✓"/>
+                                                    <Run Text="Custom branding options"/>
                                                 </TextBlock>
                                             </StackPanel>
                                         </StackPanel>
@@ -153,23 +798,32 @@
                                     BorderThickness="1"
                                     CornerRadius="8">
                                     <StackPanel Spacing="16">
-                                        <TextBlock FontSize="16" FontWeight="SemiBold" Text="Extend Your Trial" />
+                                        <TextBlock FontSize="16"
+                                                FontWeight="SemiBold"
+                                                Text="Activate License"/>
                                         <TextBlock
                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                            Text="Have a license code? Enter it below to add more trial days."
-                                            TextWrapping="Wrap" />
+                                            Text="Have a license code? Enter it below to extend trial or activate permanent license."
+                                            TextWrapping="Wrap"/>
 
                                         <StackPanel Spacing="12">
                                             <TextBox
                                                 x:Name="TrialCodeTextBox"
                                                 MaxLength="24"
-                                                PlaceholderText="MYSHOP-15DAY-XXXX-XXXX"
-                                                Style="{StaticResource BaseInputStyle}" />
+                                                PlaceholderText="MYSHOP-XXXX-XXXX-XXXX"
+                                                Text="{x:Bind ViewModel.TrialCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                Style="{StaticResource BaseInputStyle}"/>
 
-                                            <Button HorizontalAlignment="Left" Background="{ThemeResource AccentFillColorDefaultBrush}" Foreground="White">
-                                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                                    <FontIcon FontSize="14" Glyph="&#xE73E;" />
-                                                    <TextBlock Text="Activate Trial Code" />
+                                            <Button HorizontalAlignment="Left"
+                                                    Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                                    Foreground="White"
+                                                    Command="{x:Bind ViewModel.ActivateTrialCodeCommand}"
+                                                    ToolTipService.ToolTip="Enter a valid code to activate your license">
+                                                <StackPanel Orientation="Horizontal"
+                                                        Spacing="8">
+                                                    <FontIcon FontSize="14"
+                                                            Glyph="&#xE73E;"/>
+                                                    <TextBlock Text="Activate Code"/>
                                                 </StackPanel>
                                             </Button>
                                         </StackPanel>
@@ -177,8 +831,8 @@
                                         <InfoBar
                                             IsClosable="False"
                                             IsOpen="True"
-                                            Message="Trial codes are provided by your administrator or can be obtained from our support team."
-                                            Severity="Informational" />
+                                            Message="License codes are provided by your administrator. Trial codes extend your trial period, permanent codes grant unlimited access."
+                                            Severity="Informational"/>
                                     </StackPanel>
                                 </Border>
 
@@ -190,61 +844,81 @@
                                     BorderThickness="1"
                                     CornerRadius="8">
                                     <StackPanel Spacing="12">
-                                        <TextBlock FontSize="16" FontWeight="SemiBold" Text="What You Get with Pro" />
+                                        <TextBlock FontSize="16"
+                                                FontWeight="SemiBold"
+                                                Text="What You Get with Pro"/>
 
-                                        <Border Padding="0,12" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                                        <Border Padding="0,12"
+                                                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                                BorderThickness="0,0,0,1">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto" />
-                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
                                                 <FontIcon
                                                     Grid.Column="0"
                                                     Margin="0,0,12,0"
                                                     FontSize="20"
                                                     Foreground="#10B981"
-                                                    Glyph="&#xE73E;" />
+                                                    Glyph="&#xE73E;"/>
                                                 <StackPanel Grid.Column="1">
-                                                    <TextBlock FontWeight="SemiBold" Text="Unlimited Everything" />
-                                                    <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="No limits on products, orders, or customers" TextWrapping="Wrap" />
+                                                    <TextBlock FontWeight="SemiBold"
+                                                            Text="Unlimited Everything"/>
+                                                    <TextBlock FontSize="12"
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                            Text="No limits on products, orders, or customers"
+                                                            TextWrapping="Wrap"/>
                                                 </StackPanel>
                                             </Grid>
                                         </Border>
 
-                                        <Border Padding="0,12" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                                        <Border Padding="0,12"
+                                                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                                BorderThickness="0,0,0,1">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto" />
-                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
                                                 <FontIcon
                                                     Grid.Column="0"
                                                     Margin="0,0,12,0"
                                                     FontSize="20"
                                                     Foreground="#10B981"
-                                                    Glyph="&#xE73E;" />
+                                                    Glyph="&#xE73E;"/>
                                                 <StackPanel Grid.Column="1">
-                                                    <TextBlock FontWeight="SemiBold" Text="Advanced Analytics" />
-                                                    <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Detailed reports and insights" TextWrapping="Wrap" />
+                                                    <TextBlock FontWeight="SemiBold"
+                                                            Text="Advanced Analytics"/>
+                                                    <TextBlock FontSize="12"
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                            Text="Detailed reports and insights"
+                                                            TextWrapping="Wrap"/>
                                                 </StackPanel>
                                             </Grid>
                                         </Border>
 
-                                        <Border Padding="0,12" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                                        <Border Padding="0,12"
+                                                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                                BorderThickness="0,0,0,1">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto" />
-                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
                                                 <FontIcon
                                                     Grid.Column="0"
                                                     Margin="0,0,12,0"
                                                     FontSize="20"
                                                     Foreground="#10B981"
-                                                    Glyph="&#xE73E;" />
+                                                    Glyph="&#xE73E;"/>
                                                 <StackPanel Grid.Column="1">
-                                                    <TextBlock FontWeight="SemiBold" Text="Priority Support" />
-                                                    <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="24/7 dedicated support team" TextWrapping="Wrap" />
+                                                    <TextBlock FontWeight="SemiBold"
+                                                            Text="Priority Support"/>
+                                                    <TextBlock FontSize="12"
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                            Text="24/7 dedicated support team"
+                                                            TextWrapping="Wrap"/>
                                                 </StackPanel>
                                             </Grid>
                                         </Border>
@@ -252,336 +926,25 @@
                                         <Border Padding="0,12">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto" />
-                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
                                                 <FontIcon
                                                     Grid.Column="0"
                                                     Margin="0,0,12,0"
                                                     FontSize="20"
                                                     Foreground="#10B981"
-                                                    Glyph="&#xE73E;" />
+                                                    Glyph="&#xE73E;"/>
                                                 <StackPanel Grid.Column="1">
-                                                    <TextBlock FontWeight="SemiBold" Text="Custom Branding" />
-                                                    <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Add your logo and brand colors" TextWrapping="Wrap" />
+                                                    <TextBlock FontWeight="SemiBold"
+                                                            Text="Custom Branding"/>
+                                                    <TextBlock FontSize="12"
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                            Text="Add your logo and brand colors"
+                                                            TextWrapping="Wrap"/>
                                                 </StackPanel>
                                             </Grid>
                                         </Border>
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
-                        </ScrollViewer>
-                    </TabViewItem>
-
-                    <!--  General Tab  -->
-                    <TabViewItem Header="General" IsClosable="False">
-                        <TabViewItem.IconSource>
-                            <FontIconSource Glyph="&#xE713;" />
-                        </TabViewItem.IconSource>
-                        <ScrollViewer>
-                            <StackPanel Padding="0,24" Spacing="24">
-                                <Border
-                                    Padding="24"
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="8">
-                                    <StackPanel Spacing="16">
-                                        <TextBlock FontSize="16" FontWeight="SemiBold" Text="Shop Information" />
-
-                                        <StackPanel Spacing="8">
-                                            <TextBlock Style="{StaticResource InputLabelStyle}" Text="Shop Name" />
-                                            <TextBox Style="{StaticResource BaseInputStyle}" PlaceholderText="MyShop 2025" Text="{x:Bind ViewModel.ShopName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                        </StackPanel>
-
-                                        <StackPanel Spacing="8">
-                                            <TextBlock Style="{StaticResource InputLabelStyle}" Text="Address" />
-                                            <TextBox
-                                                Style="{StaticResource BaseInputStyle}"
-                                                AcceptsReturn="True"
-                                                Height="80"
-                                                PlaceholderText="Enter shop address"
-                                                Text="{x:Bind ViewModel.Address, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                TextWrapping="Wrap" />
-                                        </StackPanel>
-
-                                        <StackPanel Spacing="8">
-                                            <TextBlock Style="{StaticResource InputLabelStyle}" Text="Timezone" />
-                                            <ComboBox SelectedIndex="{x:Bind ViewModel.SelectedTimezoneIndex, Mode=TwoWay}" HorizontalAlignment="Stretch">
-                                                <ComboBoxItem Content="(UTC-5) Eastern Time" />
-                                                <ComboBoxItem Content="(UTC-6) Central Time" />
-                                                <ComboBoxItem Content="(UTC-7) Mountain Time" />
-                                            </ComboBox>
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Border>
-
-                                <Button HorizontalAlignment="Left" Background="{ThemeResource AccentFillColorDefaultBrush}" Command="{x:Bind ViewModel.SaveCommand}" Foreground="White">
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <FontIcon FontSize="14" Glyph="&#xE74E;" />
-                                        <TextBlock Text="Save Changes" />
-                                    </StackPanel>
-                                </Button>
-                            </StackPanel>
-                        </ScrollViewer>
-                    </TabViewItem>
-
-                    <!--  Preferences Tab  -->
-                    <TabViewItem Header="Preferences" IsClosable="False">
-                        <TabViewItem.IconSource>
-                            <FontIconSource Glyph="&#xE8B8;" />
-                        </TabViewItem.IconSource>
-                        <ScrollViewer>
-                            <StackPanel Padding="0,24" Spacing="24">
-                                <Border
-                                    Padding="24"
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="8">
-                                    <StackPanel Spacing="16">
-                                        <TextBlock FontSize="16" FontWeight="SemiBold" Text="Data Display" />
-
-                                        <StackPanel Spacing="8">
-                                            <TextBlock Style="{StaticResource InputLabelStyle}" Text="Products per page" />
-                                            <ComboBox SelectedItem="{x:Bind ViewModel.ProductsPageSize, Mode=TwoWay}" ItemsSource="{x:Bind ViewModel.PageSizeOptions}" HorizontalAlignment="Stretch" />
-                                        </StackPanel>
-
-                                        <StackPanel Spacing="8">
-                                            <TextBlock Style="{StaticResource InputLabelStyle}" Text="Orders per page" />
-                                            <ComboBox SelectedItem="{x:Bind ViewModel.OrdersPageSize, Mode=TwoWay}" ItemsSource="{x:Bind ViewModel.PageSizeOptions}" HorizontalAlignment="Stretch" />
-                                        </StackPanel>
-
-                                        <StackPanel Spacing="8">
-                                            <TextBlock Style="{StaticResource InputLabelStyle}" Text="Customers per page" />
-                                            <ComboBox SelectedItem="{x:Bind ViewModel.CustomersPageSize, Mode=TwoWay}" ItemsSource="{x:Bind ViewModel.PageSizeOptions}" HorizontalAlignment="Stretch" />
-                                        </StackPanel>
-
-                                        <Border Padding="0,12" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,1,0,0" Margin="0,8,0,0">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <StackPanel>
-                                                    <TextBlock Text="Remember Last Page" FontWeight="SemiBold" />
-                                                    <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Open the last page you were viewing" TextWrapping="Wrap" />
-                                                </StackPanel>
-                                                <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.RestoreLastPage, Mode=TwoWay}" OffContent="" OnContent="" />
-                                            </Grid>
-                                        </Border>
-                                    </StackPanel>
-                                </Border>
-
-                                <Button HorizontalAlignment="Left" Background="{ThemeResource AccentFillColorDefaultBrush}" Command="{x:Bind ViewModel.SaveCommand}" Foreground="White">
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <FontIcon FontSize="14" Glyph="&#xE74E;" />
-                                        <TextBlock Text="Save Changes" />
-                                    </StackPanel>
-                                </Button>
-                            </StackPanel>
-                        </ScrollViewer>
-                    </TabViewItem>
-
-                    <!--  Appearance Tab  -->
-                    <TabViewItem Header="Appearance" IsClosable="False">
-                        <TabViewItem.IconSource>
-                            <FontIconSource Glyph="&#xE771;" />
-                        </TabViewItem.IconSource>
-                        <ScrollViewer>
-                            <StackPanel Padding="0,24" Spacing="24">
-                                <Border
-                                    Padding="24"
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="8">
-                                    <StackPanel Spacing="16">
-                                        <TextBlock FontSize="16" FontWeight="SemiBold" Text="Appearance Settings" />
-                                        <TextBlock 
-                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
-                                            Text="Theme and language settings will be available in a future update."
-                                            TextWrapping="Wrap" />
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
-                        </ScrollViewer>
-                    </TabViewItem>
-
-                    <!--  Notifications Tab  -->
-                    <TabViewItem Header="Notifications" IsClosable="False">
-                        <TabViewItem.IconSource>
-                            <FontIconSource Glyph="&#xEA8F;" />
-                        </TabViewItem.IconSource>
-                        <ScrollViewer>
-                            <StackPanel Padding="0,24" Spacing="24">
-                                <Border
-                                    Padding="24"
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="8">
-                                    <StackPanel Spacing="12">
-                                        <TextBlock FontSize="16" FontWeight="SemiBold" Text="Notification Settings" />
-
-                                        <Border Padding="0,12" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <StackPanel>
-                                                    <TextBlock Text="Email Alerts" FontWeight="SemiBold" />
-                                                    <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Receive email notifications for important events" TextWrapping="Wrap" />
-                                                </StackPanel>
-                                                <ToggleSwitch Grid.Column="1" IsOn="True" OffContent="" OnContent="" />
-                                            </Grid>
-                                        </Border>
-
-                                        <Border Padding="0,12" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <StackPanel>
-                                                    <TextBlock Text="Sound Notifications" FontWeight="SemiBold" />
-                                                    <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Play sounds with notifications" TextWrapping="Wrap" />
-                                                </StackPanel>
-                                                <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.EnableSoundNotifications, Mode=TwoWay}" OffContent="" OnContent="" />
-                                            </Grid>
-                                        </Border>
-
-                                        <Border Padding="0,12" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <StackPanel>
-                                                    <TextBlock Text="Order Notifications" FontWeight="SemiBold" />
-                                                    <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Get notified when new orders are placed" TextWrapping="Wrap" />
-                                                </StackPanel>
-                                                <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.NotifyOnNewOrders, Mode=TwoWay}" OffContent="" OnContent="" />
-                                            </Grid>
-                                        </Border>
-
-                                        <Border Padding="0,12">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <StackPanel>
-                                                    <TextBlock Text="Low Stock Alerts" FontWeight="SemiBold" />
-                                                    <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Receive alerts when product stock is low" TextWrapping="Wrap" />
-                                                </StackPanel>
-                                                <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.NotifyOnLowStock, Mode=TwoWay}" OffContent="" OnContent="" />
-                                            </Grid>
-                                        </Border>
-                                    </StackPanel>
-                                </Border>
-
-                                <Button HorizontalAlignment="Left" Background="{ThemeResource AccentFillColorDefaultBrush}" Command="{x:Bind ViewModel.SaveCommand}" Foreground="White">
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <FontIcon FontSize="14" Glyph="&#xE74E;" />
-                                        <TextBlock Text="Save Changes" />
-                                    </StackPanel>
-                                </Button>
-                            </StackPanel>
-                        </ScrollViewer>
-                    </TabViewItem>
-
-                    <!--  About Tab  -->
-                    <TabViewItem Header="About" IsClosable="False">
-                        <TabViewItem.IconSource>
-                            <FontIconSource Glyph="&#xE946;" />
-                        </TabViewItem.IconSource>
-                        <ScrollViewer>
-                            <StackPanel Padding="0,24" Spacing="24">
-                                <Border
-                                    Padding="24"
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="8">
-                                    <StackPanel Spacing="24">
-                                        <StackPanel Orientation="Horizontal" Spacing="16">
-                                            <Border Width="64" Height="64" Background="{ThemeResource AccentFillColorDefaultBrush}" CornerRadius="8">
-                                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" FontWeight="Bold" Foreground="White" Text="MS" />
-                                            </Border>
-                                            <StackPanel VerticalAlignment="Center">
-                                                <TextBlock FontSize="18" FontWeight="SemiBold" Text="MyShop 2025" />
-                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Admin Management Dashboard" />
-                                            </StackPanel>
-                                        </StackPanel>
-
-                                        <StackPanel Spacing="8">
-                                            <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
-                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Version" />
-                                                <TextBlock HorizontalAlignment="Right" FontWeight="SemiBold" Text="2.0.0" />
-                                            </Grid>
-                                            <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
-                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Release Date" />
-                                                <TextBlock HorizontalAlignment="Right" FontWeight="SemiBold" Text="November 2025" />
-                                            </Grid>
-                                            <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
-                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="License" />
-                                                <TextBlock HorizontalAlignment="Right" FontWeight="SemiBold" Text="Commercial" />
-                                            </Grid>
-                                            <Grid Padding="0,8">
-                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Support" />
-                                                <TextBlock HorizontalAlignment="Right" FontWeight="SemiBold" Text="support@myshop.com" />
-                                            </Grid>
-                                        </StackPanel>
-
-                                        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="© 2025 MyShop. All rights reserved." TextAlignment="Center" />
-                                    </StackPanel>
-                                </Border>
-
-                                <!--  Maintenance  -->
-                                <Border
-                                    Padding="24"
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="8">
-                                    <StackPanel Spacing="16">
-                                        <TextBlock FontSize="16" FontWeight="SemiBold" Text="Maintenance" />
-
-                                        <StackPanel Orientation="Horizontal" Spacing="12">
-                                            <Button Command="{x:Bind ViewModel.CalculateCacheSizeCommand}">
-                                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                                    <FontIcon FontSize="14" Glyph="&#xE9D9;" />
-                                                    <TextBlock Text="Calculate Cache" />
-                                                </StackPanel>
-                                            </Button>
-                                            <TextBlock VerticalAlignment="Center" Foreground="{ThemeResource AccentFillColorDefaultBrush}" Text="{x:Bind ViewModel.CacheSize, Mode=OneWay}" />
-                                        </StackPanel>
-
-                                        <Button Command="{x:Bind ViewModel.ClearCacheCommand}">
-                                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                                <FontIcon FontSize="14" Glyph="&#xE74D;" />
-                                                <TextBlock Text="Clear Cache" />
-                                            </StackPanel>
-                                        </Button>
-
-                                        <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,8" />
-
-                                        <StackPanel Orientation="Horizontal" Spacing="12">
-                                            <Button Command="{x:Bind ViewModel.ExportSettingsCommand}">
-                                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                                    <FontIcon FontSize="14" Glyph="&#xEDE1;" />
-                                                    <TextBlock Text="Export Settings" />
-                                                </StackPanel>
-                                            </Button>
-                                            <Button Command="{x:Bind ViewModel.ImportSettingsCommand}">
-                                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                                    <FontIcon FontSize="14" Glyph="&#xE8B5;" />
-                                                    <TextBlock Text="Import Settings" />
-                                                </StackPanel>
-                                            </Button>
-                                        </StackPanel>
                                     </StackPanel>
                                 </Border>
                             </StackPanel>
@@ -590,7 +953,11 @@
                 </TabView>
 
                 <!--  Info Box  -->
-                <InfoBar IsOpen="True" Severity="Informational" Title="Note" Message="Settings are saved locally on this device and will persist between sessions." IsClosable="False" />
+                <InfoBar IsOpen="True"
+                        Severity="Informational"
+                        Title="Note"
+                        Message="Settings are saved locally on this device and will persist between sessions."
+                        IsClosable="False"/>
             </StackPanel>
         </ScrollViewer>
     </Grid>

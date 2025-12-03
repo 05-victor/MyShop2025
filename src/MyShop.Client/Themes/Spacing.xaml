@@ -107,7 +107,10 @@
     <CornerRadius x:Key="Radius_XS">2</CornerRadius>     <!-- Subtle -->
     <CornerRadius x:Key="Radius_SM">4</CornerRadius>     <!-- Small elements -->
     <CornerRadius x:Key="Radius_MD">8</CornerRadius>     <!-- Default -->
+    <CornerRadius x:Key="Radius_Input">10</CornerRadius>  <!-- TextBox, AutoSuggestBox -->
+    <CornerRadius x:Key="Radius_Button">12</CornerRadius> <!-- Buttons -->
     <CornerRadius x:Key="Radius_LG">12</CornerRadius>    <!-- Cards -->
+    <CornerRadius x:Key="Radius_Card">16</CornerRadius>   <!-- Cards standard -->
     <CornerRadius x:Key="Radius_XL">16</CornerRadius>    <!-- Large cards -->
     <CornerRadius x:Key="Radius_2XL">20</CornerRadius>   <!-- Dialogs -->
     <CornerRadius x:Key="Radius_3XL">24</CornerRadius>   <!-- Large dialogs -->

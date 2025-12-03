@@ -1,13 +1,15 @@
+using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Infrastructure;
 using System;
 using System.IO;
 using System.Text.Json;
 
-namespace MyShop.Plugins.Storage;
+namespace MyShop.Plugins.Infrastructure;
 
 /// <summary>
-/// File-based credential storage for development/testing
-/// Lưu token vào file JSON - đơn giản nhưng kém bảo mật, chỉ dùng dev mode
+/// File-based credential storage for development/testing.
+/// Saves token to a JSON file - simple but insecure, use only in dev mode.
+/// For production, use SecureCredentialStorage with DPAPI encryption.
 /// </summary>
 public class FileCredentialStorage : ICredentialStorage
 {
@@ -21,17 +23,19 @@ public class FileCredentialStorage : ICredentialStorage
         _filePath = Path.Combine(appFolder, "credentials.json");
     }
 
-    public void SaveToken(string token)
+    public async Task<Result<Unit>> SaveToken(string token)
     {
         try
         {
             var data = new { Token = token, SavedAt = DateTime.UtcNow };
             var json = JsonSerializer.Serialize(data);
-            File.WriteAllText(_filePath, json);
+            await File.WriteAllTextAsync(_filePath, json);
+            return Result<Unit>.Success(Unit.Value);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[FileCredentialStorage] SaveToken failed: {ex.Message}");
+            return Result<Unit>.Failure($"Failed to save token: {ex.Message}");
         }
     }
 
@@ -53,7 +57,7 @@ public class FileCredentialStorage : ICredentialStorage
         }
     }
 
-    public void RemoveToken()
+    public async Task<Result<Unit>> RemoveToken()
     {
         try
         {
@@ -61,10 +65,12 @@ public class FileCredentialStorage : ICredentialStorage
             {
                 File.Delete(_filePath);
             }
+            return Result<Unit>.Success(Unit.Value);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[FileCredentialStorage] RemoveToken failed: {ex.Message}");
+            return Result<Unit>.Failure($"Failed to remove token: {ex.Message}");
         }
     }
 

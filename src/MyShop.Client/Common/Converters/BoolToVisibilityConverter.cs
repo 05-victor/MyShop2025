@@ -5,8 +5,8 @@ using System;
 namespace MyShop.Client.Common.Converters;
 
 /// <summary>
-/// Converter chuyển đổi bool thành Visibility
-/// true → Visible, false → Collapsed
+/// Converter to convert bool to Visibility.
+/// true → Visible, false → Collapsed.
 /// </summary>
 public class BoolToVisibilityConverter : IValueConverter
 {

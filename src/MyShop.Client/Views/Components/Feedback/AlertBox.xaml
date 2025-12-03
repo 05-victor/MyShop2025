@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="MyShop.Client.Views.Components.Feedback.AlertBox"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    x:Name="RootControl">
+
+    <!--
+    AlertBox Component
+    ==================
+    A reusable alert/message box with variants (Info, Warning, Error, Success).
+    
+    Usage:
+    <feedback:AlertBox 
+        Title="Information"
+        Message="A welcome email will be sent to the user."
+        Variant="Info"/>
+        
+    <feedback:AlertBox 
+        Title="Warning"
+        Message="Changing the user's role will affect their access permissions."
+        Variant="Warning"/>
+    -->
+
+    <Border x:Name="AlertContainer"
+            CornerRadius="8"
+            Padding="12"
+            BorderThickness="1">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Icon -->
+            <FontIcon x:Name="AlertIcon"
+                     Grid.Column="0"
+                     FontSize="16"
+                     VerticalAlignment="Top"
+                     Margin="0,2,12,0"/>
+
+            <!-- Title and Message -->
+            <StackPanel Grid.Column="1" Spacing="4">
+                <!-- Title (optional) -->
+                <TextBlock x:Name="AlertTitle"
+                          Text="{Binding Title, ElementName=RootControl, Mode=OneWay}"
+                          FontSize="13"
+                          FontWeight="SemiBold"
+                          TextWrapping="Wrap"
+                          Visibility="{Binding Title, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                
+                <!-- Message -->
+                <TextBlock x:Name="AlertMessage"
+                          Text="{Binding Message, ElementName=RootControl, Mode=OneWay}"
+                          FontSize="13"
+                          TextWrapping="Wrap"
+                          VerticalAlignment="Center"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

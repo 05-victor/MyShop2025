@@ -30,13 +30,22 @@ public class GetCartHandler : IRequestHandler<GetCartQuery, Result<object>>
                 return Result<object>.Failure("User not authenticated");
             }
 
-            var cartItems = await _cartRepository.GetCartItemsAsync(userResult.Data.Id);
-            var cartSummary = await _cartRepository.GetCartSummaryAsync(userResult.Data.Id);
+            var cartItemsResult = await _cartRepository.GetCartItemsAsync(userResult.Data.Id);
+            if (!cartItemsResult.IsSuccess)
+            {
+                return Result<object>.Failure(cartItemsResult.ErrorMessage);
+            }
+            
+            var cartSummaryResult = await _cartRepository.GetCartSummaryAsync(userResult.Data.Id);
+            if (!cartSummaryResult.IsSuccess)
+            {
+                return Result<object>.Failure(cartSummaryResult.ErrorMessage);
+            }
 
             var cartData = new
             {
-                Items = cartItems,
-                Summary = cartSummary
+                Items = cartItemsResult.Data,
+                Summary = cartSummaryResult.Data
             };
             
             return Result<object>.Success(cartData);

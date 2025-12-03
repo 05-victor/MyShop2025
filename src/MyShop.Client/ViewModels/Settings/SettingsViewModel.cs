@@ -1,16 +1,25 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MyShop.Client.Config;
+using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Core.Interfaces.Infrastructure;
-using MyShop.Shared.Models;
+using MyShop.Plugins.Repositories.Mocks;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
+using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+
+// Use alias to avoid ambiguity with MockSettingsRepository.AppSettings
+using AppSettings = MyShop.Shared.Models.AppSettings;
+using PaginationSettings = MyShop.Shared.Models.PaginationSettings;
 
 namespace MyShop.Client.ViewModels.Settings;
 
@@ -22,33 +31,118 @@ public partial class SettingsViewModel : ObservableObject
 {
     private readonly ISettingsStorage _settingsStorage;
     private readonly IToastService _toastHelper;
+    private readonly IPaginationService _paginationService;
+    private readonly MockSettingsRepository _mockSettingsRepository;
+    private readonly ISystemActivationRepository _activationRepository;
+    private readonly IAuthRepository _authRepository;
+    private readonly INavigationService _navigationService;
 
     [ObservableProperty] private bool _isLoading = false;
     [ObservableProperty] private string _errorMessage = string.Empty;
 
+    // Trial properties
+    [ObservableProperty] private int _trialDaysRemaining = 0;
+    [ObservableProperty] private string _upgradeProUrl = "https://facebook.com";
+    [ObservableProperty] private string _supportUrl = "https://facebook.com/myshop.support";
+    [ObservableProperty] private string _trialCode = string.Empty;
+    
+    // License/Trial visibility properties
+    [ObservableProperty] private bool _isAdmin = false;
+    [ObservableProperty] private bool _isTrialAdmin = false;
+    [ObservableProperty] private bool _isPermanentAdmin = false;
+    [ObservableProperty] private bool _showTrialTab = false;
+    [ObservableProperty] private string _licenseType = "None";
+    [ObservableProperty] private DateTime? _licenseExpiresAt = null;
+
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
+
+    // About info - read from assembly
+    public string AppVersion => Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0";
+    public string ReleaseYear => $"© {DateTime.Now.Year} MyShop. All rights reserved.";
+
+    // Developer tab properties
+    public bool UseMockData
+    {
+        get => AppConfig.Instance.UseMockData;
+        set
+        {
+            if (AppConfig.Instance.UseMockData != value)
+            {
+                // Note: This only updates the in-memory value
+                // Actual config change requires editing appsettings.json
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(DataModeDisplay));
+            }
+        }
+    }
+
+    public string ServerUrl
+    {
+        get => AppConfig.Instance.ApiBaseUrl ?? "https://localhost:7120";
+        set => OnPropertyChanged();
+    }
+
+    public string DataModeDisplay => UseMockData ? "Mock Data" : "Real API";
+    
+    [ObservableProperty]
+    private string _currentUserEmail = "Not logged in";
+    
+    [ObservableProperty]
+    private string _currentUserRole = "Unknown";
+    
+#if DEBUG
+    public string BuildConfiguration => "Debug";
+#else
+    public string BuildConfiguration => "Release";
+#endif
+
+    /// <summary>
+    /// Gets formatted debug information for clipboard copy
+    /// </summary>
+    public string GetDebugInfo()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("=== MyShop 2025 Debug Info ===");
+        sb.AppendLine($"Version: {AppVersion}");
+        sb.AppendLine($"Build: {BuildConfiguration}");
+        sb.AppendLine($"Data Mode: {DataModeDisplay}");
+        sb.AppendLine($"Server URL: {ServerUrl}");
+        sb.AppendLine($"User: {CurrentUserEmail}");
+        sb.AppendLine($"Role: {CurrentUserRole}");
+        sb.AppendLine($"Theme: {Theme}");
+        sb.AppendLine($"Language: {Language}");
+        sb.AppendLine($"OS: {Environment.OSVersion}");
+        sb.AppendLine($".NET: {Environment.Version}");
+        sb.AppendLine($"Timestamp: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+        sb.AppendLine("==============================");
+        return sb.ToString();
+    }
 
     // Settings properties
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private string _theme = "System";
+    private string _theme = "Light"; // Changed default from System to Light
 
-    public ObservableCollection<ThemeOption> ThemeOptions { get; } = new()
-    {
-        new ThemeOption { Name = "System Default", Value = "System", Icon = "\uE771" },
-        new ThemeOption { Name = "Light", Value = "Light", Icon = "\uE706" },
-        new ThemeOption { Name = "Dark", Value = "Dark", Icon = "\uE708" }
-    };
+    // TODO: Uncomment when Appearance tab UI is implemented
+    // Theme options collection causes WinUI binding issues with emoji characters when not bound to UI
+    // public ObservableCollection<ThemeOption> ThemeOptions { get; } = new()
+    // {
+    //     new ThemeOption { Name = "System Default", Value = "System", Icon = "\uE771" },
+    //     new ThemeOption { Name = "Light", Value = "Light", Icon = "\uE706" },
+    //     new ThemeOption { Name = "Dark", Value = "Dark", Icon = "\uE708" }
+    // };
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private string _language = "vi-VN";
+    private string _language = "en-US"; // Changed default from vi-VN to en-US
 
-    public ObservableCollection<LanguageOption> LanguageOptions { get; } = new()
-    {
-        new LanguageOption { Code = "vi-VN", Name = "Tiếng Việt", Flag = "🇻🇳" },
-        new LanguageOption { Code = "en-US", Name = "English", Flag = "🇺🇸" }
-    };
+    // TODO: Uncomment when Appearance tab UI is implemented
+    // Language options collection causes WinUI binding issues with emoji characters when not bound to UI
+    // public ObservableCollection<LanguageOption> LanguageOptions { get; } = new()
+    // {
+    //     new LanguageOption { Code = "vi-VN", Name = "Tiếng Việt", Flag = "🇻🇳" },
+    //     new LanguageOption { Code = "en-US", Name = "English", Flag = "🇺🇸" }
+    // };
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
@@ -61,11 +155,11 @@ public partial class SettingsViewModel : ObservableObject
     // Page size preferences
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private int _productsPageSize = 20;
+    private int _productsPageSize = Core.Common.PaginationConstants.ProductsPageSize;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private int _ordersPageSize = 15;
+    private int _ordersPageSize = Core.Common.PaginationConstants.OrdersPageSize;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
@@ -122,15 +216,197 @@ public partial class SettingsViewModel : ObservableObject
 
     public SettingsViewModel(
         ISettingsStorage settingsStorage,
-        IToastService toastHelper)
+        IToastService toastHelper,
+        IPaginationService paginationService,
+        ISystemActivationRepository activationRepository,
+        IAuthRepository authRepository,
+        INavigationService navigationService)
     {
         _settingsStorage = settingsStorage;
         _toastHelper = toastHelper;
+        _paginationService = paginationService;
+        _activationRepository = activationRepository;
+        _authRepository = authRepository;
+        _navigationService = navigationService;
+        _mockSettingsRepository = new MockSettingsRepository();
     }
 
     partial void OnErrorMessageChanged(string value)
     {
         OnPropertyChanged(nameof(HasError));
+    }
+
+    /// <summary>
+    /// Open the Upgrade Pro URL in browser
+    /// </summary>
+    [RelayCommand]
+    private async Task OpenUpgradeProAsync()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(UpgradeProUrl))
+            {
+                await Windows.System.Launcher.LaunchUriAsync(new Uri(UpgradeProUrl));
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[SettingsViewModel] Failed to open upgrade URL: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Activate license code (supports both trial and permanent codes)
+    /// </summary>
+    [RelayCommand]
+    private async Task ActivateTrialCodeAsync()
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(TrialCode))
+            {
+                await _toastHelper.ShowWarning("Please enter an activation code.");
+                return;
+            }
+
+            // Get current user
+            var userResult = await _authRepository.GetCurrentUserAsync();
+            if (!userResult.IsSuccess || userResult.Data == null)
+            {
+                await _toastHelper.ShowError("Could not get current user. Please login again.");
+                return;
+            }
+
+            var currentUser = userResult.Data;
+            var code = TrialCode.Trim().ToUpperInvariant();
+
+            // Validate code first
+            var validateResult = await _activationRepository.ValidateCodeAsync(code);
+            if (!validateResult.IsSuccess || validateResult.Data == null)
+            {
+                await _toastHelper.ShowError(validateResult.ErrorMessage ?? "Invalid or already used activation code.");
+                return;
+            }
+
+            var codeInfo = validateResult.Data;
+
+            // Activate the code
+            var activateResult = await _activationRepository.ActivateCodeAsync(code, currentUser.Id);
+            if (activateResult.IsSuccess && activateResult.Data != null)
+            {
+                var license = activateResult.Data;
+                TrialCode = string.Empty;
+                
+                if (license.IsPermanent)
+                {
+                    // Permanent license activated
+                    IsPermanentAdmin = true;
+                    IsTrialAdmin = false;
+                    ShowTrialTab = false;
+                    LicenseType = "Permanent";
+                    LicenseExpiresAt = null;
+                    TrialDaysRemaining = 0;
+                    await _toastHelper.ShowSuccess("🎉 Permanent license activated! You now have unlimited access.");
+                    Debug.WriteLine($"[SettingsViewModel] Permanent license activated for user: {currentUser.Id}");
+                    
+                    // Navigate to Dashboard within shell
+                    await _navigationService.NavigateInShell("MyShop.Client.Views.Admin.AdminDashboardPage", currentUser);
+                }
+                else
+                {
+                    // Trial license extended
+                    TrialDaysRemaining = license.RemainingDays;
+                    LicenseExpiresAt = license.ExpiresAt;
+                    LicenseType = "Trial";
+                    IsTrialAdmin = true;
+                    IsPermanentAdmin = false;
+                    ShowTrialTab = true;
+                    await _toastHelper.ShowSuccess($"Trial extended! {license.RemainingDays} days remaining.");
+                    Debug.WriteLine($"[SettingsViewModel] Trial activated: {license.RemainingDays} days remaining");
+                    
+                    // Reload license info to ensure UI is fully updated
+                    await LoadLicenseInfoAsync();
+                }
+            }
+            else
+            {
+                await _toastHelper.ShowError(activateResult.ErrorMessage ?? "Failed to activate code.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[SettingsViewModel] Failed to activate code: {ex.Message}");
+            await _toastHelper.ShowError("Failed to activate code.");
+        }
+    }
+
+    /// <summary>
+    /// Load trial/system settings from mock repository
+    /// </summary>
+    private async Task LoadSystemSettingsAsync()
+    {
+        try
+        {
+            var systemSettings = await _mockSettingsRepository.GetSystemSettingsAsync();
+            if (systemSettings != null)
+            {
+                UpgradeProUrl = systemSettings.UpgradeProUrl;
+                SupportUrl = systemSettings.SupportUrl;
+                Debug.WriteLine($"[SettingsViewModel] System settings loaded: UpgradeUrl={UpgradeProUrl}");
+            }
+            
+            // Load license info for Trial tab visibility
+            await LoadLicenseInfoAsync();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[SettingsViewModel] Failed to load system settings: {ex.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// Load license info to determine Trial tab visibility
+    /// Only show Trial tab for Admin users with Trial license
+    /// </summary>
+    private async Task LoadLicenseInfoAsync()
+    {
+        try
+        {
+            var licenseResult = await _activationRepository.GetCurrentLicenseAsync();
+            if (licenseResult.IsSuccess && licenseResult.Data != null)
+            {
+                var license = licenseResult.Data;
+                IsAdmin = true;
+                IsTrialAdmin = !license.IsPermanent;
+                IsPermanentAdmin = license.IsPermanent;
+                LicenseType = license.IsPermanent ? "Permanent" : "Trial";
+                LicenseExpiresAt = license.ExpiresAt;
+                TrialDaysRemaining = license.RemainingDays;
+                
+                // Only show Trial tab for Trial admin (not Permanent admin)
+                ShowTrialTab = IsTrialAdmin;
+                
+                Debug.WriteLine($"[SettingsViewModel] License loaded: Type={LicenseType}, ExpiresAt={LicenseExpiresAt}, RemainingDays={TrialDaysRemaining}, ShowTrialTab={ShowTrialTab}");
+            }
+            else
+            {
+                // No license = not admin or no license activated
+                IsAdmin = false;
+                IsTrialAdmin = false;
+                IsPermanentAdmin = false;
+                ShowTrialTab = false;
+                LicenseType = "None";
+                LicenseExpiresAt = null;
+                TrialDaysRemaining = 0;
+                
+                Debug.WriteLine("[SettingsViewModel] No license found - hiding Trial tab");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[SettingsViewModel] Failed to load license info: {ex.Message}");
+            ShowTrialTab = false;
+        }
     }
 
     [RelayCommand]
@@ -173,25 +449,42 @@ public partial class SettingsViewModel : ObservableObject
     {
         try
         {
+            IsLoading = true;
+
             var savePicker = new FileSavePicker();
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
             WinRT.Interop.InitializeWithWindow.Initialize(savePicker, hwnd);
 
             savePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
             savePicker.FileTypeChoices.Add("JSON Settings", new List<string> { ".json" });
-            savePicker.SuggestedFileName = "myshop-settings";
+            savePicker.SuggestedFileName = $"myshop-settings-{DateTime.Now:yyyyMMdd-HHmmss}";
 
             var file = await savePicker.PickSaveFileAsync();
             if (file != null)
             {
-                var settings = await _settingsStorage.GetAsync();
+                var result = await _settingsStorage.GetAsync();
+                if (!result.IsSuccess || result.Data == null)
+                {
+                    await _toastHelper.ShowError("Failed to load current settings for export.");
+                    return;
+                }
+                
+                var settings = result.Data;
                 var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
                 await FileIO.WriteTextAsync(file, json);
+
+                await _toastHelper.ShowSuccess($"Settings exported to {file.Name}");
+                System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Settings exported to: {file.Path}");
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // Silently fail
+            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Export error: {ex.Message}");
+            await _toastHelper.ShowError("Failed to export settings.");
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 
@@ -200,6 +493,8 @@ public partial class SettingsViewModel : ObservableObject
     {
         try
         {
+            IsLoading = true;
+
             var openPicker = new FileOpenPicker();
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
             WinRT.Interop.InitializeWithWindow.Initialize(openPicker, hwnd);
@@ -211,18 +506,71 @@ public partial class SettingsViewModel : ObservableObject
             if (file != null)
             {
                 var json = await FileIO.ReadTextAsync(file);
-                var settings = JsonSerializer.Deserialize<AppSettings>(json);
+                var settings = JsonSerializer.Deserialize<AppSettings>(json, new JsonSerializerOptions 
+                { 
+                    PropertyNameCaseInsensitive = true 
+                });
+
                 if (settings != null)
                 {
-                    await _settingsStorage.SaveAsync(settings);
-                    await LoadAsync();
+                    // Validate settings before applying
+                    if (ValidateImportedSettings(settings))
+                    {
+                        var result = await _settingsStorage.SaveAsync(settings);
+                        if (result.IsSuccess)
+                        {
+                            await LoadAsync();
+                            await _toastHelper.ShowSuccess($"Settings imported from {file.Name}");
+                            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Settings imported from: {file.Path}");
+                        }
+                        else
+                        {
+                            await _toastHelper.ShowError("Failed to save imported settings.");
+                        }
+                    }
+                    else
+                    {
+                        await _toastHelper.ShowError("Invalid settings file format.");
+                    }
+                }
+                else
+                {
+                    await _toastHelper.ShowError("Failed to parse settings file.");
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // Silently fail
+            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Import error: {ex.Message}");
+            await _toastHelper.ShowError("Failed to import settings.");
         }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private bool ValidateImportedSettings(AppSettings settings)
+    {
+        // Basic validation
+        if (settings == null) return false;
+        
+        // Validate theme
+        if (!string.IsNullOrEmpty(settings.Theme) && 
+            !new[] { "System", "Light", "Dark" }.Contains(settings.Theme))
+        {
+            return false;
+        }
+
+        // Validate page sizes via Pagination object
+        if (settings.Pagination != null)
+        {
+            if (settings.Pagination.ProductsPageSize < 1 || settings.Pagination.ProductsPageSize > 200) return false;
+            if (settings.Pagination.OrdersPageSize < 1 || settings.Pagination.OrdersPageSize > 200) return false;
+            if (settings.Pagination.CustomersPageSize < 1 || settings.Pagination.CustomersPageSize > 200) return false;
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -236,15 +584,25 @@ public partial class SettingsViewModel : ObservableObject
             IsLoading = true;
             ErrorMessage = string.Empty;
 
-            var settings = await _settingsStorage.GetAsync();
+            // Load system settings (trial info, upgrade URL, etc.)
+            await LoadSystemSettingsAsync();
+
+            var result = await _settingsStorage.GetAsync();
+            if (!result.IsSuccess || result.Data == null)
+            {
+                ErrorMessage = result.ErrorMessage ?? "Failed to load settings.";
+                return;
+            }
+
+            var settings = result.Data;
             
             Theme = settings.Theme;
             Language = settings.Language;
             NotificationsEnabled = settings.NotificationsEnabled;
             RestoreLastPage = settings.RestoreLastPage;
-            ProductsPageSize = settings.ProductsPageSize;
-            OrdersPageSize = settings.OrdersPageSize;
-            CustomersPageSize = settings.CustomersPageSize;
+            ProductsPageSize = settings.Pagination.ProductsPageSize;
+            OrdersPageSize = settings.Pagination.OrdersPageSize;
+            CustomersPageSize = settings.Pagination.CustomersPageSize;
             EnableSoundNotifications = settings.EnableSoundNotifications;
             NotifyOnLowStock = settings.NotifyOnLowStock;
             NotifyOnNewOrders = settings.NotifyOnNewOrders;
@@ -286,9 +644,12 @@ public partial class SettingsViewModel : ObservableObject
                 Language = Language,
                 NotificationsEnabled = NotificationsEnabled,
                 RestoreLastPage = RestoreLastPage,
-                ProductsPageSize = ProductsPageSize,
-                OrdersPageSize = OrdersPageSize,
-                CustomersPageSize = CustomersPageSize,
+                Pagination = new PaginationSettings
+                {
+                    ProductsPageSize = ProductsPageSize,
+                    OrdersPageSize = OrdersPageSize,
+                    CustomersPageSize = CustomersPageSize
+                },
                 EnableSoundNotifications = EnableSoundNotifications,
                 NotifyOnLowStock = NotifyOnLowStock,
                 NotifyOnNewOrders = NotifyOnNewOrders,
@@ -298,12 +659,21 @@ public partial class SettingsViewModel : ObservableObject
                 SelectedTimezoneIndex = SelectedTimezoneIndex
             };
 
-            await _settingsStorage.SaveAsync(settings);
+            var result = await _settingsStorage.SaveAsync(settings);
+            if (!result.IsSuccess)
+            {
+                ErrorMessage = result.ErrorMessage ?? "Failed to save settings.";
+                return;
+            }
 
             // Update original settings
             _originalSettings = settings;
+            
+            // Sync with global PaginationService so all ViewModels get updated values
+            _paginationService.Initialize(settings.Pagination);
+            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] PaginationService synced: Products={ProductsPageSize}, Orders={OrdersPageSize}");
 
-            _toastHelper.ShowSuccess("Settings saved successfully!");
+            await _toastHelper.ShowSuccess("Settings saved successfully!");
             
             // Apply theme and language immediately
             ApplyThemeAndLanguage();
@@ -334,12 +704,17 @@ public partial class SettingsViewModel : ObservableObject
             IsLoading = true;
             ErrorMessage = string.Empty;
 
-            await _settingsStorage.ResetAsync();
+            var result = await _settingsStorage.ResetAsync();
+            if (!result.IsSuccess)
+            {
+                ErrorMessage = result.ErrorMessage ?? "Failed to reset settings.";
+                return;
+            }
             
             // Reload defaults
             await LoadAsync();
 
-            _toastHelper.ShowInfo("Settings reset to defaults.");
+            await _toastHelper.ShowInfo("Settings reset to defaults.");
         }
         catch (Exception ex)
         {
@@ -363,9 +738,9 @@ public partial class SettingsViewModel : ObservableObject
                Language != _originalSettings.Language ||
                NotificationsEnabled != _originalSettings.NotificationsEnabled ||
                RestoreLastPage != _originalSettings.RestoreLastPage ||
-               ProductsPageSize != _originalSettings.ProductsPageSize ||
-               OrdersPageSize != _originalSettings.OrdersPageSize ||
-               CustomersPageSize != _originalSettings.CustomersPageSize ||
+               ProductsPageSize != _originalSettings.Pagination.ProductsPageSize ||
+               OrdersPageSize != _originalSettings.Pagination.OrdersPageSize ||
+               CustomersPageSize != _originalSettings.Pagination.CustomersPageSize ||
                EnableSoundNotifications != _originalSettings.EnableSoundNotifications ||
                NotifyOnLowStock != _originalSettings.NotifyOnLowStock ||
                NotifyOnNewOrders != _originalSettings.NotifyOnNewOrders ||
@@ -377,34 +752,65 @@ public partial class SettingsViewModel : ObservableObject
 
     /// <summary>
     /// Apply theme and language settings immediately
+    /// Only applies if there are actual changes to theme/language
     /// </summary>
     private void ApplyThemeAndLanguage()
     {
         try
         {
-            // Apply theme
-            if (App.MainWindow?.Content is Microsoft.UI.Xaml.FrameworkElement root)
+            // Only apply theme if it actually changed
+            if (_originalSettings != null && Theme == _originalSettings.Theme)
             {
-                var requestedTheme = Theme.ToLower() switch
+                System.Diagnostics.Debug.WriteLine("[SettingsViewModel] Theme unchanged, skipping apply");
+                // Still check language change
+                if (Language != _originalSettings.Language)
                 {
-                    "light" => Microsoft.UI.Xaml.ElementTheme.Light,
-                    "dark" => Microsoft.UI.Xaml.ElementTheme.Dark,
-                    _ => Microsoft.UI.Xaml.ElementTheme.Default
-                };
-
-                root.RequestedTheme = requestedTheme;
-                System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Applied theme: {requestedTheme}");
+                    System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Language changed to: {Language}");
+                    _ = _toastHelper.ShowInfo("Language changes will take effect after app restart.");
+                }
+                return;
+            }
+            
+            // Apply theme
+            if (App.MainWindow == null)
+            {
+                System.Diagnostics.Debug.WriteLine("[SettingsViewModel] App.MainWindow is null, cannot apply theme");
+                return;
             }
 
+            if (App.MainWindow.Content is not Microsoft.UI.Xaml.FrameworkElement root)
+            {
+                System.Diagnostics.Debug.WriteLine("[SettingsViewModel] App.MainWindow.Content is not a FrameworkElement");
+                return;
+            }
+
+            var requestedTheme = Theme switch
+            {
+                "Light" => Microsoft.UI.Xaml.ElementTheme.Light,
+                "Dark" => Microsoft.UI.Xaml.ElementTheme.Dark,
+                "System" => Microsoft.UI.Xaml.ElementTheme.Default,
+                _ => Microsoft.UI.Xaml.ElementTheme.Default
+            };
+
+            // Dispatch to UI thread to avoid threading issues
+            App.MainWindow.DispatcherQueue.TryEnqueue(() =>
+            {
+                try
+                {
+                    root.RequestedTheme = requestedTheme;
+                    System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Applied theme: {Theme} -> {requestedTheme}");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Theme application error: {ex.Message}");
+                }
+            });
+
             // Apply language (requires app restart for full effect)
-            // For immediate effect on current page, you would need to:
-            // 1. Update resource dictionaries
-            // 2. Re-bind all text elements
-            // For simplicity, show a notification that language will apply on restart
-            if (Language != _originalSettings?.Language)
+            if (_originalSettings != null && Language != _originalSettings.Language)
             {
                 System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Language changed to: {Language}");
-                _toastHelper.ShowInfo("Language changes will take effect after app restart.");
+                _ = _toastHelper.ShowInfo("Language changes will take effect after app restart.");
             }
         }
         catch (Exception ex)

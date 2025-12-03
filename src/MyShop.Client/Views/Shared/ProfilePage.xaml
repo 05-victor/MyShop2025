@@ -7,7 +7,13 @@
     xmlns:winuic="using:Microsoft.UI.Xaml.Controls"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="#F5F7FA">
+
+    <Page.Transitions>
+        <TransitionCollection>
+            <EntranceThemeTransition FromVerticalOffset="50"/>
+        </TransitionCollection>
+    </Page.Transitions>
 
     <Page.Resources>
         <!-- Converters for visibility -->
@@ -15,6 +21,7 @@
         <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
         <converters:StringToImageSourceConverter x:Key="StringToImageSource" />
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
 
         <!-- Định nghĩa màu sắc và brush để dễ tái sử dụng -->
         <SolidColorBrush x:Key="TextPrimaryBrush" Color="#111827" />
@@ -36,10 +43,10 @@
 
         <!-- Style cho Card -->
         <Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#D0D7E2" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="CornerRadius" Value="16" />
             <Setter Property="Padding" Value="24" />
             <Setter Property="Shadow">
                 <Setter.Value>
@@ -63,159 +70,212 @@
     </Page.Resources>
 
     <Grid>
-        <!-- ToggleButton ẩn để điều khiển trạng thái IsEditing và EmailVerified cho mục đích demo -->
-        <!--Nếu sau này không làm gì nữa sẽ xóa-->
-        <ToggleButton x:Name="EditModeToggle" IsChecked="False" Visibility="Collapsed" />
-        <ToggleButton x:Name="EmailVerifiedToggle" IsChecked="False" Visibility="Collapsed" />
 
-        <ScrollViewer>
-            <StackPanel Spacing="24" MaxWidth="1100" Padding="48" HorizontalAlignment="Center">
-            <!-- Page Header -->
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0">
-                        <TextBlock Text="Administrator Profile" Style="{StaticResource DisplayHeadingStyle}" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,8" />
-                    <TextBlock Text="Manage your admin account and security settings" Style="{ThemeResource BodyTextBlockStyle}" Foreground="{StaticResource TextSecondaryBrush}" />
-                </StackPanel>
-
-                <Border Grid.Column="1" Background="{StaticResource AdminGradientBrush}" CornerRadius="16" Padding="12,8">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE825;" Foreground="White" FontSize="16"/>
-                        <TextBlock Text="Admin Account" Foreground="White" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                    </StackPanel>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="0">
+                <!-- Gradient Header Banner -->
+                <Border Height="200">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#3B82F6" Offset="0.0" />
+                            <GradientStop Color="#8B5CF6" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
                 </Border>
-            </Grid>
 
-            <!-- Email Verification Alerts -->
-            <InfoBar Title="Email Verification Required"
-                     Message="Please verify your email address to ensure account security and receive system notifications."
-                     Severity="Warning"
-                     BorderBrush="{StaticResource WarningBrush}"
-                     Background="{StaticResource WarningBackgroundBrush}"
-                     IsOpen="{Binding IsChecked, ElementName=EmailVerifiedToggle, Converter={StaticResource InverseBoolConverter}}"
-                     IsClosable="False">
-                <InfoBar.Content>
-                    <StackPanel Orientation="Horizontal" Spacing="4">
-                        <HyperlinkButton Content="Resend verification email" />
-                        <TextBlock Text=" or " VerticalAlignment="Center"/>
-                        <HyperlinkButton Content="I've verified (demo)" Click="VerifyEmailButton_Click" />
-                    </StackPanel>
-                </InfoBar.Content>
-            </InfoBar>
+                <!-- Main Profile Content -->
+                <StackPanel MaxWidth="1400" HorizontalAlignment="Stretch" Margin="48,-80,48,48">
+                    <!-- Profile Card with Avatar -->
+                    <Border Background="White" CornerRadius="16" Padding="32,24,32,24" Margin="0,0,0,24">
+                        <Border.Shadow>
+                            <ThemeShadow />
+                        </Border.Shadow>
+                        
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
 
-            <InfoBar Title="Email Verified"
-                     Message="Your email address has been verified. You have full access to all admin features."
-                     Severity="Success"
-                     BorderBrush="{StaticResource SuccessBrush}"
-                     Background="{StaticResource SuccessBackgroundBrush}"
-                     IsOpen="{Binding IsChecked, ElementName=EmailVerifiedToggle}"
-                     IsClosable="False"/>
-
-            <!-- Main Content Grid -->
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*" MinWidth="300" />
-                    <ColumnDefinition Width="20" />
-                    <ColumnDefinition Width="2*" />
-                </Grid.ColumnDefinitions>
-
-                <!-- Left Column -->
-                <StackPanel Grid.Column="0" Spacing="24">
-                    <!-- Profile Card -->
-                    <Border Style="{StaticResource CardStyle}">
-                        <StackPanel Spacing="24" HorizontalAlignment="Center">
-                            <!-- Avatar -->
-                            <Grid Width="128" Height="128">
-                                <PersonPicture ProfilePicture="https://api.dicebear.com/7.x/avataaars/svg?seed=admin"
-                                               Initials="A"
-                                               Width="128" Height="128"
-                                               Margin="0" />
-                                <Button VerticalAlignment="Bottom" HorizontalAlignment="Right"
-                                        Style="{ThemeResource AccentButtonStyle}"
-                                        Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="2"
-                                        Width="36" Height="36" CornerRadius="18" Padding="0">
-                                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE898;" Foreground="{StaticResource TextSecondaryBrush}" FontSize="14"/>
-                                    <Button.Shadow>
-                                        <ThemeShadow />
-                                    </Button.Shadow>
-                                </Button>
-                                <!-- Verification Badge -->
-                                <Border VerticalAlignment="Top" HorizontalAlignment="Right"
-                                        Background="{StaticResource SuccessBrush}"
-                                        Width="28" Height="28" CornerRadius="14" Margin="0,-4,-4,0"
-                                        Visibility="{Binding IsChecked, ElementName=EmailVerifiedToggle, Converter={StaticResource BoolToVisibility}}">
-                                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE930;" Foreground="White" FontSize="14"/>
-                                </Border>
-                                <Border VerticalAlignment="Top" HorizontalAlignment="Right"
-                                        Background="{StaticResource DangerBrush}"
-                                        Width="28" Height="28" CornerRadius="14" Margin="0,-4,-4,0"
-                                        Visibility="{Binding IsChecked, ElementName=EmailVerifiedToggle, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE715;" Foreground="White" FontSize="14"/>
-                                </Border>
-                            </Grid>
-
-                            <!-- User Info -->
-                            <StackPanel Spacing="8" HorizontalAlignment="Center">
-                                <TextBlock Text="Admin User" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" TextAlignment="Center"/>
-                                <TextBlock Text="@admin_user" Foreground="{StaticResource TextSecondaryBrush}" />
-                                <Border Background="{StaticResource AdminGradientBrush}" CornerRadius="16" Padding="10,4" Margin="0,8,0,0" HorizontalAlignment="Center">
-                                    <StackPanel Orientation="Horizontal" Spacing="4">
-                                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE825;" Foreground="White" FontSize="12"/>
-                                        <TextBlock Text="System Administrator" Foreground="White" FontSize="12" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
-
-                            <!-- Account Stats -->
-                            <Grid BorderThickness="0,1,0,0" BorderBrush="{StaticResource BorderBrush}" Padding="0,16,0,0" ColumnSpacing="16">
+                            <!-- Avatar and Profile Info Section -->
+                            <Grid Grid.Row="0" Padding="0,0,0,24">
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="28" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="Bold" TextAlignment="Center" />
-                                    <TextBlock Text="Days Active" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" TextAlignment="Center"/>
+
+                                <!-- Avatar with Edit Button -->
+                                <Grid Grid.Column="0" Width="120" Height="120" VerticalAlignment="Top" Margin="0,0,24,0">
+                                    <Border Width="120" Height="120" CornerRadius="60" 
+                                            BorderBrush="White" BorderThickness="4">
+                                        <Border.Shadow>
+                                            <ThemeShadow />
+                                        </Border.Shadow>
+                                        <PersonPicture ProfilePicture="{x:Bind ViewModel.AvatarUrl, Mode=OneWay, Converter={StaticResource StringToImageSource}}"
+                                                       Initials="{x:Bind GetInitial(ViewModel.Username), Mode=OneWay}"
+                                                       Width="120" Height="120" />
+                                    </Border>
+                                    
+                                    <!-- Edit Avatar Button -->
+                                    <Button VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                                            Style="{ThemeResource AccentButtonStyle}"
+                                            Background="White" BorderBrush="{StaticResource BorderBrush}" 
+                                            BorderThickness="2"
+                                            Width="36" Height="36" CornerRadius="18" Padding="0"
+                                            Command="{x:Bind ViewModel.PickAvatarCommand}"
+                                            ToolTipService.ToolTip="Change avatar">
+                                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE898;" 
+                                                  Foreground="#3B82F6" FontSize="14"/>
+                                        <Button.Shadow>
+                                            <ThemeShadow />
+                                        </Button.Shadow>
+                                    </Button>
+                                </Grid>
+
+                                <!-- Name and Contact Info -->
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="8">
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <TextBlock Text="{x:Bind ViewModel.FullName, Mode=OneWay, FallbackValue='User'}" 
+                                                   FontSize="28" FontWeight="Bold" 
+                                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                        <Border Background="#E0F2FE" CornerRadius="12" 
+                                                Padding="10,4" VerticalAlignment="Center">
+                                            <TextBlock Text="{x:Bind ViewModel.RoleDisplay, Mode=OneWay, FallbackValue='User'}" FontSize="13" 
+                                                       Foreground="#0284C7" FontWeight="SemiBold"/>
+                                        </Border>
+                                    </StackPanel>
+                                    <TextBlock Text="{x:Bind ViewModel.UsernameDisplay, Mode=OneWay, FallbackValue='@user'}" FontSize="15" 
+                                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock Text="{x:Bind ViewModel.JobTitle, Mode=OneWay, FallbackValue='MyShop User | Managing your account'}" 
+                                               FontSize="13" Foreground="{StaticResource TextSecondaryBrush}"
+                                               TextWrapping="Wrap"/>
+                                    
+                                    <!-- Contact Info -->
+                                    <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,4,0,0" FlowDirection="LeftToRight">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE715;" 
+                                                      FontSize="14" Foreground="#3B82F6"/>
+                                            <TextBlock Text="{x:Bind ViewModel.Email, Mode=OneWay}" FontSize="13" 
+                                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE717;" 
+                                                      FontSize="14" Foreground="#3B82F6"/>
+                                            <TextBlock Text="{x:Bind ViewModel.PhoneNumber, Mode=OneWay, FallbackValue='+84 987 654 321'}" FontSize="13" 
+                                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Spacing="6"
+                                                    Visibility="{x:Bind ViewModel.Address, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+                                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE707;" 
+                                                      FontSize="14" Foreground="#3B82F6"/>
+                                            <TextBlock Text="{x:Bind ViewModel.Address, Mode=OneWay}" FontSize="13" 
+                                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        </StackPanel>
+                                    </StackPanel>
                                 </StackPanel>
-                                <StackPanel Grid.Column="1">
-                                    <TextBlock Text="156" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="Bold" TextAlignment="Center" />
-                                    <TextBlock Text="Actions" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" TextAlignment="Center"/>
+
+                                <!-- Action Buttons -->
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="12" 
+                                            VerticalAlignment="Center">
+                                    <Button MinWidth="130" Height="40" IsEnabled="False"
+                                            ToolTipService.ToolTip="Coming soon - Public profile view">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE890;" FontSize="16"/>
+                                            <TextBlock Text="View as Public" VerticalAlignment="Center" FontSize="13"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{ThemeResource AccentButtonStyle}" 
+                                            Background="#3B82F6" MinWidth="130" Height="40"
+                                            Click="EditButton_Click">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE70F;" FontSize="16"/>
+                                            <TextBlock Text="Edit Profile" VerticalAlignment="Center" FontSize="13"/>
+                                        </StackPanel>
+                                    </Button>
                                 </StackPanel>
                             </Grid>
-                        </StackPanel>
-                    </Border>
-                    
-                    <!-- Quick Actions -->
-                    <Border Style="{StaticResource CardStyle}">
-                        <StackPanel Spacing="8">
-                            <TextBlock Text="Quick Actions" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,8"/>
-                            <Button Style="{StaticResource OutlineButtonStyle}">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8A1;" FontSize="16"/>
-                                    <TextBlock Text="Change Password" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Style="{StaticResource OutlineButtonStyle}">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xEA8F;" FontSize="16"/>
-                                    <TextBlock Text="Notifications" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Style="{StaticResource OutlineButtonStyle}">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE713;" FontSize="16"/>
-                                    <TextBlock Text="Security Settings" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
 
-                <!-- Right Column -->
-                <StackPanel Grid.Column="2" Spacing="24">
+                            <!-- Stats Section - Hidden until data binding is implemented
+                            <Border Grid.Row="1" BorderBrush="{StaticResource BorderBrush}" 
+                                    BorderThickness="0,1,0,0" Padding="0,24,0,0" Visibility="Collapsed">
+                                <Grid ColumnSpacing="48">
+                                    ... Stats will be bound to real data when API is ready ...
+                                </Grid>
+                            </Border>
+                            -->
+                        </Grid>
+                    </Border>
+
+                    <!-- Avatar Upload Controls (visible when image is selected) -->
+                    <StackPanel Spacing="12" HorizontalAlignment="Center" Margin="0,0,0,24"
+                                Visibility="{x:Bind ViewModel.SelectedAvatarFile, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="12">
+                            <StackPanel Spacing="8">
+                                <StackPanel Spacing="4" HorizontalAlignment="Center">
+                                    <TextBlock Text="New avatar selected" 
+                                               FontSize="14" 
+                                               FontWeight="SemiBold" 
+                                               Foreground="{StaticResource TextPrimaryBrush}"
+                                               TextAlignment="Center"/>
+                                    <TextBlock Text="{x:Bind ViewModel.SelectedAvatarFile.Name, Mode=OneWay}" 
+                                               FontSize="12" 
+                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               TextAlignment="Center"
+                                               MaxWidth="300"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                    <Button Style="{ThemeResource AccentButtonStyle}"
+                                            Command="{x:Bind ViewModel.UploadAvatarCommand}"
+                                            IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE898;" FontSize="14"/>
+                                            <TextBlock Text="Upload" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Content="Cancel" 
+                                            Click="CancelAvatarButton_Click"
+                                            IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
+                                </StackPanel>
+                                <ProgressBar IsIndeterminate="True" 
+                                             Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibility}}"
+                                             Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Email Verification Alerts -->
+                    <InfoBar Title="Email Verification Required"
+                             Message="Please verify your email address to ensure account security and receive system notifications."
+                             Severity="Warning"
+                             BorderBrush="{StaticResource WarningBrush}"
+                             Background="{StaticResource WarningBackgroundBrush}"
+                             IsOpen="{x:Bind ViewModel.IsEmailVerified, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                             IsClosable="False"
+                             Margin="0,0,0,24">
+                        <InfoBar.Content>
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <HyperlinkButton Content="Resend verification email" Click="ResendVerificationButton_Click" />
+                            </StackPanel>
+                        </InfoBar.Content>
+                    </InfoBar>
+
+                    <InfoBar Title="Email Verified"
+                             Message="Your email address has been verified. You have full access to all admin features."
+                             Severity="Success"
+                             BorderBrush="{StaticResource SuccessBrush}"
+                             Background="{StaticResource SuccessBackgroundBrush}"
+                             IsOpen="{x:Bind ViewModel.IsEmailVerified, Mode=OneWay}"
+                             IsClosable="False"
+                             Margin="0,0,0,24"/>
+
+                    <!-- Content Sections -->
+                    <StackPanel Spacing="24">
                     <!-- Personal Information -->
                     <Border Style="{StaticResource CardStyle}">
                         <StackPanel Spacing="24">
@@ -232,9 +292,9 @@
 
                                 <!-- Edit/Save/Cancel Buttons -->
                                 <Button Grid.Column="1" Content="Edit Profile" Click="EditButton_Click"
-                                        Visibility="{Binding IsChecked, ElementName=EditModeToggle, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+                                        Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8"
-                                            Visibility="{Binding IsChecked, ElementName=EditModeToggle, Converter={StaticResource BoolToVisibility}}">
+                                            Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
                                     <Button Content="Cancel" Click="CancelButton_Click" />
                                     <Button Style="{ThemeResource AccentButtonStyle}" Background="{StaticResource AdminBlueBrush}" Click="SaveButton_Click">
                                         <StackPanel Orientation="Horizontal" Spacing="8">
@@ -258,35 +318,35 @@
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
 
-                                <TextBox Grid.Row="0" Grid.Column="0" Header="First Name" Text="{x:Bind ViewModel.FirstName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{Binding IsChecked, ElementName=EditModeToggle}"/>
-                                <TextBox Grid.Row="0" Grid.Column="1" Header="Last Name" Text="{x:Bind ViewModel.LastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{Binding IsChecked, ElementName=EditModeToggle}"/>
-                                <TextBox Grid.Row="1" Grid.Column="0" Header="Username" Text="{x:Bind ViewModel.Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{Binding IsChecked, ElementName=EditModeToggle}"/>
+                                <TextBox Grid.Row="0" Grid.Column="0" Header="First Name" Text="{x:Bind ViewModel.FirstName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
+                                <TextBox Grid.Row="0" Grid.Column="1" Header="Last Name" Text="{x:Bind ViewModel.LastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
+                                <TextBox Grid.Row="1" Grid.Column="0" Header="Username" Text="{x:Bind ViewModel.Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
                                 
                                 <!-- Email with Badge -->
                                 <StackPanel Grid.Row="1" Grid.Column="1">
                                     <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,4">
                                         <TextBlock Text="Email" />
                                         <Border BorderBrush="{StaticResource SuccessBrush}" BorderThickness="1" CornerRadius="12" Padding="8,2"
-                                                Visibility="{Binding IsChecked, ElementName=EmailVerifiedToggle, Converter={StaticResource BoolToVisibility}}">
+                                                Visibility="{x:Bind ViewModel.IsEmailVerified, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
                                             <StackPanel Orientation="Horizontal" Spacing="4">
                                                 <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE930;" FontSize="12" Foreground="{StaticResource SuccessBrush}"/>
                                                 <TextBlock Text="Verified" FontSize="12" Foreground="{StaticResource SuccessBrush}"/>
                                             </StackPanel>
                                         </Border>
                                         <Border BorderBrush="{StaticResource WarningBrush}" BorderThickness="1" CornerRadius="12" Padding="8,2"
-                                                Visibility="{Binding IsChecked, ElementName=EmailVerifiedToggle, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                                Visibility="{x:Bind ViewModel.IsEmailVerified, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                             <StackPanel Orientation="Horizontal" Spacing="4">
                                                 <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE715;" FontSize="12" Foreground="{StaticResource WarningBrush}"/>
                                                 <TextBlock Text="Unverified" FontSize="12" Foreground="{StaticResource WarningBrush}"/>
                                             </StackPanel>
                                         </Border>
                                     </StackPanel>
-                                    <TextBox Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{Binding IsChecked, ElementName=EditModeToggle}"/>
+                                    <TextBox Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
                                 </StackPanel>
                                 
-                                <TextBox Grid.Row="2" Grid.Column="0" Header="Phone Number" Text="{x:Bind ViewModel.PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{Binding IsChecked, ElementName=EditModeToggle}"/>
-                                <TextBox Grid.Row="2" Grid.Column="1" Header="Department" Text="{x:Bind ViewModel.Department, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{Binding IsChecked, ElementName=EditModeToggle}"/>
-                                <TextBox Grid.Row="3" Grid.ColumnSpan="2" Header="Job Title" Text="{x:Bind ViewModel.JobTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{Binding IsChecked, ElementName=EditModeToggle}"/>
+                                <TextBox Grid.Row="2" Grid.Column="0" Header="Phone Number" Text="{x:Bind ViewModel.PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
+                                <TextBox Grid.Row="2" Grid.Column="1" Header="Department" Text="{x:Bind ViewModel.Department, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
+                                <TextBox Grid.Row="3" Grid.ColumnSpan="2" Header="Job Title" Text="{x:Bind ViewModel.JobTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
                             </Grid>
                         </StackPanel>
                     </Border>
@@ -307,9 +367,10 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel VerticalAlignment="Center">
                                         <TextBlock Text="Password" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                                        <TextBlock Text="Last changed 45 days ago" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        <TextBlock Text="Update your password regularly for security" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
                                     </StackPanel>
-                                    <Button Grid.Column="1" Content="Change Password" />
+                                    <Button Grid.Column="1" Content="Change Password" Click="ChangePasswordButton_Click"
+                                            ToolTipService.ToolTip="Change your account password" />
                                 </Grid>
                             </Border>
 
@@ -319,7 +380,8 @@
                                         <TextBlock Text="Two-Factor Authentication" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
                                         <TextBlock Text="Add an extra layer of security" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
                                     </StackPanel>
-                                    <Button Grid.Column="1" Content="Enable" HorizontalAlignment="Right"/>
+                                    <Button Grid.Column="1" Content="Enable" HorizontalAlignment="Right"
+                                            IsEnabled="False" ToolTipService.ToolTip="Coming soon - 2FA support"/>
                                 </Grid>
                             </Border>
 
@@ -329,78 +391,25 @@
                                         <TextBlock Text="Active Sessions" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
                                         <TextBlock Text="Manage your active sessions" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
                                     </StackPanel>
-                                    <Button Grid.Column="1" Content="View Sessions" HorizontalAlignment="Right"/>
+                                    <Button Grid.Column="1" Content="View Sessions" HorizontalAlignment="Right"
+                                            IsEnabled="False" ToolTipService.ToolTip="Coming soon - Session management"/>
                                 </Grid>
                             </Border>
                         </StackPanel>
                     </Border>
 
-                    <!-- Activity Log -->
+                    <!-- Activity Log - Hidden until activity tracking is implemented -->
+                    <!-- 
                     <Border Style="{StaticResource CardStyle}">
                         <StackPanel Spacing="16">
                             <TextBlock Text="Recent Activity" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="{StaticResource TextPrimaryBrush}"/>
-                            <!-- Sử dụng ListView để hiển thị danh sách hoạt động -->
-                            <ListView SelectionMode="None" IsItemClickEnabled="False">
-                                <ListView.ItemContainerStyle>
-                                    <Style TargetType="ListViewItem">
-                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                        <Setter Property="Padding" Value="0,12"/>
-                                        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
-                                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                                    </Style>
-                                </ListView.ItemContainerStyle>
-                                <ListView.Items>
-                                    <!-- Activity Item 1 -->
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Ellipse Width="8" Height="8" Fill="{StaticResource SuccessBrush}" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="1" Text="Approved Sales Agent Request" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="2" Text="2 hours ago" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
-                                    </Grid>
-                                    <!-- Activity Item 2 -->
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Ellipse Width="8" Height="8" Fill="{StaticResource AdminCyanBrush}" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="1" Text="Updated Product Inventory" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="2" Text="5 hours ago" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
-                                    </Grid>
-                                    <!-- Activity Item 3 -->
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Ellipse Width="8" Height="8" Fill="{StaticResource AdminBlueBrush}" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="1" Text="Created New User Account" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="2" Text="1 day ago" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
-                                    </Grid>
-                                    <!-- Activity Item 4 -->
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Ellipse Width="8" Height="8" Fill="{StaticResource WarningBrush}" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="1" Text="Generated Sales Report" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="2" Text="2 days ago" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
-                                    </Grid>
-                                </ListView.Items>
-                            </ListView>
+                            TODO: Add ItemsSource binding to activity list from ViewModel when API is ready
                         </StackPanel>
                     </Border>
+                    -->
+                    </StackPanel>
                 </StackPanel>
-            </Grid>
-        </StackPanel>
+            </StackPanel>
         </ScrollViewer>
     </Grid>
 </Page>

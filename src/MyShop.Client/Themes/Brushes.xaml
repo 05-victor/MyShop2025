@@ -6,6 +6,8 @@
     <!-- ============================================= -->
     
     <SolidColorBrush x:Key="NavyPrimaryBrush" Color="#1A4D8F"/>
+    <SolidColorBrush x:Key="PrimaryBrush" Color="#1A4D8F"/>
+    <SolidColorBrush x:Key="PrimaryHoverBrush" Color="#245FAE"/>
     <SolidColorBrush x:Key="AccentBlueBrush" Color="#00AEEF"/>
     <SolidColorBrush x:Key="SecondaryBlueBrush" Color="#2563EB"/>
     <SolidColorBrush x:Key="DarkBlueBrush" Color="#1E40AF"/>
@@ -69,10 +71,12 @@
     <SolidColorBrush x:Key="Gray50Brush" Color="#F8FAFC"/>
     
     <!-- Semantic Gray Brushes -->
-    <SolidColorBrush x:Key="BorderDefaultBrush" Color="#E5E7EB"/>
-    <SolidColorBrush x:Key="BorderLightBrush" Color="#F3F4F6"/>
-    <SolidColorBrush x:Key="BackgroundLightBrush" Color="#F8FAFC"/>
+    <SolidColorBrush x:Key="BorderDefaultBrush" Color="#D0D7E2"/>
+    <SolidColorBrush x:Key="BorderLightBrush" Color="#E5E7EB"/>
+    <SolidColorBrush x:Key="BorderFocusBrush" Color="#1A4D8F"/>
+    <SolidColorBrush x:Key="BackgroundLightBrush" Color="#F5F7FA"/>
     <SolidColorBrush x:Key="BackgroundMediumBrush" Color="#F9FAFB"/>
+    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF"/>
 
 
     <!-- ============================================= -->

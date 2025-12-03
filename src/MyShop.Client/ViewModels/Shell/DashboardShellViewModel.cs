@@ -4,51 +4,89 @@ using MyShop.Shared.Models;
 using MyShop.Client.ViewModels.Base;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Core.Interfaces.Infrastructure;
+using MyShop.Core.Interfaces.Repositories;
 using MyShop.Client.Views.Shared;
 using System;
+using System.Threading.Tasks;
 
 namespace MyShop.Client.ViewModels.Shell
 {
     public partial class DashboardShellViewModel : BaseViewModel
     {
-        private readonly INavigationService _navigationService;
-        private readonly IToastService _toastHelper;
+        private new readonly INavigationService _navigationService;
+        private new readonly IToastService _toastHelper;
         private readonly ICredentialStorage _credentialStorage;
+        private readonly ICartRepository _cartRepository;
 
-        // Thông tin user hiện tại để hiển thị ở PaneHeader / PaneFooter
+        // Current user information for display in PaneHeader / PaneFooter
         [ObservableProperty]
         private User? _currentUser;
 
         [ObservableProperty]
         private string _welcomeMessage = "Welcome back!";
 
+        [ObservableProperty]
+        private int _cartCount = 0;
+
         public DashboardShellViewModel(
             INavigationService navigationService,
             IToastService toastHelper,
-            ICredentialStorage credentialStorage)
+            ICredentialStorage credentialStorage,
+            ICartRepository cartRepository)
         {
             _navigationService = navigationService;
             _toastHelper = toastHelper;
             _credentialStorage = credentialStorage;
+            _cartRepository = cartRepository;
         }
 
         /// <summary>
-        /// Được gọi khi Shell nhận được User từ Login / App startup
+        /// Called when Shell receives User from Login / App startup.
+        /// Initializes the dashboard with user information.
         /// </summary>
-        public void Initialize(User user)
+        /// <param name="user">The authenticated user.</param>
+        public async void Initialize(User user)
         {
             CurrentUser = user;
             WelcomeMessage = $"Welcome back, {user.Username}!";
+            
+            // Load cart count for customer role
+            if (user.GetPrimaryRole().ToString() == "Customer")
+            {
+                await RefreshCartCountAsync();
+            }
         }
 
-        // ====== Logic trước đây nằm trong AdminDashboardViewModel ======
+        /// <summary>
+        /// Refresh cart count from repository
+        /// </summary>
+        public async Task RefreshCartCountAsync()
+        {
+            if (CurrentUser == null) return;
+
+            try
+            {
+                var result = await _cartRepository.GetCartCountAsync(CurrentUser.Id);
+                if (result.IsSuccess)
+                {
+                    CartCount = result.Data;
+                    System.Diagnostics.Debug.WriteLine($"[DashboardShellViewModel] Cart count updated: {CartCount}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[DashboardShellViewModel] Failed to refresh cart count: {ex.Message}");
+            }
+        }
+
+        // ====== Logic previously in AdminDashboardViewModel ======
 
         [RelayCommand]
-        private void Logout()
+        private async Task LogoutAsync()
         {
-            _credentialStorage.RemoveToken();
-            _toastHelper.ShowInfo("You have been logged out");
-            _navigationService.NavigateTo(typeof(LoginPage).FullName!);
+            await _credentialStorage.RemoveToken();
+            await _toastHelper.ShowInfo("You have been logged out");
+            await _navigationService.NavigateTo(typeof(LoginPage).FullName!);
         }
 
         // Navigation commands removed - Shell handles navigation directly

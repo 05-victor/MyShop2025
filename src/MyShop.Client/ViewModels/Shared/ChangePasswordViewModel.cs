@@ -1,88 +1,131 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MyShop.Core.Interfaces.Services;
-using MyShop.Core.Interfaces.Repositories;
-using MyShop.Shared.DTOs.Requests;
+using MyShop.Client.Facades;
+using MyShop.Core.Interfaces.Facades;
 using System;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace MyShop.Client.ViewModels.Shared;
 
-/// <summary>
-/// ViewModel for Change Password dialog/page
-/// Validates password strength and confirmation
-/// </summary>
 public partial class ChangePasswordViewModel : ObservableObject
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IValidationService _validationService;
-    private readonly IToastService _toastHelper;
+    private readonly IProfileFacade _profileFacade;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsFormValid))]
-    [NotifyCanExecuteChangedFor(nameof(ChangePasswordCommand))]
+    [NotifyPropertyChangedFor(nameof(IsFormValid), nameof(CurrentPasswordError))]
     private string _currentPassword = string.Empty;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsFormValid))]
-    [NotifyCanExecuteChangedFor(nameof(ChangePasswordCommand))]
+    [NotifyPropertyChangedFor(nameof(IsFormValid), nameof(NewPasswordError), nameof(PasswordStrength), nameof(ConfirmPasswordError))]
     private string _newPassword = string.Empty;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsFormValid))]
-    [NotifyCanExecuteChangedFor(nameof(ChangePasswordCommand))]
+    [NotifyPropertyChangedFor(nameof(IsFormValid), nameof(ConfirmPasswordError))]
     private string _confirmPassword = string.Empty;
 
-    // Validation errors
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsFormValid))]
-    [NotifyCanExecuteChangedFor(nameof(ChangePasswordCommand))]
-    private string _currentPasswordError = string.Empty;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsFormValid))]
-    [NotifyCanExecuteChangedFor(nameof(ChangePasswordCommand))]
-    private string _newPasswordError = string.Empty;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsFormValid))]
-    [NotifyCanExecuteChangedFor(nameof(ChangePasswordCommand))]
-    private string _confirmPasswordError = string.Empty;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasError))]
-    private string _errorMessage = string.Empty;
-    
-    [ObservableProperty] private bool _isLoading = false;
-
-    public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
-
-    // Password visibility toggles
+    [NotifyPropertyChangedFor(nameof(CanSubmit))]
+    private bool _isLoading = false;
     [ObservableProperty] private bool _showCurrentPassword = false;
     [ObservableProperty] private bool _showNewPassword = false;
     [ObservableProperty] private bool _showConfirmPassword = false;
-
-    // Success flag for dialog result
     [ObservableProperty] private bool _isSuccess = false;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasError))]
+    private string _errorMessage = string.Empty;
+
+    // Validation error messages
+    public string CurrentPasswordError =>
+        string.IsNullOrWhiteSpace(CurrentPassword) ? "Current password is required" : string.Empty;
+
+    public string NewPasswordError
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(NewPassword))
+                return "New password is required";
+            
+            if (NewPassword.Length < 8)
+                return "Password must be at least 8 characters";
+            
+            if (!Regex.IsMatch(NewPassword, @"[A-Z]"))
+                return "Password must contain at least one uppercase letter";
+            
+            if (!Regex.IsMatch(NewPassword, @"[a-z]"))
+                return "Password must contain at least one lowercase letter";
+            
+            if (!Regex.IsMatch(NewPassword, @"[0-9]"))
+                return "Password must contain at least one number";
+            
+            if (!Regex.IsMatch(NewPassword, @"[!@#$%^&*(),.?""':{}|<>]"))
+                return "Password must contain at least one special character";
+            
+            if (NewPassword == CurrentPassword)
+                return "New password must be different from current password";
+            
+            return string.Empty;
+        }
+    }
+
+    public string ConfirmPasswordError
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(ConfirmPassword))
+                return "Please confirm your password";
+            
+            if (NewPassword != ConfirmPassword)
+                return "Passwords do not match";
+            
+            return string.Empty;
+        }
+    }
+
+    // Password strength indicator
+    public string PasswordStrength
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(NewPassword)) return "None";
+            
+            int strength = 0;
+            if (NewPassword.Length >= 8) strength++;
+            if (NewPassword.Length >= 12) strength++;
+            if (Regex.IsMatch(NewPassword, @"[A-Z]")) strength++;
+            if (Regex.IsMatch(NewPassword, @"[a-z]")) strength++;
+            if (Regex.IsMatch(NewPassword, @"[0-9]")) strength++;
+            if (Regex.IsMatch(NewPassword, @"[!@#$%^&*(),.?""':{}|<>]")) strength++;
+            
+            return strength switch
+            {
+                <= 2 => "Weak",
+                <= 4 => "Medium",
+                _ => "Strong"
+            };
+        }
+    }
 
     public bool IsFormValid =>
-        string.IsNullOrWhiteSpace(CurrentPasswordError) &&
-        string.IsNullOrWhiteSpace(NewPasswordError) &&
-        string.IsNullOrWhiteSpace(ConfirmPasswordError) &&
         !string.IsNullOrWhiteSpace(CurrentPassword) &&
         !string.IsNullOrWhiteSpace(NewPassword) &&
-        !string.IsNullOrWhiteSpace(ConfirmPassword);
+        !string.IsNullOrWhiteSpace(ConfirmPassword) &&
+        string.IsNullOrEmpty(NewPasswordError) &&
+        string.IsNullOrEmpty(ConfirmPasswordError);
 
+    /// <summary>
+    /// Can submit form (form valid and not loading)
+    /// </summary>
     public bool CanSubmit => IsFormValid && !IsLoading;
 
-    public ChangePasswordViewModel(
-        IUserRepository userRepository,
-        IValidationService validationService,
-        IToastService toastHelper)
+    /// <summary>
+    /// Has error message to display
+    /// </summary>
+    public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
+
+    public ChangePasswordViewModel(IProfileFacade profileFacade)
     {
-        _userRepository = userRepository;
-        _validationService = validationService;
-        _toastHelper = toastHelper;
+        _profileFacade = profileFacade;
     }
 
     /// <summary>
@@ -112,186 +155,42 @@ public partial class ChangePasswordViewModel : ObservableObject
         ShowConfirmPassword = !ShowConfirmPassword;
     }
 
-    /// <summary>
-    /// Attempt to change password
-    /// </summary>
-    [RelayCommand(CanExecute = nameof(CanChangePassword))]
+    [RelayCommand(CanExecute = nameof(IsFormValid))]
     private async Task ChangePasswordAsync()
     {
-        if (!ValidateAll())
-        {
-            ErrorMessage = "Please fix validation errors.";
-            return;
-        }
+        if (!IsFormValid) return;
 
+        IsLoading = true;
+        ErrorMessage = string.Empty;
+        
         try
         {
-            IsLoading = true;
-            ErrorMessage = string.Empty;
-
-            var request = new ChangePasswordRequest
-            {
-                CurrentPassword = CurrentPassword,
-                NewPassword = NewPassword
-            };
-
-            var result = await _userRepository.ChangePasswordAsync(request);
+            var result = await _profileFacade.ChangePasswordAsync(CurrentPassword, NewPassword, ConfirmPassword);
 
             if (result.IsSuccess)
             {
-                _toastHelper.ShowSuccess("Password changed successfully!");
                 IsSuccess = true;
-                
-                // Clear sensitive data
                 CurrentPassword = string.Empty;
                 NewPassword = string.Empty;
                 ConfirmPassword = string.Empty;
+                ErrorMessage = string.Empty;
+                
+                System.Diagnostics.Debug.WriteLine("[ChangePasswordViewModel] Password changed successfully");
             }
             else
             {
-                // Check if error is about current password
-                if (result.ErrorMessage?.Contains("current", StringComparison.OrdinalIgnoreCase) == true)
-                {
-                    CurrentPasswordError = "Current password is incorrect";
-                }
-                else
-                {
-                    ErrorMessage = result.ErrorMessage ?? "Failed to change password.";
-                }
+                ErrorMessage = result.ErrorMessage ?? "Failed to change password. Please check your current password.";
+                System.Diagnostics.Debug.WriteLine($"[ChangePasswordViewModel] Password change failed: {ErrorMessage}");
             }
-        }
-        catch (Refit.ApiException apiEx)
-        {
-            if ((int)apiEx.StatusCode == 400)
-            {
-                if (apiEx.Content?.Contains("current", StringComparison.OrdinalIgnoreCase) == true)
-                {
-                    CurrentPasswordError = "Current password is incorrect";
-                }
-                else
-                {
-                    ErrorMessage = apiEx.Content ?? "Server validation failed.";
-                }
-            }
-            else
-            {
-                ErrorMessage = "Server error. Please try again.";
-            }
-        }
-        catch (System.Net.Http.HttpRequestException)
-        {
-            ErrorMessage = "Cannot connect to server. Please check your connection.";
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[ChangePasswordViewModel] Error: {ex.Message}");
-            ErrorMessage = "An unexpected error occurred.";
+            ErrorMessage = "An error occurred while changing password. Please try again.";
+            System.Diagnostics.Debug.WriteLine($"[ChangePasswordViewModel] Exception: {ex.Message}");
         }
         finally
         {
             IsLoading = false;
-        }
-    }
-
-    private bool CanChangePassword() => IsFormValid && !IsLoading;
-
-    /// <summary>
-    /// Validate all password fields
-    /// </summary>
-    private bool ValidateAll()
-    {
-        ClearErrors();
-        var isValid = true;
-
-        // Validate current password
-        if (string.IsNullOrWhiteSpace(CurrentPassword))
-        {
-            CurrentPasswordError = "Current password is required";
-            isValid = false;
-        }
-
-        // Validate new password
-        var newPasswordResult = _validationService.ValidatePassword(NewPassword);
-        if (!newPasswordResult.IsValid)
-        {
-            NewPasswordError = newPasswordResult.ErrorMessage;
-            isValid = false;
-        }
-
-        // Check new password differs from current
-        if (!string.IsNullOrWhiteSpace(CurrentPassword) && 
-            !string.IsNullOrWhiteSpace(NewPassword) &&
-            string.Equals(CurrentPassword, NewPassword, StringComparison.Ordinal))
-        {
-            NewPasswordError = "New password must differ from current password";
-            isValid = false;
-        }
-
-        // Validate confirmation
-        var confirmResult = _validationService.ValidatePasswordConfirmation(NewPassword, ConfirmPassword);
-        if (!confirmResult.IsValid)
-        {
-            ConfirmPasswordError = confirmResult.ErrorMessage;
-            isValid = false;
-        }
-
-        return isValid;
-    }
-
-    /// <summary>
-    /// Clear all validation errors
-    /// </summary>
-    private void ClearErrors()
-    {
-        CurrentPasswordError = string.Empty;
-        NewPasswordError = string.Empty;
-        ConfirmPasswordError = string.Empty;
-        ErrorMessage = string.Empty;
-    }
-
-    /// <summary>
-    /// Real-time validation for new password
-    /// </summary>
-    partial void OnNewPasswordChanged(string value)
-    {
-        if (!string.IsNullOrWhiteSpace(value))
-        {
-            var result = _validationService.ValidatePassword(value);
-            NewPasswordError = result.IsValid ? string.Empty : result.ErrorMessage;
-
-            // Check if differs from current
-            if (!string.IsNullOrWhiteSpace(CurrentPassword) &&
-                string.Equals(CurrentPassword, value, StringComparison.Ordinal))
-            {
-                NewPasswordError = "New password must differ from current password";
-            }
-
-            // Re-validate confirmation if already entered
-            if (!string.IsNullOrWhiteSpace(ConfirmPassword))
-            {
-                var confirmResult = _validationService.ValidatePasswordConfirmation(value, ConfirmPassword);
-                ConfirmPasswordError = confirmResult.IsValid ? string.Empty : confirmResult.ErrorMessage;
-            }
-        }
-        else
-        {
-            NewPasswordError = string.Empty;
-        }
-    }
-
-    /// <summary>
-    /// Real-time validation for confirm password
-    /// </summary>
-    partial void OnConfirmPasswordChanged(string value)
-    {
-        if (!string.IsNullOrWhiteSpace(value) && !string.IsNullOrWhiteSpace(NewPassword))
-        {
-            var result = _validationService.ValidatePasswordConfirmation(NewPassword, value);
-            ConfirmPasswordError = result.IsValid ? string.Empty : result.ErrorMessage;
-        }
-        else
-        {
-            ConfirmPasswordError = string.Empty;
         }
     }
 }

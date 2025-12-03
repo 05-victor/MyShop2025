@@ -16,8 +16,8 @@ public class ProductResponse
     public string? Name { get; set; }
     public string? Manufacturer { get; set; }
     public string? DeviceType { get; set; }
-    public int? ImportPrice { get; set; }
-    public int? SellingPrice { get; set; }
+    public decimal? ImportPrice { get; set; }
+    public decimal? SellingPrice { get; set; }
     public int? Quantity { get; set; }
     public double? CommissionRate { get; set; }
     public string? Status { get; set; } = "AVAILABLE";

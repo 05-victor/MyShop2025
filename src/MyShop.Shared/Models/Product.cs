@@ -15,7 +15,7 @@ public class Product
     public int Quantity { get; set; }
     
     // Category references
-    public Guid CategoryId { get; set; }
+    public Guid? CategoryId { get; set; }
     public string? CategoryName { get; set; }
     public string? Category { get; set; }  // For backward compatibility
     

@@ -1,24 +1,27 @@
+using MyShop.Core.Common;
+
 namespace MyShop.Core.Interfaces.Infrastructure;
 
 /// <summary>
-/// Interface for storing and retrieving authentication credentials (JWT tokens)
-/// Cho phép swap giữa các implementation: Windows PasswordVault, File, Memory, etc.
+/// Interface for storing and retrieving authentication credentials (JWT tokens).
+/// Allows swapping between implementations: Windows PasswordVault, File, Memory, etc.
+/// Implementations should handle secure storage with encryption (e.g., DPAPI on Windows).
 /// </summary>
 public interface ICredentialStorage
 {
     /// <summary>
     /// Save authentication token to storage
     /// </summary>
-    void SaveToken(string token);
+    Task<Result<Unit>> SaveToken(string token);
 
     /// <summary>
     /// Retrieve authentication token from storage
     /// </summary>
-    /// <returns>Token if exists, null otherwise</returns>
+    /// <returns>Token if exist s, null otherwise</returns>
     string? GetToken();
 
     /// <summary>
     /// Remove authentication token from storage (logout)
     /// </summary>
-    void RemoveToken();
+    Task<Result<Unit>> RemoveToken();
 }

@@ -5,10 +5,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MyShop.Client.Config;
-using MyShop.Client.Helpers;
+using MyShop.Client.Services;
 using MyShop.Client.Strategies;
 using MyShop.Client.ViewModels.Admin;
 using MyShop.Client.ViewModels.Shell;
+using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Core.Interfaces.Infrastructure;
@@ -24,19 +25,27 @@ using MyShop.Plugins.API.Reports;
 using MyShop.Plugins.API.Commission;
 using MyShop.Plugins.Repositories.Api;
 using MyShop.Plugins.Repositories.Mocks;
-using MyShop.Plugins.Storage;
+using MyShop.Plugins.Infrastructure;
 using Refit;
 
 namespace MyShop.Client.Config
 {
     /// <summary>
-    /// Centralized Dependency Injection configuration
-    /// Tách biệt DI logic khỏi App.xaml.cs
+    /// Centralized Dependency Injection configuration.
+    /// Separates DI logic from App.xaml.cs.
+    /// 
+    /// Storage Strategy:
+    /// - Uses SecureCredentialStorage (DPAPI encrypted) for all modes
+    /// - Uses FileSettingsStorage with per-user support
+    /// - Removed WindowsCredentialStorage dependency
     /// </summary>
     public static class Bootstrapper
     {
         public static IHost CreateHost()
         {
+            // Ensure base storage directories exist before anything else
+            StorageConstants.EnsureBaseDirectoriesExist();
+
             return Host.CreateDefaultBuilder()
                 .ConfigureAppConfiguration((context, config) =>
                 {
@@ -45,21 +54,27 @@ namespace MyShop.Client.Config
                 })
                 .ConfigureServices((context, services) =>
                 {
-                    // Load configuration vào AppConfig singleton
+                    // Load configuration into AppConfig singleton
                     AppConfig.Instance.LoadFromConfiguration(context.Configuration);
 
                     // Check if using Mock Data
                     var useMockData = context.Configuration.GetValue<bool>("UseMockData");
                     System.Diagnostics.Debug.WriteLine($"[Bootstrapper] UseMockData={useMockData}");
+                    System.Diagnostics.Debug.WriteLine($"[Bootstrapper] EnableDeveloperOptions={AppConfig.Instance.EnableDeveloperOptions}");
+
+                    // ===== Storage (Unified - Same for Mock and Real) =====
+                    // Use SecureCredentialStorage (DPAPI encrypted) for ALL modes
+                    // This is more secure than FileCredentialStorage and more flexible than WindowsCredentialStorage
+                    services.AddSingleton<ICredentialStorage, SecureCredentialStorage>();
+                    services.AddSingleton<ISettingsStorage, FileSettingsStorage>();
+                    
+                    System.Diagnostics.Debug.WriteLine("[Bootstrapper] Using SecureCredentialStorage (DPAPI encrypted)");
+                    System.Diagnostics.Debug.WriteLine("[Bootstrapper] Using FileSettingsStorage (per-user preferences)");
 
                     if (useMockData)
                     {
                         // ===== Mock Mode - No HTTP Clients =====
                         System.Diagnostics.Debug.WriteLine("[Bootstrapper] Using MOCK DATA mode");
-                        
-                        // ===== Storage (Mock - Simple File Storage) =====
-                        services.AddSingleton<ICredentialStorage, FileCredentialStorage>();
-                        services.AddSingleton<ISettingsStorage, FileSettingsStorage>();
                         
                         // ===== Repositories (Mock - from Plugins) =====
                         services.AddScoped<IAuthRepository, MockAuthRepository>();
@@ -73,6 +88,7 @@ namespace MyShop.Client.Config
                         services.AddSingleton<IReportRepository, MockReportRepository>();
                         services.AddSingleton<ICartRepository, MockCartRepository>();
                         services.AddSingleton<IAgentRequestRepository, MockAgentRequestsRepository>();
+                        services.AddSingleton<ISystemActivationRepository, MockSystemActivationRepository>();
                         
                         System.Diagnostics.Debug.WriteLine("[Bootstrapper] All Mock Repositories registered");
                     }
@@ -80,19 +96,6 @@ namespace MyShop.Client.Config
                     {
                         // ===== Real API Mode =====
                         System.Diagnostics.Debug.WriteLine("[Bootstrapper] Using REAL API mode");
-
-                        // ===== Storage (Production - Windows PasswordVault or File) =====
-                        var useWindowsStorage = context.Configuration.GetValue<bool>("UseWindowsCredentialStorage");
-                        if (useWindowsStorage)
-                        {
-                            services.AddSingleton<ICredentialStorage, WindowsCredentialStorage>();
-                            System.Diagnostics.Debug.WriteLine("[Bootstrapper] Using Windows PasswordVault");
-                        }
-                        else
-                        {
-                            services.AddSingleton<ICredentialStorage, FileCredentialStorage>();
-                            System.Diagnostics.Debug.WriteLine("[Bootstrapper] Using File Storage");
-                        }
 
                         // ===== HTTP & API Clients (from Plugins) =====
                         services.AddTransient<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
@@ -177,9 +180,6 @@ namespace MyShop.Client.Config
                             })
                             .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
 
-                        // ===== Storage (Production) =====
-                        services.AddSingleton<ISettingsStorage, FileSettingsStorage>();
-
                         // ===== Repositories (Real - from Plugins) =====
                         services.AddScoped<IAuthRepository, AuthRepository>();
                         services.AddScoped<IDashboardRepository, DashboardRepository>();
@@ -191,6 +191,9 @@ namespace MyShop.Client.Config
                         services.AddScoped<ICartRepository, CartRepository>();
                         services.AddScoped<IReportRepository, ReportRepository>();
                         services.AddScoped<ICommissionRepository, CommissionRepository>();
+                        
+                        // TODO: Replace with SystemActivationRepository when API is implemented
+                        services.AddSingleton<ISystemActivationRepository, MockSystemActivationRepository>();
                     }
 
                     // ===== Services (from Client.Services) =====
@@ -198,6 +201,35 @@ namespace MyShop.Client.Config
                     services.AddTransient<MyShop.Core.Interfaces.Services.IToastService, Services.ToastService>();
                     services.AddTransient<MyShop.Core.Interfaces.Services.IDialogService, Services.DialogService>();
                     services.AddSingleton<MyShop.Core.Interfaces.Services.IValidationService, Services.ValidationService>();
+                    services.AddSingleton<MyShop.Core.Interfaces.Services.IExportService, Services.ExportService>();
+                    
+                    // ===== Pagination Service (Global runtime settings) =====
+                    services.AddSingleton<MyShop.Core.Interfaces.Services.IPaginationService, PaginationService>();
+                    System.Diagnostics.Debug.WriteLine("[Bootstrapper] PaginationService registered as Singleton");
+
+                    // ===== Facades (Application Core - aggregates multiple services) =====
+                    // Authentication & User Management
+                    services.AddScoped<MyShop.Core.Interfaces.Facades.IAuthFacade, Facades.AuthFacade>();
+                    services.AddScoped<MyShop.Core.Interfaces.Facades.IProfileFacade, Facades.ProfileFacade>();
+                    services.AddScoped<MyShop.Core.Interfaces.Facades.IUserFacade, Facades.Users.UserFacade>();
+                    
+                    // Product & Catalog
+                    services.AddScoped<MyShop.Core.Interfaces.Facades.IProductFacade, Facades.ProductFacade>();
+                    services.AddScoped<MyShop.Core.Interfaces.Facades.ICategoryFacade, Facades.Products.CategoryFacade>();
+                    
+                    // Shopping & Orders
+                    services.AddScoped<MyShop.Core.Interfaces.Facades.ICartFacade, Facades.CartFacade>();
+                    services.AddScoped<MyShop.Core.Interfaces.Facades.IOrderFacade, Facades.OrderFacade>();
+                    
+                    // Dashboard & Reports
+                    services.AddScoped<MyShop.Core.Interfaces.Facades.IDashboardFacade, Facades.DashboardFacade>();
+                    services.AddScoped<MyShop.Core.Interfaces.Facades.IReportFacade, Facades.Reports.ReportFacade>();
+                    
+                    // Sales Agent Management
+                    services.AddScoped<MyShop.Core.Interfaces.Facades.ICommissionFacade, Facades.Reports.CommissionFacade>();
+                    services.AddScoped<MyShop.Core.Interfaces.Facades.IAgentRequestFacade, Facades.Users.AgentRequestFacade>();
+                    
+                    System.Diagnostics.Debug.WriteLine("[Bootstrapper] All 11 Facades registered successfully");
 
                     // ===== MediatR (CQRS) =====
                     services.AddMediatR(cfg =>
@@ -229,6 +261,7 @@ namespace MyShop.Client.Config
                     
                     // Customer ViewModels
                     services.AddTransient<ViewModels.Customer.CustomerDashboardViewModel>();
+                    services.AddTransient<ViewModels.Customer.BecomeAgentViewModel>();
                     
                     // SalesAgent ViewModels
                     services.AddTransient<ViewModels.SalesAgent.SalesAgentDashboardViewModel>();

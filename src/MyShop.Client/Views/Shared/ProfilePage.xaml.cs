@@ -1,9 +1,10 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using MyShop.Client.ViewModels.Shared;
 using MyShop.Client.Views.Dialogs;
+using MyShop.Core.Interfaces.Services;
 
 namespace MyShop.Client.Views.Shared;
 
@@ -13,24 +14,161 @@ public sealed partial class ProfilePage : Page
 
     public ProfilePage()
     {
-        this.InitializeComponent();
+        // Wrap InitializeComponent to catch XAML parse errors
+        try
+        {
+            this.InitializeComponent();
+        }
+        catch (Exception ex)
+        {
+            Services.LoggingService.Instance.Error($"[ProfilePage] XAML load failed in InitializeComponent", ex);
+            // Create minimal fallback UI
+            this.Content = new Microsoft.UI.Xaml.Controls.TextBlock
+            {
+                Text = $"Failed to load ProfilePage.\n\nError: {ex.Message}\n\nCheck logs at: {Services.LoggingService.Instance.GetLogDirectory()}",
+                Margin = new Microsoft.UI.Xaml.Thickness(24),
+                Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Red),
+                TextWrapping = Microsoft.UI.Xaml.TextWrapping.Wrap
+            };
+            return;
+        }
         
-        // Get ViewModel from DI
-        ViewModel = App.Current.Services.GetRequiredService<ProfileViewModel>();
+        // Wrap ViewModel resolution to catch DI errors
+        try
+        {
+            // Get ViewModel from DI
+            ViewModel = App.Current.Services.GetRequiredService<ProfileViewModel>();
+        }
+        catch (Exception ex)
+        {
+            Services.LoggingService.Instance.Error($"[ProfilePage] Failed to resolve ProfileViewModel", ex);
+            throw; // Re-throw to surface the actual DI issue
+        }
+        
+        // Wrap keyboard shortcuts setup
+        try
+        {
+            // Setup keyboard shortcuts
+            SetupKeyboardShortcuts();
+        }
+        catch (Exception ex)
+        {
+            Services.LoggingService.Instance.Warning($"[ProfilePage] Failed to setup keyboard shortcuts", ex.ToString());
+            // Non-critical, continue without shortcuts
+        }
+    }
+    
+    private void SetupKeyboardShortcuts()
+    {
+        // Ctrl+E: Edit profile
+        var editShortcut = new Microsoft.UI.Xaml.Input.KeyboardAccelerator 
+        { 
+            Key = Windows.System.VirtualKey.E, 
+            Modifiers = Windows.System.VirtualKeyModifiers.Control 
+        };
+        editShortcut.Invoked += (s, e) => 
+        { 
+            if (!ViewModel.IsEditing)
+            {
+                ViewModel.EditCommand.Execute(null);
+            }
+            e.Handled = true; 
+        };
+        KeyboardAccelerators.Add(editShortcut);
+
+        // Ctrl+S: Save changes
+        var saveShortcut = new Microsoft.UI.Xaml.Input.KeyboardAccelerator 
+        { 
+            Key = Windows.System.VirtualKey.S, 
+            Modifiers = Windows.System.VirtualKeyModifiers.Control 
+        };
+        saveShortcut.Invoked += async (s, e) => 
+        { 
+            // Wrap async event handler with try-catch
+            try
+            {
+                if (ViewModel.IsEditing && ViewModel.IsFormValid)
+                {
+                    await ViewModel.SaveCommand.ExecuteAsync(null);
+                }
+                e.Handled = true;
+            }
+            catch (Exception ex)
+            {
+                Services.LoggingService.Instance.Error("[ProfilePage] Save shortcut failed", ex);
+            }
+        };
+        KeyboardAccelerators.Add(saveShortcut);
+
+        // Escape: Cancel edit
+        var cancelShortcut = new Microsoft.UI.Xaml.Input.KeyboardAccelerator 
+        { 
+            Key = Windows.System.VirtualKey.Escape
+        };
+        cancelShortcut.Invoked += async (s, e) => 
+        { 
+            // Wrap async event handler with try-catch
+            try
+            {
+                if (ViewModel.IsEditing)
+                {
+                    await ViewModel.CancelEditCommand.ExecuteAsync(null);
+                }
+                e.Handled = true;
+            }
+            catch (Exception ex)
+            {
+                Services.LoggingService.Instance.Error("[ProfilePage] Cancel shortcut failed", ex);
+            }
+        };
+        KeyboardAccelerators.Add(cancelShortcut);
+
+        // Ctrl+U: Upload avatar (when file is selected)
+        var uploadShortcut = new Microsoft.UI.Xaml.Input.KeyboardAccelerator 
+        { 
+            Key = Windows.System.VirtualKey.U, 
+            Modifiers = Windows.System.VirtualKeyModifiers.Control 
+        };
+        uploadShortcut.Invoked += async (s, e) => 
+        { 
+            // Wrap async event handler with try-catch
+            try
+            {
+                if (ViewModel.SelectedAvatarFile != null && !ViewModel.IsLoading)
+                {
+                    await ViewModel.UploadAvatarCommand.ExecuteAsync(null);
+                }
+                e.Handled = true;
+            }
+            catch (Exception ex)
+            {
+                Services.LoggingService.Instance.Error("[ProfilePage] Upload shortcut failed", ex);
+            }
+        };
+        KeyboardAccelerators.Add(uploadShortcut);
     }
 
+    // Harden OnNavigatedTo with comprehensive error handling
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
-        base.OnNavigatedTo(e);
-        
-        // Load profile data
-        _ = ViewModel.LoadCommand.ExecuteAsync(null);
+        try
+        {
+            base.OnNavigatedTo(e);
+            Services.NavigationLogger.LogNavigatedTo(nameof(ProfilePage), e.Parameter);
+            
+            // Load profile data
+            _ = ViewModel.LoadCommand.ExecuteAsync(null);
+        }
+        catch (Exception ex)
+        {
+            Services.LoggingService.Instance.Error($"[ProfilePage] OnNavigatedTo failed", ex);
+        }
     }
 
     /// <summary>
     /// Helper method for avatar initial
     /// </summary>
-    public static string GetInitial(string username)
+    public string GetInitial(string username)
     {
         return string.IsNullOrEmpty(username) ? "?" : username[0].ToString().ToUpper();
     }
@@ -40,12 +178,19 @@ public sealed partial class ProfilePage : Page
     /// </summary>
     private async void ChangePasswordButton_Click(object sender, RoutedEventArgs _)
     {
-        var dialog = new ChangePasswordDialog
+        try
         {
-            XamlRoot = this.XamlRoot
-        };
+            var dialog = new ChangePasswordDialog
+            {
+                XamlRoot = this.XamlRoot
+            };
 
-        await dialog.ShowAsync();
+            await dialog.ShowAsync();
+        }
+        catch (Exception ex)
+        {
+            Services.LoggingService.Instance.Error("[ProfilePage] ChangePasswordButton_Click failed", ex);
+        }
     }
 
     /// <summary>
@@ -53,17 +198,24 @@ public sealed partial class ProfilePage : Page
     /// </summary>
     private async void TrialActivationButton_Click(object sender, RoutedEventArgs _)
     {
-        var dialog = new TrialActivationDialog
+        try
         {
-            XamlRoot = this.XamlRoot
-        };
+            var dialog = new TrialActivationDialog
+            {
+                XamlRoot = this.XamlRoot
+            };
 
-        var result = await dialog.ShowAsync();
+            var result = await dialog.ShowAsync();
 
-        // If activation succeeded, reload profile to update trial status
-        if (result == ContentDialogResult.Primary && dialog.ViewModel.IsSuccess)
+            // If activation succeeded, reload profile to update trial status
+            if (result == ContentDialogResult.Primary && dialog.ViewModel.IsSuccess)
+            {
+                await ViewModel.LoadCommand.ExecuteAsync(null);
+            }
+        }
+        catch (Exception ex)
         {
-            await ViewModel.LoadCommand.ExecuteAsync(null);
+            Services.LoggingService.Instance.Error("[ProfilePage] TrialActivationButton_Click failed", ex);
         }
     }
 
@@ -72,21 +224,28 @@ public sealed partial class ProfilePage : Page
     /// </summary>
     private async void LogoutButton_Click(object sender, RoutedEventArgs _)
     {
-        var dialog = new ContentDialog
+        try
         {
-            Title = "Logout",
-            Content = "Are you sure you want to logout from your account?",
-            PrimaryButtonText = "Logout",
-            CloseButtonText = "Cancel",
-            DefaultButton = ContentDialogButton.Close,
-            XamlRoot = this.XamlRoot
-        };
+            var dialog = new ContentDialog
+            {
+                Title = "Logout",
+                Content = "Are you sure you want to logout from your account?",
+                PrimaryButtonText = "Logout",
+                CloseButtonText = "Cancel",
+                DefaultButton = ContentDialogButton.Close,
+                XamlRoot = this.XamlRoot
+            };
 
-        var result = await dialog.ShowAsync();
+            var result = await dialog.ShowAsync();
 
-        if (result == ContentDialogResult.Primary)
+            if (result == ContentDialogResult.Primary)
+            {
+                await ViewModel.LogoutCommand.ExecuteAsync(null);
+            }
+        }
+        catch (Exception ex)
         {
-            await ViewModel.LogoutCommand.ExecuteAsync(null);
+            Services.LoggingService.Instance.Error("[ProfilePage] LogoutButton_Click failed", ex);
         }
     }
 
@@ -111,15 +270,51 @@ public sealed partial class ProfilePage : Page
     /// </summary>
     private async void SaveButton_Click(object sender, RoutedEventArgs e)
     {
-        await ViewModel.SaveCommand.ExecuteAsync(null);
+        try
+        {
+            await ViewModel.SaveCommand.ExecuteAsync(null);
+        }
+        catch (Exception ex)
+        {
+            Services.LoggingService.Instance.Error("[ProfilePage] SaveButton_Click failed", ex);
+        }
     }
 
     /// <summary>
-    /// Verify email (demo only - for testing UI)
+    /// Resend verification email and show OTP dialog
     /// </summary>
-    private void VerifyEmailButton_Click(object sender, RoutedEventArgs e)
+    private async void ResendVerificationButton_Click(object sender, RoutedEventArgs e)
     {
-        // This is demo UI - actual email verification would come from backend
-        // For now, just a placeholder for the demo interface
+        try
+        {
+            // Show email verification dialog with OTP input
+            var dialog = new EmailVerificationDialog(ViewModel.Email, App.Current.Services.GetRequiredService<IToastService>())
+            {
+                XamlRoot = this.XamlRoot
+            };
+
+            dialog.VerificationChecked += async (s, isVerified) =>
+            {
+                if (isVerified)
+                {
+                    // Reload profile to update email verification status
+                    await ViewModel.LoadCommand.ExecuteAsync(null);
+                }
+            };
+
+            await dialog.ShowAsync();
+        }
+        catch (Exception ex)
+        {
+            Services.LoggingService.Instance.Error("[ProfilePage] ResendVerificationButton_Click failed", ex);
+        }
+    }
+
+    /// <summary>
+    /// Cancel avatar selection
+    /// </summary>
+    private void CancelAvatarButton_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.SelectedAvatarFile = null;
     }
 }

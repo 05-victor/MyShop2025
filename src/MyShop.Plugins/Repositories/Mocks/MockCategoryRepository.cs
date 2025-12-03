@@ -1,130 +1,119 @@
 using MyShop.Shared.Models;
 using MyShop.Core.Interfaces.Repositories;
-using System.Text.Json;
+using MyShop.Plugins.Mocks.Data;
+using MyShop.Core.Common;
 
 namespace MyShop.Plugins.Repositories.Mocks;
 
 /// <summary>
-/// Mock implementation of ICategoryRepository using JSON data
+/// Mock implementation of ICategoryRepository - delegates to MockCategoryData
 /// </summary>
 public class MockCategoryRepository : ICategoryRepository
 {
-    private readonly List<Category> _categories;
-    private readonly string _jsonFilePath;
 
-    public MockCategoryRepository()
-    {
-        _jsonFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Mocks", "Data", "Json", "categories.json");
-        _categories = LoadCategoriesFromJson();
-    }
-
-    private List<Category> LoadCategoriesFromJson()
+    public async Task<Result<IEnumerable<Category>>> GetAllAsync()
     {
         try
         {
-            if (!File.Exists(_jsonFilePath))
-            {
-                System.Diagnostics.Debug.WriteLine($"[MockCategoryRepository] JSON file not found: {_jsonFilePath}");
-                return new List<Category>();
-            }
-
-            var json = File.ReadAllText(_jsonFilePath);
-            var jsonDoc = JsonDocument.Parse(json);
-            var categoriesArray = jsonDoc.RootElement.GetProperty("categories");
-
-            var categories = new List<Category>();
-
-            foreach (var item in categoriesArray.EnumerateArray())
-            {
-                var category = new Category
-                {
-                    Id = Guid.Parse(item.GetProperty("id").GetString()!),
-                    Name = item.GetProperty("name").GetString()!,
-                    Description = item.TryGetProperty("description", out var desc) && desc.ValueKind != JsonValueKind.Null
-                        ? desc.GetString()
-                        : null,
-                    CreatedAt = DateTime.Parse(item.GetProperty("createdAt").GetString()!),
-                    UpdatedAt = item.TryGetProperty("updatedAt", out var updatedAt) && updatedAt.ValueKind != JsonValueKind.Null
-                        ? DateTime.Parse(updatedAt.GetString()!)
-                        : null
-                };
-
-                categories.Add(category);
-            }
-
-            System.Diagnostics.Debug.WriteLine($"[MockCategoryRepository] Loaded {categories.Count} categories from JSON");
-            return categories;
+            var categories = await MockCategoryData.GetAllAsync();
+            System.Diagnostics.Debug.WriteLine($"[MockCategoryRepository] GetAllAsync returned {categories.Count} categories");
+            return Result<IEnumerable<Category>>.Success(categories);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[MockCategoryRepository] Error loading JSON: {ex.Message}");
-            return new List<Category>();
+            System.Diagnostics.Debug.WriteLine($"[MockCategoryRepository] GetAllAsync error: {ex.Message}");
+            return Result<IEnumerable<Category>>.Failure($"Failed to get categories: {ex.Message}");
         }
     }
 
-    public async Task<IEnumerable<Category>> GetAllAsync()
+    public async Task<Result<Category>> GetByIdAsync(Guid id)
     {
-        await Task.Delay(200);
-        System.Diagnostics.Debug.WriteLine($"[MockCategoryRepository] GetAllAsync called, returning {_categories.Count} categories");
-        return _categories.ToList();
-    }
-
-    public async Task<Category?> GetByIdAsync(Guid id)
-    {
-        await Task.Delay(150);
-        var category = _categories.FirstOrDefault(c => c.Id == id);
-        System.Diagnostics.Debug.WriteLine($"[MockCategoryRepository] GetByIdAsync({id}) - Found: {category != null}");
-        return category;
-    }
-
-    public async Task<Category> CreateAsync(Category category)
-    {
-        await Task.Delay(400);
-        
-        category.Id = Guid.NewGuid();
-        category.CreatedAt = DateTime.UtcNow;
-        category.UpdatedAt = null;
-        
-        _categories.Add(category);
-        
-        System.Diagnostics.Debug.WriteLine($"[MockCategoryRepository] Created category: {category.Name} (ID: {category.Id})");
-        return category;
-    }
-
-    public async Task<Category> UpdateAsync(Category category)
-    {
-        await Task.Delay(350);
-        
-        var existingCategory = _categories.FirstOrDefault(c => c.Id == category.Id);
-        if (existingCategory == null)
+        try
         {
-            throw new InvalidOperationException($"Category with ID {category.Id} not found");
+            var category = await MockCategoryData.GetByIdAsync(id);
+            System.Diagnostics.Debug.WriteLine($"[MockCategoryRepository] GetByIdAsync({id}) - Found: {category != null}");
+            return category != null
+                ? Result<Category>.Success(category)
+                : Result<Category>.Failure($"Category with ID {id} not found");
         }
-
-        existingCategory.Name = category.Name;
-        existingCategory.Description = category.Description;
-        existingCategory.UpdatedAt = DateTime.UtcNow;
-
-        System.Diagnostics.Debug.WriteLine($"[MockCategoryRepository] Updated category: {existingCategory.Name}");
-        return existingCategory;
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockCategoryRepository] GetByIdAsync error: {ex.Message}");
+            return Result<Category>.Failure($"Failed to get category: {ex.Message}");
+        }
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<Result<Category>> CreateAsync(Category category)
     {
-        await Task.Delay(300);
-        
-        var category = _categories.FirstOrDefault(c => c.Id == id);
-        if (category == null)
+        try
         {
-            return false;
+            category.Id = Guid.NewGuid();
+            category.CreatedAt = DateTime.UtcNow;
+            
+            var created = await MockCategoryData.CreateAsync(category);
+            System.Diagnostics.Debug.WriteLine($"[MockCategoryRepository] Created category: {created.Name}");
+            return Result<Category>.Success(created);
         }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockCategoryRepository] CreateAsync error: {ex.Message}");
+            return Result<Category>.Failure($"Failed to create category: {ex.Message}");
+        }
+    }
 
-        // Check if category has products (simulated)
-        // In real implementation, check against products table
-        // For now, just remove
-        _categories.Remove(category);
-        
-        System.Diagnostics.Debug.WriteLine($"[MockCategoryRepository] Deleted category: {category.Name}");
-        return true;
+    public async Task<Result<Category>> UpdateAsync(Category category)
+    {
+        try
+        {
+            var updated = await MockCategoryData.UpdateAsync(category);
+            System.Diagnostics.Debug.WriteLine($"[MockCategoryRepository] Updated category: {updated.Name}");
+            return Result<Category>.Success(updated);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockCategoryRepository] UpdateAsync error: {ex.Message}");
+            return Result<Category>.Failure($"Failed to update category: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<bool>> DeleteAsync(Guid id)
+    {
+        try
+        {
+            var result = await MockCategoryData.DeleteAsync(id);
+            System.Diagnostics.Debug.WriteLine($"[MockCategoryRepository] DeleteAsync - Success: {result}");
+            return result
+                ? Result<bool>.Success(true)
+                : Result<bool>.Failure($"Failed to delete category with ID {id}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockCategoryRepository] DeleteAsync error: {ex.Message}");
+            return Result<bool>.Failure($"Failed to delete category: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<PagedList<Category>>> GetPagedAsync(
+        int page = 1,
+        int pageSize = 20,
+        string? searchQuery = null,
+        string sortBy = "name",
+        bool sortDescending = false)
+    {
+        try
+        {
+            var (items, totalCount) = await MockCategoryData.GetPagedAsync(
+                page, pageSize, searchQuery, sortBy, sortDescending);
+
+            var pagedList = new PagedList<Category>(items, totalCount, page, pageSize);
+
+            System.Diagnostics.Debug.WriteLine($"[MockCategoryRepository] GetPagedAsync: Page {page}/{pagedList.TotalPages}, Total {totalCount}");
+            return Result<PagedList<Category>>.Success(pagedList);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockCategoryRepository] GetPagedAsync error: {ex.Message}");
+            return Result<PagedList<Category>>.Failure($"Failed to get paged categories: {ex.Message}");
+        }
     }
 }

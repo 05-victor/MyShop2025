@@ -1,4 +1,5 @@
 using MyShop.Shared.Models;
+using MyShop.Core.Common;
 
 namespace MyShop.Core.Interfaces.Repositories;
 
@@ -7,9 +8,19 @@ namespace MyShop.Core.Interfaces.Repositories;
 /// </summary>
 public interface ICategoryRepository
 {
-    Task<IEnumerable<Category>> GetAllAsync();
-    Task<Category?> GetByIdAsync(Guid id);
-    Task<Category> CreateAsync(Category category);
-    Task<Category> UpdateAsync(Category category);
-    Task<bool> DeleteAsync(Guid id);
+    Task<Result<IEnumerable<Category>>> GetAllAsync();
+    Task<Result<Category>> GetByIdAsync(Guid id);
+    Task<Result<Category>> CreateAsync(Category category);
+    Task<Result<Category>> UpdateAsync(Category category);
+    Task<Result<bool>> DeleteAsync(Guid id);
+    
+    /// <summary>
+    /// Get paginated categories with search and sorting
+    /// </summary>
+    Task<Result<PagedList<Category>>> GetPagedAsync(
+        int page = 1,
+        int pageSize = Common.PaginationConstants.DefaultPageSize,
+        string? searchQuery = null,
+        string sortBy = "name",
+        bool sortDescending = false);
 }

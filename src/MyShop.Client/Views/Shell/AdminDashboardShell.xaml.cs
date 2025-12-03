@@ -7,7 +7,8 @@ using MyShop.Client.ViewModels.Shell;
 using MyShop.Shared.Models;
 using MyShop.Client.Views.Admin;
 using MyShop.Client.Views.Shared;
-using MyShop.Client.Helpers;
+using MyShop.Client.Services;
+using MyShop.Client.Extensions;
 using MyShop.Core.Interfaces.Services;
 
 namespace MyShop.Client.Views.Shell
@@ -24,7 +25,7 @@ namespace MyShop.Client.Views.Shell
         {
             try
             {
-                AppLogger.Enter();
+                LoggingService.Instance.Debug("→ AdminDashboardShell.ctor");
                 InitializeComponent();
                 ViewModel = App.Current.Services.GetRequiredService<DashboardShellViewModel>();
                 _navigationService = App.Current.Services.GetRequiredService<INavigationService>();
@@ -37,11 +38,11 @@ namespace MyShop.Client.Views.Shell
                 // Subscribe to ContentFrame navigation to sync NavigationView selection
                 ContentFrame.Navigated += ContentFrame_Navigated;
 
-                AppLogger.Exit();
+                LoggingService.Instance.Debug("← AdminDashboardShell.ctor");
             }
             catch (Exception ex)
             {
-                AppLogger.Error("AdminDashboardShell constructor failed", ex);
+                LoggingService.Instance.Error("AdminDashboardShell constructor failed", ex);
                 throw;
             }
         }
@@ -50,7 +51,7 @@ namespace MyShop.Client.Views.Shell
         {
             try
             {
-                AppLogger.Enter();
+                LoggingService.Instance.Debug("→ AdminDashboardShell.OnNavigatedTo");
                 base.OnNavigatedTo(e);
 
                 if (e.Parameter is User user)
@@ -70,11 +71,11 @@ namespace MyShop.Client.Views.Shell
                         _isRestoringSelection = false;
                     }
                 }
-                AppLogger.Exit();
+                LoggingService.Instance.Debug("← AdminDashboardShell.OnNavigatedTo");
             }
             catch (Exception ex)
             {
-                AppLogger.Error("OnNavigatedTo failed", ex);
+                LoggingService.Instance.Error("OnNavigatedTo failed", ex);
                 throw;
             }
         }
@@ -141,7 +142,7 @@ namespace MyShop.Client.Views.Shell
             }
             catch (Exception ex)
             {
-                AppLogger.Error($"Failed to navigate to {pageType.Name}", ex);
+                LoggingService.Instance.Error($"Failed to navigate to {pageType.Name}", ex);
             }
         }
 
@@ -160,6 +161,13 @@ namespace MyShop.Client.Views.Shell
         /// </summary>
         private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
         {
+            // Scroll the new page to top
+            if (e.Content is Page page)
+            {
+                // Delay slightly to ensure visual tree is loaded
+                page.Loaded += (s, args) => page.ScrollToTop();
+            }
+
             // Map the navigated page type to its corresponding NavigationView tag
             var tag = GetNavigationTagForPageType(e.SourcePageType);
             
@@ -205,6 +213,42 @@ namespace MyShop.Client.Views.Shell
                 return "settings";
 
             return null;
+        }
+
+        /// <summary>
+        /// Handle logout navigation item tap
+        /// </summary>
+        private async void LogoutItem_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            try
+            {
+                // Show confirmation dialog
+                var dialog = new ContentDialog
+                {
+                    Title = "Logout",
+                    Content = "Are you sure you want to logout?",
+                    PrimaryButtonText = "Logout",
+                    CloseButtonText = "Cancel",
+                    DefaultButton = ContentDialogButton.Close,
+                    XamlRoot = this.XamlRoot
+                };
+
+                var result = await dialog.ShowAsync();
+                if (result != ContentDialogResult.Primary)
+                {
+                    return;
+                }
+
+                // Execute logout command
+                if (ViewModel.LogoutCommand.CanExecute(null))
+                {
+                    await ViewModel.LogoutCommand.ExecuteAsync(null);
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.Error("Failed to logout", ex);
+            }
         }
     }
 }

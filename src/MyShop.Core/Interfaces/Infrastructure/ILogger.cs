@@ -1,4 +1,5 @@
 namespace MyShop.Core.Interfaces.Infrastructure;
+using MyShop.Core.Common;
 
 /// <summary>
 /// Interface for logging abstraction
@@ -9,27 +10,27 @@ public interface ILogger
     /// <summary>
     /// Log information message
     /// </summary>
-    void LogInfo(string message);
+    Task<Result<Unit>> LogInfo(string message);
 
     /// <summary>
     /// Log warning message
     /// </summary>
-    void LogWarning(string message);
+    Task<Result<Unit>> LogWarning(string message);
 
     /// <summary>
     /// Log error message
     /// </summary>
-    void LogError(string message, Exception? exception = null);
+    Task<Result<Unit>> LogError(string message, Exception? exception = null);
 
     /// <summary>
     /// Log debug message
     /// </summary>
-    void LogDebug(string message);
+    Task<Result<Unit>> LogDebug(string message);
 
     /// <summary>
     /// Log with custom severity level
     /// </summary>
-    void Log(LogLevel level, string message, Exception? exception = null);
+    Task<Result<Unit>> Log(LogLevel level, string message, Exception? exception = null);
 }
 
 /// <summary>

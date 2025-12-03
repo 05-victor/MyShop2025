@@ -9,12 +9,12 @@ public class AppSettings
     /// <summary>
     /// Theme preference: "Light", "Dark", or "System"
     /// </summary>
-    public string Theme { get; set; } = "System";
+    public string Theme { get; set; } = "Light";
 
     /// <summary>
     /// Language preference: "vi-VN" or "en-US"
     /// </summary>
-    public string Language { get; set; } = "vi-VN";
+    public string Language { get; set; } = "en-US";
 
     /// <summary>
     /// Enable toast notifications
@@ -26,10 +26,10 @@ public class AppSettings
     /// </summary>
     public bool RestoreLastPage { get; set; } = true;
 
-    // Page size preferences
-    public int ProductsPageSize { get; set; } = 20;
-    public int OrdersPageSize { get; set; } = 15;
-    public int CustomersPageSize { get; set; } = 20;
+    /// <summary>
+    /// Pagination settings for all entity types
+    /// </summary>
+    public PaginationSettings Pagination { get; set; } = new();
 
     // Extended notification settings
     public bool EnableSoundNotifications { get; set; } = true;

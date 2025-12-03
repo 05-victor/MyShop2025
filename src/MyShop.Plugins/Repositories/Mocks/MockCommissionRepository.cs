@@ -1,130 +1,132 @@
-using System.Text.Json;
 using MyShop.Core.Interfaces.Repositories;
+using MyShop.Plugins.Mocks.Data;
+using MyShop.Shared.Models;
+using MyShop.Core.Common;
 
 namespace MyShop.Plugins.Repositories.Mocks;
 
 /// <summary>
-/// Mock implementation for Commission management using generated data
+/// Mock implementation for Commission management - delegates to MockCommissionData
 /// </summary>
 public class MockCommissionRepository : ICommissionRepository
 {
-    private readonly List<Commission> _commissions;
 
-    public MockCommissionRepository()
+    public async Task<Result<IEnumerable<Commission>>> GetBySalesAgentIdAsync(Guid salesAgentId)
     {
-        _commissions = GenerateMockCommissions();
-    }
-
-    private List<Commission> GenerateMockCommissions()
-    {
-        var commissions = new List<Commission>();
-        var random = new Random(42); // Fixed seed for consistent data
-
-        // Mock sales agent IDs
-        var salesAgentIds = new[]
+        try
         {
-            Guid.Parse("00000000-0000-0000-0000-000000000001"),
-            Guid.Parse("00000000-0000-0000-0000-000000000002"),
-            Guid.Parse("00000000-0000-0000-0000-000000000003")
-        };
-
-        // Generate 50 commission records
-        for (int i = 0; i < 50; i++)
-        {
-            var orderAmount = (decimal)(random.NextDouble() * 5000 + 100); // $100 - $5100
-            var commissionRate = 10m; // 10% commission
-            var status = random.Next(0, 3) switch
-            {
-                0 => "Pending",
-                1 => "Approved",
-                _ => "Paid"
-            };
-
-            var createdDate = DateTime.Now.AddDays(-random.Next(1, 90));
-            var paidDate = status == "Paid" ? createdDate.AddDays(random.Next(7, 30)) : (DateTime?)null;
-
-            commissions.Add(new Commission
-            {
-                Id = Guid.NewGuid(),
-                OrderId = Guid.NewGuid(),
-                SalesAgentId = salesAgentIds[random.Next(salesAgentIds.Length)],
-                OrderNumber = $"ORD-{10000 + i}",
-                OrderAmount = orderAmount,
-                CommissionRate = commissionRate,
-                CommissionAmount = Math.Round(orderAmount * commissionRate / 100, 2),
-                Status = status,
-                CreatedDate = createdDate,
-                PaidDate = paidDate
-            });
+            var commissions = await MockCommissionData.GetBySalesAgentIdAsync(salesAgentId);
+            System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] Got {commissions.Count} commissions for agent {salesAgentId}");
+            return Result<IEnumerable<Commission>>.Success(commissions);
         }
-
-        return commissions.OrderByDescending(c => c.CreatedDate).ToList();
-    }
-
-    public Task<IEnumerable<Commission>> GetBySalesAgentIdAsync(Guid salesAgentId)
-    {
-        var commissions = _commissions.Where(c => c.SalesAgentId == salesAgentId);
-        return Task.FromResult(commissions);
-    }
-
-    public Task<CommissionSummary> GetSummaryAsync(Guid salesAgentId)
-    {
-        var agentCommissions = _commissions.Where(c => c.SalesAgentId == salesAgentId).ToList();
-
-        if (!agentCommissions.Any())
+        catch (Exception ex)
         {
-            return Task.FromResult(new CommissionSummary());
+            System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] GetBySalesAgentIdAsync error: {ex.Message}");
+            return Result<IEnumerable<Commission>>.Failure($"Failed to get commissions: {ex.Message}");
         }
-
-        var now = DateTime.Now;
-        var thisMonthStart = new DateTime(now.Year, now.Month, 1);
-        var lastMonthStart = thisMonthStart.AddMonths(-1);
-
-        var summary = new CommissionSummary
-        {
-            TotalEarnings = agentCommissions.Sum(c => c.CommissionAmount),
-            PendingCommission = agentCommissions.Where(c => c.Status == "Pending").Sum(c => c.CommissionAmount),
-            PaidCommission = agentCommissions.Where(c => c.Status == "Paid").Sum(c => c.CommissionAmount),
-            TotalOrders = agentCommissions.Count,
-            AverageCommission = agentCommissions.Average(c => c.CommissionAmount),
-            ThisMonthEarnings = agentCommissions
-                .Where(c => c.CreatedDate >= thisMonthStart)
-                .Sum(c => c.CommissionAmount),
-            LastMonthEarnings = agentCommissions
-                .Where(c => c.CreatedDate >= lastMonthStart && c.CreatedDate < thisMonthStart)
-                .Sum(c => c.CommissionAmount)
-        };
-
-        return Task.FromResult(summary);
     }
 
-    public Task<Commission?> GetByOrderIdAsync(Guid orderId)
+    public async Task<Result<CommissionSummary>> GetSummaryAsync(Guid salesAgentId)
     {
-        var commission = _commissions.FirstOrDefault(c => c.OrderId == orderId);
-        return Task.FromResult(commission);
-    }
-
-    public Task<decimal> CalculateCommissionAsync(Guid orderId)
-    {
-        var commission = _commissions.FirstOrDefault(c => c.OrderId == orderId);
-        if (commission == null)
+        try
         {
-            return Task.FromResult(0m);
+            var summary = await MockCommissionData.GetSummaryAsync(salesAgentId);
+            System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] GetSummaryAsync success");
+            return Result<CommissionSummary>.Success(summary);
         }
-
-        // Calculate commission: orderAmount * rate%
-        var calculatedAmount = commission.OrderAmount * commission.CommissionRate / 100;
-        return Task.FromResult(Math.Round(calculatedAmount, 2));
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] GetSummaryAsync error: {ex.Message}");
+            return Result<CommissionSummary>.Failure($"Failed to get commission summary: {ex.Message}");
+        }
     }
 
-    public Task<IEnumerable<Commission>> GetByDateRangeAsync(Guid salesAgentId, DateTime startDate, DateTime endDate)
+    public async Task<Result<Commission>> GetByOrderIdAsync(Guid orderId)
     {
-        var commissions = _commissions
-            .Where(c => c.SalesAgentId == salesAgentId &&
-                        c.CreatedDate >= startDate &&
-                        c.CreatedDate <= endDate)
-            .OrderByDescending(c => c.CreatedDate);
+        try
+        {
+            var commission = await MockCommissionData.GetByOrderIdAsync(orderId);
+            System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] GetByOrderIdAsync - Found: {commission != null}");
+            return commission != null
+                ? Result<Commission>.Success(commission)
+                : Result<Commission>.Failure($"Commission not found for order {orderId}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] GetByOrderIdAsync error: {ex.Message}");
+            return Result<Commission>.Failure($"Failed to get commission: {ex.Message}");
+        }
+    }
 
-        return Task.FromResult(commissions.AsEnumerable());
+    public async Task<Result<decimal>> CalculateCommissionAsync(Guid orderId)
+    {
+        try
+        {
+            var amount = await MockCommissionData.CalculateCommissionAsync(orderId);
+            System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] CalculateCommissionAsync: {amount}");
+            return Result<decimal>.Success(amount);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] CalculateCommissionAsync error: {ex.Message}");
+            return Result<decimal>.Failure($"Failed to calculate commission: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<IEnumerable<Commission>>> GetByDateRangeAsync(Guid salesAgentId, DateTime startDate, DateTime endDate)
+    {
+        try
+        {
+            var commissions = await MockCommissionData.GetByDateRangeAsync(salesAgentId, startDate, endDate);
+            System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] GetByDateRangeAsync returned {commissions.Count} commissions");
+            return Result<IEnumerable<Commission>>.Success(commissions);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] GetByDateRangeAsync error: {ex.Message}");
+            return Result<IEnumerable<Commission>>.Failure($"Failed to get commissions by date range: {ex.Message}");
+        }
+    }
+
+    public async Task<decimal> GetTotalEarnedAsync(Guid salesAgentId)
+    {
+        try
+        {
+            var total = await MockCommissionData.GetTotalEarnedAsync(salesAgentId);
+            System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] GetTotalEarnedAsync: {total}");
+            return total;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] GetTotalEarnedAsync error: {ex.Message}");
+            return 0m;
+        }
+    }
+
+    public async Task<Result<PagedList<Commission>>> GetPagedAsync(
+        Guid salesAgentId,
+        int page = 1,
+        int pageSize = 20,
+        string? status = null,
+        DateTime? startDate = null,
+        DateTime? endDate = null,
+        string sortBy = "createdDate",
+        bool sortDescending = true)
+    {
+        try
+        {
+            var (items, totalCount) = await MockCommissionData.GetPagedAsync(
+                salesAgentId, page, pageSize, status, startDate, endDate, sortBy, sortDescending);
+
+            var pagedList = new PagedList<Commission>(items, totalCount, page, pageSize);
+
+            System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] GetPagedAsync: Page {page}/{pagedList.TotalPages}, Total {totalCount}");
+            return Result<PagedList<Commission>>.Success(pagedList);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockCommissionRepository] GetPagedAsync error: {ex.Message}");
+            return Result<PagedList<Commission>>.Failure($"Failed to get paged commissions: {ex.Message}");
+        }
     }
 }

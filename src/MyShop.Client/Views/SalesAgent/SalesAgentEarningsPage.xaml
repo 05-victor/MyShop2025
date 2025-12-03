@@ -1,45 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="MyShop.Client.Views.SalesAgent.EarningsPage"
+    x:Name="RootPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:components="using:MyShop.Client.Views.Components"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:cards="using:MyShop.Client.Views.Components.Cards"
+    xmlns:layout="using:MyShop.Client.Views.Components.Layout"
+    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
+    xmlns:forms="using:MyShop.Client.Views.Components.Forms"
+    xmlns:pagination="using:MyShop.Client.Views.Components.Pagination"
+    xmlns:converters="using:MyShop.Client.Common.Converters"
+    xmlns:viewmodels="using:MyShop.Client.ViewModels.SalesAgent"
     mc:Ignorable="d"
     Background="#F3F4F6">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Padding="32" Spacing="24">
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <converters:CurrencyConverter x:Key="CurrencyConverter"/>
+        <converters:StringToBrushConverter x:Key="StringToBrushConverter"/>
+    </Page.Resources>
 
-            <!-- PAGE HEADER -->
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+    <Grid>
+        <!-- Layer 0: Main Content (Hidden during loading) -->
+        <Grid x:Name="MainContent"
+              Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+            <Grid.Transitions>
+                <TransitionCollection>
+                    <EntranceThemeTransition FromVerticalOffset="50"/>
+                </TransitionCollection>
+            </Grid.Transitions>
+        <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Padding="32" Spacing="24">
 
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="My Earnings" 
-                              Style="{StaticResource DisplayHeadingStyle}"
-                              Foreground="#111827"/>
-                    <TextBlock Text="Track your income and platform fees" 
-                              FontSize="14" 
-                              Foreground="#6B7280"
-                              Margin="0,4,0,0"/>
-                </StackPanel>
-
-                <ComboBox Grid.Column="1"
-                         Width="180"
-                         SelectedIndex="0"
-                         VerticalAlignment="Center"
-                         CornerRadius="8">
-                    <ComboBoxItem Content="All Time"/>
-                    <ComboBoxItem Content="This Month"/>
-                    <ComboBoxItem Content="Last Month"/>
-                    <ComboBoxItem Content="Last 3 Months"/>
-                </ComboBox>
-            </Grid>
+                <!-- PAGE HEADER -->
+                <layout:PageHeader
+                    Title="My Earnings"
+                    Subtitle="Track your income and platform fees">
+                    <layout:PageHeader.ActionContent>
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <ComboBox x:Name="PeriodComboBox"
+                                     Width="180"
+                                     SelectedIndex="0"
+                                     VerticalAlignment="Center"
+                                     CornerRadius="8"
+                                     SelectionChanged="PeriodComboBox_SelectionChanged">
+                                <ComboBoxItem Content="All Time" Tag="all"/>
+                                <ComboBoxItem Content="This Month" Tag="month"/>
+                                <ComboBoxItem Content="Last Month" Tag="last-month"/>
+                                <ComboBoxItem Content="Last 3 Months" Tag="3months"/>
+                            </ComboBox>
+                            <buttons:IconButton
+                                Variant="Outline"
+                                IconGlyph="&#xE72C;"
+                                Text="Refresh"
+                                Command="{x:Bind ViewModel.RefreshCommand}"
+                                ToolTipService.ToolTip="Reload earnings data" />
+                            <buttons:IconButton
+                                Variant="Filled"
+                                IconGlyph="&#xE896;"
+                                Text="Export"
+                                Command="{x:Bind ViewModel.ExportCommissionsCommand}"
+                                ToolTipService.ToolTip="Export earnings to CSV" />
+                        </StackPanel>
+                    </layout:PageHeader.ActionContent>
+                </layout:PageHeader>
 
             <!-- Platform Fee Info Banner -->
             <InfoBar Severity="Informational"
@@ -115,43 +144,51 @@
                     IconForegroundBrush="#EC4899"/>
             </Grid>
 
+            <!-- SEARCH CARD with Auto-Complete -->
+            <forms:SearchCard
+                x:Name="EarningsSearchCard"
+                PlaceholderText="Search by order, product, or customer..."
+                SearchText="{x:Bind ViewModel.SearchQuery, Mode=TwoWay}"
+                ShowSearchButton="Collapsed"
+                TextChanged="SearchCard_TextChanged"
+                SuggestionChosen="SearchCard_SuggestionChosen"
+                QuerySubmitted="SearchCard_QuerySubmitted" />
+
+            <!-- FILTER CARD with Apply Button -->
+            <forms:FilterCard Title="Filters"
+                              ApplyCommand="{x:Bind ViewModel.ApplyFiltersCommand}"
+                              ResetCommand="{x:Bind ViewModel.ResetFiltersCommand}"
+                              ShowActions="True"
+                              ShowResetButton="True">
+                <forms:FilterCard.FilterContent>
+                    <StackPanel>
+                        <TextBlock Text="Status" FontSize="12" Foreground="#6B7280" Margin="0,0,0,4"/>
+                        <ComboBox x:Name="StatusComboBox"
+                                 HorizontalAlignment="Stretch"
+                                 SelectedIndex="0"
+                                 CornerRadius="8"
+                                 SelectionChanged="StatusComboBox_SelectionChanged">
+                            <ComboBoxItem Content="All Status" Tag="All"/>
+                            <ComboBoxItem Content="Paid" Tag="Paid"/>
+                            <ComboBoxItem Content="Approved" Tag="Approved"/>
+                            <ComboBoxItem Content="Pending" Tag="Pending"/>
+                        </ComboBox>
+                    </StackPanel>
+                </forms:FilterCard.FilterContent>
+            </forms:FilterCard>
+
             <!-- Transactions Table -->
-            <cards:DataTableCard Title="Earning Transactions" 
-                                ViewAllText="Export Report"
-                                ShowViewAll="Visible">
+            <cards:DataTableCard Title="Earning Transactions">
                 <cards:DataTableCard.TableContent>
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <!-- Filters -->
-                        <Grid Grid.Row="0" Padding="0,0,0,16">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="16"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <TextBox Grid.Column="0"
-                                    PlaceholderText="Search by order, product, or customer..."
-                                    CornerRadius="8"/>
-
-                            <ComboBox Grid.Column="2"
-                                     SelectedIndex="0"
-                                     HorizontalAlignment="Stretch"
-                                     CornerRadius="8">
-                                <ComboBoxItem Content="All Status"/>
-                                <ComboBoxItem Content="Paid"/>
-                                <ComboBoxItem Content="Approved"/>
-                                <ComboBoxItem Content="Pending"/>
-                            </ComboBox>
-                        </Grid>
-
                         <!-- Table Header -->
-                        <Grid Grid.Row="1" 
+                        <Grid Grid.Row="0" 
                              Padding="0,12"
                              BorderBrush="#E5E7EB"
                              BorderThickness="0,0,0,1">
@@ -188,140 +225,117 @@
                                       Foreground="#6B7280"/>
                         </Grid>
 
-                        <!-- Table Body (Mock Data) -->
-                        <ScrollViewer Grid.Row="2" MaxHeight="400">
-                            <StackPanel>
-                                <!-- Row 1 -->
-                                <Grid Padding="0,12" 
-                                     BorderBrush="#E5E7EB"
-                                     BorderThickness="0,0,0,1">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="100"/>
-                                    </Grid.ColumnDefinitions>
+                        <!-- Table Body -->
+                        <ScrollViewer Grid.Row="1" MaxHeight="400">
+                            <ItemsRepeater ItemsSource="{x:Bind ViewModel.Commissions, Mode=OneWay}">
+                                <ItemsRepeater.ItemTemplate>
+                                    <DataTemplate x:DataType="viewmodels:CommissionViewModel">
+                                        <Grid Padding="0,12" 
+                                             BorderBrush="#E5E7EB"
+                                             BorderThickness="0,0,0,1">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="100"/>
+                                            </Grid.ColumnDefinitions>
 
-                                    <TextBlock Grid.Column="0" Text="ORD-001" 
-                                              FontSize="13" FontFamily="Consolas"
-                                              Foreground="#6B7280"/>
-                                    <TextBlock Grid.Column="1" Text="iPhone 15 Pro" 
-                                              FontSize="14" Foreground="#111827"
-                                              TextTrimming="CharacterEllipsis"/>
-                                    <TextBlock Grid.Column="2" Text="John Doe" 
-                                              FontSize="14" Foreground="#6B7280"/>
-                                    <TextBlock Grid.Column="3" Text="$1,199" 
-                                              FontSize="14" FontWeight="SemiBold"
-                                              Foreground="#111827"/>
-                                    <TextBlock Grid.Column="4" Text="$119.90" 
-                                              FontSize="14" Foreground="#DC2626"/>
-                                    <TextBlock Grid.Column="5" Text="$1,079.10" 
-                                              FontSize="14" FontWeight="Bold"
-                                              Foreground="#10B981"/>
-                                    <Border Grid.Column="6"
-                                           Background="#D1FAE5"
-                                           CornerRadius="999"
-                                           Padding="8,4"
-                                           HorizontalAlignment="Left">
-                                        <TextBlock Text="Paid"
-                                                  FontSize="12"
-                                                  FontWeight="SemiBold"
-                                                  Foreground="#10B981"/>
-                                    </Border>
-                                </Grid>
-
-                                <!-- Row 2 -->
-                                <Grid Padding="0,12" 
-                                     BorderBrush="#E5E7EB"
-                                     BorderThickness="0,0,0,1">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="100"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <TextBlock Grid.Column="0" Text="ORD-002" 
-                                              FontSize="13" FontFamily="Consolas"
-                                              Foreground="#6B7280"/>
-                                    <TextBlock Grid.Column="1" Text="MacBook Pro 16 inch" 
-                                              FontSize="14" Foreground="#111827"
-                                              TextTrimming="CharacterEllipsis"/>
-                                    <TextBlock Grid.Column="2" Text="Jane Smith" 
-                                              FontSize="14" Foreground="#6B7280"/>
-                                    <TextBlock Grid.Column="3" Text="$2,499" 
-                                              FontSize="14" FontWeight="SemiBold"
-                                              Foreground="#111827"/>
-                                    <TextBlock Grid.Column="4" Text="$249.90" 
-                                              FontSize="14" Foreground="#DC2626"/>
-                                    <TextBlock Grid.Column="5" Text="$2,249.10" 
-                                              FontSize="14" FontWeight="Bold"
-                                              Foreground="#10B981"/>
-                                    <Border Grid.Column="6"
-                                           Background="#DFF0FF"
-                                           CornerRadius="999"
-                                           Padding="8,4"
-                                           HorizontalAlignment="Left">
-                                        <TextBlock Text="Approved"
-                                                  FontSize="12"
-                                                  FontWeight="SemiBold"
-                                                  Foreground="#3B82F6"/>
-                                    </Border>
-                                </Grid>
-
-                                <!-- Row 3 -->
-                                <Grid Padding="0,12" 
-                                     BorderBrush="#E5E7EB"
-                                     BorderThickness="0,0,0,1">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="100"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <TextBlock Grid.Column="0" Text="ORD-003" 
-                                              FontSize="13" FontFamily="Consolas"
-                                              Foreground="#6B7280"/>
-                                    <TextBlock Grid.Column="1" Text="AirPods Pro 2" 
-                                              FontSize="14" Foreground="#111827"
-                                              TextTrimming="CharacterEllipsis"/>
-                                    <TextBlock Grid.Column="2" Text="Mike Johnson" 
-                                              FontSize="14" Foreground="#6B7280"/>
-                                    <TextBlock Grid.Column="3" Text="$249" 
-                                              FontSize="14" FontWeight="SemiBold"
-                                              Foreground="#111827"/>
-                                    <TextBlock Grid.Column="4" Text="$24.90" 
-                                              FontSize="14" Foreground="#DC2626"/>
-                                    <TextBlock Grid.Column="5" Text="$224.10" 
-                                              FontSize="14" FontWeight="Bold"
-                                              Foreground="#10B981"/>
-                                    <Border Grid.Column="6"
-                                           Background="#FEF3C7"
-                                           CornerRadius="999"
-                                           Padding="8,4"
-                                           HorizontalAlignment="Left">
-                                        <TextBlock Text="Pending"
-                                                  FontSize="12"
-                                                  FontWeight="SemiBold"
-                                                  Foreground="#F59E0B"/>
-                                    </Border>
-                                </Grid>
-                            </StackPanel>
+                                            <TextBlock Grid.Column="0" 
+                                                      Text="{x:Bind OrderId, Mode=OneWay}" 
+                                                      FontSize="13" 
+                                                      FontFamily="Consolas"
+                                                      Foreground="#6B7280"/>
+                                            
+                                            <TextBlock Grid.Column="1" 
+                                                      Text="{x:Bind ProductName, Mode=OneWay}" 
+                                                      FontSize="14" 
+                                                      Foreground="#111827"
+                                                      TextTrimming="CharacterEllipsis"/>
+                                            
+                                            <TextBlock Grid.Column="2" 
+                                                      Text="{x:Bind CustomerName, Mode=OneWay}" 
+                                                      FontSize="14" 
+                                                      Foreground="#6B7280"/>
+                                            
+                                            <TextBlock Grid.Column="3" 
+                                                      Text="{x:Bind SaleAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" 
+                                                      FontSize="14" 
+                                                      FontWeight="SemiBold"
+                                                      Foreground="#111827"/>
+                                            
+                                            <TextBlock Grid.Column="4" 
+                                                      Text="{x:Bind CommissionAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" 
+                                                      FontSize="14" 
+                                                      Foreground="#DC2626"/>
+                                            
+                                            <TextBlock Grid.Column="5" 
+                                                      Text="{x:Bind NetIncome, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" 
+                                                      FontSize="14" 
+                                                      FontWeight="Bold"
+                                                      Foreground="#10B981"/>
+                                            
+                                            <Border Grid.Column="6"
+                                                   Background="{x:Bind StatusBgColor, Mode=OneWay, Converter={StaticResource StringToBrushConverter}}"
+                                                   CornerRadius="999"
+                                                   Padding="8,4"
+                                                   HorizontalAlignment="Left">
+                                                <TextBlock Text="{x:Bind Status, Mode=OneWay}"
+                                                          FontSize="12"
+                                                          FontWeight="SemiBold"
+                                                          Foreground="{x:Bind StatusColor, Mode=OneWay, Converter={StaticResource StringToBrushConverter}}"/>
+                                            </Border>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsRepeater.ItemTemplate>
+                            </ItemsRepeater>
                         </ScrollViewer>
+
+                        <!-- Pagination Control -->
+                        <Border Grid.Row="2" 
+                               Margin="0,16,0,0"
+                               Padding="16,12"
+                               Background="Transparent"
+                               BorderBrush="#E5E7EB"
+                               BorderThickness="0,1,0,0">
+                            <pagination:PaginationControl
+                                CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
+                                TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
+                                PageSize="{x:Bind ViewModel.PageSize, Mode=TwoWay}"
+                                PageChanged="OnPageChanged" />
+                        </Border>
                     </Grid>
                 </cards:DataTableCard.TableContent>
             </cards:DataTableCard>
 
-        </StackPanel>
-    </ScrollViewer>
+            </StackPanel>
+        </ScrollViewer>
+        </RefreshContainer>
+        </Grid>
+
+        <!-- Layer 1: Loading Overlay (Shown during loading) -->
+        <Grid x:Name="LoadingOverlay"
+              Background="{ThemeResource LayerFillColorDefaultBrush}"
+              Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Spacing="24"
+                        Padding="48">
+                <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                              Width="64"
+                              Height="64" />
+                <TextBlock Text="Loading earnings data..."
+                           FontSize="18"
+                           FontWeight="SemiBold"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="Please wait while we fetch your commission details"
+                           FontSize="14"
+                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Grid>
+    </Grid>
 </Page>

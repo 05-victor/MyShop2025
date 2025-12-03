@@ -1,0 +1,101 @@
+{
+  "verificationCodes": [
+    {
+      "id": "70000000-0000-0000-0000-000000000001",
+      "userId": "00000000-0000-0000-0000-000000000012",
+      "email": "nguyen.van.a@example.com",
+      "code": "123456",
+      "type": "EmailVerification",
+      "purpose": "Verify email address for new account",
+      "createdAt": "2025-11-25T10:30:00Z",
+      "expiresAt": "2025-11-25T10:40:00Z",
+      "status": "Pending",
+      "usedAt": null,
+      "attemptsCount": 0,
+      "maxAttempts": 3
+    },
+    {
+      "id": "70000000-0000-0000-0000-000000000002",
+      "userId": "00000000-0000-0000-0000-000000000013",
+      "email": "tran.thi.b@example.com",
+      "code": "789012",
+      "type": "EmailVerification",
+      "purpose": "Verify email address for new account",
+      "createdAt": "2025-11-24T14:15:00Z",
+      "expiresAt": "2025-11-24T14:25:00Z",
+      "status": "Verified",
+      "usedAt": "2025-11-24T14:18:30Z",
+      "attemptsCount": 1,
+      "maxAttempts": 3
+    },
+    {
+      "id": "70000000-0000-0000-0000-000000000003",
+      "userId": "00000000-0000-0000-0000-000000000014",
+      "email": "pham.minh.tuan@example.com",
+      "code": "345678",
+      "type": "PasswordReset",
+      "purpose": "Reset password",
+      "createdAt": "2025-11-23T09:20:00Z",
+      "expiresAt": "2025-11-23T09:30:00Z",
+      "status": "Expired",
+      "usedAt": null,
+      "attemptsCount": 2,
+      "maxAttempts": 3
+    },
+    {
+      "id": "70000000-0000-0000-0000-000000000004",
+      "userId": "00000000-0000-0000-0000-000000000015",
+      "email": "le.thi.lan@example.com",
+      "code": "901234",
+      "type": "EmailVerification",
+      "purpose": "Verify email address for new account",
+      "createdAt": "2025-11-26T08:00:00Z",
+      "expiresAt": "2025-11-26T08:10:00Z",
+      "status": "Pending",
+      "usedAt": null,
+      "attemptsCount": 0,
+      "maxAttempts": 3
+    },
+    {
+      "id": "70000000-0000-0000-0000-000000000005",
+      "userId": "00000000-0000-0000-0000-000000000001",
+      "email": "admin@myshop.com",
+      "code": "567890",
+      "type": "EmailChange",
+      "purpose": "Verify new email address",
+      "createdAt": "2025-11-20T16:45:00Z",
+      "expiresAt": "2025-11-20T16:55:00Z",
+      "status": "Verified",
+      "usedAt": "2025-11-20T16:48:15Z",
+      "attemptsCount": 1,
+      "maxAttempts": 3
+    },
+    {
+      "id": "70000000-0000-0000-0000-000000000006",
+      "userId": "00000000-0000-0000-0000-000000000016",
+      "email": "hoang.van.cuong@example.com",
+      "code": "234567",
+      "type": "EmailVerification",
+      "purpose": "Verify email address for new account",
+      "createdAt": "2025-11-26T11:30:00Z",
+      "expiresAt": "2025-11-26T11:40:00Z",
+      "status": "Pending",
+      "usedAt": null,
+      "attemptsCount": 0,
+      "maxAttempts": 3
+    }
+  ],
+  "verificationSettings": {
+    "codeLength": 6,
+    "codeExpiryMinutes": 10,
+    "maxAttempts": 3,
+    "resendDelaySeconds": 60,
+    "emailTemplate": {
+      "subject": "MyShop 2025 - Mã Xác Thực Email",
+      "body": "Xin chào,\n\nMã xác thực của bạn là: {CODE}\n\nMã này có hiệu lực trong {EXPIRY_MINUTES} phút.\n\nNếu bạn không yêu cầu mã này, vui lòng bỏ qua email này.\n\nTrân trọng,\nMyShop Team"
+    },
+    "smsTemplate": {
+      "body": "MyShop 2025 - Ma xac thuc cua ban la: {CODE}. Ma nay co hieu luc trong {EXPIRY_MINUTES} phut."
+    }
+  }
+}

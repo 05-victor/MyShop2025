@@ -4,7 +4,7 @@ using System;
 namespace MyShop.Client.Common.Converters;
 
 /// <summary>
-/// Converter format string với parameter
+/// Converter to format string with parameter.
 /// Usage: Converter={StaticResource StringFormatConverter}, ConverterParameter='Hello {0}!'
 /// </summary>
 public class StringFormatConverter : IValueConverter

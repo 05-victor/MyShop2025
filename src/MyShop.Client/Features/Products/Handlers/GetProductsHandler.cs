@@ -22,8 +22,13 @@ public class GetProductsHandler : IRequestHandler<GetProductsQuery, Result<List<
     {
         try
         {
-            var products = await _productRepository.GetAllAsync();
-            return Result<List<Product>>.Success(products.ToList());
+            var result = await _productRepository.GetAllAsync();
+            if (!result.IsSuccess)
+            {
+                return Result<List<Product>>.Failure(result.ErrorMessage);
+            }
+            
+            return Result<List<Product>>.Success(result.Data.ToList());
         }
         catch (Exception ex)
         {

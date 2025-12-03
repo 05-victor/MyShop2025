@@ -5,8 +5,8 @@ using System;
 namespace MyShop.Client.Common.Converters;
 
 /// <summary>
-/// Converter chuyển đổi empty string thành Visibility
-/// empty/null → Collapsed, has value → Visible
+/// Converter to convert empty string to Visibility.
+/// empty/null → Collapsed, has value → Visible.
 /// </summary>
 public class EmptyStringToVisibilityConverter : IValueConverter
 {

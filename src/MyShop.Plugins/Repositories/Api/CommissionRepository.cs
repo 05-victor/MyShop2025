@@ -1,6 +1,8 @@
+using MyShop.Shared.Adapters;
+using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Commission;
-
+using MyShop.Shared.Models;
 namespace MyShop.Plugins.Repositories.Api;
 
 /// <summary>
@@ -15,7 +17,7 @@ public class CommissionRepository : ICommissionRepository
         _api = api;
     }
 
-    public async Task<IEnumerable<Commission>> GetBySalesAgentIdAsync(Guid salesAgentId)
+    public async Task<Result<IEnumerable<Commission>>> GetBySalesAgentIdAsync(Guid salesAgentId)
     {
         try
         {
@@ -27,19 +29,20 @@ public class CommissionRepository : ICommissionRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return apiResponse.Result.Select(MapToCommission);
+                    var commissions = CommissionAdapter.ToModelList(apiResponse.Result);
+                    return Result<IEnumerable<Commission>>.Success(commissions);
                 }
             }
 
-            return Enumerable.Empty<Commission>();
+            return Result<IEnumerable<Commission>>.Failure("Failed to retrieve commissions");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return Enumerable.Empty<Commission>();
+            return Result<IEnumerable<Commission>>.Failure($"Error retrieving commissions: {ex.Message}");
         }
     }
 
-    public async Task<CommissionSummary> GetSummaryAsync(Guid salesAgentId)
+    public async Task<Result<CommissionSummary>> GetSummaryAsync(Guid salesAgentId)
     {
         try
         {
@@ -50,94 +53,170 @@ public class CommissionRepository : ICommissionRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return MapToCommissionSummary(apiResponse.Result);
+                    var summary = CommissionAdapter.ToModel(apiResponse.Result);
+                    return Result<CommissionSummary>.Success(summary);
                 }
             }
 
-            return new CommissionSummary();
+            return Result<CommissionSummary>.Failure("Failed to retrieve commission summary");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return new CommissionSummary();
+            return Result<CommissionSummary>.Failure($"Error retrieving commission summary: {ex.Message}");
         }
     }
 
-    public async Task<Commission?> GetByOrderIdAsync(Guid orderId)
+    public async Task<Result<Commission>> GetByOrderIdAsync(Guid orderId)
     {
         try
         {
             // Note: Backend may need dedicated endpoint for this
-            var allCommissions = await GetBySalesAgentIdAsync(Guid.Empty);
-            return allCommissions.FirstOrDefault(c => c.OrderId == orderId);
+            var allCommissionsResult = await GetBySalesAgentIdAsync(Guid.Empty);
+            
+            if (!allCommissionsResult.IsSuccess)
+            {
+                return Result<Commission>.Failure(allCommissionsResult.ErrorMessage ?? "Failed to retrieve commission");
+            }
+
+            var commission = allCommissionsResult.Data.FirstOrDefault(c => c.OrderId == orderId);
+            if (commission != null)
+            {
+                return Result<Commission>.Success(commission);
+            }
+
+            return Result<Commission>.Failure($"Commission for order {orderId} not found");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return null;
+            return Result<Commission>.Failure($"Error retrieving commission: {ex.Message}");
         }
     }
 
-    public async Task<decimal> CalculateCommissionAsync(Guid orderId)
+    public async Task<Result<decimal>> CalculateCommissionAsync(Guid orderId)
     {
         try
         {
             // Note: Backend calculates commission automatically
-            var commission = await GetByOrderIdAsync(orderId);
-            return commission?.CommissionAmount ?? 0;
+            var commissionResult = await GetByOrderIdAsync(orderId);
+            
+            if (!commissionResult.IsSuccess)
+            {
+                return Result<decimal>.Failure(commissionResult.ErrorMessage ?? "Failed to calculate commission");
+            }
+
+            return Result<decimal>.Success(commissionResult.Data.CommissionAmount);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return 0;
+            return Result<decimal>.Failure($"Error calculating commission: {ex.Message}");
         }
     }
 
-    public async Task<IEnumerable<Commission>> GetByDateRangeAsync(Guid salesAgentId, DateTime startDate, DateTime endDate)
+    public async Task<Result<IEnumerable<Commission>>> GetByDateRangeAsync(Guid salesAgentId, DateTime startDate, DateTime endDate)
     {
         try
         {
             // Note: Backend may need query parameters for date filtering
-            var allCommissions = await GetBySalesAgentIdAsync(salesAgentId);
-            return allCommissions.Where(c => c.CreatedDate >= startDate && c.CreatedDate <= endDate);
+            var allCommissionsResult = await GetBySalesAgentIdAsync(salesAgentId);
+            
+            if (!allCommissionsResult.IsSuccess)
+            {
+                return Result<IEnumerable<Commission>>.Failure(allCommissionsResult.ErrorMessage ?? "Failed to retrieve commissions");
+            }
+
+            var filteredCommissions = allCommissionsResult.Data
+                .Where(c => c.CreatedDate >= startDate && c.CreatedDate <= endDate)
+                .ToList();
+            return Result<IEnumerable<Commission>>.Success(filteredCommissions);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return Enumerable.Empty<Commission>();
+            return Result<IEnumerable<Commission>>.Failure($"Error retrieving commissions by date range: {ex.Message}");
         }
     }
 
-    /// <summary>
-    /// Map CommissionResponse DTO to Commission domain model
-    /// </summary>
-    private static Commission MapToCommission(MyShop.Shared.DTOs.Responses.CommissionResponse dto)
+    public async Task<decimal> GetTotalEarnedAsync(Guid salesAgentId)
     {
-        return new Commission
+        try
         {
-            Id = dto.Id,
-            OrderId = dto.OrderId,
-            SalesAgentId = dto.SalesAgentId,
-            OrderNumber = dto.OrderNumber,
-            OrderAmount = dto.OrderAmount,
-            CommissionRate = dto.CommissionRate,
-            CommissionAmount = dto.CommissionAmount,
-            Status = dto.Status,
-            CreatedDate = dto.CreatedDate,
-            PaidDate = dto.PaidDate
-        };
+            var summaryResult = await GetSummaryAsync(salesAgentId);
+            if (summaryResult.IsSuccess && summaryResult.Data != null)
+            {
+                return summaryResult.Data.TotalEarnings;
+            }
+            return 0m;
+        }
+        catch
+        {
+            return 0m;
+        }
     }
 
-    /// <summary>
-    /// Map CommissionSummaryResponse DTO to CommissionSummary domain model
-    /// </summary>
-    private static CommissionSummary MapToCommissionSummary(MyShop.Shared.DTOs.Responses.CommissionSummaryResponse dto)
+    public async Task<Result<PagedList<Commission>>> GetPagedAsync(
+        Guid salesAgentId,
+        int page = 1,
+        int pageSize = 20,
+        string? status = null,
+        DateTime? startDate = null,
+        DateTime? endDate = null,
+        string sortBy = "createdDate",
+        bool sortDescending = true)
     {
-        return new CommissionSummary
+        try
         {
-            TotalEarnings = dto.TotalEarnings,
-            PendingCommission = dto.PendingCommission,
-            PaidCommission = dto.PaidCommission,
-            TotalOrders = dto.TotalOrders,
-            AverageCommission = dto.AverageCommission,
-            ThisMonthEarnings = dto.ThisMonthEarnings,
-            LastMonthEarnings = dto.LastMonthEarnings
-        };
+            // Note: Backend API doesn't support server-side paging yet
+            // Fallback: fetch all commissions and apply client-side paging/filtering
+            var allCommissionsResult = await GetBySalesAgentIdAsync(salesAgentId);
+            
+            if (!allCommissionsResult.IsSuccess || allCommissionsResult.Data == null)
+            {
+                return Result<PagedList<Commission>>.Failure(allCommissionsResult.ErrorMessage ?? "Failed to retrieve commissions");
+            }
+
+            var query = allCommissionsResult.Data.AsEnumerable();
+
+            // Apply filters
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                query = query.Where(c => c.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (startDate.HasValue)
+            {
+                query = query.Where(c => c.CreatedDate >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(c => c.CreatedDate <= endDate.Value);
+            }
+
+            // Apply sorting
+            query = sortBy.ToLower() switch
+            {
+                "createddate" => sortDescending 
+                    ? query.OrderByDescending(c => c.CreatedDate) 
+                    : query.OrderBy(c => c.CreatedDate),
+                "commissionamount" or "amount" => sortDescending 
+                    ? query.OrderByDescending(c => c.CommissionAmount) 
+                    : query.OrderBy(c => c.CommissionAmount),
+                "status" => sortDescending 
+                    ? query.OrderByDescending(c => c.Status) 
+                    : query.OrderBy(c => c.Status),
+                _ => sortDescending 
+                    ? query.OrderByDescending(c => c.CreatedDate) 
+                    : query.OrderBy(c => c.CreatedDate)
+            };
+
+            var totalCount = query.Count();
+            var items = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var pagedList = new PagedList<Commission>(items, totalCount, page, pageSize);
+            return Result<PagedList<Commission>>.Success(pagedList);
+        }
+        catch (Exception ex)
+        {
+            return Result<PagedList<Commission>>.Failure($"Error retrieving paged commissions: {ex.Message}");
+        }
     }
 }

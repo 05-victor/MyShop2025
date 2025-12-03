@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="MyShop.Client.Views.Components.Layout.Divider"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    x:Name="RootControl">
+
+    <!--
+    Divider Component
+    =================
+    A simple horizontal divider line with optional label.
+    
+    Usage:
+    <layout:Divider/>
+    <layout:Divider Label="Or continue with"/>
+    -->
+
+    <Grid Height="1" VerticalAlignment="Center">
+        <!-- Simple Line (when no label) -->
+        <Border Height="1"
+               Background="{Binding Color, ElementName=RootControl, Mode=OneWay}"
+               Visibility="{Binding Label, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}, ConverterParameter=Invert}"/>
+
+        <!-- Line with Label -->
+        <Grid Visibility="{Binding Label, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Height="1" Background="{Binding Color, ElementName=RootControl, Mode=OneWay}" VerticalAlignment="Center"/>
+            
+            <TextBlock Grid.Column="1"
+                       Text="{Binding Label, ElementName=RootControl, Mode=OneWay}"
+                       FontSize="12"
+                       Foreground="#6B7280"
+                       Margin="16,0"/>
+            
+            <Border Grid.Column="2" Height="1" Background="{Binding Color, ElementName=RootControl, Mode=OneWay}" VerticalAlignment="Center"/>
+        </Grid>
+    </Grid>
+</UserControl>

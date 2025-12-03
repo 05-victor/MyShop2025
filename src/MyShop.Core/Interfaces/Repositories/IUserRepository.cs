@@ -12,9 +12,33 @@ namespace MyShop.Core.Interfaces.Repositories;
 public interface IUserRepository
 {
     /// <summary>
+    /// Check if any users exist in the system (for first-user setup flow)
+    /// </summary>
+    Task<Result<bool>> HasAnyUsersAsync();
+
+    /// <summary>
     /// Get all users (for admin management)
     /// </summary>
-    Task<IEnumerable<User>> GetAllAsync();
+    Task<Result<IEnumerable<User>>> GetAllAsync();
+
+    /// <summary>
+    /// Get paged users with filtering
+    /// </summary>
+    Task<Result<PagedList<User>>> GetPagedAsync(
+        int page = 1,
+        int pageSize = Common.PaginationConstants.DefaultPageSize,
+        string? role = null,
+        string? status = null,
+        string? searchQuery = null,
+        string sortBy = "createdAt",
+        bool sortDescending = true);
+
+    /// <summary>
+    /// Create a new user (admin function)
+    /// </summary>
+    /// <param name="user">User to create</param>
+    /// <returns>Created user with assigned ID</returns>
+    Task<Result<User>> CreateUserAsync(User user);
 
     /// <summary>
     /// Get all users with pagination (for admin management)

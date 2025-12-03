@@ -5,6 +5,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:forms="using:MyShop.Client.Views.Components.Forms"
+    xmlns:feedback="using:MyShop.Client.Views.Components.Feedback"
     mc:Ignorable="d"
     Title="Edit User"
     PrimaryButtonText="Save Changes"
@@ -17,98 +19,53 @@
         <StackPanel Spacing="16" Padding="8">
             
             <!-- User ID (Read-only) -->
-            <StackPanel>
-                <TextBlock Text="User ID" 
-                          FontSize="14" 
-                          FontWeight="SemiBold" 
-                          Foreground="#111827"
-                          Margin="0,0,0,8"/>
+            <forms:FormField Label="User ID">
                 <TextBox Text="{x:Bind ViewModel.UserId, Mode=OneWay}"
                         IsReadOnly="True"
                         Background="#F9FAFB"/>
-            </StackPanel>
+            </forms:FormField>
 
             <!-- Full Name -->
-            <StackPanel>
-                <TextBlock Text="Full Name *" 
-                          FontSize="14" 
-                          FontWeight="SemiBold" 
-                          Foreground="#111827"
-                          Margin="0,0,0,8"/>
+            <forms:FormField Label="Full Name" IsRequired="True">
                 <TextBox Text="{x:Bind ViewModel.FullName, Mode=TwoWay}"
                         PlaceholderText="Enter full name"
                         MaxLength="100"/>
-            </StackPanel>
+            </forms:FormField>
 
             <!-- Email -->
-            <StackPanel>
-                <TextBlock Text="Email *" 
-                          FontSize="14" 
-                          FontWeight="SemiBold" 
-                          Foreground="#111827"
-                          Margin="0,0,0,8"/>
+            <forms:FormField Label="Email" IsRequired="True">
                 <TextBox Text="{x:Bind ViewModel.Email, Mode=TwoWay}"
                         PlaceholderText="Enter email address"
                         MaxLength="100"
                         InputScope="EmailSmtpAddress"/>
-            </StackPanel>
+            </forms:FormField>
 
             <!-- Phone -->
-            <StackPanel>
-                <TextBlock Text="Phone Number *" 
-                          FontSize="14" 
-                          FontWeight="SemiBold" 
-                          Foreground="#111827"
-                          Margin="0,0,0,8"/>
+            <forms:FormField Label="Phone Number" IsRequired="True">
                 <TextBox Text="{x:Bind ViewModel.Phone, Mode=TwoWay}"
                         PlaceholderText="Enter phone number"
                         MaxLength="20"
                         InputScope="TelephoneNumber"/>
-            </StackPanel>
+            </forms:FormField>
 
             <!-- Role -->
-            <StackPanel>
-                <TextBlock Text="Role *" 
-                          FontSize="14" 
-                          FontWeight="SemiBold" 
-                          Foreground="#111827"
-                          Margin="0,0,0,8"/>
+            <forms:FormField Label="Role" IsRequired="True">
                 <ComboBox ItemsSource="{x:Bind ViewModel.AvailableRoles}"
                          SelectedItem="{x:Bind ViewModel.SelectedRole, Mode=TwoWay}"
                          HorizontalAlignment="Stretch"/>
-            </StackPanel>
+            </forms:FormField>
 
             <!-- Status -->
-            <StackPanel>
-                <TextBlock Text="Status *" 
-                          FontSize="14" 
-                          FontWeight="SemiBold" 
-                          Foreground="#111827"
-                          Margin="0,0,0,8"/>
+            <forms:FormField Label="Status" IsRequired="True">
                 <ComboBox ItemsSource="{x:Bind ViewModel.AvailableStatuses}"
                          SelectedItem="{x:Bind ViewModel.SelectedStatus, Mode=TwoWay}"
                          HorizontalAlignment="Stretch"/>
-            </StackPanel>
+            </forms:FormField>
 
             <!-- Warning Message -->
-            <Border Background="#FEF3C7" 
-                   CornerRadius="8" 
-                   Padding="12"
-                   BorderBrush="#FDE68A"
-                   BorderThickness="1">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE7BA;" 
-                             FontSize="16" 
-                             Foreground="#F59E0B"
-                             VerticalAlignment="Top"
-                             Margin="0,2,0,0"/>
-                    <TextBlock TextWrapping="Wrap" 
-                              FontSize="12" 
-                              Foreground="#92400E">
-                        <Run Text="Changing the user's role will affect their access permissions."/>
-                    </TextBlock>
-                </StackPanel>
-            </Border>
+            <feedback:AlertBox 
+                Variant="Warning"
+                Message="Changing the user's role will affect their access permissions." />
 
         </StackPanel>
     </ScrollViewer>

@@ -1,8 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MediatR;
 using Microsoft.UI.Xaml.Controls;
-using MyShop.Client.Features.Auth.Commands;
 using MyShop.Client.ViewModels.Base;
 using MyShop.Client.Views.Shared;
 using MyShop.Client.Views.Dialogs;
@@ -11,20 +9,24 @@ using System.Net.Http;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-
-// ===== NEW NAMESPACES - After Refactor =====
 using MyShop.Core.Interfaces.Services;
+using MyShop.Core.Interfaces.Facades;
 using MyShop.Client.Strategies;
 
 namespace MyShop.Client.ViewModels.Shared;
 
+/// <summary>
+/// ViewModel for the Login page. Refactored to use Facade Pattern.
+/// Before refactoring: Injected 5 services (IMediator, INavigationService, IToastService, IRoleStrategyFactory, IValidationService).
+/// After refactoring: Injected 3 dependencies (IAuthFacade aggregates auth operations, plus navigation and strategy).
+/// Benefits: Simplified dependencies, centralized auth logic, easier testing.
+/// </summary>
 public partial class LoginViewModel : BaseViewModel
 {
-    private readonly IMediator _mediator;
-    private readonly INavigationService _navigationService;
-    private readonly IToastService _toastHelper;
+    private readonly IAuthFacade _authFacade;
+    private new readonly INavigationService _navigationService;
     private readonly IRoleStrategyFactory _roleStrategyFactory;
-    private readonly IValidationService _validationService;
+    private new readonly IToastService _toastHelper;
     private CancellationTokenSource? _loginCancellationTokenSource;
 
     [ObservableProperty]
@@ -49,17 +51,17 @@ public partial class LoginViewModel : BaseViewModel
     private string _passwordError = string.Empty;
 
     /// <summary>
-    /// Kiểm tra username có hợp lệ không
+    /// Check if username is valid (no error message).
     /// </summary>
     public bool IsUsernameValid => string.IsNullOrWhiteSpace(UsernameError);
 
     /// <summary>
-    /// Kiểm tra password có hợp lệ không
+    /// Check if password is valid (no error message).
     /// </summary>
     public bool IsPasswordValid => string.IsNullOrWhiteSpace(PasswordError);
 
     /// <summary>
-    /// Kiểm tra form có hợp lệ không (để enable/disable nút Login)
+    /// Check if form is valid (to enable/disable Login button).
     /// </summary>
     public bool IsFormValid => 
         IsUsernameValid && 
@@ -67,20 +69,26 @@ public partial class LoginViewModel : BaseViewModel
         !string.IsNullOrWhiteSpace(Username) && 
         !string.IsNullOrWhiteSpace(Password);
 
+    /// <summary>
+    /// Property for button binding (similar to RegisterViewModel.CanRegister).
+    /// </summary>
+    public bool CanLogin => IsFormValid && !IsLoading;
+
+    /// <summary>
+    /// Dynamic button text based on loading state.
+    /// </summary>
     public string LoginButtonText => IsLoading ? "Signing in..." : "Sign In";
 
     public LoginViewModel(
-        IMediator mediator,
+        IAuthFacade authFacade,
         INavigationService navigationService,
-        IToastService toastHelper,
         IRoleStrategyFactory roleStrategyFactory,
-        IValidationService validationService)
+        IToastService toastHelper)
     {
-        _mediator = mediator;
-        _navigationService = navigationService;
-        _toastHelper = toastHelper;
-        _roleStrategyFactory = roleStrategyFactory;
-        _validationService = validationService;
+        _authFacade = authFacade ?? throw new ArgumentNullException(nameof(authFacade));
+        _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
+        _roleStrategyFactory = roleStrategyFactory ?? throw new ArgumentNullException(nameof(roleStrategyFactory));
+        _toastHelper = toastHelper ?? throw new ArgumentNullException(nameof(toastHelper));
 
         // Notify LoginButtonText when IsLoading changes
         PropertyChanged += (s, e) =>
@@ -93,42 +101,42 @@ public partial class LoginViewModel : BaseViewModel
     }
 
     /// <summary>
-    /// Real-time validation khi username thay đổi
+    /// Real-time validation when username changes.
+    /// Validation logic is now encapsulated in AuthFacade.
     /// </summary>
     partial void OnUsernameChanged(string value)
     {
+        // Clear error when user types
         if (!string.IsNullOrWhiteSpace(value))
-        {
-            var result = _validationService.ValidateUsername(value);
-            UsernameError = result.IsValid ? string.Empty : result.ErrorMessage;
-        }
-        else
         {
             UsernameError = string.Empty;
         }
     }
 
     /// <summary>
-    /// Real-time validation khi password thay đổi
+    /// Real-time validation when password changes.
+    /// Validation logic is now encapsulated in AuthFacade.
     /// </summary>
     partial void OnPasswordChanged(string value)
     {
+        // Clear error when user types
         if (!string.IsNullOrWhiteSpace(value))
-        {
-            var result = _validationService.ValidatePassword(value);
-            PasswordError = result.IsValid ? string.Empty : result.ErrorMessage;
-        }
-        else
         {
             PasswordError = string.Empty;
         }
     }
 
     /// <summary>
-    /// Kiểm tra xem có thể attempt login không
+    /// Check if login can be attempted.
+    /// Uses IsFormValid and IsLoading to determine button state.
     /// </summary>
     private bool CanAttemptLogin() => IsFormValid && !IsLoading;
 
+    /// <summary>
+    /// Attempts to log in with the provided credentials.
+    /// Uses Facade Pattern: AuthFacade handles Validation → Login → Storage → Toast notification.
+    /// ViewModel only needs to call 1 method instead of orchestrating 5+ services.
+    /// </summary>
     [RelayCommand(CanExecute = nameof(CanAttemptLogin), IncludeCancelCommand = true)]
     private async Task AttemptLoginAsync(CancellationToken cancellationToken)
     {
@@ -143,43 +151,33 @@ public partial class LoginViewModel : BaseViewModel
             UsernameError = string.Empty;
             PasswordError = string.Empty;
 
-            // Validation
-            if (!ValidateInput())
-            {
-                return;
-            }
-
-            // Hiện loading overlay ngay lập tức
+            // Show loading overlay
             SetLoadingState(true);
 
-            // Use MediatR to send LoginCommand
-            var command = new LoginCommand(Username, Password, IsRememberMe);
-            var result = await _mediator.Send(command, cancellationToken);
+            // AuthFacade handles: Validation → Login → Storage → Toast notification
+            var result = await _authFacade.LoginAsync(Username, Password, IsRememberMe);
 
             if (result.IsSuccess && result.Data != null)
             {
                 var user = result.Data;
 
-                // Show success message
-                _toastHelper.ShowSuccess($"Welcome back, {user.Username}!");
-
-                // Use strategy pattern để navigate đến đúng dashboard
+                // Use strategy pattern to navigate to appropriate dashboard
                 var primaryRole = user.GetPrimaryRole();
                 var strategy = _roleStrategyFactory.GetStrategy(primaryRole);
                 var pageType = strategy.GetDashboardPageType();
                     
-                _navigationService.NavigateTo(pageType.FullName!, user);
+                await _navigationService.NavigateTo(pageType.FullName!, user);
             }
             else
             {
-                // Nếu lỗi mạng (repository đã bắt và đính kèm Exception), hiển thị dialog kết nối
+                // Handle login failure
                 if (result.Exception is HttpRequestException || result.Exception is SocketException || result.Exception is TaskCanceledException)
                 {
                     await HandleConnectionErrorAsync();
                 }
                 else
                 {
-                    // Repository đã handle hết exceptions và map thành error message
+                    // AuthFacade already validated and returned user-friendly error message
                     SetError(result.ErrorMessage ?? "Login failed. Please try again.");
                 }
             }
@@ -187,12 +185,10 @@ public partial class LoginViewModel : BaseViewModel
         catch (HttpRequestException httpEx)
         {
             System.Diagnostics.Debug.WriteLine($"Network Error: {httpEx.Message}");
-            // Show immediate inline error to guarantee UX baseline
             SetError("Cannot connect to server. Please check your network connection and ensure the server is running.");
-            // Then offer richer UX dialog if possible
             await HandleConnectionErrorAsync();
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Unexpected Error in LoginViewModel: {ex.Message}");
             System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
@@ -209,8 +205,15 @@ public partial class LoginViewModel : BaseViewModel
         // Ensure a baseline inline message is visible
         SetError("Cannot connect to server. Please check your network connection and ensure the server is running.");
 
-        var action = await _toastHelper.ShowConnectionErrorAsync(
+        var actionResult = await _toastHelper.ShowConnectionErrorAsync(
             "Cannot connect to server. Please check your network connection and ensure the server is running.");
+
+        if (!actionResult.IsSuccess || actionResult.Data == ConnectionErrorAction.Cancel)
+        {
+            return;
+        }
+
+        var action = actionResult.Data;
 
         switch (action)
         {
@@ -252,42 +255,19 @@ public partial class LoginViewModel : BaseViewModel
         }
     }
 
-    /// <summary>
-    /// Validate input trước khi submit (sử dụng ValidationService)
-    /// </summary>
-    private bool ValidateInput()
+    // NOTE: Validation logic moved to AuthFacade.LoginAsync()
+    // No longer needed in ViewModel - Facade handles all validation
+
+    [RelayCommand]
+    private async Task NavigateToRegisterAsync()
     {
-        bool isValid = true;
-
-        // Validate username using validation service
-        var usernameValidation = _validationService.ValidateUsername(Username);
-        if (!usernameValidation.IsValid)
-        {
-            UsernameError = usernameValidation.ErrorMessage;
-            isValid = false;
-        }
-
-        // Validate password using validation service
-        var passwordValidation = _validationService.ValidatePassword(Password);
-        if (!passwordValidation.IsValid)
-        {
-            PasswordError = passwordValidation.ErrorMessage;
-            isValid = false;
-        }
-
-        return isValid;
+        await _navigationService.NavigateTo(typeof(RegisterPage).FullName!);
     }
 
     [RelayCommand]
-    private void NavigateToRegister()
+    private async Task ForgotPasswordAsync()
     {
-        _navigationService.NavigateTo(typeof(RegisterPage).FullName!);
-    }
-
-    [RelayCommand]
-    private void ForgotPassword()
-    {
-        _toastHelper.ShowInfo("Password recovery feature coming soon!");
+        await _toastHelper.ShowInfo("Password recovery feature coming soon!");
     }
 
     [RelayCommand]
@@ -333,8 +313,8 @@ public partial class LoginViewModel : BaseViewModel
             }
             */
 
-            await Task.Delay(1000); // Simulate network delay
-            _toastHelper.ShowWarning("Google OAuth2 login will be implemented in a future update. Please use username/password login.");
+            // await Task.Delay(1000); // Simulate network delay
+            await _toastHelper.ShowWarning("Google OAuth2 login will be implemented in a future update. Please use username/password login.");
         }
         catch (Exception ex) 
         {

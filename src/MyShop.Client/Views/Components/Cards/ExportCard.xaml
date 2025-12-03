@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="MyShop.Client.Views.Components.Cards.ExportCard"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
+    mc:Ignorable="d"
+    x:Name="RootControl">
+
+    <!--
+    ExportCard Component
+    ====================
+    A reusable card with title, description, and export button.
+    
+    Usage:
+    <cards:ExportCard 
+        Title="Export Report"
+        Description="Download the current report data as a CSV file"
+        ButtonText="Export CSV"
+        ExportRequested="OnExportRequested"/>
+        
+    Usage (Custom Icon):
+    <cards:ExportCard 
+        Title="Download Data"
+        Description="Export all data to Excel format"
+        ButtonText="Download"
+        IconGlyph="&#xE118;"
+        ExportRequested="OnExportRequested"/>
+    -->
+
+    <Border Style="{StaticResource CardWithShadowStyle}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Title and Description -->
+            <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="4">
+                <TextBlock Text="{Binding Title, ElementName=RootControl, Mode=OneWay}"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           Foreground="#111827"/>
+                <TextBlock Text="{Binding Description, ElementName=RootControl, Mode=OneWay}"
+                           FontSize="13"
+                           Foreground="#6B7280"
+                           TextWrapping="Wrap"/>
+            </StackPanel>
+            
+            <!-- Export Button -->
+            <buttons:IconButton Grid.Column="1"
+                               Variant="Filled"
+                               IconGlyph="{Binding IconGlyph, ElementName=RootControl, Mode=OneWay}"
+                               Text="{Binding ButtonText, ElementName=RootControl, Mode=OneWay}"
+                               ToolTipService.ToolTip="{Binding Tooltip, ElementName=RootControl, Mode=OneWay}"
+                               Click="ExportButton_Click"/>
+        </Grid>
+    </Border>
+</UserControl>

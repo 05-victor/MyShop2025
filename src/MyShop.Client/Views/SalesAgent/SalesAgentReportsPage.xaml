@@ -8,12 +8,18 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
+    xmlns:forms="using:MyShop.Client.Views.Components.Forms"
+    xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.SalesAgent"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
 
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+        <converters:StockToBrushConverter x:Key="StockToBrushConverter" />
+        <converters:StockToTextConverter x:Key="StockToTextConverter" />
 
         <!--  Style cho các Card  -->
         <Style x:Key="CardStyle" TargetType="Border">
@@ -25,70 +31,60 @@
         </Style>
     </Page.Resources>
 
-    <ScrollViewer>
+    <Grid>
+        <!-- Main Content -->
+        <Grid Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+            <Grid.Transitions>
+                <TransitionCollection>
+                    <EntranceThemeTransition FromVerticalOffset="50"/>
+                </TransitionCollection>
+            </Grid.Transitions>
+        <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
+        <ScrollViewer>
         <StackPanel Padding="24" Spacing="24">
 
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+            <layout:PageHeader
+                Title="My Reports"
+                Subtitle="View performance insights and revenue trends" />
 
-                <StackPanel Grid.Column="0">
-                    <TextBlock
-                        Foreground="#111827"
-                        Style="{StaticResource DisplayHeadingStyle}"
-                        Text="My Reports" />
-                    <TextBlock
-                        Margin="0,4,0,0"
-                        FontSize="14"
-                        Foreground="#6B7280"
-                        Text="View performance insights and revenue trends" />
-                </StackPanel>
+            <!--  FILTERS CARD with Apply Button  -->
+            <forms:FilterCard Title="Report Filters"
+                              ApplyCommand="{x:Bind ViewModel.ApplyFiltersCommand}"
+                              ResetCommand="{x:Bind ViewModel.ResetFiltersCommand}"
+                              ShowActions="True"
+                              ShowResetButton="True">
+                <forms:FilterCard.FilterContent>
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
-                <!--
-                    Right side actions (optional)
-                    Nếu muốn sau này có thể thêm nút Refresh/Export giống SalesOrdersPage ở đây
-                -->
-            </Grid>
+                        <forms:LabeledComboBox
+                            Grid.Column="0"
+                            Label="Date Range"
+                            ItemsSource="{x:Bind ViewModel.DateRanges, Mode=OneWay}"
+                            DisplayMemberPath="Display"
+                            SelectedValuePath="Value"
+                            SelectedItem="{x:Bind ViewModel.SelectedDateRange, Mode=TwoWay}" />
 
-            <!--  Header với Filters  -->
-            <Border Style="{StaticResource CardStyle}">
-                <Grid ColumnSpacing="16" RowSpacing="16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
+                        <forms:LabeledComboBox
+                            Grid.Column="1"
+                            Label="Category"
+                            ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
+                            SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}" />
 
-                    <ComboBox
-                        DisplayMemberPath="Display"
-                        Header="Date Range"
-                        ItemsSource="{x:Bind ViewModel.DateRanges}"
-                        SelectedItem="{x:Bind ViewModel.SelectedDateRange, Mode=TwoWay}"
-                        HorizontalAlignment="Stretch"
-                        SelectedValuePath="Value" />
-
-                    <ComboBox
-                        Grid.Column="2"
-                        Header="Category"
-                        ItemsSource="{x:Bind ViewModel.Categories}"
-                        HorizontalAlignment="Stretch"
-                        SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}" />
-
-                    <Button
-                        Grid.Column="4"
-                        VerticalAlignment="Bottom"
-                        Command="{x:Bind ViewModel.ExportReportCommand}">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon FontSize="16" Glyph="&#xE896;" />
-                            <TextBlock Text="Export" />
-                        </StackPanel>
-                    </Button>
-                </Grid>
-            </Border>
+                        <buttons:IconButton
+                            Grid.Column="2"
+                            VerticalAlignment="Bottom"
+                            Variant="Outline"
+                            IconGlyph="&#xE896;"
+                            Text="Export"
+                            Command="{x:Bind ViewModel.ExportReportCommand}" />
+                    </Grid>
+                </forms:FilterCard.FilterContent>
+            </forms:FilterCard>
 
             <!--  Charts Grid  -->
             <Grid ColumnSpacing="24" RowSpacing="24">
@@ -111,7 +107,13 @@
                             Margin="0,0,0,16"
                             Style="{StaticResource SubtitleTextBlockStyle}"
                             Text="Revenue Trend" />
-                        <lvc:CartesianChart Height="300" Series="{x:Bind ViewModel.RevenueSeries}" />
+                        <!-- Full crash prevention for chart rendering -->
+                        <lvc:CartesianChart 
+                            Height="300" 
+                            MinHeight="200"
+                            AnimationsSpeed="0"
+                            IsHitTestVisible="False"
+                            Series="{x:Bind ViewModel.RevenueSeries, Mode=OneWay}" />
                     </StackPanel>
                 </Border>
 
@@ -125,7 +127,13 @@
                             Margin="0,0,0,16"
                             Style="{StaticResource SubtitleTextBlockStyle}"
                             Text="Orders per Category" />
-                        <lvc:CartesianChart Height="300" Series="{x:Bind ViewModel.OrdersByCategorySeries}" />
+                        <!-- Full crash prevention for chart rendering -->
+                        <lvc:CartesianChart 
+                            Height="300" 
+                            MinHeight="200"
+                            AnimationsSpeed="0"
+                            IsHitTestVisible="False"
+                            Series="{x:Bind ViewModel.OrdersByCategorySeries, Mode=OneWay}" />
                     </StackPanel>
                 </Border>
 
@@ -134,13 +142,19 @@
                     Grid.Row="1"
                     Grid.Column="0"
                     Style="{StaticResource CardStyle}"
-                    Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    Visibility="Collapsed">
                     <StackPanel>
                         <TextBlock
                             Margin="0,0,0,16"
                             Style="{StaticResource SubtitleTextBlockStyle}"
                             Text="Product Rating Breakdown" />
-                        <lvc:PieChart Height="300" Series="{x:Bind ViewModel.RatingDistributionSeries}" />
+                        <!-- Full crash prevention for chart rendering -->
+                        <lvc:PieChart 
+                            Height="300" 
+                            MinHeight="200"
+                            AnimationsSpeed="0"
+                            IsHitTestVisible="False"
+                            Series="{x:Bind ViewModel.RatingDistributionSeries, Mode=OneWay}" />
                     </StackPanel>
                 </Border>
 
@@ -149,13 +163,14 @@
                     Grid.Row="1"
                     Grid.Column="1"
                     Style="{StaticResource CardStyle}"
-                    Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    Visibility="Collapsed">
                     <StackPanel>
                         <TextBlock
                             Margin="0,0,0,16"
                             Style="{StaticResource SubtitleTextBlockStyle}"
                             Text="Salesperson Contributions" />
-                        <ItemsControl ItemsSource="{x:Bind ViewModel.SalespersonData}">
+                        <!-- Changed to {x:Bind} to prevent ItemsControl crash -->
+                        <ItemsControl ItemsSource="{x:Bind ViewModel.SalespersonData, Mode=OneWay}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Grid
@@ -216,7 +231,8 @@
                         Margin="0,0,0,16"
                         Style="{StaticResource SubtitleTextBlockStyle}"
                         Text="Product Summary" />
-                    <controls:DataGrid AutoGenerateColumns="False" ItemsSource="{x:Bind ViewModel.FilteredProducts}">
+                    <!-- Changed to {x:Bind} to prevent DataGrid crash -->
+                    <controls:DataGrid AutoGenerateColumns="False" ItemsSource="{x:Bind ViewModel.FilteredProducts, Mode=OneWay}">
                         <controls:DataGrid.Columns>
                             <controls:DataGridTextColumn
                                 Width="*"
@@ -254,7 +270,7 @@
                                 </controls:DataGridTemplateColumn.CellTemplate>
                             </controls:DataGridTemplateColumn>
 
-                            <controls:DataGridTemplateColumn Header="My Commission" Visibility="{x:Bind ViewModel.IsSalesAgent, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <controls:DataGridTemplateColumn Header="My Commission">
                                 <controls:DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock><Run Text="$" /><Run Text="{Binding Commission}" /></TextBlock>
@@ -284,16 +300,25 @@
                 </StackPanel>
             </Border>
 
-            <!--  Generate Full Report Button  -->
-            <Button
-                Padding="32,8"
-                HorizontalAlignment="Center"
-                Command="{x:Bind ViewModel.ExportReportCommand}">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon FontSize="16" Glyph="&#xE896;" />
-                    <TextBlock Text="Generate Full Report" />
-                </StackPanel>
-            </Button>
         </StackPanel>
-    </ScrollViewer>
+        </ScrollViewer>
+        </RefreshContainer>
+        </Grid>
+
+        <!-- Loading Overlay -->
+        <Grid Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+              Background="{ThemeResource LayerFillColorDefaultBrush}">
+            <StackPanel HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Spacing="24">
+                <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                              Width="64"
+                              Height="64" />
+                <TextBlock Text="Loading reports..."
+                           FontSize="18"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Grid>
+    </Grid>
 </Page>

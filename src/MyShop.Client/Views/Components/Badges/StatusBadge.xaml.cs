@@ -16,7 +16,9 @@ public sealed partial class StatusBadge : UserControl
     public StatusBadge()
     {
         InitializeComponent();
-        UpdateBadgeStyle();
+        // Don't call UpdateBadgeStyle() here - it will be called by OnVariantChanged when properties are set
+        // Calling it here causes ArgumentException because WinRT hasn't fully initialized named elements yet
+        Loaded += (s, e) => UpdateBadgeStyle(); // Update on Loaded event instead
     }
 
     public static readonly DependencyProperty TextProperty =
@@ -68,7 +70,7 @@ public sealed partial class StatusBadge : UserControl
 
     private static void OnShowIconChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is StatusBadge badge)
+        if (d is StatusBadge badge && badge.BadgeIcon != null)
         {
             badge.BadgeIcon.Visibility = badge.ShowIcon ? Visibility.Visible : Visibility.Collapsed;
             badge.UpdateBadgeStyle();
@@ -77,6 +79,12 @@ public sealed partial class StatusBadge : UserControl
 
     private void UpdateBadgeStyle()
     {
+        // Safety check: ensure all named elements are initialized
+        if (BadgeContainer == null || BadgeText == null || BadgeIcon == null)
+        {
+            return;
+        }
+
         var (background, foreground, icon) = Variant switch
         {
             BadgeVariant.Success => ("#DCFCE7", "#15803D", "\uE73E"), // Green + Checkmark

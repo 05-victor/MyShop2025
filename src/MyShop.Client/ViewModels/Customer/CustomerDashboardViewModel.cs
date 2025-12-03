@@ -3,9 +3,10 @@ using CommunityToolkit.Mvvm.Input;
 using MyShop.Shared.Models;
 using MyShop.Client.ViewModels.Base;
 using MyShop.Client.Views.Shared;
-using MyShop.Core.Interfaces.Services;
-using MyShop.Core.Interfaces.Infrastructure;
+using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Repositories;
+using MyShop.Core.Interfaces.Services;
+using MyShop.Client.Facades;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 
@@ -13,11 +14,10 @@ namespace MyShop.Client.ViewModels.Customer;
 
 public partial class CustomerDashboardViewModel : BaseViewModel
 {
-        private readonly INavigationService _navigationService;
-        private readonly IToastService _toastHelper;
-        private readonly ICredentialStorage _credentialStorage;
-        private readonly IProductRepository _productRepository;
-        private readonly IOrderRepository _orderRepository;
+        private new readonly INavigationService _navigationService;
+        private readonly IProductFacade _productFacade;
+        private readonly IProfileFacade _profileFacade;
+        private readonly ISystemActivationRepository _activationRepository;
 
         [ObservableProperty]
         private User? _currentUser;
@@ -45,28 +45,31 @@ public partial class CustomerDashboardViewModel : BaseViewModel
 
         public CustomerDashboardViewModel(
             INavigationService navigationService,
-            IToastService toastHelper,
-            ICredentialStorage credentialStorage,
-            IProductRepository productRepository,
-            IOrderRepository orderRepository)
+            IProductFacade productFacade,
+            IProfileFacade profileFacade,
+            ISystemActivationRepository activationRepository)
         {
             _navigationService = navigationService;
-            _toastHelper = toastHelper;
-            _credentialStorage = credentialStorage;
-            _productRepository = productRepository;
-            _orderRepository = orderRepository;
+            _productFacade = productFacade;
+            _profileFacade = profileFacade;
+            _activationRepository = activationRepository;
         }
 
-        public async void Initialize(User user)
+    public async void Initialize(User user)
+    {
+        try
         {
             CurrentUser = user;
             IsVerified = user.IsEmailVerified;
-            CheckAdminBanner();
+            await CheckAdminBannerAsync();
             UpdateWelcomeMessage();
             await LoadDataAsync();
         }
-
-        private async Task LoadDataAsync()
+        catch (System.Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[CustomerDashboardViewModel] Initialize failed: {ex.Message}");
+        }
+    }        private async Task LoadDataAsync()
         {
             await Task.WhenAll(
                 LoadFeaturedProductsAsync(),
@@ -74,20 +77,35 @@ public partial class CustomerDashboardViewModel : BaseViewModel
             );
         }
 
-        private void CheckAdminBanner()
+        private async Task CheckAdminBannerAsync()
         {
             if (CurrentUser == null) return;
 
-            // Show banner only if:
-            // 1. No admin exists in system (hasAdmin flag not set)
-            // 2. Current user is Customer role
-            // Note: ICredentialStorage doesn't support key-value storage
-            // For now, always show banner for Customers (mock implementation)
-            var isCustomer = CurrentUser.GetPrimaryRole() == MyShop.Shared.Models.Enums.UserRole.Customer;
+            try
+            {
+                // Check if current user is Customer role
+                var isCustomer = CurrentUser.GetPrimaryRole() == MyShop.Shared.Models.Enums.UserRole.Customer;
+                
+                if (!isCustomer)
+                {
+                    ShowBecomeAdminBanner = false;
+                    return;
+                }
 
-            ShowBecomeAdminBanner = isCustomer; // Show banner for customers only
-            
-            System.Diagnostics.Debug.WriteLine($"[CustomerDashboard] isCustomer={isCustomer}, ShowBanner={ShowBecomeAdminBanner}");
+                // Check if any admin exists in the system
+                var hasAdminResult = await _activationRepository.HasAnyAdminAsync();
+                var hasAdmin = hasAdminResult.IsSuccess && hasAdminResult.Data;
+
+                // Show banner only if: Customer + No admin exists
+                ShowBecomeAdminBanner = isCustomer && !hasAdmin;
+                
+                System.Diagnostics.Debug.WriteLine($"[CustomerDashboard] isCustomer={isCustomer}, hasAdmin={hasAdmin}, ShowBanner={ShowBecomeAdminBanner}");
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[CustomerDashboard] CheckAdminBannerAsync error: {ex.Message}");
+                ShowBecomeAdminBanner = false;
+            }
         }
 
         private void UpdateWelcomeMessage()
@@ -103,8 +121,13 @@ public partial class CustomerDashboardViewModel : BaseViewModel
         {
             try
             {
-                var products = await _productRepository.GetAllAsync();
-                var featured = products.Take(4).ToList();
+                var result = await _productFacade.LoadProductsAsync();
+                if (!result.IsSuccess || result.Data == null)
+                {
+                    return;
+                }
+                
+                var featured = result.Data.Items.Take(4).ToList();
 
                 FeaturedProducts.Clear();
                 foreach (var product in featured)
@@ -133,8 +156,13 @@ public partial class CustomerDashboardViewModel : BaseViewModel
         {
             try
             {
-                var products = await _productRepository.GetAllAsync();
-                var recommended = products.Skip(4).Take(4).ToList();
+                var result = await _productFacade.LoadProductsAsync();
+                if (!result.IsSuccess || result.Data == null)
+                {
+                    return;
+                }
+                
+                var recommended = result.Data.Items.Skip(4).Take(4).ToList();
 
                 RecommendedProducts.Clear();
                 foreach (var product in recommended)
@@ -162,10 +190,9 @@ public partial class CustomerDashboardViewModel : BaseViewModel
         [RelayCommand]
         private async Task LogoutAsync()
         {
-            _credentialStorage.RemoveToken();
-            _toastHelper.ShowInfo("Logged out");
-            _navigationService.NavigateTo(typeof(LoginPage).FullName!);
-            await Task.CompletedTask;
+            // Note: LogoutAsync should be in IAuthFacade, not IProfileFacade
+            // TODO: Inject IAuthFacade and use _authFacade.LogoutAsync()
+            await _navigationService.NavigateTo(typeof(LoginPage).FullName!);
         }
     }
 

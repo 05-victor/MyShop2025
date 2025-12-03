@@ -1,18 +1,20 @@
-using MyShop.Core.Common;
-using MyShop.Core.Interfaces.Repositories;
+﻿using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Infrastructure;
-using MyShop.Shared.Models;
-using MyShop.Shared.Models.Enums;
+using MyShop.Core.Interfaces.Repositories;
+using MyShop.Plugins.API.Auth;
+using MyShop.Shared.Adapters;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
-using MyShop.Plugins.API.Auth;
+using MyShop.Shared.Models;
+using MyShop.Shared.Models.Enums;
 using Refit;
 
 namespace MyShop.Plugins.Repositories.Api;
 
 /// <summary>
-/// Real API implementation của IAuthRepository
-/// Wraps IAuthApi (Refit) và transform DTOs → Client Models
+/// Real API implementation of IAuthRepository.
+/// Wraps IAuthApi (Refit) and transforms DTOs to Client Models.
+/// Handles HTTP errors and network exceptions with user-friendly messages.
 /// </summary>
 public class AuthRepository : IAuthRepository
 {
@@ -45,9 +47,8 @@ public class AuthRepository : IAuthRepository
                 // Check inner ApiResponse (business logic)
                 if (apiResponse.Success == true && apiResponse.Result != null)
                 {
-                    // Transform DTO → Client Model using inline mapping
-                    // TODO: Move to AuthAdapter when architecture is finalized
-                    var user = MapLoginResponseToUser(apiResponse.Result);
+                    // Transform DTO → Client Model using AuthAdapter
+                    var user = AuthAdapter.ToModel(apiResponse.Result);
                     return Result<User>.Success(user);
                 }
 
@@ -144,7 +145,7 @@ public class AuthRepository : IAuthRepository
                 if (apiResponse.Success == true && apiResponse.Result != null)
                 {
                     var token = _credentialStorage.GetToken() ?? string.Empty;
-                    var user = MapUserInfoResponseToUser(apiResponse.Result, token);
+                    var user = AuthAdapter.ToModel(apiResponse.Result, token);
                     return Result<User>.Success(user);
                 }
 
@@ -197,7 +198,7 @@ public class AuthRepository : IAuthRepository
         {
             // TODO: Implement real API call when backend endpoint is ready
             // For now, return not implemented
-            await Task.Delay(500); // Simulate network delay
+            // await Task.Delay(500); // Simulate network delay
             
             return Result<User>.Failure("Trial activation API not yet implemented on server. Please use mock mode for testing.");
             
@@ -213,7 +214,7 @@ public class AuthRepository : IAuthRepository
                 if (apiResponse.Success == true && apiResponse.Result != null)
                 {
                     var token = _credentialStorage.GetToken() ?? string.Empty;
-                    var user = MapUserInfoResponseToUser(apiResponse.Result, token);
+                    var user = AuthAdapter.ToModel(apiResponse.Result, token);
                     return Result<User>.Success(user);
                 }
 
@@ -234,7 +235,7 @@ public class AuthRepository : IAuthRepository
     {
         try
         {
-            await Task.Delay(500);
+            // await Task.Delay(500);
             return Result<Unit>.Failure("Email verification API not yet implemented on server. Please use mock mode for testing.");
         }
         catch (Exception ex)
@@ -248,7 +249,7 @@ public class AuthRepository : IAuthRepository
     {
         try
         {
-            await Task.Delay(500);
+            // await Task.Delay(500);
             return Result<bool>.Failure("Email verification status API not yet implemented on server. Please use mock mode for testing.");
         }
         catch (Exception ex)
@@ -262,7 +263,7 @@ public class AuthRepository : IAuthRepository
     {
         try
         {
-            await Task.Delay(500);
+            // await Task.Delay(500);
             return Result<Unit>.Failure("Email verification API not yet implemented on server. Please use mock mode for testing.");
         }
         catch (Exception ex)
@@ -272,82 +273,12 @@ public class AuthRepository : IAuthRepository
         }
     }
 
-    #region DTO Mapping
-
-    /// <summary>
-    /// Map LoginResponse (DTO) → User (Client Model)
-    /// </summary>
-    private User MapLoginResponseToUser(LoginResponse dto)
-    {
-        return new User
-        {
-            Id = dto.Id,
-            Username = dto.Username,
-            Email = dto.Email,
-            CreatedAt = dto.CreatedAt,
-            IsTrialActive = dto.IsTrialActive,
-            TrialStartDate = dto.TrialStartDate,
-            TrialEndDate = dto.TrialEndDate,
-            IsEmailVerified = dto.IsEmailVerified,
-            Token = dto.Token,
-            Roles = ParseRoles(dto.RoleNames)
-        };
-    }
-
-    /// <summary>
-    /// Map UserInfoResponse (DTO) → User (Client Model)
-    /// </summary>
-    private User MapUserInfoResponseToUser(UserInfoResponse dto, string token)
-    {
-        return new User
-        {
-            Id = dto.Id,
-            Username = dto.Username,
-            Email = dto.Email,
-            CreatedAt = dto.CreatedAt,
-            Token = token,
-            Roles = ParseRoles(dto.RoleNames)
-        };
-    }
-
-    /// <summary>
-    /// Parse role names (string) → UserRole enums
-    /// </summary>
-    private List<UserRole> ParseRoles(IEnumerable<string>? roleNames)
-    {
-        if (roleNames == null)
-            return new List<UserRole>();
-
-        var roles = new List<UserRole>();
-
-        foreach (var roleName in roleNames)
-        {
-            if (string.IsNullOrWhiteSpace(roleName))
-                continue;
-
-            var normalized = roleName.Trim().ToUpperInvariant();
-
-            if (normalized == "ADMIN")
-                roles.Add(UserRole.Admin);
-            else if (normalized == "SALEMAN" || normalized == "SALESMAN")
-                roles.Add(UserRole.Salesman);
-            else if (normalized == "CUSTOMER")
-                roles.Add(UserRole.Customer);
-        }
-
-        // Default to Customer if no roles found
-        if (roles.Count == 0)
-            roles.Add(UserRole.Customer);
-
-        return roles;
-    }
-
-    #endregion
+    // DTO Mapping methods removed - now using AuthAdapter
 
     #region Error Handling
 
     /// <summary>
-    /// Map API errors thành user-friendly messages
+    /// Map API errors to user-friendly messages.
     /// </summary>
     private string MapApiError(ApiException apiEx)
     {

@@ -1,10 +1,12 @@
+using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Services;
 using System.Text.RegularExpressions;
 
 namespace MyShop.Client.Services;
 
 /// <summary>
-/// Implementation của IValidationService với các quy tắc validation chuẩn
+/// Implementation of IValidationService with standard validation rules.
+/// Validates common input types like username, password, email, and phone number.
 /// </summary>
 public class ValidationService : IValidationService
 {
@@ -13,88 +15,88 @@ public class ValidationService : IValidationService
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     /// <inheritdoc/>
-    public ValidationResult ValidateUsername(string username)
+    public Task<Result<ValidationResult>> ValidateUsername(string username)
     {
         if (string.IsNullOrWhiteSpace(username))
-            return ValidationResult.Failure("Username or Email is required");
+            return Task.FromResult(Result<ValidationResult>.Success(ValidationResult.Failure("Username or Email is required")));
 
         if (username.Length < 3)
-            return ValidationResult.Failure("Username must be at least 3 characters");
+            return Task.FromResult(Result<ValidationResult>.Success(ValidationResult.Failure("Username must be at least 3 characters")));
 
         if (username.Length > 50)
-            return ValidationResult.Failure("Username must not exceed 50 characters");
+            return Task.FromResult(Result<ValidationResult>.Success(ValidationResult.Failure("Username must not exceed 50 characters")));
 
-        return ValidationResult.Success();
+        return Task.FromResult(Result<ValidationResult>.Success(ValidationResult.Success()));
     }
 
     /// <inheritdoc/>
-    public ValidationResult ValidatePassword(string password)
+    public Task<Result<ValidationResult>> ValidatePassword(string password)
     {
         if (string.IsNullOrWhiteSpace(password))
-            return ValidationResult.Failure("Password is required");
+            return Task.FromResult(Result<ValidationResult>.Success(ValidationResult.Failure("Password is required")));
 
         if (password.Length < 6)
-            return ValidationResult.Failure("Password must be at least 6 characters");
+            return Task.FromResult(Result<ValidationResult>.Success(ValidationResult.Failure("Password must be at least 6 characters")));
 
         if (password.Length > 100)
-            return ValidationResult.Failure("Password must not exceed 100 characters");
+            return Task.FromResult(Result<ValidationResult>.Success(ValidationResult.Failure("Password must not exceed 100 characters")));
 
-        // Optional: Thêm quy tắc phức tạp hơn nếu cần
-        // - Phải có chữ hoa
-        // - Phải có chữ thường
-        // - Phải có số
-        // - Phải có ký tự đặc biệt
+        // Optional: Add complex rules if needed
+        // - Must have uppercase
+        // - Must have lowercase
+        // - Must have number
+        // - Must have special character
 
-        return ValidationResult.Success();
+        return Task.FromResult(Result<ValidationResult>.Success(ValidationResult.Success()));
     }
 
     /// <inheritdoc/>
-    public ValidationResult ValidateEmail(string email)
+    public Task<Result<ValidationResult>> ValidateEmail(string email)
     {
         if (string.IsNullOrWhiteSpace(email))
-            return ValidationResult.Failure("Email is required");
+            return Task.FromResult(Result<ValidationResult>.Success(ValidationResult.Failure("Email is required")));
 
         if (!EmailRegex.IsMatch(email))
-            return ValidationResult.Failure("Invalid email format");
+            return Task.FromResult(Result<ValidationResult>.Success(ValidationResult.Failure("Invalid email format")));
 
         if (email.Length > 100)
-            return ValidationResult.Failure("Email must not exceed 100 characters");
+            return Task.FromResult(Result<ValidationResult>.Success(ValidationResult.Failure("Email must not exceed 100 characters")));
 
-        return ValidationResult.Success();
+        return Task.FromResult(Result<ValidationResult>.Success(ValidationResult.Success()));
     }
 
     /// <inheritdoc/>
-    public ValidationResult ValidatePasswordConfirmation(string password, string confirmPassword)
+    public Task<Result<ValidationResult>> ValidatePasswordConfirmation(string password, string confirmPassword)
     {
         if (string.IsNullOrWhiteSpace(confirmPassword))
-            return ValidationResult.Failure("Password confirmation is required");
+            return Task.FromResult(Result<ValidationResult>.Success(ValidationResult.Failure("Password confirmation is required")));
 
         if (password != confirmPassword)
-            return ValidationResult.Failure("Passwords do not match");
+            return Task.FromResult(Result<ValidationResult>.Success(ValidationResult.Failure("Passwords do not match")));
 
-        return ValidationResult.Success();
+        return Task.FromResult(Result<ValidationResult>.Success(ValidationResult.Success()));
     }
 
     /// <inheritdoc/>
-    public ValidationResult ValidatePhoneNumber(string phoneNumber)
+    public Task<Result<ValidationResult>> ValidatePhoneNumber(string phoneNumber)
     {
         if (string.IsNullOrWhiteSpace(phoneNumber))
-            return ValidationResult.Failure("Phone number is required");
+            return Task.FromResult(Result<ValidationResult>.Success(ValidationResult.Failure("Phone number is required")));
 
         // Accept phone numbers with 10-20 digits, may contain spaces, dashes, or parentheses
         var phonePattern = @"^[\d\s\-\(\)]{10,20}$";
         if (!Regex.IsMatch(phoneNumber, phonePattern))
-            return ValidationResult.Failure("Invalid phone number format");
+            return Task.FromResult(Result<ValidationResult>.Success(ValidationResult.Failure("Invalid phone number format")));
 
-        return ValidationResult.Success();
+        return Task.FromResult(Result<ValidationResult>.Success(ValidationResult.Success()));
     }
 
     /// <inheritdoc/>
-    public ValidationResult ValidateRequired(string value, string fieldName)
+    public Task<Result<ValidationResult>> ValidateRequired(string value, string fieldName)
     {
         if (string.IsNullOrWhiteSpace(value))
-            return ValidationResult.Failure($"{fieldName} is required");
+            return Task.FromResult(Result<ValidationResult>.Success(ValidationResult.Failure($"{fieldName} is required")));
 
-        return ValidationResult.Success();
+        return Task.FromResult(Result<ValidationResult>.Success(ValidationResult.Success()));
     }
 }

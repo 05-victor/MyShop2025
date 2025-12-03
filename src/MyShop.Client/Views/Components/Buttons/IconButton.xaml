@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="MyShop.Client.Views.Components.Buttons.IconButton"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    x:Name="RootControl">
+
+    <!--
+    IconButton Component
+    ====================
+    A reusable button with icon and optional text.
+    Supports variants: Ghost, Outline, Filled.
+    
+    Usage (Icon Only):
+    <buttons:IconButton 
+        IconGlyph="&#xE74D;" 
+        Tooltip="Delete item"
+        Variant="Ghost"
+        IconColor="#DC2626"
+        Command="{x:Bind ViewModel.DeleteCommand}"/>
+    
+    Usage (Icon + Text):
+    <buttons:IconButton 
+        IconGlyph="&#xE710;" 
+        Text="Add New"
+        Variant="Filled"
+        Command="{x:Bind ViewModel.AddCommand}"/>
+        
+    Usage (Icon on Right):
+    <buttons:IconButton 
+        IconGlyph="&#xE76C;" 
+        Text="Next"
+        IconPosition="Right"
+        Variant="Outline"/>
+    -->
+
+    <Button x:Name="ActionButton"
+            Padding="0"
+            CornerRadius="8"
+            Command="{Binding Command, ElementName=RootControl, Mode=OneWay}"
+            CommandParameter="{Binding CommandParameter, ElementName=RootControl, Mode=OneWay}"
+            ToolTipService.ToolTip="{Binding Tooltip, ElementName=RootControl, Mode=OneWay}"
+            Click="ActionButton_Click">
+        <Button.Resources>
+            <!-- Ghost variant overrides -->
+            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#F3F4F6"/>
+            <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#E5E7EB"/>
+        </Button.Resources>
+        
+        <StackPanel x:Name="ContentPanel" Orientation="Horizontal" Spacing="8">
+            <FontIcon x:Name="LeftIcon"
+                      Glyph="{Binding IconGlyph, ElementName=RootControl, Mode=OneWay}"
+                      FontSize="{Binding IconSize, ElementName=RootControl, Mode=OneWay}"
+                      Foreground="{Binding IconColor, ElementName=RootControl, Mode=OneWay}"/>
+            <TextBlock x:Name="ButtonText"
+                       Text="{Binding Text, ElementName=RootControl, Mode=OneWay}"
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center"/>
+            <FontIcon x:Name="RightIcon"
+                      Visibility="Collapsed"
+                      Glyph="{Binding IconGlyph, ElementName=RootControl, Mode=OneWay}"
+                      FontSize="{Binding IconSize, ElementName=RootControl, Mode=OneWay}"
+                      Foreground="{Binding IconColor, ElementName=RootControl, Mode=OneWay}"/>
+        </StackPanel>
+    </Button>
+</UserControl>

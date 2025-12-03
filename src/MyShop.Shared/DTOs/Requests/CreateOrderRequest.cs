@@ -42,6 +42,16 @@ public class CreateOrderRequest
     /// List of order items to be created with the order
     /// </summary>
     public List<CreateOrderItemRequest>? OrderItems { get; set; }
+
+    /// <summary>
+    /// Shipping address
+    /// </summary>
+    public string? ShippingAddress { get; set; }
+
+    /// <summary>
+    /// Payment method (COD, CreditCard, etc.)
+    /// </summary>
+    public string PaymentMethod { get; set; } = "COD";
 }
 
 /// <summary>
@@ -57,33 +67,10 @@ public class CreateOrderItemRequest
 
     [Range(0, int.MaxValue, ErrorMessage = "Unit sale price must be non-negative")]
     public int UnitSalePrice { get; set; }
-
-    //[Range(0, int.MaxValue, ErrorMessage = "Total price must be non-negative")]
-    //public int TotalPrice { get; set; }
-
-    /// <summary>
-    /// List of order items (product ID + quantity)
-    /// </summary>
-    public List<OrderItemRequest> Items { get; set; } = new();
-
-    /// <summary>
-    /// Shipping address
-    /// </summary>
-    public string ShippingAddress { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Optional order notes
-    /// </summary>
-    public string? Notes { get; set; }
-
-    /// <summary>
-    /// Payment method (COD, CreditCard, etc.)
-    /// </summary>
-    public string PaymentMethod { get; set; } = "COD";
 }
 
 /// <summary>
-/// Order item (product + quantity)
+/// Order item (product + quantity) - Simple version for API requests
 /// </summary>
 public class OrderItemRequest
 {

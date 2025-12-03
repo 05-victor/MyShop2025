@@ -1,25 +1,25 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MyShop.Core.Interfaces.Repositories;
+using Microsoft.UI.Xaml;
+using MyShop.Client.Facades;
+using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Shared.Models;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace MyShop.Client.ViewModels.Shared;
 
+/// <summary>
+/// ViewModel for Product Browse page with SERVER-SIDE paging
+/// Loads products page by page from the API, not all at once
+/// </summary>
 public partial class ProductBrowseViewModel : ObservableObject
 {
-    private readonly IProductRepository _productRepository;
-    private readonly ICategoryRepository _categoryRepository;
-    private readonly ICartRepository _cartRepository;
-    private readonly IAuthRepository _authRepository;
-    private readonly IToastService _toastHelper;
+    private readonly IProductFacade _productFacade;
+    private readonly ICartFacade _cartFacade;
     private readonly INavigationService? _navigationService;
-    private List<Product> _allProducts = new();
 
     [ObservableProperty]
     private ObservableCollection<ProductCardViewModel> _products = new();
@@ -28,16 +28,10 @@ public partial class ProductBrowseViewModel : ObservableObject
     private ObservableCollection<string> _categories = new();
 
     [ObservableProperty]
-    private string _selectedCategory = "All Categories";
+    private string _selectedCategory = "All";
 
     [ObservableProperty]
     private string _searchQuery = string.Empty;
-
-    [ObservableProperty]
-    private decimal _minPrice = 0;
-
-    [ObservableProperty]
-    private decimal _maxPrice = 10000;
 
     [ObservableProperty]
     private string _selectedSort = "Newest";
@@ -46,68 +40,149 @@ public partial class ProductBrowseViewModel : ObservableObject
     private bool _isLoading;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasPreviousPage))]
+    [NotifyPropertyChangedFor(nameof(HasNextPage))]
+    [NotifyPropertyChangedFor(nameof(PageInfoText))]
     private int _currentPage = 1;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowPagination))]
+    [NotifyPropertyChangedFor(nameof(HasNextPage))]
+    [NotifyPropertyChangedFor(nameof(PageInfoText))]
     private int _totalPages = 1;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ItemsInfoText))]
     private int _totalProducts;
 
-    private const int PageSize = 12;
+    [ObservableProperty]
+    private bool _isLoadingMore;
+
+    [ObservableProperty]
+    private bool _hasMoreItems = true;
+
+    // Computed properties for pagination
+    public bool HasPreviousPage => CurrentPage > 1;
+    public bool HasNextPage => CurrentPage < TotalPages;
+    public Visibility ShowPagination => TotalPages > 1 ? Visibility.Visible : Visibility.Collapsed;
+    public string PageInfoText => TotalPages > 0 ? $"Page {CurrentPage} of {TotalPages}" : "No data";
+    
+    public string ItemsInfoText
+    {
+        get
+        {
+            if (TotalProducts == 0) return "No products found";
+            var startIndex = (CurrentPage - 1) * PageSize + 1;
+            var endIndex = Math.Min(CurrentPage * PageSize, TotalProducts);
+            return $"Showing {startIndex}-{endIndex} of {TotalProducts} products";
+        }
+    }
+
+    private const int PageSize = 12; // Show 12 products per page for grid layout
 
     public ProductBrowseViewModel(
-        IProductRepository productRepository, 
-        ICategoryRepository categoryRepository,
-        ICartRepository cartRepository,
-        IAuthRepository authRepository,
-        IToastService toastHelper,
+        IProductFacade productFacade, 
+        ICartFacade cartFacade,
         INavigationService? navigationService = null)
     {
-        _productRepository = productRepository;
-        _categoryRepository = categoryRepository;
-        _cartRepository = cartRepository;
-        _authRepository = authRepository;
-        _toastHelper = toastHelper;
+        _productFacade = productFacade;
+        _cartFacade = cartFacade;
         _navigationService = navigationService;
     }
 
     public async Task InitializeAsync()
     {
         await LoadCategoriesAsync();
-        await LoadProductsAsync();
+        await LoadPageAsync();
     }
 
     private async Task LoadCategoriesAsync()
     {
-        try
-        {
-            var categories = await _categoryRepository.GetAllAsync();
-            Categories = new ObservableCollection<string>(
-                new[] { "All Categories" }.Concat(categories.Select(c => c.Name))
-            );
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] Error loading categories: {ex.Message}");
-            Categories = new ObservableCollection<string> { "All Categories" };
-        }
+        // TODO: Load from API
+        Categories = new ObservableCollection<string> 
+        { 
+            "All", 
+            "Laptop", 
+            "Smartphone", 
+            "Tablet", 
+            "Smartwatch", 
+            "Headphone" 
+        };
+        await Task.CompletedTask;
     }
 
-    private async Task LoadProductsAsync()
+    /// <summary>
+    /// Load products from server with current filters and page
+    /// </summary>
+    private async Task LoadPageAsync()
     {
         IsLoading = true;
         try
         {
-            var products = await _productRepository.GetAllAsync();
-            _allProducts = products.ToList();
+            // Map sort option to API parameter
+            var (sortBy, sortDesc) = MapSortOption(SelectedSort);
             
-            ApplyFiltersAndSort();
+            // Map category - "All" means no filter
+            var category = SelectedCategory == "All" ? null : SelectedCategory;
+
+            System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] LoadPageAsync: Page={CurrentPage}, Category={category}, Sort={sortBy}, Search={SearchQuery}");
+
+            var result = await _productFacade.LoadProductsAsync(
+                searchQuery: string.IsNullOrWhiteSpace(SearchQuery) ? null : SearchQuery,
+                categoryName: category,
+                minPrice: null,
+                maxPrice: null,
+                sortBy: sortBy,
+                sortDescending: sortDesc,
+                page: CurrentPage,
+                pageSize: PageSize);
+
+            if (result.IsSuccess && result.Data != null)
+            {
+                var pagedData = result.Data;
+                
+                Products.Clear();
+                foreach (var product in pagedData.Items)
+                {
+                    Products.Add(new ProductCardViewModel
+                    {
+                        Id = product.Id,
+                        Name = product.Name,
+                        Price = product.SellingPrice,
+                        ImageUrl = product.ImageUrl ?? "/Assets/placeholder-product.png",
+                        Rating = product.Rating,
+                        RatingCount = product.RatingCount,
+                        Stock = product.Quantity,
+                        Category = product.CategoryName ?? product.Category ?? "Uncategorized",
+                        Manufacturer = product.Manufacturer ?? string.Empty
+                    });
+                }
+
+                TotalProducts = pagedData.TotalCount;
+                TotalPages = pagedData.TotalPages;
+                HasMoreItems = CurrentPage < TotalPages;
+
+                System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] Loaded page {CurrentPage}/{TotalPages} ({Products.Count} items, {TotalProducts} total)");
+            }
+            else
+            {
+                Products.Clear();
+                TotalProducts = 0;
+                TotalPages = 1;
+                HasMoreItems = false;
+                System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] Failed to load products: {result.ErrorMessage}");
+            }
+
+            // Notify UI of changes
+            OnPropertyChanged(nameof(ItemsInfoText));
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] Error loading products: {ex.Message}");
             Products.Clear();
+            TotalProducts = 0;
+            TotalPages = 1;
+            HasMoreItems = false;
         }
         finally
         {
@@ -115,70 +190,22 @@ public partial class ProductBrowseViewModel : ObservableObject
         }
     }
 
-    private void ApplyFiltersAndSort()
+    private (string sortBy, bool descending) MapSortOption(string option) => option switch
     {
-        var filtered = _allProducts.AsEnumerable();
-
-        // Filter by category
-        if (SelectedCategory != "All Categories")
-        {
-            filtered = filtered.Where(p => p.Category == SelectedCategory || p.CategoryName == SelectedCategory);
-        }
-
-        // Filter by search query
-        if (!string.IsNullOrWhiteSpace(SearchQuery))
-        {
-            filtered = filtered.Where(p =>
-                p.Name.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase) ||
-                (p.Manufacturer?.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase) ?? false)
-            );
-        }
-
-        // Filter by price range
-        filtered = filtered.Where(p => p.SellingPrice >= MinPrice && p.SellingPrice <= MaxPrice);
-
-        // Sort
-        filtered = SelectedSort switch
-        {
-            "Newest" => filtered.OrderByDescending(p => p.CreatedAt),
-            "Price: Low to High" => filtered.OrderBy(p => p.SellingPrice),
-            "Price: High to Low" => filtered.OrderByDescending(p => p.SellingPrice),
-            "Rating" => filtered.OrderByDescending(p => p.Rating),
-            _ => filtered
-        };
-
-        var productList = filtered.ToList();
-        TotalProducts = productList.Count;
-        TotalPages = (int)Math.Ceiling((double)TotalProducts / PageSize);
-
-        // Paginate
-        var paged = productList
-            .Skip((CurrentPage - 1) * PageSize)
-            .Take(PageSize)
-            .Select(p => new ProductCardViewModel
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Price = p.SellingPrice,
-                ImageUrl = p.ImageUrl ?? "/Assets/placeholder-product.png",
-                Rating = p.Rating,
-                RatingCount = p.RatingCount,
-                Stock = p.Quantity,
-                Category = p.CategoryName ?? p.Category ?? "Uncategorized",
-                Manufacturer = p.Manufacturer ?? string.Empty
-            })
-            .ToList();
-
-        Products = new ObservableCollection<ProductCardViewModel>(paged);
-    }
+        "Name: A to Z" => ("name", false),
+        "Name: Z to A" => ("name", true),
+        "Newest" => ("created", true),
+        "Price: Low to High" => ("price", false),
+        "Price: High to Low" => ("price", true),
+        "Rating" => ("rating", true),
+        _ => ("created", true)
+    };
 
     [RelayCommand]
-    private async Task SearchAsync(string query)
+    private async Task SearchAsync()
     {
-        SearchQuery = query;
         CurrentPage = 1;
-        ApplyFiltersAndSort();
-        await Task.CompletedTask;
+        await LoadPageAsync();
     }
 
     [RelayCommand]
@@ -186,84 +213,110 @@ public partial class ProductBrowseViewModel : ObservableObject
     {
         SelectedCategory = category;
         CurrentPage = 1;
-        ApplyFiltersAndSort();
-        await Task.CompletedTask;
+        await LoadPageAsync();
     }
 
     [RelayCommand]
     private async Task SortAsync(string sortOption)
     {
         SelectedSort = sortOption;
-        ApplyFiltersAndSort();
-        await Task.CompletedTask;
+        CurrentPage = 1;
+        await LoadPageAsync();
     }
 
     [RelayCommand]
-    private async Task ApplyPriceFilterAsync()
+    private async Task ApplyFiltersAsync()
     {
         CurrentPage = 1;
-        ApplyFiltersAndSort();
-        await Task.CompletedTask;
+        await LoadPageAsync();
     }
 
     [RelayCommand]
-    private async Task GoToPageAsync(int page)
+    private async Task ResetFiltersAsync()
     {
+        SelectedCategory = "All";
+        SearchQuery = string.Empty;
+        SelectedSort = "Newest";
+        CurrentPage = 1;
+        await LoadPageAsync();
+    }
+
+    [RelayCommand]
+    public async Task GoToPageAsync(int page)
+    {
+        System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] GoToPageAsync called: page={page}, CurrentPage={CurrentPage}, TotalPages={TotalPages}");
+        
         if (page >= 1 && page <= TotalPages)
         {
             CurrentPage = page;
-            ApplyFiltersAndSort();
+            await LoadPageAsync();
         }
-        await Task.CompletedTask;
+    }
+
+    [RelayCommand]
+    private async Task NextPageAsync()
+    {
+        if (HasNextPage)
+        {
+            CurrentPage++;
+            await LoadPageAsync();
+        }
+    }
+
+    [RelayCommand]
+    private async Task PreviousPageAsync()
+    {
+        if (HasPreviousPage)
+        {
+            CurrentPage--;
+            await LoadPageAsync();
+        }
     }
 
     [RelayCommand]
     private async Task AddToCartAsync(ProductCardViewModel product)
     {
-        try
+        var result = await _cartFacade.AddToCartAsync(product.Id, 1);
+        if (result.IsSuccess)
         {
-            // Get current user ID
-            var userIdResult = await _authRepository.GetCurrentUserIdAsync();
-            
-            if (!userIdResult.IsSuccess || userIdResult.Data == Guid.Empty)
-            {
-                _toastHelper.ShowError("Please login to add items to cart");
-                return;
-            }
-
-            var userId = userIdResult.Data;
-
-            // Add to cart
-            var success = await _cartRepository.AddToCartAsync(userId, product.Id, 1);
-
-            if (success)
-            {
-                _toastHelper.ShowSuccess($"Added {product.Name} to cart");
-                System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] Added to cart: {product.Name}");
-            }
-            else
-            {
-                _toastHelper.ShowError("Failed to add to cart. Product may be out of stock.");
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] Error adding to cart: {ex.Message}");
-            _toastHelper.ShowError("An error occurred while adding to cart");
+            System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] Added to cart: {product.Name}");
         }
     }
 
     [RelayCommand]
-    private void ViewProductDetails(ProductCardViewModel product)
+    private async Task ViewProductDetailsAsync(ProductCardViewModel product)
     {
-        // Navigate to product details page
-        // When ProductDetailsPage is created, uncomment this:
-        // _navigationService?.NavigateTo("MyShop.Client.Views.Shared.ProductDetailsPage", product.Id);
-        
         System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] View details for product: {product.Name} (ID: {product.Id})");
-        
-        // For now, show a toast notification
-        _toastHelper.ShowInfo($"Product Details: {product.Name}\nPrice: ${product.Price:F2}\nStock: {product.Stock} units");
+        await Task.CompletedTask;
+    }
+
+    [RelayCommand]
+    private async Task RefreshAsync()
+    {
+        await LoadCategoriesAsync();
+        await LoadPageAsync();
+    }
+
+    [RelayCommand]
+    private async Task LoadMoreProductsAsync()
+    {
+        if (IsLoadingMore || !HasMoreItems)
+            return;
+
+        IsLoadingMore = true;
+        try
+        {
+            CurrentPage++;
+            await LoadPageAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] Error loading more: {ex.Message}");
+        }
+        finally
+        {
+            IsLoadingMore = false;
+        }
     }
 }
 
@@ -296,7 +349,7 @@ public partial class ProductCardViewModel : ObservableObject
     [ObservableProperty]
     private string _manufacturer = string.Empty;
 
-    public string FormattedPrice => $"${Price:N2}";
+    public string FormattedPrice => $"₫{Price:N0}";
     public string StockStatus => Stock > 0 ? $"{Stock} in stock" : "Out of stock";
     public bool IsInStock => Stock > 0;
 }

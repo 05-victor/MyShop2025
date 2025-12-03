@@ -1,12 +1,14 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Dispatching;
+using MyShop.Core.Interfaces.Services;
 using System;
 
 namespace MyShop.Client.ViewModels.Base
 {
     /// <summary>
-    /// Base ViewModel với common properties và behaviors
-    /// Kế thừa từ ObservableObject của CommunityToolkit.Mvvm
+    /// Base ViewModel with common properties and behaviors.
+    /// Inherits from ObservableObject of CommunityToolkit.Mvvm.
+    /// Enhanced with common service dependencies.
     /// </summary>
     public abstract partial class BaseViewModel : ObservableObject
     {
@@ -24,6 +26,34 @@ namespace MyShop.Client.ViewModels.Base
         /// Set by the View when created
         /// </summary>
         protected DispatcherQueue? DispatcherQueue { get; set; }
+
+        /// <summary>
+        /// Toast service for showing notifications
+        /// Injected via constructor - child classes can use _toastHelper directly
+        /// </summary>
+        protected readonly IToastService? _toastHelper;
+
+        /// <summary>
+        /// Navigation service for page navigation
+        /// Injected via constructor - child classes can use _navigationService directly
+        /// </summary>
+        protected readonly INavigationService? _navigationService;
+
+        /// <summary>
+        /// Default constructor for ViewModels without common dependencies
+        /// </summary>
+        protected BaseViewModel()
+        {
+        }
+
+        /// <summary>
+        /// Constructor with common service dependencies
+        /// </summary>
+        protected BaseViewModel(IToastService? toastService = null, INavigationService? navigationService = null)
+        {
+            _toastHelper = toastService;
+            _navigationService = navigationService;
+        }
 
         /// <summary>
         /// Run action on UI thread safely
@@ -48,8 +78,10 @@ namespace MyShop.Client.ViewModels.Base
         }
 
         /// <summary>
-        /// Set error message và log nó
+        /// Sets the error message and logs it.
         /// </summary>
+        /// <param name="message">The error message to display.</param>
+        /// <param name="exception">Optional exception for logging.</param>
         protected void SetError(string message, Exception? exception = null)
         {
             ErrorMessage = message;
@@ -70,8 +102,9 @@ namespace MyShop.Client.ViewModels.Base
         }
 
         /// <summary>
-        /// Set loading state và clear errors
+        /// Sets the loading state and clears errors.
         /// </summary>
+        /// <param name="isLoading">True to show loading state, false to hide it.</param>
         protected void SetLoadingState(bool isLoading)
         {
             IsLoading = isLoading;
@@ -80,6 +113,50 @@ namespace MyShop.Client.ViewModels.Base
             if (isLoading)
             {
                 ClearError();
+            }
+        }
+
+        /// <summary>
+        /// Show error toast notification safely (handles null toast service)
+        /// </summary>
+        protected async Task ShowErrorToast(string message)
+        {
+            if (_toastHelper != null)
+            {
+                await _toastHelper.ShowError(message);
+            }
+        }
+
+        /// <summary>
+        /// Show success toast notification safely (handles null toast service)
+        /// </summary>
+        protected async Task ShowSuccessToast(string message)
+        {
+            if (_toastHelper != null)
+            {
+                await _toastHelper.ShowSuccess(message);
+            }
+        }
+
+        /// <summary>
+        /// Show warning toast notification safely (handles null toast service)
+        /// </summary>
+        protected async Task ShowWarningToast(string message)
+        {
+            if (_toastHelper != null)
+            {
+                await _toastHelper.ShowWarning(message);
+            }
+        }
+
+        /// <summary>
+        /// Show info toast notification safely (handles null toast service)
+        /// </summary>
+        protected async Task ShowInfoToast(string message)
+        {
+            if (_toastHelper != null)
+            {
+                await _toastHelper.ShowInfo(message);
             }
         }
     }

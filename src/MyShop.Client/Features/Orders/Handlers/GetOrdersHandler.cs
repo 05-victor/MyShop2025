@@ -22,18 +22,23 @@ public class GetOrdersHandler : IRequestHandler<GetOrdersQuery, Result<List<Orde
     {
         try
         {
-            IEnumerable<Order> orders;
+            Result<IEnumerable<Order>> result;
 
             if (request.CustomerId.HasValue)
             {
-                orders = await _orderRepository.GetByCustomerIdAsync(request.CustomerId.Value);
+                result = await _orderRepository.GetByCustomerIdAsync(request.CustomerId.Value);
             }
             else
             {
-                orders = await _orderRepository.GetAllAsync();
+                result = await _orderRepository.GetAllAsync();
+            }
+            
+            if (!result.IsSuccess)
+            {
+                return Result<List<Order>>.Failure(result.ErrorMessage);
             }
 
-            return Result<List<Order>>.Success(orders.ToList());
+            return Result<List<Order>>.Success(result.Data.ToList());
         }
         catch (Exception ex)
         {

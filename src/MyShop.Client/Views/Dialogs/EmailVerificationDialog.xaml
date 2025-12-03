@@ -6,8 +6,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="Email Verification Required"
-    PrimaryButtonText="I Verified"
+    Title="Email Verification"
+    PrimaryButtonText="Verify Code"
     SecondaryButtonText="Close"
     DefaultButton="Primary"
     PrimaryButtonClick="PrimaryButton_Click"
@@ -38,7 +38,7 @@
                           FontSize="18"
                           FontWeight="SemiBold"
                           Foreground="#111827"/>
-                <TextBlock Text="To use this feature, please verify your email first"
+                <TextBlock Text="Enter the verification code sent to your email"
                           FontSize="14"
                           Foreground="#6B7280"
                           TextWrapping="Wrap"/>
@@ -77,97 +77,30 @@
             </Grid>
         </Border>
 
-        <!-- Instructions -->
+        <!-- OTP Input Section -->
         <StackPanel Spacing="8">
-            <TextBlock Text="How to verify:"
+            <TextBlock Text="Enter Verification Code"
                       FontWeight="SemiBold"
                       FontSize="14"
                       Foreground="#111827"/>
             
-            <StackPanel Spacing="6">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <Border Grid.Column="0"
-                            Width="20" Height="20"
-                            Background="#10B981"
-                            CornerRadius="10"
-                            Margin="0,0,8,0">
-                        <TextBlock Text="1"
-                                  FontSize="11"
-                                  FontWeight="Bold"
-                                  Foreground="White"
-                                  HorizontalAlignment="Center"
-                                  VerticalAlignment="Center"/>
-                    </Border>
-                    
-                    <TextBlock Grid.Column="1"
-                              Text="Check your email inbox (and spam folder)"
-                              FontSize="13"
-                              Foreground="#6B7280"
-                              TextWrapping="Wrap"/>
-                </Grid>
-                
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <Border Grid.Column="0"
-                            Width="20" Height="20"
-                            Background="#10B981"
-                            CornerRadius="10"
-                            Margin="0,0,8,0">
-                        <TextBlock Text="2"
-                                  FontSize="11"
-                                  FontWeight="Bold"
-                                  Foreground="White"
-                                  HorizontalAlignment="Center"
-                                  VerticalAlignment="Center"/>
-                    </Border>
-                    
-                    <TextBlock Grid.Column="1"
-                              Text="Click the verification link in the email"
-                              FontSize="13"
-                              Foreground="#6B7280"
-                              TextWrapping="Wrap"/>
-                </Grid>
-                
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <Border Grid.Column="0"
-                            Width="20" Height="20"
-                            Background="#10B981"
-                            CornerRadius="10"
-                            Margin="0,0,8,0">
-                        <TextBlock Text="3"
-                                  FontSize="11"
-                                  FontWeight="Bold"
-                                  Foreground="White"
-                                  HorizontalAlignment="Center"
-                                  VerticalAlignment="Center"/>
-                    </Border>
-                    
-                    <TextBlock Grid.Column="1"
-                              Text="Click 'I Verified' button below to check status"
-                              FontSize="13"
-                              Foreground="#6B7280"
-                              TextWrapping="Wrap"/>
-                </Grid>
-            </StackPanel>
+            <TextBox x:Name="OtpInput"
+                    PlaceholderText="Enter 6-digit code"
+                    MaxLength="6"
+                    FontSize="18"
+                    TextAlignment="Center"
+                    InputScope="NumericPin"
+                    HorizontalAlignment="Stretch"/>
+            
+            <TextBlock Text="Check your email inbox (and spam folder) for the 6-digit code"
+                      FontSize="12"
+                      Foreground="#6B7280"
+                      TextWrapping="Wrap"/>
         </StackPanel>
 
         <!-- Resend Email Section -->
         <StackPanel Spacing="8" Margin="0,8,0,0">
-            <TextBlock Text="Didn't receive the email?"
+            <TextBlock Text="Didn't receive the code?"
                       FontSize="13"
                       Foreground="#6B7280"/>
             
@@ -184,7 +117,7 @@
                              Glyph="&#xE72C;"
                              FontSize="16"/>
                     <TextBlock x:Name="ResendText"
-                              Text="Resend Email"
+                              Text="Resend Code"
                               VerticalAlignment="Center"/>
                 </StackPanel>
             </Button>
@@ -218,9 +151,38 @@
                              Margin="0,0,8,0"/>
                     
                     <TextBlock Grid.Column="1"
-                              Text="✅ Email sent! Check your inbox"
+                              Text="Code sent! Check your inbox"
                               FontSize="13"
                               Foreground="#065F46"
+                              TextWrapping="Wrap"/>
+                </Grid>
+            </Border>
+
+            <!-- Error Message -->
+            <Border x:Name="ErrorMessage"
+                    Background="#FEE2E2"
+                    BorderBrush="#DC2626"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="12"
+                    Visibility="Collapsed">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0"
+                             Glyph="&#xE711;"
+                             FontSize="16"
+                             Foreground="#DC2626"
+                             Margin="0,0,8,0"/>
+                    
+                    <TextBlock x:Name="ErrorText"
+                              Grid.Column="1"
+                              Text="Invalid code. Please try again."
+                              FontSize="13"
+                              Foreground="#991B1B"
                               TextWrapping="Wrap"/>
                 </Grid>
             </Border>

@@ -7,7 +7,8 @@ using MyShop.Client.ViewModels.Shell;
 using MyShop.Shared.Models;
 using MyShop.Client.Views.SalesAgent;
 using MyShop.Client.Views.Shared;
-using MyShop.Client.Helpers;
+using MyShop.Client.Services;
+using MyShop.Client.Extensions;
 using MyShop.Core.Interfaces.Services;
 
 namespace MyShop.Client.Views.Shell
@@ -79,7 +80,7 @@ namespace MyShop.Client.Views.Shell
                     NavigateToPage(typeof(SalesAgentProductsPage), ViewModel.CurrentUser);
                     break;
                 case "salesOrders":
-                    NavigateToPage(typeof(SalesOrdersPage), ViewModel.CurrentUser);
+                    NavigateToPage(typeof(SalesAgentOrdersPage), ViewModel.CurrentUser);
                     break;
                 case "earnings":
                     NavigateToPage(typeof(EarningsPage), ViewModel.CurrentUser);
@@ -103,7 +104,7 @@ namespace MyShop.Client.Views.Shell
                     NavigateToPage(typeof(SalesAgentReportsPage), ViewModel.CurrentUser);
                     break;
                 default:
-                    AppLogger.Warning($"SalesAgent menu item '{tag}' not implemented yet");
+                    LoggingService.Instance.Warning($"SalesAgent menu item '{tag}' not implemented yet");
                     RestoreSelection();
                     break;
             }
@@ -120,7 +121,7 @@ namespace MyShop.Client.Views.Shell
             }
             catch (Exception ex)
             {
-                AppLogger.Error($"Failed to navigate to {pageType.Name}", ex);
+                LoggingService.Instance.Error($"Failed to navigate to {pageType.Name}", ex);
             }
         }
 
@@ -139,6 +140,12 @@ namespace MyShop.Client.Views.Shell
         /// </summary>
         private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
         {
+            // Scroll the new page to top
+            if (e.Content is Page page)
+            {
+                page.Loaded += (s, args) => page.ScrollToTop();
+            }
+
             // Map the navigated page type to its corresponding NavigationView tag
             var tag = GetNavigationTagForPageType(e.SourcePageType);
             
@@ -172,7 +179,7 @@ namespace MyShop.Client.Views.Shell
                 return "dashboard";
             else if (pageType == typeof(SalesAgentProductsPage))
                 return "myProducts";
-            else if (pageType == typeof(SalesOrdersPage))
+            else if (pageType == typeof(SalesAgentOrdersPage))
                 return "salesOrders";
             else if (pageType == typeof(EarningsPage))
                 return "earnings";
@@ -190,6 +197,42 @@ namespace MyShop.Client.Views.Shell
                 return "settings";
 
             return null;
+        }
+
+        /// <summary>
+        /// Handle logout navigation item tap
+        /// </summary>
+        private async void LogoutItem_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            try
+            {
+                // Show confirmation dialog
+                var dialog = new ContentDialog
+                {
+                    Title = "Logout",
+                    Content = "Are you sure you want to logout?",
+                    PrimaryButtonText = "Logout",
+                    CloseButtonText = "Cancel",
+                    DefaultButton = ContentDialogButton.Close,
+                    XamlRoot = this.XamlRoot
+                };
+
+                var result = await dialog.ShowAsync();
+                if (result != ContentDialogResult.Primary)
+                {
+                    return;
+                }
+
+                // Execute logout command
+                if (ViewModel.LogoutCommand.CanExecute(null))
+                {
+                    await ViewModel.LogoutCommand.ExecuteAsync(null);
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.Error("Failed to logout", ex);
+            }
         }
     }
 }

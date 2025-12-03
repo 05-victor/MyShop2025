@@ -1,109 +1,201 @@
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.Repositories.Mocks.Data;
 using MyShop.Shared.Models;
+using MyShop.Core.Common;
 
 namespace MyShop.Plugins.Repositories.Mocks;
 
 /// <summary>
-/// Mock implementation for agent requests repository using in-memory storage
+/// Mock implementation for agent requests repository - delegates to MockAgentRequestsData
 /// </summary>
 public class MockAgentRequestsRepository : IAgentRequestRepository
 {
-    // In-memory cache of agent requests
-    private static List<AgentRequest>? _requests;
-    private static readonly object _lock = new object();
-
-    public MockAgentRequestsRepository()
+    /// <summary>
+    /// Batch load users by IDs to avoid N+1 query problem
+    /// </summary>
+    private static async Task<Dictionary<Guid, User>> GetUsersByIdsAsync(List<Guid> userIds)
     {
-        EnsureDataLoaded();
-    }
+        var result = new Dictionary<Guid, User>();
+        if (userIds.Count == 0) return result;
 
-    private static void EnsureDataLoaded()
-    {
-        if (_requests != null) return;
-
-        lock (_lock)
-        {
-            if (_requests != null) return;
-
-            // Load from JSON data provider
-            var mockData = MockAgentRequestsData.GetAllAsync().GetAwaiter().GetResult();
-            
-            _requests = mockData.Select(m => new AgentRequest
-            {
-                Id = Guid.Parse(m.Id),
-                UserId = Guid.Parse(m.UserId),
-                FullName = m.UserName,
-                Email = m.Email,
-                PhoneNumber = m.PhoneNumber,
-                AvatarUrl = m.AvatarUrl,
-                RequestedAt = m.RequestedAt,
-                Status = m.Status,
-                ReviewedBy = m.ReviewedBy,
-                ReviewedAt = m.ReviewedAt,
-                Notes = m.Notes
-            }).ToList();
-
-            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] Loaded {_requests.Count} agent requests into cache");
-        }
-    }
-
-    public Task<IEnumerable<AgentRequest>> GetAllAsync()
-    {
-        EnsureDataLoaded();
+        // Load all users once (no network delay per item)
+        var allUsers = await MyShop.Plugins.Mocks.Data.MockUserData.GetAllAsync();
         
-        // Return ordered by RequestedAt descending (newest first)
-        var result = _requests!
-            .OrderByDescending(r => r.RequestedAt)
-            .ToList();
-
-        System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] GetAllAsync returned {result.Count} requests");
-        return Task.FromResult<IEnumerable<AgentRequest>>(result);
+        foreach (var user in allUsers)
+        {
+            if (userIds.Contains(user.Id))
+            {
+                result[user.Id] = user;
+            }
+        }
+        
+        return result;
     }
 
-    public Task<bool> ApproveAsync(Guid id)
+    public async Task<Result<IEnumerable<AgentRequest>>> GetAllAsync()
     {
-        EnsureDataLoaded();
-
-        lock (_lock)
+        try
         {
-            var request = _requests!.FirstOrDefault(r => r.Id == id);
+            var mockData = await MockAgentRequestsData.GetAllAsync();
             
-            if (request == null)
+            // Batch load all users to avoid N+1 query problem
+            var userIds = mockData.Select(m => Guid.Parse(m.UserId)).Distinct().ToList();
+            var usersDict = await GetUsersByIdsAsync(userIds);
+            
+            var requests = new List<AgentRequest>();
+            foreach (var m in mockData)
             {
-                System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] ApproveAsync - Request {id} not found");
-                return Task.FromResult(false);
+                var agent = new AgentRequest
+                {
+                    Id = Guid.Parse(m.Id),
+                    UserId = Guid.Parse(m.UserId),
+                    RequestedAt = m.RequestedAt,
+                    Status = m.Status,
+                    ReviewedBy = m.ReviewedBy,
+                    ReviewedAt = m.ReviewedAt,
+                    Notes = m.Notes
+                };
+
+                // Enrich with user profile from cached users
+                if (usersDict.TryGetValue(agent.UserId, out var user))
+                {
+                    agent.FullName = user.FullName ?? user.Username;
+                    agent.Email = user.Email;
+                    agent.PhoneNumber = user.PhoneNumber ?? string.Empty;
+                    agent.AvatarUrl = user.Avatar ?? string.Empty;
+                }
+
+                requests.Add(agent);
             }
 
-            request.Status = "Approved";
-            request.ReviewedBy = "Nguyễn Quản Trị";
-            request.ReviewedAt = DateTime.Now;
+            requests = requests.OrderByDescending(r => r.RequestedAt).ToList();
 
-            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] Approved request {id} for {request.FullName}");
-            return Task.FromResult(true);
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] GetAllAsync returned {requests.Count} requests");
+            return Result<IEnumerable<AgentRequest>>.Success(requests);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] GetAllAsync error: {ex.Message}");
+            return Result<IEnumerable<AgentRequest>>.Failure($"Failed to get agent requests: {ex.Message}");
         }
     }
 
-    public Task<bool> RejectAsync(Guid id)
+    public async Task<Result<PagedList<AgentRequest>>> GetPagedAsync(
+        int page = 1,
+        int pageSize = 10,
+        string? status = null,
+        string? searchQuery = null,
+        string sortBy = "requestedAt",
+        bool sortDescending = true)
     {
-        EnsureDataLoaded();
-
-        lock (_lock)
+        try
         {
-            var request = _requests!.FirstOrDefault(r => r.Id == id);
-            
-            if (request == null)
+            var (mockData, totalCount) = await MockAgentRequestsData.GetPagedAsync(
+                page, pageSize, status, searchQuery, sortBy, sortDescending);
+
+            // Batch load all users to avoid N+1 query problem
+            var userIds = mockData.Select(m => Guid.Parse(m.UserId)).Distinct().ToList();
+            var usersDict = await GetUsersByIdsAsync(userIds);
+
+            var requests = new List<AgentRequest>();
+            foreach (var m in mockData)
             {
-                System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] RejectAsync - Request {id} not found");
-                return Task.FromResult(false);
+                var agent = new AgentRequest
+                {
+                    Id = Guid.Parse(m.Id),
+                    UserId = Guid.Parse(m.UserId),
+                    RequestedAt = m.RequestedAt,
+                    Status = m.Status,
+                    ReviewedBy = m.ReviewedBy,
+                    ReviewedAt = m.ReviewedAt,
+                    Notes = m.Notes
+                };
+
+                // Enrich with user profile from cached users
+                if (usersDict.TryGetValue(agent.UserId, out var user))
+                {
+                    agent.FullName = user.FullName ?? user.Username;
+                    agent.Email = user.Email;
+                    agent.PhoneNumber = user.PhoneNumber ?? string.Empty;
+                    agent.AvatarUrl = user.Avatar ?? string.Empty;
+                }
+
+                requests.Add(agent);
             }
 
-            request.Status = "Rejected";
-            request.ReviewedBy = "Nguyễn Quản Trị";
-            request.ReviewedAt = DateTime.Now;
+            var pagedList = new PagedList<AgentRequest>(requests, totalCount, page, pageSize);
 
-            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] Rejected request {id} for {request.FullName}");
-            return Task.FromResult(true);
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] GetPagedAsync returned page {page}/{pagedList.TotalPages} ({requests.Count} items, {totalCount} total)");
+            return Result<PagedList<AgentRequest>>.Success(pagedList);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] GetPagedAsync error: {ex.Message}");
+            return Result<PagedList<AgentRequest>>.Failure($"Failed to get paged agent requests: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<AgentRequest>> CreateAsync(AgentRequest agentRequest)
+    {
+        try
+        {
+            // Ensure we do not duplicate user info; only store request linked to UserId
+            var normalizedRequest = new AgentRequest
+            {
+                Id = agentRequest.Id != Guid.Empty ? agentRequest.Id : Guid.NewGuid(),
+                UserId = agentRequest.UserId,
+                RequestedAt = DateTime.UtcNow,
+                Status = string.IsNullOrWhiteSpace(agentRequest.Status) ? "Pending" : agentRequest.Status,
+                ReviewedBy = null,
+                ReviewedAt = null,
+                Notes = string.IsNullOrWhiteSpace(agentRequest.Notes) ?
+                    $"Experience: {agentRequest.Experience}\n\nMotivation: {agentRequest.Reason}" : agentRequest.Notes
+            };
+
+            var result = await MockAgentRequestsData.CreateAsync(normalizedRequest);
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] CreateAsync result: {result != null}");
+            return result != null
+                ? Result<AgentRequest>.Success(result)
+                : Result<AgentRequest>.Failure("Failed to create agent request");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] CreateAsync error: {ex.Message}");
+            return Result<AgentRequest>.Failure($"Failed to create request: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<bool>> ApproveAsync(Guid id)
+    {
+        try
+        {
+            var result = await MockAgentRequestsData.ApproveAsync(id, Guid.Empty);
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] ApproveAsync result: {result}");
+            return result
+                ? Result<bool>.Success(true)
+                : Result<bool>.Failure($"Failed to approve agent request {id}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] ApproveAsync error: {ex.Message}");
+            return Result<bool>.Failure($"Failed to approve request: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<bool>> RejectAsync(Guid id)
+    {
+        try
+        {
+            var result = await MockAgentRequestsData.RejectAsync(id, Guid.Empty, "Rejected by admin");
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] RejectAsync result: {result}");
+            return result
+                ? Result<bool>.Success(true)
+                : Result<bool>.Failure($"Failed to reject agent request {id}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] RejectAsync error: {ex.Message}");
+            return Result<bool>.Failure($"Failed to reject request: {ex.Message}");
         }
     }
 }

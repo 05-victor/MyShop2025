@@ -1,7 +1,9 @@
+﻿using MyShop.Shared.Adapters;
+using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Cart;
 using MyShop.Shared.DTOs.Requests;
-
+using MyShop.Shared.Models;
 namespace MyShop.Plugins.Repositories.Api;
 
 /// <summary>
@@ -16,7 +18,7 @@ public class CartRepository : ICartRepository
         _api = api;
     }
 
-    public async Task<IEnumerable<CartItem>> GetCartItemsAsync(Guid userId)
+    public async Task<Result<IEnumerable<CartItem>>> GetCartItemsAsync(Guid userId)
     {
         try
         {
@@ -27,19 +29,20 @@ public class CartRepository : ICartRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result?.Items != null)
                 {
-                    return apiResponse.Result.Items.Select(MapToCartItem);
+                    var items = CartAdapter.ToModelList(apiResponse.Result);
+                    return Result<IEnumerable<CartItem>>.Success(items);
                 }
             }
 
-            return Enumerable.Empty<CartItem>();
+            return Result<IEnumerable<CartItem>>.Failure("Failed to retrieve cart items");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return Enumerable.Empty<CartItem>();
+            return Result<IEnumerable<CartItem>>.Failure($"Error retrieving cart items: {ex.Message}");
         }
     }
 
-    public async Task<bool> AddToCartAsync(Guid userId, Guid productId, int quantity = 1)
+    public async Task<Result<bool>> AddToCartAsync(Guid userId, Guid productId, int quantity = 1)
     {
         try
         {
@@ -50,15 +53,19 @@ public class CartRepository : ICartRepository
             };
 
             var response = await _api.AddItemAsync(request);
-            return response.IsSuccessStatusCode && response.Content?.Result != null;
+            if (response.IsSuccessStatusCode && response.Content?.Result != null)
+            {
+                return Result<bool>.Success(true);
+            }
+            return Result<bool>.Failure("Failed to add item to cart");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return false;
+            return Result<bool>.Failure($"Error adding item to cart: {ex.Message}");
         }
     }
 
-    public async Task<bool> UpdateQuantityAsync(Guid userId, Guid productId, int quantity)
+    public async Task<Result<bool>> UpdateQuantityAsync(Guid userId, Guid productId, int quantity)
     {
         try
         {
@@ -70,42 +77,54 @@ public class CartRepository : ICartRepository
             };
 
             var response = await _api.UpdateItemAsync(productId, request);
-            return response.IsSuccessStatusCode && response.Content?.Result != null;
+            if (response.IsSuccessStatusCode && response.Content?.Result != null)
+            {
+                return Result<bool>.Success(true);
+            }
+            return Result<bool>.Failure("Failed to update cart item quantity");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return false;
+            return Result<bool>.Failure($"Error updating cart item quantity: {ex.Message}");
         }
     }
 
-    public async Task<bool> RemoveFromCartAsync(Guid userId, Guid productId)
+    public async Task<Result<bool>> RemoveFromCartAsync(Guid userId, Guid productId)
     {
         try
         {
             // Note: API expects itemId, not productId
             var response = await _api.RemoveItemAsync(productId);
-            return response.IsSuccessStatusCode && response.Content?.Result == true;
+            if (response.IsSuccessStatusCode && response.Content?.Result == true)
+            {
+                return Result<bool>.Success(true);
+            }
+            return Result<bool>.Failure("Failed to remove item from cart");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return false;
+            return Result<bool>.Failure($"Error removing item from cart: {ex.Message}");
         }
     }
 
-    public async Task<bool> ClearCartAsync(Guid userId)
+    public async Task<Result<bool>> ClearCartAsync(Guid userId)
     {
         try
         {
             var response = await _api.ClearCartAsync();
-            return response.IsSuccessStatusCode && response.Content?.Result == true;
+            if (response.IsSuccessStatusCode && response.Content?.Result == true)
+            {
+                return Result<bool>.Success(true);
+            }
+            return Result<bool>.Failure("Failed to clear cart");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return false;
+            return Result<bool>.Failure($"Error clearing cart: {ex.Message}");
         }
     }
 
-    public async Task<int> GetCartCountAsync(Guid userId)
+    public async Task<Result<int>> GetCartCountAsync(Guid userId)
     {
         try
         {
@@ -116,19 +135,19 @@ public class CartRepository : ICartRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return apiResponse.Result.ItemCount;
+                    return Result<int>.Success(apiResponse.Result.ItemCount);
                 }
             }
 
-            return 0;
+            return Result<int>.Failure("Failed to retrieve cart count");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return 0;
+            return Result<int>.Failure($"Error retrieving cart count: {ex.Message}");
         }
     }
 
-    public async Task<CartSummary> GetCartSummaryAsync(Guid userId)
+    public async Task<Result<CartSummary>> GetCartSummaryAsync(Guid userId)
     {
         try
         {
@@ -140,7 +159,7 @@ public class CartRepository : ICartRepository
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
                     var data = apiResponse.Result;
-                    return new CartSummary
+                    var summary = new CartSummary
                     {
                         ItemCount = data.ItemCount,
                         Subtotal = data.Subtotal,
@@ -148,34 +167,15 @@ public class CartRepository : ICartRepository
                         ShippingFee = data.ShippingFee,
                         Total = data.Total
                     };
+                    return Result<CartSummary>.Success(summary);
                 }
             }
 
-            return new CartSummary();
+            return Result<CartSummary>.Failure("Failed to retrieve cart summary");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return new CartSummary();
+            return Result<CartSummary>.Failure($"Error retrieving cart summary: {ex.Message}");
         }
-    }
-
-    /// <summary>
-    /// Map CartItemResponse DTO to CartItem domain model
-    /// </summary>
-    private static CartItem MapToCartItem(MyShop.Shared.DTOs.Responses.CartItemResponse dto)
-    {
-        return new CartItem
-        {
-            Id = dto.Id,
-            UserId = Guid.Empty, // Not provided by API response
-            ProductId = dto.ProductId,
-            ProductName = dto.ProductName,
-            ProductImage = dto.ProductImage,
-            Price = dto.Price,
-            Quantity = dto.Quantity,
-            CategoryName = dto.CategoryName,
-            StockAvailable = dto.StockAvailable,
-            AddedAt = DateTime.UtcNow
-        };
     }
 }

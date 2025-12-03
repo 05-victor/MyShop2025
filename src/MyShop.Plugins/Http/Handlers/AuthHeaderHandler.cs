@@ -5,8 +5,9 @@ using System.Net.Http.Headers;
 namespace MyShop.Plugins.Http.Handlers;
 
 /// <summary>
-/// HTTP handler để tự động inject JWT token vào Authorization header
-/// Xử lý token refresh khi gặp 401 Unauthorized
+/// HTTP delegating handler for automatic JWT token injection.
+/// Adds Authorization header with Bearer token to all outgoing requests.
+/// Handles 401 Unauthorized responses with token refresh logic.
 /// </summary>
 public class AuthHeaderHandler : DelegatingHandler
 {
@@ -68,13 +69,13 @@ public class AuthHeaderHandler : DelegatingHandler
                     System.Diagnostics.Debug.WriteLine("[AuthHeaderHandler] Token refresh failed - Logout required");
                     // Token refresh failed - user needs to login again
                     // Clear invalid token
-                    _credentialStorage.RemoveToken();
+                    await _credentialStorage.RemoveToken();
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[AuthHeaderHandler] Token refresh error: {ex.Message}");
-                _credentialStorage.RemoveToken();
+                await _credentialStorage.RemoveToken();
             }
             finally
             {
@@ -101,7 +102,7 @@ public class AuthHeaderHandler : DelegatingHandler
             System.Diagnostics.Debug.WriteLine("[AuthHeaderHandler] Mock refresh - In production, would call refresh token endpoint");
 
             // Simulate network delay
-            await Task.Delay(500, cancellationToken);
+            // await Task.Delay(500, cancellationToken);
 
             // For now, return false to force re-login
             // When backend implements refresh token endpoint, implement actual logic

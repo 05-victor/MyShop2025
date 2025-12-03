@@ -4,28 +4,115 @@ using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Shared.DTOs.Commons;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.Models;
+using MyShop.Plugins.Mocks.Data;
 
 namespace MyShop.Plugins.Repositories.Mocks;
 
 /// <summary>
 /// Mock repository for user profile and account management
-/// Uses in-memory user data with simulated delays
+/// Uses MockUserData for data operations while maintaining ICredentialStorage dependency
 /// </summary>
 public class MockUserRepository : IUserRepository
 {
     private readonly ICredentialStorage _credentialStorage;
-    private User? _currentUser;
 
     public MockUserRepository(ICredentialStorage credentialStorage)
     {
         _credentialStorage = credentialStorage;
     }
 
-    public async Task<IEnumerable<User>> GetAllAsync()
+    public async Task<Result<bool>> HasAnyUsersAsync()
     {
-        await Task.Delay(300);
-        // Return mock users for admin management
-        return new List<User>();
+        try
+        {
+            // await Task.Delay(50); // Simulate database check
+            var users = await MockUserData.GetAllAsync();
+            var hasUsers = users.Count > 0;
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] HasAnyUsersAsync returned {hasUsers} ({users.Count} users)");
+            return Result<bool>.Success(hasUsers);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] HasAnyUsersAsync error: {ex.Message}");
+            return Result<bool>.Failure($"Failed to check users: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<IEnumerable<User>>> GetAllAsync()
+    {
+        try
+        {
+            var users = await MockUserData.GetAllAsync();
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] GetAllAsync returned {users.Count} users");
+            return Result<IEnumerable<User>>.Success(users);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] GetAllAsync error: {ex.Message}");
+            return Result<IEnumerable<User>>.Failure($"Failed to get users: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<PagedList<User>>> GetPagedAsync(
+        int page = 1,
+        int pageSize = 20,
+        string? role = null,
+        string? status = null,
+        string? searchQuery = null,
+        string sortBy = "createdAt",
+        bool sortDescending = true)
+    {
+        try
+        {
+            var (users, totalCount) = await MockUserData.GetPagedAsync(
+                page, pageSize, role, status, searchQuery, sortBy, sortDescending);
+
+            var pagedList = new PagedList<User>(users, totalCount, page, pageSize);
+
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] GetPagedAsync returned page {page}/{pagedList.TotalPages} ({users.Count} items, {totalCount} total)");
+            return Result<PagedList<User>>.Success(pagedList);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] GetPagedAsync error: {ex.Message}");
+            return Result<PagedList<User>>.Failure($"Failed to get paged users: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<User>> CreateUserAsync(User user)
+    {
+        try
+        {
+            // Set default avatar if not provided
+            if (string.IsNullOrEmpty(user.Avatar))
+            {
+                user.Avatar = "ms-appx:///Assets/Images/user/avatar-placeholder.png";
+            }
+
+            // Set creation timestamp
+            user.CreatedAt = DateTime.UtcNow;
+
+            // Generate ID if not set
+            if (user.Id == Guid.Empty)
+            {
+                user.Id = Guid.NewGuid();
+            }
+
+            var createdUser = await MockUserData.CreateAsync(user);
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] User created: {createdUser.Username} with ID {createdUser.Id}");
+            return Result<User>.Success(createdUser);
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Username or email already exists
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] CreateUserAsync validation error: {ex.Message}");
+            return Result<User>.Failure(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] CreateUserAsync error: {ex.Message}");
+            return Result<User>.Failure($"Failed to create user: {ex.Message}");
+        }
     }
 
     public async Task<PagedResult<User>> GetAllAsync(int pageNumber, int pageSize)
@@ -45,33 +132,38 @@ public class MockUserRepository : IUserRepository
     {
         try
         {
-            await Task.Delay(500); // Simulate network delay
-
             var token = _credentialStorage.GetToken();
             if (string.IsNullOrEmpty(token))
             {
                 return Result<User>.Failure("Not authenticated. Please login again.");
             }
 
-            // Simulate getting current user from token
-            _currentUser ??= GetMockUser();
+            // Get current user from token (mock implementation uses first user)
+            var users = await MockUserData.GetAllAsync();
+            var currentUser = users.FirstOrDefault();
+            
+            if (currentUser == null)
+            {
+                return Result<User>.Failure("User not found");
+            }
 
             // Update user properties
             if (!string.IsNullOrWhiteSpace(request.Avatar))
-                _currentUser.Avatar = request.Avatar;
+                currentUser.Avatar = request.Avatar;
 
             if (!string.IsNullOrWhiteSpace(request.FullName))
-                _currentUser.FullName = request.FullName;
+                currentUser.FullName = request.FullName;
 
             if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
-                _currentUser.PhoneNumber = request.PhoneNumber;
+                currentUser.PhoneNumber = request.PhoneNumber;
 
             if (!string.IsNullOrWhiteSpace(request.Address))
-                _currentUser.Address = request.Address;
+                currentUser.Address = request.Address;
 
-            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] Profile updated for user: {_currentUser.Username}");
+            var updated = await MockUserData.UpdateAsync(currentUser);
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] Profile updated for user: {updated.Username}");
             
-            return Result<User>.Success(_currentUser);
+            return Result<User>.Success(updated);
         }
         catch (Exception ex)
         {
@@ -84,7 +176,7 @@ public class MockUserRepository : IUserRepository
     {
         try
         {
-            await Task.Delay(600); // Simulate network delay
+            // await Task.Delay(600);
 
             var token = _credentialStorage.GetToken();
             if (string.IsNullOrEmpty(token))
@@ -92,19 +184,18 @@ public class MockUserRepository : IUserRepository
                 return Result<bool>.Failure("Not authenticated. Please login again.");
             }
 
-            // Simulate password verification (mock always accepts "password123" as current)
+            // Simulate password verification (mock accepts "password123")
             if (request.CurrentPassword != "password123")
             {
                 return Result<bool>.Failure("Current password is incorrect");
             }
 
-            // Simulate password strength validation
+            // Password validation
             if (request.NewPassword.Length < 6)
             {
                 return Result<bool>.Failure("New password must be at least 6 characters");
             }
 
-            // Simulate check: new password must differ from current
             if (request.CurrentPassword == request.NewPassword)
             {
                 return Result<bool>.Failure("New password must differ from current password");
@@ -128,7 +219,7 @@ public class MockUserRepository : IUserRepository
             // Simulate upload with progress
             for (int i = 0; i <= 100; i += 20)
             {
-                await Task.Delay(100);
+                // await Task.Delay(100);
                 progress?.Report(i / 100.0);
             }
 
@@ -144,41 +235,27 @@ public class MockUserRepository : IUserRepository
                 return Result<User>.Failure("Image file is too large (max 5MB)");
             }
 
-            _currentUser ??= GetMockUser();
+            var users = await MockUserData.GetAllAsync();
+            var currentUser = users.FirstOrDefault();
+            
+            if (currentUser == null)
+            {
+                return Result<User>.Failure("User not found");
+            }
 
-            // Simulate avatar URL (in real app, this would be server-generated URL)
+            // Generate mock avatar URL
             var avatarUrl = $"https://api.myshop.com/avatars/{Guid.NewGuid()}.jpg";
-            _currentUser.Avatar = avatarUrl;
+            currentUser.Avatar = avatarUrl;
 
+            var updated = await MockUserData.UpdateAsync(currentUser);
             System.Diagnostics.Debug.WriteLine($"[MockUserRepository] Avatar uploaded: {avatarUrl}");
             
-            return Result<User>.Success(_currentUser);
+            return Result<User>.Success(updated);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockUserRepository] UploadAvatar error: {ex.Message}");
             return Result<User>.Failure("Failed to upload avatar", ex);
         }
-    }
-
-    private User GetMockUser()
-    {
-        return new User
-        {
-            Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
-            Username = "admin",
-            Email = "admin@example.com",
-            PhoneNumber = "0123456789",
-            FullName = "Administrator",
-            Avatar = "https://via.placeholder.com/150",
-            Address = "123 Main St, Hanoi, Vietnam",
-            CreatedAt = DateTime.UtcNow.AddMonths(-6),
-            IsEmailVerified = true,
-            Roles = new List<MyShop.Shared.Models.Enums.UserRole> 
-            { 
-                MyShop.Shared.Models.Enums.UserRole.Admin 
-            },
-            Token = _credentialStorage.GetToken() ?? string.Empty
-        };
     }
 }

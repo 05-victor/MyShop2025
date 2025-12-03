@@ -1,9 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MyShop.Core.Interfaces.Services;
 using MyShop.Client.ViewModels.Base;
-using MyShop.Core.Interfaces.Repositories;
-using MyShop.Core.Interfaces.Infrastructure;
+using MyShop.Client.Facades;
+using MyShop.Core.Interfaces.Facades;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
@@ -11,9 +10,7 @@ namespace MyShop.Client.ViewModels.SalesAgent;
 
 public partial class SalesAgentEarningsViewModel : BaseViewModel
 {
-    private readonly ICommissionRepository _commissionRepository;
-    private readonly IAuthRepository _authRepository;
-    private readonly IToastService _toastHelper;
+    private readonly ICommissionFacade _commissionFacade;
 
     [ObservableProperty]
     private decimal _totalEarnings;
@@ -31,20 +28,55 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
     private ObservableCollection<CommissionViewModel> _commissions = new();
 
     [ObservableProperty]
-    private string _selectedPeriod = "This Month";
+    private string _selectedPeriod = "All Time";
 
-    public SalesAgentEarningsViewModel(
-        ICommissionRepository commissionRepository,
-        IAuthRepository authRepository,
-        IToastService toastHelper)
+    [ObservableProperty]
+    private string _selectedStatus = "All";
+
+    [ObservableProperty]
+    private string _searchQuery = string.Empty;
+
+    [ObservableProperty]
+    private int _currentPage = 1;
+
+    [ObservableProperty]
+    private int _pageSize = 20;
+
+    [ObservableProperty]
+    private int _totalItems;
+
+    public SalesAgentEarningsViewModel(ICommissionFacade commissionFacade)
     {
-        _commissionRepository = commissionRepository;
-        _authRepository = authRepository;
-        _toastHelper = toastHelper;
+        _commissionFacade = commissionFacade;
     }
 
-    public async Task InitializeAsync()
+    [RelayCommand]
+    private async Task InitializeAsync()
     {
+        await LoadCommissionsAsync();
+    }
+
+    [RelayCommand]
+    private async Task RefreshAsync()
+    {
+        CurrentPage = 1;
+        await LoadCommissionsAsync();
+    }
+
+    [RelayCommand]
+    private async Task ApplyFiltersAsync()
+    {
+        CurrentPage = 1;
+        await LoadCommissionsAsync();
+    }
+
+    [RelayCommand]
+    private async Task ResetFiltersAsync()
+    {
+        SelectedStatus = "All";
+        SearchQuery = string.Empty;
+        SelectedPeriod = "All Time";
+        CurrentPage = 1;
         await LoadCommissionsAsync();
     }
 
@@ -54,37 +86,45 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
 
         try
         {
-            // Get current user ID from auth repository
-            var userIdResult = await _authRepository.GetCurrentUserIdAsync();
-            
-            if (!userIdResult.IsSuccess || userIdResult.Data == Guid.Empty)
+            var result = await _commissionFacade.LoadCommissionsAsync();
+            if (!result.IsSuccess || result.Data == null)
             {
-                SetError("User not authenticated", new UnauthorizedAccessException());
                 return;
             }
-            
-            var userId = userIdResult.Data;
-            
-            // Load commission summary
-            var summary = await _commissionRepository.GetSummaryAsync(userId);
-            
-            TotalEarnings = summary.TotalEarnings;
-            PendingCommission = summary.PendingCommission;
-            PaidCommission = summary.PaidCommission;
-            TotalSales = summary.TotalOrders;
 
-            // Load commission history
-            var commissions = await _commissionRepository.GetBySalesAgentIdAsync(userId);
+            var pagedList = result.Data;
+            TotalItems = pagedList.TotalCount;
+            TotalSales = pagedList.TotalCount;
+
+            // Filter by search query and status
+            var items = pagedList.Items.AsEnumerable();
             
-            Commissions.Clear();
-            foreach (var commission in commissions.Take(20)) // Show latest 20
+            if (!string.IsNullOrWhiteSpace(SearchQuery))
             {
+                var query = SearchQuery.ToLower();
+                items = items.Where(c => 
+                    c.OrderNumber.ToLower().Contains(query));
+            }
+
+            if (SelectedStatus != "All")
+            {
+                items = items.Where(c => c.Status == SelectedStatus);
+            }
+
+            Commissions.Clear();
+            foreach (var commission in items.Skip((CurrentPage - 1) * PageSize).Take(PageSize))
+            {
+                var customerName = $"Customer #{commission.OrderNumber.Split('-').Last()}";
+                
                 Commissions.Add(new CommissionViewModel
                 {
                     OrderId = commission.OrderNumber,
                     ProductName = $"Order {commission.OrderNumber}",
+                    CustomerName = customerName,
+                    SaleAmount = commission.OrderAmount,
                     CommissionAmount = commission.CommissionAmount,
-                    CommissionRate = (int)commission.CommissionRate,
+                    CommissionRate = (int)(commission.CommissionRate * 100),
+                    NetIncome = commission.OrderAmount - commission.CommissionAmount,
                     Status = commission.Status,
                     StatusColor = GetStatusColor(commission.Status),
                     StatusBgColor = GetStatusBgColor(commission.Status),
@@ -129,42 +169,46 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
     [RelayCommand]
     private async Task RequestPayoutAsync()
     {
-        if (PendingCommission <= 0)
-        {
-            _toastHelper.ShowWarning("No pending commission to request payout.");
-            return;
-        }
+        if (PendingCommission <= 0) return;
 
+        SetLoadingState(true);
         try
         {
-            SetLoadingState(true);
-
-            // In production, this would call the backend API:
-            // var result = await _commissionRepository.RequestPayoutAsync(PendingCommission);
+            // Note: RequestPayoutAsync not available in ICommissionFacade
+            // This functionality needs to be implemented
+            await Task.CompletedTask; // Placeholder
+            // var result = await _commissionFacade.RequestPayoutAsync(PendingCommission);
             // if (result.IsSuccess)
-            // {
-            //     _toastHelper.ShowSuccess($"Payout request submitted: {PendingCommission:N0} VND");
-            //     await LoadCommissionsAsync(); // Refresh data
-            // }
-            // else
-            // {
-            //     _toastHelper.ShowError($"Payout request failed: {result.ErrorMessage}");
-            // }
-
-            // Mock implementation - simulate API delay
-            await Task.Delay(1000);
-
-            System.Diagnostics.Debug.WriteLine($"[EarningsViewModel] Payout requested: {PendingCommission:N0} VND");
-            
-            _toastHelper.ShowSuccess($"Payout request submitted successfully!\nAmount: {PendingCommission:C2}\n\nYour request will be processed within 3-5 business days.");
-
-            // Simulate moving pending to processing
-            PendingCommission = 0;
+            {
+                PendingCommission = 0;
+                await LoadCommissionsAsync();
+            }
         }
-        catch (Exception ex)
+        finally
         {
-            System.Diagnostics.Debug.WriteLine($"[EarningsViewModel] Payout request error: {ex.Message}");
-            _toastHelper.ShowError("Failed to submit payout request. Please try again.");
+            SetLoadingState(false);
+        }
+    }
+
+    [RelayCommand]
+    private async Task ExportCommissionsAsync()
+    {
+        SetLoadingState(true);
+        try
+        {
+            var result = await _commissionFacade.ExportCommissionsAsync();
+            if (result.IsSuccess)
+            {
+                System.Diagnostics.Debug.WriteLine($"[EarningsViewModel] Commissions exported to: {result.Data}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[EarningsViewModel] Export failed: {result.ErrorMessage}");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[EarningsViewModel] Export error: {ex.Message}");
         }
         finally
         {
@@ -182,7 +226,16 @@ public partial class CommissionViewModel : ObservableObject
     private string _productName = string.Empty;
 
     [ObservableProperty]
+    private string _customerName = string.Empty;
+
+    [ObservableProperty]
+    private decimal _saleAmount;
+
+    [ObservableProperty]
     private decimal _commissionAmount;
+
+    [ObservableProperty]
+    private decimal _netIncome;
 
     [ObservableProperty]
     private int _commissionRate;

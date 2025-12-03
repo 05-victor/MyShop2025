@@ -2,9 +2,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using MyShop.Core.Interfaces.Infrastructure;
+using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Shared.Models;
-using MyShop.Shared.Models.Enums;
 using System;
 using System.Threading.Tasks;
 
@@ -12,15 +12,25 @@ namespace MyShop.Client.Views.Components
 {
     public sealed partial class BecomeAdminBanner : UserControl
     {
-        private const string VALID_ACTIVATION_CODE = "MYSHOP-ADMIN-2025";
-        private const int MIN_CODE_LENGTH = 15;
+        private const int MIN_CODE_LENGTH = 18; // MYSHOP-XXXX-XXXX-XXXX = 22 chars, min 18
         
         private readonly IToastService _toastHelper;
         private readonly ICredentialStorage _credentialStorage;
+        private readonly ISystemActivationRepository _activationRepository;
         
         private bool _isActivating = false;
+        private Guid _currentUserId = Guid.Empty;
 
-        public event EventHandler<User>? ActivationSuccessful;
+        public event EventHandler<LicenseInfo>? ActivationSuccessful;
+
+        /// <summary>
+        /// Set the current user ID for activation
+        /// </summary>
+        public Guid CurrentUserId
+        {
+            get => _currentUserId;
+            set => _currentUserId = value;
+        }
 
         public BecomeAdminBanner()
         {
@@ -29,6 +39,7 @@ namespace MyShop.Client.Views.Components
             // Get services from DI
             _toastHelper = App.Current.Services.GetRequiredService<IToastService>();
             _credentialStorage = App.Current.Services.GetRequiredService<ICredentialStorage>();
+            _activationRepository = App.Current.Services.GetRequiredService<ISystemActivationRepository>();
         }
 
         private void ActivationCodeInput_TextChanged(object sender, TextChangedEventArgs e)
@@ -37,12 +48,12 @@ namespace MyShop.Client.Views.Components
             var length = code.Length;
 
             // Update character counter
-            CharCounterText.Text = $"{length}/25";
+            CharCounterText.Text = $"{length}/22";
 
             // Clear error when typing
             ErrorMessage.Visibility = Visibility.Collapsed;
 
-            // Enable button if code length >= 15
+            // Enable button if code length >= MIN_CODE_LENGTH
             BecomeAdminButton.IsEnabled = length >= MIN_CODE_LENGTH;
         }
 
@@ -50,12 +61,19 @@ namespace MyShop.Client.Views.Components
         {
             if (_isActivating) return;
 
-            var code = ActivationCodeInput.Text.Trim();
+            var code = ActivationCodeInput.Text.Trim().ToUpperInvariant();
 
             // Validate length
             if (code.Length < MIN_CODE_LENGTH)
             {
-                ShowError("Activation code must be at least 15 characters");
+                ShowError($"Activation code must be at least {MIN_CODE_LENGTH} characters");
+                return;
+            }
+
+            // Validate user ID
+            if (_currentUserId == Guid.Empty)
+            {
+                ShowError("User session not found. Please login again.");
                 return;
             }
 
@@ -67,31 +85,37 @@ namespace MyShop.Client.Views.Components
                 // Show loading state
                 ButtonText.Text = "Activating...";
 
-                // Simulate API call
-                await Task.Delay(1500);
-
-                // Validate code (case-insensitive)
-                if (code.Equals(VALID_ACTIVATION_CODE, StringComparison.OrdinalIgnoreCase))
+                // Validate code first
+                var validateResult = await _activationRepository.ValidateCodeAsync(code);
+                
+                if (!validateResult.IsSuccess)
                 {
-                    // Success!
-                    await HandleSuccessfulActivation();
+                    ShowError(validateResult.ErrorMessage ?? "Invalid activation code");
+                    await _toastHelper.ShowError("Invalid activation code");
+                    ResetButton();
+                    return;
+                }
+
+                // Activate the code
+                var activateResult = await _activationRepository.ActivateCodeAsync(code, _currentUserId);
+
+                if (activateResult.IsSuccess && activateResult.Data != null)
+                {
+                    await HandleSuccessfulActivation(activateResult.Data);
                 }
                 else
                 {
-                    // Invalid code
-                    ShowError("Invalid activation code. Please check and try again.");
-                    _toastHelper.ShowError("Invalid activation code");
-                    ButtonText.Text = "Become Admin →";
-                    BecomeAdminButton.IsEnabled = true;
+                    ShowError(activateResult.ErrorMessage ?? "Activation failed");
+                    await _toastHelper.ShowError(activateResult.ErrorMessage ?? "Activation failed");
+                    ResetButton();
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error during activation: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[BecomeAdminBanner] Error during activation: {ex.Message}");
                 ShowError("An error occurred. Please try again.");
-                _toastHelper.ShowError("Activation failed");
-                ButtonText.Text = "Become Admin →";
-                BecomeAdminButton.IsEnabled = true;
+                await _toastHelper.ShowError("Activation failed");
+                ResetButton();
             }
             finally
             {
@@ -99,35 +123,45 @@ namespace MyShop.Client.Views.Components
             }
         }
 
-        private async Task HandleSuccessfulActivation()
+        private async Task HandleSuccessfulActivation(LicenseInfo license)
         {
             try
             {
-                // Update user role to Admin
-                // Note: In real app, this would call backend API
-                // For demo, we'll use localStorage to mark admin exists
+                System.Diagnostics.Debug.WriteLine($"[BecomeAdminBanner] Activation successful: Type={license.Type}, ExpiresAt={license.ExpiresAt}");
                 
-                // Note: ICredentialStorage only supports tokens, not key-value pairs
-                // This should be moved to ISettingsStorage in the future
-                // _credentialStorage.SaveItem("hasAdmin", "true");
-                System.Diagnostics.Debug.WriteLine("[BecomeAdminBanner] Admin flag should be saved");
+                string message;
+                if (license.IsPermanent)
+                {
+                    message = "🎉 Welcome Admin! You have permanent access.";
+                }
+                else
+                {
+                    message = $"🎉 Welcome Admin! Your trial is active for {license.RemainingDays} days.";
+                }
                 
-                _toastHelper.ShowSuccess("🎉 Welcome Admin! Your account has been upgraded. Redirecting...");
+                await _toastHelper.ShowSuccess(message);
 
-                // Wait for toast to show
-                await Task.Delay(2000);
+                // Update button to show success
+                ButtonText.Text = "✓ Activated!";
+                BecomeAdminButton.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(
+                    Microsoft.UI.Colors.LightGreen);
 
                 // Trigger event for parent to handle (reload/navigate)
-                ActivationSuccessful?.Invoke(this, null!);
+                ActivationSuccessful?.Invoke(this, license);
 
-                // In real app, parent would handle navigation to AdminDashboard
-                // For now, show completion
-                _toastHelper.ShowInfo("Please restart the app to see admin features");
+                // Show restart info
+                await _toastHelper.ShowInfo("Please restart the app to access admin features");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error handling activation success: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[BecomeAdminBanner] Error handling activation success: {ex.Message}");
             }
+        }
+
+        private void ResetButton()
+        {
+            ButtonText.Text = "Become Admin →";
+            BecomeAdminButton.IsEnabled = ActivationCodeInput.Text.Length >= MIN_CODE_LENGTH;
         }
 
         private void ShowError(string message)

@@ -1,63 +1,67 @@
-namespace MyShop.Core.Interfaces.Services;
+﻿namespace MyShop.Core.Interfaces.Services;
+using MyShop.Core.Common;
 
 /// <summary>
-/// Service cung cấp validation logic cho các form inputs
+/// Service providing validation logic for form inputs.
+/// Validates common input types like username, password, email, and phone number.
+/// Returns ValidationResult with status and error message.
 /// </summary>
 public interface IValidationService
 {
     /// <summary>
-    /// Validate username hoặc email
+    /// Validate username or email format.
     /// </summary>
-    ValidationResult ValidateUsername(string username);
+    Task<Result<ValidationResult>> ValidateUsername(string username);
 
     /// <summary>
-    /// Validate password
+    /// Validate password strength and requirements.
     /// </summary>
-    ValidationResult ValidatePassword(string password);
+    Task<Result<ValidationResult>> ValidatePassword(string password);
 
     /// <summary>
-    /// Validate email format
+    /// Validate email format.
     /// </summary>
-    ValidationResult ValidateEmail(string email);
+    Task<Result<ValidationResult>> ValidateEmail(string email);
 
     /// <summary>
-    /// Validate password confirmation (phải khớp với password gốc)
+    /// Validate password confirmation (must match original password).
     /// </summary>
-    ValidationResult ValidatePasswordConfirmation(string password, string confirmPassword);
+    Task<Result<ValidationResult>> ValidatePasswordConfirmation(string password, string confirmPassword);
 
     /// <summary>
-    /// Validate phone number format
+    /// Validate phone number format.
     /// </summary>
-    ValidationResult ValidatePhoneNumber(string phoneNumber);
+    Task<Result<ValidationResult>> ValidatePhoneNumber(string phoneNumber);
 
     /// <summary>
-    /// Validate required field with custom field name
+    /// Validate required field with custom field name.
     /// </summary>
-    ValidationResult ValidateRequired(string value, string fieldName);
+    Task<Result<ValidationResult>> ValidateRequired(string value, string fieldName);
 }
 
 /// <summary>
-/// Kết quả validation với trạng thái và thông báo lỗi
+/// Validation result containing status and error message.
+/// Immutable record-like class for validation outcomes.
 /// </summary>
 public class ValidationResult
 {
     /// <summary>
-    /// Trạng thái validation (true = hợp lệ, false = không hợp lệ)
+    /// Validation status (true = valid, false = invalid).
     /// </summary>
     public bool IsValid { get; init; }
 
     /// <summary>
-    /// Thông báo lỗi (rỗng nếu hợp lệ)
+    /// Error message (empty if valid).
     /// </summary>
     public string ErrorMessage { get; init; } = string.Empty;
 
     /// <summary>
-    /// Tạo kết quả validation thành công
+    /// Create a successful validation result.
     /// </summary>
     public static ValidationResult Success() => new() { IsValid = true };
 
     /// <summary>
-    /// Tạo kết quả validation thất bại với thông báo lỗi
+    /// Create a failed validation result with error message.
     /// </summary>
     public static ValidationResult Failure(string message) => new() { IsValid = false, ErrorMessage = message };
 }

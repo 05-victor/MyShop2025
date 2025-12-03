@@ -1,277 +1,327 @@
-using System.Text.Json;
 using MyShop.Shared.Models;
-using System.Diagnostics;
 using MyShop.Core.Interfaces.Repositories;
+using MyShop.Plugins.Mocks.Data;
+using MyShop.Core.Common;
 
 namespace MyShop.Plugins.Repositories.Mocks;
 
 /// <summary>
-/// Mock implementation for Order management using JSON data
+/// Mock implementation for Order management - delegates to MockOrderData
 /// </summary>
 public class MockOrderRepository : IOrderRepository
 {
-    private readonly List<Order> _orders;
-    private readonly string _jsonFilePath;
 
-    public MockOrderRepository()
-    {
-        _jsonFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Mocks", "Data", "Json", "orders.json");
-        _orders = LoadOrdersFromJson();
-    }
-
-    private List<Order> LoadOrdersFromJson()
+    public async Task<Result<IEnumerable<Order>>> GetAllAsync()
     {
         try
         {
-            if (!File.Exists(_jsonFilePath))
-            {
-                System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] JSON file not found: {_jsonFilePath}");
-                return new List<Order>();
-            }
-
-            var json = File.ReadAllText(_jsonFilePath);
-            var jsonDoc = JsonDocument.Parse(json);
-            var ordersArray = jsonDoc.RootElement.GetProperty("orders");
-
-            var orders = new List<Order>();
-
-            foreach (var item in ordersArray.EnumerateArray())
-            {
-                var order = new Order
-                {
-                    Id = Guid.Parse(item.GetProperty("id").GetString()!),
-                    OrderDate = DateTime.Parse(item.GetProperty("orderDate").GetString()!),
-                    Status = item.GetProperty("status").GetString()!,
-                    CustomerName = item.GetProperty("customerName").GetString() ?? string.Empty,
-                    CustomerPhone = item.GetProperty("customerPhone").GetString(),
-                    CustomerAddress = item.GetProperty("customerAddress").GetString(),
-                    SalesAgentId = Guid.Parse(item.GetProperty("salesAgentId").GetString()!),
-                    Subtotal = item.GetProperty("subtotal").GetDecimal(),
-                    Discount = item.GetProperty("discount").GetDecimal(),
-                    FinalPrice = item.GetProperty("finalPrice").GetDecimal(),
-                    Notes = item.TryGetProperty("notes", out var notes) && notes.ValueKind != JsonValueKind.Null
-                        ? notes.GetString()
-                        : null,
-                    CreatedAt = DateTime.Parse(item.GetProperty("createdAt").GetString()!),
-                    UpdatedAt = item.TryGetProperty("updatedAt", out var updatedAt) && updatedAt.ValueKind != JsonValueKind.Null
-                        ? DateTime.Parse(updatedAt.GetString()!)
-                        : null,
-                    OrderItems = new List<OrderItem>()
-                };
-
-                // Load order items
-                if (item.TryGetProperty("items", out var itemsArray))
-                {
-                    foreach (var orderItem in itemsArray.EnumerateArray())
-                    {
-                        var oi = new OrderItem
-                        {
-                            Id = Guid.Parse(orderItem.GetProperty("id").GetString()!),
-                            OrderId = order.Id,
-                            ProductId = Guid.Parse(orderItem.GetProperty("productId").GetString()!),
-                            Quantity = orderItem.GetProperty("quantity").GetInt32(),
-                            UnitPrice = orderItem.GetProperty("unitPrice").GetDecimal(),
-                            TotalPrice = orderItem.GetProperty("totalPrice").GetDecimal()
-                        };
-                        order.OrderItems.Add(oi);
-                    }
-                }
-
-                orders.Add(order);
-            }
-
-            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Loaded {orders.Count} orders from JSON");
-            return orders;
+            var orders = await MockOrderData.GetAllAsync();
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetAllAsync returned {orders.Count} orders");
+            return Result<IEnumerable<Order>>.Success(orders);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Error loading JSON: {ex.Message}");
-            return new List<Order>();
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetAllAsync error: {ex.Message}");
+            return Result<IEnumerable<Order>>.Failure($"Failed to get orders: {ex.Message}");
         }
     }
 
-    public async Task<IEnumerable<Order>> GetAllAsync()
+    public async Task<Result<Order>> GetByIdAsync(Guid id)
     {
-        await Task.Delay(350);
-        System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetAllAsync called, returning {_orders.Count} orders");
-        return _orders.ToList();
-    }
-
-    public async Task<Order?> GetByIdAsync(Guid id)
-    {
-        await Task.Delay(250);
-        var order = _orders.FirstOrDefault(o => o.Id == id);
-        System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetByIdAsync({id}) - Found: {order != null}");
-        return order;
-    }
-
-    public async Task<IEnumerable<Order>> GetByCustomerIdAsync(Guid customerId)
-    {
-        await Task.Delay(300);
-        var orders = _orders.Where(o => o.CustomerId == customerId).ToList();
-        System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Found {orders.Count} orders for customer: {customerId}");
-        return orders;
-    }
-
-    public async Task<IEnumerable<Order>> GetBySalesAgentIdAsync(Guid salesAgentId)
-    {
-        await Task.Delay(300);
-        var orders = _orders.Where(o => o.SalesAgentId == salesAgentId).ToList();
-        System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Found {orders.Count} orders for sales agent: {salesAgentId}");
-        return orders;
-    }
-
-    public async Task<IEnumerable<Order>> GetBySalesAgentAsync(Guid salesAgentId)
-    {
-        await Task.Delay(300);
-        var orders = _orders.Where(o => o.SalesAgentId == salesAgentId).ToList();
-        System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Found {orders.Count} orders for sales agent: {salesAgentId}");
-        return orders;
-    }
-
-    public async Task<IEnumerable<Order>> GetByStatusAsync(string status)
-    {
-        await Task.Delay(250);
-        var orders = _orders.Where(o => o.Status == status).ToList();
-        System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Found {orders.Count} orders with status: {status}");
-        return orders;
-    }
-
-    public async Task<IEnumerable<Order>> GetByDateRangeAsync(DateTime fromDate, DateTime toDate)
-    {
-        await Task.Delay(300);
-        var orders = _orders.Where(o => o.OrderDate >= fromDate && o.OrderDate <= toDate).ToList();
-        System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Found {orders.Count} orders between {fromDate:yyyy-MM-dd} and {toDate:yyyy-MM-dd}");
-        return orders;
-    }
-
-    public async Task<Order> CreateAsync(Order order)
-    {
-        await Task.Delay(600);
-        
-        order.Id = Guid.NewGuid();
-        order.OrderDate = DateTime.UtcNow;
-        order.CreatedAt = DateTime.UtcNow;
-        order.Status = "CREATED";
-        
-        // Generate IDs for order items
-        foreach (var item in order.OrderItems)
+        try
         {
-            item.Id = Guid.NewGuid();
-            item.OrderId = order.Id;
+            var order = await MockOrderData.GetByIdAsync(id);
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetByIdAsync({id}) - Found: {order != null}");
+            return order != null
+                ? Result<Order>.Success(order)
+                : Result<Order>.Failure($"Order with ID {id} not found");
         }
-        
-        _orders.Add(order);
-        
-        System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Created order: {order.Id} for customer: {order.CustomerName}");
-        return order;
-    }
-
-    public async Task<Order> UpdateAsync(Order order)
-    {
-        await Task.Delay(500);
-        
-        var existingOrder = _orders.FirstOrDefault(o => o.Id == order.Id);
-        if (existingOrder == null)
+        catch (Exception ex)
         {
-            throw new InvalidOperationException($"Order with ID {order.Id} not found");
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetByIdAsync error: {ex.Message}");
+            return Result<Order>.Failure($"Failed to get order: {ex.Message}");
         }
-
-        // Update properties
-        existingOrder.CustomerName = order.CustomerName;
-        existingOrder.CustomerPhone = order.CustomerPhone;
-        existingOrder.CustomerAddress = order.CustomerAddress;
-        existingOrder.Subtotal = order.Subtotal;
-        existingOrder.Discount = order.Discount;
-        existingOrder.FinalPrice = order.FinalPrice;
-        existingOrder.Notes = order.Notes;
-        existingOrder.UpdatedAt = DateTime.UtcNow;
-
-        System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Updated order: {existingOrder.Id}");
-        return existingOrder;
     }
 
-    public async Task<bool> UpdateStatusAsync(Guid orderId, string status)
+    public async Task<Result<IEnumerable<Order>>> GetByCustomerIdAsync(Guid customerId)
     {
-        await Task.Delay(400);
-        
-        var order = _orders.FirstOrDefault(o => o.Id == orderId);
-        if (order == null) return false;
-
-        order.Status = status;
-        order.UpdatedAt = DateTime.UtcNow;
-        
-        System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Updated order {orderId} status to: {status}");
-        return true;
+        try
+        {
+            var orders = await MockOrderData.GetByCustomerIdAsync(customerId);
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Found {orders.Count} orders for customer");
+            return Result<IEnumerable<Order>>.Success(orders);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetByCustomerIdAsync error: {ex.Message}");
+            return Result<IEnumerable<Order>>.Failure($"Failed to get orders by customer: {ex.Message}");
+        }
     }
 
-    public async Task<bool> MarkAsPaidAsync(Guid orderId)
+    public async Task<Result<IEnumerable<Order>>> GetBySalesAgentIdAsync(Guid salesAgentId)
     {
-        await Task.Delay(400);
-        
-        var order = _orders.FirstOrDefault(o => o.Id == orderId);
-        if (order == null) return false;
-
-        order.Status = "PAID";
-        order.UpdatedAt = DateTime.UtcNow;
-        
-        System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Marked order {orderId} as PAID");
-        return true;
+        try
+        {
+            var orders = await MockOrderData.GetBySalesAgentIdAsync(salesAgentId);
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Found {orders.Count} orders for sales agent");
+            return Result<IEnumerable<Order>>.Success(orders);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetBySalesAgentIdAsync error: {ex.Message}");
+            return Result<IEnumerable<Order>>.Failure($"Failed to get orders by sales agent: {ex.Message}");
+        }
     }
 
-    public async Task<bool> CancelAsync(Guid orderId, string reason)
+    public async Task<Result<IEnumerable<Order>>> GetBySalesAgentAsync(Guid salesAgentId)
     {
-        await Task.Delay(400);
-        
-        var order = _orders.FirstOrDefault(o => o.Id == orderId);
-        if (order == null) return false;
-
-        order.Status = "CANCELLED";
-        order.Notes = $"Cancelled: {reason}";
-        order.UpdatedAt = DateTime.UtcNow;
-        
-        System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Cancelled order {orderId}. Reason: {reason}");
-        return true;
+        return await GetBySalesAgentIdAsync(salesAgentId);
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<Result<IEnumerable<Order>>> GetByStatusAsync(string status)
     {
-        await Task.Delay(350);
-        
-        var order = _orders.FirstOrDefault(o => o.Id == id);
-        if (order == null) return false;
-
-        _orders.Remove(order);
-        System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Deleted order: {id}");
-        return true;
+        try
+        {
+            var allOrders = await MockOrderData.GetAllAsync();
+            var orders = allOrders.Where(o => o.Status == status).ToList();
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Found {orders.Count} orders with status: {status}");
+            return Result<IEnumerable<Order>>.Success(orders);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetByStatusAsync error: {ex.Message}");
+            return Result<IEnumerable<Order>>.Failure($"Failed to get orders by status: {ex.Message}");
+        }
     }
 
-    /// <summary>
-    /// Get today's revenue
-    /// </summary>
+    public async Task<Result<IEnumerable<Order>>> GetByDateRangeAsync(DateTime fromDate, DateTime toDate)
+    {
+        try
+        {
+            var allOrders = await MockOrderData.GetAllAsync();
+            var orders = allOrders.Where(o => o.OrderDate >= fromDate && o.OrderDate <= toDate).ToList();
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Found {orders.Count} orders in date range");
+            return Result<IEnumerable<Order>>.Success(orders);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetByDateRangeAsync error: {ex.Message}");
+            return Result<IEnumerable<Order>>.Failure($"Failed to get orders by date range: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<Order>> CreateAsync(Order order)
+    {
+        try
+        {
+            order.Id = Guid.NewGuid();
+            order.OrderDate = DateTime.UtcNow;
+            order.Status = "CREATED";
+            
+            foreach (var item in order.OrderItems)
+            {
+                item.Id = Guid.NewGuid();
+                item.OrderId = order.Id;
+            }
+            
+            var created = await MockOrderData.CreateAsync(order);
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Created order: {created.Id}");
+            return Result<Order>.Success(created);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] CreateAsync error: {ex.Message}");
+            return Result<Order>.Failure($"Failed to create order: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<Order>> UpdateAsync(Order order)
+    {
+        try
+        {
+            var updated = await MockOrderData.UpdateAsync(order);
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Updated order: {updated.Id}");
+            return Result<Order>.Success(updated);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] UpdateAsync error: {ex.Message}");
+            return Result<Order>.Failure($"Failed to update order: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<bool>> UpdateStatusAsync(Guid orderId, string status)
+    {
+        try
+        {
+            var result = await MockOrderData.UpdateStatusAsync(orderId, status);
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] UpdateStatusAsync - Success: {result}");
+            return result
+                ? Result<bool>.Success(true)
+                : Result<bool>.Failure($"Failed to update status for order {orderId}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] UpdateStatusAsync error: {ex.Message}");
+            return Result<bool>.Failure($"Failed to update order status: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<bool>> MarkAsPaidAsync(Guid orderId)
+    {
+        return await UpdateStatusAsync(orderId, "PAID");
+    }
+
+    public async Task<Result<bool>> CancelAsync(Guid orderId, string reason)
+    {
+        try
+        {
+            var result = await UpdateStatusAsync(orderId, "CANCELLED");
+            if (result.IsSuccess && result.Data)
+            {
+                var order = await MockOrderData.GetByIdAsync(orderId);
+                if (order != null)
+                {
+                    order.Notes = $"Cancelled: {reason}";
+                    await MockOrderData.UpdateAsync(order);
+                }
+            }
+            return result;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] CancelAsync error: {ex.Message}");
+            return Result<bool>.Failure($"Failed to cancel order: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<bool>> DeleteAsync(Guid id)
+    {
+        try
+        {
+            var result = await MockOrderData.DeleteAsync(id);
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] DeleteAsync - Success: {result}");
+            return result
+                ? Result<bool>.Success(true)
+                : Result<bool>.Failure($"Failed to delete order with ID {id}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] DeleteAsync error: {ex.Message}");
+            return Result<bool>.Failure($"Failed to delete order: {ex.Message}");
+        }
+    }
+
     public async Task<decimal> GetTodayRevenueAsync()
     {
-        await Task.Delay(200);
-        var today = DateTime.Today;
-        var revenue = _orders
-            .Where(o => o.OrderDate.Date == today && o.Status == "PAID")
-            .Sum(o => o.FinalPrice);
-        
-        System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Today's revenue: {revenue:C}");
-        return revenue;
+        try
+        {
+            var allOrders = await MockOrderData.GetAllAsync();
+            var today = DateTime.Today;
+            var revenue = allOrders
+                .Where(o => o.OrderDate.Date == today && o.Status == "PAID")
+                .Sum(o => o.FinalPrice);
+            
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Today's revenue: {revenue:C}");
+            return revenue;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetTodayRevenueAsync error: {ex.Message}");
+            return 0;
+        }
     }
 
-    /// <summary>
-    /// Get revenue for date range
-    /// </summary>
     public async Task<decimal> GetRevenueByDateRangeAsync(DateTime fromDate, DateTime toDate)
     {
-        await Task.Delay(250);
-        var revenue = _orders
-            .Where(o => o.OrderDate >= fromDate && o.OrderDate <= toDate && o.Status == "PAID")
-            .Sum(o => o.FinalPrice);
-        
-        System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Revenue from {fromDate:yyyy-MM-dd} to {toDate:yyyy-MM-dd}: {revenue:C}");
-        return revenue;
+        try
+        {
+            var allOrders = await MockOrderData.GetAllAsync();
+            var revenue = allOrders
+                .Where(o => o.OrderDate >= fromDate && o.OrderDate <= toDate && o.Status == "PAID")
+                .Sum(o => o.FinalPrice);
+            
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Revenue in date range: {revenue:C}");
+            return revenue;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetRevenueByDateRangeAsync error: {ex.Message}");
+            return 0;
+        }
+    }
+
+    public async Task<Result<PagedList<Order>>> GetPagedAsync(
+        int page = 1,
+        int pageSize = 20,
+        string? status = null,
+        Guid? customerId = null,
+        Guid? salesAgentId = null,
+        DateTime? startDate = null,
+        DateTime? endDate = null,
+        string sortBy = "orderDate",
+        bool sortDescending = true)
+    {
+        try
+        {
+            var allOrders = await MockOrderData.GetAllAsync();
+            var query = allOrders.AsEnumerable();
+
+            // Apply filters
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                query = query.Where(o => o.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (customerId.HasValue)
+            {
+                query = query.Where(o => o.CustomerId == customerId.Value);
+            }
+
+            if (salesAgentId.HasValue)
+            {
+                query = query.Where(o => o.SalesAgentId == salesAgentId.Value);
+            }
+
+            if (startDate.HasValue)
+            {
+                query = query.Where(o => o.OrderDate >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(o => o.OrderDate <= endDate.Value);
+            }
+
+            // Apply sorting
+            query = sortBy.ToLower() switch
+            {
+                "orderdate" => sortDescending 
+                    ? query.OrderByDescending(o => o.OrderDate) 
+                    : query.OrderBy(o => o.OrderDate),
+                "finalprice" or "amount" => sortDescending 
+                    ? query.OrderByDescending(o => o.FinalPrice) 
+                    : query.OrderBy(o => o.FinalPrice),
+                "status" => sortDescending 
+                    ? query.OrderByDescending(o => o.Status) 
+                    : query.OrderBy(o => o.Status),
+                _ => sortDescending 
+                    ? query.OrderByDescending(o => o.OrderDate) 
+                    : query.OrderBy(o => o.OrderDate)
+            };
+
+            var totalCount = query.Count();
+            var items = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var pagedList = new PagedList<Order>(items, totalCount, page, pageSize);
+
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetPagedAsync: Page {page}/{pagedList.TotalPages}, Total {totalCount}");
+            return Result<PagedList<Order>>.Success(pagedList);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetPagedAsync error: {ex.Message}");
+            return Result<PagedList<Order>>.Failure($"Failed to get paged orders: {ex.Message}");
+        }
     }
 }

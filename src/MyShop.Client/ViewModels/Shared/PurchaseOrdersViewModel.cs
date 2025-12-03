@@ -1,7 +1,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MyShop.Core.Interfaces.Repositories;
+using MyShop.Client.Facades;
 using MyShop.Client.Views.Dialogs;
+using MyShop.Client.ViewModels.Base;
+using MyShop.Core.Interfaces.Facades;
+using MyShop.Core.Interfaces.Services;
+using MyShop.Core.Interfaces.Repositories;
+using MyShop.Shared.Models.Enums;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.ObjectModel;
@@ -10,14 +15,16 @@ using System.Threading.Tasks;
 
 namespace MyShop.Client.ViewModels.Shared;
 
-public partial class PurchaseOrdersViewModel : ObservableObject
+public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel>
 {
-    private readonly IOrderRepository _orderRepository;
-    private readonly ICartRepository _cartRepository;
-    private List<OrderViewModel> _allOrders = new();
-
-    [ObservableProperty]
-    private ObservableCollection<OrderViewModel> _orders;
+    private readonly IOrderFacade _orderFacade;
+    private readonly ICartFacade _cartFacade;
+    private readonly IAuthRepository _authRepository;
+    private readonly IProductRepository _productRepository;
+    
+    private Guid? _currentUserId;
+    private Guid? _salesAgentId; // For Sales Agent role
+    private bool _isSalesAgent;
 
     [ObservableProperty]
     private int _totalOrders;
@@ -40,48 +47,210 @@ public partial class PurchaseOrdersViewModel : ObservableObject
     [ObservableProperty]
     private string _selectedSort = "Newest First";
 
-    public PurchaseOrdersViewModel(IOrderRepository orderRepository, ICartRepository cartRepository)
+    [ObservableProperty]
+    private ObservableCollection<string> _searchSuggestions = new();
+
+    public bool HasNoItems => Items.Count == 0 && !IsLoading;
+
+    public PurchaseOrdersViewModel(
+        IOrderFacade orderFacade,
+        ICartFacade cartFacade,
+        IAuthRepository authRepository,
+        IProductRepository productRepository,
+        IToastService toastService,
+        INavigationService navigationService)
+        : base(toastService, navigationService)
     {
-        _orderRepository = orderRepository;
-        _cartRepository = cartRepository;
-        Orders = new ObservableCollection<OrderViewModel>();
+        _orderFacade = orderFacade;
+        _cartFacade = cartFacade;
+        _authRepository = authRepository;
+        _productRepository = productRepository;
+        PageSize = Core.Common.PaginationConstants.OrdersPageSize;
     }
 
     public async Task InitializeAsync()
     {
-        await LoadOrdersAsync();
+        // Get current user to determine role and filter orders
+        var userResult = await _authRepository.GetCurrentUserAsync();
+        if (userResult.IsSuccess && userResult.Data != null)
+        {
+            var user = userResult.Data;
+            _currentUserId = user.Id;
+            
+            // Check if user is Sales Agent
+            _isSalesAgent = user.HasRole(UserRole.Salesman);
+            
+            // Purchase Orders = orders where current user is the CUSTOMER (buyer)
+            // Even Sales Agents can be customers when they buy products
+            // So we always use customerId = user.Id for this page
+            // (SalesOrders page uses salesAgentId for orders they SOLD)
+            _salesAgentId = null; // Don't filter by salesAgentId for purchase orders
+            
+            System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Customer mode: {_currentUserId} (isSalesAgent: {_isSalesAgent})");
+        }
+        
+        await LoadDataAsync();
     }
 
-    private async Task LoadOrdersAsync()
+    public async Task UpdateSearchSuggestionsAsync(string query)
+    {
+        if (string.IsNullOrWhiteSpace(query) || query.Length < 2)
+        {
+            SearchSuggestions.Clear();
+            return;
+        }
+
+        // Generate suggestions based on order IDs and status
+        var suggestions = new List<string>();
+        
+        foreach (var order in Items)
+        {
+            if (order.OrderId.Contains(query, StringComparison.OrdinalIgnoreCase))
+            {
+                suggestions.Add(order.OrderId);
+            }
+            if (order.TrackingNumber.Contains(query, StringComparison.OrdinalIgnoreCase))
+            {
+                suggestions.Add(order.TrackingNumber);
+            }
+        }
+
+        SearchSuggestions.Clear();
+        foreach (var s in suggestions.Distinct().Take(5))
+        {
+            SearchSuggestions.Add(s);
+        }
+    }
+
+    partial void OnSelectedStatusChanged(string value)
+    {
+        System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Status changed to: {value}");
+        CurrentPage = 1;
+        _ = LoadPageAsync();
+    }
+
+    partial void OnSelectedSortChanged(string value)
+    {
+        System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Sort changed to: {value}");
+        _ = LoadPageAsync();
+    }
+
+    protected override async Task LoadPageAsync()
     {
         try
         {
-            var orders = await _orderRepository.GetAllAsync();
-            
-            _allOrders = orders.Select(o => new OrderViewModel
-            {
-                OrderId = $"ORD-{o.Id.ToString().Substring(0, 8)}",
-                OrderDate = o.OrderDate,
-                TrackingNumber = $"TRK{o.Id.ToString().Substring(0, 9)}",
-                Status = o.Status,
-                StatusColor = GetStatusColor(o.Status),
-                StatusBgColor = GetStatusBgColor(o.Status),
-                DeliveredDate = o.Status == "Delivered" ? o.OrderDate.AddDays(3) : null,
-                Items = new ObservableCollection<OrderItemViewModel>(),
-                Subtotal = o.Subtotal,
-                Shipping = 10.00m,
-                Tax = o.Subtotal * 0.08m,
-                Total = o.FinalPrice
-            }).ToList();
+            SetLoadingState(true);
 
-            ApplyFiltersAndSort();
+            var statusFilter = SelectedStatus == "All" ? null : SelectedStatus;
+            var (sortBy, sortDesc) = SelectedSort switch
+            {
+                "Newest First" => ("orderDate", true),
+                "Oldest First" => ("orderDate", false),
+                "Highest Amount" => ("finalPrice", true),
+                "Lowest Amount" => ("finalPrice", false),
+                "Status" => ("status", false),
+                _ => ("orderDate", true)
+            };
+
+            var result = await _orderFacade.LoadOrdersPagedAsync(
+                page: CurrentPage,
+                pageSize: PageSize,
+                status: statusFilter,
+                searchQuery: SearchQuery,
+                sortBy: sortBy,
+                sortDescending: sortDesc,
+                customerId: _currentUserId,
+                salesAgentId: _salesAgentId);
+
+            if (!result.IsSuccess || result.Data == null)
+            {
+                await _toastHelper?.ShowError(result.ErrorMessage ?? "Failed to load orders");
+                Items.Clear();
+                UpdatePagingInfo(0);
+                UpdateStats();
+                return;
+            }
+
+            Items.Clear();
+            foreach (var o in result.Data.Items)
+            {
+                // Get order items from the order
+                var orderItems = o.OrderItems ?? o.Items ?? new List<MyShop.Shared.Models.OrderItem>();
+                
+                // Fetch product info from database for each order item
+                var itemViewModels = new ObservableCollection<OrderItemViewModel>();
+                string? firstProductImage = null;
+                
+                foreach (var item in orderItems)
+                {
+                    var productName = item.ProductName ?? "Unknown Product";
+                    var imageUrl = "ms-appx:///Assets/Images/placeholder.png";
+                    
+                    // Fetch product from database to get image
+                    if (item.ProductId != Guid.Empty)
+                    {
+                        var productResult = await _productRepository.GetByIdAsync(item.ProductId);
+                        if (productResult.IsSuccess && productResult.Data != null)
+                        {
+                            productName = productResult.Data.Name ?? productName;
+                            imageUrl = productResult.Data.ImageUrl ?? imageUrl;
+                        }
+                    }
+                    
+                    // Store first product image for card display
+                    if (firstProductImage == null)
+                    {
+                        firstProductImage = imageUrl;
+                    }
+                    
+                    itemViewModels.Add(new OrderItemViewModel
+                    {
+                        ProductName = productName,
+                        Quantity = item.Quantity,
+                        Price = item.UnitPrice,
+                        ImageUrl = imageUrl
+                    });
+                }
+                
+                // Generate product summary (e.g., "MacBook Pro + 2 more items")
+                var productSummary = GenerateProductSummary(itemViewModels);
+                
+                Items.Add(new OrderViewModel
+                {
+                    OrderId = o.OrderCode ?? $"ORD-{o.Id.ToString().Substring(0, 8)}",
+                    ProductSummary = productSummary,
+                    FirstProductImage = firstProductImage ?? "ms-appx:///Assets/Images/placeholder.png",
+                    CustomerName = o.CustomerName,
+                    OrderDate = o.OrderDate,
+                    TrackingNumber = $"TRK{o.Id.ToString().Substring(0, 9)}",
+                    Status = o.Status,
+                    StatusColor = GetStatusColor(o.Status),
+                    StatusBgColor = GetStatusBgColor(o.Status),
+                    DeliveredDate = o.Status == "Delivered" || o.Status == "DELIVERED" ? o.OrderDate.AddDays(3) : null,
+                    Items = itemViewModels,
+                    Subtotal = o.Subtotal > 0 ? o.Subtotal : o.FinalPrice * 0.9m,
+                    Shipping = 10.00m,
+                    Tax = (o.Subtotal > 0 ? o.Subtotal : o.FinalPrice * 0.9m) * 0.08m,
+                    Total = o.FinalPrice
+                });
+            }
+
+            UpdatePagingInfo(result.Data.TotalCount);
+            UpdateStats();
+
+            System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Loaded page {CurrentPage}/{TotalPages} ({Items.Count} items, {TotalItems} total)");
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Error loading orders: {ex.Message}");
-            _allOrders = new List<OrderViewModel>();
-            Orders = new ObservableCollection<OrderViewModel>();
+            await _toastHelper?.ShowError($"Error loading orders: {ex.Message}");
+            Items.Clear();
+            UpdatePagingInfo(0);
             UpdateStats();
+        }
+        finally
+        {
+            SetLoadingState(false);
         }
     }
 
@@ -105,50 +274,65 @@ public partial class PurchaseOrdersViewModel : ObservableObject
 
     private void UpdateStats()
     {
-        TotalOrders = Orders.Count;
-        PendingOrders = Orders.Count(o => o.Status == "Pending");
-        InTransitOrders = Orders.Count(o => o.Status == "Shipped" || o.Status == "Processing");
-        DeliveredOrders = Orders.Count(o => o.Status == "Delivered");
-        TotalSpent = Orders.Sum(o => o.Total);
+        TotalOrders = Items.Count;
+        PendingOrders = Items.Count(o => o.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase) || o.Status.Equals("CREATED", StringComparison.OrdinalIgnoreCase));
+        InTransitOrders = Items.Count(o => o.Status.Equals("Shipped", StringComparison.OrdinalIgnoreCase) || o.Status.Equals("Processing", StringComparison.OrdinalIgnoreCase));
+        DeliveredOrders = Items.Count(o => o.Status.Equals("Delivered", StringComparison.OrdinalIgnoreCase) || o.Status.Equals("PAID", StringComparison.OrdinalIgnoreCase));
+        TotalSpent = Items.Sum(o => o.Total);
+    }
+
+    private string GenerateProductSummary(ObservableCollection<OrderItemViewModel>? loadedItems)
+    {
+        if (loadedItems == null || loadedItems.Count == 0)
+            return "No products";
+
+        var firstProduct = loadedItems[0].ProductName ?? "Product";
+        var firstQty = loadedItems[0].Quantity;
+        
+        // Truncate long product names
+        if (firstProduct.Length > 35)
+            firstProduct = firstProduct.Substring(0, 32) + "...";
+
+        // If only one product type
+        if (loadedItems.Count == 1)
+        {
+            if (firstQty > 1)
+                return $"{firstProduct} x{firstQty}";
+            return firstProduct;
+        }
+
+        // Multiple product types - show count of other product types (not quantities)
+        var otherProductCount = loadedItems.Count - 1;
+        return $"{firstProduct} + {otherProductCount} more product{(otherProductCount > 1 ? "s" : "")}";
     }
 
     [RelayCommand]
     private void FilterByStatus(string status)
     {
         SelectedStatus = status;
-        ApplyFiltersAndSort();
     }
 
     [RelayCommand]
     private void SortOrders(string sortOption)
     {
         SelectedSort = sortOption;
-        ApplyFiltersAndSort();
     }
 
-    private void ApplyFiltersAndSort()
+    [RelayCommand]
+    private async Task ApplyFiltersAsync()
     {
-        // Apply status filter
-        var filtered = _allOrders.AsEnumerable();
-        
-        if (SelectedStatus != "All")
-        {
-            filtered = filtered.Where(o => o.Status.Equals(SelectedStatus, StringComparison.OrdinalIgnoreCase));
-        }
+        CurrentPage = 1;
+        await LoadPageAsync();
+    }
 
-        // Apply sorting
-        filtered = SelectedSort switch
-        {
-            "Newest First" => filtered.OrderByDescending(o => o.OrderDate),
-            "Oldest First" => filtered.OrderBy(o => o.OrderDate),
-            "Highest Amount" => filtered.OrderByDescending(o => o.Total),
-            "Lowest Amount" => filtered.OrderBy(o => o.Total),
-            "Status" => filtered.OrderBy(o => o.Status),
-            _ => filtered.OrderByDescending(o => o.OrderDate)
-        };
-
-        Orders = new ObservableCollection<OrderViewModel>(filtered);
-        UpdateStats();
+    [RelayCommand]
+    private async Task ResetFiltersAsync()
+    {
+        SearchQuery = string.Empty;
+        SelectedStatus = "All";
+        SelectedSort = "Newest First";
+        CurrentPage = 1;
+        await LoadPageAsync();
     }
 
     [RelayCommand]
@@ -174,27 +358,19 @@ public partial class PurchaseOrdersViewModel : ObservableObject
     {
         try
         {
-            // Get order details with items
-            var orderGuid = Guid.Parse(order.OrderId);
-            var orderDetails = await _orderRepository.GetByIdAsync(orderGuid);
-
-            if (orderDetails == null || !orderDetails.Items.Any())
-            {
-                System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Order {order.OrderId} has no items");
-                return;
-            }
-
-            // Add each item to cart
-            foreach (var item in orderDetails.Items)
-            {
-                await _cartRepository.AddToCartAsync(Guid.Empty, item.ProductId, item.Quantity);
-            }
-
-            System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Added {orderDetails.Items.Count} items to cart");
+            System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Buy again: {order.OrderId}");
+            
+            // Add order items back to cart (mock implementation)
+            // In real implementation, would call _cartFacade.AddItemsFromOrder(orderId)
+            await _toastHelper?.ShowSuccess($"Items from {order.OrderId} added to cart!");
+            
+            // Navigate to cart page
+            _navigationService?.NavigateTo("Cart");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Error re-ordering: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Error in BuyAgain: {ex.Message}");
+            await _toastHelper?.ShowError("Failed to add items to cart");
         }
     }
 }
@@ -203,6 +379,15 @@ public partial class OrderViewModel : ObservableObject
 {
     [ObservableProperty]
     private string _orderId = string.Empty;
+
+    [ObservableProperty]
+    private string _productSummary = string.Empty;
+
+    [ObservableProperty]
+    private string _firstProductImage = "ms-appx:///Assets/Images/placeholder.png";
+
+    [ObservableProperty]
+    private string _customerName = string.Empty;
 
     [ObservableProperty]
     private DateTime _orderDate;

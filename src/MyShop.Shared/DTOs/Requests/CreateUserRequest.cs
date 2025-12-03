@@ -9,20 +9,20 @@ namespace MyShop.Shared.DTOs.Requests;
 
 public class CreateUserRequest
     {
-        [Required(ErrorMessage = "Tên đăng nhập không được để trống")]
-        [MaxLength(100, ErrorMessage = "Tên đăng nhập không được vượt quá 100 ký tự")]
+        [Required(ErrorMessage = "Username is required")]
+        [MaxLength(100, ErrorMessage = "Username must not exceed 100 characters")]
         public string Username { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Email không được để trống")]
-        [EmailAddress(ErrorMessage = "Email không đúng định dạng")]
-        [MaxLength(255, ErrorMessage = "Email không được vượt quá 255 ký tự")]
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email format")]
+        [MaxLength(255, ErrorMessage = "Email must not exceed 255 characters")]
         public string Email { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Mật khẩu không được để trống")]
-        [MinLength(6, ErrorMessage = "Mật khẩu phải có ít nhất 6 ký tự")]
+        [Required(ErrorMessage = "Password is required")]
+        [MinLength(6, ErrorMessage = "Password must be at least 6 characters")]
         public string Password { get; set; } = string.Empty;
 
-        [MaxLength(20, ErrorMessage = "Số điện thoại không được vượt quá 20 ký tự")]
+        [MaxLength(20, ErrorMessage = "Phone number must not exceed 20 characters")]
         public string? Sdt { get; set; }
 
         public bool ActivateTrial { get; set; } = false;

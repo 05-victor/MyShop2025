@@ -1,6 +1,7 @@
+﻿using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Products;
-using MyShop.Shared.DTOs.Commons;
+using MyShop.Shared.Adapters;
 using MyShop.Shared.Models;
 using Refit;
 
@@ -19,7 +20,7 @@ public class ProductRepository : IProductRepository
         _api = api;
     }
 
-    public async Task<IEnumerable<Product>> GetAllAsync()
+    public async Task<Result<IEnumerable<Product>>> GetAllAsync()
     {
         try
         {
@@ -29,75 +30,26 @@ public class ProductRepository : IProductRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return apiResponse.Result.Items.Select(MapToModel).ToList();
+                    // Map ProductResponse[] to Product[] using ProductAdapter
+                    var products = ProductAdapter.ToModelList(apiResponse.Result);
+                    return Result<IEnumerable<Product>>.Success(products);
                 }
             }
-            return Enumerable.Empty<Product>();
+            return Result<IEnumerable<Product>>.Failure("Failed to retrieve products");
         }
         catch (ApiException ex)
         {
             System.Diagnostics.Debug.WriteLine($"API Error in GetAllAsync: {ex.StatusCode} - {ex.Message}");
-            return Enumerable.Empty<Product>();
+            return Result<IEnumerable<Product>>.Failure($"API error retrieving products: {ex.Message}");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Unexpected Error in GetAllAsync: {ex.Message}");
-            return Enumerable.Empty<Product>();
+            return Result<IEnumerable<Product>>.Failure($"Error retrieving products: {ex.Message}");
         }
     }
 
-    public async Task<PagedResult<Product>> GetAllAsync(int pageNumber = 1, int pageSize = 10)
-    {
-        try
-        {
-            var response = await _api.GetAllAsync(pageNumber, pageSize);
-            if (response.IsSuccessStatusCode && response.Content != null)
-            {
-                var apiResponse = response.Content;
-                if (apiResponse.Success && apiResponse.Result != null)
-                {
-                    return new PagedResult<Product>
-                    {
-                        Items = apiResponse.Result.Items.Select(MapToModel).ToList(),
-                        TotalCount = apiResponse.Result.TotalCount,
-                        Page = apiResponse.Result.Page,
-                        PageSize = apiResponse.Result.PageSize
-                    };
-                }
-            }
-            return new PagedResult<Product>
-            {
-                Items = new List<Product>(),
-                TotalCount = 0,
-                Page = pageNumber,
-                PageSize = pageSize
-            };
-        }
-        catch (ApiException ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"API Error in GetAllAsync: {ex.StatusCode} - {ex.Message}");
-            return new PagedResult<Product>
-            {
-                Items = new List<Product>(),
-                TotalCount = 0,
-                Page = pageNumber,
-                PageSize = pageSize
-            };
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Unexpected Error in GetAllAsync: {ex.Message}");
-            return new PagedResult<Product>
-            {
-                Items = new List<Product>(),
-                TotalCount = 0,
-                Page = pageNumber,
-                PageSize = pageSize
-            };
-        }
-    }
-
-    public async Task<Product?> GetByIdAsync(Guid id)
+    public async Task<Result<Product>> GetByIdAsync(Guid id)
     {
         try
         {
@@ -107,24 +59,25 @@ public class ProductRepository : IProductRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return MapToModel(apiResponse.Result);
+                    var product = ProductAdapter.ToModel(apiResponse.Result);
+                    return Result<Product>.Success(product);
                 }
             }
-            return null;
+            return Result<Product>.Failure($"Product with ID {id} not found");
         }
         catch (ApiException ex)
         {
             System.Diagnostics.Debug.WriteLine($"API Error in GetByIdAsync: {ex.StatusCode} - {ex.Message}");
-            return null;
+            return Result<Product>.Failure($"API error retrieving product: {ex.Message}");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Unexpected Error in GetByIdAsync: {ex.Message}");
-            return null;
+            return Result<Product>.Failure($"Error retrieving product: {ex.Message}");
         }
     }
 
-    public async Task<Product> CreateAsync(Product product)
+    public async Task<Result<Product>> CreateAsync(Product product)
     {
         try
         {
@@ -143,18 +96,24 @@ public class ProductRepository : IProductRepository
             
             if (response.IsSuccessStatusCode && response.Content != null)
             {
-                return MapToModel(response.Content);
+                var createdProduct = ProductAdapter.ToModel(response.Content.Result);
+                return Result<Product>.Success(createdProduct);
             }
-            return product; // Return original if failed
+            return Result<Product>.Failure("Failed to create product");
         }
         catch (ApiException ex)
         {
             System.Diagnostics.Debug.WriteLine($"API Error in CreateAsync: {ex.StatusCode} - {ex.Message}");
-            throw new Exception($"Failed to create product: {ex.Message}", ex);
+            return Result<Product>.Failure($"Failed to create product: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Unexpected Error in CreateAsync: {ex.Message}");
+            return Result<Product>.Failure($"Error creating product: {ex.Message}");
         }
     }
 
-    public async Task<Product> UpdateAsync(Product product)
+    public async Task<Result<Product>> UpdateAsync(Product product)
     {
         try
         {
@@ -173,53 +132,189 @@ public class ProductRepository : IProductRepository
             
             if (response.IsSuccessStatusCode && response.Content != null)
             {
-                return MapToModel(response.Content);
+                var updatedProduct = ProductAdapter.ToModel(response.Content.Result);
+                return Result<Product>.Success(updatedProduct);
             }
-            return product; // Return original if failed
+            return Result<Product>.Failure("Failed to update product");
         }
         catch (ApiException ex)
         {
             System.Diagnostics.Debug.WriteLine($"API Error in UpdateAsync: {ex.StatusCode} - {ex.Message}");
-            throw new Exception($"Failed to update product: {ex.Message}", ex);
+            return Result<Product>.Failure($"Failed to update product: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Unexpected Error in UpdateAsync: {ex.Message}");
+            return Result<Product>.Failure($"Error updating product: {ex.Message}");
         }
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<Result<bool>> DeleteAsync(Guid id)
     {
         try
         {
             var response = await _api.DeleteAsync(id);
-            return response.IsSuccessStatusCode && response.Content?.Result == true;
+            if (response.IsSuccessStatusCode && response.Content?.Result == true)
+            {
+                return Result<bool>.Success(true);
+            }
+            return Result<bool>.Failure("Failed to delete product");
         }
         catch (ApiException ex)
         {
             System.Diagnostics.Debug.WriteLine($"API Error in DeleteAsync: {ex.StatusCode} - {ex.Message}");
-            return false;
+            return Result<bool>.Failure($"API error deleting product: {ex.Message}");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Unexpected Error in DeleteAsync: {ex.Message}");
-            return false;
+            return Result<bool>.Failure($"Error deleting product: {ex.Message}");
         }
     }
 
-    /// <summary>
-    /// Maps ProductResponse DTO to Product Model
-    /// TODO: Use ProductAdapter when available
-    /// </summary>
-    private Product MapToModel(dynamic dto)
+    public async Task<Result<IEnumerable<Product>>> GetLowStockAsync(int threshold = 10)
     {
-        return new Product
+        try
         {
-            Id = dto.Id,
-            Name = dto.Name ?? string.Empty,
-            Description = dto.Description ?? string.Empty,
-            SellingPrice = dto.Price,
-            Quantity = dto.Stock,
-            ImageUrl = dto.ImageUrl,
-            CategoryId = dto.CategoryId,
-            CreatedAt = dto.CreatedAt,
-            UpdatedAt = dto.UpdatedAt
-        };
+            var allProductsResult = await GetAllAsync();
+            if (!allProductsResult.IsSuccess || allProductsResult.Data == null)
+            {
+                return Result<IEnumerable<Product>>.Failure("Failed to retrieve products");
+            }
+
+            var lowStockProducts = allProductsResult.Data.Where(p => p.Quantity < threshold).ToList();
+            return Result<IEnumerable<Product>>.Success(lowStockProducts);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error in GetLowStockAsync: {ex.Message}");
+            return Result<IEnumerable<Product>>.Failure($"Error retrieving low stock products: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<IEnumerable<Product>>> GetByCategoryAsync(Guid categoryId)
+    {
+        try
+        {
+            var allProductsResult = await GetAllAsync();
+            if (!allProductsResult.IsSuccess || allProductsResult.Data == null)
+            {
+                return Result<IEnumerable<Product>>.Failure("Failed to retrieve products");
+            }
+
+            var categoryProducts = allProductsResult.Data.Where(p => p.CategoryId == categoryId).ToList();
+            return Result<IEnumerable<Product>>.Success(categoryProducts);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error in GetByCategoryAsync: {ex.Message}");
+            return Result<IEnumerable<Product>>.Failure($"Error retrieving products by category: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<IEnumerable<Product>>> SearchAsync(string query)
+    {
+        try
+        {
+            var allProductsResult = await GetAllAsync();
+            if (!allProductsResult.IsSuccess || allProductsResult.Data == null)
+            {
+                return Result<IEnumerable<Product>>.Failure("Failed to retrieve products");
+            }
+
+            var search = query.ToLower();
+            var searchResults = allProductsResult.Data.Where(p =>
+                p.Name.ToLower().Contains(search) ||
+                (p.SKU != null && p.SKU.ToLower().Contains(search)) ||
+                (p.Description != null && p.Description.ToLower().Contains(search))).ToList();
+
+            return Result<IEnumerable<Product>>.Success(searchResults);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error in SearchAsync: {ex.Message}");
+            return Result<IEnumerable<Product>>.Failure($"Error searching products: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<PagedList<Product>>> GetPagedAsync(
+        int page = 1,
+        int pageSize = 20,
+        string? searchQuery = null,
+        string? categoryName = null,
+        decimal? minPrice = null,
+        decimal? maxPrice = null,
+        string sortBy = "name",
+        bool sortDescending = false)
+    {
+        try
+        {
+            // Note: Backend API doesn't support server-side paging yet
+            // Fallback: fetch all products and apply client-side paging/filtering
+            var allProductsResult = await GetAllAsync();
+            if (!allProductsResult.IsSuccess || allProductsResult.Data == null)
+            {
+                return Result<PagedList<Product>>.Failure(allProductsResult.ErrorMessage ?? "Failed to retrieve products");
+            }
+
+            var query = allProductsResult.Data.AsEnumerable();
+
+            // Apply filters
+            if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                var search = searchQuery.ToLower();
+                query = query.Where(p => 
+                    p.Name.ToLower().Contains(search) ||
+                    (p.SKU != null && p.SKU.ToLower().Contains(search)) ||
+                    (p.Description != null && p.Description.ToLower().Contains(search)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(categoryName))
+            {
+                query = query.Where(p => p.CategoryName != null && 
+                    p.CategoryName.Equals(categoryName, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (minPrice.HasValue)
+            {
+                query = query.Where(p => p.SellingPrice >= minPrice.Value);
+            }
+
+            if (maxPrice.HasValue)
+            {
+                query = query.Where(p => p.SellingPrice <= maxPrice.Value);
+            }
+
+            // Apply sorting
+            query = sortBy.ToLower() switch
+            {
+                "name" => sortDescending 
+                    ? query.OrderByDescending(p => p.Name) 
+                    : query.OrderBy(p => p.Name),
+                "price" or "sellingprice" => sortDescending 
+                    ? query.OrderByDescending(p => p.SellingPrice) 
+                    : query.OrderBy(p => p.SellingPrice),
+                "stock" or "quantity" => sortDescending 
+                    ? query.OrderByDescending(p => p.Quantity) 
+                    : query.OrderBy(p => p.Quantity),
+                "category" or "categoryname" => sortDescending 
+                    ? query.OrderByDescending(p => p.CategoryName) 
+                    : query.OrderBy(p => p.CategoryName),
+                _ => sortDescending 
+                    ? query.OrderByDescending(p => p.Name) 
+                    : query.OrderBy(p => p.Name)
+            };
+
+            var totalCount = query.Count();
+            var items = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var pagedList = new PagedList<Product>(items, totalCount, page, pageSize);
+            return Result<PagedList<Product>>.Success(pagedList);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error in GetPagedAsync: {ex.Message}");
+            return Result<PagedList<Product>>.Failure($"Error retrieving paged products: {ex.Message}");
+        }
     }
 }

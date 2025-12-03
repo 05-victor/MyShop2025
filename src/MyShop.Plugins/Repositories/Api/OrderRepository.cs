@@ -1,3 +1,5 @@
+﻿using MyShop.Shared.Adapters;
+using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Orders;
 using MyShop.Shared.DTOs.Requests;
@@ -17,7 +19,7 @@ public class OrderRepository : IOrderRepository
         _api = api;
     }
 
-    public async Task<IEnumerable<Order>> GetAllAsync()
+    public async Task<Result<IEnumerable<Order>>> GetAllAsync()
     {
         try
         {
@@ -28,19 +30,20 @@ public class OrderRepository : IOrderRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return apiResponse.Result.Items.Select(MapToOrder);
+                    var orders = OrderAdapter.ToModelList(apiResponse.Result);
+                    return Result<IEnumerable<Order>>.Success(orders);
                 }
             }
 
-            return Enumerable.Empty<Order>();
+            return Result<IEnumerable<Order>>.Failure("Failed to retrieve orders");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return Enumerable.Empty<Order>();
+            return Result<IEnumerable<Order>>.Failure($"Error retrieving orders: {ex.Message}");
         }
     }
 
-    public async Task<Order?> GetByIdAsync(Guid id)
+    public async Task<Result<Order>> GetByIdAsync(Guid id)
     {
         try
         {
@@ -51,19 +54,20 @@ public class OrderRepository : IOrderRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return MapToOrder(apiResponse.Result);
+                    var order = OrderAdapter.ToModel(apiResponse.Result);
+                    return Result<Order>.Success(order);
                 }
             }
 
-            return null;
+            return Result<Order>.Failure($"Order with ID {id} not found");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return null;
+            return Result<Order>.Failure($"Error retrieving order: {ex.Message}");
         }
     }
 
-    public async Task<IEnumerable<Order>> GetByCustomerIdAsync(Guid customerId)
+    public async Task<Result<IEnumerable<Order>>> GetByCustomerIdAsync(Guid customerId)
     {
         try
         {
@@ -75,21 +79,23 @@ public class OrderRepository : IOrderRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return apiResponse.Result
+                    var orders = apiResponse.Result
                         .Where(o => o.CustomerId == customerId)
-                        .Select(MapToOrder);
+                        .Select(OrderAdapter.ToModel)
+                        .ToList();
+                    return Result<IEnumerable<Order>>.Success(orders);
                 }
             }
 
-            return Enumerable.Empty<Order>();
+            return Result<IEnumerable<Order>>.Failure("Failed to retrieve customer orders");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return Enumerable.Empty<Order>();
+            return Result<IEnumerable<Order>>.Failure($"Error retrieving customer orders: {ex.Message}");
         }
     }
 
-    public async Task<IEnumerable<Order>> GetBySalesAgentIdAsync(Guid salesAgentId)
+    public async Task<Result<IEnumerable<Order>>> GetBySalesAgentIdAsync(Guid salesAgentId)
     {
         try
         {
@@ -100,34 +106,81 @@ public class OrderRepository : IOrderRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return apiResponse.Result.Items
-                        .Where(o => o.SaleAgentId == salesAgentId)
-                        .Select(MapToOrder);
+                    var orders = apiResponse.Result
+                        .Where(o => o.CustomerId == salesAgentId) // May need adjustment based on backend schema
+                        .Select(OrderAdapter.ToModel)
+                        .ToList();
+                    return Result<IEnumerable<Order>>.Success(orders);
                 }
             }
 
-            return Enumerable.Empty<Order>();
+            return Result<IEnumerable<Order>>.Failure("Failed to retrieve sales agent orders");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return Enumerable.Empty<Order>();
+            return Result<IEnumerable<Order>>.Failure($"Error retrieving sales agent orders: {ex.Message}");
         }
     }
 
-    public async Task<Order> CreateAsync(Order order)
+    public async Task<Result<IEnumerable<Order>>> GetBySalesAgentAsync(Guid salesAgentId)
+    {
+        return await GetBySalesAgentIdAsync(salesAgentId);
+    }
+
+    public async Task<Result<IEnumerable<Order>>> GetByStatusAsync(string status)
+    {
+        try
+        {
+            var allOrdersResult = await GetAllAsync();
+            if (!allOrdersResult.IsSuccess || allOrdersResult.Data == null)
+            {
+                return Result<IEnumerable<Order>>.Failure("Failed to retrieve orders");
+            }
+
+            var filteredOrders = allOrdersResult.Data.Where(o => o.Status.Equals(status, StringComparison.OrdinalIgnoreCase)).ToList();
+            return Result<IEnumerable<Order>>.Success(filteredOrders);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<Order>>.Failure($"Error retrieving orders by status: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<IEnumerable<Order>>> GetByDateRangeAsync(DateTime fromDate, DateTime toDate)
+    {
+        try
+        {
+            var allOrdersResult = await GetAllAsync();
+            if (!allOrdersResult.IsSuccess || allOrdersResult.Data == null)
+            {
+                return Result<IEnumerable<Order>>.Failure("Failed to retrieve orders");
+            }
+
+            var filteredOrders = allOrdersResult.Data.Where(o => o.OrderDate >= fromDate && o.OrderDate <= toDate).ToList();
+            return Result<IEnumerable<Order>>.Success(filteredOrders);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<Order>>.Failure($"Error retrieving orders by date range: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<Order>> CreateAsync(Order order)
     {
         try
         {
             var request = new CreateOrderRequest
             {
-                CustomerId = order.CustomerId,
-                Note = order.Notes,
-                OrderItems = order.Items?.Select(item => new CreateOrderItemRequest
+                CustomerId = order.CustomerId ?? Guid.Empty,
+                OrderItems = order.Items.Select(item => new CreateOrderItemRequest
                 {
                     ProductId = item.ProductId,
                     Quantity = item.Quantity,
                     UnitSalePrice = (int)item.UnitPrice
-                }).ToList()
+                }).ToList(),
+                ShippingAddress = order.CustomerAddress,
+                PaymentMethod = "CASH",
+                Note = order.Notes
             };
 
             var response = await _api.CreateAsync(request);
@@ -137,33 +190,34 @@ public class OrderRepository : IOrderRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return MapToOrder(apiResponse.Result);
+                    var createdOrder = OrderAdapter.ToModel(apiResponse.Result);
+                    return Result<Order>.Success(createdOrder);
                 }
             }
 
-            throw new InvalidOperationException("Failed to create order");
+            return Result<Order>.Failure("Failed to create order");
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException($"Error creating order: {ex.Message}", ex);
+            return Result<Order>.Failure($"Error creating order: {ex.Message}");
         }
     }
 
-    public async Task<Order> UpdateAsync(Order order)
+    public async Task<Result<Order>> UpdateAsync(Order order)
     {
         try
         {
             // Note: Backend may need dedicated PUT /orders/{id} endpoint for full update
             // Currently only UpdateStatusAsync is available
-            throw new NotImplementedException("Full order update not yet implemented in backend API");
+            return Result<Order>.Failure("Full order update not yet implemented in backend API");
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException($"Error updating order: {ex.Message}", ex);
+            return Result<Order>.Failure($"Error updating order: {ex.Message}");
         }
     }
 
-    public async Task<bool> UpdateStatusAsync(Guid orderId, string status)
+    public async Task<Result<bool>> UpdateStatusAsync(Guid orderId, string status)
     {
         try
         {
@@ -174,65 +228,179 @@ public class OrderRepository : IOrderRepository
             };
 
             var response = await _api.UpdateStatusAsync(orderId, request);
-            return response.IsSuccessStatusCode && response.Content?.Result == true;
+            if (response.IsSuccessStatusCode && response.Content?.Result == true)
+            {
+                return Result<bool>.Success(true);
+            }
+            return Result<bool>.Failure("Failed to update order status");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return false;
+            return Result<bool>.Failure($"Error updating order status: {ex.Message}");
         }
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<Result<bool>> MarkAsPaidAsync(Guid orderId)
+    {
+        return await UpdateStatusAsync(orderId, "PAID");
+    }
+
+    public async Task<Result<bool>> CancelAsync(Guid orderId, string reason)
+    {
+        try
+        {
+            var request = new UpdateOrderStatusRequest
+            {
+                Status = "CANCELLED",
+                Notes = $"Cancelled: {reason}"
+            };
+
+            var response = await _api.UpdateStatusAsync(orderId, request);
+            if (response.IsSuccessStatusCode && response.Content?.Result == true)
+            {
+                return Result<bool>.Success(true);
+            }
+            return Result<bool>.Failure("Failed to cancel order");
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error cancelling order: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<bool>> DeleteAsync(Guid id)
     {
         try
         {
             // Note: Backend doesn't have DELETE endpoint - use status update to "CANCELLED"
             return await UpdateStatusAsync(id, "CANCELLED");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return false;
+            return Result<bool>.Failure($"Error deleting order: {ex.Message}");
         }
     }
 
-    /// <summary>
-    /// Map OrderResponse DTO to Order domain model
-    /// </summary>
-    private static Order MapToOrder(MyShop.Shared.DTOs.Responses.OrderResponse dto)
+    public async Task<decimal> GetTodayRevenueAsync()
     {
-        return new Order
+        try
         {
-            Id = dto.Id,
-            OrderCode = dto.Id.ToString().Substring(0, 8),
-            CustomerId = dto.CustomerId,
-            CustomerName = dto.CustomerFullName ?? dto.CustomerUsername ?? string.Empty,
-            CustomerAddress = string.Empty,
-            Status = dto.Status ?? "PENDING",
-            FinalPrice = dto.GrandTotal,
-            Subtotal = dto.TotalAmount,
-            Notes = dto.Note,
-            OrderDate = dto.OrderDate,
-            CreatedAt = dto.CreatedAt,
-            UpdatedAt = dto.UpdatedAt,
-            Items = dto.OrderItems?.Select(MapToOrderItem).ToList() ?? new List<OrderItem>(),
-            OrderItems = dto.OrderItems?.Select(MapToOrderItem).ToList() ?? new List<OrderItem>()
-        };
+            var allOrdersResult = await GetAllAsync();
+            if (!allOrdersResult.IsSuccess || allOrdersResult.Data == null)
+            {
+                return 0;
+            }
+
+            var today = DateTime.Today;
+            var revenue = allOrdersResult.Data
+                .Where(o => o.OrderDate.Date == today && o.Status == "PAID")
+                .Sum(o => o.FinalPrice);
+
+            return revenue;
+        }
+        catch
+        {
+            return 0;
+        }
     }
 
-    /// <summary>
-    /// Map OrderItemResponse DTO to OrderItem domain model
-    /// </summary>
-    private static OrderItem MapToOrderItem(MyShop.Shared.DTOs.Responses.OrderItemResponse dto)
+    public async Task<decimal> GetRevenueByDateRangeAsync(DateTime fromDate, DateTime toDate)
     {
-        return new OrderItem
+        try
         {
-            Id = dto.Id,
-            ProductId = dto.ProductId,
-            ProductName = dto.ProductName ?? string.Empty,
-            Quantity = dto.Quantity,
-            UnitPrice = dto.UnitSalePrice,
-            Total = dto.TotalPrice,
-            TotalPrice = dto.TotalPrice
-        };
+            var allOrdersResult = await GetAllAsync();
+            if (!allOrdersResult.IsSuccess || allOrdersResult.Data == null)
+            {
+                return 0;
+            }
+
+            var revenue = allOrdersResult.Data
+                .Where(o => o.OrderDate >= fromDate && o.OrderDate <= toDate && o.Status == "PAID")
+                .Sum(o => o.FinalPrice);
+
+            return revenue;
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
+    public async Task<Result<PagedList<Order>>> GetPagedAsync(
+        int page = 1,
+        int pageSize = 20,
+        string? status = null,
+        Guid? customerId = null,
+        Guid? salesAgentId = null,
+        DateTime? startDate = null,
+        DateTime? endDate = null,
+        string sortBy = "orderDate",
+        bool sortDescending = true)
+    {
+        try
+        {
+            // Note: Backend API doesn't support server-side paging yet
+            // Fallback: fetch all orders and apply client-side paging/filtering
+            var allOrdersResult = await GetAllAsync();
+            if (!allOrdersResult.IsSuccess || allOrdersResult.Data == null)
+            {
+                return Result<PagedList<Order>>.Failure(allOrdersResult.ErrorMessage ?? "Failed to retrieve orders");
+            }
+
+            var query = allOrdersResult.Data.AsEnumerable();
+
+            // Apply filters
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                query = query.Where(o => o.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (customerId.HasValue)
+            {
+                query = query.Where(o => o.CustomerId == customerId.Value);
+            }
+
+            if (salesAgentId.HasValue)
+            {
+                query = query.Where(o => o.SalesAgentId == salesAgentId.Value);
+            }
+
+            if (startDate.HasValue)
+            {
+                query = query.Where(o => o.OrderDate >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(o => o.OrderDate <= endDate.Value);
+            }
+
+            // Apply sorting
+            query = sortBy.ToLower() switch
+            {
+                "orderdate" => sortDescending 
+                    ? query.OrderByDescending(o => o.OrderDate) 
+                    : query.OrderBy(o => o.OrderDate),
+                "finalprice" or "amount" => sortDescending 
+                    ? query.OrderByDescending(o => o.FinalPrice) 
+                    : query.OrderBy(o => o.FinalPrice),
+                "status" => sortDescending 
+                    ? query.OrderByDescending(o => o.Status) 
+                    : query.OrderBy(o => o.Status),
+                _ => sortDescending 
+                    ? query.OrderByDescending(o => o.OrderDate) 
+                    : query.OrderBy(o => o.OrderDate)
+            };
+
+            var totalCount = query.Count();
+            var items = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var pagedList = new PagedList<Order>(items, totalCount, page, pageSize);
+            return Result<PagedList<Order>>.Success(pagedList);
+        }
+        catch (Exception ex)
+        {
+            return Result<PagedList<Order>>.Failure($"Error retrieving paged orders: {ex.Message}");
+        }
     }
 }

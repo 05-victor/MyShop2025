@@ -5,6 +5,7 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <NoWarn>$(NoWarn);CS8602;CS8604;CS8618;CS8601;CS8625;CS8629</NoWarn>
   </PropertyGroup>
 
   <!-- Plugins phụ thuộc vào Core + Shared + Refit (NO Client dependency) -->
@@ -13,11 +14,13 @@
     <PackageReference Include="Refit.HttpClientFactory" Version="8.0.0" />
     <PackageReference Include="Refit.Newtonsoft.Json" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.10" />
+    <!-- DPAPI for secure credential encryption -->
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MyShop.Core\MyShop.Core.csproj" />
-    <ProjectReference Include="..\MyShop.Shared\MyShop.Shared.csproj" />
+	  <ProjectReference Include="..\MyShop.Shared\MyShop.Shared.csproj" />
   </ItemGroup>
 
   <!-- Copy JSON mock data files to output directory -->

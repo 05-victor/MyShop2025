@@ -1,3 +1,5 @@
+using MyShop.Shared.Adapters;
+using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Categories;
 using MyShop.Shared.DTOs.Requests;
@@ -17,7 +19,7 @@ public class CategoryRepository : ICategoryRepository
         _api = api;
     }
 
-    public async Task<IEnumerable<Category>> GetAllAsync()
+    public async Task<Result<IEnumerable<Category>>> GetAllAsync()
     {
         try
         {
@@ -28,19 +30,20 @@ public class CategoryRepository : ICategoryRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return apiResponse.Result.Items.Select(MapToCategory);
+                    var categories = CategoryAdapter.ToModelList(apiResponse.Result);
+                    return Result<IEnumerable<Category>>.Success(categories);
                 }
             }
 
-            return Enumerable.Empty<Category>();
+            return Result<IEnumerable<Category>>.Failure("Failed to retrieve categories");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return Enumerable.Empty<Category>();
+            return Result<IEnumerable<Category>>.Failure($"Error retrieving categories: {ex.Message}");
         }
     }
 
-    public async Task<Category?> GetByIdAsync(Guid id)
+    public async Task<Result<Category>> GetByIdAsync(Guid id)
     {
         try
         {
@@ -51,19 +54,20 @@ public class CategoryRepository : ICategoryRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return MapToCategory(apiResponse.Result);
+                    var category = CategoryAdapter.ToModel(apiResponse.Result);
+                    return Result<Category>.Success(category);
                 }
             }
 
-            return null;
+            return Result<Category>.Failure($"Category with ID {id} not found");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return null;
+            return Result<Category>.Failure($"Error retrieving category: {ex.Message}");
         }
     }
 
-    public async Task<Category> CreateAsync(Category category)
+    public async Task<Result<Category>> CreateAsync(Category category)
     {
         try
         {
@@ -80,19 +84,20 @@ public class CategoryRepository : ICategoryRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return MapToCategory(apiResponse.Result);
+                    var createdCategory = CategoryAdapter.ToModel(apiResponse.Result);
+                    return Result<Category>.Success(createdCategory);
                 }
             }
 
-            throw new InvalidOperationException("Failed to create category");
+            return Result<Category>.Failure("Failed to create category");
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException($"Error creating category: {ex.Message}", ex);
+            return Result<Category>.Failure($"Error creating category: {ex.Message}");
         }
     }
 
-    public async Task<Category> UpdateAsync(Category category)
+    public async Task<Result<Category>> UpdateAsync(Category category)
     {
         try
         {
@@ -109,43 +114,87 @@ public class CategoryRepository : ICategoryRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return MapToCategory(apiResponse.Result);
+                    var updatedCategory = CategoryAdapter.ToModel(apiResponse.Result);
+                    return Result<Category>.Success(updatedCategory);
                 }
             }
 
-            throw new InvalidOperationException("Failed to update category");
+            return Result<Category>.Failure("Failed to update category");
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException($"Error updating category: {ex.Message}", ex);
+            return Result<Category>.Failure($"Error updating category: {ex.Message}");
         }
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<Result<bool>> DeleteAsync(Guid id)
     {
         try
         {
             var response = await _api.DeleteAsync(id);
-            return response.IsSuccessStatusCode && response.Content?.Result == true;
+            if (response.IsSuccessStatusCode && response.Content?.Result == true)
+            {
+                return Result<bool>.Success(true);
+            }
+            return Result<bool>.Failure("Failed to delete category");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return false;
+            return Result<bool>.Failure($"Error deleting category: {ex.Message}");
         }
     }
 
-    /// <summary>
-    /// Map CategoryResponse DTO to Category domain model
-    /// </summary>
-    private static Category MapToCategory(MyShop.Shared.DTOs.Responses.CategoryResponse dto)
+    public async Task<Result<PagedList<Category>>> GetPagedAsync(
+        int page = 1,
+        int pageSize = 20,
+        string? searchQuery = null,
+        string sortBy = "name",
+        bool sortDescending = false)
     {
-        return new Category
+        try
         {
-            Id = dto.Id,
-            Name = dto.Name,
-            Description = dto.Description,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        };
+            // Note: Backend API doesn't support server-side paging yet
+            // Fallback: fetch all categories and apply client-side paging/filtering
+            var allCategoriesResult = await GetAllAsync();
+            if (!allCategoriesResult.IsSuccess || allCategoriesResult.Data == null)
+            {
+                return Result<PagedList<Category>>.Failure(allCategoriesResult.ErrorMessage ?? "Failed to retrieve categories");
+            }
+
+            var query = allCategoriesResult.Data.AsEnumerable();
+
+            // Apply filters
+            if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                var search = searchQuery.ToLower();
+                query = query.Where(c => 
+                    c.Name.ToLower().Contains(search) ||
+                    (c.Description != null && c.Description.ToLower().Contains(search)));
+            }
+
+            // Apply sorting
+            query = sortBy.ToLower() switch
+            {
+                "name" => sortDescending 
+                    ? query.OrderByDescending(c => c.Name) 
+                    : query.OrderBy(c => c.Name),
+                "description" => sortDescending 
+                    ? query.OrderByDescending(c => c.Description) 
+                    : query.OrderBy(c => c.Description),
+                _ => sortDescending 
+                    ? query.OrderByDescending(c => c.Name) 
+                    : query.OrderBy(c => c.Name)
+            };
+
+            var totalCount = query.Count();
+            var items = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var pagedList = new PagedList<Category>(items, totalCount, page, pageSize);
+            return Result<PagedList<Category>>.Success(pagedList);
+        }
+        catch (Exception ex)
+        {
+            return Result<PagedList<Category>>.Failure($"Error retrieving paged categories: {ex.Message}");
+        }
     }
 }

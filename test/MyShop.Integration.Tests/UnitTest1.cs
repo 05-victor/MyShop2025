@@ -1,8 +1,8 @@
 ﻿namespace MyShop.Integration.Tests
 {
     /// <summary>
-    /// Placeholder integration test class cho MyShop.Integration.Tests.
-    /// Sẽ được implement sau khi cần thiết.
+    /// Placeholder integration test class for MyShop.Integration.Tests.
+    /// Will be implemented when needed.
     /// </summary>
     public class IntegrationTest1
     {
@@ -12,7 +12,7 @@
         [Fact]
         public void Test1()
         {
-            // Placeholder integration test - sẽ implement sau
+            // Placeholder integration test - will implement later
             Assert.True(true);
         }
     }
