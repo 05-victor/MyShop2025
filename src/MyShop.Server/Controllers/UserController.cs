@@ -6,6 +6,8 @@ using MyShop.Data.Entities;
 using MyShop.Server.Services.Implementations;
 using MyShop.Server.Services.Interfaces;
 using MyShop.Shared.DTOs.Common;
+using MyShop.Shared.DTOs.Commons;
+using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
 using System.Security.Claims;
 
@@ -92,6 +94,25 @@ public class UserController : ControllerBase
         else
         {
             return BadRequest(ApiResponse.ErrorResponse(result.Message ?? "Activation failed"));
+        }
+    }
+
+    [HttpGet]
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResponse<PagedResult<UserInfoResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ApiResponse<PagedResult<UserInfoResponse>>>> GetAllAsync([FromQuery] PaginationRequest request)
+    {
+        try
+        {
+            var pagedResult = await _userService.GetAllUsersAsync(request);
+            return Ok(ApiResponse<PagedResult<UserInfoResponse>>.SuccessResponse(pagedResult));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving users");
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                ApiResponse.ServerErrorResponse("An error occurred while retrieving users"));
         }
     }
 }

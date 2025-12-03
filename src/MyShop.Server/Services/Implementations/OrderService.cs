@@ -4,6 +4,7 @@ using MyShop.Server.Exceptions;
 using MyShop.Server.Factories.Interfaces;
 using MyShop.Server.Mappings;
 using MyShop.Server.Services.Interfaces;
+using MyShop.Shared.DTOs.Commons;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
 
@@ -34,16 +35,29 @@ public class OrderService : IOrderService
         _logger = logger;
     }
 
-    public async Task<IEnumerable<OrderResponse>> GetAllAsync()
+    public async Task<PagedResult<OrderResponse>> GetAllAsync(PaginationRequest request)
     {
         try
         {
             var orders = await _orderRepository.GetAllAsync();
-            return orders.Select(o => OrderMapper.ToOrderResponse(o));
+            var orderResponses = orders.Select(o => OrderMapper.ToOrderResponse(o)).ToList();
+
+            var pagedItems = orderResponses
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToList();
+
+            return new PagedResult<OrderResponse>
+            {
+                Items = pagedItems,
+                TotalCount = orderResponses.Count,
+                Page = request.PageNumber,
+                PageSize = request.PageSize
+            };
         }
         catch (Exception ex) when (ex is not BaseApplicationException)
         {
-            _logger.LogError(ex, "Error retrieving all orders");
+            _logger.LogError(ex, "Error retrieving orders");
             throw InfrastructureException.DatabaseError("Failed to retrieve orders", ex);
         }
     }

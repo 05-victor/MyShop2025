@@ -1,3 +1,4 @@
+using MyShop.Shared.DTOs.Commons;
 using MyShop.Shared.DTOs.Responses;
 using Refit;
 
@@ -10,7 +11,9 @@ namespace MyShop.Plugins.API.Categories;
 public interface ICategoriesApi
 {
     [Get("/api/v1/categories")]
-    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<List<CategoryResponse>>>> GetAllAsync();
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<PagedResult<CategoryResponse>>>> GetAllAsync(
+        [Query] int pageNumber = 1, 
+        [Query] int pageSize = 10);
 
     [Get("/api/v1/categories/{id}")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<CategoryResponse>>> GetByIdAsync(Guid id);

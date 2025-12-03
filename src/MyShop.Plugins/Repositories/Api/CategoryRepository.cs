@@ -21,14 +21,14 @@ public class CategoryRepository : ICategoryRepository
     {
         try
         {
-            var response = await _api.GetAllAsync();
+            var response = await _api.GetAllAsync(pageNumber: 1, pageSize: int.MaxValue);
             
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return apiResponse.Result.Select(MapToCategory);
+                    return apiResponse.Result.Items.Select(MapToCategory);
                 }
             }
 

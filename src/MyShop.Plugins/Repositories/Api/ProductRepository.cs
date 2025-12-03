@@ -1,5 +1,6 @@
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Products;
+using MyShop.Shared.DTOs.Commons;
 using MyShop.Shared.Models;
 using Refit;
 
@@ -22,27 +23,77 @@ public class ProductRepository : IProductRepository
     {
         try
         {
-            var response = await _api.GetAllAsync();
+            var response = await _api.GetAllAsync(pageNumber: 1, pageSize: int.MaxValue);
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    // Map ProductResponse[] to Product[]
-                    return apiResponse.Result.Select(MapToModel).ToList();
+                    return apiResponse.Result.Items.Select(MapToModel).ToList();
                 }
             }
-            return new List<Product>();
+            return Enumerable.Empty<Product>();
         }
         catch (ApiException ex)
         {
             System.Diagnostics.Debug.WriteLine($"API Error in GetAllAsync: {ex.StatusCode} - {ex.Message}");
-            return new List<Product>();
+            return Enumerable.Empty<Product>();
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Unexpected Error in GetAllAsync: {ex.Message}");
-            return new List<Product>();
+            return Enumerable.Empty<Product>();
+        }
+    }
+
+    public async Task<PagedResult<Product>> GetAllAsync(int pageNumber = 1, int pageSize = 10)
+    {
+        try
+        {
+            var response = await _api.GetAllAsync(pageNumber, pageSize);
+            if (response.IsSuccessStatusCode && response.Content != null)
+            {
+                var apiResponse = response.Content;
+                if (apiResponse.Success && apiResponse.Result != null)
+                {
+                    return new PagedResult<Product>
+                    {
+                        Items = apiResponse.Result.Items.Select(MapToModel).ToList(),
+                        TotalCount = apiResponse.Result.TotalCount,
+                        Page = apiResponse.Result.Page,
+                        PageSize = apiResponse.Result.PageSize
+                    };
+                }
+            }
+            return new PagedResult<Product>
+            {
+                Items = new List<Product>(),
+                TotalCount = 0,
+                Page = pageNumber,
+                PageSize = pageSize
+            };
+        }
+        catch (ApiException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"API Error in GetAllAsync: {ex.StatusCode} - {ex.Message}");
+            return new PagedResult<Product>
+            {
+                Items = new List<Product>(),
+                TotalCount = 0,
+                Page = pageNumber,
+                PageSize = pageSize
+            };
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Unexpected Error in GetAllAsync: {ex.Message}");
+            return new PagedResult<Product>
+            {
+                Items = new List<Product>(),
+                TotalCount = 0,
+                Page = pageNumber,
+                PageSize = pageSize
+            };
         }
     }
 

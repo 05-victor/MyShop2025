@@ -1,3 +1,4 @@
+using MyShop.Shared.DTOs.Commons;
 using MyShop.Shared.Models;
 
 namespace MyShop.Core.Interfaces.Repositories;
@@ -8,6 +9,7 @@ namespace MyShop.Core.Interfaces.Repositories;
 public interface IProductRepository
 {
     Task<IEnumerable<Product>> GetAllAsync();
+    Task<PagedResult<Product>> GetAllAsync(int pageNumber, int pageSize);
     Task<Product?> GetByIdAsync(Guid id);
     Task<Product> CreateAsync(Product product);
     Task<Product> UpdateAsync(Product product);

@@ -2,6 +2,7 @@ using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Users;
 using MyShop.Plugins.API.Profile;
+using MyShop.Shared.DTOs.Commons;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.Models;
 using MyShop.Shared.Models.Enums;
@@ -26,14 +27,14 @@ public class UserRepository : IUserRepository
     {
         try
         {
-            var response = await _api.GetAllAsync();
+            var response = await _api.GetAllAsync(pageNumber: 1, pageSize: int.MaxValue);
             
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return apiResponse.Result.Select(MapToUser);
+                    return apiResponse.Result.Items.Select(MapToUser);
                 }
             }
 
@@ -42,6 +43,47 @@ public class UserRepository : IUserRepository
         catch (Exception)
         {
             return Enumerable.Empty<User>();
+        }
+    }
+
+    public async Task<PagedResult<User>> GetAllAsync(int pageNumber, int pageSize)
+    {
+        try
+        {
+            var response = await _api.GetAllAsync(pageNumber, pageSize);
+            
+            if (response.IsSuccessStatusCode && response.Content != null)
+            {
+                var apiResponse = response.Content;
+                if (apiResponse.Success && apiResponse.Result != null)
+                {
+                    return new PagedResult<User>
+                    {
+                        Items = apiResponse.Result.Items.Select(MapToUser).ToList(),
+                        TotalCount = apiResponse.Result.TotalCount,
+                        Page = apiResponse.Result.Page,
+                        PageSize = apiResponse.Result.PageSize
+                    };
+                }
+            }
+
+            return new PagedResult<User>
+            {
+                Items = new List<User>(),
+                TotalCount = 0,
+                Page = pageNumber,
+                PageSize = pageSize
+            };
+        }
+        catch (Exception)
+        {
+            return new PagedResult<User>
+            {
+                Items = new List<User>(),
+                TotalCount = 0,
+                Page = pageNumber,
+                PageSize = pageSize
+            };
         }
     }
 

@@ -21,14 +21,14 @@ public class OrderRepository : IOrderRepository
     {
         try
         {
-            var response = await _api.GetAllAsync();
+            var response = await _api.GetAllAsync(pageNumber: 1, pageSize: int.MaxValue);
             
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return apiResponse.Result.Select(MapToOrder);
+                    return apiResponse.Result.Items.Select(MapToOrder);
                 }
             }
 
@@ -93,16 +93,15 @@ public class OrderRepository : IOrderRepository
     {
         try
         {
-            // Note: Backend may need dedicated endpoint for this filter
-            var response = await _api.GetAllAsync();
+            var response = await _api.GetAllAsync(pageNumber: 1, pageSize: int.MaxValue);
             
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    return apiResponse.Result
-                        .Where(o => o.CustomerId == salesAgentId) // May need adjustment based on backend schema
+                    return apiResponse.Result.Items
+                        .Where(o => o.SaleAgentId == salesAgentId)
                         .Select(MapToOrder);
                 }
             }
@@ -121,14 +120,14 @@ public class OrderRepository : IOrderRepository
         {
             var request = new CreateOrderRequest
             {
-                Items = order.Items.Select(item => new OrderItemRequest
+                CustomerId = order.CustomerId,
+                Note = order.Notes,
+                OrderItems = order.Items?.Select(item => new CreateOrderItemRequest
                 {
                     ProductId = item.ProductId,
-                    Quantity = item.Quantity
-                }).ToList(),
-                ShippingAddress = order.CustomerAddress ?? string.Empty,
-                PaymentMethod = "CASH", // Default
-                Notes = order.Notes
+                    Quantity = item.Quantity,
+                    UnitSalePrice = (int)item.UnitPrice
+                }).ToList()
             };
 
             var response = await _api.CreateAsync(request);
@@ -204,19 +203,19 @@ public class OrderRepository : IOrderRepository
         return new Order
         {
             Id = dto.Id,
-            OrderCode = dto.OrderNumber,
+            OrderCode = dto.Id.ToString().Substring(0, 8),
             CustomerId = dto.CustomerId,
-            CustomerName = dto.CustomerName,
-            CustomerAddress = dto.ShippingAddress,
-            Status = dto.Status,
-            FinalPrice = dto.TotalAmount,
-            Subtotal = dto.TotalAmount, // May need adjustment if backend provides subtotal
-            Notes = dto.Notes,
-            OrderDate = dto.CreatedAt,
+            CustomerName = dto.CustomerFullName ?? dto.CustomerUsername ?? string.Empty,
+            CustomerAddress = string.Empty,
+            Status = dto.Status ?? "PENDING",
+            FinalPrice = dto.GrandTotal,
+            Subtotal = dto.TotalAmount,
+            Notes = dto.Note,
+            OrderDate = dto.OrderDate,
             CreatedAt = dto.CreatedAt,
             UpdatedAt = dto.UpdatedAt,
-            Items = dto.Items.Select(MapToOrderItem).ToList(),
-            OrderItems = dto.Items.Select(MapToOrderItem).ToList()
+            Items = dto.OrderItems?.Select(MapToOrderItem).ToList() ?? new List<OrderItem>(),
+            OrderItems = dto.OrderItems?.Select(MapToOrderItem).ToList() ?? new List<OrderItem>()
         };
     }
 
@@ -229,11 +228,11 @@ public class OrderRepository : IOrderRepository
         {
             Id = dto.Id,
             ProductId = dto.ProductId,
-            ProductName = dto.ProductName,
+            ProductName = dto.ProductName ?? string.Empty,
             Quantity = dto.Quantity,
-            UnitPrice = dto.UnitPrice,
-            Total = dto.Subtotal,
-            TotalPrice = dto.Subtotal
+            UnitPrice = dto.UnitSalePrice,
+            Total = dto.TotalPrice,
+            TotalPrice = dto.TotalPrice
         };
     }
 }

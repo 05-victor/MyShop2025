@@ -1,6 +1,7 @@
 using MyShop.Core.Common;
 using MyShop.Shared.Models;
 using MyShop.Core.Interfaces.Repositories;
+using MyShop.Shared.DTOs.Commons;
 using MyShop.Shared.DTOs.Responses;
 using System.Text.Json;
 
@@ -82,6 +83,27 @@ public class MockProductRepository : IProductRepository
         await Task.Delay(300); // Simulate network delay
         System.Diagnostics.Debug.WriteLine($"[MockProductRepository] GetAllAsync called, returning {_products.Count} products");
         return _products.ToList();
+    }
+
+    public async Task<PagedResult<Product>> GetAllAsync(int pageNumber, int pageSize)
+    {
+        await Task.Delay(300);
+        
+        var totalCount = _products.Count;
+        var items = _products
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+        
+        System.Diagnostics.Debug.WriteLine($"[MockProductRepository] GetAllAsync (paged) - Page {pageNumber}, Size {pageSize}, Total {totalCount}");
+        
+        return new PagedResult<Product>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = pageNumber,
+            PageSize = pageSize
+        };
     }
 
     public async Task<Product?> GetByIdAsync(Guid id)

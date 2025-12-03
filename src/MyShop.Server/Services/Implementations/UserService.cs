@@ -1,6 +1,7 @@
-﻿
-using MyShop.Data.Repositories.Interfaces;
+﻿using MyShop.Data.Repositories.Interfaces;
 using MyShop.Server.Services.Interfaces;
+using MyShop.Shared.DTOs.Commons;
+using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
 
 namespace MyShop.Server.Services.Implementations;
@@ -53,6 +54,48 @@ public class UserService : IUserService
             RoleNames = user.Roles.Select(r => r.Name).ToList()
         };
         return response;
+    }
+
+    public async Task<PagedResult<UserInfoResponse>> GetAllUsersAsync(PaginationRequest request)
+    {
+        try
+        {
+            var pagedUsers = await _userRepository.GetAllAsync(request.PageNumber, request.PageSize);
+            
+            return new PagedResult<UserInfoResponse>
+            {
+                Items = pagedUsers.Items.Select(MapToUserInfoResponse).ToList(),
+                TotalCount = pagedUsers.TotalCount,
+                Page = pagedUsers.Page,
+                PageSize = pagedUsers.PageSize
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving users");
+            throw;
+        }
+    }
+
+    private static UserInfoResponse MapToUserInfoResponse(Data.Entities.User user)
+    {
+        return new UserInfoResponse
+        {
+            Id = user.Id,
+            Username = user.Username,
+            Email = user.Email,
+            CreatedAt = user.CreatedAt,
+            IsTrialActive = user.IsTrialActive,
+            TrialStartDate = user.TrialStartDate,
+            TrialEndDate = user.TrialEndDate,
+            IsEmailVerified = user.IsEmailVerified,
+            UpdatedAt = user.UpdatedAt,
+            Avatar = user.Profile?.Avatar,
+            FullName = user.Profile?.FullName,
+            PhoneNumber = user.Profile?.PhoneNumber,
+            Address = user.Profile?.Address,
+            RoleNames = user.Roles.Select(r => r.Name).ToList()
+        };
     }
 
     public async Task<ActivateUserResponse> ActivateUserAsync(string activateCode)

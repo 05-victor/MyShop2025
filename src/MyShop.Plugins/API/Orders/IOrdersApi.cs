@@ -1,3 +1,5 @@
+using MyShop.Plugins.API.Orders;
+using MyShop.Shared.DTOs.Commons;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
 using Refit;
@@ -11,7 +13,9 @@ namespace MyShop.Plugins.API.Orders;
 public interface IOrdersApi
 {
     [Get("/api/v1/orders")]
-    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<List<OrderResponse>>>> GetAllAsync();
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<PagedResult<OrderResponse>>>> GetAllAsync(
+        [Query] int pageNumber = 1,
+        [Query] int pageSize = 10);
 
     [Get("/api/v1/orders/{id}")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<OrderResponse>>> GetByIdAsync(Guid id);

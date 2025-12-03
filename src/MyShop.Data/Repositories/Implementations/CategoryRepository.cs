@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyShop.Data.Entities;
 using MyShop.Data.Repositories.Interfaces;
+using MyShop.Shared.DTOs.Commons;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,6 +38,28 @@ public class CategoryRepository : ICategoryRepository
     {
         return await _context.Categories.ToListAsync();
     }
+
+    public async Task<PagedResult<Category>> GetAllAsync(int pageNumber, int pageSize)
+    {
+        var query = _context.Categories;
+
+        var totalCount = await query.CountAsync();
+        
+        var items = await query
+            .OrderBy(c => c.Name)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PagedResult<Category>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = pageNumber,
+            PageSize = pageSize
+        };
+    }
+
     public async Task<Category?> GetByIdAsync(Guid id)
     {
         return await _context.Categories.FindAsync(id);
