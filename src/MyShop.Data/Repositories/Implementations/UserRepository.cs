@@ -2,6 +2,7 @@
 using MyShop.Data.Entities;
 using MyShop.Data.Repositories.Interfaces;
 using MyShop.Shared;
+using MyShop.Shared.DTOs.Commons;
 
 namespace MyShop.Data.Repositories.Implementations;
 
@@ -43,6 +44,29 @@ public class UserRepository : IUserRepository
         return await _context.Users
             .Include(u => u.Profile)
             .ToListAsync();
+    }
+
+    public async Task<PagedResult<User>> GetAllAsync(int pageNumber, int pageSize)
+    {
+        var query = _context.Users
+            .Include(u => u.Profile)
+            .Include(u => u.Roles);
+
+        var totalCount = await query.CountAsync();
+        
+        var items = await query
+            .OrderByDescending(u => u.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PagedResult<User>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = pageNumber,
+            PageSize = pageSize
+        };
     }
 
     public async Task<User> CreateAsync(User user)

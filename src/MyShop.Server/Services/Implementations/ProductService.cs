@@ -7,6 +7,7 @@ using MyShop.Server.Factories.Implementations;
 using MyShop.Server.Factories.Interfaces;
 using MyShop.Server.Mappings;
 using MyShop.Server.Services.Interfaces;
+using MyShop.Shared.DTOs.Commons;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
 
@@ -37,16 +38,23 @@ public class ProductService : IProductService
         _logger = logger;
     }
 
-    public async Task<IEnumerable<ProductResponse>> GetAllAsync()
+    public async Task<PagedResult<ProductResponse>> GetAllAsync(PaginationRequest request)
     {
         try
         {
-            var products = await _productRepository.GetAllAsync();
-            return products.Select(p => ProductMapper.ToProductResponse(p));
+            var pagedProducts = await _productRepository.GetAllAsync(request.PageNumber, request.PageSize);
+            
+            return new PagedResult<ProductResponse>
+            {
+                Items = pagedProducts.Items.Select(p => ProductMapper.ToProductResponse(p)).ToList(),
+                TotalCount = pagedProducts.TotalCount,
+                Page = pagedProducts.Page,
+                PageSize = pagedProducts.PageSize
+            };
         }
-        catch (Exception ex) when (ex is not BaseApplicationException) // not any of our custom exceptions
+        catch (Exception ex) when (ex is not BaseApplicationException)
         {
-            _logger.LogError(ex, "Error retrieving all products");
+            _logger.LogError(ex, "Error retrieving products");
             throw InfrastructureException.DatabaseError("Failed to retrieve products", ex);
         }
     }

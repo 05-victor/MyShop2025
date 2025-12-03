@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MyShop.Server.Services.Interfaces;
 using MyShop.Shared.DTOs.Common;
+using MyShop.Shared.DTOs.Commons;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
 
@@ -20,12 +21,12 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(ApiResponse<IEnumerable<ProductResponse>>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<PagedResult<ProductResponse>>), 200)]
     [ProducesResponseType(typeof(ApiResponse<object>), 500)]
-    public async Task<ActionResult<ApiResponse<IEnumerable<ProductResponse>>>> GetAllAsync()
+    public async Task<ActionResult<ApiResponse<PagedResult<ProductResponse>>>> GetAllAsync([FromQuery] PaginationRequest request)
     {
-        var products = await _productService.GetAllAsync();
-        return Ok(ApiResponse<IEnumerable<ProductResponse>>.SuccessResponse(products));
+        var pagedResult = await _productService.GetAllAsync(request);
+        return Ok(ApiResponse<PagedResult<ProductResponse>>.SuccessResponse(pagedResult));
     }
 
     [HttpGet("{id:guid}", Name = "GetProductById")]

@@ -23,7 +23,7 @@ public class OrderRepository : IOrderRepository
     {
         try
         {
-            var response = await _api.GetAllAsync();
+            var response = await _api.GetAllAsync(pageNumber: 1, pageSize: int.MaxValue);
             
             if (response.IsSuccessStatusCode && response.Content != null)
             {
@@ -99,8 +99,7 @@ public class OrderRepository : IOrderRepository
     {
         try
         {
-            // Note: Backend may need dedicated endpoint for this filter
-            var response = await _api.GetAllAsync();
+            var response = await _api.GetAllAsync(pageNumber: 1, pageSize: int.MaxValue);
             
             if (response.IsSuccessStatusCode && response.Content != null)
             {

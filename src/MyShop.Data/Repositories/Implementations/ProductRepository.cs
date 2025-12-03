@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using MyShop.Data.Entities;
 using MyShop.Data.Repositories.Interfaces;
+using MyShop.Shared.DTOs.Commons;
 
 namespace MyShop.Data.Repositories.Implementations;
 
@@ -23,6 +24,30 @@ public class ProductRepository : IProductRepository
             .Include(p => p.SaleAgent)
                 .ThenInclude(u => u.Profile)
             .ToListAsync();
+    }
+
+    public async Task<PagedResult<Product>> GetAllAsync(int pageNumber, int pageSize)
+    {
+        var query = _context.Products
+            .Include(p => p.Category)
+            .Include(p => p.SaleAgent)
+                .ThenInclude(u => u.Profile);
+
+        var totalCount = await query.CountAsync();
+        
+        var items = await query
+            .OrderByDescending(p => p.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PagedResult<Product>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = pageNumber,
+            PageSize = pageSize
+        };
     }
 
     public async Task<Product?> GetByIdAsync(Guid id)

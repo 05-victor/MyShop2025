@@ -1,4 +1,5 @@
 using MyShop.Core.Common;
+using MyShop.Shared.DTOs.Commons;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.Models;
 
@@ -38,6 +39,11 @@ public interface IUserRepository
     /// <param name="user">User to create</param>
     /// <returns>Created user with assigned ID</returns>
     Task<Result<User>> CreateUserAsync(User user);
+
+    /// <summary>
+    /// Get all users with pagination (for admin management)
+    /// </summary>
+    Task<PagedResult<User>> GetAllAsync(int pageNumber, int pageSize);
 
     /// <summary>
     /// Update user profile information
