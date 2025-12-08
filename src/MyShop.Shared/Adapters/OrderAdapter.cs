@@ -1,3 +1,4 @@
+/*
 using MyShop.Shared.DTOs.Responses;
 using MyShop.Shared.Models;
 
@@ -62,3 +63,4 @@ public static class OrderAdapter
         return dtos.Select(ToModel).ToList();
     }
 }
+*/

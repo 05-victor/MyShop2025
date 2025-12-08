@@ -12,11 +12,16 @@ namespace MyShop.Server.Controllers;
 public class ProductController : ControllerBase
 {
     private readonly IProductService _productService;
+    private readonly IFileUploadService _fileUploadService;
     private readonly ILogger<ProductController> _logger;
 
-    public ProductController(IProductService productService, ILogger<ProductController> logger)
+    public ProductController(
+        IProductService productService,
+        IFileUploadService fileUploadService,
+        ILogger<ProductController> logger)
     {
         _productService = productService;
+        _fileUploadService = fileUploadService;
         _logger = logger;
     }
 
@@ -75,6 +80,54 @@ public class ProductController : ControllerBase
             return NotFound(ApiResponse.ErrorResponse("Product not found", 404));
         }
         return NoContent();
+    }
+
+    [HttpPost("{id:guid}/uploadImage")]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ApiResponse<string>>> UploadProductImage([FromRoute] Guid id, [FromForm] IFormFile file)
+    {
+        try
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(ApiResponse<string>.ErrorResponse("No file uploaded", 400));
+            }
+
+            // Verify product exists
+            var product = await _productService.GetByIdAsync(id);
+            if (product == null)
+            {
+                return NotFound(ApiResponse<string>.ErrorResponse("Product not found", 404));
+            }
+
+            // Upload file to external service
+            var imageUrl = await _fileUploadService.UploadImageAsync(file, $"product_{id}");
+
+            // Update product with new image URL
+            var updateRequest = new UpdateProductRequest
+            {
+                ImageUrl = imageUrl
+            };
+
+            var updatedProduct = await _productService.UpdateAsync(id, updateRequest);
+
+            return Ok(ApiResponse<string>.SuccessResponse(
+                imageUrl,
+                "Product image uploaded successfully",
+                200));
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Invalid file upload attempt for product {ProductId}", id);
+            return BadRequest(ApiResponse<string>.ErrorResponse(ex.Message, 400));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error uploading image for product {ProductId}", id);
+            return StatusCode(500, ApiResponse<string>.ErrorResponse("Failed to upload product image", 500));
+        }
     }
 }
 

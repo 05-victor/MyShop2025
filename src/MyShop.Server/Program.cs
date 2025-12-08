@@ -149,6 +149,10 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 // Register HttpClient for EmailNotificationService
 builder.Services.AddHttpClient<IEmailNotificationService, EmailNotificationService>();
 
+// Register HttpClient and FileUploadService
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IFileUploadService, FileUploadService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

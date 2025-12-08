@@ -29,18 +29,18 @@ public class OrderMapper
             Note = order.Note,
             CreatedAt = order.CreatedAt,
             UpdatedAt = order.UpdatedAt,
-            
+
             // Customer information
             CustomerId = order.CustomerId,
             CustomerUsername = order.Customer?.Username,
             CustomerFullName = order.Customer?.Profile?.FullName,
             CustomerEmail = order.Customer?.Email,
-            
+
             // Sale agent information
             SaleAgentId = order.SaleAgentId,
             SaleAgentUsername = order.SaleAgent?.Username,
             SaleAgentFullName = order.SaleAgent?.Profile?.FullName,
-            
+
             // Order items
             OrderItems = order.OrderItems?.Select(ToOrderItemResponse).ToList()
         };
@@ -61,7 +61,7 @@ public class OrderMapper
             TotalPrice = orderItem.TotalPrice,
             CreatedAt = orderItem.CreatedAt,
             UpdatedAt = orderItem.UpdatedAt,
-            
+
             // Product information
             ProductId = orderItem.ProductId,
             ProductName = orderItem.Product?.Name,
