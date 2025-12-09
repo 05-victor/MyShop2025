@@ -1,3 +1,4 @@
+using MyShop.Shared.DTOs.Commons;
 using MyShop.Shared.DTOs.Responses;
 using Refit;
 
@@ -10,7 +11,9 @@ namespace MyShop.Plugins.API.Users;
 public interface IUsersApi
 {
     [Get("/api/v1/users")]
-    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<List<UserInfoResponse>>>> GetAllAsync();
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<PagedResult<UserInfoResponse>>>> GetAllAsync(
+        [Query] int pageNumber = 1, 
+        [Query] int pageSize = 10);
 
     [Get("/api/v1/users/{id}")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<UserInfoResponse>>> GetByIdAsync(Guid id);

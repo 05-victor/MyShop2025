@@ -24,7 +24,7 @@ public class ProductRepository : IProductRepository
     {
         try
         {
-            var response = await _api.GetAllAsync();
+            var response = await _api.GetAllAsync(pageNumber: 1, pageSize: int.MaxValue);
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;

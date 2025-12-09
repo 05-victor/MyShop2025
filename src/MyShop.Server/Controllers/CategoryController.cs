@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MyShop.Server.Services.Interfaces;
 using MyShop.Shared.DTOs.Common;
+using MyShop.Shared.DTOs.Commons;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
 
@@ -18,12 +19,14 @@ namespace MyShop.Server.Controllers
             _logger = logger;
         }
         [HttpGet]
-        [ProducesResponseType(typeof(ApiResponse<IEnumerable<CategoryResponse>>), 200)]
-        public async Task<ActionResult<ApiResponse<IEnumerable<CategoryResponse>>>> GetAllAsync()
+        [ProducesResponseType(typeof(ApiResponse<PagedResult<CategoryResponse>>), 200)]
+        [ProducesResponseType(typeof(ApiResponse<object>), 500)]
+        public async Task<ActionResult<ApiResponse<PagedResult<CategoryResponse>>>> GetAllAsync([FromQuery] PaginationRequest request)
         {
-            var categories = await _categoryService.GetAllAsync();
-            return Ok(ApiResponse<IEnumerable<CategoryResponse>>.SuccessResponse(categories));
+            var pagedResult = await _categoryService.GetAllAsync(request);
+            return Ok(ApiResponse<PagedResult<CategoryResponse>>.SuccessResponse(pagedResult));
         }
+
         [HttpGet("{id:guid}", Name = "GetCategoryById")]
         [ProducesResponseType(typeof(ApiResponse<CategoryResponse>), 200)]
         public async Task<ActionResult<ApiResponse<CategoryResponse>>> GetByIdAsync([FromRoute] Guid id)

@@ -3,6 +3,7 @@ using MyShop.Data.Repositories.Interfaces;
 using MyShop.Server.Exceptions;
 using MyShop.Server.Services.Interfaces;
 using MyShop.Server.Services.Mappings;
+using MyShop.Shared.DTOs.Commons;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
 
@@ -19,16 +20,23 @@ public class CategoryService : ICategoryService
         _logger = logger;   
     }
 
-    public async Task<IEnumerable<CategoryResponse>> GetAllAsync()
+    public async Task<PagedResult<CategoryResponse>> GetAllAsync(PaginationRequest request)
     {
         try
         {
-            var categories = await _categoryRepository.GetAllAsync();
-            return categories.Select(c => CategoryMapper.ToCategoryResponse(c));
+            var pagedCategories = await _categoryRepository.GetAllAsync(request.PageNumber, request.PageSize);
+            
+            return new PagedResult<CategoryResponse>
+            {
+                Items = pagedCategories.Items.Select(c => CategoryMapper.ToCategoryResponse(c)).ToList(),
+                TotalCount = pagedCategories.TotalCount,
+                Page = pagedCategories.Page,
+                PageSize = pagedCategories.PageSize
+            };
         }
         catch (Exception ex) when (ex is not BaseApplicationException)
         {
-            _logger.LogError(ex, "Error retrieving all categories");
+            _logger.LogError(ex, "Error retrieving categories");
             throw InfrastructureException.DatabaseError("Failed to retrieve categories", ex);
         }
     }

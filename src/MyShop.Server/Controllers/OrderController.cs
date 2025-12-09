@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MyShop.Server.Services.Interfaces;
 using MyShop.Shared.DTOs.Common;
+using MyShop.Shared.DTOs.Commons;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
 
@@ -20,12 +21,12 @@ public class OrderController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(ApiResponse<IEnumerable<OrderResponse>>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<PagedResult<OrderResponse>>), 200)]
     [ProducesResponseType(typeof(ApiResponse<object>), 500)]
-    public async Task<ActionResult<ApiResponse<IEnumerable<OrderResponse>>>> GetAllAsync()
+    public async Task<ActionResult<ApiResponse<PagedResult<OrderResponse>>>> GetAllAsync([FromQuery] PaginationRequest request)
     {
-        var orders = await _orderService.GetAllAsync();
-        return Ok(ApiResponse<IEnumerable<OrderResponse>>.SuccessResponse(orders));
+        var pagedResult = await _orderService.GetAllAsync(request);
+        return Ok(ApiResponse<PagedResult<OrderResponse>>.SuccessResponse(pagedResult));
     }
 
     [HttpGet("{id:guid}", Name = "GetOrderById")]

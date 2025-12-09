@@ -1,6 +1,7 @@
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Infrastructure;
+using MyShop.Shared.DTOs.Commons;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.Models;
 using MyShop.Plugins.Mocks.Data;
@@ -112,6 +113,19 @@ public class MockUserRepository : IUserRepository
             System.Diagnostics.Debug.WriteLine($"[MockUserRepository] CreateUserAsync error: {ex.Message}");
             return Result<User>.Failure($"Failed to create user: {ex.Message}");
         }
+    }
+
+    public async Task<PagedResult<User>> GetAllAsync(int pageNumber, int pageSize)
+    {
+        await Task.Delay(300);
+        // Return empty paged result for mock
+        return new PagedResult<User>
+        {
+            Items = new List<User>(),
+            TotalCount = 0,
+            Page = pageNumber,
+            PageSize = pageSize
+        };
     }
 
     public async Task<Result<User>> UpdateProfileAsync(UpdateProfileRequest request)
