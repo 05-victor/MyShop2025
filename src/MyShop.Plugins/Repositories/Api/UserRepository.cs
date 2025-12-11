@@ -54,7 +54,7 @@ public class UserRepository : IUserRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    var users = UserAdapter.ToModelList(apiResponse.Result);
+                    var users = UserAdapter.ToModelList(apiResponse.Result.Items);
                     return Result<IEnumerable<User>>.Success(users);
                 }
             }
@@ -80,7 +80,7 @@ public class UserRepository : IUserRepository
                 {
                     return new PagedResult<User>
                     {
-                        Items = apiResponse.Result.Items.Select(MapToUser).ToList(),
+                        Items = UserAdapter.ToModelList(apiResponse.Result.Items),
                         TotalCount = apiResponse.Result.TotalCount,
                         Page = apiResponse.Result.Page,
                         PageSize = apiResponse.Result.PageSize

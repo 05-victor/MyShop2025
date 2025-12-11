@@ -30,7 +30,7 @@ public class OrderRepository : IOrderRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    var orders = OrderAdapter.ToModelList(apiResponse.Result);
+                    var orders = OrderAdapter.ToModelList(apiResponse.Result.Items);
                     return Result<IEnumerable<Order>>.Success(orders);
                 }
             }
@@ -106,8 +106,8 @@ public class OrderRepository : IOrderRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    var orders = apiResponse.Result
-                        .Where(o => o.CustomerId == salesAgentId) // May need adjustment based on backend schema
+                    var orders = apiResponse.Result.Items
+                        .Where(o => o.SaleAgentId == salesAgentId)
                         .Select(OrderAdapter.ToModel)
                         .ToList();
                     return Result<IEnumerable<Order>>.Success(orders);
