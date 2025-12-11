@@ -1,7 +1,10 @@
 {
   "profiles": {
     "MyShop.Client (Unpackaged)": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
     }
   }
 }
