@@ -36,10 +36,17 @@ public class ProfileService : IProfileService
         }
 
         // TODO: check null before update
-        profile.FullName = request.FullName;
-        profile.PhoneNumber = request.PhoneNumber;
-        profile.Address = request.Address;
-        profile.Avatar = request.Avatar;
+        if (request.FullName is not null)
+            profile.FullName = request.FullName;
+
+        if (request.PhoneNumber is not null)
+            profile.PhoneNumber = request.PhoneNumber;
+        
+        if (request.Address is not null)
+            profile.Address = request.Address;
+
+        if (request.Avatar is not null)
+            profile.Avatar = request.Avatar;
 
         await _profileRepository.UpdateAsync(profile);
 

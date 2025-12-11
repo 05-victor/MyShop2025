@@ -30,7 +30,7 @@ public class CategoryRepository : ICategoryRepository
                 var apiResponse = response.Content;
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
-                    var categories = CategoryAdapter.ToModelList(apiResponse.Result);
+                    var categories = CategoryAdapter.ToModelList(apiResponse.Result.Items);
                     return Result<IEnumerable<Category>>.Success(categories);
                 }
             }

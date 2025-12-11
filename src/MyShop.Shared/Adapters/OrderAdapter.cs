@@ -17,19 +17,18 @@ public static class OrderAdapter
         return new Order
         {
             Id = dto.Id,
-            OrderCode = dto.OrderNumber,
+            OrderCode = $"ORD-{dto.Id.ToString()[..8]}", // Generate order code from ID
             SalesAgentId = dto.SaleAgentId,
             SalesAgentName = dto.SaleAgentFullName ?? dto.SaleAgentUsername,
             CustomerId = dto.CustomerId,
-            CustomerName = dto.CustomerName,
-            CustomerAddress = dto.ShippingAddress != null
-                ? string.Join(", ", new[] { dto.ShippingAddress.Street, dto.ShippingAddress.District, dto.ShippingAddress.City, dto.ShippingAddress.PostalCode }.Where(s => !string.IsNullOrWhiteSpace(s)))
-                : dto.CustomerEmail,
-            Status = dto.Status,
-            FinalPrice = dto.TotalAmount,
-            Subtotal = dto.TotalAmount, // May need adjustment if backend provides subtotal
-            Notes = dto.Notes,
-            OrderDate = dto.CreatedAt,
+            CustomerName = dto.CustomerFullName ?? dto.CustomerUsername ?? dto.CustomerEmail ?? "Unknown",
+            CustomerAddress = dto.CustomerEmail, // Use email as fallback since ShippingAddress is not in DTO
+            Status = dto.Status ?? "PENDING",
+            FinalPrice = dto.GrandTotal,
+            Subtotal = dto.TotalAmount,
+            Discount = dto.DiscountAmount,
+            Notes = dto.Note,
+            OrderDate = dto.OrderDate,
             CreatedAt = dto.CreatedAt,
             UpdatedAt = dto.UpdatedAt,
             Items = dto.OrderItems?.Select(ToOrderItemModel).ToList() ?? new List<OrderItem>(),
@@ -46,7 +45,7 @@ public static class OrderAdapter
         {
             Id = dto.Id,
             ProductId = dto.ProductId,
-            ProductName = dto.ProductName,
+            ProductName = dto.ProductName ?? "Unknown Product",
             Quantity = dto.Quantity,
             UnitPrice = dto.UnitSalePrice,
             Total = dto.TotalPrice,

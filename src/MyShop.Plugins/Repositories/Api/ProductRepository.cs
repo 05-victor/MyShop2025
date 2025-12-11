@@ -31,7 +31,8 @@ public class ProductRepository : IProductRepository
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
                     // Map ProductResponse[] to Product[] using ProductAdapter
-                    var products = ProductAdapter.ToModelList(apiResponse.Result);
+                    // Extract Items from PagedResult
+                    var products = ProductAdapter.ToModelList(apiResponse.Result.Items);
                     return Result<IEnumerable<Product>>.Success(products);
                 }
             }
