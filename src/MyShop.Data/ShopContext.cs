@@ -71,6 +71,11 @@ namespace MyShop.Data
         public DbSet<Profile> Profiles { get; set; }
 
         /// <summary>
+        /// DbSet cho entity CartItem - quản lý giỏ hàng.
+        /// </summary>
+        public DbSet<CartItem> CartItems { get; set; }
+
+        /// <summary>
         /// Cấu hình model và relationships khi tạo database.
         /// </summary>
         /// <param name="modelBuilder">Builder để cấu hình model</param>
@@ -179,6 +184,25 @@ namespace MyShop.Data
 
             modelBuilder.Entity<RemovedAuthorities>()
                 .ToTable("removed_authorities");
+
+            // CartItem configuration
+            modelBuilder.Entity<CartItem>(entity =>
+            {
+                entity.HasKey(ci => ci.Id);
+
+                entity.HasIndex(ci => new { ci.UserId, ci.ProductId })
+                    .IsUnique();
+
+                entity.HasOne(ci => ci.User)
+                    .WithMany()
+                    .HasForeignKey(ci => ci.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(ci => ci.Product)
+                    .WithMany()
+                    .HasForeignKey(ci => ci.ProductId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
             // Cấu hình table names theo convention
             //modelBuilder.Entity<Category>().ToTable("Categories");
