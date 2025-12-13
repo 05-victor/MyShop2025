@@ -15,17 +15,20 @@ public class CartService : ICartService
     private readonly IProductRepository _productRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<CartService> _logger;
+    private readonly CartMapper _cartMapper;
 
     public CartService(
         ICartRepository cartRepository,
         IProductRepository productRepository,
         ICurrentUserService currentUserService,
-        ILogger<CartService> logger)
+        ILogger<CartService> logger,
+        CartMapper cartMapper)
     {
         _cartRepository = cartRepository;
         _productRepository = productRepository;
         _currentUserService = currentUserService;
         _logger = logger;
+        _cartMapper = cartMapper;
     }
 
     public async Task<CartResponse> GetMyCartAsync()
@@ -39,7 +42,7 @@ public class CartService : ICartService
         try
         {
             var cartItems = await _cartRepository.GetCartItemsByUserIdAsync(userId.Value);
-            return CartMapper.ToCartResponse(cartItems, userId.Value);
+            return _cartMapper.ToCartResponse(cartItems, userId.Value);
         }
         catch (Exception ex) when (ex is not BaseApplicationException)
         {
@@ -85,7 +88,7 @@ public class CartService : ICartService
 
             // Return updated cart
             var cartItems = await _cartRepository.GetCartItemsByUserIdAsync(userId.Value);
-            return CartMapper.ToCartResponse(cartItems, userId.Value);
+            return _cartMapper.ToCartResponse(cartItems, userId.Value);
         }
         catch (Exception ex) when (ex is not BaseApplicationException)
         {
@@ -135,7 +138,7 @@ public class CartService : ICartService
 
             // Return updated cart
             var cartItems = await _cartRepository.GetCartItemsByUserIdAsync(userId.Value);
-            return CartMapper.ToCartResponse(cartItems, userId.Value);
+            return _cartMapper.ToCartResponse(cartItems, userId.Value);
         }
         catch (Exception ex) when (ex is not BaseApplicationException)
         {

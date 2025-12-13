@@ -29,12 +29,6 @@ builder.Services.AddOpenApi();
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(Program));
 
-// Configure JWT Settings
-builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
-
-// Configure Email Settings
-builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
-
 // Add CORS
 builder.Services.AddCors(options =>
 {
@@ -129,6 +123,8 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 
+// Register Mappers
+builder.Services.AddScoped<MyShop.Server.Mappings.CartMapper>();
 // Register Services
 builder.Services.AddHttpClient<IUserService, UserService>();
 
