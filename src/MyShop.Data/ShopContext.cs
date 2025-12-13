@@ -74,6 +74,11 @@ namespace MyShop.Data
         /// DbSet cho entity CartItem - quản lý giỏ hàng.
         /// </summary>
         public DbSet<CartItem> CartItems { get; set; }
+        
+        /// <summary>
+        /// DbSet cho entity AgentRequest - quản lý yêu cầu trở thành sales agent.
+        /// </summary>
+        public DbSet<AgentRequest> AgentRequests { get; set; }
 
         /// <summary>
         /// Cấu hình model và relationships khi tạo database.
@@ -203,15 +208,21 @@ namespace MyShop.Data
                     .HasForeignKey(ci => ci.ProductId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
-
-            // Cấu hình table names theo convention
-            //modelBuilder.Entity<Category>().ToTable("Categories");
-            //modelBuilder.Entity<Product>().ToTable("Products");
-            //modelBuilder.Entity<Order>().ToTable("Orders");
-            //modelBuilder.Entity<OrderItem>().ToTable("OrderItems");
-            //modelBuilder.Entity<User>().ToTable("Users");
-            //modelBuilder.Entity<Role>().ToTable("Roles");
-            //modelBuilder.Entity<Authority>().ToTable("Authorities");
+            
+            // AgentRequest configuration
+            modelBuilder.Entity<AgentRequest>(entity =>
+            {
+                entity.HasKey(ar => ar.Id);
+                
+                entity.HasIndex(ar => ar.UserId);
+                entity.HasIndex(ar => ar.Status);
+                entity.HasIndex(ar => ar.RequestedAt);
+                
+                entity.HasOne(ar => ar.User)
+                    .WithMany()
+                    .HasForeignKey(ar => ar.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 }
