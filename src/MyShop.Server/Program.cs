@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using MyShop.Data.Repositories.Interfaces;
 using MyShop.Server.Services.Interfaces;
 using MyShop.Server.Services.Implementations;
-using MyShop.Server.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -29,11 +28,8 @@ builder.Services.AddOpenApi();
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(Program));
 
-// Configure JWT Settings
-builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
-
-// Configure Email Settings
-builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+// Configuration is automatically loaded from appsettings.json
+// No need to configure separate settings classes
 
 // Add CORS
 builder.Services.AddCors(options =>
@@ -47,10 +43,19 @@ builder.Services.AddCors(options =>
 });
 
 // Add JWT Authentication
-var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
-if (jwtSettings == null || string.IsNullOrEmpty(jwtSettings.SecretKey))
+// Read JWT settings directly from configuration
+var secretKey = builder.Configuration["JwtSettings:SecretKey"];
+var issuer = builder.Configuration["JwtSettings:Issuer"];
+var audience = builder.Configuration["JwtSettings:Audience"];
+
+if (string.IsNullOrEmpty(secretKey) || secretKey.Length < 32)
 {
-    throw new InvalidOperationException("JWT settings are not properly configured");
+    throw new InvalidOperationException("JwtSettings:SecretKey is not properly configured. It must be at least 32 characters long.");
+}
+
+if (string.IsNullOrEmpty(issuer) || string.IsNullOrEmpty(audience))
+{
+    throw new InvalidOperationException("JwtSettings:Issuer and Audience must be configured.");
 }
 
 builder.Services.AddAuthentication(options =>
@@ -67,13 +72,11 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings.Issuer,
-        ValidAudience = jwtSettings.Audience,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+        ValidIssuer = issuer,
+        ValidAudience = audience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
         ClockSkew = TimeSpan.Zero, // Remove default 5 minute clock skew
         NameClaimType = ClaimTypes.Name, // Set the Name claim type
-        //NameClaimType = "unique_name", // Match MapInboundClaims = false
-        //RoleClaimType = ClaimTypes.Role // Set the Role claim type
         RoleClaimType = "role"         // Match MapInboundClaims = false
     };
 
@@ -129,6 +132,8 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 
+// Register Mappers
+builder.Services.AddScoped<MyShop.Server.Mappings.CartMapper>();
 // Register Services
 builder.Services.AddHttpClient<IUserService, UserService>();
 

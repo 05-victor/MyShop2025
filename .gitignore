@@ -576,3 +576,12 @@ staticwebassets.upToDateCheck.txt
 # Auto-generated source files
 **/*.g.cs
 **/*.g.i.cs
+
+# Markdown file
+*.md
+
+# Not ignore README.md file at root
+# !README.md
+
+# Not ignore README.md files in any subdirectory
+!**/README.md
