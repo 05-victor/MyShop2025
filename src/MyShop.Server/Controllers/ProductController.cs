@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyShop.Server.Services.Interfaces;
 using MyShop.Shared.DTOs.Common;
@@ -46,6 +47,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "SalesAgent")]
     [ProducesResponseType(typeof(ApiResponse<ProductResponse>), 201)]
     [ProducesResponseType(typeof(ApiResponse<object>), 400)]
     [ProducesResponseType(typeof(ApiResponse<object>), 404)]
@@ -58,6 +60,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpPatch("{id:guid}")]
+    [Authorize(Roles = "Admin,SalesAgent")]
     [ProducesResponseType(typeof(ApiResponse<ProductResponse>), 200)]
     [ProducesResponseType(typeof(ApiResponse<object>), 400)]
     [ProducesResponseType(typeof(ApiResponse<object>), 404)]
@@ -69,6 +72,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(ApiResponse), 204)]
     [ProducesResponseType(typeof(ApiResponse<object>), 404)]
     [ProducesResponseType(typeof(ApiResponse<object>), 500)]
@@ -83,6 +87,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpPost("{id:guid}/uploadImage")]
+    [Authorize(Roles = "Admin,SalesAgent")]
     [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]

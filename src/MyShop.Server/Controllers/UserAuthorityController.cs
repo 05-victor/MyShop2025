@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyShop.Server.Services.Interfaces;
 using MyShop.Shared.DTOs.Common;
@@ -11,6 +12,7 @@ namespace MyShop.Server.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/v1/users/{userId}/authorities")]
+[Authorize(Roles = "Admin")]
 public class UserAuthorityController : ControllerBase
 {
     private readonly IUserAuthorityService _userAuthorityService;

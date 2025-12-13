@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyShop.Server.Services.Interfaces;
 using MyShop.Shared.DTOs.Common;
@@ -9,6 +10,7 @@ namespace MyShop.Server.Controllers;
 
 [ApiController]
 [Route("api/v1/orders")]
+[Authorize]
 public class OrderController : ControllerBase
 {
     private readonly IOrderService _orderService;
@@ -21,6 +23,7 @@ public class OrderController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin,SalesAgent")]
     [ProducesResponseType(typeof(ApiResponse<PagedResult<OrderResponse>>), 200)]
     [ProducesResponseType(typeof(ApiResponse<object>), 500)]
     public async Task<ActionResult<ApiResponse<PagedResult<OrderResponse>>>> GetAllAsync([FromQuery] PaginationRequest request)
@@ -56,6 +59,7 @@ public class OrderController : ControllerBase
     }
 
     [HttpPatch("{id:guid}")]
+    [Authorize(Roles = "Admin,SalesAgent")]
     [ProducesResponseType(typeof(ApiResponse<OrderResponse>), 200)]
     [ProducesResponseType(typeof(ApiResponse<object>), 400)]
     [ProducesResponseType(typeof(ApiResponse<object>), 404)]
@@ -67,6 +71,7 @@ public class OrderController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(ApiResponse), 204)]
     [ProducesResponseType(typeof(ApiResponse<object>), 404)]
     [ProducesResponseType(typeof(ApiResponse<object>), 500)]
