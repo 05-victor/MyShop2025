@@ -54,7 +54,7 @@ public class CartController : ControllerBase
     /// <summary>
     /// Update cart item quantity
     /// </summary>
-    [HttpPut("items/{productId:guid}")]
+    [HttpPatch("items/{productId:guid}")]
     [ProducesResponseType(typeof(ApiResponse<CartResponse>), 200)]
     [ProducesResponseType(typeof(ApiResponse<object>), 400)]
     [ProducesResponseType(typeof(ApiResponse<object>), 401)]
