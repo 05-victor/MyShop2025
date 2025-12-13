@@ -47,7 +47,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "SalesAgent")]
+    [Authorize(Roles = "Admin,SalesAgent")]
     [ProducesResponseType(typeof(ApiResponse<ProductResponse>), 201)]
     [ProducesResponseType(typeof(ApiResponse<object>), 400)]
     [ProducesResponseType(typeof(ApiResponse<object>), 404)]
