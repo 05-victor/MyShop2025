@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyShop.Server.Services.Interfaces;
 using MyShop.Shared.DTOs.Common;
@@ -40,6 +41,7 @@ namespace MyShop.Server.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(ApiResponse<CategoryResponse>), 201)]
         public async Task<ActionResult<ApiResponse<CategoryResponse>>> CreateAsync([FromBody] CreateCategoryRequest createCategoryRequest)
         {
