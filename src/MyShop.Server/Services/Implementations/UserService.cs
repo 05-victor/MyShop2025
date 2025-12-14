@@ -189,31 +189,4 @@ public class UserService : IUserService
             throw;
         }
     }
-
-    public async Task<ActivateUserResponse> ActivateSaleMode(Guid userId)
-    {
-        var user = await _userRepository.GetByIdAsync(userId);
-        if (user == null)
-        {
-            _logger.LogWarning("User with ID {UserId} not found for sale mode activation", userId);
-            return new ActivateUserResponse(false, "User not found");
-        }
-        if (user.Roles.Select(r => r.Name).ToList().Contains("SalesAgent"))
-        {
-            _logger.LogInformation("User with ID {UserId} is already in Sale mode", userId);
-            return new ActivateUserResponse(false, "User is already in Sale mode");
-        }
-        var saleRole = await _roleRepository.GetByNameAsync("SalesAgent");
-        if (saleRole == null)
-        {
-            _logger.LogError("SalesAgent role not found in the database");
-            return new ActivateUserResponse(false, "Internal error: SalesAgent role not found");
-        }
-
-        user.Roles.Add(saleRole);
-        await _userRepository.UpdateAsync(user);
-        _logger.LogInformation("User with ID {UserId} activated SalesAgent mode successfully", userId);
-        return new ActivateUserResponse(true, "User activated in SalesAgent mode successfully");
-    }
-
 }

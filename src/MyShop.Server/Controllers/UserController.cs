@@ -79,24 +79,6 @@ public class UserController : ControllerBase
         }
     }
 
-    [HttpPost("{id}/activate-sale")]
-    [Authorize(Roles = "Admin")]
-    [ProducesResponseType(typeof(ApiResponse<ActivateUserResponse>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<ActivateUserResponse>), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<ApiResponse<ActivateUserResponse>>> ActivateSaleMode([FromRoute] Guid id)
-    {
-        var result = await _userService.ActivateSaleMode(id);
-        if (result.Success)
-        {
-            return Ok(ApiResponse<ActivateUserResponse>.SuccessResponse(result));
-        }
-        else
-        {
-            return BadRequest(ApiResponse.ErrorResponse(result.Message ?? "Activation failed"));
-        }
-    }
-
     [HttpGet]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(ApiResponse<PagedResult<UserInfoResponse>>), StatusCodes.Status200OK)]

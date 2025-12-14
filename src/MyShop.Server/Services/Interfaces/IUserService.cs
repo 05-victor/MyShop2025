@@ -9,5 +9,4 @@ public interface IUserService
     Task<UserInfoResponse?> GetMeAsync();
     Task<PagedResult<UserInfoResponse>> GetAllUsersAsync(PaginationRequest request);
     Task<ActivateUserResponse> ActivateUserAsync(string activateCode);
-    Task<ActivateUserResponse> ActivateSaleMode(Guid userId);
 }
