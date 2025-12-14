@@ -131,6 +131,7 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<IAgentRequestRepository, AgentRequestRepository>();
 
 // Register Mappers
 builder.Services.AddScoped<MyShop.Server.Mappings.CartMapper>();
@@ -152,6 +153,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IAgentRequestService, AgentRequestService>();
 
 // Register HttpClient for EmailNotificationService
 builder.Services.AddHttpClient<IEmailNotificationService, EmailNotificationService>();

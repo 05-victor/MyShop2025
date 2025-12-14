@@ -18,6 +18,4 @@ public class AgentRequestResponse
     public string Experience { get; set; } = string.Empty;
     public string Reason { get; set; } = string.Empty;
     public string? Address { get; set; }
-    public string? BusinessName { get; set; }
-    public string? TaxId { get; set; }
 }

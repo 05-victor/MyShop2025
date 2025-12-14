@@ -1,4 +1,6 @@
+using MyShop.Data.Entities;
 using MyShop.Data.Repositories.Interfaces;
+using MyShop.Server.Mappings;
 using MyShop.Server.Services.Interfaces;
 using MyShop.Shared.DTOs.Commons;
 using MyShop.Shared.DTOs.Requests;
@@ -31,7 +33,7 @@ public class AgentRequestService : IAgentRequestService
     public async Task<AgentRequestResponse?> GetByIdAsync(Guid id)
     {
         var request = await _agentRequestRepository.GetByIdAsync(id);
-        return request == null ? null : MapToResponse(request);
+        return request == null ? null : AgentRequestMapper.ToAgentRequestResponse(request);
     }
 
     public async Task<AgentRequestResponse?> GetMyRequestAsync()
@@ -44,7 +46,7 @@ public class AgentRequestService : IAgentRequestService
         }
 
         var request = await _agentRequestRepository.GetByUserIdAsync(userId.Value);
-        return request == null ? null : MapToResponse(request);
+        return request == null ? null : AgentRequestMapper.ToAgentRequestResponse(request);
     }
 
     public async Task<PagedResult<AgentRequestResponse>> GetAllAsync(PaginationRequest request, string? status = null)
@@ -53,7 +55,7 @@ public class AgentRequestService : IAgentRequestService
         
         return new PagedResult<AgentRequestResponse>
         {
-            Items = pagedResult.Items.Select(MapToResponse).ToList(),
+            Items = pagedResult.Items.Select(AgentRequestMapper.ToAgentRequestResponse).ToList(),
             TotalCount = pagedResult.TotalCount,
             Page = pagedResult.Page,
             PageSize = pagedResult.PageSize
@@ -87,7 +89,7 @@ public class AgentRequestService : IAgentRequestService
             throw new InvalidOperationException("User is already a sales agent");
         }
 
-        var agentRequest = new Data.Entities.AgentRequest
+        var agentRequest = new AgentRequest
         {
             Id = Guid.NewGuid(),
             UserId = userId.Value,
@@ -95,14 +97,12 @@ public class AgentRequestService : IAgentRequestService
             Status = "Pending",
             Experience = request.Experience,
             Reason = request.Reason,
-            BusinessName = request.BusinessName,
-            TaxId = request.TaxId
         };
 
         var created = await _agentRequestRepository.CreateAsync(agentRequest);
         _logger.LogInformation("Agent request created with ID {Id} for user {UserId}", created.Id, userId.Value);
         
-        return MapToResponse(created);
+        return AgentRequestMapper.ToAgentRequestResponse(created);
     }
 
     public async Task<ActivateUserResponse> ApproveAsync(Guid id)
@@ -182,27 +182,5 @@ public class AgentRequestService : IAgentRequestService
 
         _logger.LogInformation("Agent request {Id} rejected for user {UserId}", id, request.UserId);
         return new ActivateUserResponse(true, "Agent request rejected successfully");
-    }
-
-    private static AgentRequestResponse MapToResponse(Data.Entities.AgentRequest request)
-    {
-        return new AgentRequestResponse
-        {
-            Id = request.Id,
-            UserId = request.UserId,
-            FullName = request.User?.Profile?.FullName ?? request.User?.Username ?? "",
-            Email = request.User?.Email ?? "",
-            PhoneNumber = request.User?.Profile?.PhoneNumber ?? "",
-            AvatarUrl = request.User?.Profile?.Avatar,
-            RequestedAt = request.RequestedAt,
-            Status = request.Status,
-            ReviewedBy = request.ReviewedBy?.ToString(),
-            ReviewedAt = request.ReviewedAt,
-            Experience = request.Experience,
-            Reason = request.Reason,
-            Address = request.User?.Profile?.Address,
-            BusinessName = request.BusinessName,
-            TaxId = request.TaxId
-        };
     }
 }

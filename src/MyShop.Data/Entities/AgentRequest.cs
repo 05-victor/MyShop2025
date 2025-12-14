@@ -29,17 +29,9 @@ public class AgentRequest
     [MaxLength(2000)]
     public string? Notes { get; set; }
     
-    [Required]
     [MaxLength(1000)]
-    public string Experience { get; set; } = string.Empty;
+    public string? Experience { get; set; }
     
-    [Required]
     [MaxLength(1000)]
-    public string Reason { get; set; } = string.Empty;
-    
-    [MaxLength(255)]
-    public string? BusinessName { get; set; }
-    
-    [MaxLength(50)]
-    public string? TaxId { get; set; }
+    public string? Reason { get; set; }
 }
