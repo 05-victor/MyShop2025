@@ -1,7 +1,5 @@
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MyShop.Data.Entities;
-using MyShop.Server.Configuration;
 using MyShop.Server.Services.Interfaces;
 using MyShop.Shared.DTOs.Responses;
 using System.IdentityModel.Tokens.Jwt;
@@ -16,14 +14,17 @@ namespace MyShop.Server.Services.Implementations
     /// </summary>
     public class JwtService : IJwtService
     {
-        private readonly JwtSettings _jwtSettings;
+        private readonly IConfiguration _configuration;
         private readonly ILogger<JwtService> _logger;
         private readonly JwtSecurityTokenHandler _tokenHandler;
         private readonly IUserAuthorityService _userAuthorityService;
 
-        public JwtService(IOptions<JwtSettings> jwtSettings, ILogger<JwtService> logger, IUserAuthorityService userAuthorityService)
+        public JwtService(
+            IConfiguration configuration, 
+            ILogger<JwtService> logger, 
+            IUserAuthorityService userAuthorityService)
         {
-            _jwtSettings = jwtSettings.Value;
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _logger = logger;
             _tokenHandler = new JwtSecurityTokenHandler();
             _userAuthorityService = userAuthorityService;
@@ -45,17 +46,7 @@ namespace MyShop.Server.Services.Implementations
                     new(ClaimTypes.Email, user.Email),
                     new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
-                   // new(JwtRegisteredClaimNames.Exp, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
                 };
-
-                /*
-                // Add role claims
-                foreach (var role in user.Roles)
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, role.Name));
-                }
-                */
-
 
                 EffectiveAuthoritiesResponse? effectiveAuthoritiesResponse = await _userAuthorityService.GetEffectiveAuthoritiesDetailAsync(user.Id);
                 // Add authority claims
@@ -69,23 +60,33 @@ namespace MyShop.Server.Services.Implementations
                     // add role claims
                     foreach (var roleName in effectiveAuthoritiesResponse.RoleNames)
                     {
-                        //claims.Add(new Claim(ClaimTypes.Role, roleName));
                         claims.Add(new Claim("role", roleName)); // Use "role" directly
                     }
                 }
 
+                // Read JWT settings from configuration
+                var secretKey = _configuration["JwtSettings:SecretKey"] 
+                    ?? throw new InvalidOperationException("JwtSettings:SecretKey is not configured");
+                
+                if (string.IsNullOrWhiteSpace(secretKey) || secretKey.Length < 32)
+                {
+                    throw new InvalidOperationException("JwtSettings:SecretKey must be at least 32 characters long");
+                }
 
+                var issuer = _configuration["JwtSettings:Issuer"] ?? "MyShop.Server";
+                var audience = _configuration["JwtSettings:Audience"] ?? "MyShop.Client";
+                var expiryInMinutes = _configuration.GetValue<int>("JwtSettings:ExpiryInMinutes", 60);
 
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
                 var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(claims),
-                    Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryInMinutes),
+                    Expires = DateTime.UtcNow.AddMinutes(expiryInMinutes),
                     SigningCredentials = credentials,
-                    Issuer = _jwtSettings.Issuer,
-                    Audience = _jwtSettings.Audience
+                    Issuer = issuer,
+                    Audience = audience
                 };
 
                 var token = _tokenHandler.CreateToken(tokenDescriptor);
@@ -133,7 +134,14 @@ namespace MyShop.Server.Services.Implementations
         {
             try
             {
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
+                // Read JWT settings from configuration
+                var secretKey = _configuration["JwtSettings:SecretKey"] 
+                    ?? throw new InvalidOperationException("JwtSettings:SecretKey is not configured");
+                
+                var issuer = _configuration["JwtSettings:Issuer"] ?? "MyShop.Server";
+                var audience = _configuration["JwtSettings:Audience"] ?? "MyShop.Client";
+
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
 
                 var validationParameters = new TokenValidationParameters
                 {
@@ -141,8 +149,8 @@ namespace MyShop.Server.Services.Implementations
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = _jwtSettings.Issuer,
-                    ValidAudience = _jwtSettings.Audience,
+                    ValidIssuer = issuer,
+                    ValidAudience = audience,
                     IssuerSigningKey = key,
                     ClockSkew = TimeSpan.Zero // Remove default 5 minute clock skew
                 };
@@ -176,6 +184,5 @@ namespace MyShop.Server.Services.Implementations
                 return null;
             }
         }
-
     }
 }

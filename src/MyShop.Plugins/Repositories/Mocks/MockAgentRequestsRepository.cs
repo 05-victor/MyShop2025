@@ -79,6 +79,62 @@ public class MockAgentRequestsRepository : IAgentRequestRepository
             return Result<IEnumerable<AgentRequest>>.Failure($"Failed to get agent requests: {ex.Message}");
         }
     }
+    
+    public async Task<Result<AgentRequest>> GetByIdAsync(Guid id)
+    {
+        try
+        {
+            var allResult = await GetAllAsync();
+            if (!allResult.IsSuccess || allResult.Data == null)
+            {
+                return Result<AgentRequest>.Failure("Failed to load agent requests");
+            }
+
+            var request = allResult.Data.FirstOrDefault(r => r.Id == id);
+            if (request == null)
+            {
+                return Result<AgentRequest>.Failure($"Agent request {id} not found");
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] GetByIdAsync returned request {id}");
+            return Result<AgentRequest>.Success(request);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] GetByIdAsync error: {ex.Message}");
+            return Result<AgentRequest>.Failure($"Failed to get agent request: {ex.Message}");
+        }
+    }
+    
+    public async Task<Result<AgentRequest>> GetByUserIdAsync(Guid userId)
+    {
+        try
+        {
+            var allResult = await GetAllAsync();
+            if (!allResult.IsSuccess || allResult.Data == null)
+            {
+                return Result<AgentRequest>.Failure("Failed to load agent requests");
+            }
+
+            var request = allResult.Data
+                .Where(r => r.UserId == userId)
+                .OrderByDescending(r => r.RequestedAt)
+                .FirstOrDefault();
+                
+            if (request == null)
+            {
+                return Result<AgentRequest>.Failure($"No agent request found for user {userId}");
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] GetByUserIdAsync returned request for user {userId}");
+            return Result<AgentRequest>.Success(request);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] GetByUserIdAsync error: {ex.Message}");
+            return Result<AgentRequest>.Failure($"Failed to get agent request: {ex.Message}");
+        }
+    }
 
     public async Task<Result<PagedList<AgentRequest>>> GetPagedAsync(
         int page = 1,

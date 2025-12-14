@@ -20,9 +20,19 @@
 
 	<ItemGroup>
 		<Content Include="Assets\**" />
-		<Content Include="Config\ApiConfig.json">
+	</ItemGroup>
+
+	<!-- Configuration Files -->
+	<ItemGroup>
+		<!-- Production settings: Embed in executable to hide from users -->
+		<EmbeddedResource Include="appsettings.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		
+		<!-- Development settings: Only copy in Debug mode for developers -->
+		<None Include="appsettings.Development.json" Condition="'$(Configuration)' == 'Debug'">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
+		</None>
 	</ItemGroup>
 
 	<!-- Copy mock data JSON files from Plugins project to output directory -->
@@ -38,6 +48,7 @@
 		<!-- WinUI -->
 		<PackageReference Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="7.1.2" />
 		<PackageReference Include="LiveChartsCore.SkiaSharpView.WinUI" Version="2.0.0-rc4.5" />
+		<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.1" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251106002" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7175" />
 

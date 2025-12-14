@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MyShop.Client.Config;
+using MyShop.Client.Services.Configuration;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Core.Interfaces.Infrastructure;
@@ -29,6 +29,7 @@ namespace MyShop.Client.ViewModels.Settings;
 /// </summary>
 public partial class SettingsViewModel : ObservableObject
 {
+    private readonly IConfigurationService _configService;
     private readonly ISettingsStorage _settingsStorage;
     private readonly IToastService _toastHelper;
     private readonly IPaginationService _paginationService;
@@ -63,13 +64,13 @@ public partial class SettingsViewModel : ObservableObject
     // Developer tab properties
     public bool UseMockData
     {
-        get => AppConfig.Instance.UseMockData;
+        get => _configService.FeatureFlags.UseMockData;
         set
         {
-            if (AppConfig.Instance.UseMockData != value)
+            if (_configService.FeatureFlags.UseMockData != value)
             {
                 // Note: This only updates the in-memory value
-                // Actual config change requires editing appsettings.json
+                // Actual config change requires editing appsettings.Development.json
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(DataModeDisplay));
             }
@@ -78,7 +79,7 @@ public partial class SettingsViewModel : ObservableObject
 
     public string ServerUrl
     {
-        get => AppConfig.Instance.ApiBaseUrl ?? "https://localhost:7120";
+        get => _configService.Api.BaseUrl;
         set => OnPropertyChanged();
     }
 
@@ -215,6 +216,7 @@ public partial class SettingsViewModel : ObservableObject
     private AppSettings? _originalSettings;
 
     public SettingsViewModel(
+        IConfigurationService configService,
         ISettingsStorage settingsStorage,
         IToastService toastHelper,
         IPaginationService paginationService,
@@ -222,6 +224,7 @@ public partial class SettingsViewModel : ObservableObject
         IAuthRepository authRepository,
         INavigationService navigationService)
     {
+        _configService = configService ?? throw new ArgumentNullException(nameof(configService));
         _settingsStorage = settingsStorage;
         _toastHelper = toastHelper;
         _paginationService = paginationService;

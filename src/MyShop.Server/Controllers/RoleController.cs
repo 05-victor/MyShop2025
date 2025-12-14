@@ -1,4 +1,4 @@
-﻿
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyShop.Data;
@@ -11,6 +11,7 @@ using MyShop.Server.Services.Interfaces;
 namespace MyShop.Server.Controllers;
 [ApiController]
 [Route("api/v1/roles")]
+[Authorize(Roles = "Admin")]
 public class RoleController : ControllerBase
 {
     private readonly IRoleService _roleService;

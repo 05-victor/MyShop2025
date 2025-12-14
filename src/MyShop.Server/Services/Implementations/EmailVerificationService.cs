@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using MyShop.Data.Repositories.Interfaces;
 using MyShop.Server.Services.Interfaces;
@@ -11,6 +12,7 @@ namespace MyShop.Server.Services.Implementations
     /// <summary>
     /// Service for handling email verification with secure JWT-based tokens.
     /// Implements token generation, email sending, and verification logic.
+    /// Uses configuration for token expiration and redirect URLs.
     /// </summary>
     public class EmailVerificationService : IEmailVerificationService
     {
@@ -19,9 +21,6 @@ namespace MyShop.Server.Services.Implementations
         private readonly IEmailNotificationService _emailService;
         private readonly IConfiguration _configuration;
         private readonly ILogger<EmailVerificationService> _logger;
-
-        // Token expires after 24 hours
-        private const int TokenExpirationHours = 24;
 
         public EmailVerificationService(
             IUserRepository userRepository,
@@ -40,12 +39,16 @@ namespace MyShop.Server.Services.Implementations
         /// <summary>
         /// Generates a secure JWT token containing the user ID and expiration.
         /// Token is signed with the application's secret key.
+        /// Uses configurable expiration time from appsettings.json.
         /// </summary>
         public string GenerateVerificationToken(Guid userId)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"] 
                 ?? throw new InvalidOperationException("JWT Key not configured"));
+
+            // Get token expiration from configuration (default: 24 hours)
+            var expirationHours = _configuration.GetValue<int>("VerificationSettings:EmailTokenExpirationHours", 24);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -55,7 +58,7 @@ namespace MyShop.Server.Services.Implementations
                     new Claim("purpose", "email_verification"),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 }),
-                Expires = DateTime.UtcNow.AddHours(TokenExpirationHours),
+                Expires = DateTime.UtcNow.AddHours(expirationHours),
                 Issuer = _configuration["JwtSettings:Issuer"],
                 Audience = _configuration["JwtSettings:Audience"],
                 SigningCredentials = new SigningCredentials(
@@ -69,6 +72,7 @@ namespace MyShop.Server.Services.Implementations
 
         /// <summary>
         /// Sends a verification email to the user with a secure URL containing the verification token.
+        /// Uses configurable redirect URLs from appsettings.json.
         /// </summary>
         public async Task<ServiceResult> SendVerificationEmailAsync(CancellationToken cancellationToken = default)
         {
@@ -100,8 +104,11 @@ namespace MyShop.Server.Services.Implementations
                 var token = GenerateVerificationToken(userId.Value);
 
                 // Build verification URL
-                var baseUrl = _configuration["AppSettings:BaseUrl"] ?? "http://localhost:5228";
+                var baseUrl = _configuration.GetValue<string>("AppSettings:BaseUrl", "http://localhost:5228");
                 var verificationUrl = $"{baseUrl}/api/v1/email-verification/verify?token={token}";
+
+                // Get token expiration from configuration for email template
+                var expirationHours = _configuration.GetValue<int>("VerificationSettings:EmailTokenExpirationHours", 24);
 
                 // Prepare email placeholders
                 var placeholders = new Dictionary<string, string>
@@ -109,7 +116,7 @@ namespace MyShop.Server.Services.Implementations
                     { "USERNAME", user.Username },
                     { "EMAIL", user.Email },
                     { "VERIFICATION_URL", verificationUrl },
-                    { "EXPIRATION_HOURS", TokenExpirationHours.ToString() }
+                    { "EXPIRATION_HOURS", expirationHours.ToString() }
                 };
 
                 // Send email using template

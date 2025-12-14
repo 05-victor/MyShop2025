@@ -1,4 +1,5 @@
 using MyShop.Core.Common;
+using MyShop.Client.Services.Configuration;
 using Serilog;
 using Serilog.Events;
 using System;
@@ -22,12 +23,22 @@ namespace MyShop.Client.Services;
 /// - Development (StoreLogsInProject=true): MyShop.Client/Logs/
 /// - Production (StoreLogsInProject=false): AppData/Local/MyShop2025/logs/
 /// 
-/// Toggle in ApiConfig.json: "StoreLogsInProject": true/false
+/// Toggle in appsettings.json: Logging.StoreLogsInProject: true/false
 /// </summary>
 public sealed class LoggingService : IDisposable
 {
     private static LoggingService? _instance;
     private static readonly object _lock = new();
+    private static IConfigurationService? _configService;
+    
+    /// <summary>
+    /// Initialize the singleton with configuration service.
+    /// Must be called before accessing Instance.
+    /// </summary>
+    public static void Initialize(IConfigurationService configService)
+    {
+        _configService = configService ?? throw new ArgumentNullException(nameof(configService));
+    }
     
     public static LoggingService Instance
     {
@@ -64,7 +75,7 @@ public sealed class LoggingService : IDisposable
     private string DetermineLogDirectory()
     {
         // Check if we should store logs in project (development mode)
-        var storeInProject = Config.AppConfig.Instance.StoreLogsInProject;
+        var storeInProject = _configService?.Logging.StoreLogsInProject ?? false;
         
         if (storeInProject)
         {

@@ -4,7 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
 using MyShop.Client.ViewModels.Shared;
-using MyShop.Client.Config;
+using MyShop.Client.Services.Configuration;
 using Windows.System;
 
 namespace MyShop.Client.Views.Shared
@@ -15,13 +15,16 @@ namespace MyShop.Client.Views.Shared
     public sealed partial class LoginPage : Page
     {
         public LoginViewModel ViewModel { get; }
+        private readonly IConfigurationService _configService;
 
         public LoginPage()
         {
             this.InitializeComponent();
             
-            // Resolve ViewModel via DI
+            // Resolve services via DI
             ViewModel = App.Current.Services.GetRequiredService<LoginViewModel>();
+            _configService = App.Current.Services.GetRequiredService<IConfigurationService>();
+            
             this.DataContext = ViewModel;
 
             // Subscribe to Loaded event for initialization
@@ -48,11 +51,11 @@ namespace MyShop.Client.Views.Shared
         /// </summary>
         private void OnPageLoaded(object sender, RoutedEventArgs e)
         {
-            // Configure UI based on app config
-            MockModeBanner.IsOpen = AppConfig.Instance.UseMockData;
-            RegisterButton.IsEnabled = !AppConfig.Instance.UseMockData;
+            // Configure UI based on feature flags
+            MockModeBanner.IsOpen = _configService.FeatureFlags.UseMockData;
+            RegisterButton.IsEnabled = !_configService.FeatureFlags.UseMockData;
             
-            if (AppConfig.Instance.UseMockData)
+            if (_configService.FeatureFlags.UseMockData)
             {
                 RegisterDisabledText.Visibility = Visibility.Visible;
             }

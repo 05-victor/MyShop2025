@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
 using MyShop.Client.Config;
 using MyShop.Client.Services;
+using MyShop.Client.Services.Configuration;
 using MyShop.Client.Views.Shared;
 using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Core.Interfaces.Services;
@@ -26,10 +27,36 @@ namespace MyShop.Client
         {
             this.InitializeComponent();
             
-            // Initialize Logging Service FIRST (before any other code)
+            // Initialize DI Host (must be done before logging)
             try
             {
+                _host = Bootstrapper.CreateHost();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ FAILED TO BUILD HOST:");
+                System.Diagnostics.Debug.WriteLine($"Message: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Inner: {ex.InnerException.Message}");
+                    if (ex.InnerException.InnerException != null)
+                        System.Diagnostics.Debug.WriteLine($"Inner2: {ex.InnerException.InnerException.Message}");
+                }
+                throw;
+            }
+            
+            // Initialize Logging Service with ConfigurationService
+            try
+            {
+                var configService = Services.GetRequiredService<IConfigurationService>();
+                LoggingService.Initialize(configService);
                 LoggingService.Instance.Initialize();
+                
+                // Log configuration summary in debug mode
+                if (configService.IsDevelopment)
+                {
+                    System.Diagnostics.Debug.WriteLine(configService.GetConfigurationSummary());
+                }
             }
             catch (Exception ex)
             {
@@ -58,8 +85,6 @@ namespace MyShop.Client
             
             // Add WinUI-specific unhandled exception handler
             this.UnhandledException += App_UnhandledException;
-            
-            _host = Bootstrapper.CreateHost();
         }
         
         /// <summary>
@@ -143,6 +168,52 @@ namespace MyShop.Client
                 LoggingService.Instance.Information("Creating MainWindow...");
                 MainWindow = new MainWindow();
                 LoggingService.Instance.Information("MainWindow created successfully");
+
+                // ===== API HEALTH CHECK (only if using real API) =====
+                var configService = Services.GetRequiredService<IConfigurationService>();
+                if (!configService.FeatureFlags.UseMockData)
+                {
+                    _ = Task.Run(async () =>
+                    {
+                        var healthCheck = new Services.ApiHealthCheckService(
+                            configService.Api.BaseUrl, 
+                            timeoutSeconds: 5
+                        );
+                        
+                        var (isReachable, message) = await healthCheck.CheckHealthAsync();
+                        healthCheck.Dispose();
+                        
+                        if (!isReachable)
+                        {
+                            // Show warning on UI thread
+                            MainWindow.DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Normal, async () =>
+                            {
+                                var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+                                {
+                                    Title = "⚠️ API Server Offline",
+                                    Content = $"{message}\n\n" +
+                                             $"The application may not work correctly without the API server.\n\n" +
+                                             $"Please ensure the server is running and try again.",
+                                    PrimaryButtonText = "Continue Anyway",
+                                    CloseButtonText = "Exit Application",
+                                    DefaultButton = Microsoft.UI.Xaml.Controls.ContentDialogButton.Close,
+                                    XamlRoot = MainWindow.Content?.XamlRoot
+                                };
+                                
+                                var result = await dialog.ShowAsync();
+                                if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.None)
+                                {
+                                    // User chose to exit
+                                    Application.Current.Exit();
+                                }
+                            });
+                        }
+                        else
+                        {
+                            LoggingService.Instance.Information($"[HealthCheck] ✓ {message}");
+                        }
+                    });
+                }
 
                 // Force Light theme app-wide at runtime
                 if (MainWindow.Content is FrameworkElement root)
