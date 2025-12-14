@@ -18,12 +18,14 @@
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <converters:CurrencyConverter x:Key="CurrencyConverter"/>
         <converters:StockToBrushConverter x:Key="StockToBrushConverter"/>
         <converters:StockToTextConverter x:Key="StockToTextConverter"/>
+        <converters:StockToStatusConverter x:Key="StockToStatusConverter"/>
 
         <!--  Style cho các Card  -->
         <Style x:Key="CardStyle"
-                TargetType="Border">
+               TargetType="Border">
             <Setter Property="Padding"
                     Value="24"/>
             <Setter Property="Background"
@@ -48,7 +50,7 @@
             <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
                 <ScrollViewer>
                     <StackPanel Padding="24"
-                            Spacing="24">
+                                Spacing="24">
 
                         <layout:PageHeader
                             Title="My Reports"
@@ -95,7 +97,7 @@
 
                         <!--  Charts Grid  -->
                         <Grid ColumnSpacing="24"
-                                RowSpacing="24">
+                              RowSpacing="24">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
@@ -205,11 +207,11 @@
                                                             Text="{Binding Initials}"/>
                                                     </Border>
                                                     <StackPanel Grid.Column="1"
-                                                            VerticalAlignment="Center">
+                                                                VerticalAlignment="Center">
                                                         <TextBlock FontWeight="SemiBold"
-                                                                Text="{Binding Name}"/>
+                                                                   Text="{Binding Name}"/>
                                                         <TextBlock FontSize="12"
-                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                                 <Run Text="{Binding Sales}"/>
                                                 <Run Text=" sales"/>
                                                         </TextBlock>
@@ -219,7 +221,7 @@
                                                         HorizontalAlignment="Right"
                                                         VerticalAlignment="Center">
                                                         <TextBlock FontWeight="SemiBold"
-                                                                Foreground="Green">
+                                                                   Foreground="Green">
                                                 <Run Text="{Binding Revenue, Converter={StaticResource CurrencyConverter}}"/>
                                                         </TextBlock>
                                                         <TextBlock
@@ -245,7 +247,7 @@
                                     Text="Product Summary"/>
                                 <!-- Changed to {x:Bind} to prevent DataGrid crash -->
                                 <controls:DataGrid AutoGenerateColumns="False"
-                                        ItemsSource="{x:Bind ViewModel.FilteredProducts, Mode=OneWay}">
+                                                   ItemsSource="{x:Bind ViewModel.FilteredProducts, Mode=OneWay}">
                                     <controls:DataGrid.Columns>
                                         <controls:DataGridTextColumn
                                             Width="*"
@@ -262,25 +264,45 @@
                                                         BorderThickness="1"
                                                         CornerRadius="4">
                                                         <TextBlock FontSize="12"
-                                                                Text="{Binding Category}"/>
+                                                                   Text="{Binding Category}"/>
                                                     </Border>
                                                 </DataTemplate>
                                             </controls:DataGridTemplateColumn.CellTemplate>
                                         </controls:DataGridTemplateColumn>
 
                                         <controls:DataGridTextColumn Binding="{Binding Sold}"
-                                                Header="Total Orders"/>
+                                                                     Header="Total Orders"/>
                                         <controls:DataGridTemplateColumn Header="Total Revenue">
                                             <controls:DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <TextBlock><Run Text="{Binding Revenue, Converter={StaticResource CurrencyConverter}}"/></TextBlock>
+                                                    <TextBlock
+                                                        HorizontalAlignment="Right"
+                                                        VerticalAlignment="Center"
+                                                        FontWeight="SemiBold"
+                                                        Foreground="#10B981"
+                                                        Text="{Binding Revenue, Converter={StaticResource CurrencyConverter}}"
+                                                        TextAlignment="Right"/>
                                                 </DataTemplate>
                                             </controls:DataGridTemplateColumn.CellTemplate>
                                         </controls:DataGridTemplateColumn>
                                         <controls:DataGridTemplateColumn Header="Avg Rating">
                                             <controls:DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <TextBlock><Run Text="{Binding Rating}"/><Run Text=" ★"/></TextBlock>
+                                                    <StackPanel
+                                                        HorizontalAlignment="Right"
+                                                        VerticalAlignment="Center"
+                                                        Orientation="Horizontal"
+                                                        Spacing="4">
+                                                        <TextBlock
+                                                            VerticalAlignment="Center"
+                                                            FontWeight="SemiBold"
+                                                            Text="{Binding Rating}"/>
+                                                        <FontIcon
+                                                            VerticalAlignment="Center"
+                                                            FontSize="12"
+                                                            Foreground="#F59E0B"
+                                                            Glyph="&#xE735;"/>
+                                                    </StackPanel>
                                                 </DataTemplate>
                                             </controls:DataGridTemplateColumn.CellTemplate>
                                         </controls:DataGridTemplateColumn>
@@ -297,14 +319,20 @@
                                             <controls:DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <Border
-                                                        Padding="6,4"
-                                                        Background="{Binding Stock, Converter={StaticResource StockToBrushConverter}}"
-                                                        CornerRadius="10">
+                                                        MinWidth="80"
+                                                        Padding="8,4"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center"
+                                                        Background="#D1FAE5"
+                                                        CornerRadius="4">
                                                         <TextBlock
                                                             HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"
                                                             FontSize="12"
-                                                            Foreground="White"
-                                                            Text="{Binding Stock, Converter={StaticResource StockToTextConverter}}"/>
+                                                            FontWeight="SemiBold"
+                                                            Foreground="#059669"
+                                                            Text="{Binding Stock, Converter={StaticResource StockToStatusConverter}, FallbackValue='In Stock'}"
+                                                            TextAlignment="Center"/>
                                                     </Border>
                                                 </DataTemplate>
                                             </controls:DataGridTemplateColumn.CellTemplate>
