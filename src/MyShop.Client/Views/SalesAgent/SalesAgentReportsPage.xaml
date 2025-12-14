@@ -307,14 +307,6 @@
                                             </controls:DataGridTemplateColumn.CellTemplate>
                                         </controls:DataGridTemplateColumn>
 
-                                        <controls:DataGridTemplateColumn Header="My Commission">
-                                            <controls:DataGridTemplateColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock><Run Text="{Binding Commission, Converter={StaticResource CurrencyConverter}}"/></TextBlock>
-                                                </DataTemplate>
-                                            </controls:DataGridTemplateColumn.CellTemplate>
-                                        </controls:DataGridTemplateColumn>
-
                                         <controls:DataGridTemplateColumn Header="Status">
                                             <controls:DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
@@ -323,14 +315,14 @@
                                                         Padding="8,4"
                                                         HorizontalAlignment="Center"
                                                         VerticalAlignment="Center"
-                                                        Background="#D1FAE5"
+                                                        Background="{Binding Stock, Converter={StaticResource StockToBrushConverter}, ConverterParameter=Background}"
                                                         CornerRadius="4">
                                                         <TextBlock
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Center"
                                                             FontSize="12"
                                                             FontWeight="SemiBold"
-                                                            Foreground="#059669"
+                                                            Foreground="{Binding Stock, Converter={StaticResource StockToBrushConverter}, ConverterParameter=Foreground}"
                                                             Text="{Binding Stock, Converter={StaticResource StockToStatusConverter}, FallbackValue='In Stock'}"
                                                             TextAlignment="Center"/>
                                                     </Border>
