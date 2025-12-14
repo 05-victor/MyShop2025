@@ -193,12 +193,12 @@ public class AgentRequestController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ApiResponse<ActivateUserResponse>>> Reject(
-        Guid id,
-        [FromQuery] string? reason = null)
+        [FromRoute]Guid id,
+        [FromBody] RejectAgentRequest rejectAgentRequest)
     {
         try
         {
-            var result = await _agentRequestService.RejectAsync(id, reason);
+            var result = await _agentRequestService.RejectAsync(id, rejectAgentRequest);
             if (result.Success)
             {
                 return Ok(ApiResponse<ActivateUserResponse>.SuccessResponse(result));

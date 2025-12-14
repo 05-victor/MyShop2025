@@ -11,5 +11,5 @@ public interface IAgentRequestService
     Task<PagedResult<AgentRequestResponse>> GetAllAsync(PaginationRequest request, string? status = null);
     Task<AgentRequestResponse> CreateAsync(CreateAgentRequestRequest request);
     Task<ActivateUserResponse> ApproveAsync(Guid id);
-    Task<ActivateUserResponse> RejectAsync(Guid id, string? reason = null);
+    Task<ActivateUserResponse> RejectAsync(Guid id, RejectAgentRequest rejectAgentRequest);
 }

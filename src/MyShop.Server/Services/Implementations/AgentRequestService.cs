@@ -154,7 +154,7 @@ public class AgentRequestService : IAgentRequestService
         return new ActivateUserResponse(true, "Agent request approved successfully. User is now a SalesAgent");
     }
 
-    public async Task<ActivateUserResponse> RejectAsync(Guid id, string? reason = null)
+    public async Task<ActivateUserResponse> RejectAsync(Guid id, RejectAgentRequest rejectAgentRequest)
     {
         var request = await _agentRequestRepository.GetByIdAsync(id);
         if (request == null)
@@ -171,11 +171,11 @@ public class AgentRequestService : IAgentRequestService
         request.ReviewedBy = _currentUserService.UserId;
         request.ReviewedAt = DateTime.UtcNow;
         
-        if (!string.IsNullOrWhiteSpace(reason))
+        if (!string.IsNullOrWhiteSpace(rejectAgentRequest.Reason))
         {
             request.Notes = string.IsNullOrWhiteSpace(request.Notes) 
-                ? $"Rejection reason: {reason}" 
-                : $"{request.Notes}\n\nRejection reason: {reason}";
+                ? $"Rejection reason: {rejectAgentRequest.Reason}" 
+                : $"{request.Notes}\n\nRejection reason: {rejectAgentRequest.Reason}";
         }
 
         await _agentRequestRepository.UpdateAsync(request);
