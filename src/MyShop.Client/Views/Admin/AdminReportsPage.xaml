@@ -18,26 +18,69 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
-        <converters:StockToStatusConverter x:Key="StockToStatusConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <converters:StockToStatusConverter x:Key="StockToStatusConverter"/>
 
         <!--  Style cho các Card  -->
-        <Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Padding" Value="24" />
-            <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
-            <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="8" />
+        <Style x:Key="CardStyle"
+               TargetType="Border">
+            <Setter Property="Padding"
+                    Value="24"/>
+            <Setter Property="Background"
+                    Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+            <Setter Property="BorderBrush"
+                    Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
+            <Setter Property="BorderThickness"
+                    Value="1"/>
+            <Setter Property="CornerRadius"
+                    Value="8"/>
+        </Style>
+
+        <!--  DataGrid Cell Content Styles  -->
+        <Style x:Key="CenteredTextBlockStyle"
+               TargetType="TextBlock">
+            <Setter Property="VerticalAlignment"
+                    Value="Center"/>
+            <Setter Property="TextWrapping"
+                    Value="NoWrap"/>
+        </Style>
+
+        <Style
+            x:Key="RightAlignedTextBlockStyle"
+            BasedOn="{StaticResource CenteredTextBlockStyle}"
+            TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment"
+                    Value="Right"/>
+            <Setter Property="TextAlignment"
+                    Value="Right"/>
+        </Style>
+
+        <Style x:Key="ChipBorderStyle"
+               TargetType="Border">
+            <Setter Property="Padding"
+                    Value="8,4"/>
+            <Setter Property="HorizontalAlignment"
+                    Value="Center"/>
+            <Setter Property="VerticalAlignment"
+                    Value="Center"/>
+            <Setter Property="BorderThickness"
+                    Value="1"/>
+            <Setter Property="CornerRadius"
+                    Value="4"/>
+            <Setter Property="MinWidth"
+                    Value="80"/>
         </Style>
     </Page.Resources>
 
     <Grid>
         <!--  Main Content  -->
         <ScrollViewer Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-            <StackPanel Padding="24" Spacing="24">
+            <StackPanel Padding="24"
+                        Spacing="24">
 
-                <layout:PageHeader Title="My Reports" Subtitle="View performance insights and revenue trends" />
+                <layout:PageHeader Title="My Reports"
+                                   Subtitle="View performance insights and revenue trends"/>
 
                 <!--  Header với Filters  -->
                 <Border Style="{StaticResource CardStyle}">
@@ -46,14 +89,14 @@
                             FontSize="16"
                             FontWeight="SemiBold"
                             Foreground="#111827"
-                            Text="Filters" />
+                            Text="Filters"/>
 
                         <!--  First Row: Quick Date Range and Category  -->
                         <Grid ColumnSpacing="16">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
                             <forms:LabeledComboBox
@@ -64,7 +107,7 @@
                                 Label="Quick Date Range"
                                 SelectedIndex="0"
                                 SelectedValuePath="Value"
-                                SelectionChanged="DateRangeComboBox_SelectionChanged" />
+                                SelectionChanged="DateRangeComboBox_SelectionChanged"/>
 
                             <forms:LabeledComboBox
                                 x:Name="CategoryComboBox"
@@ -72,7 +115,7 @@
                                 ItemsSource="{Binding Categories, Mode=OneWay}"
                                 Label="Category"
                                 SelectedIndex="0"
-                                SelectionChanged="CategoryComboBox_SelectionChanged" />
+                                SelectionChanged="CategoryComboBox_SelectionChanged"/>
                         </Grid>
 
                         <!--  Second Row: Custom Date Range  -->
@@ -82,7 +125,7 @@
                             EndLabel="Custom End Date"
                             StartDate="{x:Bind ViewModel.StartDate, Mode=TwoWay}"
                             StartDateChanged="StartDatePicker_DateChanged"
-                            StartLabel="Custom Start Date" />
+                            StartLabel="Custom Start Date"/>
 
                         <!--  Apply Filters Button  -->
                         <buttons:IconButton
@@ -91,7 +134,7 @@
                             Click="ApplyFiltersButton_Click"
                             IconGlyph="&#xE71C;"
                             Text="Apply Filters"
-                            Variant="Filled" />
+                            Variant="Filled"/>
                     </StackPanel>
                 </Border>
 
@@ -101,17 +144,18 @@
                     ButtonText="Export CSV"
                     Description="Download the current report data as a CSV file"
                     ExportRequested="ExportButton_Click"
-                    Tooltip="Export report to CSV file" />
+                    Tooltip="Export report to CSV file"/>
 
                 <!--  Charts Grid  -->
-                <Grid ColumnSpacing="24" RowSpacing="24">
+                <Grid ColumnSpacing="24"
+                      RowSpacing="24">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <!--  Revenue Trend  -->
@@ -127,7 +171,7 @@
                         Series="{Binding RevenueSeries, Mode=OneWay}"
                         ShowLegend="Visible"
                         ShowMenu="Visible"
-                        YAxes="{Binding YAxes, Mode=OneWay}" />
+                        YAxes="{Binding YAxes, Mode=OneWay}"/>
 
                     <!--  Orders per Category  -->
                     <charts:BarChartCard
@@ -139,7 +183,7 @@
                         ExportRequested="Chart_ExportRequested"
                         RefreshRequested="Chart_RefreshRequested"
                         Series="{Binding OrdersByCategorySeries, Mode=OneWay}"
-                        ShowMenu="Visible" />
+                        ShowMenu="Visible"/>
 
                     <!--  Admin Only - Product Rating Breakdown  -->
                     <charts:PieChartCard
@@ -151,7 +195,7 @@
                         ExportRequested="Chart_ExportRequested"
                         RefreshRequested="Chart_RefreshRequested"
                         Series="{Binding RatingDistributionSeries, Mode=OneWay}"
-                        ShowMenu="Visible" />
+                        ShowMenu="Visible"/>
 
                     <!--  Admin Only - Salesperson Contributions  -->
                     <Border
@@ -163,7 +207,7 @@
                             <TextBlock
                                 Margin="0,0,0,16"
                                 Style="{StaticResource SubtitleTextBlockStyle}"
-                                Text="Salesperson Contributions" />
+                                Text="Salesperson Contributions"/>
                             <!--  Changed to {Binding} to prevent ItemsControl crash  -->
                             <ItemsControl ItemsSource="{Binding SalespersonData, Mode=OneWay}">
                                 <ItemsControl.ItemTemplate>
@@ -174,10 +218,10 @@
                                             Background="{ThemeResource LayerFillColorDefaultBrush}"
                                             CornerRadius="6">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <Border
                                                 Width="40"
@@ -190,13 +234,16 @@
                                                     VerticalAlignment="Center"
                                                     FontWeight="SemiBold"
                                                     Foreground="White"
-                                                    Text="{Binding Initials}" />
+                                                    Text="{Binding Initials}"/>
                                             </Border>
-                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock FontWeight="SemiBold" Text="{Binding Name}" />
-                                                <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                                    <Run Text="{Binding Sales}" />
-                                                    <Run Text=" sales" />
+                                            <StackPanel Grid.Column="1"
+                                                        VerticalAlignment="Center">
+                                                <TextBlock FontWeight="SemiBold"
+                                                           Text="{Binding Name}"/>
+                                                <TextBlock FontSize="12"
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                    <Run Text="{Binding Sales}"/>
+                                                    <Run Text=" sales"/>
                                                 </TextBlock>
                                             </StackPanel>
                                             <StackPanel
@@ -204,14 +251,15 @@
                                                 Margin="0,0,12,0"
                                                 HorizontalAlignment="Right"
                                                 VerticalAlignment="Center">
-                                                <TextBlock FontWeight="SemiBold" Foreground="Green">
-                                                    <Run Text="{Binding Revenue, Converter={StaticResource CurrencyConverter}}" />
+                                                <TextBlock FontWeight="SemiBold"
+                                                           Foreground="Green">
+                                                    <Run Text="{Binding Revenue, Converter={StaticResource CurrencyConverter}}"/>
                                                 </TextBlock>
                                                 <TextBlock
                                                     HorizontalAlignment="Right"
                                                     FontSize="12"
                                                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                    Text="revenue" />
+                                                    Text="revenue"/>
                                             </StackPanel>
                                             <!--  View Details Button  -->
                                             <buttons:IconButton
@@ -221,7 +269,7 @@
                                                 IconGlyph="&#xE8A7;"
                                                 Tag="{Binding}"
                                                 ToolTipService.ToolTip="View details"
-                                                Variant="Ghost" />
+                                                Variant="Ghost"/>
                                         </Grid>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -231,102 +279,149 @@
                 </Grid>
 
                 <!--  Summary Table  -->
-                <Border x:Name="ProductSummaryCard" Style="{StaticResource CardStyle}">
+                <Border x:Name="ProductSummaryCard"
+                        Style="{StaticResource CardStyle}">
                     <StackPanel>
                         <TextBlock
                             Margin="0,0,0,16"
                             Style="{StaticResource SubtitleTextBlockStyle}"
-                            Text="Product Summary" />
+                            Text="Product Summary"/>
                         <!--  Changed {x:Bind} to {Binding Mode=OneWay} to prevent DataGrid crash  -->
                         <controls:DataGrid
                             x:Name="ProductSummaryDataGrid"
                             AutoGenerateColumns="False"
+                            GridLinesVisibility="Horizontal"
+                            HeadersVisibility="Column"
                             IsReadOnly="True"
                             ItemsSource="{Binding FilteredProducts, Mode=OneWay}"
+                            RowHeight="48"
                             SelectionMode="Single">
                             <controls:DataGrid.Columns>
+                                <!--  Product Column (Flexible Width)  -->
                                 <controls:DataGridTextColumn
-                                    Width="*"
+                                    Width="2*"
                                     Binding="{Binding Name}"
-                                    Header="Product" />
+                                    Header="Product">
+                                    <controls:DataGridTextColumn.ElementStyle>
+                                        <Style BasedOn="{StaticResource CenteredTextBlockStyle}"
+                                                TargetType="TextBlock">
+                                            <Setter Property="FontWeight"
+                                                    Value="SemiBold"/>
+                                        </Style>
+                                    </controls:DataGridTextColumn.ElementStyle>
+                                </controls:DataGridTextColumn>
 
-                                <controls:DataGridTemplateColumn Header="Category">
+                                <!--  Category Column (Fixed Width)  -->
+                                <controls:DataGridTemplateColumn Width="140"
+                                        Header="Category">
                                     <controls:DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Border
-                                                Padding="6,4"
-                                                HorizontalAlignment="Left"
+                                                Padding="8,4"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
                                                 BorderBrush="{ThemeResource TextFillColorDisabledBrush}"
                                                 BorderThickness="1"
                                                 CornerRadius="4">
-                                                <TextBlock FontSize="12" Text="{Binding Category}" />
+                                                <TextBlock
+                                                    FontSize="12"
+                                                    Text="{Binding Category}"
+                                                    TextAlignment="Center"/>
                                             </Border>
                                         </DataTemplate>
                                     </controls:DataGridTemplateColumn.CellTemplate>
                                 </controls:DataGridTemplateColumn>
 
-                                <controls:DataGridTextColumn Binding="{Binding Sold}" Header="Total Orders" />
-                                <controls:DataGridTemplateColumn Header="Total Revenue">
+                                <!--  Total Orders Column (Fixed Width, Right-Aligned)  -->
+                                <controls:DataGridTextColumn
+                                    Width="120"
+                                    Binding="{Binding Sold}"
+                                    Header="Total Orders">
+                                    <controls:DataGridTextColumn.ElementStyle>
+                                        <Style BasedOn="{StaticResource RightAlignedTextBlockStyle}"
+                                                TargetType="TextBlock"/>
+                                    </controls:DataGridTextColumn.ElementStyle>
+                                </controls:DataGridTextColumn>
+
+                                <!--  Total Revenue Column (Fixed Width, Right-Aligned)  -->
+                                <controls:DataGridTemplateColumn Width="140"
+                                        Header="Total Revenue">
                                     <controls:DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBlock Foreground="#10B981">
-                                                <Run Text="{Binding Revenue, Converter={StaticResource CurrencyConverter}}" />
-                                            </TextBlock>
+                                            <TextBlock
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Center"
+                                                FontWeight="SemiBold"
+                                                Foreground="#10B981"
+                                                Text="{Binding Revenue, Converter={StaticResource CurrencyConverter}}"
+                                                TextAlignment="Right"/>
                                         </DataTemplate>
                                     </controls:DataGridTemplateColumn.CellTemplate>
                                 </controls:DataGridTemplateColumn>
-                                <controls:DataGridTemplateColumn Header="Avg Rating">
+
+                                <!--  Avg Rating Column (Fixed Width, Right-Aligned)  -->
+                                <controls:DataGridTemplateColumn Width="110"
+                                        Header="Avg Rating">
                                     <controls:DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <StackPanel Orientation="Horizontal" Spacing="4">
-                                                <TextBlock Text="{Binding Rating}" />
+                                            <StackPanel
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Center"
+                                                Orientation="Horizontal"
+                                                Spacing="4">
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    FontWeight="SemiBold"
+                                                    Text="{Binding Rating}"/>
                                                 <FontIcon
+                                                    VerticalAlignment="Center"
                                                     FontSize="12"
                                                     Foreground="#F59E0B"
-                                                    Glyph="&#xE735;" />
+                                                    Glyph="&#xE735;"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </controls:DataGridTemplateColumn.CellTemplate>
                                 </controls:DataGridTemplateColumn>
 
-                                <controls:DataGridTemplateColumn Header="Status">
+                                <!--  Status Column (Fixed Width)  -->
+                                <controls:DataGridTemplateColumn Width="120"
+                                        Header="Status">
                                     <controls:DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Border
+                                                MinWidth="80"
                                                 Padding="8,4"
-                                                HorizontalAlignment="Left"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Background="#D1FAE5"
                                                 CornerRadius="4">
-                                                <Border.Style>
-                                                    <Style TargetType="Border">
-                                                        <Setter Property="Background" Value="#D1FAE5" />
-                                                    </Style>
-                                                </Border.Style>
                                                 <TextBlock
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
                                                     FontSize="12"
                                                     FontWeight="SemiBold"
-                                                    Foreground="#059669">
-                                                    <TextBlock.Text>
-                                                        <Binding
-                                                            Converter="{StaticResource StockToStatusConverter}"
-                                                            FallbackValue="In Stock"
-                                                            Path="Stock" />
-                                                    </TextBlock.Text>
-                                                </TextBlock>
+                                                    Foreground="#059669"
+                                                    Text="{Binding Stock, Converter={StaticResource StockToStatusConverter}, FallbackValue='In Stock'}"
+                                                    TextAlignment="Center"/>
                                             </Border>
                                         </DataTemplate>
                                     </controls:DataGridTemplateColumn.CellTemplate>
                                 </controls:DataGridTemplateColumn>
 
-                                <controls:DataGridTemplateColumn Header="Actions">
+                                <!--  Actions Column (Fixed Width)  -->
+                                <controls:DataGridTemplateColumn Width="80"
+                                        Header="Actions">
                                     <controls:DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <buttons:IconButton
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
                                                 Click="ViewProductDetails_Click"
                                                 IconColor="#6B7280"
                                                 IconGlyph="&#xE8A7;"
                                                 Tag="{Binding}"
                                                 ToolTipService.ToolTip="View details"
-                                                Variant="Ghost" />
+                                                Variant="Ghost"/>
                                         </DataTemplate>
                                     </controls:DataGridTemplateColumn.CellTemplate>
                                 </controls:DataGridTemplateColumn>
@@ -339,7 +434,8 @@
         </ScrollViewer>
 
         <!--  Loading Overlay  -->
-        <Grid Background="{ThemeResource LayerFillColorDefaultBrush}" Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+        <Grid Background="{ThemeResource LayerFillColorDefaultBrush}"
+              Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
@@ -347,12 +443,12 @@
                 <ProgressRing
                     Width="64"
                     Height="64"
-                    IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
+                    IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"/>
                 <TextBlock
                     HorizontalAlignment="Center"
                     FontSize="18"
                     FontWeight="SemiBold"
-                    Text="Loading reports..." />
+                    Text="Loading reports..."/>
             </StackPanel>
         </Grid>
 
@@ -363,36 +459,37 @@
             MinWidth="500"
             DefaultButton="Primary"
             PrimaryButtonText="Close">
-            <StackPanel MinWidth="400" Spacing="16">
+            <StackPanel MinWidth="400"
+                        Spacing="16">
                 <Grid ColumnSpacing="16">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="120" />
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <TextBlock
                         Grid.Row="0"
                         Grid.Column="0"
                         FontWeight="SemiBold"
-                        Text="Product:" />
+                        Text="Product:"/>
                     <TextBlock
                         x:Name="ProductDetailName"
                         Grid.Row="0"
-                        Grid.Column="1" />
+                        Grid.Column="1"/>
 
                     <TextBlock
                         Grid.Row="1"
                         Grid.Column="0"
                         FontWeight="SemiBold"
-                        Text="Category:" />
+                        Text="Category:"/>
                     <Border
                         Grid.Row="1"
                         Grid.Column="1"
@@ -401,56 +498,57 @@
                         BorderBrush="{ThemeResource TextFillColorDisabledBrush}"
                         BorderThickness="1"
                         CornerRadius="4">
-                        <TextBlock x:Name="ProductDetailCategory" FontSize="12" />
+                        <TextBlock x:Name="ProductDetailCategory"
+                                   FontSize="12"/>
                     </Border>
 
                     <TextBlock
                         Grid.Row="2"
                         Grid.Column="0"
                         FontWeight="SemiBold"
-                        Text="Total Orders:" />
+                        Text="Total Orders:"/>
                     <TextBlock
                         x:Name="ProductDetailOrders"
                         Grid.Row="2"
-                        Grid.Column="1" />
+                        Grid.Column="1"/>
 
                     <TextBlock
                         Grid.Row="3"
                         Grid.Column="0"
                         FontWeight="SemiBold"
-                        Text="Revenue:" />
+                        Text="Revenue:"/>
                     <TextBlock
                         x:Name="ProductDetailRevenue"
                         Grid.Row="3"
                         Grid.Column="1"
-                        Foreground="#10B981" />
+                        Foreground="#10B981"/>
 
                     <TextBlock
                         Grid.Row="4"
                         Grid.Column="0"
                         FontWeight="SemiBold"
-                        Text="Rating:" />
+                        Text="Rating:"/>
                     <StackPanel
                         Grid.Row="4"
                         Grid.Column="1"
                         Orientation="Horizontal"
                         Spacing="4">
-                        <TextBlock x:Name="ProductDetailRating" />
+                        <TextBlock x:Name="ProductDetailRating"/>
                         <FontIcon
                             FontSize="12"
                             Foreground="#F59E0B"
-                            Glyph="&#xE735;" />
+                            Glyph="&#xE735;"/>
                     </StackPanel>
 
                     <TextBlock
                         Grid.Row="5"
                         Grid.Column="0"
                         FontWeight="SemiBold"
-                        Text="Stock:" />
+                        Text="Stock:"/>
                     <TextBlock
                         x:Name="ProductDetailStock"
                         Grid.Row="5"
-                        Grid.Column="1" />
+                        Grid.Column="1"/>
                 </Grid>
             </StackPanel>
         </ContentDialog>
@@ -462,60 +560,61 @@
             MinWidth="500"
             DefaultButton="Primary"
             PrimaryButtonText="Close">
-            <StackPanel MinWidth="400" Spacing="16">
+            <StackPanel MinWidth="400"
+                        Spacing="16">
                 <Grid ColumnSpacing="16">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="120" />
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <TextBlock
                         Grid.Row="0"
                         Grid.Column="0"
                         FontWeight="SemiBold"
-                        Text="Name:" />
+                        Text="Name:"/>
                     <TextBlock
                         x:Name="SalespersonDetailName"
                         Grid.Row="0"
-                        Grid.Column="1" />
+                        Grid.Column="1"/>
 
                     <TextBlock
                         Grid.Row="1"
                         Grid.Column="0"
                         FontWeight="SemiBold"
-                        Text="Total Sales:" />
+                        Text="Total Sales:"/>
                     <TextBlock
                         x:Name="SalespersonDetailSales"
                         Grid.Row="1"
-                        Grid.Column="1" />
+                        Grid.Column="1"/>
 
                     <TextBlock
                         Grid.Row="2"
                         Grid.Column="0"
                         FontWeight="SemiBold"
-                        Text="Revenue:" />
+                        Text="Revenue:"/>
                     <TextBlock
                         x:Name="SalespersonDetailRevenue"
                         Grid.Row="2"
                         Grid.Column="1"
-                        Foreground="#10B981" />
+                        Foreground="#10B981"/>
 
                     <TextBlock
                         Grid.Row="3"
                         Grid.Column="0"
                         FontWeight="SemiBold"
-                        Text="Commission:" />
+                        Text="Commission:"/>
                     <TextBlock
                         x:Name="SalespersonDetailCommission"
                         Grid.Row="3"
                         Grid.Column="1"
-                        Foreground="#8B5CF6" />
+                        Foreground="#8B5CF6"/>
                 </Grid>
             </StackPanel>
         </ContentDialog>
