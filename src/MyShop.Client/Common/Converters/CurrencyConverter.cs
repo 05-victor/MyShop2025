@@ -12,12 +12,12 @@ namespace MyShop.Client.Common.Converters
         public object Convert(object value, Type targetType, object parameter, string language)
         {
             if (value == null)
-                return "₫0";
+                return "0₫";
 
             try
             {
                 decimal amount;
-                
+
                 if (value is decimal decimalValue)
                     amount = decimalValue;
                 else if (value is double doubleValue)
@@ -33,9 +33,15 @@ namespace MyShop.Client.Common.Converters
                 else
                     return "₫0";
 
-                // Format with Vietnamese Dong symbol and thousand separators
-                // Example: 1234567.89 -> "₫1,234,568"
-                return amount.ToString("₫#,##0", CultureInfo.InvariantCulture);
+                // Round to whole dong and format with '.' as thousand separator
+                // Example: 1234567.89 -> "1.234.568₫"
+                amount = Math.Round(amount, 0, MidpointRounding.AwayFromZero);
+
+                var nfi = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
+                nfi.NumberGroupSeparator = ".";
+                nfi.NumberDecimalSeparator = ",";
+
+                return amount.ToString("#,##0", nfi) + "₫";
             }
             catch
             {
@@ -50,14 +56,11 @@ namespace MyShop.Client.Common.Converters
 
             try
             {
-                // Remove currency symbol and parse
-                var cleanValue = value.ToString()!
-                    .Replace("₫", "")
-                    .Replace(",", "")
-                    .Replace(" ", "")
-                    .Trim();
+                // Remove currency symbol and thousand separators (dots), then parse
+                var s = value.ToString()!;
+                s = s.Replace("₫", "").Replace(".", "").Replace(",", "").Replace(" ", "").Trim();
 
-                if (decimal.TryParse(cleanValue, out var result))
+                if (decimal.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out var result))
                     return result;
 
                 return 0m;

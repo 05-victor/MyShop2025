@@ -16,18 +16,24 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
-        <converters:StockToBrushConverter x:Key="StockToBrushConverter" />
-        <converters:StockToTextConverter x:Key="StockToTextConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <converters:StockToBrushConverter x:Key="StockToBrushConverter"/>
+        <converters:StockToTextConverter x:Key="StockToTextConverter"/>
 
         <!--  Style cho các Card  -->
-        <Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Padding" Value="24" />
-            <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
-            <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="8" />
+        <Style x:Key="CardStyle"
+                TargetType="Border">
+            <Setter Property="Padding"
+                    Value="24"/>
+            <Setter Property="Background"
+                    Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+            <Setter Property="BorderBrush"
+                    Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
+            <Setter Property="BorderThickness"
+                    Value="1"/>
+            <Setter Property="CornerRadius"
+                    Value="8"/>
         </Style>
     </Page.Resources>
 
@@ -39,270 +45,279 @@
                     <EntranceThemeTransition FromVerticalOffset="50"/>
                 </TransitionCollection>
             </Grid.Transitions>
-        <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
-        <ScrollViewer>
-        <StackPanel Padding="24" Spacing="24">
+            <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
+                <ScrollViewer>
+                    <StackPanel Padding="24"
+                            Spacing="24">
 
-            <layout:PageHeader
-                Title="My Reports"
-                Subtitle="View performance insights and revenue trends" />
+                        <layout:PageHeader
+                            Title="My Reports"
+                            Subtitle="View performance insights and revenue trends"/>
 
-            <!--  FILTERS CARD with Apply Button  -->
-            <forms:FilterCard Title="Report Filters"
-                              ApplyCommand="{x:Bind ViewModel.ApplyFiltersCommand}"
-                              ResetCommand="{x:Bind ViewModel.ResetFiltersCommand}"
-                              ShowActions="True"
-                              ShowResetButton="True">
-                <forms:FilterCard.FilterContent>
-                    <Grid ColumnSpacing="16">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+                        <!--  FILTERS CARD with Apply Button  -->
+                        <forms:FilterCard Title="Report Filters"
+                                          ApplyCommand="{x:Bind ViewModel.ApplyFiltersCommand}"
+                                          ResetCommand="{x:Bind ViewModel.ResetFiltersCommand}"
+                                          ShowActions="True"
+                                          ShowResetButton="True">
+                            <forms:FilterCard.FilterContent>
+                                <Grid ColumnSpacing="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
 
-                        <forms:LabeledComboBox
-                            Grid.Column="0"
-                            Label="Date Range"
-                            ItemsSource="{x:Bind ViewModel.DateRanges, Mode=OneWay}"
-                            DisplayMemberPath="Display"
-                            SelectedValuePath="Value"
-                            SelectedItem="{x:Bind ViewModel.SelectedDateRange, Mode=TwoWay}" />
+                                    <forms:LabeledComboBox
+                                        Grid.Column="0"
+                                        Label="Date Range"
+                                        ItemsSource="{x:Bind ViewModel.DateRanges, Mode=OneWay}"
+                                        DisplayMemberPath="Display"
+                                        SelectedValuePath="Value"
+                                        SelectedItem="{x:Bind ViewModel.SelectedDateRange, Mode=TwoWay}"/>
 
-                        <forms:LabeledComboBox
-                            Grid.Column="1"
-                            Label="Category"
-                            ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
-                            SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}" />
+                                    <forms:LabeledComboBox
+                                        Grid.Column="1"
+                                        Label="Category"
+                                        ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
+                                        SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"/>
 
-                        <buttons:IconButton
-                            Grid.Column="2"
-                            VerticalAlignment="Bottom"
-                            Variant="Outline"
-                            IconGlyph="&#xE896;"
-                            Text="Export"
-                            Command="{x:Bind ViewModel.ExportReportCommand}" />
-                    </Grid>
-                </forms:FilterCard.FilterContent>
-            </forms:FilterCard>
+                                    <buttons:IconButton
+                                        Grid.Column="2"
+                                        VerticalAlignment="Bottom"
+                                        Variant="Outline"
+                                        IconGlyph="&#xE896;"
+                                        Text="Export"
+                                        Command="{x:Bind ViewModel.ExportReportCommand}"/>
+                                </Grid>
+                            </forms:FilterCard.FilterContent>
+                        </forms:FilterCard>
 
-            <!--  Charts Grid  -->
-            <Grid ColumnSpacing="24" RowSpacing="24">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+                        <!--  Charts Grid  -->
+                        <Grid ColumnSpacing="24"
+                                RowSpacing="24">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
 
-                <!--  Revenue Trend  -->
-                <Border
-                    Grid.Row="0"
-                    Grid.Column="0"
-                    Style="{StaticResource CardStyle}">
-                    <StackPanel>
-                        <TextBlock
-                            Margin="0,0,0,16"
-                            Style="{StaticResource SubtitleTextBlockStyle}"
-                            Text="Revenue Trend" />
-                        <!-- Full crash prevention for chart rendering -->
-                        <lvc:CartesianChart 
-                            Height="300" 
-                            MinHeight="200"
-                            AnimationsSpeed="0"
-                            IsHitTestVisible="False"
-                            Series="{x:Bind ViewModel.RevenueSeries, Mode=OneWay}" />
+                            <!--  Revenue Trend  -->
+                            <Border
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Style="{StaticResource CardStyle}">
+                                <StackPanel>
+                                    <TextBlock
+                                        Margin="0,0,0,16"
+                                        Style="{StaticResource SubtitleTextBlockStyle}"
+                                        Text="Revenue Trend"/>
+                                    <!-- Full crash prevention for chart rendering -->
+                                    <lvc:CartesianChart
+                                        Height="300"
+                                        MinHeight="200"
+                                        AnimationsSpeed="0"
+                                        IsHitTestVisible="False"
+                                        Series="{x:Bind ViewModel.RevenueSeries, Mode=OneWay}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!--  Orders per Category  -->
+                            <Border
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Style="{StaticResource CardStyle}">
+                                <StackPanel>
+                                    <TextBlock
+                                        Margin="0,0,0,16"
+                                        Style="{StaticResource SubtitleTextBlockStyle}"
+                                        Text="Orders per Category"/>
+                                    <!-- Full crash prevention for chart rendering -->
+                                    <lvc:CartesianChart
+                                        Height="300"
+                                        MinHeight="200"
+                                        AnimationsSpeed="0"
+                                        IsHitTestVisible="False"
+                                        Series="{x:Bind ViewModel.OrdersByCategorySeries, Mode=OneWay}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!--  Admin Only - Product Rating Breakdown  -->
+                            <Border
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                Style="{StaticResource CardStyle}"
+                                Visibility="Collapsed">
+                                <StackPanel>
+                                    <TextBlock
+                                        Margin="0,0,0,16"
+                                        Style="{StaticResource SubtitleTextBlockStyle}"
+                                        Text="Product Rating Breakdown"/>
+                                    <!-- Full crash prevention for chart rendering -->
+                                    <lvc:PieChart
+                                        Height="300"
+                                        MinHeight="200"
+                                        AnimationsSpeed="0"
+                                        IsHitTestVisible="False"
+                                        Series="{x:Bind ViewModel.RatingDistributionSeries, Mode=OneWay}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!--  Admin Only - Salesperson Contributions  -->
+                            <Border
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Style="{StaticResource CardStyle}"
+                                Visibility="Collapsed">
+                                <StackPanel>
+                                    <TextBlock
+                                        Margin="0,0,0,16"
+                                        Style="{StaticResource SubtitleTextBlockStyle}"
+                                        Text="Salesperson Contributions"/>
+                                    <!-- Changed to {x:Bind} to prevent ItemsControl crash -->
+                                    <ItemsControl ItemsSource="{x:Bind ViewModel.SalespersonData, Mode=OneWay}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid
+                                                    Margin="0,0,0,8"
+                                                    Padding="12"
+                                                    Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                                    CornerRadius="6">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border
+                                                        Width="40"
+                                                        Height="40"
+                                                        Margin="0,0,12,0"
+                                                        Background="CornflowerBlue"
+                                                        CornerRadius="20">
+                                                        <TextBlock
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"
+                                                            FontWeight="SemiBold"
+                                                            Foreground="White"
+                                                            Text="{Binding Initials}"/>
+                                                    </Border>
+                                                    <StackPanel Grid.Column="1"
+                                                            VerticalAlignment="Center">
+                                                        <TextBlock FontWeight="SemiBold"
+                                                                Text="{Binding Name}"/>
+                                                        <TextBlock FontSize="12"
+                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                <Run Text="{Binding Sales}"/>
+                                                <Run Text=" sales"/>
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                    <StackPanel
+                                                        Grid.Column="2"
+                                                        HorizontalAlignment="Right"
+                                                        VerticalAlignment="Center">
+                                                        <TextBlock FontWeight="SemiBold"
+                                                                Foreground="Green">
+                                                <Run Text="{Binding Revenue, Converter={StaticResource CurrencyConverter}}"/>
+                                                        </TextBlock>
+                                                        <TextBlock
+                                                            HorizontalAlignment="Right"
+                                                            FontSize="12"
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                            Text="revenue"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <!--  Summary Table  -->
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel>
+                                <TextBlock
+                                    Margin="0,0,0,16"
+                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                    Text="Product Summary"/>
+                                <!-- Changed to {x:Bind} to prevent DataGrid crash -->
+                                <controls:DataGrid AutoGenerateColumns="False"
+                                        ItemsSource="{x:Bind ViewModel.FilteredProducts, Mode=OneWay}">
+                                    <controls:DataGrid.Columns>
+                                        <controls:DataGridTextColumn
+                                            Width="*"
+                                            Binding="{Binding Name}"
+                                            Header="Product"/>
+
+                                        <controls:DataGridTemplateColumn Header="Category">
+                                            <controls:DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Border
+                                                        Padding="6,4"
+                                                        HorizontalAlignment="Left"
+                                                        BorderBrush="{ThemeResource TextFillColorDisabledBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="4">
+                                                        <TextBlock FontSize="12"
+                                                                Text="{Binding Category}"/>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </controls:DataGridTemplateColumn.CellTemplate>
+                                        </controls:DataGridTemplateColumn>
+
+                                        <controls:DataGridTextColumn Binding="{Binding Sold}"
+                                                Header="Total Orders"/>
+                                        <controls:DataGridTemplateColumn Header="Total Revenue">
+                                            <controls:DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock><Run Text="{Binding Revenue, Converter={StaticResource CurrencyConverter}}"/></TextBlock>
+                                                </DataTemplate>
+                                            </controls:DataGridTemplateColumn.CellTemplate>
+                                        </controls:DataGridTemplateColumn>
+                                        <controls:DataGridTemplateColumn Header="Avg Rating">
+                                            <controls:DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock><Run Text="{Binding Rating}"/><Run Text=" ★"/></TextBlock>
+                                                </DataTemplate>
+                                            </controls:DataGridTemplateColumn.CellTemplate>
+                                        </controls:DataGridTemplateColumn>
+
+                                        <controls:DataGridTemplateColumn Header="My Commission">
+                                            <controls:DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock><Run Text="{Binding Commission, Converter={StaticResource CurrencyConverter}}"/></TextBlock>
+                                                </DataTemplate>
+                                            </controls:DataGridTemplateColumn.CellTemplate>
+                                        </controls:DataGridTemplateColumn>
+
+                                        <controls:DataGridTemplateColumn Header="Status">
+                                            <controls:DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Border
+                                                        Padding="6,4"
+                                                        Background="{Binding Stock, Converter={StaticResource StockToBrushConverter}}"
+                                                        CornerRadius="10">
+                                                        <TextBlock
+                                                            HorizontalAlignment="Center"
+                                                            FontSize="12"
+                                                            Foreground="White"
+                                                            Text="{Binding Stock, Converter={StaticResource StockToTextConverter}}"/>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </controls:DataGridTemplateColumn.CellTemplate>
+                                        </controls:DataGridTemplateColumn>
+
+                                    </controls:DataGrid.Columns>
+                                </controls:DataGrid>
+                            </StackPanel>
+                        </Border>
+
                     </StackPanel>
-                </Border>
-
-                <!--  Orders per Category  -->
-                <Border
-                    Grid.Row="0"
-                    Grid.Column="1"
-                    Style="{StaticResource CardStyle}">
-                    <StackPanel>
-                        <TextBlock
-                            Margin="0,0,0,16"
-                            Style="{StaticResource SubtitleTextBlockStyle}"
-                            Text="Orders per Category" />
-                        <!-- Full crash prevention for chart rendering -->
-                        <lvc:CartesianChart 
-                            Height="300" 
-                            MinHeight="200"
-                            AnimationsSpeed="0"
-                            IsHitTestVisible="False"
-                            Series="{x:Bind ViewModel.OrdersByCategorySeries, Mode=OneWay}" />
-                    </StackPanel>
-                </Border>
-
-                <!--  Admin Only - Product Rating Breakdown  -->
-                <Border
-                    Grid.Row="1"
-                    Grid.Column="0"
-                    Style="{StaticResource CardStyle}"
-                    Visibility="Collapsed">
-                    <StackPanel>
-                        <TextBlock
-                            Margin="0,0,0,16"
-                            Style="{StaticResource SubtitleTextBlockStyle}"
-                            Text="Product Rating Breakdown" />
-                        <!-- Full crash prevention for chart rendering -->
-                        <lvc:PieChart 
-                            Height="300" 
-                            MinHeight="200"
-                            AnimationsSpeed="0"
-                            IsHitTestVisible="False"
-                            Series="{x:Bind ViewModel.RatingDistributionSeries, Mode=OneWay}" />
-                    </StackPanel>
-                </Border>
-
-                <!--  Admin Only - Salesperson Contributions  -->
-                <Border
-                    Grid.Row="1"
-                    Grid.Column="1"
-                    Style="{StaticResource CardStyle}"
-                    Visibility="Collapsed">
-                    <StackPanel>
-                        <TextBlock
-                            Margin="0,0,0,16"
-                            Style="{StaticResource SubtitleTextBlockStyle}"
-                            Text="Salesperson Contributions" />
-                        <!-- Changed to {x:Bind} to prevent ItemsControl crash -->
-                        <ItemsControl ItemsSource="{x:Bind ViewModel.SalespersonData, Mode=OneWay}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid
-                                        Margin="0,0,0,8"
-                                        Padding="12"
-                                        Background="{ThemeResource LayerFillColorDefaultBrush}"
-                                        CornerRadius="6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <Border
-                                            Width="40"
-                                            Height="40"
-                                            Margin="0,0,12,0"
-                                            Background="CornflowerBlue"
-                                            CornerRadius="20">
-                                            <TextBlock
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"
-                                                FontWeight="SemiBold"
-                                                Foreground="White"
-                                                Text="{Binding Initials}" />
-                                        </Border>
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                            <TextBlock FontWeight="SemiBold" Text="{Binding Name}" />
-                                            <TextBlock FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                                <Run Text="{Binding Sales}" />
-                                                <Run Text=" sales" />
-                                            </TextBlock>
-                                        </StackPanel>
-                                        <StackPanel
-                                            Grid.Column="2"
-                                            HorizontalAlignment="Right"
-                                            VerticalAlignment="Center">
-                                            <TextBlock FontWeight="SemiBold" Foreground="Green">
-                                                <Run Text="$" /><Run Text="{Binding Revenue}" />
-                                            </TextBlock>
-                                            <TextBlock
-                                                HorizontalAlignment="Right"
-                                                FontSize="12"
-                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                Text="revenue" />
-                                        </StackPanel>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </Border>
-            </Grid>
-
-            <!--  Summary Table  -->
-            <Border Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock
-                        Margin="0,0,0,16"
-                        Style="{StaticResource SubtitleTextBlockStyle}"
-                        Text="Product Summary" />
-                    <!-- Changed to {x:Bind} to prevent DataGrid crash -->
-                    <controls:DataGrid AutoGenerateColumns="False" ItemsSource="{x:Bind ViewModel.FilteredProducts, Mode=OneWay}">
-                        <controls:DataGrid.Columns>
-                            <controls:DataGridTextColumn
-                                Width="*"
-                                Binding="{Binding Name}"
-                                Header="Product" />
-
-                            <controls:DataGridTemplateColumn Header="Category">
-                                <controls:DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Border
-                                            Padding="6,4"
-                                            HorizontalAlignment="Left"
-                                            BorderBrush="{ThemeResource TextFillColorDisabledBrush}"
-                                            BorderThickness="1"
-                                            CornerRadius="4">
-                                            <TextBlock FontSize="12" Text="{Binding Category}" />
-                                        </Border>
-                                    </DataTemplate>
-                                </controls:DataGridTemplateColumn.CellTemplate>
-                            </controls:DataGridTemplateColumn>
-
-                            <controls:DataGridTextColumn Binding="{Binding Sold}" Header="Total Orders" />
-                            <controls:DataGridTemplateColumn Header="Total Revenue">
-                                <controls:DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock><Run Text="$" /><Run Text="{Binding Revenue}" /></TextBlock>
-                                    </DataTemplate>
-                                </controls:DataGridTemplateColumn.CellTemplate>
-                            </controls:DataGridTemplateColumn>
-                            <controls:DataGridTemplateColumn Header="Avg Rating">
-                                <controls:DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock><Run Text="{Binding Rating}" /><Run Text=" ★" /></TextBlock>
-                                    </DataTemplate>
-                                </controls:DataGridTemplateColumn.CellTemplate>
-                            </controls:DataGridTemplateColumn>
-
-                            <controls:DataGridTemplateColumn Header="My Commission">
-                                <controls:DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock><Run Text="$" /><Run Text="{Binding Commission}" /></TextBlock>
-                                    </DataTemplate>
-                                </controls:DataGridTemplateColumn.CellTemplate>
-                            </controls:DataGridTemplateColumn>
-
-                            <controls:DataGridTemplateColumn Header="Status">
-                                <controls:DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Border
-                                            Padding="6,4"
-                                            Background="{Binding Stock, Converter={StaticResource StockToBrushConverter}}"
-                                            CornerRadius="10">
-                                            <TextBlock
-                                                HorizontalAlignment="Center"
-                                                FontSize="12"
-                                                Foreground="White"
-                                                Text="{Binding Stock, Converter={StaticResource StockToTextConverter}}" />
-                                        </Border>
-                                    </DataTemplate>
-                                </controls:DataGridTemplateColumn.CellTemplate>
-                            </controls:DataGridTemplateColumn>
-
-                        </controls:DataGrid.Columns>
-                    </controls:DataGrid>
-                </StackPanel>
-            </Border>
-
-        </StackPanel>
-        </ScrollViewer>
-        </RefreshContainer>
+                </ScrollViewer>
+            </RefreshContainer>
         </Grid>
 
         <!-- Loading Overlay -->
@@ -313,11 +328,11 @@
                         Spacing="24">
                 <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
                               Width="64"
-                              Height="64" />
+                              Height="64"/>
                 <TextBlock Text="Loading reports..."
                            FontSize="18"
                            FontWeight="SemiBold"
-                           HorizontalAlignment="Center" />
+                           HorizontalAlignment="Center"/>
             </StackPanel>
         </Grid>
     </Grid>

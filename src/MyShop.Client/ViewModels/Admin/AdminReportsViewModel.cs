@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.Input;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
+using LiveChartsCore.Kernel.Sketches;
+using MyShop.Client.Common.Converters;
 using Microsoft.UI;
 using MyShop.Client.ViewModels.Base;
 using MyShop.Client.Facades;
@@ -55,6 +57,12 @@ public partial class AdminReportsViewModel : BaseViewModel
     [ObservableProperty]
     private ISeries[] _ratingDistributionSeries;
 
+    [ObservableProperty]
+    private Axis[] _xAxes;
+
+    [ObservableProperty]
+    private Axis[] _yAxes;
+
     public AdminReportsViewModel(
         IReportFacade reportFacade,
         IToastService toastService,
@@ -94,20 +102,32 @@ public partial class AdminReportsViewModel : BaseViewModel
     private async Task InitializeAsync()
     {
         SetLoadingState(true);
-        
+
         try
         {
             // Load data FIRST, then create charts
             await LoadReportDataAsync();
-            
+
             System.Diagnostics.Debug.WriteLine("[AdminReportsViewModel] Data loaded, creating chart series...");
-            
+
             // Delay chart creation to avoid SkiaSharp rendering crash
             // await Task.Delay(100);
-            
+
             try
             {
-                RevenueSeries = CreateMockRevenueSeries() ?? Array.Empty<ISeries>();
+                // create currency-aware axes and series
+                var currencyConv = new CurrencyConverter();
+
+                // Y axis uses currency labeler
+                YAxes = new Axis[]
+                {
+                        new Axis
+                        {
+                            Labeler = value => currencyConv.Convert(value, typeof(string), null, string.Empty)?.ToString() ?? value.ToString()
+                        }
+                };
+
+                RevenueSeries = CreateMockRevenueSeries(currencyConv) ?? Array.Empty<ISeries>();
                 OrdersByCategorySeries = CreateMockCategorySeries() ?? Array.Empty<ISeries>();
                 RatingDistributionSeries = CreateMockRatingDistributionSeries() ?? Array.Empty<ISeries>();
                 System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Charts created: Revenue={RevenueSeries.Length}, Orders={OrdersByCategorySeries.Length}, Rating={RatingDistributionSeries.Length}");
@@ -124,7 +144,7 @@ public partial class AdminReportsViewModel : BaseViewModel
         {
             System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] InitializeAsync FAILED: {ex.Message}");
             await _toastHelper?.ShowError($"Failed to load reports: {ex.Message}");
-            
+
             // Ensure non-null series
             RevenueSeries ??= Array.Empty<ISeries>();
             OrdersByCategorySeries ??= Array.Empty<ISeries>();
@@ -173,7 +193,7 @@ public partial class AdminReportsViewModel : BaseViewModel
                 var result = await _reportFacade.ExportProductPerformanceAsync(
                     StartDate.Value.DateTime,
                     EndDate.Value.DateTime);
-                
+
                 if (result.IsSuccess && !string.IsNullOrEmpty(result.Data))
                 {
                     // Toast already shown by facade
@@ -189,7 +209,7 @@ public partial class AdminReportsViewModel : BaseViewModel
                 // Use preset period if no custom dates
                 var period = SelectedDateRange?.Value ?? "month";
                 var result = await _reportFacade.ExportSalesReportAsync(period);
-                
+
                 if (result.IsSuccess && !string.IsNullOrEmpty(result.Data))
                 {
                     // Toast already shown by facade
@@ -234,7 +254,7 @@ public partial class AdminReportsViewModel : BaseViewModel
             if (performanceResult.IsSuccess && performanceResult.Data != null && performanceResult.Data.Count > 0)
             {
                 System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Loaded {performanceResult.Data.Count} products from API");
-                
+
                 products = performanceResult.Data.Take(20).Select(product => new ProductPerformance
                 {
                     Name = product.ProductName,
@@ -271,7 +291,7 @@ public partial class AdminReportsViewModel : BaseViewModel
             if (agentResult.IsSuccess && agentResult.Data != null && agentResult.Data.Count > 0)
             {
                 System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Loaded {agentResult.Data.Count} agents from API");
-                
+
                 agents = agentResult.Data.Select(agent => new Salesperson
                 {
                     Name = agent.AgentName,
@@ -302,7 +322,7 @@ public partial class AdminReportsViewModel : BaseViewModel
         {
             System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Error loading report data: {ex.Message}");
             System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] StackTrace: {ex.StackTrace}");
-            
+
             // Load mock data on error
             Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
             {
@@ -311,7 +331,7 @@ public partial class AdminReportsViewModel : BaseViewModel
                 {
                     FilteredProducts.Add(p);
                 }
-                
+
                 SalespersonData.Clear();
                 foreach (var a in GetMockSalespersonData())
                 {
@@ -386,10 +406,10 @@ public partial class AdminReportsViewModel : BaseViewModel
     private static string GetInitials(string name)
     {
         if (string.IsNullOrWhiteSpace(name)) return "??";
-        
+
         var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length == 1) return parts[0].Substring(0, Math.Min(2, parts[0].Length)).ToUpper();
-        
+
         return $"{parts[0][0]}{parts[^1][0]}".ToUpper();
     }
 
@@ -398,10 +418,12 @@ public partial class AdminReportsViewModel : BaseViewModel
     /// <summary>
     /// Create mock revenue series (Line chart)
     /// </summary>
-    private ISeries[] CreateMockRevenueSeries()
+    private ISeries[] CreateMockRevenueSeries(CurrencyConverter? currencyConv = null)
     {
         try
         {
+            currencyConv ??= new CurrencyConverter();
+
             return new ISeries[]
             {
                 new LineSeries<double>
@@ -412,7 +434,8 @@ public partial class AdminReportsViewModel : BaseViewModel
                     Stroke = new SolidColorPaint(SKColors.Blue) { StrokeThickness = 2 },
                     GeometrySize = 6,
                     GeometryStroke = null,
-                    GeometryFill = null
+                    GeometryFill = null,
+                    // Tooltip formatting handled by chart-level tooltip or axis labeler; keep series simple
                 }
             };
         }
@@ -513,28 +536,28 @@ public partial class AdminReportsViewModel : BaseViewModel
     #endregion
 }
 
-    // --- Models for ViewModel State ---
-    public class DateRangeOption
-    {
-        public required string Display { get; set; }
-        public required string Value { get; set; }
-    }
+// --- Models for ViewModel State ---
+public class DateRangeOption
+{
+    public required string Display { get; set; }
+    public required string Value { get; set; }
+}
 
-    public class Salesperson
-    {
-        public required string Name { get; set; }
-        public int Sales { get; set; }
-        public decimal Revenue { get; set; }
-        public required string Initials { get; set; }
-    }
+public class Salesperson
+{
+    public required string Name { get; set; }
+    public int Sales { get; set; }
+    public decimal Revenue { get; set; }
+    public required string Initials { get; set; }
+}
 
-    public class ProductPerformance
-    {
-        public required string Name { get; set; }
-        public required string Category { get; set; }
-        public int Sold { get; set; }
-        public decimal Revenue { get; set; }
-        public double Rating { get; set; }
-        public int Stock { get; set; }
-        public decimal Commission { get; set; }
-    }
+public class ProductPerformance
+{
+    public required string Name { get; set; }
+    public required string Category { get; set; }
+    public int Sold { get; set; }
+    public decimal Revenue { get; set; }
+    public double Rating { get; set; }
+    public int Stock { get; set; }
+    public decimal Commission { get; set; }
+}

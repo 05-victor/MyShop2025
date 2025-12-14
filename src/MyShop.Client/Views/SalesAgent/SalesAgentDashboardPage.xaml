@@ -33,7 +33,7 @@
             <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <Grid Padding="24"
-                            RowSpacing="16">
+                          RowSpacing="16">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
@@ -41,7 +41,7 @@
 
                         <!-- Page Header Section -->
                         <StackPanel Grid.Row="0"
-                                Spacing="16">
+                                    Spacing="16">
 
                             <!-- Email Verification Warning -->
                             <InfoBar
@@ -62,7 +62,7 @@
                                 Subtitle="Track your sales performance and commissions">
                                 <layout:PageHeader.ActionContent>
                                     <StackPanel Orientation="Horizontal"
-                                            Spacing="12">
+                                                Spacing="12">
                                         <ComboBox Width="180"
                                                   Height="40"
                                                   CornerRadius="10"
@@ -83,7 +83,7 @@
 
                         <!-- Main Content -->
                         <StackPanel Grid.Row="1"
-                                Spacing="20">
+                                    Spacing="20">
 
                             <!-- KPI Cards -->
                             <Grid ColumnSpacing="16">
@@ -123,11 +123,11 @@
                                     Grid.Column="2"
                                     Title="Commission Earned"
                                     Icon="&#xE7DB;"
-                                    Value="{x:Bind ViewModel.TotalCommission, Mode=OneWay}"
+                                    Value="{x:Bind ViewModel.TotalCommission, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                     Subtitle="This month"
                                     ShowBadge="Visible"
                                     TrendIcon="&#xE74E;"
-                                    TrendText="{x:Bind ViewModel.ThisWeekCommission, Mode=OneWay}"
+                                    TrendText="{x:Bind ViewModel.ThisWeekCommission, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                     IconBackgroundBrush="#D1FAE5"
                                     IconForegroundBrush="#10B981"
                                     BadgeBackgroundBrush="#D1FAE5"
@@ -138,7 +138,7 @@
                                     Grid.Column="3"
                                     Title="Total Revenue"
                                     Icon="&#xE8EC;"
-                                    Value="{x:Bind ViewModel.TotalRevenue, Mode=OneWay}"
+                                    Value="{x:Bind ViewModel.TotalRevenue, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                     Subtitle="Sales generated"
                                     ShowBadge="Visible"
                                     TrendIcon="&#xE74E;"
@@ -200,22 +200,22 @@
                                                                        TextTrimming="CharacterEllipsis"/>
 
                                                             <Grid Grid.Row="1"
-                                                                    Margin="0,4,0,0">
+                                                                  Margin="0,4,0,0">
                                                                 <Grid.ColumnDefinitions>
                                                                     <ColumnDefinition Width="*"/>
                                                                     <ColumnDefinition Width="Auto"/>
                                                                 </Grid.ColumnDefinitions>
 
                                                                 <StackPanel Grid.Column="0"
-                                                                        Orientation="Horizontal"
-                                                                        Spacing="12">
+                                                                            Orientation="Horizontal"
+                                                                            Spacing="12">
                                                                     <TextBlock FontSize="12"
-                                                                            Foreground="#6B7280">
+                                                                               Foreground="#6B7280">
                                                         <Run Text="{x:Bind Orders}"/>
                                                         <Run Text=" orders"/>
                                                                     </TextBlock>
                                                                     <TextBlock FontSize="12"
-                                                                            Foreground="#6B7280">
+                                                                               Foreground="#6B7280">
                                                         <Run Text="{x:Bind Clicks}"/>
                                                         <Run Text=" clicks"/>
                                                                     </TextBlock>
@@ -225,8 +225,7 @@
                                                                            FontSize="14"
                                                                            FontWeight="Bold"
                                                                            Foreground="#10B981">
-                                                    <Run Text="$"/>
-                                                    <Run Text="{x:Bind Commission}"/>
+                                                           <Run Text="{x:Bind Commission, Converter={StaticResource CurrencyConverter}}"/>
                                                                 </TextBlock>
                                                             </Grid>
                                                         </Grid>
@@ -272,32 +271,32 @@
                                                 </Grid.ColumnDefinitions>
 
                                                 <TextBlock Grid.Column="0"
-                                                        Text="ORDER ID"
+                                                           Text="ORDER ID"
                                                            FontSize="11"
                                                            FontWeight="SemiBold"
                                                            Foreground="#6B7280"/>
                                                 <TextBlock Grid.Column="1"
-                                                        Text="CUSTOMER"
+                                                           Text="CUSTOMER"
                                                            FontSize="11"
                                                            FontWeight="SemiBold"
                                                            Foreground="#6B7280"/>
                                                 <TextBlock Grid.Column="2"
-                                                        Text="PRODUCT"
+                                                           Text="PRODUCT"
                                                            FontSize="11"
                                                            FontWeight="SemiBold"
                                                            Foreground="#6B7280"/>
                                                 <TextBlock Grid.Column="3"
-                                                        Text="DATE"
+                                                           Text="DATE"
                                                            FontSize="11"
                                                            FontWeight="SemiBold"
                                                            Foreground="#6B7280"/>
                                                 <TextBlock Grid.Column="4"
-                                                        Text="AMOUNT"
+                                                           Text="AMOUNT"
                                                            FontSize="11"
                                                            FontWeight="SemiBold"
                                                            Foreground="#6B7280"/>
                                                 <TextBlock Grid.Column="5"
-                                                        Text="STATUS"
+                                                           Text="STATUS"
                                                            FontSize="11"
                                                            FontWeight="SemiBold"
                                                            Foreground="#6B7280"/>
@@ -344,8 +343,7 @@
                                                                FontSize="14"
                                                                FontWeight="SemiBold"
                                                                Foreground="#111827">
-                                        <Run Text="$"/>
-                                        <Run Text="{x:Bind Amount}"/>
+                                        <Run Text="{x:Bind Amount, Converter={StaticResource CurrencyConverter}}"/>
                                                     </TextBlock>
 
                                                     <Border Grid.Column="5"
