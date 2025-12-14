@@ -282,6 +282,15 @@
                                   Visibility="Collapsed"/>
                     </StackPanel>
 
+                    <!-- Server Config Link -->
+                    <HyperlinkButton Content="⚙️ Configure Server"
+                                    Command="{x:Bind ViewModel.ConfigureServerCommand}"
+                                    HorizontalAlignment="Center"
+                                    Style="{StaticResource LinkButtonStyle}"
+                                    Margin="0,8,0,0"
+                                    AutomationProperties.Name="Configure server settings"/>
+
+                    
                 </StackPanel>
             </ScrollViewer>
 
