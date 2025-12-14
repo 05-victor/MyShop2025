@@ -20,6 +20,7 @@
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <converters:StockToBrushConverter x:Key="StockToBrushConverter"/>
         <converters:StockToStatusConverter x:Key="StockToStatusConverter"/>
 
         <!--  Style cho các Card  -->
@@ -304,7 +305,7 @@
                                     Header="Product">
                                     <controls:DataGridTextColumn.ElementStyle>
                                         <Style BasedOn="{StaticResource CenteredTextBlockStyle}"
-                                                TargetType="TextBlock">
+                                               TargetType="TextBlock">
                                             <Setter Property="FontWeight"
                                                     Value="SemiBold"/>
                                         </Style>
@@ -313,7 +314,7 @@
 
                                 <!--  Category Column (Fixed Width)  -->
                                 <controls:DataGridTemplateColumn Width="140"
-                                        Header="Category">
+                                                                 Header="Category">
                                     <controls:DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Border
@@ -339,13 +340,13 @@
                                     Header="Total Orders">
                                     <controls:DataGridTextColumn.ElementStyle>
                                         <Style BasedOn="{StaticResource RightAlignedTextBlockStyle}"
-                                                TargetType="TextBlock"/>
+                                               TargetType="TextBlock"/>
                                     </controls:DataGridTextColumn.ElementStyle>
                                 </controls:DataGridTextColumn>
 
                                 <!--  Total Revenue Column (Fixed Width, Right-Aligned)  -->
                                 <controls:DataGridTemplateColumn Width="140"
-                                        Header="Total Revenue">
+                                                                 Header="Total Revenue">
                                     <controls:DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock
@@ -361,7 +362,7 @@
 
                                 <!--  Avg Rating Column (Fixed Width, Right-Aligned)  -->
                                 <controls:DataGridTemplateColumn Width="110"
-                                        Header="Avg Rating">
+                                                                 Header="Avg Rating">
                                     <controls:DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <StackPanel
@@ -385,7 +386,7 @@
 
                                 <!--  Status Column (Fixed Width)  -->
                                 <controls:DataGridTemplateColumn Width="120"
-                                        Header="Status">
+                                                                 Header="Status">
                                     <controls:DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Border
@@ -393,14 +394,14 @@
                                                 Padding="8,4"
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
-                                                Background="#D1FAE5"
+                                                Background="{Binding Stock, Converter={StaticResource StockToBrushConverter}, ConverterParameter=Background}"
                                                 CornerRadius="4">
                                                 <TextBlock
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
                                                     FontSize="12"
                                                     FontWeight="SemiBold"
-                                                    Foreground="#059669"
+                                                    Foreground="{Binding Stock, Converter={StaticResource StockToBrushConverter}, ConverterParameter=Foreground}"
                                                     Text="{Binding Stock, Converter={StaticResource StockToStatusConverter}, FallbackValue='In Stock'}"
                                                     TextAlignment="Center"/>
                                             </Border>
@@ -410,7 +411,7 @@
 
                                 <!--  Actions Column (Fixed Width)  -->
                                 <controls:DataGridTemplateColumn Width="80"
-                                        Header="Actions">
+                                                                 Header="Actions">
                                     <controls:DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <buttons:IconButton
