@@ -15,6 +15,7 @@ public class AgentRequestResponse
     public string Status { get; set; } = "Pending";
     public string? ReviewedBy { get; set; }
     public DateTime? ReviewedAt { get; set; }
+    public string? Notes { get; set; }
     public string Experience { get; set; } = string.Empty;
     public string Reason { get; set; } = string.Empty;
     public string? Address { get; set; }

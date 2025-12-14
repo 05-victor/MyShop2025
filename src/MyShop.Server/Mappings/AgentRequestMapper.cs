@@ -18,6 +18,7 @@ public class AgentRequestMapper
             Status = request.Status,
             ReviewedBy = request.ReviewedBy?.ToString(),
             ReviewedAt = request.ReviewedAt,
+            Notes = request.Notes,
             Experience = request.Experience ?? "",
             Reason = request.Reason ?? "",
             Address = request.User?.Profile?.Address,
