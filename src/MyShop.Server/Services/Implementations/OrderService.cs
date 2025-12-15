@@ -177,35 +177,26 @@ public class OrderService : IOrderService
         }
     }
 
-    public async Task<OrderResponse> CreateOrderFromCartItemsAsync(
-        Guid customerId,
-        Guid salesAgentId,
-        IEnumerable<CartItem> cartItems,
-        string shippingAddress,
-        string? note,
-        string paymentMethod,
-        int discountAmount)
+    public async Task<OrderResponse> CreateOrderFromCartAsync(CreateOrderFromCartRequest request)
     {
-        var cartItemsList = cartItems.ToList();
-
         try
         {
             // Validate customer exists
-            var customer = await _userRepository.GetByIdAsync(customerId);
+            var customer = await _userRepository.GetByIdAsync(request.CustomerId);
             if (customer is null)
             {
-                throw NotFoundException.ForEntity("Customer", customerId);
+                throw NotFoundException.ForEntity("Customer", request.CustomerId);
             }
 
             // Validate sales agent exists
-            var salesAgent = await _userRepository.GetByIdAsync(salesAgentId);
+            var salesAgent = await _userRepository.GetByIdAsync(request.SalesAgentId);
             if (salesAgent is null)
             {
-                throw NotFoundException.ForEntity("Sales agent", salesAgentId);
+                throw NotFoundException.ForEntity("Sales agent", request.SalesAgentId);
             }
 
             // Validate stock availability for all items
-            foreach (var cartItem in cartItemsList)
+            foreach (var cartItem in request.CartItems)
             {
                 var product = await _productRepository.GetByIdAsync(cartItem.ProductId);
                 if (product == null)
@@ -227,35 +218,35 @@ public class OrderService : IOrderService
             var enableFreeShipping = _configuration.GetValue<bool>("BusinessSettings:EnableFreeShipping", true);
 
             // Calculate order totals
-            var totalAmount = cartItemsList.Sum(ci => ci.Product.SellingPrice * ci.Quantity);
+            var totalAmount = request.CartItems.Sum(ci => ci.UnitPrice * ci.Quantity);
             var taxAmount = (int)(totalAmount * taxRate);
             var shippingFeeAmount = enableFreeShipping && totalAmount >= freeShippingThreshold ? 0 : shippingFee;
-            var grandTotal = totalAmount - discountAmount + shippingFeeAmount + taxAmount;
+            var grandTotal = totalAmount - request.DiscountAmount + shippingFeeAmount + taxAmount;
 
             // Create order entity
             var order = new Order
             {
                 Id = Guid.NewGuid(),
-                CustomerId = customerId,
-                SaleAgentId = salesAgentId,
+                CustomerId = request.CustomerId,
+                SaleAgentId = request.SalesAgentId,
                 OrderDate = DateTime.UtcNow,
                 Status = "PENDING",
                 PaymentStatus = "UNPAID",
                 TotalAmount = totalAmount,
-                DiscountAmount = discountAmount,
+                DiscountAmount = request.DiscountAmount,
                 ShippingFee = shippingFeeAmount,
                 TaxAmount = taxAmount,
                 GrandTotal = grandTotal,
-                Note = note,
+                Note = request.Note,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                OrderItems = cartItemsList.Select(ci => new OrderItem
+                OrderItems = request.CartItems.Select(ci => new OrderItem
                 {
                     Id = Guid.NewGuid(),
                     ProductId = ci.ProductId,
                     Quantity = ci.Quantity,
-                    UnitSalePrice = ci.Product.SellingPrice,
-                    TotalPrice = ci.Product.SellingPrice * ci.Quantity,
+                    UnitSalePrice = ci.UnitPrice,
+                    TotalPrice = ci.UnitPrice * ci.Quantity,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 }).ToList()
@@ -266,10 +257,10 @@ public class OrderService : IOrderService
 
             _logger.LogInformation(
                 "Order {OrderId} created from cart items by customer {CustomerId} for sales agent {SaleAgentId}. Total: {Total}, Items: {ItemCount}",
-                createdOrder.Id, customerId, salesAgentId, grandTotal, cartItemsList.Count);
+                createdOrder.Id, request.CustomerId, request.SalesAgentId, grandTotal, request.CartItems.Count);
 
             // Update product stock
-            foreach (var cartItem in cartItemsList)
+            foreach (var cartItem in request.CartItems)
             {
                 var product = await _productRepository.GetByIdAsync(cartItem.ProductId);
                 if (product != null)

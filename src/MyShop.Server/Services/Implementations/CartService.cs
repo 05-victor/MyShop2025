@@ -255,15 +255,25 @@ public class CartService : ICartService
                 throw new ValidationException($"No cart items found for sales agent with ID {request.SalesAgentId}");
             }
 
+            // Build request for order creation
+            var createOrderRequest = new CreateOrderFromCartRequest
+            {
+                CustomerId = userId.Value,
+                SalesAgentId = request.SalesAgentId,
+                ShippingAddress = request.ShippingAddress,
+                Note = request.Note,
+                PaymentMethod = request.PaymentMethod,
+                DiscountAmount = request.DiscountAmount,
+                CartItems = salesAgentCartItems.Select(ci => new CartItemForOrder
+                {
+                    ProductId = ci.ProductId,
+                    Quantity = ci.Quantity,
+                    UnitPrice = ci.Product.SellingPrice
+                }).ToList()
+            };
+
             // Delegate order creation to OrderService
-            var orderResponse = await _orderService.CreateOrderFromCartItemsAsync(
-                customerId: userId.Value,
-                salesAgentId: request.SalesAgentId,
-                cartItems: salesAgentCartItems,
-                shippingAddress: request.ShippingAddress,
-                note: request.Note,
-                paymentMethod: request.PaymentMethod,
-                discountAmount: request.DiscountAmount);
+            var orderResponse = await _orderService.CreateOrderFromCartAsync(createOrderRequest);
 
             // Remove only the checked-out items from cart
             foreach (var cartItem in salesAgentCartItems)

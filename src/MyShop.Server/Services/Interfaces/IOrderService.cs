@@ -18,12 +18,5 @@ public interface IOrderService
     /// <summary>
     /// Create order from cart items for a specific sales agent
     /// </summary>
-    Task<OrderResponse> CreateOrderFromCartItemsAsync(
-        Guid customerId,
-        Guid salesAgentId,
-        IEnumerable<Data.Entities.CartItem> cartItems,
-        string shippingAddress,
-        string? note,
-        string paymentMethod,
-        int discountAmount);
+    Task<OrderResponse> CreateOrderFromCartAsync(CreateOrderFromCartRequest request);
 }
