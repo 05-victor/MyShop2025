@@ -1,4 +1,4 @@
-﻿using MyShop.Shared.Adapters;
+﻿using MyShop.Plugins.Adapters;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Orders;
@@ -24,7 +24,7 @@ public class OrderRepository : IOrderRepository
         try
         {
             var response = await _api.GetAllAsync(pageNumber: 1, pageSize: int.MaxValue);
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
@@ -48,7 +48,7 @@ public class OrderRepository : IOrderRepository
         try
         {
             var response = await _api.GetByIdAsync(id);
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
@@ -73,7 +73,7 @@ public class OrderRepository : IOrderRepository
         {
             // Note: Using GetMyOrdersAsync - assumes JWT contains customer ID
             var response = await _api.GetMyOrdersAsync();
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
@@ -100,7 +100,7 @@ public class OrderRepository : IOrderRepository
         try
         {
             var response = await _api.GetAllAsync(pageNumber: 1, pageSize: int.MaxValue);
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
@@ -184,7 +184,7 @@ public class OrderRepository : IOrderRepository
             };
 
             var response = await _api.CreateAsync(request);
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
@@ -378,17 +378,17 @@ public class OrderRepository : IOrderRepository
             // Apply sorting
             query = sortBy.ToLower() switch
             {
-                "orderdate" => sortDescending 
-                    ? query.OrderByDescending(o => o.OrderDate) 
+                "orderdate" => sortDescending
+                    ? query.OrderByDescending(o => o.OrderDate)
                     : query.OrderBy(o => o.OrderDate),
-                "finalprice" or "amount" => sortDescending 
-                    ? query.OrderByDescending(o => o.FinalPrice) 
+                "finalprice" or "amount" => sortDescending
+                    ? query.OrderByDescending(o => o.FinalPrice)
                     : query.OrderBy(o => o.FinalPrice),
-                "status" => sortDescending 
-                    ? query.OrderByDescending(o => o.Status) 
+                "status" => sortDescending
+                    ? query.OrderByDescending(o => o.Status)
                     : query.OrderBy(o => o.Status),
-                _ => sortDescending 
-                    ? query.OrderByDescending(o => o.OrderDate) 
+                _ => sortDescending
+                    ? query.OrderByDescending(o => o.OrderDate)
                     : query.OrderBy(o => o.OrderDate)
             };
 

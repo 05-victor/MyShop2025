@@ -1,4 +1,4 @@
-using MyShop.Shared.Adapters;
+using MyShop.Plugins.Adapters;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Commission;
@@ -23,7 +23,7 @@ public class CommissionRepository : ICommissionRepository
         {
             // Note: API uses JWT to identify sales agent
             var response = await _api.GetCommissionHistoryAsync();
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
@@ -47,7 +47,7 @@ public class CommissionRepository : ICommissionRepository
         try
         {
             var response = await _api.GetMyEarningsAsync();
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
@@ -72,7 +72,7 @@ public class CommissionRepository : ICommissionRepository
         {
             // Note: Backend may need dedicated endpoint for this
             var allCommissionsResult = await GetBySalesAgentIdAsync(Guid.Empty);
-            
+
             if (!allCommissionsResult.IsSuccess)
             {
                 return Result<Commission>.Failure(allCommissionsResult.ErrorMessage ?? "Failed to retrieve commission");
@@ -98,7 +98,7 @@ public class CommissionRepository : ICommissionRepository
         {
             // Note: Backend calculates commission automatically
             var commissionResult = await GetByOrderIdAsync(orderId);
-            
+
             if (!commissionResult.IsSuccess)
             {
                 return Result<decimal>.Failure(commissionResult.ErrorMessage ?? "Failed to calculate commission");
@@ -118,7 +118,7 @@ public class CommissionRepository : ICommissionRepository
         {
             // Note: Backend may need query parameters for date filtering
             var allCommissionsResult = await GetBySalesAgentIdAsync(salesAgentId);
-            
+
             if (!allCommissionsResult.IsSuccess)
             {
                 return Result<IEnumerable<Commission>>.Failure(allCommissionsResult.ErrorMessage ?? "Failed to retrieve commissions");
@@ -167,7 +167,7 @@ public class CommissionRepository : ICommissionRepository
             // Note: Backend API doesn't support server-side paging yet
             // Fallback: fetch all commissions and apply client-side paging/filtering
             var allCommissionsResult = await GetBySalesAgentIdAsync(salesAgentId);
-            
+
             if (!allCommissionsResult.IsSuccess || allCommissionsResult.Data == null)
             {
                 return Result<PagedList<Commission>>.Failure(allCommissionsResult.ErrorMessage ?? "Failed to retrieve commissions");
@@ -194,17 +194,17 @@ public class CommissionRepository : ICommissionRepository
             // Apply sorting
             query = sortBy.ToLower() switch
             {
-                "createddate" => sortDescending 
-                    ? query.OrderByDescending(c => c.CreatedDate) 
+                "createddate" => sortDescending
+                    ? query.OrderByDescending(c => c.CreatedDate)
                     : query.OrderBy(c => c.CreatedDate),
-                "commissionamount" or "amount" => sortDescending 
-                    ? query.OrderByDescending(c => c.CommissionAmount) 
+                "commissionamount" or "amount" => sortDescending
+                    ? query.OrderByDescending(c => c.CommissionAmount)
                     : query.OrderBy(c => c.CommissionAmount),
-                "status" => sortDescending 
-                    ? query.OrderByDescending(c => c.Status) 
+                "status" => sortDescending
+                    ? query.OrderByDescending(c => c.Status)
                     : query.OrderBy(c => c.Status),
-                _ => sortDescending 
-                    ? query.OrderByDescending(c => c.CreatedDate) 
+                _ => sortDescending
+                    ? query.OrderByDescending(c => c.CreatedDate)
                     : query.OrderBy(c => c.CreatedDate)
             };
 

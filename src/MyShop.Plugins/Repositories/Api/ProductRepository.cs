@@ -1,7 +1,7 @@
 ﻿using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Products;
-using MyShop.Shared.Adapters;
+using MyShop.Plugins.Adapters;
 using MyShop.Shared.Models;
 using Refit;
 
@@ -94,7 +94,7 @@ public class ProductRepository : IProductRepository
             };
 
             var response = await _api.CreateAsync(request);
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var createdProduct = ProductAdapter.ToModel(response.Content.Result);
@@ -130,7 +130,7 @@ public class ProductRepository : IProductRepository
             };
 
             var response = await _api.UpdateAsync(product.Id, request);
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var updatedProduct = ProductAdapter.ToModel(response.Content.Result);
@@ -264,7 +264,7 @@ public class ProductRepository : IProductRepository
             if (!string.IsNullOrWhiteSpace(searchQuery))
             {
                 var search = searchQuery.ToLower();
-                query = query.Where(p => 
+                query = query.Where(p =>
                     p.Name.ToLower().Contains(search) ||
                     (p.SKU != null && p.SKU.ToLower().Contains(search)) ||
                     (p.Description != null && p.Description.ToLower().Contains(search)));
@@ -272,7 +272,7 @@ public class ProductRepository : IProductRepository
 
             if (!string.IsNullOrWhiteSpace(categoryName))
             {
-                query = query.Where(p => p.CategoryName != null && 
+                query = query.Where(p => p.CategoryName != null &&
                     p.CategoryName.Equals(categoryName, StringComparison.OrdinalIgnoreCase));
             }
 
@@ -289,20 +289,20 @@ public class ProductRepository : IProductRepository
             // Apply sorting
             query = sortBy.ToLower() switch
             {
-                "name" => sortDescending 
-                    ? query.OrderByDescending(p => p.Name) 
+                "name" => sortDescending
+                    ? query.OrderByDescending(p => p.Name)
                     : query.OrderBy(p => p.Name),
-                "price" or "sellingprice" => sortDescending 
-                    ? query.OrderByDescending(p => p.SellingPrice) 
+                "price" or "sellingprice" => sortDescending
+                    ? query.OrderByDescending(p => p.SellingPrice)
                     : query.OrderBy(p => p.SellingPrice),
-                "stock" or "quantity" => sortDescending 
-                    ? query.OrderByDescending(p => p.Quantity) 
+                "stock" or "quantity" => sortDescending
+                    ? query.OrderByDescending(p => p.Quantity)
                     : query.OrderBy(p => p.Quantity),
-                "category" or "categoryname" => sortDescending 
-                    ? query.OrderByDescending(p => p.CategoryName) 
+                "category" or "categoryname" => sortDescending
+                    ? query.OrderByDescending(p => p.CategoryName)
                     : query.OrderBy(p => p.CategoryName),
-                _ => sortDescending 
-                    ? query.OrderByDescending(p => p.Name) 
+                _ => sortDescending
+                    ? query.OrderByDescending(p => p.Name)
                     : query.OrderBy(p => p.Name)
             };
 

@@ -1,4 +1,4 @@
-﻿using MyShop.Shared.Adapters;
+﻿using MyShop.Plugins.Adapters;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Cart;
@@ -23,7 +23,7 @@ public class CartRepository : ICartRepository
         try
         {
             var response = await _api.GetMyCartAsync();
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
@@ -129,7 +129,7 @@ public class CartRepository : ICartRepository
         try
         {
             var response = await _api.GetMyCartAsync();
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
@@ -152,7 +152,7 @@ public class CartRepository : ICartRepository
         try
         {
             var response = await _api.GetMyCartAsync();
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
