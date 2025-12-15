@@ -21,6 +21,7 @@
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:StringFormatConverter x:Key="StringFormatConverter"/>
+        <converters:CurrencyConverter x:Key="CurrencyConverter"/>
         <x:String x:Key="CurrencyFormat">{0:N0} ₫</x:String>
 
     </Page.Resources>
@@ -28,7 +29,7 @@
     <Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <Grid Padding="24"
-                    RowSpacing="16">
+                  RowSpacing="16">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
@@ -40,7 +41,7 @@
                     Subtitle="Review and manage your items">
                     <layout:PageHeader.ActionContent>
                         <StackPanel Orientation="Horizontal"
-                                Spacing="12">
+                                    Spacing="12">
                             <buttons:IconButton
                                 Variant="Outline"
                                 IconGlyph="&#xE72B;"
@@ -73,13 +74,13 @@
                                 Style="{StaticResource CardWithShadowStyle}"
                                 Visibility="{x:Bind ViewModel.IsEmpty, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                             <StackPanel HorizontalAlignment="Center"
-                                    Spacing="20">
+                                        Spacing="20">
                                 <Viewbox Width="120"
-                                        Height="120">
+                                         Height="120">
                                     <Grid>
                                         <Ellipse Width="120"
-                                                Height="120"
-                                                Fill="#F3F4F6"/>
+                                                 Height="120"
+                                                 Fill="#F3F4F6"/>
                                         <FontIcon
                                             FontSize="64"
                                             Foreground="#9CA3AF"
@@ -106,9 +107,9 @@
                                         Command="{x:Bind ViewModel.ContinueShoppingCommand}"
                                         ToolTipService.ToolTip="Browse available products">
                                     <StackPanel Orientation="Horizontal"
-                                            Spacing="8">
+                                                Spacing="8">
                                         <FontIcon FontSize="16"
-                                                Glyph="&#xE719;"/>
+                                                  Glyph="&#xE719;"/>
                                         <TextBlock Text="Start Shopping"/>
                                     </StackPanel>
                                 </Button>
@@ -118,7 +119,7 @@
                         <!--  Cart Items List  -->
                         <!-- Changed to {Binding} for dynamic cart data -->
                         <ItemsControl x:Name="CartItemsControl"
-                                ItemsSource="{Binding Items, Mode=OneWay}">
+                                      ItemsSource="{Binding Items, Mode=OneWay}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:CartItemViewModel">
                                     <Border Margin="0,0,0,16"
@@ -138,7 +139,7 @@
                                                 Background="#F9FAFB"
                                                 CornerRadius="8">
                                                 <Image Source="{x:Bind ImageUrl}"
-                                                        Stretch="UniformToFill"/>
+                                                       Stretch="UniformToFill"/>
                                             </Border>
 
                                             <!--  Product Info  -->
@@ -171,7 +172,7 @@
                                                         CommandParameter="{x:Bind}"
                                                         CornerRadius="6">
                                                         <FontIcon FontSize="12"
-                                                                Glyph="&#xE738;"/>
+                                                                  Glyph="&#xE738;"/>
                                                     </Button>
                                                     <Border
                                                         Width="60"
@@ -194,7 +195,7 @@
                                                             CornerRadius="8"
                                                             Foreground="White">
                                                         <FontIcon FontSize="12"
-                                                                Glyph="&#xE710;"/>
+                                                                  Glyph="&#xE710;"/>
                                                     </Button>
                                                     <Button
                                                         Margin="12,0,0,0"
@@ -220,7 +221,7 @@
                                                     FontSize="20"
                                                     FontWeight="Bold"
                                                     Foreground="#111827"
-                                                    Text="{x:Bind Price, Converter={StaticResource StringFormatConverter}, ConverterParameter={StaticResource CurrencyFormat}}"
+                                                    Text="{x:Bind Price, Converter={StaticResource CurrencyConverter}}"
                                                     TextAlignment="Right"/>
                                                 <TextBlock
                                                     FontSize="12"
@@ -232,7 +233,7 @@
                                                     FontSize="14"
                                                     FontWeight="SemiBold"
                                                     Foreground="#00AEEF"
-                                                    Text="{x:Bind Total, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter={StaticResource CurrencyFormat}}"
+                                                    Text="{x:Bind Total, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                     TextAlignment="Right"/>
                                             </StackPanel>
                                         </Grid>
@@ -255,27 +256,27 @@
                             <StackPanel Spacing="12">
                                 <Grid>
                                     <TextBlock Foreground="#6B7280"
-                                            Text="Subtotal"/>
+                                               Text="Subtotal"/>
                                     <TextBlock
                                         HorizontalAlignment="Right"
                                         Foreground="#111827"
-                                        Text="{x:Bind ViewModel.Subtotal, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter={StaticResource CurrencyFormat}}"/>
+                                        Text="{x:Bind ViewModel.Subtotal, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"/>
                                 </Grid>
                                 <Grid>
                                     <TextBlock Foreground="#6B7280"
-                                            Text="Shipping"/>
+                                               Text="Shipping"/>
                                     <TextBlock
                                         HorizontalAlignment="Right"
                                         Foreground="#111827"
-                                        Text="{x:Bind ViewModel.ShippingFee, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter={StaticResource CurrencyFormat}}"/>
+                                        Text="{x:Bind ViewModel.ShippingFee, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"/>
                                 </Grid>
                                 <Grid>
                                     <TextBlock Foreground="#6B7280"
-                                            Text="Tax (10%)"/>
+                                               Text="Tax (10%)"/>
                                     <TextBlock
                                         HorizontalAlignment="Right"
                                         Foreground="#111827"
-                                        Text="{x:Bind ViewModel.Tax, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter={StaticResource CurrencyFormat}}"/>
+                                        Text="{x:Bind ViewModel.Tax, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"/>
                                 </Grid>
 
                                 <Border
@@ -294,7 +295,7 @@
                                         FontSize="20"
                                         FontWeight="Bold"
                                         Foreground="#00AEEF"
-                                        Text="{x:Bind ViewModel.Total, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter={StaticResource CurrencyFormat}}"/>
+                                        Text="{x:Bind ViewModel.Total, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"/>
                                 </Grid>
                             </StackPanel>
 

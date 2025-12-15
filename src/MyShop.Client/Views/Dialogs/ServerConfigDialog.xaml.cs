@@ -40,7 +40,7 @@ namespace MyShop.Client.Views.Dialogs
                 if (File.Exists(configPath))
                 {
                     var json = File.ReadAllText(configPath);
-                    
+
                     // Use case-insensitive deserialization to support both PascalCase and camelCase
                     var options = new JsonSerializerOptions
                     {
