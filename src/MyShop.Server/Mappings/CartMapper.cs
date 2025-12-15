@@ -33,7 +33,10 @@ public class CartMapper
             Subtotal = (cartItem.Product?.SellingPrice ?? 0) * cartItem.Quantity,
             StockAvailable = cartItem.Product?.Quantity ?? 0,
             CategoryName = cartItem.Product?.Category?.Name,
-            AddedAt = cartItem.CreatedAt
+            AddedAt = cartItem.CreatedAt,
+            SalesAgentId = cartItem.Product?.SaleAgentId,
+            SalesAgentUsername = cartItem.Product?.SaleAgent?.Username,
+            SalesAgentFullName = cartItem.Product?.SaleAgent?.Profile?.FullName
         };
     }
 

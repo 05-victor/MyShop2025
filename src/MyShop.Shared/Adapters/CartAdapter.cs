@@ -23,8 +23,8 @@ public static class CartAdapter
             Quantity = dto.Quantity,
             CategoryName = dto.CategoryName,
             StockAvailable = dto.StockAvailable,
-            // Note: UserId, AddedAt, CreatedAt, UpdatedAt are not in CartItemResponse
-            // These will be set by the repository or business logic if needed
+            SalesAgentId = dto.SalesAgentId,
+            SalesAgentName = dto.SalesAgentFullName ?? dto.SalesAgentUsername
         };
     }
 

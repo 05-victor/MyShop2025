@@ -71,7 +71,24 @@ public partial class CheckoutViewModel : ObservableObject
     private decimal _total = 0m;
 
     [ObservableProperty]
-    private ObservableCollection<CheckoutItem> _orderItems = new();
+    private ObservableCollection<SalesAgentGroup> _salesAgentGroups = new();
+
+    // Backward compatibility for XAML binding
+    public ObservableCollection<CheckoutItem> OrderItems
+    {
+        get
+        {
+            var allItems = new ObservableCollection<CheckoutItem>();
+            foreach (var group in SalesAgentGroups)
+            {
+                foreach (var item in group.Items)
+                {
+                    allItems.Add(item);
+                }
+            }
+            return allItems;
+        }
+    }
 
     [ObservableProperty]
     private string _currentStep = "details"; // "details", "payment", "success"
@@ -101,27 +118,40 @@ public partial class CheckoutViewModel : ObservableObject
                 FullName = user.Username ?? string.Empty;
                 Email = user.Email ?? string.Empty;
                 Phone = user.PhoneNumber ?? string.Empty;
-                // Address fields might not be in user model, keep defaults
             }
 
-            // Load cart items from cart facade
+            // Load cart items grouped by sales agent
             var result = await _cartFacade.LoadCartAsync();
-            OrderItems.Clear();
+            SalesAgentGroups.Clear();
             
             if (result.IsSuccess && result.Data != null)
             {
-                foreach (var item in result.Data)
-                {
-                    OrderItems.Add(new CheckoutItem
+                // Group cart items by sales agent
+                var groupedItems = result.Data
+                    .Where(i => i.SalesAgentId.HasValue) // Only include items with sales agent
+                    .GroupBy(i => new { SalesAgentId = i.SalesAgentId!.Value, i.SalesAgentName })
+                    .Select(g => new SalesAgentGroup
                     {
-                        ProductId = item.ProductId,
-                        Name = item.ProductName,
-                        Quantity = item.Quantity,
-                        Price = item.Price,
-                        ImageUrl = !string.IsNullOrEmpty(item.ProductImage) 
-                            ? item.ProductImage 
-                            : "ms-appx:///Assets/Images/products/product-placeholder.png"
-                    });
+                        SalesAgentId = g.Key.SalesAgentId,
+                        SalesAgentName = g.Key.SalesAgentName ?? "Unknown Seller",
+                        Items = new ObservableCollection<CheckoutItem>(
+                            g.Select(i => new CheckoutItem
+                            {
+                                ProductId = i.ProductId,
+                                Name = i.ProductName,
+                                Quantity = i.Quantity,
+                                Price = i.Price,
+                                ImageUrl = !string.IsNullOrEmpty(i.ProductImage) 
+                                    ? i.ProductImage 
+                                    : "ms-appx:///Assets/Images/products/product-placeholder.png"
+                            })),
+                        Subtotal = g.Sum(i => i.Price * i.Quantity)
+                    })
+                    .ToList();
+
+                foreach (var group in groupedItems)
+                {
+                    SalesAgentGroups.Add(group);
                 }
             }
 
@@ -141,8 +171,9 @@ public partial class CheckoutViewModel : ObservableObject
 
     private void CalculateTotals()
     {
-        Subtotal = OrderItems.Sum(i => i.Total);
-        Tax = Subtotal * 0.08m; // 8% tax
+        Subtotal = SalesAgentGroups.Sum(g => g.Subtotal);
+        Tax = Subtotal * 0.10m; // 10% tax
+        Shipping = Subtotal >= 500000 ? 0 : 30000; // Free shipping over 500k
         Total = Subtotal + Shipping + Tax;
     }
 
@@ -192,7 +223,7 @@ public partial class CheckoutViewModel : ObservableObject
             return;
         }
 
-        if (OrderItems.Count == 0)
+        if (SalesAgentGroups.Count == 0)
         {
             await _toastService.ShowWarning("Your cart is empty");
             return;
@@ -205,21 +236,44 @@ public partial class CheckoutViewModel : ObservableObject
             var fullAddress = $"{Address}, {City}, {ZipCode}, {Country}";
             var notes = $"Contact: {FullName}, Email: {Email}, Phone: {Phone}";
 
-            // Call checkout via facade
-            var result = await _cartFacade.CheckoutAsync(fullAddress, notes);
+            var successCount = 0;
+            var totalGroups = SalesAgentGroups.Count;
 
-            if (result.IsSuccess && result.Data != null)
+            // Checkout each sales agent group separately
+            foreach (var group in SalesAgentGroups)
+            {
+                var result = await _cartFacade.CheckoutBySalesAgentAsync(
+                    group.SalesAgentId,
+                    fullAddress,
+                    notes);
+
+                if (result.IsSuccess)
+                {
+                    successCount++;
+                }
+                else
+                {
+                    await _toastService.ShowError($"Failed to checkout from {group.SalesAgentName}: {result.ErrorMessage}");
+                }
+            }
+
+            if (successCount == totalGroups)
             {
                 CurrentStep = "success";
-                await _toastService.ShowSuccess($"Order #{result.Data.OrderCode} placed successfully!");
+                await _toastService.ShowSuccess($"All {successCount} orders placed successfully!");
                 
-                // Navigate to orders page within shell after user dismisses toast
-                await Task.Delay(100); // Small delay to ensure toast is processed
+                // Navigate to orders page
+                await Task.Delay(1500);
+                await _navigationService.NavigateInShell(typeof(MyShop.Client.Views.Shared.PurchaseOrdersPage).FullName!);
+            }
+            else if (successCount > 0)
+            {
+                await _toastService.ShowWarning($"{successCount} of {totalGroups} orders placed successfully");
                 await _navigationService.NavigateInShell(typeof(MyShop.Client.Views.Shared.PurchaseOrdersPage).FullName!);
             }
             else
             {
-                await _toastService.ShowError(result.ErrorMessage ?? "Failed to place order");
+                await _toastService.ShowError("Failed to place any orders");
             }
         }
         catch (Exception ex)
@@ -251,6 +305,15 @@ public partial class CheckoutViewModel : ObservableObject
     {
         await _navigationService.NavigateInShell(typeof(MyShop.Client.Views.Shared.ProductBrowsePage).FullName!);
     }
+}
+
+public class SalesAgentGroup
+{
+    public Guid SalesAgentId { get; set; }
+    public string SalesAgentName { get; set; } = string.Empty;
+    public ObservableCollection<CheckoutItem> Items { get; set; } = new();
+    public decimal Subtotal { get; set; }
+    public string SubtotalFormatted => $"{Subtotal:N0} ₫";
 }
 
 public class CheckoutItem

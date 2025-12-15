@@ -39,11 +39,6 @@ public interface ICartService
     Task<bool> ClearCartAsync();
 
     /// <summary>
-    /// Checkout and create order from cart items
-    /// </summary>
-    Task<OrderResponse> CheckoutAsync(CheckoutFromCartRequest request);
-
-    /// <summary>
     /// Checkout and create order from cart items for a specific sales agent
     /// </summary>
     Task<OrderResponse> CheckoutBySalesAgentAsync(CheckoutBySalesAgentRequest request);
