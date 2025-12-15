@@ -17,6 +17,7 @@ public class OrderService : IOrderService
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IProductRepository _productRepository;
     private readonly IOrderFactory _orderFactory;
     private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<OrderService> _logger;
@@ -24,12 +25,14 @@ public class OrderService : IOrderService
     public OrderService(
         IOrderRepository orderRepository,
         IUserRepository userRepository,
+        IProductRepository productRepository,
         IOrderFactory orderFactory,
         ICurrentUserService currentUserService,
         ILogger<OrderService> logger)
     {
         _orderRepository = orderRepository;
         _userRepository = userRepository;
+        _productRepository = productRepository;
         _orderFactory = orderFactory;
         _currentUserService = currentUserService;
         _logger = logger;
@@ -87,6 +90,25 @@ public class OrderService : IOrderService
 
         try
         {
+            // Validate stock availability for all order items
+            if (createOrderRequest.OrderItems != null && createOrderRequest.OrderItems.Any())
+            {
+                foreach (var item in createOrderRequest.OrderItems)
+                {
+                    var product = await _productRepository.GetByIdAsync(item.ProductId);
+                    if (product == null)
+                    {
+                        throw NotFoundException.ForEntity("Product", item.ProductId);
+                    }
+
+                    if (product.Quantity < item.Quantity)
+                    {
+                        throw new BusinessRuleException(
+                            $"Insufficient stock for product '{product.Name}'. Available: {product.Quantity}, Requested: {item.Quantity}");
+                    }
+                }
+            }
+
             // Create order using factory (factory will throw ValidationException if invalid)
             var order = _orderFactory.Create(createOrderRequest);
 
@@ -116,6 +138,22 @@ public class OrderService : IOrderService
             }
 
             var createdOrder = await _orderRepository.CreateAsync(order);
+
+            // Update product stock after successful order creation
+            if (createOrderRequest.OrderItems != null && createOrderRequest.OrderItems.Any())
+            {
+                foreach (var item in createOrderRequest.OrderItems)
+                {
+                    var product = await _productRepository.GetByIdAsync(item.ProductId);
+                    if (product != null)
+                    {
+                        product.Quantity -= item.Quantity;
+                        await _productRepository.UpdateAsync(product);
+                        _logger.LogInformation("Product {ProductId} stock reduced by {Quantity}. New stock: {NewStock}",
+                            product.Id, item.Quantity, product.Quantity);
+                    }
+                }
+            }
             
             _logger.LogInformation("Order {OrderId} created by sale agent {SaleAgentId} for customer {CustomerId}", 
                 createdOrder.Id, createdOrder.SaleAgentId, createdOrder.CustomerId);

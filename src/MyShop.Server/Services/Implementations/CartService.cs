@@ -2,7 +2,9 @@ using MyShop.Data.Repositories.Interfaces;
 using MyShop.Server.Exceptions;
 using MyShop.Server.Mappings;
 using MyShop.Server.Services.Interfaces;
+using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
+using MyShop.Data.Entities;
 
 namespace MyShop.Server.Services.Implementations;
 
@@ -13,6 +15,7 @@ public class CartService : ICartService
 {
     private readonly ICartRepository _cartRepository;
     private readonly IProductRepository _productRepository;
+    private readonly IOrderRepository _orderRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<CartService> _logger;
     private readonly CartMapper _cartMapper;
@@ -20,12 +23,14 @@ public class CartService : ICartService
     public CartService(
         ICartRepository cartRepository,
         IProductRepository productRepository,
+        IOrderRepository orderRepository,
         ICurrentUserService currentUserService,
         ILogger<CartService> logger,
         CartMapper cartMapper)
     {
         _cartRepository = cartRepository;
         _productRepository = productRepository;
+        _orderRepository = orderRepository;
         _currentUserService = currentUserService;
         _logger = logger;
         _cartMapper = cartMapper;
@@ -204,6 +209,240 @@ public class CartService : ICartService
         {
             _logger.LogError(ex, "Error clearing cart for user {UserId}", userId);
             throw InfrastructureException.DatabaseError("Failed to clear cart", ex);
+        }
+    }
+
+    public async Task<OrderResponse> CheckoutAsync(CheckoutFromCartRequest request)
+    {
+        var userId = _currentUserService.UserId;
+        if (!userId.HasValue)
+        {
+            throw new AuthenticationException("User not authenticated");
+        }
+
+        try
+        {
+            // Get cart items
+            var cartItems = await _cartRepository.GetCartItemsByUserIdAsync(userId.Value);
+            var cartItemsList = cartItems.ToList();
+
+            if (!cartItemsList.Any())
+            {
+                throw new ValidationException("Cart is empty. Cannot checkout with an empty cart.");
+            }
+
+            // Validate stock availability for all items
+            foreach (var cartItem in cartItemsList)
+            {
+                var product = await _productRepository.GetByIdAsync(cartItem.ProductId);
+                if (product == null)
+                {
+                    throw NotFoundException.ForEntity("Product", cartItem.ProductId);
+                }
+
+                if (product.Quantity < cartItem.Quantity)
+                {
+                    throw new BusinessRuleException(
+                        $"Insufficient stock for product '{product.Name}'. Available: {product.Quantity}, Requested: {cartItem.Quantity}");
+                }
+            }
+
+            // Calculate order totals
+            var totalAmount = cartItemsList.Sum(ci => ci.Product.SellingPrice * ci.Quantity);
+            var taxAmount = (int)(totalAmount * 0.1m); // 10% tax
+            var shippingFee = totalAmount >= 500000 ? 0 : 30000; // Free shipping over 500k VND
+            var grandTotal = totalAmount - request.DiscountAmount + shippingFee + taxAmount;
+
+            // Create order entity
+            var order = new Order
+            {
+                Id = Guid.NewGuid(),
+                CustomerId = userId.Value,
+                SaleAgentId = userId.Value, // Auto-assign current user as sale agent
+                OrderDate = DateTime.UtcNow,
+                Status = "PENDING",
+                PaymentStatus = "UNPAID",
+                TotalAmount = totalAmount,
+                DiscountAmount = request.DiscountAmount,
+                ShippingFee = shippingFee,
+                TaxAmount = taxAmount,
+                GrandTotal = grandTotal,
+                Note = request.Note,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                OrderItems = cartItemsList.Select(ci => new OrderItem
+                {
+                    Id = Guid.NewGuid(),
+                    ProductId = ci.ProductId,
+                    Quantity = ci.Quantity,
+                    UnitSalePrice = ci.Product.SellingPrice,
+                    TotalPrice = ci.Product.SellingPrice * ci.Quantity,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                }).ToList()
+            };
+
+            // Create order
+            var createdOrder = await _orderRepository.CreateAsync(order);
+
+            _logger.LogInformation(
+                "Order {OrderId} created from cart checkout by user {UserId}. Total: {Total}, Items: {ItemCount}",
+                createdOrder.Id, userId.Value, grandTotal, cartItemsList.Count);
+
+            // Update product stock
+            foreach (var cartItem in cartItemsList)
+            {
+                var product = await _productRepository.GetByIdAsync(cartItem.ProductId);
+                if (product != null)
+                {
+                    product.Quantity -= cartItem.Quantity;
+                    await _productRepository.UpdateAsync(product);
+                }
+            }
+
+            // Clear cart after successful order
+            await _cartRepository.ClearCartAsync(userId.Value);
+            _logger.LogInformation("Cart cleared for user {UserId} after successful checkout", userId.Value);
+
+            // Convert to response
+            return OrderMapper.ToOrderResponse(createdOrder);
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error during checkout for user {UserId}", userId);
+            throw InfrastructureException.DatabaseError("Failed to complete checkout", ex);
+        }
+    }
+
+    public async Task<GroupedCartResponse> GetMyCartGroupedBySalesAgentAsync()
+    {
+        var userId = _currentUserService.UserId;
+        if (!userId.HasValue)
+        {
+            throw new AuthenticationException("User not authenticated");
+        }
+
+        try
+        {
+            var cartItems = await _cartRepository.GetCartItemsByUserIdAsync(userId.Value);
+            return _cartMapper.ToGroupedCartResponse(cartItems, userId.Value);
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error retrieving grouped cart for user {UserId}", userId);
+            throw InfrastructureException.DatabaseError("Failed to retrieve grouped cart", ex);
+        }
+    }
+
+    public async Task<OrderResponse> CheckoutBySalesAgentAsync(CheckoutBySalesAgentRequest request)
+    {
+        var userId = _currentUserService.UserId;
+        if (!userId.HasValue)
+        {
+            throw new AuthenticationException("User not authenticated");
+        }
+
+        try
+        {
+            // Get all cart items for the user
+            var allCartItems = await _cartRepository.GetCartItemsByUserIdAsync(userId.Value);
+            
+            // Filter cart items for the specified sales agent
+            var salesAgentCartItems = allCartItems
+                .Where(ci => ci.Product?.SaleAgentId == request.SalesAgentId)
+                .ToList();
+
+            if (!salesAgentCartItems.Any())
+            {
+                throw new ValidationException($"No cart items found for sales agent with ID {request.SalesAgentId}");
+            }
+
+            // Validate stock availability for all items
+            foreach (var cartItem in salesAgentCartItems)
+            {
+                var product = await _productRepository.GetByIdAsync(cartItem.ProductId);
+                if (product == null)
+                {
+                    throw NotFoundException.ForEntity("Product", cartItem.ProductId);
+                }
+
+                if (product.Quantity < cartItem.Quantity)
+                {
+                    throw new BusinessRuleException(
+                        $"Insufficient stock for product '{product.Name}'. Available: {product.Quantity}, Requested: {cartItem.Quantity}");
+                }
+            }
+
+            // Calculate order totals
+            var totalAmount = salesAgentCartItems.Sum(ci => ci.Product.SellingPrice * ci.Quantity);
+            var taxAmount = (int)(totalAmount * 0.1m); // 10% tax
+            var shippingFee = totalAmount >= 500000 ? 0 : 30000; // Free shipping over 500k VND
+            var grandTotal = totalAmount - request.DiscountAmount + shippingFee + taxAmount;
+
+            // Create order entity
+            var order = new Order
+            {
+                Id = Guid.NewGuid(),
+                CustomerId = userId.Value,
+                SaleAgentId = request.SalesAgentId, // Assign to the product's sales agent
+                OrderDate = DateTime.UtcNow,
+                Status = "PENDING",
+                PaymentStatus = "UNPAID",
+                TotalAmount = totalAmount,
+                DiscountAmount = request.DiscountAmount,
+                ShippingFee = shippingFee,
+                TaxAmount = taxAmount,
+                GrandTotal = grandTotal,
+                Note = request.Note,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                OrderItems = salesAgentCartItems.Select(ci => new OrderItem
+                {
+                    Id = Guid.NewGuid(),
+                    ProductId = ci.ProductId,
+                    Quantity = ci.Quantity,
+                    UnitSalePrice = ci.Product.SellingPrice,
+                    TotalPrice = ci.Product.SellingPrice * ci.Quantity,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                }).ToList()
+            };
+
+            // Create order
+            var createdOrder = await _orderRepository.CreateAsync(order);
+
+            _logger.LogInformation(
+                "Order {OrderId} created from cart checkout by customer {CustomerId} for sales agent {SaleAgentId}. Total: {Total}, Items: {ItemCount}",
+                createdOrder.Id, userId.Value, request.SalesAgentId, grandTotal, salesAgentCartItems.Count);
+
+            // Update product stock
+            foreach (var cartItem in salesAgentCartItems)
+            {
+                var product = await _productRepository.GetByIdAsync(cartItem.ProductId);
+                if (product != null)
+                {
+                    product.Quantity -= cartItem.Quantity;
+                    await _productRepository.UpdateAsync(product);
+                }
+            }
+
+            // Remove only the checked-out items from cart (not all items)
+            foreach (var cartItem in salesAgentCartItems)
+            {
+                await _cartRepository.RemoveFromCartAsync(userId.Value, cartItem.ProductId);
+            }
+            
+            _logger.LogInformation(
+                "Removed {Count} items from cart for user {UserId} after checkout for sales agent {SaleAgentId}", 
+                salesAgentCartItems.Count, userId.Value, request.SalesAgentId);
+
+            // Convert to response
+            return OrderMapper.ToOrderResponse(createdOrder);
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error during sales agent checkout for user {UserId}", userId);
+            throw InfrastructureException.DatabaseError("Failed to complete checkout", ex);
         }
     }
 }
