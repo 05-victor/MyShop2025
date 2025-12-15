@@ -1,3 +1,4 @@
+using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
 
 namespace MyShop.Server.Services.Interfaces;
@@ -11,6 +12,11 @@ public interface ICartService
     /// Get current user's cart
     /// </summary>
     Task<CartResponse> GetMyCartAsync();
+
+    /// <summary>
+    /// Get current user's cart grouped by sales agents
+    /// </summary>
+    Task<GroupedCartResponse> GetMyCartGroupedBySalesAgentAsync();
 
     /// <summary>
     /// Add an item to the cart
@@ -31,4 +37,9 @@ public interface ICartService
     /// Clear the entire cart
     /// </summary>
     Task<bool> ClearCartAsync();
+
+    /// <summary>
+    /// Checkout and create order from cart items for a specific sales agent
+    /// </summary>
+    Task<OrderResponse> CheckoutBySalesAgentAsync(CheckoutBySalesAgentRequest request);
 }

@@ -19,6 +19,16 @@ public class CartItem
     public DateTime? UpdatedAt { get; set; }
 
     /// <summary>
+    /// Sales agent ID (from product)
+    /// </summary>
+    public Guid? SalesAgentId { get; set; }
+    
+    /// <summary>
+    /// Sales agent name (from product)
+    /// </summary>
+    public string? SalesAgentName { get; set; }
+
+    /// <summary>
     /// Calculated subtotal for this cart item
     /// </summary>
     public decimal Subtotal => Price * Quantity;

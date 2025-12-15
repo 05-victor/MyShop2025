@@ -21,6 +21,8 @@ public class CartRepository : ICartRepository
         return await _context.CartItems
             .Include(ci => ci.Product)
                 .ThenInclude(p => p.Category)
+            .Include(ci => ci.Product)
+                .ThenInclude(p => p.SaleAgent)
             .Where(ci => ci.UserId == userId)
             .OrderByDescending(ci => ci.CreatedAt)
             .ToListAsync();

@@ -4,6 +4,9 @@ using MyShop.Shared.DTOs.Responses;
 
 namespace MyShop.Server.Services.Interfaces;
 
+/// <summary>
+/// Service interface for order operations
+/// </summary>
 public interface IOrderService
 {
     Task<PagedResult<OrderResponse>> GetAllAsync(PaginationRequest request);
@@ -11,4 +14,9 @@ public interface IOrderService
     Task<OrderResponse> CreateAsync(CreateOrderRequest createOrderRequest);
     Task<OrderResponse> UpdateAsync(Guid id, UpdateOrderRequest updateOrderRequest);
     Task<bool> DeleteAsync(Guid id);
+    
+    /// <summary>
+    /// Create order from cart items for a specific sales agent
+    /// </summary>
+    Task<OrderResponse> CreateOrderFromCartAsync(CreateOrderFromCartRequest request);
 }

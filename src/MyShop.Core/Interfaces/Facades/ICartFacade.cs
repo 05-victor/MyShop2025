@@ -43,10 +43,10 @@ public interface ICartFacade
     Task<Result<Unit>> ClearCartAsync();
 
     /// <summary>
-    /// Checkout cart - create order from cart items.
-    /// Orchestrates: Validation → Check all stock → Create order → Clear cart → Navigate
+    /// Checkout cart for a specific sales agent - create order from cart items.
+    /// Orchestrates: Validation → Check all stock → Create order → Clear cart items → Navigate
     /// </summary>
-    Task<Result<Order>> CheckoutAsync(string shippingAddress, string notes);
+    Task<Result<Order>> CheckoutBySalesAgentAsync(Guid salesAgentId, string shippingAddress, string notes);
 }
 
 /// <summary>

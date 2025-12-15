@@ -7,6 +7,8 @@ using MyShop.Server.Services.Interfaces;
 using MyShop.Shared.DTOs.Commons;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
+using MyShop.Data.Entities;
+using Microsoft.Extensions.Configuration;
 
 namespace MyShop.Server.Services.Implementations;
 
@@ -17,21 +19,27 @@ public class OrderService : IOrderService
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IProductRepository _productRepository;
     private readonly IOrderFactory _orderFactory;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IConfiguration _configuration;
     private readonly ILogger<OrderService> _logger;
 
     public OrderService(
         IOrderRepository orderRepository,
         IUserRepository userRepository,
+        IProductRepository productRepository,
         IOrderFactory orderFactory,
         ICurrentUserService currentUserService,
+        IConfiguration configuration,
         ILogger<OrderService> logger)
     {
         _orderRepository = orderRepository;
         _userRepository = userRepository;
+        _productRepository = productRepository;
         _orderFactory = orderFactory;
         _currentUserService = currentUserService;
+        _configuration = configuration;
         _logger = logger;
     }
 
@@ -87,6 +95,25 @@ public class OrderService : IOrderService
 
         try
         {
+            // Validate stock availability for all order items
+            if (createOrderRequest.OrderItems != null && createOrderRequest.OrderItems.Any())
+            {
+                foreach (var item in createOrderRequest.OrderItems)
+                {
+                    var product = await _productRepository.GetByIdAsync(item.ProductId);
+                    if (product == null)
+                    {
+                        throw NotFoundException.ForEntity("Product", item.ProductId);
+                    }
+
+                    if (product.Quantity < item.Quantity)
+                    {
+                        throw new BusinessRuleException(
+                            $"Insufficient stock for product '{product.Name}'. Available: {product.Quantity}, Requested: {item.Quantity}");
+                    }
+                }
+            }
+
             // Create order using factory (factory will throw ValidationException if invalid)
             var order = _orderFactory.Create(createOrderRequest);
 
@@ -116,6 +143,22 @@ public class OrderService : IOrderService
             }
 
             var createdOrder = await _orderRepository.CreateAsync(order);
+
+            // Update product stock after successful order creation
+            if (createOrderRequest.OrderItems != null && createOrderRequest.OrderItems.Any())
+            {
+                foreach (var item in createOrderRequest.OrderItems)
+                {
+                    var product = await _productRepository.GetByIdAsync(item.ProductId);
+                    if (product != null)
+                    {
+                        product.Quantity -= item.Quantity;
+                        await _productRepository.UpdateAsync(product);
+                        _logger.LogInformation("Product {ProductId} stock reduced by {Quantity}. New stock: {NewStock}",
+                            product.Id, item.Quantity, product.Quantity);
+                    }
+                }
+            }
             
             _logger.LogInformation("Order {OrderId} created by sale agent {SaleAgentId} for customer {CustomerId}", 
                 createdOrder.Id, createdOrder.SaleAgentId, createdOrder.CustomerId);
@@ -131,6 +174,110 @@ public class OrderService : IOrderService
         {
             _logger.LogError(ex, "Error creating order");
             throw InfrastructureException.DatabaseError("Failed to create order", ex);
+        }
+    }
+
+    public async Task<OrderResponse> CreateOrderFromCartAsync(CreateOrderFromCartRequest request)
+    {
+        try
+        {
+            // Validate customer exists
+            var customer = await _userRepository.GetByIdAsync(request.CustomerId);
+            if (customer is null)
+            {
+                throw NotFoundException.ForEntity("Customer", request.CustomerId);
+            }
+
+            // Validate sales agent exists
+            var salesAgent = await _userRepository.GetByIdAsync(request.SalesAgentId);
+            if (salesAgent is null)
+            {
+                throw NotFoundException.ForEntity("Sales agent", request.SalesAgentId);
+            }
+
+            // Validate stock availability for all items
+            foreach (var cartItem in request.CartItems)
+            {
+                var product = await _productRepository.GetByIdAsync(cartItem.ProductId);
+                if (product == null)
+                {
+                    throw NotFoundException.ForEntity("Product", cartItem.ProductId);
+                }
+
+                if (product.Quantity < cartItem.Quantity)
+                {
+                    throw new BusinessRuleException(
+                        $"Insufficient stock for product '{product.Name}'. Available: {product.Quantity}, Requested: {cartItem.Quantity}");
+                }
+            }
+
+            // Read business settings from configuration
+            var taxRate = _configuration.GetValue<decimal>("BusinessSettings:TaxRate", 0.1m);
+            var shippingFee = _configuration.GetValue<int>("BusinessSettings:ShippingFee", 30000);
+            var freeShippingThreshold = _configuration.GetValue<int>("BusinessSettings:FreeShippingThreshold", 500000);
+            var enableFreeShipping = _configuration.GetValue<bool>("BusinessSettings:EnableFreeShipping", true);
+
+            // Calculate order totals
+            var totalAmount = request.CartItems.Sum(ci => ci.UnitPrice * ci.Quantity);
+            var taxAmount = (int)(totalAmount * taxRate);
+            var shippingFeeAmount = enableFreeShipping && totalAmount >= freeShippingThreshold ? 0 : shippingFee;
+            var grandTotal = totalAmount - request.DiscountAmount + shippingFeeAmount + taxAmount;
+
+            // Create order entity
+            var order = new Order
+            {
+                Id = Guid.NewGuid(),
+                CustomerId = request.CustomerId,
+                SaleAgentId = request.SalesAgentId,
+                OrderDate = DateTime.UtcNow,
+                Status = "PENDING",
+                PaymentStatus = "UNPAID",
+                TotalAmount = totalAmount,
+                DiscountAmount = request.DiscountAmount,
+                ShippingFee = shippingFeeAmount,
+                TaxAmount = taxAmount,
+                GrandTotal = grandTotal,
+                Note = request.Note,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                OrderItems = request.CartItems.Select(ci => new OrderItem
+                {
+                    Id = Guid.NewGuid(),
+                    ProductId = ci.ProductId,
+                    Quantity = ci.Quantity,
+                    UnitSalePrice = ci.UnitPrice,
+                    TotalPrice = ci.UnitPrice * ci.Quantity,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                }).ToList()
+            };
+
+            // Create order
+            var createdOrder = await _orderRepository.CreateAsync(order);
+
+            _logger.LogInformation(
+                "Order {OrderId} created from cart items by customer {CustomerId} for sales agent {SaleAgentId}. Total: {Total}, Items: {ItemCount}",
+                createdOrder.Id, request.CustomerId, request.SalesAgentId, grandTotal, request.CartItems.Count);
+
+            // Update product stock
+            foreach (var cartItem in request.CartItems)
+            {
+                var product = await _productRepository.GetByIdAsync(cartItem.ProductId);
+                if (product != null)
+                {
+                    product.Quantity -= cartItem.Quantity;
+                    await _productRepository.UpdateAsync(product);
+                    _logger.LogInformation("Product {ProductId} stock reduced by {Quantity}. New stock: {NewStock}",
+                        product.Id, cartItem.Quantity, product.Quantity);
+                }
+            }
+
+            return OrderMapper.ToOrderResponse(createdOrder);
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error creating order from cart items");
+            throw InfrastructureException.DatabaseError("Failed to create order from cart items", ex);
         }
     }
 

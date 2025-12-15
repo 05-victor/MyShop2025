@@ -29,4 +29,19 @@ public class CartItemResponse
     public int StockAvailable { get; set; }
     public string? CategoryName { get; set; }
     public DateTime? AddedAt { get; set; }
+    
+    /// <summary>
+    /// Sales agent ID (from product)
+    /// </summary>
+    public Guid? SalesAgentId { get; set; }
+    
+    /// <summary>
+    /// Sales agent username (from product)
+    /// </summary>
+    public string? SalesAgentUsername { get; set; }
+    
+    /// <summary>
+    /// Sales agent full name (from product)
+    /// </summary>
+    public string? SalesAgentFullName { get; set; }
 }

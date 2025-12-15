@@ -37,6 +37,19 @@ public class CartController : ControllerBase
     }
 
     /// <summary>
+    /// Get the current user's cart grouped by sales agents
+    /// </summary>
+    [HttpGet("grouped")]
+    [ProducesResponseType(typeof(ApiResponse<GroupedCartResponse>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 401)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 500)]
+    public async Task<ActionResult<ApiResponse<GroupedCartResponse>>> GetMyCartGroupedAsync()
+    {
+        var groupedCart = await _cartService.GetMyCartGroupedBySalesAgentAsync();
+        return Ok(ApiResponse<GroupedCartResponse>.SuccessResponse(groupedCart));
+    }
+
+    /// <summary>
     /// Add an item to the cart
     /// </summary>
     [HttpPost("items")]
@@ -99,5 +112,22 @@ public class CartController : ControllerBase
     {
         var result = await _cartService.ClearCartAsync();
         return Ok(ApiResponse<bool>.SuccessResponse(result, "Cart cleared successfully", 200));
+    }
+
+    /// <summary>
+    /// Checkout and create order from cart for a specific sales agent
+    /// </summary>
+    [HttpPost("checkout/sales-agent")]
+    [ProducesResponseType(typeof(ApiResponse<OrderResponse>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 400)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 401)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 500)]
+    public async Task<ActionResult<ApiResponse<OrderResponse>>> CheckoutBySalesAgentAsync([FromBody] CheckoutBySalesAgentRequest request)
+    {
+        var order = await _cartService.CheckoutBySalesAgentAsync(request);
+        return Ok(ApiResponse<OrderResponse>.SuccessResponse(
+            order, 
+            $"Order created successfully for sales agent {request.SalesAgentId}", 
+            200));
     }
 }

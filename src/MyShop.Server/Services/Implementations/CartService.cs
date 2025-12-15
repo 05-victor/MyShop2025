@@ -2,7 +2,9 @@ using MyShop.Data.Repositories.Interfaces;
 using MyShop.Server.Exceptions;
 using MyShop.Server.Mappings;
 using MyShop.Server.Services.Interfaces;
+using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
+using MyShop.Data.Entities;
 
 namespace MyShop.Server.Services.Implementations;
 
@@ -13,6 +15,7 @@ public class CartService : ICartService
 {
     private readonly ICartRepository _cartRepository;
     private readonly IProductRepository _productRepository;
+    private readonly IOrderService _orderService;
     private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<CartService> _logger;
     private readonly CartMapper _cartMapper;
@@ -20,12 +23,14 @@ public class CartService : ICartService
     public CartService(
         ICartRepository cartRepository,
         IProductRepository productRepository,
+        IOrderService orderService,
         ICurrentUserService currentUserService,
         ILogger<CartService> logger,
         CartMapper cartMapper)
     {
         _cartRepository = cartRepository;
         _productRepository = productRepository;
+        _orderService = orderService;
         _currentUserService = currentUserService;
         _logger = logger;
         _cartMapper = cartMapper;
@@ -48,6 +53,26 @@ public class CartService : ICartService
         {
             _logger.LogError(ex, "Error retrieving cart for user {UserId}", userId);
             throw InfrastructureException.DatabaseError("Failed to retrieve cart", ex);
+        }
+    }
+
+    public async Task<GroupedCartResponse> GetMyCartGroupedBySalesAgentAsync()
+    {
+        var userId = _currentUserService.UserId;
+        if (!userId.HasValue)
+        {
+            throw new AuthenticationException("User not authenticated");
+        }
+
+        try
+        {
+            var cartItems = await _cartRepository.GetCartItemsByUserIdAsync(userId.Value);
+            return _cartMapper.ToGroupedCartResponse(cartItems, userId.Value);
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error retrieving grouped cart for user {UserId}", userId);
+            throw InfrastructureException.DatabaseError("Failed to retrieve grouped cart", ex);
         }
     }
 
@@ -204,6 +229,68 @@ public class CartService : ICartService
         {
             _logger.LogError(ex, "Error clearing cart for user {UserId}", userId);
             throw InfrastructureException.DatabaseError("Failed to clear cart", ex);
+        }
+    }
+
+    public async Task<OrderResponse> CheckoutBySalesAgentAsync(CheckoutBySalesAgentRequest request)
+    {
+        var userId = _currentUserService.UserId;
+        if (!userId.HasValue)
+        {
+            throw new AuthenticationException("User not authenticated");
+        }
+
+        try
+        {
+            // Get all cart items for the user
+            var allCartItems = await _cartRepository.GetCartItemsByUserIdAsync(userId.Value);
+            
+            // Filter cart items for the specified sales agent
+            var salesAgentCartItems = allCartItems
+                .Where(ci => ci.Product?.SaleAgentId == request.SalesAgentId)
+                .ToList();
+
+            if (!salesAgentCartItems.Any())
+            {
+                throw new ValidationException($"No cart items found for sales agent with ID {request.SalesAgentId}");
+            }
+
+            // Build request for order creation
+            var createOrderRequest = new CreateOrderFromCartRequest
+            {
+                CustomerId = userId.Value,
+                SalesAgentId = request.SalesAgentId,
+                ShippingAddress = request.ShippingAddress,
+                Note = request.Note,
+                PaymentMethod = request.PaymentMethod,
+                DiscountAmount = request.DiscountAmount,
+                CartItems = salesAgentCartItems.Select(ci => new CartItemForOrder
+                {
+                    ProductId = ci.ProductId,
+                    Quantity = ci.Quantity,
+                    UnitPrice = ci.Product.SellingPrice
+                }).ToList()
+            };
+
+            // Delegate order creation to OrderService
+            var orderResponse = await _orderService.CreateOrderFromCartAsync(createOrderRequest);
+
+            // Remove only the checked-out items from cart
+            foreach (var cartItem in salesAgentCartItems)
+            {
+                await _cartRepository.RemoveFromCartAsync(userId.Value, cartItem.ProductId);
+            }
+            
+            _logger.LogInformation(
+                "Removed {Count} items from cart for user {UserId} after checkout for sales agent {SaleAgentId}", 
+                salesAgentCartItems.Count, userId.Value, request.SalesAgentId);
+
+            return orderResponse;
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error during sales agent checkout for user {UserId}", userId);
+            throw InfrastructureException.DatabaseError("Failed to complete checkout", ex);
         }
     }
 }
