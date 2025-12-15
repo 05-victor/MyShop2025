@@ -2,7 +2,7 @@
 using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Auth;
-using MyShop.Shared.Adapters;
+using MyShop.Plugins.Adapters;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
 using MyShop.Shared.Models;
@@ -177,7 +177,7 @@ public class AuthRepository : IAuthRepository
         try
         {
             var userResult = await GetCurrentUserAsync();
-            
+
             if (userResult.IsSuccess && userResult.Data != null)
             {
                 return Result<Guid>.Success(userResult.Data.Id);
@@ -199,9 +199,9 @@ public class AuthRepository : IAuthRepository
             // TODO: Implement real API call when backend endpoint is ready
             // For now, return not implemented
             // await Task.Delay(500); // Simulate network delay
-            
+
             return Result<User>.Failure("Trial activation API not yet implemented on server. Please use mock mode for testing.");
-            
+
             /*
             // Future implementation when backend is ready:
             var request = new ActivateTrialRequest { AdminCode = adminCode };
@@ -300,7 +300,7 @@ public class AuthRepository : IAuthRepository
 
         if (content.Contains("username", StringComparison.OrdinalIgnoreCase))
             return "Username already exists";
-        
+
         if (content.Contains("email", StringComparison.OrdinalIgnoreCase))
             return "Email already registered";
 

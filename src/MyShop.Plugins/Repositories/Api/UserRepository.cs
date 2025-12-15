@@ -1,4 +1,4 @@
-﻿using MyShop.Shared.Adapters;
+﻿using MyShop.Plugins.Adapters;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Users;
@@ -48,7 +48,7 @@ public class UserRepository : IUserRepository
         try
         {
             var response = await _api.GetAllAsync(pageNumber: 1, pageSize: int.MaxValue);
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
@@ -72,7 +72,7 @@ public class UserRepository : IUserRepository
         try
         {
             var response = await _api.GetAllAsync(pageNumber, pageSize);
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
@@ -113,7 +113,7 @@ public class UserRepository : IUserRepository
         try
         {
             var response = await _profileApi.UpdateMyProfileAsync(request);
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
@@ -137,7 +137,7 @@ public class UserRepository : IUserRepository
         try
         {
             var response = await _profileApi.ChangePasswordAsync(request);
-            
+
             if (response.IsSuccessStatusCode && response.Content?.Result == true)
             {
                 return Result<bool>.Success(true);
@@ -166,7 +166,7 @@ public class UserRepository : IUserRepository
             };
 
             var response = await _profileApi.UpdateMyProfileAsync(request);
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
@@ -210,7 +210,7 @@ public class UserRepository : IUserRepository
             if (!string.IsNullOrWhiteSpace(searchQuery))
             {
                 var search = searchQuery.ToLower();
-                query = query.Where(u => 
+                query = query.Where(u =>
                     u.Username.ToLower().Contains(search) ||
                     u.Email.ToLower().Contains(search) ||
                     (u.FullName != null && u.FullName.ToLower().Contains(search)));
@@ -239,23 +239,23 @@ public class UserRepository : IUserRepository
             // Apply sorting
             query = sortBy.ToLower() switch
             {
-                "username" => sortDescending 
-                    ? query.OrderByDescending(u => u.Username) 
+                "username" => sortDescending
+                    ? query.OrderByDescending(u => u.Username)
                     : query.OrderBy(u => u.Username),
-                "email" => sortDescending 
-                    ? query.OrderByDescending(u => u.Email) 
+                "email" => sortDescending
+                    ? query.OrderByDescending(u => u.Email)
                     : query.OrderBy(u => u.Email),
-                "fullname" => sortDescending 
-                    ? query.OrderByDescending(u => u.FullName) 
+                "fullname" => sortDescending
+                    ? query.OrderByDescending(u => u.FullName)
                     : query.OrderBy(u => u.FullName),
-                "role" => sortDescending 
-                    ? query.OrderByDescending(u => u.GetPrimaryRole()) 
+                "role" => sortDescending
+                    ? query.OrderByDescending(u => u.GetPrimaryRole())
                     : query.OrderBy(u => u.GetPrimaryRole()),
-                "createdat" => sortDescending 
-                    ? query.OrderByDescending(u => u.CreatedAt) 
+                "createdat" => sortDescending
+                    ? query.OrderByDescending(u => u.CreatedAt)
                     : query.OrderBy(u => u.CreatedAt),
-                _ => sortDescending 
-                    ? query.OrderByDescending(u => u.CreatedAt) 
+                _ => sortDescending
+                    ? query.OrderByDescending(u => u.CreatedAt)
                     : query.OrderBy(u => u.CreatedAt)
             };
 
@@ -279,7 +279,7 @@ public class UserRepository : IUserRepository
             // For now, return failure since API endpoint is not implemented
             // Backend should implement POST /api/users endpoint
             System.Diagnostics.Debug.WriteLine($"[UserRepository] CreateUserAsync called but API not implemented - User: {user.Username}");
-            
+
             // Set default avatar if not provided
             if (string.IsNullOrEmpty(user.Avatar))
             {

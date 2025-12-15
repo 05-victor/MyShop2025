@@ -1,4 +1,4 @@
-using MyShop.Shared.Adapters;
+using MyShop.Plugins.Adapters;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Reports;
@@ -22,7 +22,7 @@ public class ReportRepository : IReportRepository
         try
         {
             var response = await _api.GetSalesReportAsync(startDate, endDate);
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
@@ -48,7 +48,7 @@ public class ReportRepository : IReportRepository
             // Note: Backend may need dedicated endpoint for performance metrics
             // For now, derive from sales report
             var reportResult = await GetSalesReportAsync(salesAgentId);
-            
+
             if (!reportResult.IsSuccess)
             {
                 return Result<PerformanceMetrics>.Failure(reportResult.ErrorMessage ?? "Failed to get performance metrics");
@@ -77,7 +77,7 @@ public class ReportRepository : IReportRepository
         try
         {
             var response = await _api.GetProductReportAsync();
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;

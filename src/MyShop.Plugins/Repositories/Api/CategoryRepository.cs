@@ -1,4 +1,4 @@
-using MyShop.Shared.Adapters;
+using MyShop.Plugins.Adapters;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Categories;
@@ -24,7 +24,7 @@ public class CategoryRepository : ICategoryRepository
         try
         {
             var response = await _api.GetAllAsync(pageNumber: 1, pageSize: int.MaxValue);
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
@@ -48,7 +48,7 @@ public class CategoryRepository : ICategoryRepository
         try
         {
             var response = await _api.GetByIdAsync(id);
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
@@ -78,7 +78,7 @@ public class CategoryRepository : ICategoryRepository
             };
 
             var response = await _api.CreateAsync(request);
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
@@ -108,7 +108,7 @@ public class CategoryRepository : ICategoryRepository
             };
 
             var response = await _api.UpdateAsync(category.Id, request);
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
@@ -167,7 +167,7 @@ public class CategoryRepository : ICategoryRepository
             if (!string.IsNullOrWhiteSpace(searchQuery))
             {
                 var search = searchQuery.ToLower();
-                query = query.Where(c => 
+                query = query.Where(c =>
                     c.Name.ToLower().Contains(search) ||
                     (c.Description != null && c.Description.ToLower().Contains(search)));
             }
@@ -175,14 +175,14 @@ public class CategoryRepository : ICategoryRepository
             // Apply sorting
             query = sortBy.ToLower() switch
             {
-                "name" => sortDescending 
-                    ? query.OrderByDescending(c => c.Name) 
+                "name" => sortDescending
+                    ? query.OrderByDescending(c => c.Name)
                     : query.OrderBy(c => c.Name),
-                "description" => sortDescending 
-                    ? query.OrderByDescending(c => c.Description) 
+                "description" => sortDescending
+                    ? query.OrderByDescending(c => c.Description)
                     : query.OrderBy(c => c.Description),
-                _ => sortDescending 
-                    ? query.OrderByDescending(c => c.Name) 
+                _ => sortDescending
+                    ? query.OrderByDescending(c => c.Name)
                     : query.OrderBy(c => c.Name)
             };
 

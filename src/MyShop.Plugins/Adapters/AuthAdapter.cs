@@ -2,7 +2,7 @@ using MyShop.Shared.DTOs.Responses;
 using MyShop.Shared.Models;
 using MyShop.Shared.Models.Enums;
 
-namespace MyShop.Shared.Adapters;
+namespace MyShop.Plugins.Adapters;
 
 /// <summary>
 /// Adapter for converting Auth DTOs to Domain Models.
@@ -62,18 +62,18 @@ public static class AuthAdapter
     /// </summary>
     public static List<UserRole> ParseRoles(IEnumerable<string>? roleNames)
     {
-        if (roleNames == null) 
+        if (roleNames == null)
             return new List<UserRole>();
 
         var roles = new List<UserRole>();
-        
+
         foreach (var roleName in roleNames)
         {
-            if (string.IsNullOrWhiteSpace(roleName)) 
+            if (string.IsNullOrWhiteSpace(roleName))
                 continue;
 
             var normalized = roleName.Trim().ToUpperInvariant();
-            
+
             if (normalized == "ADMIN")
                 roles.Add(UserRole.Admin);
             else if (normalized == "SALEMAN" || normalized == "SALESMAN" || normalized == "SALESAGENT")

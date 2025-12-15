@@ -1,4 +1,4 @@
-using MyShop.Shared.Adapters;
+using MyShop.Plugins.Adapters;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Profile;
@@ -24,7 +24,7 @@ public class ProfileRepository : IProfileRepository
         {
             // Note: API uses JWT to identify user, so userId parameter is ignored
             var response = await _api.GetMyProfileAsync();
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
@@ -63,7 +63,7 @@ public class ProfileRepository : IProfileRepository
             };
 
             var response = await _api.UpdateMyProfileAsync(request);
-            
+
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;

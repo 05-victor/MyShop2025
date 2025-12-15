@@ -14,4 +14,10 @@
     <PackageReference Include="Refit" Version="8.0.0" />
   </ItemGroup>
 
+    <!-- Exclude implementation adapters from Shared (moved to Plugins) -->
+    <ItemGroup>
+      <Compile Remove="Adapters\**\*.cs" />
+      <None Include="Adapters\**\*.cs" />
+    </ItemGroup>
+
 </Project>
