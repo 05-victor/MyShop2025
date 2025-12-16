@@ -12,4 +12,5 @@ public interface IOrderRepository
     Task<bool> DeleteAsync(Guid id);
 
     Task<PagedResult<Order>> GetOrdersBySalesAgentIdAsync(int pageNumber, int pageSize, Guid salesAgentId);
+    Task<PagedResult<Order>> GetOrdersByCustomerIdAsync(int pageNumber, int pageSize, Guid customerId);
 }

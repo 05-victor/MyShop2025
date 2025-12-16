@@ -181,4 +181,34 @@ public class OrderController : ControllerBase
             return StatusCode(500, ApiResponse.ErrorResponse("An error occurred while updating the order status", 500));
         }
     }
+
+    /// <summary>
+    /// Get all orders for the current sales agent
+    /// </summary>
+    [HttpGet("my-orders")]
+    [Authorize(Roles = "User")]
+    [ProducesResponseType(typeof(ApiResponse<PagedResult<OrderResponse>>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 401)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 403)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 500)]
+    public async Task<ActionResult<ApiResponse<PagedResult<OrderResponse>>>> GetMyOrdersAsync(
+        [FromQuery] PaginationRequest request,
+        [FromQuery] string? status = null)
+    {
+        try
+        {
+            var pagedResult = await _orderService.GetMyCustomerOrdersAsync(request, status);
+            return Ok(ApiResponse<PagedResult<OrderResponse>>.SuccessResponse(pagedResult));
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning(ex, "Unauthorized access to customer orders");
+            return Unauthorized(ApiResponse.ErrorResponse("Unauthorized", 401));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving customer orders");
+            return StatusCode(500, ApiResponse.ErrorResponse("An error occurred while retrieving orders", 500));
+        }
+    }
 }

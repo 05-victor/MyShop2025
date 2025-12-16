@@ -177,6 +177,69 @@ public class OrderService : IOrderService
         }
     }
 
+    public async Task<OrderResponse> UpdateAsync(Guid id, UpdateOrderRequest updateOrderRequest)
+    {
+        var existingOrder = await _orderRepository.GetByIdAsync(id);
+        if (existingOrder is null)
+        {
+            throw NotFoundException.ForEntity("Order", id);
+        }
+
+        // Validate sale agent if being updated
+        if (updateOrderRequest.SaleAgentId.HasValue)
+        {
+            var saleAgent = await _userRepository.GetByIdAsync(updateOrderRequest.SaleAgentId.Value);
+            if (saleAgent is null)
+            {
+                throw NotFoundException.ForEntity("Sale agent", updateOrderRequest.SaleAgentId.Value);
+            }
+        }
+
+        try
+        {
+            // Apply updates using Patch method
+            existingOrder.Patch(updateOrderRequest);
+            existingOrder.UpdatedAt = DateTime.UtcNow;
+
+            // Update sale agent if specified
+            if (updateOrderRequest.SaleAgentId.HasValue)
+            {
+                existingOrder.SaleAgentId = updateOrderRequest.SaleAgentId.Value;
+                _logger.LogInformation("Sale agent updated to {SaleAgentId} for order {OrderId}",
+                    updateOrderRequest.SaleAgentId, id);
+            }
+
+            var updatedOrder = await _orderRepository.UpdateAsync(existingOrder);
+            return OrderMapper.ToOrderResponse(updatedOrder);
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error updating order {OrderId}", id);
+            throw InfrastructureException.DatabaseError($"Failed to update order with ID {id}", ex);
+        }
+    }
+
+    public async Task<bool> DeleteAsync(Guid id)
+    {
+        var existingOrder = await _orderRepository.GetByIdAsync(id);
+        if (existingOrder is null)
+        {
+            return false;
+        }
+
+        try
+        {
+            await _orderRepository.DeleteAsync(id);
+            _logger.LogInformation("Order {OrderId} deleted", id);
+            return true;
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error deleting order {OrderId}", id);
+            throw InfrastructureException.DatabaseError($"Failed to delete order with ID {id}", ex);
+        }
+    }
+
     public async Task<OrderResponse> CreateOrderFromCartAsync(CreateOrderFromCartRequest request)
     {
         try
@@ -414,66 +477,42 @@ public class OrderService : IOrderService
         }
     }
 
-    public async Task<OrderResponse> UpdateAsync(Guid id, UpdateOrderRequest updateOrderRequest)
+    public async Task<PagedResult<OrderResponse>> GetMyCustomerOrdersAsync(PaginationRequest request, string? status = null)
     {
-        var existingOrder = await _orderRepository.GetByIdAsync(id);
-        if (existingOrder is null)
-        {
-            throw NotFoundException.ForEntity("Order", id);
-        }
-
-        // Validate sale agent if being updated
-        if (updateOrderRequest.SaleAgentId.HasValue)
-        {
-            var saleAgent = await _userRepository.GetByIdAsync(updateOrderRequest.SaleAgentId.Value);
-            if (saleAgent is null)
-            {
-                throw NotFoundException.ForEntity("Sale agent", updateOrderRequest.SaleAgentId.Value);
-            }
-        }
-
         try
         {
-            // Apply updates using Patch method
-            existingOrder.Patch(updateOrderRequest);
-            existingOrder.UpdatedAt = DateTime.UtcNow;
-
-            // Update sale agent if specified
-            if (updateOrderRequest.SaleAgentId.HasValue)
+            var currentUserId = _currentUserService.UserId;
+            if (!currentUserId.HasValue)
             {
-                existingOrder.SaleAgentId = updateOrderRequest.SaleAgentId.Value;
-                _logger.LogInformation("Sale agent updated to {SaleAgentId} for order {OrderId}", 
-                    updateOrderRequest.SaleAgentId, id);
+                throw new UnauthorizedAccessException("User not authenticated");
             }
 
-            var updatedOrder = await _orderRepository.UpdateAsync(existingOrder);
-            return OrderMapper.ToOrderResponse(updatedOrder);
+            var pagedOrders = await _orderRepository.GetOrdersByCustomerIdAsync(request.PageNumber, request.PageSize, currentUserId.Value);
+
+            // Filter by status if provided
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                pagedOrders.Items = pagedOrders.Items
+                    .Where(o => o.Status.Equals(status, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            return new PagedResult<OrderResponse>
+            {
+                Items = pagedOrders.Items.Select(o => OrderMapper.ToOrderResponse(o)).ToList(),
+                TotalCount = pagedOrders.Items.Count,
+                Page = pagedOrders.Page,
+                PageSize = pagedOrders.PageSize
+            };
+        }
+        catch (UnauthorizedAccessException)
+        {
+            throw;
         }
         catch (Exception ex) when (ex is not BaseApplicationException)
         {
-            _logger.LogError(ex, "Error updating order {OrderId}", id);
-            throw InfrastructureException.DatabaseError($"Failed to update order with ID {id}", ex);
-        }
-    }
-
-    public async Task<bool> DeleteAsync(Guid id)
-    {
-        var existingOrder = await _orderRepository.GetByIdAsync(id);
-        if (existingOrder is null)
-        {
-            return false;
-        }
-
-        try
-        {
-            await _orderRepository.DeleteAsync(id);
-            _logger.LogInformation("Order {OrderId} deleted", id);
-            return true;
-        }
-        catch (Exception ex) when (ex is not BaseApplicationException)
-        {
-            _logger.LogError(ex, "Error deleting order {OrderId}", id);
-            throw InfrastructureException.DatabaseError($"Failed to delete order with ID {id}", ex);
+            _logger.LogError(ex, "Error retrieving sales agent orders");
+            throw InfrastructureException.DatabaseError("Failed to retrieve sales agent orders", ex);
         }
     }
 }

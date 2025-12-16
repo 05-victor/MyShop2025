@@ -34,4 +34,9 @@ public interface IOrderService
     /// Update order status (for sales agent's own orders)
     /// </summary>
     Task<OrderResponse> UpdateOrderStatusAsync(Guid orderId, UpdateOrderStatusRequest request);
+
+    /// <summary>
+    /// Get all orders for the current customer (authenticated user)
+    /// </summary>
+    Task<PagedResult<OrderResponse>> GetMyCustomerOrdersAsync(PaginationRequest request, string? status = null);
 }
