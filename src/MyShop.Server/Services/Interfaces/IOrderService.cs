@@ -19,4 +19,19 @@ public interface IOrderService
     /// Create order from cart items for a specific sales agent
     /// </summary>
     Task<OrderResponse> CreateOrderFromCartAsync(CreateOrderFromCartRequest request);
+
+    /// <summary>
+    /// Get all orders for the current sales agent (authenticated user)
+    /// </summary>
+    Task<PagedResult<OrderResponse>> GetMySalesOrdersAsync(PaginationRequest request, string? status = null);
+
+    /// <summary>
+    /// Get a specific order for the current sales agent
+    /// </summary>
+    Task<OrderResponse?> GetMySalesOrderByIdAsync(Guid orderId);
+
+    /// <summary>
+    /// Update order status (for sales agent's own orders)
+    /// </summary>
+    Task<OrderResponse> UpdateOrderStatusAsync(Guid orderId, UpdateOrderStatusRequest request);
 }

@@ -281,6 +281,139 @@ public class OrderService : IOrderService
         }
     }
 
+    public async Task<PagedResult<OrderResponse>> GetMySalesOrdersAsync(PaginationRequest request, string? status = null)
+    {
+        try
+        {
+            var currentUserId = _currentUserService.UserId;
+            if (!currentUserId.HasValue)
+            {
+                throw new UnauthorizedAccessException("User not authenticated");
+            }
+
+            var pagedOrders = await _orderRepository.GetOrdersBySalesAgentIdAsync(request.PageNumber, request.PageSize, currentUserId.Value);
+
+            // Filter by status if provided
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                pagedOrders.Items = pagedOrders.Items
+                    .Where(o => o.Status.Equals(status, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            return new PagedResult<OrderResponse>
+            {
+                Items = pagedOrders.Items.Select(o => OrderMapper.ToOrderResponse(o)).ToList(),
+                TotalCount = pagedOrders.Items.Count,
+                Page = pagedOrders.Page,
+                PageSize = pagedOrders.PageSize
+            };
+        }
+        catch (UnauthorizedAccessException)
+        {
+            throw;
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error retrieving sales agent orders");
+            throw InfrastructureException.DatabaseError("Failed to retrieve sales agent orders", ex);
+        }
+    }
+
+    public async Task<OrderResponse?> GetMySalesOrderByIdAsync(Guid orderId)
+    {
+        try
+        {
+            var currentUserId = _currentUserService.UserId;
+            if (!currentUserId.HasValue)
+            {
+                throw new UnauthorizedAccessException("User not authenticated");
+            }
+
+            var order = await _orderRepository.GetByIdAsync(orderId);
+            if (order is null)
+            {
+                return null;
+            }
+
+            // Verify that this order belongs to the current sales agent
+            if (order.SaleAgentId != currentUserId.Value)
+            {
+                throw new UnauthorizedAccessException("You are not authorized to view this order");
+            }
+
+            return OrderMapper.ToOrderResponse(order);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            throw;
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error retrieving sales agent order {OrderId}", orderId);
+            throw InfrastructureException.DatabaseError($"Failed to retrieve order with ID {orderId}", ex);
+        }
+    }
+
+    public async Task<OrderResponse> UpdateOrderStatusAsync(Guid orderId, UpdateOrderStatusRequest request)
+    {
+        try
+        {
+            var currentUserId = _currentUserService.UserId;
+            if (!currentUserId.HasValue)
+            {
+                throw new UnauthorizedAccessException("User not authenticated");
+            }
+
+            var existingOrder = await _orderRepository.GetByIdAsync(orderId);
+            if (existingOrder is null)
+            {
+                throw NotFoundException.ForEntity("Order", orderId);
+            }
+
+            // Verify that this order belongs to the current sales agent
+            if (existingOrder.SaleAgentId != currentUserId.Value)
+            {
+                throw new UnauthorizedAccessException("You are not authorized to update this order");
+            }
+
+            // Validate status
+            var validStatuses = new[] { "PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED" };
+            if (!validStatuses.Contains(request.Status.ToUpper()))
+            {
+                throw new ValidationException($"Invalid status. Valid statuses: {string.Join(", ", validStatuses)}");
+            }
+
+            // Update order status
+            existingOrder.Status = request.Status.ToUpper();
+            existingOrder.UpdatedAt = DateTime.UtcNow;
+
+            // Append notes if provided
+            if (!string.IsNullOrWhiteSpace(request.Notes))
+            {
+                existingOrder.Note = string.IsNullOrWhiteSpace(existingOrder.Note)
+                    ? request.Notes
+                    : $"{existingOrder.Note}\n{DateTime.UtcNow:yyyy-MM-dd HH:mm}: {request.Notes}";
+            }
+
+            var updatedOrder = await _orderRepository.UpdateAsync(existingOrder);
+            
+            _logger.LogInformation("Order {OrderId} status updated to {Status} by sales agent {UserId}", 
+                orderId, request.Status, currentUserId.Value);
+
+            return OrderMapper.ToOrderResponse(updatedOrder);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            throw;
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error updating order status for order {OrderId}", orderId);
+            throw InfrastructureException.DatabaseError($"Failed to update order status for order with ID {orderId}", ex);
+        }
+    }
+
     public async Task<OrderResponse> UpdateAsync(Guid id, UpdateOrderRequest updateOrderRequest)
     {
         var existingOrder = await _orderRepository.GetByIdAsync(id);
