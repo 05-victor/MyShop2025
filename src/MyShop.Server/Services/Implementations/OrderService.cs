@@ -611,6 +611,12 @@ public class OrderService : IOrderService
 
             // Update order payment status
             order.PaymentStatus = newPaymentStatus;
+
+            if (newPaymentStatus == PaymentStatus.Paid)
+            {
+                order.Status = OrderStatus.Confirmed;
+            }
+
             order.UpdatedAt = DateTime.UtcNow;
 
             await _orderRepository.UpdateAsync(order);
