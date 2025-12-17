@@ -524,4 +524,107 @@ public class OrderService : IOrderService
             throw InfrastructureException.DatabaseError("Failed to retrieve customer orders", ex);
         }
     }
+
+    public async Task<ProcessCardPaymentResponse> ProcessCardPaymentAsync(ProcessCardPaymentRequest request)
+    {
+        try
+        {
+            // Get the order
+            var order = await _orderRepository.GetByIdAsync(request.OrderId);
+            if (order is null)
+            {
+                throw NotFoundException.ForEntity("Order", request.OrderId);
+            }
+
+            // Validate order is not already paid
+            if (order.PaymentStatus == PaymentStatus.Paid)
+            {
+                return new ProcessCardPaymentResponse
+                {
+                    OrderId = request.OrderId,
+                    Success = false,
+                    Message = "Order has already been paid",
+                    PaymentStatus = order.PaymentStatus.ToApiString()
+                };
+            }
+
+            // Validate order is not cancelled
+            if (order.Status == OrderStatus.Cancelled)
+            {
+                return new ProcessCardPaymentResponse
+                {
+                    OrderId = request.OrderId,
+                    Success = false,
+                    Message = "Cannot process payment for cancelled order",
+                    PaymentStatus = order.PaymentStatus.ToApiString()
+                };
+            }
+
+            // Remove spaces from card number for validation
+            var cardNumber = request.CardNumber.Replace(" ", "");
+
+            // Simple demo payment processing logic
+            PaymentStatus newPaymentStatus;
+            string message;
+            bool success;
+
+            if (cardNumber == "1111111111111111")
+            {
+                // Success case
+                newPaymentStatus = PaymentStatus.Paid;
+                message = "Payment processed successfully";
+                success = true;
+                
+                _logger.LogInformation("Payment successful for order {OrderId} using card ending in {Last4}", 
+                    order.Id, cardNumber.Substring(cardNumber.Length - 4));
+            }
+            else if (cardNumber == "0000000000000000")
+            {
+                // Failed payment case
+                newPaymentStatus = PaymentStatus.Failed;
+                message = "Payment failed. Please check your card details and try again";
+                success = false;
+                
+                _logger.LogWarning("Payment failed for order {OrderId} using card ending in {Last4}", 
+                    order.Id, cardNumber.Substring(cardNumber.Length - 4));
+            }
+            else
+            {
+                // Invalid card case
+                return new ProcessCardPaymentResponse
+                {
+                    OrderId = request.OrderId,
+                    Success = false,
+                    Message = "Invalid card number. This is a demo system. Use 1111 1111 1111 1111 for success or 0000 0000 0000 0000 for failure",
+                    PaymentStatus = order.PaymentStatus.ToApiString()
+                };
+            }
+
+            // Update order payment status
+            order.PaymentStatus = newPaymentStatus;
+            order.UpdatedAt = DateTime.UtcNow;
+
+            await _orderRepository.UpdateAsync(order);
+
+            var response = new ProcessCardPaymentResponse
+            {
+                OrderId = request.OrderId,
+                Success = success,
+                Message = message,
+                PaymentStatus = newPaymentStatus.ToApiString(),
+                ProcessedAt = DateTime.UtcNow,
+                TransactionId = success ? $"TXN-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}" : null
+            };
+
+            _logger.LogInformation("Payment processing completed for order {OrderId}. Status: {PaymentStatus}", 
+                order.Id, newPaymentStatus.ToApiString());
+
+            return response;
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error processing card payment for order {OrderId}", request.OrderId);
+            throw InfrastructureException.DatabaseError("Failed to process card payment", ex);
+        }
+    }
 }

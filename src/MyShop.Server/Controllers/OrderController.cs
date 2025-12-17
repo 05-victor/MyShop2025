@@ -211,4 +211,54 @@ public class OrderController : ControllerBase
             return StatusCode(500, ApiResponse.ErrorResponse("An error occurred while retrieving orders", 500));
         }
     }
+
+    /// <summary>
+    /// Process card payment for an order
+    /// </summary>
+    [HttpPost("{id:guid}/payment/card")]
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResponse<ProcessCardPaymentResponse>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 400)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 401)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 404)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 500)]
+    public async Task<ActionResult<ApiResponse<ProcessCardPaymentResponse>>> ProcessCardPaymentAsync(
+        [FromRoute] Guid id,
+        [FromBody] ProcessCardPaymentRequest request)
+    {
+        try
+        {
+            // Ensure the order ID in the route matches the request
+            if (id != request.OrderId)
+            {
+                return BadRequest(ApiResponse<ProcessCardPaymentResponse>.ErrorResponse(
+                    "Order ID in route does not match request body", 400));
+            }
+
+            var result = await _orderService.ProcessCardPaymentAsync(request);
+
+            if (result.Success)
+            {
+                return Ok(ApiResponse<ProcessCardPaymentResponse>.SuccessResponse(
+                    result, 
+                    "Payment processed successfully", 
+                    200));
+            }
+            else
+            {
+                // Return payment failure as a 200 OK with the result details
+                return Ok(new ApiResponse<ProcessCardPaymentResponse>
+                {
+                    Code = 200,
+                    Message = result.Message,
+                    Result = result
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing card payment for order {OrderId}", id);
+            return StatusCode(500, ApiResponse.ErrorResponse("An error occurred while processing payment", 500));
+        }
+    }
 }
