@@ -1,3 +1,5 @@
+using MyShop.Shared.Enums;
+
 namespace MyShop.Data.Entities
 {
     public class Order
@@ -6,9 +8,9 @@ namespace MyShop.Data.Entities
 
         public DateTime OrderDate { get; set; }
 
-        public string Status { get; set; } = "PENDING";
+        public OrderStatus Status { get; set; } = OrderStatus.Pending;
 
-        public string PaymentStatus { get; set; } = "UNPAID";
+        public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Unpaid;
 
         public int TotalAmount { get; set; }
 

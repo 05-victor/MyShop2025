@@ -88,6 +88,9 @@ namespace MyShop.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // Configure enum properties to be stored as integers
+            ConfigureEnums(modelBuilder);
+
             // Cấu hình many-to-many relationship User-Role
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Roles)
@@ -223,6 +226,32 @@ namespace MyShop.Data
                     .HasForeignKey(ar => ar.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+        }
+
+        /// <summary>
+        /// Configure enum properties to be stored as integers in the database
+        /// </summary>
+        private void ConfigureEnums(ModelBuilder modelBuilder)
+        {
+            // Product.Status -> integer
+            modelBuilder.Entity<Product>()
+                .Property(p => p.Status)
+                .HasConversion<int>();
+
+            // Order.Status -> integer
+            modelBuilder.Entity<Order>()
+                .Property(o => o.Status)
+                .HasConversion<int>();
+
+            // Order.PaymentStatus -> integer
+            modelBuilder.Entity<Order>()
+                .Property(o => o.PaymentStatus)
+                .HasConversion<int>();
+
+            // AgentRequest.Status -> integer
+            modelBuilder.Entity<AgentRequest>()
+                .Property(ar => ar.Status)
+                .HasConversion<int>();
         }
     }
 }

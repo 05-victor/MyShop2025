@@ -1,5 +1,6 @@
 ﻿using MyShop.Data.Entities;
 using MyShop.Shared.DTOs.Responses;
+using MyShop.Shared.Extensions;
 
 namespace MyShop.Server.Mappings;
 public class AgentRequestMapper
@@ -15,7 +16,7 @@ public class AgentRequestMapper
             PhoneNumber = request.User?.Profile?.PhoneNumber ?? "",
             AvatarUrl = request.User?.Profile?.Avatar,
             RequestedAt = request.RequestedAt,
-            Status = request.Status,
+            Status = request.Status.ToApiString(),
             ReviewedBy = request.ReviewedBy?.ToString(),
             ReviewedAt = request.ReviewedAt,
             Notes = request.Notes,

@@ -1,6 +1,8 @@
 using MyShop.Data.Entities;
 using MyShop.Server.Factories.Interfaces;
 using MyShop.Shared.DTOs.Requests;
+using MyShop.Shared.Enums;
+using MyShop.Shared.Extensions;
 
 namespace MyShop.Server.Factories.Implementations;
 
@@ -27,12 +29,16 @@ public class OrderFactory : BaseFactory<Order, CreateOrderRequest>, IOrderFactor
         if (request.DiscountAmount < 0)
             throw new ArgumentException("Discount amount cannot be negative.", nameof(request.DiscountAmount));
 
+        // Parse status strings to enums
+        var status = StatusEnumExtensions.ParseApiString<OrderStatus>(request.Status);
+        var paymentStatus = StatusEnumExtensions.ParseApiString<PaymentStatus>(request.PaymentStatus);
+
         // Initialize new Order entity
         var order = new Order
         {
             OrderDate = DateTime.UtcNow,
-            Status = !string.IsNullOrWhiteSpace(request.Status) ? request.Status.Trim() : "PENDING",
-            PaymentStatus = !string.IsNullOrWhiteSpace(request.PaymentStatus) ? request.PaymentStatus.Trim() : "UNPAID",
+            Status = status,
+            PaymentStatus = paymentStatus,
             //TotalAmount = request.TotalAmount,
             DiscountAmount = request.DiscountAmount,
             ShippingFee = request.ShippingFee,

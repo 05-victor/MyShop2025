@@ -1,5 +1,6 @@
 using MyShop.Shared.DTOs.Responses;
 using MyShop.Data.Entities;
+using MyShop.Shared.Extensions;
 
 namespace MyShop.Server.Mappings;
 
@@ -26,7 +27,7 @@ public class ProductMapper
             SellingPrice = product.SellingPrice,
             Quantity = product.Quantity,
             CommissionRate = product.CommissionRate,
-            Status = product.Status,
+            Status = product.Status.ToApiString(),
             Description = product.Description,
             ImageUrl = product.ImageUrl,
             CreatedAt = product.CreatedAt,

@@ -5,6 +5,8 @@ using MyShop.Server.Services.Interfaces;
 using MyShop.Shared.DTOs.Commons;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
+using MyShop.Shared.Enums;
+using MyShop.Shared.Extensions;
 
 namespace MyShop.Server.Services.Implementations;
 
@@ -51,7 +53,13 @@ public class AgentRequestService : IAgentRequestService
 
     public async Task<PagedResult<AgentRequestResponse>> GetAllAsync(PaginationRequest request, string? status = null)
     {
-        var pagedResult = await _agentRequestRepository.GetAllAsync(request.PageNumber, request.PageSize, status);
+        AgentRequestStatus? statusEnum = null;
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            statusEnum = StatusEnumExtensions.ParseApiString<AgentRequestStatus>(status);
+        }
+
+        var pagedResult = await _agentRequestRepository.GetAllAsync(request.PageNumber, request.PageSize, statusEnum);
         
         return new PagedResult<AgentRequestResponse>
         {
@@ -72,7 +80,7 @@ public class AgentRequestService : IAgentRequestService
 
         // Check if user already has a pending request
         var existingRequest = await _agentRequestRepository.GetByUserIdAsync(userId.Value);
-        if (existingRequest != null && existingRequest.Status == "Pending")
+        if (existingRequest != null && existingRequest.Status == AgentRequestStatus.Pending)
         {
             throw new InvalidOperationException("You already have a pending agent request");
         }
@@ -94,7 +102,7 @@ public class AgentRequestService : IAgentRequestService
             Id = Guid.NewGuid(),
             UserId = userId.Value,
             RequestedAt = DateTime.UtcNow,
-            Status = "Pending",
+            Status = AgentRequestStatus.Pending,
             Experience = request.Experience,
             Reason = request.Reason,
         };
@@ -113,9 +121,9 @@ public class AgentRequestService : IAgentRequestService
             return new ActivateUserResponse(false, "Agent request not found");
         }
 
-        if (request.Status != "Pending")
+        if (request.Status != AgentRequestStatus.Pending)
         {
-            return new ActivateUserResponse(false, $"Agent request is already {request.Status}");
+            return new ActivateUserResponse(false, $"Agent request is already {request.Status.ToApiString()}");
         }
 
         var user = await _userRepository.GetByIdAsync(request.UserId);
@@ -127,7 +135,7 @@ public class AgentRequestService : IAgentRequestService
         // Check if user is already a sales agent
         if (user.Roles.Any(r => r.Name == "SalesAgent"))
         {
-            request.Status = "Approved";
+            request.Status = AgentRequestStatus.Approved;
             request.ReviewedAt = DateTime.UtcNow;
             await _agentRequestRepository.UpdateAsync(request);
             return new ActivateUserResponse(false, "User is already a sales agent");
@@ -145,7 +153,7 @@ public class AgentRequestService : IAgentRequestService
         await _userRepository.UpdateAsync(user);
 
         // Update request status
-        request.Status = "Approved";
+        request.Status = AgentRequestStatus.Approved;
         request.ReviewedBy = _currentUserService.UserId;
         request.ReviewedAt = DateTime.UtcNow;
         await _agentRequestRepository.UpdateAsync(request);
@@ -162,12 +170,12 @@ public class AgentRequestService : IAgentRequestService
             return new ActivateUserResponse(false, "Agent request not found");
         }
 
-        if (request.Status != "Pending")
+        if (request.Status != AgentRequestStatus.Pending)
         {
-            return new ActivateUserResponse(false, $"Agent request is already {request.Status}");
+            return new ActivateUserResponse(false, $"Agent request is already {request.Status.ToApiString()}");
         }
 
-        request.Status = "Rejected";
+        request.Status = AgentRequestStatus.Rejected;
         request.ReviewedBy = _currentUserService.UserId;
         request.ReviewedAt = DateTime.UtcNow;
         

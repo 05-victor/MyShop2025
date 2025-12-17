@@ -1,3 +1,5 @@
+using AutoMapper;
+using MyShop.Data.Entities;
 using MyShop.Data.Repositories.Interfaces;
 using MyShop.Server.EntityMappings;
 using MyShop.Server.Exceptions;
@@ -9,6 +11,8 @@ using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
 using MyShop.Data.Entities;
 using Microsoft.Extensions.Configuration;
+using MyShop.Shared.Enums;
+using MyShop.Shared.Extensions;
 
 namespace MyShop.Server.Services.Implementations;
 
@@ -293,8 +297,8 @@ public class OrderService : IOrderService
                 CustomerId = request.CustomerId,
                 SaleAgentId = request.SalesAgentId,
                 OrderDate = DateTime.UtcNow,
-                Status = "PENDING",
-                PaymentStatus = "UNPAID",
+                Status = OrderStatus.Pending,
+                PaymentStatus = PaymentStatus.Unpaid,
                 TotalAmount = totalAmount,
                 DiscountAmount = request.DiscountAmount,
                 ShippingFee = shippingFeeAmount,
@@ -359,8 +363,9 @@ public class OrderService : IOrderService
             // Filter by status if provided
             if (!string.IsNullOrWhiteSpace(status))
             {
+                var statusEnum = StatusEnumExtensions.ParseApiString<OrderStatus>(status);
                 pagedOrders.Items = pagedOrders.Items
-                    .Where(o => o.Status.Equals(status, StringComparison.OrdinalIgnoreCase))
+                    .Where(o => o.Status == statusEnum)
                     .ToList();
             }
 
@@ -440,15 +445,18 @@ public class OrderService : IOrderService
                 throw new UnauthorizedAccessException("You are not authorized to update this order");
             }
 
-            // Validate status
-            var validStatuses = new[] { "PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED" };
-            if (!validStatuses.Contains(request.Status.ToUpper()))
+            // Parse and validate status
+            var orderStatus = StatusEnumExtensions.ParseApiString<OrderStatus>(request.Status);
+            
+            // Validate status is a valid enum value
+            if (!Enum.IsDefined(typeof(OrderStatus), orderStatus))
             {
+                var validStatuses = Enum.GetNames(typeof(OrderStatus));
                 throw new ValidationException($"Invalid status. Valid statuses: {string.Join(", ", validStatuses)}");
             }
 
             // Update order status
-            existingOrder.Status = request.Status.ToUpper();
+            existingOrder.Status = orderStatus;
             existingOrder.UpdatedAt = DateTime.UtcNow;
 
             // Append notes if provided
@@ -462,7 +470,7 @@ public class OrderService : IOrderService
             var updatedOrder = await _orderRepository.UpdateAsync(existingOrder);
             
             _logger.LogInformation("Order {OrderId} status updated to {Status} by sales agent {UserId}", 
-                orderId, request.Status, currentUserId.Value);
+                orderId, orderStatus.ToApiString(), currentUserId.Value);
 
             return OrderMapper.ToOrderResponse(updatedOrder);
         }
@@ -492,8 +500,9 @@ public class OrderService : IOrderService
             // Filter by status if provided
             if (!string.IsNullOrWhiteSpace(status))
             {
+                var statusEnum = StatusEnumExtensions.ParseApiString<OrderStatus>(status);
                 pagedOrders.Items = pagedOrders.Items
-                    .Where(o => o.Status.Equals(status, StringComparison.OrdinalIgnoreCase))
+                    .Where(o => o.Status == statusEnum)
                     .ToList();
             }
 
@@ -511,8 +520,8 @@ public class OrderService : IOrderService
         }
         catch (Exception ex) when (ex is not BaseApplicationException)
         {
-            _logger.LogError(ex, "Error retrieving sales agent orders");
-            throw InfrastructureException.DatabaseError("Failed to retrieve sales agent orders", ex);
+            _logger.LogError(ex, "Error retrieving customer orders");
+            throw InfrastructureException.DatabaseError("Failed to retrieve customer orders", ex);
         }
     }
 }

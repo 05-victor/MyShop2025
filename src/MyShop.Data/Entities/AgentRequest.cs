@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using MyShop.Shared.Enums;
 
 namespace MyShop.Data.Entities;
 
@@ -19,8 +20,7 @@ public class AgentRequest
     public DateTime RequestedAt { get; set; } = DateTime.UtcNow;
     
     [Required]
-    [MaxLength(20)]
-    public string Status { get; set; } = "Pending"; // Pending, Approved, Rejected
+    public AgentRequestStatus Status { get; set; } = AgentRequestStatus.Pending;
     
     public Guid? ReviewedBy { get; set; }
     

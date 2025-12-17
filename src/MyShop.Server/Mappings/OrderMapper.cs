@@ -1,5 +1,6 @@
 using MyShop.Shared.DTOs.Responses;
 using MyShop.Data.Entities;
+using MyShop.Shared.Extensions;
 
 namespace MyShop.Server.Mappings;
 
@@ -19,8 +20,8 @@ public class OrderMapper
         {
             Id = order.Id,
             OrderDate = order.OrderDate,
-            Status = order.Status,
-            PaymentStatus = order.PaymentStatus,
+            Status = order.Status.ToApiString(),
+            PaymentStatus = order.PaymentStatus.ToApiString(),
             TotalAmount = order.TotalAmount,
             DiscountAmount = order.DiscountAmount,
             ShippingFee = order.ShippingFee,
