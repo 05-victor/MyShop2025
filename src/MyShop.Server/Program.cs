@@ -154,6 +154,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IAgentRequestService, AgentRequestService>();
+builder.Services.AddScoped<IEarningsService, EarningsService>();
 
 // Register HttpClient for EmailNotificationService
 builder.Services.AddHttpClient<IEmailNotificationService, EmailNotificationService>();
