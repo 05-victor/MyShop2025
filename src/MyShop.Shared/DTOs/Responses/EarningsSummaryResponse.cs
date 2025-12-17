@@ -41,6 +41,11 @@ public class EarningsSummaryResponse
     public decimal AverageEarningsPerOrder { get; set; }
 
     /// <summary>
+    /// Earnings from this month (current month)
+    /// </summary>
+    public decimal ThisMonthEarnings { get; set; }
+
+    /// <summary>
     /// Earnings from last month
     /// </summary>
     public decimal LastMonthEarnings { get; set; }

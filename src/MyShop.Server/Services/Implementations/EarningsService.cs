@@ -81,10 +81,17 @@ public class EarningsService : IEarningsService
             var pendingEarnings = pendingOrders.Sum(o => o.GrandTotal) * (1 - _platformFeeRate);
 
             // Calculate last month earnings
-            var lastMonthStart = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).AddMonths(-1);
-            var lastMonthEnd = lastMonthStart.AddMonths(1).AddSeconds(-1);
+            var now = DateTime.UtcNow;
+            var lastMonthStart = now.AddMonths(-1).StartOfMonth();
+            var lastMonthEnd = lastMonthStart.EndOfMonth();
             var lastMonthOrders = orders.Where(o => o.OrderDate >= lastMonthStart && o.OrderDate <= lastMonthEnd).ToList();
             var lastMonthEarnings = lastMonthOrders.Sum(o => o.GrandTotal) * (1 - _platformFeeRate);
+
+            // Calculate this month earnings
+            var thisMonthStart = now.StartOfMonth();
+            var thisMonthEnd = now.EndOfMonth();
+            var thisMonthOrders = orders.Where(o => o.OrderDate >= thisMonthStart && o.OrderDate <= thisMonthEnd).ToList();
+            var thisMonthEarnings = thisMonthOrders.Sum(o => o.GrandTotal) * (1 - _platformFeeRate);
 
             // Calculate average earnings per order
             var averageEarningsPerOrder = orders.Count > 0 
@@ -100,6 +107,7 @@ public class EarningsService : IEarningsService
                 PaidEarnings = paidEarnings,
                 TotalOrders = orders.Count,
                 AverageEarningsPerOrder = averageEarningsPerOrder,
+                ThisMonthEarnings = thisMonthEarnings,
                 LastMonthEarnings = lastMonthEarnings,
                 PlatformFeeRate = _platformFeeRate
             };
@@ -141,50 +149,24 @@ public class EarningsService : IEarningsService
                 "Loading earnings history for sales agent {SalesAgentId}, Page={Page}, PageSize={PageSize}",
                 salesAgentId, request.PageNumber, request.PageSize);
 
-            // Get all orders for this sales agent first
-            var allOrders = await _orderRepository.GetOrdersBySalesAgentIdAsync(1, int.MaxValue, salesAgentId);
-            var query = allOrders.Items.AsQueryable();
+            // Ensure dates are UTC if provided
+            var utcStartDate = startDate?.EnsureUtc();
+            var utcEndDate = endDate?.EnsureUtc();
 
-            // Apply date filters
-            if (startDate.HasValue)
-            {
-                query = query.Where(o => o.OrderDate >= startDate.Value);
-            }
-
-            if (endDate.HasValue)
-            {
-                // Include the entire end date (up to 23:59:59)
-                var endOfDay = endDate.Value.Date.AddDays(1).AddSeconds(-1);
-                query = query.Where(o => o.OrderDate <= endOfDay);
-            }
-
-            // Apply status filters
-            if (!string.IsNullOrWhiteSpace(status))
-            {
-                var statusEnum = StatusEnumExtensions.ParseApiString<OrderStatus>(status);
-                query = query.Where(o => o.Status == statusEnum);
-            }
-
-            if (!string.IsNullOrWhiteSpace(paymentStatus))
-            {
-                var paymentStatusEnum = StatusEnumExtensions.ParseApiString<PaymentStatus>(paymentStatus);
-                query = query.Where(o => o.PaymentStatus == paymentStatusEnum);
-            }
-
-            // Order by date descending (most recent first)
-            query = query.OrderByDescending(o => o.OrderDate);
-
-            // Get total count before pagination
-            var totalCount = query.Count();
-
-            // Apply pagination
-            var pagedOrders = query
-                .Skip((request.PageNumber - 1) * request.PageSize)
-                .Take(request.PageSize)
-                .ToList();
+            // Use repository method to get filtered orders directly from database
+            var pagedOrders = await _orderRepository.GetFilteredOrdersBySalesAgentAsync(
+                salesAgentId: salesAgentId,
+                pageNumber: request.PageNumber,
+                pageSize: request.PageSize,
+                startDate: utcStartDate,
+                endDate: utcEndDate,
+                status: status,
+                paymentStatus: paymentStatus,
+                sortBy: "OrderDate",
+                sortDescending: true);
 
             // Map to response DTOs
-            var historyItems = pagedOrders.Select(order =>
+            var historyItems = pagedOrders.Items.Select(order =>
             {
                 var orderAmount = order.GrandTotal;
                 var platformFee = orderAmount * _platformFeeRate;
@@ -206,12 +188,12 @@ public class EarningsService : IEarningsService
 
             _logger.LogInformation(
                 "Loaded {Count} earnings records (page {Page}/{TotalPages})",
-                historyItems.Count, request.PageNumber, (int)Math.Ceiling((double)totalCount / request.PageSize));
+                historyItems.Count, request.PageNumber, (int)Math.Ceiling((double)pagedOrders.TotalCount / request.PageSize));
 
             return new PagedResult<EarningHistoryResponse>
             {
                 Items = historyItems,
-                TotalCount = totalCount,
+                TotalCount = pagedOrders.TotalCount,
                 Page = request.PageNumber,
                 PageSize = request.PageSize
             };
