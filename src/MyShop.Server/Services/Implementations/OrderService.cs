@@ -348,7 +348,7 @@ public class OrderService : IOrderService
         }
     }
 
-    public async Task<PagedResult<OrderResponse>> GetMySalesOrdersAsync(PaginationRequest request, string? status = null)
+    public async Task<PagedResult<OrderResponse>> GetMySalesOrdersAsync(PaginationRequest request, string? status = null, string? paymentStatus = null)
     {
         try
         {
@@ -366,6 +366,15 @@ public class OrderService : IOrderService
                 var statusEnum = StatusEnumExtensions.ParseApiString<OrderStatus>(status);
                 pagedOrders.Items = pagedOrders.Items
                     .Where(o => o.Status == statusEnum)
+                    .ToList();
+            }
+
+            // Filter by payment status if provided
+            if (!string.IsNullOrWhiteSpace(paymentStatus))
+            {
+                var paymentStatusEnum = StatusEnumExtensions.ParseApiString<PaymentStatus>(paymentStatus);
+                pagedOrders.Items = pagedOrders.Items
+                    .Where(o => o.PaymentStatus == paymentStatusEnum)
                     .ToList();
             }
 
@@ -574,8 +583,8 @@ public class OrderService : IOrderService
                 newPaymentStatus = PaymentStatus.Paid;
                 message = "Payment processed successfully";
                 success = true;
-                
-                _logger.LogInformation("Payment successful for order {OrderId} using card ending in {Last4}", 
+
+                _logger.LogInformation("Payment successful for order {OrderId} using card ending in {Last4}",
                     order.Id, cardNumber.Substring(cardNumber.Length - 4));
             }
             else if (cardNumber == "0000000000000000")
@@ -584,8 +593,8 @@ public class OrderService : IOrderService
                 newPaymentStatus = PaymentStatus.Failed;
                 message = "Payment failed. Please check your card details and try again";
                 success = false;
-                
-                _logger.LogWarning("Payment failed for order {OrderId} using card ending in {Last4}", 
+
+                _logger.LogWarning("Payment failed for order {OrderId} using card ending in {Last4}",
                     order.Id, cardNumber.Substring(cardNumber.Length - 4));
             }
             else
@@ -616,7 +625,7 @@ public class OrderService : IOrderService
                 TransactionId = success ? $"TXN-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}" : null
             };
 
-            _logger.LogInformation("Payment processing completed for order {OrderId}. Status: {PaymentStatus}", 
+            _logger.LogInformation("Payment processing completed for order {OrderId}. Status: {PaymentStatus}",
                 order.Id, newPaymentStatus.ToApiString());
 
             return response;

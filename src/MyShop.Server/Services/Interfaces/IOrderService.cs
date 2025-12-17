@@ -23,7 +23,7 @@ public interface IOrderService
     /// <summary>
     /// Get all orders for the current sales agent (authenticated user)
     /// </summary>
-    Task<PagedResult<OrderResponse>> GetMySalesOrdersAsync(PaginationRequest request, string? status = null);
+    Task<PagedResult<OrderResponse>> GetMySalesOrdersAsync(PaginationRequest request, string? status = null, string? paymentStatus = null);
 
     /// <summary>
     /// Get a specific order for the current sales agent

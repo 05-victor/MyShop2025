@@ -96,11 +96,12 @@ public class OrderController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<object>), 500)]
     public async Task<ActionResult<ApiResponse<PagedResult<OrderResponse>>>> GetMySalesOrdersAsync(
         [FromQuery] PaginationRequest request,
-        [FromQuery] string? status = null)
+        [FromQuery] string? status = null,
+        [FromQuery] string? paymentStatus = null)
     {
         try
         {
-            var pagedResult = await _orderService.GetMySalesOrdersAsync(request, status);
+            var pagedResult = await _orderService.GetMySalesOrdersAsync(request, status, paymentStatus);
             return Ok(ApiResponse<PagedResult<OrderResponse>>.SuccessResponse(pagedResult));
         }
         catch (UnauthorizedAccessException ex)
@@ -216,7 +217,7 @@ public class OrderController : ControllerBase
     /// Process card payment for an order
     /// </summary>
     [HttpPost("{id:guid}/payment/card")]
-    [Authorize]
+    [Authorize(Roles = "User")]
     [ProducesResponseType(typeof(ApiResponse<ProcessCardPaymentResponse>), 200)]
     [ProducesResponseType(typeof(ApiResponse<object>), 400)]
     [ProducesResponseType(typeof(ApiResponse<object>), 401)]
