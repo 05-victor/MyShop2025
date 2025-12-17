@@ -38,7 +38,7 @@ public interface IOrderService
     /// <summary>
     /// Get all orders for the current customer (authenticated user)
     /// </summary>
-    Task<PagedResult<OrderResponse>> GetMyCustomerOrdersAsync(PaginationRequest request, string? status = null);
+    Task<PagedResult<OrderResponse>> GetMyCustomerOrdersAsync(PaginationRequest request, string? status = null, string? paymentStatus = null);
 
     /// <summary>
     /// Process card payment for an order
