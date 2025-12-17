@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MyShop.Data.Entities;
 using MyShop.Data.Repositories.Interfaces;
+using MyShop.Shared.DTOs.Commons;
 
 namespace MyShop.Data.Repositories.Implementations;
 
@@ -99,5 +100,63 @@ public class OrderRepository : IOrderRepository
         _context.Orders.Remove(order);
         await _context.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<PagedResult<Order>> GetOrdersBySalesAgentIdAsync(int pageNumber, int pageSize, Guid salesAgentId)
+    {
+        var query = _context.Orders
+            .Where(o => o.SaleAgentId == salesAgentId)
+            .Include(o => o.Customer)
+                .ThenInclude(u => u.Profile)
+            .Include(o => o.SaleAgent)
+                .ThenInclude(u => u.Profile)
+            .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+            .AsNoTracking();
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(o => o.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PagedResult<Order>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = pageNumber,
+            PageSize = pageSize,
+        };
+    }
+
+    public async Task<PagedResult<Order>> GetOrdersByCustomerIdAsync(int pageNumber, int pageSize, Guid customerId)
+    {
+        var query = _context.Orders
+            .Where(o => o.CustomerId == customerId)
+            .Include(o => o.Customer)
+                .ThenInclude(u => u.Profile)
+            .Include(o => o.SaleAgent)
+                .ThenInclude(u => u.Profile)
+            .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+            .AsNoTracking();
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(o => o.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PagedResult<Order>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = pageNumber,
+            PageSize = pageSize,
+        };
     }
 }

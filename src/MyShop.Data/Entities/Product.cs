@@ -1,4 +1,6 @@
-﻿namespace MyShop.Data.Entities
+﻿using MyShop.Shared.Enums;
+
+namespace MyShop.Data.Entities
 {
     /// <summary>
     /// Entity representing a product in the MyShop system
@@ -14,7 +16,7 @@
         public int SellingPrice { get; set; }
         public int Quantity { get; set; }
         public double CommissionRate { get; set; }
-        public string? Status { get; set; } = "AVAILABLE";
+        public ProductStatus Status { get; set; } = ProductStatus.Available;
         public string? Description { get; set; }
         public string? ImageUrl { get; set; }
         public DateTime CreatedAt { get; set; }
