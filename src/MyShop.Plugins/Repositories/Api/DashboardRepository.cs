@@ -162,10 +162,10 @@ public class DashboardRepository : IDashboardRepository
         {
             Date = DateTime.UtcNow,
             TotalProducts = response.TotalProducts,
-            TodayOrders = response.TodayOrders,
-            TodayRevenue = response.TodayRevenue,
-            WeekRevenue = response.WeekRevenue,
-            MonthRevenue = response.MonthRevenue,
+            TodayOrders = response.TotalOrders, // Map period orders to TodayOrders for compatibility
+            TodayRevenue = response.TotalRevenue, // Map period revenue to TodayRevenue for compatibility
+            WeekRevenue = response.TotalRevenue,
+            MonthRevenue = response.TotalRevenue,
             LowStockProducts = response.LowStockProducts.Select(p => new LowStockProduct
             {
                 Id = p.Id,

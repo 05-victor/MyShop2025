@@ -14,9 +14,9 @@ public interface IDashboardApi
     /// GET /api/v1/dashboard/summary
     /// Get dashboard summary statistics for sales agent
     /// </summary>
-    /// <param name="period">Period for revenue calculation: "day", "week", "month", "year"</param>
+    /// <param name="period">Optional period for orders/revenue calculation: "day", "week", "month", "year". If null/empty, returns all-time data.</param>
     [Get("/api/v1/dashboard/summary")]
-    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<SalesAgentDashboardSummaryResponse>>> GetSalesAgentSummaryAsync([Query] string period = "month");
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<SalesAgentDashboardSummaryResponse>>> GetSalesAgentSummaryAsync([Query] string? period = null);
 
     /// <summary>
     /// GET /api/dashboard/revenue-chart?period={period}

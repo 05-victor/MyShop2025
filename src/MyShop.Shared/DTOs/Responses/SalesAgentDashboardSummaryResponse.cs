@@ -7,44 +7,21 @@ namespace MyShop.Shared.DTOs.Responses;
 public class SalesAgentDashboardSummaryResponse
 {
     /// <summary>
-    /// Total number of products published by this sales agent
+    /// Total number of products published by this sales agent (all time)
     /// </summary>
     public int TotalProducts { get; set; }
 
     /// <summary>
-    /// Total number of orders for this sales agent
+    /// Total number of orders for the selected period
+    /// If period is not specified, returns all-time total
     /// </summary>
     public int TotalOrders { get; set; }
 
     /// <summary>
-    /// Total revenue for this sales agent (based on selected period)
+    /// Total revenue for the selected period
+    /// If period is not specified, returns all-time total
     /// </summary>
     public decimal TotalRevenue { get; set; }
-
-    /// <summary>
-    /// Today's orders count
-    /// </summary>
-    public int TodayOrders { get; set; }
-
-    /// <summary>
-    /// Today's revenue
-    /// </summary>
-    public decimal TodayRevenue { get; set; }
-
-    /// <summary>
-    /// This week's revenue
-    /// </summary>
-    public decimal WeekRevenue { get; set; }
-
-    /// <summary>
-    /// This month's revenue
-    /// </summary>
-    public decimal MonthRevenue { get; set; }
-
-    /// <summary>
-    /// This year's revenue
-    /// </summary>
-    public decimal YearRevenue { get; set; }
 
     /// <summary>
     /// Top 5 low stock products published by this sales agent

@@ -34,7 +34,7 @@ public class DashboardService : IDashboardService
         _logger = logger;
     }
 
-    public async Task<SalesAgentDashboardSummaryResponse> GetSalesAgentSummaryAsync(string period = "month")
+    public async Task<SalesAgentDashboardSummaryResponse> GetSalesAgentSummaryAsync(string? period = null)
     {
         try
         {
@@ -46,11 +46,7 @@ public class DashboardService : IDashboardService
 
             var salesAgentId = currentUserId.Value;
             _logger.LogInformation("Calculating dashboard summary for sales agent {SalesAgentId}, period: {Period}", 
-                salesAgentId, period);
-
-            // Calculate date range based on period
-            var now = DateTime.UtcNow;
-            var (startDate, endDate) = GetDateRange(period, now);
+                salesAgentId, period ?? "all-time");
 
             // Get all products published by this sales agent
             var allProducts = await _context.Products
@@ -70,43 +66,24 @@ public class DashboardService : IDashboardService
                     .ThenInclude(oi => oi.Product)
                 .ToListAsync();
 
-            var totalOrders = allOrders.Count;
+            // Calculate date range based on period (null = all time)
+            DateTime? startDate = null;
+            if (!string.IsNullOrWhiteSpace(period))
+            {
+                var now = DateTime.UtcNow;
+                startDate = GetStartDateForPeriod(period, now);
+            }
 
-            // Calculate revenue for different periods
-            var todayStart = now.Date;
-            var weekStart = GetStartOfWeek(now);
-            var monthStart = now.StartOfMonth();
-            var yearStart = new DateTime(now.Year, 1, 1);
+            // Filter orders by period and exclude cancelled orders
+            var periodOrders = startDate.HasValue
+                ? allOrders.Where(o => o.OrderDate >= startDate.Value && o.Status != OrderStatus.Cancelled).ToList()
+                : allOrders.Where(o => o.Status != OrderStatus.Cancelled).ToList();
 
-            var todayOrders = allOrders
-                .Where(o => o.OrderDate >= todayStart && o.Status != OrderStatus.Cancelled)
-                .ToList();
-            
-            var weekOrders = allOrders
-                .Where(o => o.OrderDate >= weekStart && o.Status != OrderStatus.Cancelled)
-                .ToList();
-            
-            var monthOrders = allOrders
-                .Where(o => o.OrderDate >= monthStart && o.Status != OrderStatus.Cancelled)
-                .ToList();
-            
-            var yearOrders = allOrders
-                .Where(o => o.OrderDate >= yearStart && o.Status != OrderStatus.Cancelled)
-                .ToList();
-
-            // Period-specific orders and revenue
-            var periodOrders = allOrders
-                .Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate && o.Status != OrderStatus.Cancelled)
-                .ToList();
-
-            var todayRevenue = todayOrders.Sum(o => o.GrandTotal);
-            var weekRevenue = weekOrders.Sum(o => o.GrandTotal);
-            var monthRevenue = monthOrders.Sum(o => o.GrandTotal);
-            var yearRevenue = yearOrders.Sum(o => o.GrandTotal);
+            var totalOrders = periodOrders.Count;
             var totalRevenue = periodOrders.Sum(o => o.GrandTotal);
 
-            _logger.LogDebug("Revenue - Today: {Today}, Week: {Week}, Month: {Month}, Year: {Year}, Period: {Total}",
-                todayRevenue, weekRevenue, monthRevenue, yearRevenue, totalRevenue);
+            _logger.LogDebug("Period: {Period}, Orders: {Orders}, Revenue: {Revenue}",
+                period ?? "all-time", totalOrders, totalRevenue);
 
             // Top 5 low stock products (quantity <= 10)
             var lowStockProducts = allProducts
@@ -126,7 +103,7 @@ public class DashboardService : IDashboardService
 
             _logger.LogDebug("Found {Count} low stock products", lowStockProducts.Count);
 
-            // Top 5 best-selling products for this sales agent
+            // Top 5 best-selling products for this sales agent (all time)
             var topSellingProducts = await _context.OrderItems
                 .Where(oi => oi.Product.SaleAgentId == salesAgentId)
                 .GroupBy(oi => new { 
@@ -162,7 +139,7 @@ public class DashboardService : IDashboardService
 
             _logger.LogDebug("Found {Count} top-selling products", topSellingProductDtos.Count);
 
-            // Top 5 recent orders
+            // Top 5 recent orders (all time, sorted by date)
             var recentOrders = allOrders
                 .OrderByDescending(o => o.OrderDate)
                 .Take(5)
@@ -183,11 +160,6 @@ public class DashboardService : IDashboardService
                 TotalProducts = totalProducts,
                 TotalOrders = totalOrders,
                 TotalRevenue = totalRevenue,
-                TodayOrders = todayOrders.Count,
-                TodayRevenue = todayRevenue,
-                WeekRevenue = weekRevenue,
-                MonthRevenue = monthRevenue,
-                YearRevenue = yearRevenue,
                 LowStockProducts = lowStockProducts,
                 TopSellingProducts = topSellingProductDtos,
                 RecentOrders = recentOrders
@@ -211,17 +183,17 @@ public class DashboardService : IDashboardService
     }
 
     /// <summary>
-    /// Get date range based on period
+    /// Get start date for the specified period
     /// </summary>
-    private static (DateTime startDate, DateTime endDate) GetDateRange(string period, DateTime now)
+    private static DateTime GetStartDateForPeriod(string period, DateTime now)
     {
         return period.ToLower() switch
         {
-            "day" => (now.Date, now),
-            "week" => (GetStartOfWeek(now), now),
-            "month" => (now.StartOfMonth(), now),
-            "year" => (new DateTime(now.Year, 1, 1), now),
-            _ => (now.StartOfMonth(), now) // Default to month
+            "day" => now.Date,
+            "week" => GetStartOfWeek(now),
+            "month" => now.StartOfMonth(),
+            "year" => new DateTime(now.Year, 1, 1),
+            _ => DateTime.MinValue // Invalid period = all time
         };
     }
 

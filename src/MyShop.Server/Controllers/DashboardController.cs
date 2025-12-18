@@ -28,10 +28,10 @@ public class DashboardController : ControllerBase
 
     /// <summary>
     /// Get dashboard summary for the currently logged-in sales agent
-    /// Returns overview information including total products, orders, revenue, low stock products,
-    /// top-selling products, and recent orders
+    /// Returns overview information including total products, orders (for period), revenue (for period),
+    /// low stock products, top-selling products, and recent orders
     /// </summary>
-    /// <param name="period">Period for revenue calculation: "day", "week", "month", "year" (default: "month")</param>
+    /// <param name="period">Optional period for orders/revenue calculation: "day", "week", "month", "year". If not specified, returns all-time data.</param>
     /// <returns>Dashboard summary data</returns>
     /// <response code="200">Returns dashboard summary</response>
     /// <response code="400">Invalid period parameter</response>
@@ -40,19 +40,22 @@ public class DashboardController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<SalesAgentDashboardSummaryResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> GetSummary([FromQuery] string period = "month")
+    public async Task<IActionResult> GetSummary([FromQuery] string? period = null)
     {
         try
         {
-            _logger.LogInformation("GET /api/v1/dashboard/summary - Period: {Period}", period);
+            _logger.LogInformation("GET /api/v1/dashboard/summary - Period: {Period}", period ?? "all-time");
 
-            // Validate period parameter
-            var validPeriods = new[] { "day", "week", "month", "year" };
-            if (!validPeriods.Contains(period.ToLower()))
+            // Validate period parameter if provided
+            if (!string.IsNullOrWhiteSpace(period))
             {
-                _logger.LogWarning("Invalid period parameter: {Period}", period);
-                return BadRequest(ApiResponse<object>.ErrorResponse(
-                    $"Invalid period. Valid values are: {string.Join(", ", validPeriods)}"));
+                var validPeriods = new[] { "day", "week", "month", "year" };
+                if (!validPeriods.Contains(period.ToLower()))
+                {
+                    _logger.LogWarning("Invalid period parameter: {Period}", period);
+                    return BadRequest(ApiResponse<object>.ErrorResponse(
+                        $"Invalid period. Valid values are: {string.Join(", ", validPeriods)}, or omit for all-time data"));
+                }
             }
 
             var summary = await _dashboardService.GetSalesAgentSummaryAsync(period);

@@ -10,7 +10,7 @@ public interface IDashboardService
     /// <summary>
     /// Get dashboard summary for the currently logged-in sales agent
     /// </summary>
-    /// <param name="period">Period for revenue calculation: "day", "week", "month", "year"</param>
+    /// <param name="period">Optional period for orders/revenue calculation: "day", "week", "month", "year". If null/empty, returns all-time data.</param>
     /// <returns>Dashboard summary including products, orders, revenue, and analytics</returns>
-    Task<SalesAgentDashboardSummaryResponse> GetSalesAgentSummaryAsync(string period = "month");
+    Task<SalesAgentDashboardSummaryResponse> GetSalesAgentSummaryAsync(string? period = null);
 }
