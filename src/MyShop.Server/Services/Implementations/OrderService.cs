@@ -494,7 +494,7 @@ public class OrderService : IOrderService
         }
     }
 
-    public async Task<PagedResult<OrderResponse>> GetMyCustomerOrdersAsync(PaginationRequest request, string? status = null)
+    public async Task<PagedResult<OrderResponse>> GetMyCustomerOrdersAsync(PaginationRequest request, string? status = null, string? paymentStatus = null)
     {
         try
         {
@@ -512,6 +512,15 @@ public class OrderService : IOrderService
                 var statusEnum = StatusEnumExtensions.ParseApiString<OrderStatus>(status);
                 pagedOrders.Items = pagedOrders.Items
                     .Where(o => o.Status == statusEnum)
+                    .ToList();
+            }
+
+            // Filter by payment status if provided
+            if (!string.IsNullOrWhiteSpace(paymentStatus))
+            {
+                var paymentStatusEnum = StatusEnumExtensions.ParseApiString<PaymentStatus>(paymentStatus);
+                pagedOrders.Items = pagedOrders.Items
+                    .Where(o => o.PaymentStatus == paymentStatusEnum)
                     .ToList();
             }
 

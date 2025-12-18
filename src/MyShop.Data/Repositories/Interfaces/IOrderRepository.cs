@@ -13,4 +13,18 @@ public interface IOrderRepository
 
     Task<PagedResult<Order>> GetOrdersBySalesAgentIdAsync(int pageNumber, int pageSize, Guid salesAgentId);
     Task<PagedResult<Order>> GetOrdersByCustomerIdAsync(int pageNumber, int pageSize, Guid customerId);
+    
+    /// <summary>
+    /// Get filtered orders for a sales agent with optional filters (for earnings history)
+    /// </summary>
+    Task<PagedResult<Order>> GetFilteredOrdersBySalesAgentAsync(
+        Guid salesAgentId,
+        int pageNumber,
+        int pageSize,
+        DateTime? startDate = null,
+        DateTime? endDate = null,
+        string? status = null,
+        string? paymentStatus = null,
+        string sortBy = "OrderDate",
+        bool sortDescending = true);
 }

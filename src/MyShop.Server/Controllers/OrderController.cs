@@ -194,11 +194,12 @@ public class OrderController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<object>), 500)]
     public async Task<ActionResult<ApiResponse<PagedResult<OrderResponse>>>> GetMyOrdersAsync(
         [FromQuery] PaginationRequest request,
-        [FromQuery] string? status = null)
+        [FromQuery] string? status = null,
+        [FromQuery] string? paymentStatus = null)
     {
         try
         {
-            var pagedResult = await _orderService.GetMyCustomerOrdersAsync(request, status);
+            var pagedResult = await _orderService.GetMyCustomerOrdersAsync(request, status, paymentStatus);
             return Ok(ApiResponse<PagedResult<OrderResponse>>.SuccessResponse(pagedResult));
         }
         catch (UnauthorizedAccessException ex)
