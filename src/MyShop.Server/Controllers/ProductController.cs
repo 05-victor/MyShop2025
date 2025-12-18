@@ -35,6 +35,27 @@ public class ProductController : ControllerBase
         return Ok(ApiResponse<PagedResult<ProductResponse>>.SuccessResponse(pagedResult));
     }
 
+    /// <summary>
+    /// Search products with advanced filtering, sorting, and pagination
+    /// </summary>
+    /// <param name="request">Search criteria including filters, sort options, and pagination</param>
+    /// <returns>Paginated list of products matching the search criteria</returns>
+    [HttpPost("search")]
+    [ProducesResponseType(typeof(ApiResponse<PagedResult<ProductResponse>>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 400)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 500)]
+    public async Task<ActionResult<ApiResponse<PagedResult<ProductResponse>>>> SearchAsync([FromBody] SearchProductsRequest request)
+    {
+        _logger.LogInformation("Search products endpoint called with filters");
+        
+        var pagedResult = await _productService.SearchAsync(request);
+        
+        return Ok(ApiResponse<PagedResult<ProductResponse>>.SuccessResponse(
+            pagedResult, 
+            $"Found {pagedResult.TotalCount} products", 
+            200));
+    }
+
     [HttpGet("{id:guid}", Name = "GetProductById")]
     [ProducesResponseType(typeof(ApiResponse<ProductResponse>), 200)]
     [ProducesResponseType(typeof(ApiResponse<object>), 404)]

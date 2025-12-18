@@ -191,4 +191,51 @@ public class ProductService : IProductService
             throw InfrastructureException.DatabaseError($"Failed to delete product with ID {id}", ex);
         }
     }
+
+    public async Task<PagedResult<ProductResponse>> SearchAsync(SearchProductsRequest request)
+    {
+        try
+        {
+            _logger.LogInformation(
+                "Searching products with filters: Query={Query}, CategoryId={CategoryId}, " +
+                "MinPrice={MinPrice}, MaxPrice={MaxPrice}, InStockOnly={InStockOnly}, " +
+                "Manufacturer={Manufacturer}, DeviceType={DeviceType}, Status={Status}, " +
+                "SortBy={SortBy}, SortOrder={SortOrder}",
+                request.Query, request.CategoryId, request.MinPrice, request.MaxPrice, 
+                request.InStockOnly, request.Manufacturer, request.DeviceType, request.Status,
+                request.SortBy, request.SortOrder);
+
+            var pagedProducts = await _productRepository.SearchAsync(
+                query: request.Query,
+                categoryId: request.CategoryId,
+                minPrice: request.MinPrice,
+                maxPrice: request.MaxPrice,
+                inStockOnly: request.InStockOnly,
+                manufacturer: request.Manufacturer,
+                deviceType: request.DeviceType,
+                status: request.Status,
+                saleAgentId: request.SaleAgentId,
+                minStock: request.MinStock,
+                maxStock: request.MaxStock,
+                minCommissionRate: request.MinCommissionRate,
+                maxCommissionRate: request.MaxCommissionRate,
+                sortBy: request.SortBy ?? "createdAt",
+                sortOrder: request.SortOrder ?? "desc",
+                pageNumber: request.PageNumber,
+                pageSize: request.PageSize);
+
+            return new PagedResult<ProductResponse>
+            {
+                Items = pagedProducts.Items.Select(p => ProductMapper.ToProductResponse(p)).ToList(),
+                TotalCount = pagedProducts.TotalCount,
+                Page = pagedProducts.Page,
+                PageSize = pagedProducts.PageSize
+            };
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error searching products");
+            throw InfrastructureException.DatabaseError("Failed to search products", ex);
+        }
+    }
 }
