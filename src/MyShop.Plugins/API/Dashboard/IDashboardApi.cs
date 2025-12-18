@@ -1,6 +1,7 @@
 using Refit;
 using MyShop.Shared.Models;
 using MyShop.Shared.DTOs.Common;
+using MyShop.Shared.DTOs.Responses;
 
 namespace MyShop.Plugins.API.Dashboard;
 
@@ -10,17 +11,18 @@ namespace MyShop.Plugins.API.Dashboard;
 public interface IDashboardApi
 {
     /// <summary>
-    /// GET /api/dashboard/summary
-    /// Get dashboard summary statistics
+    /// GET /api/v1/dashboard/summary
+    /// Get dashboard summary statistics for sales agent
     /// </summary>
+    /// <param name="period">Optional period for orders/revenue calculation: "day", "week", "month", "year". If null/empty, returns all-time data.</param>
     [Get("/api/v1/dashboard/summary")]
-    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<DashboardSummary>>> GetSummaryAsync();
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<SalesAgentDashboardSummaryResponse>>> GetSalesAgentSummaryAsync([Query] string? period = null);
 
     /// <summary>
-    /// GET /api/dashboard/revenue-chart?period={period}
+    /// GET /api/v1/dashboard/revenue-chart?period={period}
     /// Get revenue chart data for specified period
     /// </summary>
-    /// <param name="period">Period type: daily, weekly, monthly, yearly</param>
+    /// <param name="period">Period type: "day", "week", "month", "year"</param>
     [Get("/api/v1/dashboard/revenue-chart")]
-    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<RevenueChartData>>> GetRevenueChartAsync([Query] string period);
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<RevenueChartResponse>>> GetRevenueChartAsync([Query] string period);
 }
