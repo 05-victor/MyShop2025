@@ -24,9 +24,11 @@ public class DashboardRepository : IDashboardRepository
     {
         try
         {
-            Debug.WriteLine($"[DashboardRepository] Fetching dashboard summary from API (period: {period})");
-            // Note: Backend API may need to support period parameter in the future
-            var refitResponse = await _apiClient.GetSummaryAsync();
+            // Map client period format to API period format
+            var apiPeriod = MapPeriodToApi(period);
+            
+            Debug.WriteLine($"[DashboardRepository] Fetching dashboard summary from API (period: {apiPeriod})");
+            var refitResponse = await _apiClient.GetSalesAgentSummaryAsync(apiPeriod);
 
             // Check Refit outer wrapper (HTTP status)
             if (refitResponse.IsSuccessStatusCode && refitResponse.Content != null)
@@ -36,8 +38,11 @@ public class DashboardRepository : IDashboardRepository
                 // Check inner ApiResponse (business logic)
                 if (apiResponse.Success == true && apiResponse.Result != null)
                 {
-                    Debug.WriteLine($"[DashboardRepository] Successfully fetched summary: {apiResponse.Result.TotalProducts} products, {apiResponse.Result.TodayOrders} orders");
-                    return Result<DashboardSummary>.Success(apiResponse.Result);
+                    // Map SalesAgentDashboardSummaryResponse to DashboardSummary
+                    var dashboardSummary = MapToDashboardSummary(apiResponse.Result);
+                    
+                    Debug.WriteLine($"[DashboardRepository] Successfully fetched summary: {dashboardSummary.TotalProducts} products, {dashboardSummary.TodayOrders} orders");
+                    return Result<DashboardSummary>.Success(dashboardSummary);
                 }
 
                 return Result<DashboardSummary>.Failure(apiResponse.Message ?? "Failed to load dashboard summary");
@@ -129,6 +134,69 @@ public class DashboardRepository : IDashboardRepository
             return Result<List<TopSalesAgent>>.Failure("An error occurred while fetching top sales agents.", ex);
         }
     }
+
+    #region Helper Methods
+
+    /// <summary>
+    /// Map client period format to API period format
+    /// Client: "current", "last", "last3"
+    /// API: "day", "week", "month", "year"
+    /// </summary>
+    private static string MapPeriodToApi(string clientPeriod)
+    {
+        return clientPeriod.ToLower() switch
+        {
+            "current" => "month",
+            "last" => "month",
+            "last3" => "month", // Could be extended to support quarter
+            _ => "month"
+        };
+    }
+
+    /// <summary>
+    /// Map SalesAgentDashboardSummaryResponse to DashboardSummary
+    /// </summary>
+    private static DashboardSummary MapToDashboardSummary(MyShop.Shared.DTOs.Responses.SalesAgentDashboardSummaryResponse response)
+    {
+        return new DashboardSummary
+        {
+            Date = DateTime.UtcNow,
+            TotalProducts = response.TotalProducts,
+            TodayOrders = response.TodayOrders,
+            TodayRevenue = response.TodayRevenue,
+            WeekRevenue = response.WeekRevenue,
+            MonthRevenue = response.MonthRevenue,
+            LowStockProducts = response.LowStockProducts.Select(p => new LowStockProduct
+            {
+                Id = p.Id,
+                Name = p.Name,
+                CategoryName = p.CategoryName,
+                Quantity = p.Quantity,
+                ImageUrl = p.ImageUrl,
+                Status = p.Status
+            }).ToList(),
+            TopSellingProducts = response.TopSellingProducts.Select(p => new TopSellingProduct
+            {
+                Id = p.Id,
+                Name = p.Name,
+                CategoryName = p.CategoryName,
+                SoldCount = p.SoldCount,
+                Revenue = p.Revenue,
+                ImageUrl = p.ImageUrl
+            }).ToList(),
+            RecentOrders = response.RecentOrders.Select(o => new RecentOrder
+            {
+                Id = o.Id,
+                CustomerName = o.CustomerName,
+                OrderDate = o.OrderDate,
+                TotalAmount = o.TotalAmount,
+                Status = o.Status
+            }).ToList(),
+            SalesByCategory = new List<CategorySales>() // Not included in sales agent summary
+        };
+    }
+
+    #endregion
 
     #region Error Handling
 

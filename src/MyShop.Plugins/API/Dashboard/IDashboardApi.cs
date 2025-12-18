@@ -1,6 +1,7 @@
 using Refit;
 using MyShop.Shared.Models;
 using MyShop.Shared.DTOs.Common;
+using MyShop.Shared.DTOs.Responses;
 
 namespace MyShop.Plugins.API.Dashboard;
 
@@ -10,11 +11,12 @@ namespace MyShop.Plugins.API.Dashboard;
 public interface IDashboardApi
 {
     /// <summary>
-    /// GET /api/dashboard/summary
-    /// Get dashboard summary statistics
+    /// GET /api/v1/dashboard/summary
+    /// Get dashboard summary statistics for sales agent
     /// </summary>
+    /// <param name="period">Period for revenue calculation: "day", "week", "month", "year"</param>
     [Get("/api/v1/dashboard/summary")]
-    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<DashboardSummary>>> GetSummaryAsync();
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<SalesAgentDashboardSummaryResponse>>> GetSalesAgentSummaryAsync([Query] string period = "month");
 
     /// <summary>
     /// GET /api/dashboard/revenue-chart?period={period}
