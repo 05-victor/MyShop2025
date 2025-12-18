@@ -13,4 +13,11 @@ public interface IDashboardService
     /// <param name="period">Optional period for orders/revenue calculation: "day", "week", "month", "year". If null/empty, returns all-time data.</param>
     /// <returns>Dashboard summary including products, orders, revenue, and analytics</returns>
     Task<SalesAgentDashboardSummaryResponse> GetSalesAgentSummaryAsync(string? period = null);
+
+    /// <summary>
+    /// Get revenue chart data for the currently logged-in sales agent
+    /// </summary>
+    /// <param name="period">Chart period: "day" (hourly), "week" (daily), "month" (daily), "year" (monthly)</param>
+    /// <returns>Chart data with labels and revenue values</returns>
+    Task<RevenueChartResponse> GetRevenueChartAsync(string period = "week");
 }

@@ -19,10 +19,10 @@ public interface IDashboardApi
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<SalesAgentDashboardSummaryResponse>>> GetSalesAgentSummaryAsync([Query] string? period = null);
 
     /// <summary>
-    /// GET /api/dashboard/revenue-chart?period={period}
+    /// GET /api/v1/dashboard/revenue-chart?period={period}
     /// Get revenue chart data for specified period
     /// </summary>
-    /// <param name="period">Period type: daily, weekly, monthly, yearly</param>
+    /// <param name="period">Period type: "day", "week", "month", "year"</param>
     [Get("/api/v1/dashboard/revenue-chart")]
-    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<RevenueChartData>>> GetRevenueChartAsync([Query] string period);
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<RevenueChartResponse>>> GetRevenueChartAsync([Query] string period);
 }

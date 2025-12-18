@@ -84,8 +84,15 @@ public class DashboardRepository : IDashboardRepository
                 // Check inner ApiResponse (business logic)
                 if (apiResponse.Success == true && apiResponse.Result != null)
                 {
-                    Debug.WriteLine($"[DashboardRepository] Successfully fetched chart data with {apiResponse.Result.Labels.Count} data points");
-                    return Result<RevenueChartData>.Success(apiResponse.Result);
+                    // Map RevenueChartResponse to RevenueChartData
+                    var chartData = new RevenueChartData
+                    {
+                        Labels = apiResponse.Result.Labels,
+                        Data = apiResponse.Result.Data
+                    };
+
+                    Debug.WriteLine($"[DashboardRepository] Successfully fetched chart data with {chartData.Labels.Count} data points");
+                    return Result<RevenueChartData>.Success(chartData);
                 }
 
                 return Result<RevenueChartData>.Failure(apiResponse.Message ?? "Failed to load revenue chart data");

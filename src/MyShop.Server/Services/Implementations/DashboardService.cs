@@ -67,23 +67,21 @@ public class DashboardService : IDashboardService
                 .ToListAsync();
 
             // Calculate date range based on period (null = all time)
-            DateTime? startDate = null;
-            if (!string.IsNullOrWhiteSpace(period))
-            {
-                var now = DateTime.UtcNow;
-                startDate = GetStartDateForPeriod(period, now);
-            }
+            // Use "this period" approach (e.g., this month = from 1st to now)
+            var (startDate, endDate) = GetDateRangeForCurrentPeriod(period);
 
             // Filter orders by period and exclude cancelled orders
-            var periodOrders = startDate.HasValue
-                ? allOrders.Where(o => o.OrderDate >= startDate.Value && o.Status != OrderStatus.Cancelled).ToList()
-                : allOrders.Where(o => o.Status != OrderStatus.Cancelled).ToList();
+            var periodOrders = allOrders
+                .Where(o => (startDate == null || o.OrderDate >= startDate.Value) 
+                         && (endDate == null || o.OrderDate <= endDate.Value)
+                         && o.Status != OrderStatus.Cancelled)
+                .ToList();
 
             var totalOrders = periodOrders.Count;
             var totalRevenue = periodOrders.Sum(o => o.GrandTotal);
 
-            _logger.LogDebug("Period: {Period}, Orders: {Orders}, Revenue: {Revenue}",
-                period ?? "all-time", totalOrders, totalRevenue);
+            _logger.LogDebug("Period: {Period}, StartDate: {Start}, EndDate: {End}, Orders: {Orders}, Revenue: {Revenue}",
+                period ?? "all-time", startDate?.ToString("yyyy-MM-dd") ?? "N/A", endDate?.ToString("yyyy-MM-dd") ?? "N/A", totalOrders, totalRevenue);
 
             // Top 5 low stock products (quantity <= 10)
             var lowStockProducts = allProducts
@@ -182,18 +180,218 @@ public class DashboardService : IDashboardService
         }
     }
 
-    /// <summary>
-    /// Get start date for the specified period
-    /// </summary>
-    private static DateTime GetStartDateForPeriod(string period, DateTime now)
+    public async Task<RevenueChartResponse> GetRevenueChartAsync(string period = "week")
     {
+        try
+        {
+            var currentUserId = _currentUserService.UserId;
+            if (!currentUserId.HasValue)
+            {
+                throw new UnauthorizedAccessException("User not authenticated");
+            }
+
+            var salesAgentId = currentUserId.Value;
+            _logger.LogInformation("Calculating revenue chart for sales agent {SalesAgentId}, period: {Period}", 
+                salesAgentId, period);
+
+            // Get all orders for this sales agent
+            var allOrders = await _context.Orders
+                .Where(o => o.SaleAgentId == salesAgentId && o.Status != OrderStatus.Cancelled)
+                .ToListAsync();
+
+            var chartResponse = new RevenueChartResponse();
+
+            // Generate labels and calculate revenue based on period
+            switch (period.ToLower())
+            {
+                case "day":
+                    // Hourly data for today (24 hours)
+                    chartResponse = GenerateHourlyChart(allOrders);
+                    break;
+
+                case "week":
+                    // Daily data for this week (7 days: Mon-Sun)
+                    chartResponse = GenerateWeeklyChart(allOrders);
+                    break;
+
+                case "month":
+                    // Daily data for this month (1st to today)
+                    chartResponse = GenerateMonthlyChart(allOrders);
+                    break;
+
+                case "year":
+                    // Monthly data for this year (Jan to current month)
+                    chartResponse = GenerateYearlyChart(allOrders);
+                    break;
+
+                default:
+                    _logger.LogWarning("Invalid chart period: {Period}, defaulting to week", period);
+                    chartResponse = GenerateWeeklyChart(allOrders);
+                    break;
+            }
+
+            _logger.LogInformation(
+                "Revenue chart calculated for agent {SalesAgentId}: {DataPoints} data points",
+                salesAgentId, chartResponse.Labels.Count);
+
+            return chartResponse;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error calculating revenue chart");
+            throw;
+        }
+    }
+
+    #region Chart Generation Methods
+
+    /// <summary>
+    /// Generate hourly chart for today (24 hours)
+    /// </summary>
+    private RevenueChartResponse GenerateHourlyChart(List<Data.Entities.Order> orders)
+    {
+        var today = DateTime.UtcNow.Date;
+        var chartResponse = new RevenueChartResponse();
+
+        // Generate 24 hour labels (0-23)
+        for (int hour = 0; hour < 24; hour++)
+        {
+            var hourStart = today.AddHours(hour);
+            var hourEnd = hourStart.AddHours(1);
+
+            // Format: "00:00", "01:00", etc.
+            chartResponse.Labels.Add($"{hour:D2}:00");
+
+            // Calculate revenue for this hour
+            var hourRevenue = orders
+                .Where(o => o.OrderDate >= hourStart && o.OrderDate < hourEnd)
+                .Sum(o => o.GrandTotal);
+
+            chartResponse.Data.Add(hourRevenue);
+        }
+
+        return chartResponse;
+    }
+
+    /// <summary>
+    /// Generate daily chart for this week (Mon-Sun)
+    /// </summary>
+    private RevenueChartResponse GenerateWeeklyChart(List<Data.Entities.Order> orders)
+    {
+        var now = DateTime.UtcNow;
+        var startOfWeek = GetStartOfWeek(now);
+        var chartResponse = new RevenueChartResponse();
+
+        // Generate 7 day labels (Monday to Sunday)
+        var dayNames = new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
+
+        for (int i = 0; i < 7; i++)
+        {
+            var dayStart = startOfWeek.AddDays(i).Date;
+            var dayEnd = dayStart.AddDays(1);
+
+            chartResponse.Labels.Add(dayNames[i]);
+
+            // Calculate revenue for this day
+            var dayRevenue = orders
+                .Where(o => o.OrderDate >= dayStart && o.OrderDate < dayEnd)
+                .Sum(o => o.GrandTotal);
+
+            chartResponse.Data.Add(dayRevenue);
+        }
+
+        return chartResponse;
+    }
+
+    /// <summary>
+    /// Generate daily chart for this month (1st to today)
+    /// </summary>
+    private RevenueChartResponse GenerateMonthlyChart(List<Data.Entities.Order> orders)
+    {
+        var now = DateTime.UtcNow;
+        var startOfMonth = now.StartOfMonth();
+        var daysInMonth = DateTime.DaysInMonth(now.Year, now.Month);
+        var chartResponse = new RevenueChartResponse();
+
+        // Generate labels for each day of the month up to today
+        var currentDay = (int)now.Day;
+
+        for (int day = 1; day <= currentDay; day++)
+        {
+            var dayStart = new DateTime(now.Year, now.Month, day);
+            var dayEnd = dayStart.AddDays(1);
+
+            // Format: "1", "2", "3", ... "31"
+            chartResponse.Labels.Add(day.ToString());
+
+            // Calculate revenue for this day
+            var dayRevenue = orders
+                .Where(o => o.OrderDate >= dayStart && o.OrderDate < dayEnd)
+                .Sum(o => o.GrandTotal);
+
+            chartResponse.Data.Add(dayRevenue);
+        }
+
+        return chartResponse;
+    }
+
+    /// <summary>
+    /// Generate monthly chart for this year (Jan to current month)
+    /// </summary>
+    private RevenueChartResponse GenerateYearlyChart(List<Data.Entities.Order> orders)
+    {
+        var now = DateTime.UtcNow;
+        var chartResponse = new RevenueChartResponse();
+
+        // Month abbreviations
+        var monthNames = new[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+
+        // Generate labels for each month up to current month
+        for (int month = 1; month <= now.Month; month++)
+        {
+            var monthStart = new DateTime(now.Year, month, 1);
+            var monthEnd = monthStart.AddMonths(1);
+
+            chartResponse.Labels.Add(monthNames[month - 1]);
+
+            // Calculate revenue for this month
+            var monthRevenue = orders
+                .Where(o => o.OrderDate >= monthStart && o.OrderDate < monthEnd)
+                .Sum(o => o.GrandTotal);
+
+            chartResponse.Data.Add(monthRevenue);
+        }
+
+        return chartResponse;
+    }
+
+    #endregion
+
+    /// <summary>
+    /// Get date range for the current period (e.g., "this month" = from 1st to now)
+    /// Returns (null, null) for all-time
+    /// </summary>
+    private static (DateTime? startDate, DateTime? endDate) GetDateRangeForCurrentPeriod(string? period)
+    {
+        if (string.IsNullOrWhiteSpace(period))
+        {
+            return (null, null); // All time
+        }
+
+        var now = DateTime.UtcNow;
+
         return period.ToLower() switch
         {
-            "day" => now.Date,
-            "week" => GetStartOfWeek(now),
-            "month" => now.StartOfMonth(),
-            "year" => new DateTime(now.Year, 1, 1),
-            _ => DateTime.MinValue // Invalid period = all time
+            "day" => (now.Date, now),                                    // Today: 00:00:00 to now
+            "week" => (GetStartOfWeek(now), now),                        // This week: Monday to now
+            "month" => (now.StartOfMonth(), now),                        // This month: 1st to now
+            "year" => (new DateTime(now.Year, 1, 1), now),               // This year: Jan 1 to now
+            _ => (null, null)                                            // Invalid period = all time
         };
     }
 

@@ -31,7 +31,13 @@ public class DashboardController : ControllerBase
     /// Returns overview information including total products, orders (for period), revenue (for period),
     /// low stock products, top-selling products, and recent orders
     /// </summary>
-    /// <param name="period">Optional period for orders/revenue calculation: "day", "week", "month", "year". If not specified, returns all-time data.</param>
+    /// <param name="period">Optional period for orders/revenue calculation:
+    /// - "day": Today (from 00:00:00 to now)
+    /// - "week": This week (from Monday to now)
+    /// - "month": This month (from 1st to now)
+    /// - "year": This year (from Jan 1 to now)
+    /// - Not specified: All-time data
+    /// </param>
     /// <returns>Dashboard summary data</returns>
     /// <response code="200">Returns dashboard summary</response>
     /// <response code="400">Invalid period parameter</response>
@@ -74,6 +80,58 @@ public class DashboardController : ControllerBase
             _logger.LogError(ex, "Error retrieving dashboard summary");
             return StatusCode(StatusCodes.Status500InternalServerError,
                 ApiResponse<object>.ServerErrorResponse("An error occurred while retrieving dashboard summary"));
+        }
+    }
+
+    /// <summary>
+    /// Get revenue chart data for the currently logged-in sales agent
+    /// Returns time-series data for revenue visualization
+    /// </summary>
+    /// <param name="period">Chart period:
+    /// - "day": Hourly data for today (24 hours)
+    /// - "week": Daily data for this week (Mon-Sun)
+    /// - "month": Daily data for this month (1st to today)
+    /// - "year": Monthly data for this year (Jan to current month)
+    /// </param>
+    /// <returns>Revenue chart data with labels and values</returns>
+    /// <response code="200">Returns revenue chart data</response>
+    /// <response code="400">Invalid period parameter</response>
+    /// <response code="401">User not authenticated</response>
+    [HttpGet("revenue-chart")]
+    [ProducesResponseType(typeof(ApiResponse<RevenueChartResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetRevenueChart([FromQuery] string period = "week")
+    {
+        try
+        {
+            _logger.LogInformation("GET /api/v1/dashboard/revenue-chart - Period: {Period}", period);
+
+            // Validate period parameter
+            var validPeriods = new[] { "day", "week", "month", "year" };
+            if (!validPeriods.Contains(period.ToLower()))
+            {
+                _logger.LogWarning("Invalid period parameter: {Period}", period);
+                return BadRequest(ApiResponse<object>.ErrorResponse(
+                    $"Invalid period. Valid values are: {string.Join(", ", validPeriods)}"));
+            }
+
+            var chartData = await _dashboardService.GetRevenueChartAsync(period);
+
+            return Ok(ApiResponse<RevenueChartResponse>.SuccessResponse(
+                chartData,
+                "Revenue chart data retrieved successfully"));
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning("Unauthorized access to revenue chart: {Message}", ex.Message);
+            return Unauthorized(ApiResponse<object>.UnauthorizedResponse("User not authenticated"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving revenue chart");
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                ApiResponse<object>.ServerErrorResponse("An error occurred while retrieving revenue chart"));
         }
     }
 }
