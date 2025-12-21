@@ -45,41 +45,63 @@ public class DashboardFacade : IDashboardFacade
                 period = "current"; // Default to current if invalid
             }
 
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.LoadDashboardAsync] START - Period: {period}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.LoadDashboardAsync] Calling repository.GetSummaryAsync({period})");
+
+            var sw = System.Diagnostics.Stopwatch.StartNew();
             var result = await _dashboardRepository.GetSummaryAsync(period);
+            sw.Stop();
+
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.LoadDashboardAsync] Repository returned - Success: {result.IsSuccess}, ElapsedMs: {sw.ElapsedMilliseconds}");
+
             if (!result.IsSuccess || result.Data == null)
             {
+                System.Diagnostics.Debug.WriteLine($"[DashboardFacade.LoadDashboardAsync] ERROR - {result.ErrorMessage}");
                 _ = _toastService.ShowError("Failed to load dashboard data");
                 return Result<DashboardSummary>.Failure(result.ErrorMessage ?? "Failed to load dashboard");
             }
 
-            System.Diagnostics.Debug.WriteLine($"[DashboardFacade] Dashboard loaded for period: {period}");
+            var data = result.Data;
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.LoadDashboardAsync] COMPLETED - TotalProducts: {data.TotalProducts}, Orders: {data.TodayOrders}, Revenue: {data.MonthRevenue}");
             return result;
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[DashboardFacade] Error loading dashboard: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.LoadDashboardAsync] Exception - Type: {ex.GetType().Name}, Message: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.LoadDashboardAsync] StackTrace: {ex.StackTrace}");
             _ = _toastService.ShowError($"Error loading dashboard: {ex.Message}");
             return Result<DashboardSummary>.Failure($"Error: {ex.Message}");
         }
     }
 
-    public async Task<Result<RevenueChartData>> GetRevenueChartDataAsync(string period = "daily")
+    public async Task<Result<RevenueChartData>> GetRevenueChartDataAsync(string period = "day")
     {
         try
         {
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.GetRevenueChartDataAsync] START - Period: {period}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.GetRevenueChartDataAsync] Calling repository.GetRevenueChartAsync({period})");
+
+            var sw = System.Diagnostics.Stopwatch.StartNew();
             var result = await _dashboardRepository.GetRevenueChartAsync(period);
+            sw.Stop();
+
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.GetRevenueChartDataAsync] Repository returned - Success: {result.IsSuccess}, ElapsedMs: {sw.ElapsedMilliseconds}");
+
             if (!result.IsSuccess || result.Data == null)
             {
+                System.Diagnostics.Debug.WriteLine($"[DashboardFacade.GetRevenueChartDataAsync] ERROR - {result.ErrorMessage}");
                 _ = _toastService.ShowError("Failed to load revenue chart data");
                 return Result<RevenueChartData>.Failure("Failed to load chart data");
             }
 
-            System.Diagnostics.Debug.WriteLine($"[DashboardFacade] Revenue chart data loaded for period: {period}");
+            var data = result.Data;
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.GetRevenueChartDataAsync] COMPLETED - DataPoints: {data.Labels.Count}");
             return result;
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[DashboardFacade] Error loading chart data: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.GetRevenueChartDataAsync] Exception - Type: {ex.GetType().Name}, Message: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.GetRevenueChartDataAsync] StackTrace: {ex.StackTrace}");
             _ = _toastService.ShowError($"Error loading chart: {ex.Message}");
             return Result<RevenueChartData>.Failure($"Error: {ex.Message}");
         }

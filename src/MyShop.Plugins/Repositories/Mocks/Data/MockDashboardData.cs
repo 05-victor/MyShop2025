@@ -92,10 +92,10 @@ public static class MockDashboardData
         // Get real orders data for calculation
         var allOrders = await MockOrderData.GetAllAsync();
         System.Diagnostics.Debug.WriteLine($"[MockDashboardData] Total orders loaded: {allOrders.Count}");
-        
+
         var periodOrders = allOrders.Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate).ToList();
         System.Diagnostics.Debug.WriteLine($"[MockDashboardData] Orders in period ({startDate:yyyy-MM-dd} to {endDate:yyyy-MM-dd}): {periodOrders.Count}");
-        
+
         var today = DateTime.Today;
         var weekStart = today.AddDays(-(int)today.DayOfWeek);
 
@@ -147,7 +147,7 @@ public static class MockDashboardData
         // Calculate sales by category for the period
         var totalOrderItems = periodOrders.Sum(o => o.OrderItems?.Count ?? 0);
         System.Diagnostics.Debug.WriteLine($"[MockDashboardData] Period orders: {periodOrders.Count}, Total order items: {totalOrderItems}, All products: {allProducts.Count}");
-        
+
         var salesByCategory = periodOrders
             .SelectMany(o => o.OrderItems ?? new List<OrderItem>())
             .Join(allProducts, item => item.ProductId, product => product.Id, (item, product) => new
@@ -348,65 +348,85 @@ public static class MockDashboardData
         {
             topAgents = new List<TopSalesAgent>
             {
-                new() { 
+                new() {
                     Id = Guid.NewGuid().ToString(),
-                    Name = "Michael Chen", 
-                    Email = "michael.chen@example.com", 
-                    Avatar = "ms-appx:///Assets/Images/user/avatar-placeholder.png", 
-                    GMV = 127450m, 
+                    Name = "Michael Chen",
+                    Email = "michael.chen@example.com",
+                    Avatar = "ms-appx:///Assets/Images/user/avatar-placeholder.png",
+                    GMV = 127450m,
                     Commission = 6372.50m,
                     OrderCount = 45,
-                    Rating = 4.9, 
-                    Status = "Active" 
+                    Rating = 4.9,
+                    Status = "Active"
                 },
-                new() { 
+                new() {
                     Id = Guid.NewGuid().ToString(),
-                    Name = "Sarah Johnson", 
-                    Email = "sarah.johnson@example.com", 
-                    Avatar = "ms-appx:///Assets/Images/user/avatar-placeholder.png", 
-                    GMV = 98320m, 
+                    Name = "Sarah Johnson",
+                    Email = "sarah.johnson@example.com",
+                    Avatar = "ms-appx:///Assets/Images/user/avatar-placeholder.png",
+                    GMV = 98320m,
                     Commission = 4916.00m,
                     OrderCount = 38,
-                    Rating = 4.8, 
-                    Status = "Active" 
+                    Rating = 4.8,
+                    Status = "Active"
                 },
-                new() { 
+                new() {
                     Id = Guid.NewGuid().ToString(),
-                    Name = "David Park", 
-                    Email = "david.park@example.com", 
-                    Avatar = "ms-appx:///Assets/Images/user/avatar-placeholder.png", 
-                    GMV = 87650m, 
+                    Name = "David Park",
+                    Email = "david.park@example.com",
+                    Avatar = "ms-appx:///Assets/Images/user/avatar-placeholder.png",
+                    GMV = 87650m,
                     Commission = 4382.50m,
                     OrderCount = 32,
-                    Rating = 4.7, 
-                    Status = "Active" 
+                    Rating = 4.7,
+                    Status = "Active"
                 },
-                new() { 
+                new() {
                     Id = Guid.NewGuid().ToString(),
-                    Name = "Emma Wilson", 
-                    Email = "emma.wilson@example.com", 
-                    Avatar = "ms-appx:///Assets/Images/user/avatar-placeholder.png", 
-                    GMV = 76890m, 
+                    Name = "Emma Wilson",
+                    Email = "emma.wilson@example.com",
+                    Avatar = "ms-appx:///Assets/Images/user/avatar-placeholder.png",
+                    GMV = 76890m,
                     Commission = 3844.50m,
                     OrderCount = 28,
-                    Rating = 4.9, 
-                    Status = "Active" 
+                    Rating = 4.9,
+                    Status = "Active"
                 },
-                new() { 
+                new() {
                     Id = Guid.NewGuid().ToString(),
-                    Name = "James Lee", 
-                    Email = "james.lee@example.com", 
-                    Avatar = "ms-appx:///Assets/Images/user/avatar-placeholder.png", 
-                    GMV = 65430m, 
+                    Name = "James Lee",
+                    Email = "james.lee@example.com",
+                    Avatar = "ms-appx:///Assets/Images/user/avatar-placeholder.png",
+                    GMV = 65430m,
                     Commission = 3271.50m,
                     OrderCount = 25,
-                    Rating = 4.6, 
-                    Status = "Active" 
+                    Rating = 4.6,
+                    Status = "Active"
                 }
             };
         }
 
         return topAgents;
+    }
+
+    /// <summary>
+    /// Get flagged/pending review products with mock data
+    /// </summary>
+    public static async Task<List<(string Name, string Agent, string Category, string State)>> GetFlaggedProductsAsync(string period = "current")
+    {
+        // await Task.Delay(300);
+
+        // Mock flagged products data
+        var flaggedProducts = new List<(string Name, string Agent, string Category, string State)>
+        {
+            ("iPhone 14 Pro Max", "Michael Chen", "Smartphones", "Pending Review"),
+            ("Samsung Galaxy S23 Ultra", "Sarah Johnson", "Smartphones", "Flagged"),
+            ("MacBook Pro 16\"", "David Park", "Laptops", "Pending Review"),
+            ("Sony WH-1000XM5", "Emma Wilson", "Audio", "Under Review"),
+            ("iPad Pro 12.9\"", "James Lee", "Tablets", "Pending Review")
+        };
+
+        return flaggedProducts;
     }
 
     // Data container classes for JSON deserialization
