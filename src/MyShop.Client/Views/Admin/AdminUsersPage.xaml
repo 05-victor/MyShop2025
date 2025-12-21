@@ -135,8 +135,8 @@
                                                       IsSelected="True"/>
                                         <ComboBoxItem Content="Admin"
                                                       Tag="Admin"/>
-                                        <ComboBoxItem Content="Salesman"
-                                                      Tag="Salesman"/>
+                                        <ComboBoxItem Content="Sales Agent"
+                                                      Tag="SalesAgent"/>
                                         <ComboBoxItem Content="Customer"
                                                       Tag="Customer"/>
                                     </ComboBox>

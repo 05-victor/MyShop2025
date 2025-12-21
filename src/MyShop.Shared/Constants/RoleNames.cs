@@ -6,9 +6,6 @@ namespace MyShop.Shared.Constants;
 public static class RoleNames
 {
     public const string Admin = "ADMIN";
-    public const string Salesman = "SALESMAN";
+    public const string SalesAgent = "SALESAGENT";
     public const string Customer = "CUSTOMER";
-    
-    // Alternative spellings for compatibility
-    public const string SalesmanAlt = "SALEMAN";
 }

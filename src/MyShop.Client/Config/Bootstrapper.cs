@@ -306,7 +306,7 @@ namespace MyShop.Client.Config
 
                     // ===== Strategies (from Client.Strategies) =====
                     services.AddSingleton<IRoleStrategy, AdminDashboardStrategy>();
-                    services.AddSingleton<IRoleStrategy, SalesmanDashboardStrategy>();
+                    services.AddSingleton<IRoleStrategy, SalesAgentDashboardStrategy>();
                     services.AddSingleton<IRoleStrategy, CustomerDashboardStrategy>();
                     services.AddSingleton<IRoleStrategyFactory, RoleStrategyFactory>();
 

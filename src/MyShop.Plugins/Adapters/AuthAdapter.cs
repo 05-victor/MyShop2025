@@ -91,8 +91,9 @@ public static class AuthAdapter
 
             if (normalized == "ADMIN")
                 roles.Add(UserRole.Admin);
+            // Support legacy role names (SALEMAN, SALESMAN) for backward compatibility
             else if (normalized == "SALEMAN" || normalized == "SALESMAN" || normalized == "SALESAGENT")
-                roles.Add(UserRole.Salesman);
+                roles.Add(UserRole.SalesAgent);
             else if (normalized == "CUSTOMER" || normalized == "USER")
                 roles.Add(UserRole.Customer);
         }

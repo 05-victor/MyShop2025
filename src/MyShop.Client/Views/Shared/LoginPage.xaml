@@ -13,8 +13,9 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*" />
-            <ColumnDefinition x:Name="FormColumn" Width="1*" />
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition x:Name="FormColumn"
+                    Width="1*"/>
         </Grid.ColumnDefinitions>
 
         <!--  Left Side: Branding with Mountain Background  -->
@@ -23,11 +24,12 @@
             Grid.Column="0"
             Grid.ColumnSpan="1">
             <Grid.Background>
-                <ImageBrush ImageSource="/Assets/login-background.jpg" Stretch="UniformToFill" />
+                <ImageBrush ImageSource="/Assets/login-background.jpg"
+                        Stretch="UniformToFill"/>
             </Grid.Background>
 
             <!--  Dark overlay for better text contrast  -->
-            <Border Background="#66000000" />
+            <Border Background="#66000000"/>
 
             <StackPanel
                 HorizontalAlignment="Center"
@@ -38,33 +40,34 @@
                     Height="120"
                     AutomationProperties.Name="MyShop2025 Logo"
                     Source="/Assets/StoreLogo.png"
-                    Stretch="Uniform" />
+                    Stretch="Uniform"/>
 
                 <TextBlock
                     HorizontalAlignment="Center"
                     AutomationProperties.HeadingLevel="Level1"
                     Foreground="White"
                     Style="{StaticResource DisplayHeadingStyle}"
-                    Text="MyShop2025" />
+                    Text="MyShop2025"/>
 
                 <TextBlock
                     HorizontalAlignment="Center"
                     Foreground="White"
                     Opacity="0.9"
                     Style="{StaticResource BodyLargeStyle}"
-                    Text="Modern Shop Management System" />
+                    Text="Modern Shop Management System"/>
 
                 <TextBlock
                     HorizontalAlignment="Center"
                     Foreground="White"
                     Opacity="0.7"
                     Style="{StaticResource SmallTextStyle}"
-                    Text="v1.0.0" />
+                    Text="v1.0.0"/>
             </StackPanel>
         </Grid>
 
         <!--  Right Side: Login Form  -->
-        <Grid Grid.Column="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+        <Grid Grid.Column="1"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
             <!--  Mock Mode Banner  -->
             <InfoBar
                 x:Name="MockModeBanner"
@@ -74,8 +77,8 @@
                 VerticalAlignment="Top"
                 IsClosable="False"
                 IsOpen="False"
-                Message="Using mock data. Try: admin/admin123, salesman/sales123, or customer/customer123"
-                Severity="Informational" />
+                Message="Using mock data. Try: admin/admin123, salesagent/sales123, or customer/customer123"
+                Severity="Informational"/>
 
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel
@@ -86,18 +89,19 @@
                     Spacing="{StaticResource Gap_LG}">
 
                     <!--  Header  -->
-                    <StackPanel Margin="0,0,0,16" Spacing="{StaticResource Gap_SM}">
+                    <StackPanel Margin="0,0,0,16"
+                            Spacing="{StaticResource Gap_SM}">
                         <TextBlock
                             AutomationProperties.HeadingLevel="Level1"
                             Foreground="{StaticResource TextPrimaryBrush}"
                             Style="{StaticResource Heading1Style}"
-                            Text="Welcome back!" />
+                            Text="Welcome back!"/>
 
                         <TextBlock
                             Foreground="{StaticResource TextSecondaryBrush}"
                             Style="{StaticResource SecondaryTextStyle}"
                             Text="Enter your credentials to access your account"
-                            TextWrapping="Wrap" />
+                            TextWrapping="Wrap"/>
                     </StackPanel>
 
                     <!--  Username/Email Input  -->
@@ -106,8 +110,9 @@
                             AutomationProperties.LabeledBy="{Binding ElementName=UsernameTextBox}"
                             Foreground="{StaticResource TextPrimaryBrush}"
                             Style="{StaticResource InputLabelStyle}">
-                            <Run Text="Username or Email" />
-                            <Run Foreground="{StaticResource ErrorRedBrush}" Text="*" />
+                            <Run Text="Username or Email"/>
+                            <Run Foreground="{StaticResource ErrorRedBrush}"
+                                    Text="*"/>
                         </TextBlock>
 
                         <TextBox
@@ -119,7 +124,7 @@
                             KeyDown="Input_KeyDown"
                             PlaceholderText="Enter your username or email"
                             Style="{StaticResource BaseInputStyle}"
-                            Text="{x:Bind ViewModel.Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            Text="{x:Bind ViewModel.Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                         <TextBlock
                             AutomationProperties.LiveSetting="Assertive"
@@ -128,7 +133,7 @@
                             Visibility="{x:Bind ViewModel.UsernameError, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}">
                             <TextBlock.Transitions>
                                 <TransitionCollection>
-                                    <EntranceThemeTransition FromVerticalOffset="-10" />
+                                    <EntranceThemeTransition FromVerticalOffset="-10"/>
                                 </TransitionCollection>
                             </TextBlock.Transitions>
                         </TextBlock>
@@ -136,9 +141,11 @@
 
                     <!--  Password Input  -->
                     <StackPanel Spacing="{StaticResource Gap_SM}">
-                        <TextBlock Foreground="{StaticResource TextPrimaryBrush}" Style="{StaticResource InputLabelStyle}">
-                            <Run Text="Password" />
-                            <Run Foreground="{StaticResource ErrorRedBrush}" Text="*" />
+                        <TextBlock Foreground="{StaticResource TextPrimaryBrush}"
+                                Style="{StaticResource InputLabelStyle}">
+                            <Run Text="Password"/>
+                            <Run Foreground="{StaticResource ErrorRedBrush}"
+                                    Text="*"/>
                         </TextBlock>
 
                         <controls:PasswordInputControl
@@ -146,7 +153,7 @@
                             IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
                             KeyDown="Input_KeyDown"
                             Password="{x:Bind ViewModel.Password, Mode=TwoWay}"
-                            PlaceholderText="Enter your password" />
+                            PlaceholderText="Enter your password"/>
 
                         <TextBlock
                             AutomationProperties.LiveSetting="Assertive"
@@ -155,7 +162,7 @@
                             Visibility="{x:Bind ViewModel.PasswordError, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}">
                             <TextBlock.Transitions>
                                 <TransitionCollection>
-                                    <EntranceThemeTransition FromVerticalOffset="-10" />
+                                    <EntranceThemeTransition FromVerticalOffset="-10"/>
                                 </TransitionCollection>
                             </TextBlock.Transitions>
                         </TextBlock>
@@ -168,7 +175,7 @@
                             AutomationProperties.Name="Remember me checkbox"
                             Content="Remember me"
                             IsChecked="{x:Bind ViewModel.IsRememberMe, Mode=TwoWay}"
-                            IsTabStop="False" />
+                            IsTabStop="False"/>
 
                         <HyperlinkButton
                             HorizontalAlignment="Right"
@@ -176,7 +183,7 @@
                             Command="{x:Bind ViewModel.ForgotPasswordCommand}"
                             Content="Forgot password?"
                             Style="{StaticResource LinkButtonStyle}"
-                            IsTabStop="False" />
+                            IsTabStop="False"/>
                     </Grid>
 
                     <!--  Error Message  -->
@@ -190,7 +197,7 @@
                         Visibility="{x:Bind ViewModel.ErrorMessage, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}">
                         <TextBlock.Transitions>
                             <TransitionCollection>
-                                <EntranceThemeTransition />
+                                <EntranceThemeTransition/>
                             </TransitionCollection>
                         </TextBlock.Transitions>
                     </TextBlock>
@@ -212,37 +219,37 @@
                                 Height="20"
                                 Foreground="White"
                                 IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
-                                Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
                             <TextBlock
                                 VerticalAlignment="Center"
                                 Foreground="White"
-                                Text="{x:Bind ViewModel.LoginButtonText, Mode=OneWay}" />
+                                Text="{x:Bind ViewModel.LoginButtonText, Mode=OneWay}"/>
                         </StackPanel>
                     </Button>
 
                     <!--  Divider  -->
                     <Grid Margin="0,16,0,8">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Border
                             Grid.Column="0"
                             Height="1"
                             VerticalAlignment="Center"
-                            Background="{StaticResource Gray300Brush}" />
+                            Background="{StaticResource Gray300Brush}"/>
                         <TextBlock
                             Grid.Column="1"
                             Margin="16,0"
                             FontSize="12"
                             Foreground="{StaticResource TextSecondaryBrush}"
-                            Text="OR" />
+                            Text="OR"/>
                         <Border
                             Grid.Column="2"
                             Height="1"
                             VerticalAlignment="Center"
-                            Background="{StaticResource Gray300Brush}" />
+                            Background="{StaticResource Gray300Brush}"/>
                     </Grid>
 
                     <!--  Google Login Button  -->
@@ -251,13 +258,15 @@
                         Command="{x:Bind ViewModel.GoogleLoginCommand}"
                         Style="{StaticResource SecondaryButtonStyle}"
                         ToolTipService.ToolTip="Sign in using your Google account">
-                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource Gap_MD}">
+                        <StackPanel Orientation="Horizontal"
+                                Spacing="{StaticResource Gap_MD}">
                             <Image
                                 Width="20"
                                 Height="20"
                                 AutomationProperties.Name="Google logo"
-                                Source="/Assets/Google.png" />
-                            <TextBlock VerticalAlignment="Center" Text="Sign in with Google" />
+                                Source="/Assets/Google.png"/>
+                            <TextBlock VerticalAlignment="Center"
+                                    Text="Sign in with Google"/>
                         </StackPanel>
                     </Button>
 
@@ -273,14 +282,14 @@
                             <TextBlock
                                 Foreground="{StaticResource TextSecondaryBrush}"
                                 Style="{StaticResource SecondaryTextStyle}"
-                                Text="Don't have an account?" />
+                                Text="Don't have an account?"/>
 
                             <HyperlinkButton
                                 x:Name="RegisterButton"
                                 AutomationProperties.Name="Register for new account"
                                 Command="{x:Bind ViewModel.NavigateToRegisterCommand}"
                                 Content="Register here"
-                                Style="{StaticResource LinkButtonStyle}" />
+                                Style="{StaticResource LinkButtonStyle}"/>
                         </StackPanel>
 
                         <TextBlock
@@ -289,7 +298,7 @@
                             Foreground="{StaticResource WarningAmberBrush}"
                             Style="{StaticResource CaptionStyle}"
                             Text="⚠️ Registration disabled in Mock mode"
-                            Visibility="Collapsed" />
+                            Visibility="Collapsed"/>
                     </StackPanel>
 
                     <!--  Server Config Link  -->
@@ -299,7 +308,7 @@
                         AutomationProperties.Name="Configure server settings"
                         Command="{x:Bind ViewModel.ConfigureServerCommand}"
                         Content="⚙️ Configure Server"
-                        Style="{StaticResource LinkButtonStyle}" 
+                        Style="{StaticResource LinkButtonStyle}"
                         IsTabStop="False"/>
 
 
@@ -307,7 +316,8 @@
             </ScrollViewer>
 
             <!--  Loading Overlay (declared last for proper z-order)  -->
-            <components:LoadingOverlay IsLoading="{x:Bind ViewModel.IsLoading, Mode=OneWay}" Message="Signing in..." />
+            <components:LoadingOverlay IsLoading="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                    Message="Signing in..."/>
         </Grid>
         <!--  Visual State Manager for Responsive Design  -->
         <VisualStateManager.VisualStateGroups>
@@ -315,22 +325,26 @@
                 <!--  Wide: Show branding + form  -->
                 <VisualState x:Name="WideState">
                     <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="1100" />
+                        <AdaptiveTrigger MinWindowWidth="1100"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="BrandingPanel.Visibility" Value="Visible" />
-                        <Setter Target="FormColumn.Width" Value="1*" />
+                        <Setter Target="BrandingPanel.Visibility"
+                                Value="Visible"/>
+                        <Setter Target="FormColumn.Width"
+                                Value="1*"/>
                     </VisualState.Setters>
                 </VisualState>
 
                 <!--  Narrow: Hide branding, expand form  -->
                 <VisualState x:Name="NarrowState">
                     <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="0" />
+                        <AdaptiveTrigger MinWindowWidth="0"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="BrandingPanel.Visibility" Value="Collapsed" />
-                        <Setter Target="FormColumn.Width" Value="*" />
+                        <Setter Target="BrandingPanel.Visibility"
+                                Value="Collapsed"/>
+                        <Setter Target="FormColumn.Width"
+                                Value="*"/>
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>

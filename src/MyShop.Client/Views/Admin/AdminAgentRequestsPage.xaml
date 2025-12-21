@@ -25,23 +25,23 @@
 
     <Grid Padding="32">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!--  Header  -->
-        <layout:PageHeader 
-            Grid.Row="0" 
+        <layout:PageHeader
+            Grid.Row="0"
             Margin="0,0,0,24"
             Title="Agent Requests"
-            Subtitle="Manage salesman registration requests">
+            Subtitle="Manage sales agent registration requests">
             <layout:PageHeader.ActionContent>
                 <buttons:IconButton
                     Variant="Filled"
                     IconGlyph="&#xE72C;"
                     Text="Refresh"
-                    Command="{x:Bind ViewModel.RefreshCommand}" />
+                    Command="{x:Bind ViewModel.RefreshCommand}"/>
             </layout:PageHeader.ActionContent>
         </layout:PageHeader>
 
@@ -52,38 +52,44 @@
             IsAddTabButtonVisible="False"
             SelectedIndex="{x:Bind ViewModel.SelectedTabIndex, Mode=TwoWay}"
             TabWidthMode="SizeToContent">
-            
+
             <!--  All Requests Tab  -->
-            <TabViewItem Header="All Requests" IsClosable="False">
+            <TabViewItem Header="All Requests"
+                    IsClosable="False">
                 <TabViewItem.IconSource>
-                    <FontIconSource Glyph="&#xE8FD;" />
+                    <FontIconSource Glyph="&#xE8FD;"/>
                 </TabViewItem.IconSource>
             </TabViewItem>
 
             <!--  Pending Tab  -->
-            <TabViewItem Header="Pending" IsClosable="False">
+            <TabViewItem Header="Pending"
+                    IsClosable="False">
                 <TabViewItem.IconSource>
-                    <FontIconSource Glyph="&#xE9F5;" />
+                    <FontIconSource Glyph="&#xE9F5;"/>
                 </TabViewItem.IconSource>
             </TabViewItem>
 
             <!--  Approved Tab  -->
-            <TabViewItem Header="Approved" IsClosable="False">
+            <TabViewItem Header="Approved"
+                    IsClosable="False">
                 <TabViewItem.IconSource>
-                    <FontIconSource Glyph="&#xE73E;" />
+                    <FontIconSource Glyph="&#xE73E;"/>
                 </TabViewItem.IconSource>
             </TabViewItem>
 
             <!--  Rejected Tab  -->
-            <TabViewItem Header="Rejected" IsClosable="False">
+            <TabViewItem Header="Rejected"
+                    IsClosable="False">
                 <TabViewItem.IconSource>
-                    <FontIconSource Glyph="&#xE711;" />
+                    <FontIconSource Glyph="&#xE711;"/>
                 </TabViewItem.IconSource>
             </TabViewItem>
         </TabView>
 
         <!--  Requests Cards  -->
-        <ScrollViewer x:Name="PageScrollViewer" Grid.Row="2" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer x:Name="PageScrollViewer"
+                Grid.Row="2"
+                VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="16">
                 <!--  Empty State  -->
                 <Border
@@ -94,18 +100,21 @@
                     Padding="64,48"
                     Visibility="{x:Bind ViewModel.HasNoRequests, Mode=OneWay}">
                     <Border.Shadow>
-                        <ThemeShadow />
+                        <ThemeShadow/>
                     </Border.Shadow>
                     <StackPanel
                         HorizontalAlignment="Center"
                         Spacing="20">
-                        <Viewbox Width="100" Height="100">
+                        <Viewbox Width="100"
+                                Height="100">
                             <Grid>
-                                <Ellipse Width="100" Height="100" Fill="#F3F4F6" />
+                                <Ellipse Width="100"
+                                        Height="100"
+                                        Fill="#F3F4F6"/>
                                 <FontIcon
                                     FontSize="48"
                                     Foreground="#9CA3AF"
-                                    Glyph="&#xE823;" />
+                                    Glyph="&#xE823;"/>
                             </Grid>
                         </Viewbox>
                         <TextBlock
@@ -113,7 +122,7 @@
                             FontWeight="SemiBold"
                             Foreground="#374151"
                             Text="No agent requests"
-                            HorizontalAlignment="Center" />
+                            HorizontalAlignment="Center"/>
                         <TextBlock
                             FontSize="14"
                             Foreground="#6B7280"
@@ -121,14 +130,14 @@
                             HorizontalAlignment="Center"
                             TextWrapping="Wrap"
                             MaxWidth="300"
-                            TextAlignment="Center" />
+                            TextAlignment="Center"/>
                     </StackPanel>
                 </Border>
 
                 <!--  Request Cards  -->
                 <ItemsRepeater ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}">
                     <ItemsRepeater.Layout>
-                        <StackLayout Spacing="16" />
+                        <StackLayout Spacing="16"/>
                     </ItemsRepeater.Layout>
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate x:DataType="viewmodels:AgentRequestItem">
@@ -139,65 +148,68 @@
                                 CornerRadius="16"
                                 Padding="24">
                                 <Border.Shadow>
-                                    <ThemeShadow />
+                                    <ThemeShadow/>
                                 </Border.Shadow>
 
                                 <Grid RowSpacing="16">
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto"/>
                                         <!--  Header  -->
-                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto"/>
                                         <!--  Reason & Experience  -->
-                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto"/>
                                         <!--  Rejection (conditional)  -->
-                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto"/>
                                         <!--  Actions  -->
                                     </Grid.RowDefinitions>
 
-                                        <!--  Header Section: Avatar + Name + Badge + Email + Date  -->
-                                        <Grid Grid.Row="0">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
-                                            </Grid.ColumnDefinitions>
+                                    <!--  Header Section: Avatar + Name + Badge + Email + Date  -->
+                                    <Grid Grid.Row="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
 
-                                            <!--  User Info with Avatar  -->
-                                            <tables:UserAvatarInfo
-                                                Grid.Column="0"
-                                                Grid.ColumnSpan="2"
-                                                AvatarSize="48"
-                                                DisplayName="{x:Bind FullName}"
-                                                SecondaryText="{x:Bind Email}"
-                                                AvatarUrl="{x:Bind Avatar}">
-                                                <tables:UserAvatarInfo.ExtraContent>
-                                                    <StackPanel Orientation="Horizontal" Spacing="12">
-                                                        <badges:StatusBadge
-                                                            Text="{x:Bind Status}"
-                                                            Variant="Warning" />
-                                                        <StackPanel Orientation="Horizontal" Spacing="6">
-                                                            <FontIcon
-                                                                FontSize="14"
-                                                                Foreground="#6B7280"
-                                                                Glyph="&#xE787;" />
-                                                            <TextBlock
-                                                                FontSize="13"
-                                                                Foreground="#6B7280"
-                                                                Text="{x:Bind SubmittedDate}" />
-                                                        </StackPanel>
+                                        <!--  User Info with Avatar  -->
+                                        <tables:UserAvatarInfo
+                                            Grid.Column="0"
+                                            Grid.ColumnSpan="2"
+                                            AvatarSize="48"
+                                            DisplayName="{x:Bind FullName}"
+                                            SecondaryText="{x:Bind Email}"
+                                            AvatarUrl="{x:Bind Avatar}">
+                                            <tables:UserAvatarInfo.ExtraContent>
+                                                <StackPanel Orientation="Horizontal"
+                                                        Spacing="12">
+                                                    <badges:StatusBadge
+                                                        Text="{x:Bind Status}"
+                                                        Variant="Warning"/>
+                                                    <StackPanel Orientation="Horizontal"
+                                                            Spacing="6">
+                                                        <FontIcon
+                                                            FontSize="14"
+                                                            Foreground="#6B7280"
+                                                            Glyph="&#xE787;"/>
+                                                        <TextBlock
+                                                            FontSize="13"
+                                                            Foreground="#6B7280"
+                                                            Text="{x:Bind SubmittedDate}"/>
                                                     </StackPanel>
-                                                </tables:UserAvatarInfo.ExtraContent>
-                                            </tables:UserAvatarInfo>
-                                        </Grid>
+                                                </StackPanel>
+                                            </tables:UserAvatarInfo.ExtraContent>
+                                        </tables:UserAvatarInfo>
+                                    </Grid>
 
                                     <!--  Reason & Experience Section  -->
-                                    <StackPanel Grid.Row="1" Spacing="12">
+                                    <StackPanel Grid.Row="1"
+                                            Spacing="12">
                                         <!--  Reason  -->
                                         <StackPanel Spacing="8">
                                             <TextBlock
                                                 FontSize="13"
                                                 FontWeight="SemiBold"
                                                 Foreground="#111827"
-                                                Text="Reason:" />
+                                                Text="Reason:"/>
                                             <Border
                                                 Background="#F9FAFB"
                                                 CornerRadius="8"
@@ -206,7 +218,7 @@
                                                     FontSize="13"
                                                     Foreground="#6B7280"
                                                     Text="{x:Bind Reason}"
-                                                    TextWrapping="Wrap" />
+                                                    TextWrapping="Wrap"/>
                                             </Border>
                                         </StackPanel>
 
@@ -216,7 +228,7 @@
                                                 FontSize="13"
                                                 FontWeight="SemiBold"
                                                 Foreground="#111827"
-                                                Text="Experience:" />
+                                                Text="Experience:"/>
                                             <Border
                                                 Background="#F9FAFB"
                                                 CornerRadius="8"
@@ -225,7 +237,7 @@
                                                     FontSize="13"
                                                     Foreground="#6B7280"
                                                     Text="{x:Bind Experience}"
-                                                    TextWrapping="Wrap" />
+                                                    TextWrapping="Wrap"/>
                                             </Border>
                                         </StackPanel>
                                     </StackPanel>
@@ -236,7 +248,7 @@
                                         Variant="Error"
                                         Title="Rejection Reason"
                                         Message="{x:Bind RejectionReason}"
-                                        Visibility="{x:Bind HasRejectionReason}" />
+                                        Visibility="{x:Bind HasRejectionReason}"/>
 
                                     <!--  Action Buttons (only for pending)  -->
                                     <StackPanel
@@ -252,7 +264,7 @@
                                             IconGlyph="&#xE73E;"
                                             Text="Approve"
                                             Command="{Binding DataContext.ApproveRequestCommand, ElementName=MyPage}"
-                                            CommandParameter="{x:Bind}" />
+                                            CommandParameter="{x:Bind}"/>
                                         <buttons:IconButton
                                             Variant="Outline"
                                             IconGlyph="&#xE711;"
@@ -260,13 +272,13 @@
                                             Text="Reject"
                                             TextColor="#DC2626"
                                             Command="{Binding DataContext.RejectRequestCommand, ElementName=MyPage}"
-                                            CommandParameter="{x:Bind}" />
+                                            CommandParameter="{x:Bind}"/>
                                         <buttons:IconButton
                                             Variant="Outline"
                                             IconGlyph="&#xE77B;"
                                             Text="View Profile"
                                             Command="{Binding DataContext.ViewProfileCommand, ElementName=MyPage}"
-                                            CommandParameter="{x:Bind}" />
+                                            CommandParameter="{x:Bind}"/>
                                     </StackPanel>
                                 </Grid>
                             </Border>
@@ -283,9 +295,9 @@
                     Padding="20">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
                         <!--  Previous Button  -->
@@ -294,7 +306,7 @@
                             Variant="Outline"
                             IconGlyph="&#xE76B;"
                             Text="Previous"
-                            Command="{x:Bind ViewModel.PreviousPageCommand}" />
+                            Command="{x:Bind ViewModel.PreviousPageCommand}"/>
 
                         <!--  Page Info  -->
                         <StackPanel
@@ -307,12 +319,12 @@
                                 FontWeight="SemiBold"
                                 Foreground="#111827"
                                 HorizontalAlignment="Center"
-                                Text="{x:Bind ViewModel.PageInfoText, Mode=OneWay}" />
+                                Text="{x:Bind ViewModel.PageInfoText, Mode=OneWay}"/>
                             <TextBlock
                                 FontSize="12"
                                 Foreground="#6B7280"
                                 HorizontalAlignment="Center"
-                                Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}" />
+                                Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}"/>
                         </StackPanel>
 
                         <!--  Next Button  -->
@@ -322,7 +334,7 @@
                             IconGlyph="&#xE76C;"
                             Text="Next"
                             IconPosition="Right"
-                            Command="{x:Bind ViewModel.NextPageCommand}" />
+                            Command="{x:Bind ViewModel.NextPageCommand}"/>
                     </Grid>
                 </Border>
             </StackPanel>

@@ -302,7 +302,7 @@ public static class MockDashboardData
         // Get all users (SalesAgents)
         var allUsers = await MockUserData.GetAllAsync();
         var salesAgentsDict = allUsers
-            .Where(u => u.Roles.Contains(Shared.Models.Enums.UserRole.Salesman))
+            .Where(u => u.Roles.Contains(Shared.Models.Enums.UserRole.SalesAgent))
             .ToDictionary(u => u.Id);
 
         // Calculate sales by agent - Group by SalesAgentId instead of Name

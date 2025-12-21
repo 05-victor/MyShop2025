@@ -160,7 +160,7 @@ public class UserFacade : IUserFacade
             var userRole = role switch
             {
                 "Admin" => Shared.Models.Enums.UserRole.Admin,
-                "Sales Agent" or "SalesAgent" or "Salesman" => Shared.Models.Enums.UserRole.Salesman,
+                "Sales Agent" or "SalesAgent" => Shared.Models.Enums.UserRole.SalesAgent,
                 "Customer" or _ => Shared.Models.Enums.UserRole.Customer
             };
 
@@ -180,7 +180,7 @@ public class UserFacade : IUserFacade
 
             // Save to repository (persists to JSON)
             var result = await _userRepository.CreateUserAsync(newUser);
-            
+
             if (result.IsSuccess && result.Data != null)
             {
                 await _toastService.ShowSuccess($"User '{username}' created successfully");
@@ -370,7 +370,7 @@ public class UserFacade : IUserFacade
             {
                 TotalUsers = users.Count(),
                 TotalCustomers = users.Count(u => u.GetPrimaryRole() == UserRole.Customer),
-                TotalSalesAgents = users.Count(u => u.GetPrimaryRole() == UserRole.Salesman),
+                TotalSalesAgents = users.Count(u => u.GetPrimaryRole() == UserRole.SalesAgent),
                 TotalAdmins = users.Count(u => u.GetPrimaryRole() == UserRole.Admin),
                 ActiveUsers = 0, // IsActive not available in User model
                 InactiveUsers = 0 // IsActive not available in User model

@@ -28,7 +28,7 @@ public partial class SalesAgentDashboardViewModel : BaseViewModel
     private User? _currentUser;
 
     [ObservableProperty]
-    private string _title = "Salesman Dashboard";
+    private string _title = "Sales Agent Dashboard";
 
     [ObservableProperty]
     private bool _isVerified = true;

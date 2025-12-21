@@ -37,9 +37,9 @@ public static class MockAuthData
                 {
                     PropertyNameCaseInsensitive = true
                 };
-                
+
                 var data = JsonSerializer.Deserialize<UserDataContainer>(jsonString, options);
-                
+
                 if (data?.Users != null)
                 {
                     _users = data.Users;
@@ -63,7 +63,7 @@ public static class MockAuthData
     {
         // Initialize empty lists - data should be loaded from users.json
         _users = new List<MockUserData>();
-        
+
         // Roles are static and defined in the system
         _roles = new List<MockRoleData>
         {
@@ -71,14 +71,14 @@ public static class MockAuthData
             new MockRoleData { Name = "SALESAGENT", Description = "Sales Agent" },
             new MockRoleData { Name = "USER", Description = "Customer" }
         };
-        
+
         System.Diagnostics.Debug.WriteLine("[MockAuthData] JSON file not found - initialized with empty user list");
     }
 
     public static async Task<Result<User>> LoginAsync(string usernameOrEmail, string password)
     {
         EnsureDataLoaded();
-        
+
         // Simulate network delay
         // await Task.Delay(500);
 
@@ -99,7 +99,7 @@ public static class MockAuthData
             if (roleName.Equals("ADMIN", StringComparison.OrdinalIgnoreCase))
                 roles.Add(UserRole.Admin);
             else if (roleName.Equals("SALESAGENT", StringComparison.OrdinalIgnoreCase))
-                roles.Add(UserRole.Salesman);
+                roles.Add(UserRole.SalesAgent);
             else if (roleName.Equals("USER", StringComparison.OrdinalIgnoreCase))
                 roles.Add(UserRole.Customer);
         }
@@ -131,7 +131,7 @@ public static class MockAuthData
     public static async Task<Result<User>> RegisterAsync(string username, string email, string phoneNumber, string password, string role)
     {
         EnsureDataLoaded();
-        
+
         // Simulate network delay
         // await Task.Delay(800);
 
@@ -157,7 +157,7 @@ public static class MockAuthData
         UserRole userRole = roleName switch
         {
             "ADMIN" => UserRole.Admin,
-            "SALESAGENT" => UserRole.Salesman,
+            "SALESAGENT" => UserRole.SalesAgent,
             _ => UserRole.Customer
         };
 
@@ -195,7 +195,7 @@ public static class MockAuthData
     public static async Task<Result<User>> GetCurrentUserAsync(string token)
     {
         EnsureDataLoaded();
-        
+
         // Simulate network delay
         // await Task.Delay(300);
 
@@ -226,7 +226,7 @@ public static class MockAuthData
             if (roleName.Equals("ADMIN", StringComparison.OrdinalIgnoreCase))
                 roles.Add(UserRole.Admin);
             else if (roleName.Equals("SALESAGENT", StringComparison.OrdinalIgnoreCase))
-                roles.Add(UserRole.Salesman);
+                roles.Add(UserRole.SalesAgent);
             else if (roleName.Equals("USER", StringComparison.OrdinalIgnoreCase))
                 roles.Add(UserRole.Customer);
         }
@@ -258,7 +258,7 @@ public static class MockAuthData
     public static async Task<Result<User>> ActivateTrialAsync(string token, string adminCode)
     {
         EnsureDataLoaded();
-        
+
         // Simulate network delay
         // await Task.Delay(500);
 
@@ -309,7 +309,7 @@ public static class MockAuthData
             if (roleName.Equals("ADMIN", StringComparison.OrdinalIgnoreCase))
                 roles.Add(UserRole.Admin);
             else if (roleName.Equals("SALESAGENT", StringComparison.OrdinalIgnoreCase))
-                roles.Add(UserRole.Salesman);
+                roles.Add(UserRole.SalesAgent);
             else if (roleName.Equals("USER", StringComparison.OrdinalIgnoreCase))
                 roles.Add(UserRole.Customer);
         }
@@ -356,7 +356,7 @@ public static class MockAuthData
 
             var jsonString = JsonSerializer.Serialize(container, options);
             await File.WriteAllTextAsync(_jsonFilePath, jsonString);
-            
+
             System.Diagnostics.Debug.WriteLine("Successfully saved user data to JSON");
         }
         catch (Exception ex)
@@ -383,7 +383,7 @@ public static class MockAuthData
             if (roleName.Equals("ADMIN", StringComparison.OrdinalIgnoreCase))
                 roles.Add(UserRole.Admin);
             else if (roleName.Equals("SALESAGENT", StringComparison.OrdinalIgnoreCase))
-                roles.Add(UserRole.Salesman);
+                roles.Add(UserRole.SalesAgent);
             else if (roleName.Equals("USER", StringComparison.OrdinalIgnoreCase))
                 roles.Add(UserRole.Customer);
         }

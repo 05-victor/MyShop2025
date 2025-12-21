@@ -159,7 +159,7 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
     private static string GetRoleColor(string role) => role switch
     {
         "Admin" => "#DC2626",
-        "Salesman" => "#2563EB",
+        "SalesAgent" => "#2563EB",
         "Customer" => "#10B981",
         _ => "#6B7280"
     };
@@ -167,7 +167,7 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
     private static string GetRoleBgColor(string role) => role switch
     {
         "Admin" => "#FEE2E2",
-        "Salesman" => "#DBEAFE",
+        "SalesAgent" => "#DBEAFE",
         "Customer" => "#D1FAE5",
         _ => "#F3F4F6"
     };
