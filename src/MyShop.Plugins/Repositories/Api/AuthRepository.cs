@@ -134,35 +134,44 @@ public class AuthRepository : IAuthRepository
     {
         try
         {
+            System.Diagnostics.Debug.WriteLine($"[AuthRepository.GetCurrentUserAsync] Calling GetMeAsync()...");
             var refitResponse = await _authApi.GetMeAsync();
+
+            System.Diagnostics.Debug.WriteLine($"[AuthRepository.GetCurrentUserAsync] GetMeAsync response: StatusCode={refitResponse.StatusCode}, IsSuccess={refitResponse.IsSuccessStatusCode}");
 
             // Check Refit outer wrapper (HTTP status)
             if (refitResponse.IsSuccessStatusCode && refitResponse.Content != null)
             {
                 var apiResponse = refitResponse.Content;
 
+                System.Diagnostics.Debug.WriteLine($"[AuthRepository.GetCurrentUserAsync] API response: Success={apiResponse.Success}, Message={apiResponse.Message}");
+
                 // Check inner ApiResponse (business logic)
                 if (apiResponse.Success == true && apiResponse.Result != null)
                 {
+                    System.Diagnostics.Debug.WriteLine($"[AuthRepository.GetCurrentUserAsync] ✓ User data received from GetMe");
                     var token = _credentialStorage.GetToken() ?? string.Empty;
                     var user = AuthAdapter.ToModel(apiResponse.Result, token);
                     return Result<User>.Success(user);
                 }
 
+                System.Diagnostics.Debug.WriteLine($"[AuthRepository.GetCurrentUserAsync] ✗ GetMe returned no data or success=false");
                 return Result<User>.Failure(apiResponse.Message ?? "Failed to get user info");
             }
 
             // HTTP error
+            System.Diagnostics.Debug.WriteLine($"[AuthRepository.GetCurrentUserAsync] ✗ HTTP Error: {refitResponse.StatusCode}");
             return Result<User>.Failure($"HTTP Error: {refitResponse.StatusCode}");
         }
         catch (ApiException apiEx)
         {
+            System.Diagnostics.Debug.WriteLine($"[AuthRepository.GetCurrentUserAsync] ✗ ApiException: {apiEx.Message}");
             var errorMessage = MapApiError(apiEx);
             return Result<User>.Failure(errorMessage, apiEx);
         }
         catch (HttpRequestException httpEx)
         {
-            System.Diagnostics.Debug.WriteLine($"Network Error: {httpEx.Message}");
+            System.Diagnostics.Debug.WriteLine($"[AuthRepository.GetCurrentUserAsync] ✗ Network Error: {httpEx.Message}");
             return Result<User>.Failure("Cannot connect to server. Please check your network connection and ensure the server is running.", httpEx);
         }
         catch (Exception ex)

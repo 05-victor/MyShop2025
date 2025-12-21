@@ -37,6 +37,21 @@ public static class AuthAdapter
     /// </summary>
     public static User ToModel(UserInfoResponse dto, string token)
     {
+        System.Diagnostics.Debug.WriteLine($"[AuthAdapter.ToModel] Converting UserInfoResponse to User model:");
+        System.Diagnostics.Debug.WriteLine($"  - Id: {dto.Id}");
+        System.Diagnostics.Debug.WriteLine($"  - Username: {dto.Username}");
+        System.Diagnostics.Debug.WriteLine($"  - Email: {dto.Email}");
+        System.Diagnostics.Debug.WriteLine($"  - FullName: {dto.FullName}");
+        System.Diagnostics.Debug.WriteLine($"  - PhoneNumber: {dto.PhoneNumber}");
+        System.Diagnostics.Debug.WriteLine($"  - Address: {dto.Address}");
+        System.Diagnostics.Debug.WriteLine($"  - Avatar: {dto.Avatar}");
+        System.Diagnostics.Debug.WriteLine($"  - IsEmailVerified: {dto.IsEmailVerified}");
+        System.Diagnostics.Debug.WriteLine($"  - IsTrialActive: {dto.IsTrialActive}");
+        System.Diagnostics.Debug.WriteLine($"  - RoleNames: {(dto.RoleNames != null ? string.Join(", ", dto.RoleNames) : "null")}");
+
+        var roles = ParseRoles(dto.RoleNames);
+        System.Diagnostics.Debug.WriteLine($"  - Parsed Roles: {string.Join(", ", roles)}");
+
         return new User
         {
             Id = dto.Id,
@@ -52,7 +67,7 @@ public static class AuthAdapter
             PhoneNumber = dto.PhoneNumber,
             Address = dto.Address,
             Token = token,
-            Roles = ParseRoles(dto.RoleNames)
+            Roles = roles
         };
     }
 

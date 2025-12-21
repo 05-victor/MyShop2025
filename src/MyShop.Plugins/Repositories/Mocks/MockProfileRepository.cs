@@ -1,6 +1,7 @@
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.Mocks.Data;
 using MyShop.Shared.Models;
+using MyShop.Shared.DTOs.Requests;
 using MyShop.Core.Common;
 
 namespace MyShop.Plugins.Repositories.Mocks;
@@ -72,6 +73,44 @@ public class MockProfileRepository : IProfileRepository
         {
             System.Diagnostics.Debug.WriteLine($"[MockProfileRepository] DeleteAsync error: {ex.Message}");
             return Result<bool>.Failure($"Failed to delete profile: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<ProfileData>> PatchUpdateMyProfileAsync(UpdateProfileRequest request)
+    {
+        try
+        {
+            // Mock implementation - just return success with the request data
+            var profile = new ProfileData
+            {
+                Avatar = request.Avatar,
+                FullName = request.FullName,
+                PhoneNumber = request.PhoneNumber,
+                Address = request.Address
+            };
+            System.Diagnostics.Debug.WriteLine($"[MockProfileRepository] PatchUpdateMyProfileAsync - Mock update");
+            return await Task.FromResult(Result<ProfileData>.Success(profile));
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockProfileRepository] PatchUpdateMyProfileAsync error: {ex.Message}");
+            return Result<ProfileData>.Failure($"Failed to update profile: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<string>> UploadAvatarAsync(Stream fileStream, string fileName)
+    {
+        try
+        {
+            // Mock implementation - return a fake URL
+            var mockUrl = $"/mock-avatars/{Guid.NewGuid()}_{fileName}";
+            System.Diagnostics.Debug.WriteLine($"[MockProfileRepository] UploadAvatarAsync - Mock upload to: {mockUrl}");
+            return await Task.FromResult(Result<string>.Success(mockUrl));
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockProfileRepository] UploadAvatarAsync error: {ex.Message}");
+            return Result<string>.Failure($"Failed to upload avatar: {ex.Message}");
         }
     }
 }

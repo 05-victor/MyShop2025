@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyShop.Shared.Models;
 using MyShop.Client.ViewModels.Base;
+using MyShop.Client.Services;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Core.Interfaces.Repositories;
@@ -16,6 +17,7 @@ namespace MyShop.Client.ViewModels.Shell
         private new readonly INavigationService _navigationService;
         private new readonly IToastService _toastHelper;
         private readonly ICredentialStorage _credentialStorage;
+        private readonly ICurrentUserService _currentUserService;
         private readonly ICartRepository _cartRepository;
 
         // Current user information for display in PaneHeader / PaneFooter
@@ -32,11 +34,13 @@ namespace MyShop.Client.ViewModels.Shell
             INavigationService navigationService,
             IToastService toastHelper,
             ICredentialStorage credentialStorage,
+            ICurrentUserService currentUserService,
             ICartRepository cartRepository)
         {
             _navigationService = navigationService;
             _toastHelper = toastHelper;
             _credentialStorage = credentialStorage;
+            _currentUserService = currentUserService;
             _cartRepository = cartRepository;
         }
 
@@ -49,7 +53,7 @@ namespace MyShop.Client.ViewModels.Shell
         {
             CurrentUser = user;
             WelcomeMessage = $"Welcome back, {user.Username}!";
-            
+
             // Load cart count for customer role
             if (user.GetPrimaryRole().ToString() == "Customer")
             {
@@ -84,7 +88,12 @@ namespace MyShop.Client.ViewModels.Shell
         [RelayCommand]
         private async Task LogoutAsync()
         {
+            // Clear cached user
+            _currentUserService.ClearCurrentUser();
+
+            // Remove token
             await _credentialStorage.RemoveToken();
+
             await _toastHelper.ShowInfo("You have been logged out");
             await _navigationService.NavigateTo(typeof(LoginPage).FullName!);
         }
