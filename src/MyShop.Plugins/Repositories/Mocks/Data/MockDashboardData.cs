@@ -344,6 +344,7 @@ public static class MockDashboardData
                 break;
 
             case "weekly":
+            case "week":
                 // Last 12 weeks - values in VND (millions)
                 for (int i = 11; i >= 0; i--)
                 {
@@ -351,9 +352,11 @@ public static class MockDashboardData
                     chartData.Labels.Add($"W{week.DayOfYear / 7}");
                     chartData.Data.Add(80_000_000 + random.Next(-15_000_000, 30_000_000));
                 }
+                System.Diagnostics.Debug.WriteLine($"[MockDashboardData.GetRevenueChartAsync] Generated {chartData.Labels.Count} weekly data points");
                 break;
 
             case "monthly":
+            case "month":
                 // Last 12 months - values in VND (millions)
                 for (int i = 11; i >= 0; i--)
                 {
@@ -361,9 +364,11 @@ public static class MockDashboardData
                     chartData.Labels.Add(month.ToString("MMM yyyy"));
                     chartData.Data.Add(250_000_000 + random.Next(-50_000_000, 100_000_000));
                 }
+                System.Diagnostics.Debug.WriteLine($"[MockDashboardData.GetRevenueChartAsync] Generated {chartData.Labels.Count} monthly data points");
                 break;
 
             case "yearly":
+            case "year":
                 // Last 5 years - values in VND (billions)
                 for (int i = 4; i >= 0; i--)
                 {
@@ -371,6 +376,7 @@ public static class MockDashboardData
                     chartData.Labels.Add(year.Year.ToString());
                     chartData.Data.Add(2_500_000_000 + random.Next(-500_000_000, 1_000_000_000));
                 }
+                System.Diagnostics.Debug.WriteLine($"[MockDashboardData.GetRevenueChartAsync] Generated {chartData.Labels.Count} yearly data points");
                 break;
 
             default:
