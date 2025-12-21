@@ -27,6 +27,8 @@
                 CornerRadius="8"
                 BorderBrush="White"
                 BorderThickness="2"
+                AutomationProperties.Name="Email verified"
+                IsTabStop="False"
                 Visibility="Collapsed">
             <FontIcon Glyph="&#xE73E;" 
                      FontSize="8" 
@@ -44,6 +46,8 @@
                 CornerRadius="8"
                 BorderBrush="White"
                 BorderThickness="2"
+                AutomationProperties.Name="Email not verified"
+                IsTabStop="False"
                 Visibility="Collapsed">
             <TextBlock Text="!" 
                       FontSize="10" 
@@ -58,7 +62,7 @@
                         <TextBlock Text="Email not verified" FontWeight="SemiBold"/>
                         <TextBlock Text="Verify now to unlock all features" 
                                   FontSize="12" 
-                                  Foreground="#6B7280"
+                                  Foreground="{ThemeResource TextMutedBrush}"
                                   TextWrapping="Wrap"
                                   MaxWidth="200"/>
                     </StackPanel>

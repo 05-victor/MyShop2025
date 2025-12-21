@@ -134,6 +134,11 @@ public sealed partial class AdminReportsPage : Page
         await ViewModel.ExportReportCommand.ExecuteAsync(null);
     }
 
+    private async void ExportPdfButton_Click(object sender, RoutedEventArgs e)
+    {
+        await ViewModel.ExportReportCommand.ExecuteAsync(null);
+    }
+
     #endregion
 
     #region View Details Event Handlers

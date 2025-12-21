@@ -25,6 +25,67 @@
     </Page.Resources>
 
     <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="ResponsiveStates">
+                
+                <!-- Large Desktop: 1920px+ -->
+                <VisualState x:Name="LargeDesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1920"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="40"/>
+                        <Setter Target="KPIGrid.ColumnSpacing" Value="24"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Desktop: 1280-1919px -->
+                <VisualState x:Name="DesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1280"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="32"/>
+                        <Setter Target="KPIGrid.ColumnSpacing" Value="20"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet: 960-1279px -->
+                <VisualState x:Name="TabletState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="960"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="24"/>
+                        <Setter Target="KPIGrid.ColumnSpacing" Value="16"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet Portrait: 640-959px -->
+                <VisualState x:Name="TabletPortraitState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="640"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="20"/>
+                        <Setter Target="KPIGrid.ColumnSpacing" Value="12"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Mobile: 0-639px (Default) -->
+                <VisualState x:Name="MobileState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="16"/>
+                        <Setter Target="KPIGrid.ColumnSpacing" Value="8"/>
+                    </VisualState.Setters>
+                </VisualState>
+                
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
         <!-- Layer 0: Main Content (Hidden during loading) -->
         <Grid x:Name="MainContent"
               Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
@@ -35,7 +96,7 @@
             </Grid.Transitions>
         <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel Padding="32" Spacing="24">
+            <StackPanel x:Name="ContentStackPanel" Padding="32" Spacing="24">
 
                 <!-- PAGE HEADER -->
                 <layout:PageHeader
@@ -61,11 +122,17 @@
                                 Command="{x:Bind ViewModel.RefreshCommand}"
                                 ToolTipService.ToolTip="Reload earnings data" />
                             <buttons:IconButton
-                                Variant="Filled"
-                                IconGlyph="&#xE896;"
-                                Text="Export"
+                                Variant="Outline"
+                                IconGlyph="&#xE74E;"
+                                Text="Export CSV"
                                 Command="{x:Bind ViewModel.ExportCommissionsCommand}"
                                 ToolTipService.ToolTip="Export earnings to CSV" />
+                            <buttons:IconButton
+                                Variant="Filled"
+                                IconGlyph="&#xEA90;"
+                                Text="Export PDF"
+                                Click="ExportPdfButton_Click"
+                                ToolTipService.ToolTip="Export commission report as PDF" />
                         </StackPanel>
                     </layout:PageHeader.ActionContent>
                 </layout:PageHeader>
@@ -82,7 +149,7 @@
             </InfoBar>
 
             <!-- KPI Cards -->
-            <Grid>
+            <Grid x:Name="KPIGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>

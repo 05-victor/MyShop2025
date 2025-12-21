@@ -30,6 +30,7 @@
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <converters:CurrencyConverter x:Key="CurrencyConverter"/>
 
         <!--  Card style (giống card trắng bo góc trong React)  -->
         <Style x:Key="CardBorderStyle"
@@ -62,9 +63,65 @@
     </Page.Resources>
 
     <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="ResponsiveStates">
+                
+                <!-- Large Desktop: 1920px+ -->
+                <VisualState x:Name="LargeDesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1920"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="40"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Desktop: 1280-1919px -->
+                <VisualState x:Name="DesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1280"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="32"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet: 960-1279px -->
+                <VisualState x:Name="TabletState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="960"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="24"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet Portrait: 640-959px -->
+                <VisualState x:Name="TabletPortraitState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="640"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="20"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Mobile: 0-639px (Default) -->
+                <VisualState x:Name="MobileState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="16"/>
+                    </VisualState.Setters>
+                </VisualState>
+                
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
         <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel Padding="32"
+                <StackPanel x:Name="MainContent" Padding="32"
                         Spacing="24">
 
                     <!--  PAGE TITLE  -->
@@ -109,7 +166,8 @@
                                 FontSize="16"
                                 FontWeight="SemiBold"
                                 Foreground="#111827"
-                                Text="Filters"/>
+                                Text="Filters"
+                                AutomationProperties.HeadingLevel="Level2"/>
 
                             <Grid HorizontalAlignment="Stretch"
                                     ColumnSpacing="12">
@@ -138,7 +196,10 @@
                                         BorderThickness="1"
                                         SelectedIndex="0"
                                         SelectionChanged="CategoryComboBox_SelectionChanged"
-                                        PlaceholderText="All Categories">
+                                        PlaceholderText="All Categories"
+                                        AutomationProperties.Name="Category filter"
+                                        AutomationProperties.HelpText="Filter products by category"
+                                        UseSystemFocusVisuals="True">
                                         <ComboBoxItem Content="All Categories"
                                                 Tag=""/>
                                         <ComboBoxItem Content="Smartphones"
@@ -340,7 +401,7 @@
                                                 <ColumnDefinition Width="2*"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <!--  Image  -->
+                                            <!--  Image with DecodePixelWidth optimization  -->
                                             <Border
                                                 Grid.Column="0"
                                                 Width="48"
@@ -348,13 +409,13 @@
                                                 HorizontalAlignment="Left"
                                                 Background="#E5E7EB"
                                                 CornerRadius="8">
-                                                <Rectangle RadiusX="8"
-                                                        RadiusY="8">
-                                                    <Rectangle.Fill>
-                                                        <ImageBrush ImageSource="{x:Bind Image}"
-                                                                Stretch="UniformToFill"/>
-                                                    </Rectangle.Fill>
-                                                </Rectangle>
+                                                <Image Stretch="UniformToFill">
+                                                    <Image.Source>
+                                                        <BitmapImage UriSource="{x:Bind Image}"
+                                                                     DecodePixelWidth="96"
+                                                                     DecodePixelType="Logical"/>
+                                                    </Image.Source>
+                                                </Image>
                                             </Border>
 
                                             <!--  Product name + SKU  -->

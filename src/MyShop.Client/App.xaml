@@ -9,7 +9,10 @@
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
                 
-                <!-- MyShop 2025 Design System -->
+                <!-- Theme will be loaded dynamically by ThemeManager at runtime -->
+                <!-- Do NOT add LightTheme.xaml or DarkTheme.xaml here -->
+                
+                <!-- MyShop 2025 Design System - Base Styles Only -->
                 <ResourceDictionary Source="Themes/Generic.xaml"/>
                 
                 <!-- Fallback resources to prevent XAML crashes from missing StaticResource keys -->

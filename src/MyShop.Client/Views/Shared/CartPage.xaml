@@ -27,8 +27,64 @@
     </Page.Resources>
 
     <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="ResponsiveStates">
+                
+                <!-- Large Desktop: 1920px+ -->
+                <VisualState x:Name="LargeDesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1920"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="40"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Desktop: 1280-1919px -->
+                <VisualState x:Name="DesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1280"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="32"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet: 960-1279px -->
+                <VisualState x:Name="TabletState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="960"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="24"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet Portrait: 640-959px -->
+                <VisualState x:Name="TabletPortraitState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="640"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="20"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Mobile: 0-639px (Default) -->
+                <VisualState x:Name="MobileState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="16"/>
+                    </VisualState.Setters>
+                </VisualState>
+                
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <Grid Padding="24"
+            <Grid x:Name="MainContent" Padding="24"
                   RowSpacing="16">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -117,10 +173,19 @@
                         </Border>
 
                         <!--  Cart Items List  -->
-                        <!-- Changed to {Binding} for dynamic cart data -->
-                        <ItemsControl x:Name="CartItemsControl"
-                                      ItemsSource="{Binding Items, Mode=OneWay}">
-                            <ItemsControl.ItemTemplate>
+                        <!-- ListView with virtualization for performance -->
+                        <ListView x:Name="CartItemsListView"
+                                  ItemsSource="{Binding Items, Mode=OneWay}"
+                                  SelectionMode="None"
+                                  IsItemClickEnabled="False">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                    <Setter Property="Padding" Value="0"/>
+                                    <Setter Property="Margin" Value="0"/>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.ItemTemplate>
                                 <DataTemplate x:DataType="vm:CartItemViewModel">
                                     <Border Margin="0,0,0,16"
                                             Style="{StaticResource CardWithShadowStyle}">
@@ -131,15 +196,20 @@
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <!--  Product Image  -->
+                                            <!--  Product Image with DecodePixelWidth optimization  -->
                                             <Border
                                                 Width="96"
                                                 Height="96"
                                                 Margin="0,0,16,0"
                                                 Background="#F9FAFB"
                                                 CornerRadius="8">
-                                                <Image Source="{x:Bind ImageUrl}"
-                                                       Stretch="UniformToFill"/>
+                                                <Image Stretch="UniformToFill">
+                                                    <Image.Source>
+                                                        <BitmapImage UriSource="{x:Bind ImageUrl}"
+                                                                     DecodePixelWidth="192"
+                                                                     DecodePixelType="Logical"/>
+                                                    </Image.Source>
+                                                </Image>
                                             </Border>
 
                                             <!--  Product Info  -->
@@ -168,7 +238,7 @@
                                                         Padding="0"
                                                         Background="White"
                                                         BorderBrush="#E5E7EB"
-                                                        Command="{Binding ElementName=CartItemsControl, Path=DataContext.DecreaseQuantityCommand}"
+                                                        Command="{Binding ElementName=CartItemsListView, Path=DataContext.DecreaseQuantityCommand}"
                                                         CommandParameter="{x:Bind}"
                                                         CornerRadius="6">
                                                         <FontIcon FontSize="12"
@@ -190,7 +260,7 @@
                                                             Padding="0"
                                                             Background="#1A4D8F"
                                                             BorderThickness="0"
-                                                            Command="{Binding ElementName=CartItemsControl, Path=DataContext.IncreaseQuantityCommand}"
+                                                            Command="{Binding ElementName=CartItemsListView, Path=DataContext.IncreaseQuantityCommand}"
                                                             CommandParameter="{x:Bind}"
                                                             CornerRadius="8"
                                                             Foreground="White">
@@ -202,7 +272,7 @@
                                                         Padding="8"
                                                         Background="Transparent"
                                                         BorderBrush="Transparent"
-                                                        Command="{Binding ElementName=CartItemsControl, Path=DataContext.RemoveItemCommand}"
+                                                        Command="{Binding ElementName=CartItemsListView, Path=DataContext.RemoveItemCommand}"
                                                         CommandParameter="{x:Bind}">
                                                         <FontIcon
                                                             FontSize="16"
@@ -239,8 +309,8 @@
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                            </ListView.ItemTemplate>
+                        </ListView>
                     </StackPanel>
 
                     <!--  Order Summary Card  -->

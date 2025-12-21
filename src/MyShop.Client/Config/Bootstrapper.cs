@@ -166,6 +166,7 @@ namespace MyShop.Client.Config
                         services.AddTransient<ICartRepository, MockCartRepository>();
                         services.AddTransient<IAgentRequestRepository, MockAgentRequestsRepository>();
                         services.AddTransient<ISystemActivationRepository, MockSystemActivationRepository>();
+                        services.AddTransient<IChatService, MockChatRepository>();
 
                         System.Diagnostics.Debug.WriteLine("[Bootstrapper] All Mock Repositories registered");
                     }
@@ -249,6 +250,7 @@ namespace MyShop.Client.Config
                         // TODO: Replace with real implementations when API is ready
                         services.AddTransient<IAgentRequestRepository, MockAgentRequestsRepository>();
                         services.AddTransient<ISystemActivationRepository, MockSystemActivationRepository>();
+                        services.AddTransient<IChatService, ChatRepository>();
                     }
 
                     // ===== Services (from Client.Services) =====
@@ -258,6 +260,20 @@ namespace MyShop.Client.Config
                     services.AddSingleton<MyShop.Core.Interfaces.Services.IValidationService, Services.ValidationService>();
                     services.AddSingleton<MyShop.Core.Interfaces.Services.IExportService, Services.ExportService>();
                     services.AddSingleton<ICurrentUserService, CurrentUserService>();
+                    services.AddSingleton<Services.IChartExportService, Services.ChartExportService>();
+                    services.AddSingleton<Services.IPdfExportService, Services.PdfExportService>();
+
+                    // ===== Performance & Caching Services =====
+                    services.AddSingleton<Services.ICacheService, Services.CacheService>();
+                    services.AddSingleton<Services.IImageCacheService, Services.ImageCacheService>();
+                    System.Diagnostics.Debug.WriteLine("[Bootstrapper] CacheService and ImageCacheService registered as Singletons");
+
+                    // ===== Advanced Features Services (T18) =====
+                    services.AddSingleton<Services.IActivityLogService, Services.ActivityLogService>();
+                    services.AddSingleton<Services.IBatchOperationService, Services.BatchOperationService>();
+                    services.AddSingleton<Services.IAppNotificationService, Services.AppNotificationService>();
+                    services.AddSingleton<Services.ISavedSearchService, Services.SavedSearchService>();
+                    System.Diagnostics.Debug.WriteLine("[Bootstrapper] Advanced Features services registered (ActivityLog, BatchOps, Notifications, SavedSearch)");
 
                     // ===== Configuration Service (Centralized Config Access) =====
                     services.AddSingleton<Services.Configuration.IConfigurationService, Services.Configuration.ConfigurationService>();

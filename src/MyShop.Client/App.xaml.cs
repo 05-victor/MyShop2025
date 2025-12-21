@@ -27,6 +27,9 @@ namespace MyShop.Client
         {
             this.InitializeComponent();
             
+            // Initialize Theme System FIRST (before anything else)
+            ThemeManager.Initialize(ThemeManager.ThemeType.Light);
+            
             // Initialize DI Host (must be done before logging)
             try
             {
@@ -213,13 +216,6 @@ namespace MyShop.Client
                             LoggingService.Instance.Information($"[HealthCheck] ✓ {message}");
                         }
                     });
-                }
-
-                // Force Light theme app-wide at runtime
-                if (MainWindow.Content is FrameworkElement root)
-                {
-                    LoggingService.Instance.Debug("Setting Light theme");
-                    root.RequestedTheme = ElementTheme.Light;
                 }
 
                 LoggingService.Instance.Information("Initializing NavigationService...");

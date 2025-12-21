@@ -55,9 +55,12 @@
         <Border x:Name="CardBorder"
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 CornerRadius="16"
-                BorderBrush="#E5E7EB"
+                BorderBrush="{ThemeResource BorderLightBrush}"
                 BorderThickness="1"
                 Padding="24"
+                AutomationProperties.Name="{x:Bind Title, Mode=OneWay}"
+                AutomationProperties.HelpText="{x:Bind Subtitle, Mode=OneWay}"
+                IsTabStop="False"
                 PointerEntered="CardBorder_PointerEntered"
                 PointerExited="CardBorder_PointerExited">
             <Border.RenderTransform>
@@ -89,7 +92,8 @@
                             CornerRadius="12"
                             Width="48" Height="48"
                             HorizontalAlignment="Left"
-                            VerticalAlignment="Center">
+                            VerticalAlignment="Center"
+                            IsHitTestVisible="False">
                         <FontIcon x:Name="IconGlyph"
                                   Glyph="{x:Bind Icon, Mode=OneWay}" 
                                   FontSize="20"
@@ -104,6 +108,9 @@
                             Padding="10,6"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Top"
+                            AutomationProperties.Name="{x:Bind TrendText, Mode=OneWay}"
+                            AutomationProperties.LiveSetting="Polite"
+                            IsTabStop="False"
                             Visibility="{x:Bind ShowBadge, Mode=OneWay}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <FontIcon Glyph="{x:Bind TrendIcon, Mode=OneWay}" 
@@ -121,7 +128,7 @@
                 <TextBlock Grid.Row="1"
                            Text="{x:Bind Title, Mode=OneWay}" 
                            FontSize="14" 
-                           Foreground="#6B7280"
+                           Foreground="{ThemeResource TextMutedBrush}"
                            Margin="0,0,0,8"/>
 
                 <!-- Value (with count-up animation) -->
@@ -130,14 +137,16 @@
                            Text="{x:Bind DisplayValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                            FontSize="32" 
                            FontWeight="Bold" 
-                           Foreground="#111827"
+                           Foreground="{ThemeResource TextPrimaryBrush}"
+                           AutomationProperties.LiveSetting="Polite"
+                           AutomationProperties.Name="{x:Bind Title, Mode=OneWay}"
                            Margin="0,0,0,12"/>
 
                 <!-- Subtitle / Description -->
                 <TextBlock Grid.Row="3"
                            Text="{x:Bind Subtitle, Mode=OneWay}" 
                            FontSize="13" 
-                           Foreground="#9CA3AF"
+                           Foreground="{ThemeResource Gray500Brush}"
                            TextWrapping="Wrap"
                            VerticalAlignment="Bottom"/>
             </Grid>

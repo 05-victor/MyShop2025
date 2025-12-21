@@ -144,5 +144,11 @@ namespace MyShop.Client.Views.SalesAgent
                 LoggingService.Instance.Error("Failed to refresh earnings", ex);
             }
         }
+
+        private void ExportPdfButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            // Export PDF functionality - placeholder for now
+            LoggingService.Instance.Information("Export PDF requested");
+        }
     }
 }

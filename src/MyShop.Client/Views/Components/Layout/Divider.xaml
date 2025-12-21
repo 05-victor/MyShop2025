@@ -22,6 +22,7 @@
         <!-- Simple Line (when no label) -->
         <Border Height="1"
                Background="{Binding Color, ElementName=RootControl, Mode=OneWay}"
+               IsHitTestVisible="False"
                Visibility="{Binding Label, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}, ConverterParameter=Invert}"/>
 
         <!-- Line with Label -->
@@ -32,15 +33,15 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" Height="1" Background="{Binding Color, ElementName=RootControl, Mode=OneWay}" VerticalAlignment="Center"/>
+            <Border Grid.Column="0" Height="1" Background="{Binding Color, ElementName=RootControl, Mode=OneWay}" VerticalAlignment="Center" IsHitTestVisible="False"/>
             
             <TextBlock Grid.Column="1"
                        Text="{Binding Label, ElementName=RootControl, Mode=OneWay}"
                        FontSize="12"
-                       Foreground="#6B7280"
+                       Foreground="{ThemeResource TextMutedBrush}"
                        Margin="16,0"/>
             
-            <Border Grid.Column="2" Height="1" Background="{Binding Color, ElementName=RootControl, Mode=OneWay}" VerticalAlignment="Center"/>
+            <Border Grid.Column="2" Height="1" Background="{Binding Color, ElementName=RootControl, Mode=OneWay}" VerticalAlignment="Center" IsHitTestVisible="False"/>
         </Grid>
     </Grid>
 </UserControl>

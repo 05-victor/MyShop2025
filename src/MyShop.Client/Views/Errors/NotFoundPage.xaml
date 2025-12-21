@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="MyShop.Client.Views.Errors.NotFoundPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <!--
+    404 Not Found Page
+    ==================
+    Displayed when a page or resource is not found.
+    -->
+
+    <Grid Background="{ThemeResource BackgroundLightBrush}">
+        <Grid.ChildrenTransitions>
+            <TransitionCollection>
+                <EntranceThemeTransition FromVerticalOffset="50"/>
+            </TransitionCollection>
+        </Grid.ChildrenTransitions>
+        <StackPanel 
+            HorizontalAlignment="Center" 
+            VerticalAlignment="Center" 
+            Spacing="24"
+            MaxWidth="500"
+            Padding="32">
+            
+            <!-- Error Illustration -->
+            <Grid Width="200" Height="200" HorizontalAlignment="Center">
+                <!-- Circle Background -->
+                <Ellipse 
+                    Width="200" Height="200" 
+                    Fill="{ThemeResource InfoBlue50Brush}" 
+                    Opacity="0.5"/>
+                
+                <!-- 404 Text -->
+                <TextBlock 
+                    Text="404" 
+                    FontSize="72" 
+                    FontWeight="Bold" 
+                    Foreground="{ThemeResource PrimaryBrush}"
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center"/>
+            </Grid>
+            
+            <!-- Title -->
+            <TextBlock 
+                Text="Page Not Found" 
+                FontSize="28" 
+                FontWeight="Bold" 
+                Foreground="{ThemeResource TextPrimaryBrush}"
+                HorizontalAlignment="Center"/>
+            
+            <!-- Description -->
+            <TextBlock 
+                Text="Sorry, the page you're looking for doesn't exist or has been moved. Please check the URL or navigate back to the home page."
+                FontSize="15" 
+                Foreground="{ThemeResource TextMutedBrush}"
+                TextAlignment="Center"
+                TextWrapping="Wrap"/>
+            
+            <!-- Action Buttons -->
+            <StackPanel 
+                Orientation="Horizontal" 
+                HorizontalAlignment="Center" 
+                Spacing="12">
+                
+                <!-- Go Back Button -->
+                <Button 
+                    x:Name="GoBackButton"
+                    Padding="24,12"
+                    Background="Transparent"
+                    BorderBrush="{ThemeResource BorderDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Click="GoBackButton_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE72B;" FontSize="14"/>
+                        <TextBlock Text="Go Back"/>
+                    </StackPanel>
+                </Button>
+                
+                <!-- Go Home Button -->
+                <Button 
+                    x:Name="GoHomeButton"
+                    Padding="24,12"
+                    Background="{ThemeResource PrimaryBrush}"
+                    Foreground="White"
+                    BorderThickness="0"
+                    CornerRadius="8"
+                    Click="GoHomeButton_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE80F;" FontSize="14"/>
+                        <TextBlock Text="Go Home" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Page>

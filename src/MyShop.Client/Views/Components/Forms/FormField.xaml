@@ -27,7 +27,7 @@
             <TextBlock Text="{Binding Label, ElementName=RootControl, Mode=OneWay}"
                        FontSize="14"
                        FontWeight="SemiBold"
-                       Foreground="#111827"/>
+                       Foreground="{ThemeResource TextPrimaryBrush}"/>
             
             <!-- Required Indicator -->
             <TextBlock Text="*"
@@ -44,7 +44,7 @@
         <!-- Help Text -->
         <TextBlock Text="{Binding HelpText, ElementName=RootControl, Mode=OneWay}"
                    FontSize="12"
-                   Foreground="#6B7280"
+                   Foreground="{ThemeResource TextMutedBrush}"
                    TextWrapping="Wrap"
                    Visibility="{Binding HelpText, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
 

@@ -206,7 +206,8 @@
                     <Button
                         Margin="0,8,0,0"
                         AutomationProperties.HelpText="Click to sign in with your credentials"
-                        AutomationProperties.Name="Sign in button"
+                        AutomationProperties.Name="Sign in button, press Alt+S"
+                        AccessKey="S"
                         Command="{x:Bind ViewModel.AttemptLoginCommand}"
                         Style="{StaticResource PrimaryButtonStyle}"
                         ToolTipService.ToolTip="Sign in to your MyShop account">
@@ -238,7 +239,8 @@
                             Grid.Column="0"
                             Height="1"
                             VerticalAlignment="Center"
-                            Background="{StaticResource Gray300Brush}"/>
+                            Background="{StaticResource Gray300Brush}"
+                            IsHitTestVisible="False" />
                         <TextBlock
                             Grid.Column="1"
                             Margin="16,0"
@@ -249,7 +251,8 @@
                             Grid.Column="2"
                             Height="1"
                             VerticalAlignment="Center"
-                            Background="{StaticResource Gray300Brush}"/>
+                            Background="{StaticResource Gray300Brush}"
+                            IsHitTestVisible="False" />
                     </Grid>
 
                     <!--  Google Login Button  -->

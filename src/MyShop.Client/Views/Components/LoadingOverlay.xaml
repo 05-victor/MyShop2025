@@ -26,7 +26,10 @@
 
     <Grid x:Name="RootGrid"
           Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}"
-          Visibility="{Binding IsLoading, ElementName=RootControl, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+          Visibility="{Binding IsLoading, ElementName=RootControl, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+          AutomationProperties.Name="Loading"
+          AutomationProperties.LiveSetting="Polite"
+          IsTabStop="False">
         
         <StackPanel HorizontalAlignment="Center"
                     VerticalAlignment="Center"
@@ -36,7 +39,7 @@
             <Grid Width="64" Height="64">
                 <!-- Outer Ring (Accent) -->
                 <Ellipse Width="64" Height="64"
-                        Stroke="#00AEEF"
+                        Stroke="{ThemeResource AccentBlueBrush}"
                         StrokeThickness="4"
                         Opacity="0.2"/>
                 
@@ -44,15 +47,16 @@
                 <ProgressRing Width="56"
                             Height="56"
                             IsActive="{Binding IsLoading, ElementName=RootControl, Mode=OneWay}"
-                            Foreground="#00AEEF"/>
+                            Foreground="{ThemeResource AccentBlueBrush}"/>
             </Grid>
             
             <!-- Loading Message with subtle animation -->
             <TextBlock Text="{Binding Message, ElementName=RootControl, Mode=OneWay}"
                        FontSize="16"
                        FontWeight="SemiBold"
-                       Foreground="#111827"
+                       Foreground="{ThemeResource TextPrimaryBrush}"
                        HorizontalAlignment="Center"
+                       AutomationProperties.LiveSetting="Assertive"
                        Visibility="{Binding Message, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}">
                 <TextBlock.RenderTransform>
                     <TranslateTransform x:Name="MessageTransform" Y="0"/>
@@ -62,7 +66,7 @@
             <!-- Sub-message (optional) -->
             <TextBlock Text="Please wait..."
                        FontSize="13"
-                       Foreground="#6B7280"
+                       Foreground="{ThemeResource TextMutedBrush}"
                        HorizontalAlignment="Center"
                        Visibility="{Binding ShowSubMessage, ElementName=RootControl, Mode=OneWay}"/>
             

@@ -36,7 +36,7 @@
             <!-- Subtitle (optional) -->
             <TextBlock Text="{Binding Subtitle, ElementName=RootControl, Mode=OneWay}"
                        FontSize="12"
-                       Foreground="#6B7280"
+                       Foreground="{ThemeResource TextMutedBrush}"
                        Visibility="{Binding Subtitle, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
         </StackPanel>
     </Border>

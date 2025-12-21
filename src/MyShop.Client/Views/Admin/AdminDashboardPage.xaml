@@ -19,6 +19,67 @@
     <!-- No need to merge them again here to avoid circular dependency -->
 
     <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="ResponsiveStates">
+                
+                <!-- Large Desktop: 1920px+ -->
+                <VisualState x:Name="LargeDesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1920"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="40"/>
+                        <Setter Target="KPIGrid.ColumnSpacing" Value="24"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Desktop: 1280-1919px -->
+                <VisualState x:Name="DesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1280"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="32"/>
+                        <Setter Target="KPIGrid.ColumnSpacing" Value="20"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet: 960-1279px -->
+                <VisualState x:Name="TabletState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="960"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="24"/>
+                        <Setter Target="KPIGrid.ColumnSpacing" Value="16"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet Portrait: 640-959px -->
+                <VisualState x:Name="TabletPortraitState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="640"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="20"/>
+                        <Setter Target="KPIGrid.ColumnSpacing" Value="12"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Mobile: 0-639px (Default) -->
+                <VisualState x:Name="MobileState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="16"/>
+                        <Setter Target="KPIGrid.ColumnSpacing" Value="8"/>
+                    </VisualState.Setters>
+                </VisualState>
+                
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
         <!-- Layer 0: Dashboard Content (Hidden during loading) -->
         <Grid x:Name="DashboardContent"
               Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
@@ -29,7 +90,7 @@
             </Grid.Transitions>
             <ScrollViewer VerticalScrollBarVisibility="Auto"
                           Background="#F9FAFB">
-                <Grid Padding="24"
+                <Grid x:Name="MainContent" Padding="24"
                       RowSpacing="20">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -49,6 +110,9 @@
                                           Height="40"
                                           SelectedIndex="2"
                                           CornerRadius="12"
+                                          AutomationProperties.Name="Select time period"
+                                          AutomationProperties.HelpText="Choose the reporting period for dashboard data"
+                                          UseSystemFocusVisuals="True"
                                           SelectionChanged="PeriodComboBox_SelectionChanged">
                                     <ComboBoxItem Content="Today"
                                                   Tag="day"/>
@@ -76,7 +140,7 @@
                                 Spacing="20"
                                 Margin="0,4,0,0">
                         <!-- Statistics Cards (KPICard Components) -->
-                        <Grid ColumnSpacing="16">
+                        <Grid x:Name="KPIGrid" ColumnSpacing="16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>

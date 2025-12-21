@@ -10,7 +10,7 @@
 
     <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
             CornerRadius="16"
-            BorderBrush="#E5E7EB"
+            BorderBrush="{ThemeResource BorderLightBrush}"
             BorderThickness="1"
             Padding="24">
         <Border.Shadow>
@@ -36,7 +36,8 @@
                            Text="{Binding Title, ElementName=RootControl, Mode=OneWay}"
                            FontSize="18"
                            FontWeight="SemiBold"
-                           Foreground="#111827"
+                           Foreground="{ThemeResource TextPrimaryBrush}"
+                           AutomationProperties.HeadingLevel="Level2"
                            VerticalAlignment="Center"/>
 
                 <!-- Menu Button (3 dots) -->
@@ -46,13 +47,18 @@
                         Background="Transparent"
                         BorderThickness="0"
                         CornerRadius="6"
+                        AutomationProperties.Name="Chart options"
+                        AutomationProperties.HelpText="Open chart menu"
+                        UseSystemFocusVisuals="True"
                         Visibility="{Binding ShowMenu, ElementName=RootControl, Mode=OneWay}">
                     <Button.Flyout>
                         <MenuFlyout x:Name="ChartMenuFlyout" Placement="BottomEdgeAlignedRight">
                             <!-- Menu items will be populated from MenuItems property -->
                         </MenuFlyout>
                     </Button.Flyout>
-                    <FontIcon Glyph="&#xE712;" FontSize="16" Foreground="#6B7280"/>
+                    <FontIcon Glyph="&#xE712;" 
+                              FontSize="16" 
+                              Foreground="{ThemeResource TextMutedBrush}"/>
                 </Button>
             </Grid>
 

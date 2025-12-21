@@ -8,6 +8,7 @@ using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Client.Facades;
 using MyShop.Client.Services.Configuration;
+using MyShop.Client.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -27,6 +28,8 @@ public partial class AdminDashboardViewModel : BaseViewModel
 {
     private readonly IDashboardFacade _dashboardFacade;
     private readonly IConfigurationService _configService;
+    private readonly IActivityLogService? _activityLogService;
+    private readonly IAppNotificationService? _notificationService;
 
     [ObservableProperty]
     private User? _currentUser;
@@ -142,11 +145,21 @@ public partial class AdminDashboardViewModel : BaseViewModel
     [ObservableProperty]
     private Axis[] _yAxes;
 
-    public AdminDashboardViewModel(IDashboardFacade dashboardFacade, INavigationService navigationService, IConfigurationService configService)
+    public AdminDashboardViewModel(
+        IDashboardFacade dashboardFacade, 
+        INavigationService navigationService,
+        IConfigurationService configService,
+        IActivityLogService? activityLogService = null,
+        IAppNotificationService? notificationService = null)
         : base(navigationService: navigationService)
     {
         _dashboardFacade = dashboardFacade;
         _configService = configService;
+        _activityLogService = activityLogService;
+        _notificationService = notificationService;
+        
+        // Initialize notification service if available
+        _notificationService?.Initialize();
     }
 
     public async Task InitializeAsync(User user)
@@ -163,7 +176,28 @@ public partial class AdminDashboardViewModel : BaseViewModel
             CurrentUser = user;
             System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] InitializeAsync called for user: {user.Username}");
 
+            // Log activity
+            if (_activityLogService != null)
+            {
+                await _activityLogService.LogActivityAsync(
+                    ActivityType.View,
+                    "Dashboard Accessed",
+                    $"Admin {user.Username} accessed dashboard",
+                    "Dashboard",
+                    "AdminDashboard"
+                );
+            }
+
             await LoadDashboardDataAsync();
+
+            // Send welcome notification
+            if (_notificationService != null)
+            {
+                _notificationService.ShowInfo(
+                    "Welcome Back!",
+                    $"Hello {user.Username}, your dashboard is ready."
+                );
+            }
 
             IsInitialized = true;
             System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] InitializeAsync completed successfully");

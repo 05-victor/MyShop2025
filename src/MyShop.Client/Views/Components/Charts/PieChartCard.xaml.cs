@@ -67,6 +67,60 @@ namespace MyShop.Client.Views.Components.Charts
             ExportRequested?.Invoke(this, csvData);
         }
 
+        private async void ExportPngMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var exportService = App.Current.Services.GetService(typeof(Services.IChartExportService)) as Services.IChartExportService;
+                if (exportService != null)
+                {
+                    await exportService.ExportChartAsPngAsync(ChartControl, Title);
+                }
+            }
+            catch (Exception ex)
+            {
+                Services.LoggingService.Instance.Error($"[{Title}] Failed to export PNG", ex);
+            }
+        }
+
+        private async void ExportPdfMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var exportService = App.Current.Services.GetService(typeof(Services.IChartExportService)) as Services.IChartExportService;
+                if (exportService != null)
+                {
+                    await exportService.ExportChartAsPdfAsync(ChartControl, Title, Subtitle);
+                }
+            }
+            catch (Exception ex)
+            {
+                Services.LoggingService.Instance.Error($"[{Title}] Failed to export PDF", ex);
+            }
+        }
+
+        private async void ExportCsvMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var exportService = App.Current.Services.GetService(typeof(Services.IChartExportService)) as Services.IChartExportService;
+                if (exportService != null)
+                {
+                    await exportService.ExportChartDataAsCsvAsync(Series, Title);
+                }
+            }
+            catch (Exception ex)
+            {
+                Services.LoggingService.Instance.Error($"[{Title}] Failed to export CSV", ex);
+            }
+        }
+
+        private void RetryButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Raise event or call command to retry loading
+            RefreshMenuItem_Click(sender, e);
+        }
+
         private string GetSeriesAsCsv()
         {
             var sb = new StringBuilder();
@@ -121,6 +175,18 @@ namespace MyShop.Client.Views.Components.Charts
 
         public static readonly DependencyProperty ChartHeightProperty =
             DependencyProperty.Register(nameof(ChartHeight), typeof(double), typeof(PieChartCard), new PropertyMetadata(300.0));
+
+        public static readonly DependencyProperty IsLoadingProperty =
+            DependencyProperty.Register(nameof(IsLoading), typeof(bool), typeof(PieChartCard), new PropertyMetadata(false));
+
+        public static readonly DependencyProperty IsEmptyProperty =
+            DependencyProperty.Register(nameof(IsEmpty), typeof(bool), typeof(PieChartCard), new PropertyMetadata(false));
+
+        public static readonly DependencyProperty HasErrorProperty =
+            DependencyProperty.Register(nameof(HasError), typeof(bool), typeof(PieChartCard), new PropertyMetadata(false));
+
+        public static readonly DependencyProperty ErrorMessageProperty =
+            DependencyProperty.Register(nameof(ErrorMessage), typeof(string), typeof(PieChartCard), new PropertyMetadata(string.Empty));
 
         #endregion
 
@@ -178,6 +244,30 @@ namespace MyShop.Client.Views.Components.Charts
         {
             get => (double)GetValue(ChartHeightProperty);
             set => SetValue(ChartHeightProperty, value);
+        }
+
+        public bool IsLoading
+        {
+            get => (bool)GetValue(IsLoadingProperty);
+            set => SetValue(IsLoadingProperty, value);
+        }
+
+        public bool IsEmpty
+        {
+            get => (bool)GetValue(IsEmptyProperty);
+            set => SetValue(IsEmptyProperty, value);
+        }
+
+        public bool HasError
+        {
+            get => (bool)GetValue(HasErrorProperty);
+            set => SetValue(HasErrorProperty, value);
+        }
+
+        public string ErrorMessage
+        {
+            get => (string)GetValue(ErrorMessageProperty);
+            set => SetValue(ErrorMessageProperty, value);
         }
 
         #endregion

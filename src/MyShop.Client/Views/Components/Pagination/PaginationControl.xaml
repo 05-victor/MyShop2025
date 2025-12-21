@@ -23,6 +23,9 @@
             <ComboBox x:Name="PageSizeComboBox"
                       MinWidth="80"
                       SelectedIndex="0"
+                      AutomationProperties.Name="Items per page"
+                      AutomationProperties.HelpText="Select number of items to show per page"
+                      UseSystemFocusVisuals="True"
                       SelectionChanged="OnPageSizeChanged">
                 <ComboBoxItem Content="10"/>
                 <ComboBoxItem Content="25"/>
@@ -47,7 +50,9 @@
                     Width="36"
                     Height="36"
                     Click="OnFirstClick"
-                    ToolTipService.ToolTip="First Page">
+                    ToolTipService.ToolTip="First Page"
+                    AutomationProperties.Name="First page"
+                    UseSystemFocusVisuals="True">
                 <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
                         <Setter Property="Background" Value="Transparent"/>
@@ -63,7 +68,9 @@
                     Width="36"
                     Height="36"
                     Click="OnPreviousClick"
-                    ToolTipService.ToolTip="Previous Page">
+                    ToolTipService.ToolTip="Previous Page"
+                    AutomationProperties.Name="Previous page"
+                    UseSystemFocusVisuals="True">
                 <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
                         <Setter Property="Background" Value="Transparent"/>
@@ -104,7 +111,9 @@
                     Width="36"
                     Height="36"
                     Click="OnNextClick"
-                    ToolTipService.ToolTip="Next Page">
+                    ToolTipService.ToolTip="Next Page"
+                    AutomationProperties.Name="Next page"
+                    UseSystemFocusVisuals="True">
                 <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
                         <Setter Property="Background" Value="Transparent"/>
@@ -120,7 +129,9 @@
                     Width="36"
                     Height="36"
                     Click="OnLastClick"
-                    ToolTipService.ToolTip="Last Page">
+                    ToolTipService.ToolTip="Last Page"
+                    AutomationProperties.Name="Last page"
+                    UseSystemFocusVisuals="True">
                 <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
                         <Setter Property="Background" Value="Transparent"/>

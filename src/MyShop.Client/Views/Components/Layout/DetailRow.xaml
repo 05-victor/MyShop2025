@@ -28,7 +28,7 @@
         <FontIcon Grid.Column="0"
                  Glyph="{Binding IconGlyph, ElementName=RootControl, Mode=OneWay}"
                  FontSize="16"
-                 Foreground="#6B7280"
+                 Foreground="{ThemeResource TextMutedBrush}"
                  VerticalAlignment="Center"/>
 
         <!-- Label and Value -->
@@ -36,7 +36,7 @@
             <!-- Label (optional) -->
             <TextBlock Text="{Binding Label, ElementName=RootControl, Mode=OneWay}"
                        FontSize="14"
-                       Foreground="#6B7280"
+                       Foreground="{ThemeResource TextMutedBrush}"
                        Visibility="{Binding Label, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}">
                 <Run Text=":"/>
             </TextBlock>
@@ -45,7 +45,7 @@
             <TextBlock x:Name="ValueText"
                        Text="{Binding Value, ElementName=RootControl, Mode=OneWay}"
                        FontSize="14"
-                       Foreground="#111827"
+                       Foreground="{ThemeResource TextPrimaryBrush}"
                        TextTrimming="CharacterEllipsis"/>
         </StackPanel>
     </Grid>

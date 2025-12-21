@@ -12,13 +12,16 @@
         <TextBox
             x:Name="SearchTextBox"
             Padding="36,12,40,12"
-            BorderBrush="#E5E7EB"
+            BorderBrush="{ThemeResource BorderLightBrush}"
             CornerRadius="8"
             PlaceholderText="{x:Bind PlaceholderText, Mode=OneWay}"
-            Text="{x:Bind Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            Text="{x:Bind Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            AutomationProperties.Name="Search"
+            AutomationProperties.HelpText="{x:Bind PlaceholderText, Mode=OneWay}"
+            UseSystemFocusVisuals="True">
             <TextBox.Resources>
                 <Style TargetType="TextBox">
-                    <Setter Property="Background" Value="White" />
+                    <Setter Property="Background" Value="{ThemeResource CardBackgroundBrush}" />
                 </Style>
             </TextBox.Resources>
         </TextBox>
@@ -30,7 +33,7 @@
             VerticalAlignment="Center"
             FontFamily="Segoe Fluent Icons"
             FontSize="14"
-            Foreground="#9CA3AF"
+            Foreground="{ThemeResource Gray500Brush}"
             Glyph="&#xE721;"
             IsHitTestVisible="False" />
 
@@ -48,11 +51,14 @@
             Click="ClearButton_Click"
             CornerRadius="14"
             ToolTipService.ToolTip="Clear search"
+            AutomationProperties.Name="Clear search"
+            AutomationProperties.HelpText="Click to clear the search field"
+            UseSystemFocusVisuals="True"
             Visibility="{x:Bind HasText, Mode=OneWay}">
             <FontIcon
                 FontFamily="Segoe Fluent Icons"
                 FontSize="12"
-                Foreground="#6B7280"
+                Foreground="{ThemeResource TextMutedBrush}"
                 Glyph="&#xE711;" />
         </Button>
     </Grid>

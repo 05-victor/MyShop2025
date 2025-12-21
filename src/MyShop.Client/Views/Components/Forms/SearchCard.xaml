@@ -49,10 +49,10 @@
                 <TextBlock Text="{Binding Title, ElementName=RootControl, Mode=OneWay}"
                            FontSize="14"
                            FontWeight="SemiBold"
-                           Foreground="#374151"/>
+                           Foreground="{ThemeResource TextTertiaryBrush}"/>
                 <TextBlock Text="{Binding Subtitle, ElementName=RootControl, Mode=OneWay}"
                            FontSize="12"
-                           Foreground="#6B7280"
+                           Foreground="{ThemeResource TextMutedBrush}"
                            Visibility="{Binding HasSubtitle, ElementName=RootControl, Mode=OneWay}"/>
             </StackPanel>
             
@@ -66,12 +66,16 @@
                 <AutoSuggestBox x:Name="SearchAutoSuggestBox"
                                Grid.Column="0"
                                Height="40"
-                               BorderBrush="#E5E7EB"
+                               BorderBrush="{ThemeResource BorderLightBrush}"
                                CornerRadius="8"
                                QueryIcon="Find"
                                PlaceholderText="{Binding PlaceholderText, ElementName=RootControl, Mode=OneWay}"
                                Text="{Binding SearchText, ElementName=RootControl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                ItemsSource="{Binding ItemsSource, ElementName=RootControl, Mode=OneWay}"
+                               AutomationProperties.Name="Search"
+                               AutomationProperties.HelpText="{Binding PlaceholderText, ElementName=RootControl, Mode=OneWay}"
+                               AccessKey="F"
+                               UseSystemFocusVisuals="True"
                                TextChanged="SearchAutoSuggestBox_TextChanged"
                                SuggestionChosen="SearchAutoSuggestBox_SuggestionChosen"
                                QuerySubmitted="SearchAutoSuggestBox_QuerySubmitted"/>

@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="MyShop.Client.Views.Components.Skeletons.OrderListSkeleton"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:skeletons="using:MyShop.Client.Views.Components.Skeletons"
+    mc:Ignorable="d">
+
+    <StackPanel Spacing="12">
+        <!-- Order Card 1 -->
+        <Border
+            Background="{ThemeResource CardBackgroundBrush}"
+            CornerRadius="12"
+            BorderBrush="{ThemeResource BorderLightBrush}"
+            BorderThickness="1"
+            Padding="20">
+            <Grid RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header Row -->
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Order ID -->
+                    <skeletons:SkeletonLoader Width="100" Height="20" Grid.Column="0"/>
+                    
+                    <!-- Customer Name -->
+                    <skeletons:SkeletonLoader Width="150" Height="18" Grid.Column="1"/>
+                    
+                    <!-- Status Badge -->
+                    <skeletons:SkeletonLoader Width="80" Height="24" Grid.Column="2"/>
+                </Grid>
+
+                <!-- Details Row -->
+                <Grid Grid.Row="1" ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <skeletons:SkeletonLoader Width="120" Height="16" Grid.Column="0"/>
+                    <skeletons:SkeletonLoader Width="100" Height="16" Grid.Column="1"/>
+                    <skeletons:SkeletonLoader Width="90" Height="16" Grid.Column="2"/>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- Order Card 2 -->
+        <Border
+            Background="{ThemeResource CardBackgroundBrush}"
+            CornerRadius="12"
+            BorderBrush="{ThemeResource BorderLightBrush}"
+            BorderThickness="1"
+            Padding="20">
+            <Grid RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <skeletons:SkeletonLoader Width="100" Height="20" Grid.Column="0"/>
+                    <skeletons:SkeletonLoader Width="150" Height="18" Grid.Column="1"/>
+                    <skeletons:SkeletonLoader Width="80" Height="24" Grid.Column="2"/>
+                </Grid>
+
+                <Grid Grid.Row="1" ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <skeletons:SkeletonLoader Width="120" Height="16" Grid.Column="0"/>
+                    <skeletons:SkeletonLoader Width="100" Height="16" Grid.Column="1"/>
+                    <skeletons:SkeletonLoader Width="90" Height="16" Grid.Column="2"/>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- Order Card 3 -->
+        <Border
+            Background="{ThemeResource CardBackgroundBrush}"
+            CornerRadius="12"
+            BorderBrush="{ThemeResource BorderLightBrush}"
+            BorderThickness="1"
+            Padding="20">
+            <Grid RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <skeletons:SkeletonLoader Width="100" Height="20" Grid.Column="0"/>
+                    <skeletons:SkeletonLoader Width="150" Height="18" Grid.Column="1"/>
+                    <skeletons:SkeletonLoader Width="80" Height="24" Grid.Column="2"/>
+                </Grid>
+
+                <Grid Grid.Row="1" ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <skeletons:SkeletonLoader Width="120" Height="16" Grid.Column="0"/>
+                    <skeletons:SkeletonLoader Width="100" Height="16" Grid.Column="1"/>
+                    <skeletons:SkeletonLoader Width="90" Height="16" Grid.Column="2"/>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- Order Card 4 -->
+        <Border
+            Background="{ThemeResource CardBackgroundBrush}"
+            CornerRadius="12"
+            BorderBrush="{ThemeResource BorderLightBrush}"
+            BorderThickness="1"
+            Padding="20">
+            <Grid RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <skeletons:SkeletonLoader Width="100" Height="20" Grid.Column="0"/>
+                    <skeletons:SkeletonLoader Width="150" Height="18" Grid.Column="1"/>
+                    <skeletons:SkeletonLoader Width="80" Height="24" Grid.Column="2"/>
+                </Grid>
+
+                <Grid Grid.Row="1" ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <skeletons:SkeletonLoader Width="120" Height="16" Grid.Column="0"/>
+                    <skeletons:SkeletonLoader Width="100" Height="16" Grid.Column="1"/>
+                    <skeletons:SkeletonLoader Width="90" Height="16" Grid.Column="2"/>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- Order Card 5 -->
+        <Border
+            Background="{ThemeResource CardBackgroundBrush}"
+            CornerRadius="12"
+            BorderBrush="{ThemeResource BorderLightBrush}"
+            BorderThickness="1"
+            Padding="20">
+            <Grid RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <skeletons:SkeletonLoader Width="100" Height="20" Grid.Column="0"/>
+                    <skeletons:SkeletonLoader Width="150" Height="18" Grid.Column="1"/>
+                    <skeletons:SkeletonLoader Width="80" Height="24" Grid.Column="2"/>
+                </Grid>
+
+                <Grid Grid.Row="1" ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <skeletons:SkeletonLoader Width="120" Height="16" Grid.Column="0"/>
+                    <skeletons:SkeletonLoader Width="100" Height="16" Grid.Column="1"/>
+                    <skeletons:SkeletonLoader Width="90" Height="16" Grid.Column="2"/>
+                </Grid>
+            </Grid>
+        </Border>
+    </StackPanel>
+</UserControl>

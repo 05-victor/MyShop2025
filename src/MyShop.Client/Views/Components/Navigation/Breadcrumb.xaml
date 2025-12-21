@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="MyShop.Client.Views.Components.Navigation.Breadcrumb"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    x:Name="RootControl">
+
+    <!--
+    Breadcrumb Component
+    ====================
+    Shows navigation path with clickable items.
+    
+    Usage:
+    <nav:Breadcrumb Items="{x:Bind ViewModel.BreadcrumbItems}"/>
+    -->
+
+    <ItemsControl ItemsSource="{Binding Items, ElementName=RootControl, Mode=OneWay}">
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <StackPanel Orientation="Horizontal" Spacing="4"/>
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        
+        <ItemsControl.ItemTemplate>
+            <DataTemplate>
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <!-- Separator (hidden for first item) -->
+                    <FontIcon 
+                        Glyph="&#xE76C;"
+                        FontSize="10"
+                        Foreground="{ThemeResource TextMutedBrush}"
+                        VerticalAlignment="Center"
+                        Visibility="{Binding IsFirst, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                    
+                    <!-- Breadcrumb Item -->
+                    <HyperlinkButton 
+                        Content="{Binding Title}"
+                        Padding="4,2"
+                        FontSize="13"
+                        Foreground="{ThemeResource TextMutedBrush}"
+                        IsEnabled="{Binding IsClickable}"
+                        Tag="{Binding}"
+                        Click="BreadcrumbItem_Click">
+                        <HyperlinkButton.Resources>
+                            <Style TargetType="HyperlinkButton">
+                                <Setter Property="Foreground" Value="{ThemeResource TextMutedBrush}"/>
+                            </Style>
+                        </HyperlinkButton.Resources>
+                    </HyperlinkButton>
+                </StackPanel>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+</UserControl>

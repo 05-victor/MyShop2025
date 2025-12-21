@@ -369,5 +369,25 @@ namespace MyShop.Client.Views.Shell
             };
             await errorDialog.ShowAsync();
         }
+
+        /// <summary>
+        /// Toggle AI Chat Panel visibility
+        /// </summary>
+        private void ChatButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Toggle chat panel visibility
+                bool isVisible = ChatPanel.Visibility == Visibility.Visible;
+                ChatPanel.Visibility = isVisible ? Visibility.Collapsed : Visibility.Visible;
+                ChatButton.IsOpen = !isVisible;
+                
+                System.Diagnostics.Debug.WriteLine($"[CustomerDashboardShell] Chat panel toggled: {!isVisible}");
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.Error("Failed to toggle chat panel", ex);
+            }
+        }
     }
 }

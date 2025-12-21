@@ -10,7 +10,10 @@
             CornerRadius="4"
             Padding="8,4"
             HorizontalAlignment="Left"
-            VerticalAlignment="Center">
+            VerticalAlignment="Center"
+            AutomationProperties.Name="{Binding Text, ElementName=RootControl, Mode=OneWay}"
+            AutomationProperties.HelpText="Status badge"
+            IsTabStop="False">
         
         <StackPanel Orientation="Horizontal" Spacing="4">
             <!-- Optional Icon -->

@@ -1,0 +1,4 @@
+ProductName,Category,Price,StockQuantity,Description,SKU
+Sample Product 1,Electronics,299.99,50,A great electronic device,SKU-001
+Sample Product 2,Clothing,49.99,100,Comfortable cotton t-shirt,SKU-002
+Sample Product 3,Home & Garden,129.00,25,Modern desk lamp,SKU-003

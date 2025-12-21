@@ -17,7 +17,7 @@
 
     <Border
         Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-        BorderBrush="#E5E7EB"
+        BorderBrush="{ThemeResource BorderLightBrush}"
         BorderThickness="1"
         CornerRadius="16"
         Padding="24">
@@ -60,7 +60,7 @@
                         <TextBlock
                             FontSize="16"
                             FontWeight="SemiBold"
-                            Foreground="#111827"
+                            Foreground="{ThemeResource TextPrimaryBrush}"
                             Text="{Binding FullName, ElementName=RootControl}"
                             VerticalAlignment="Center" />
                         <badges:StatusBadge
@@ -73,21 +73,21 @@
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <FontIcon
                                 FontSize="14"
-                                Foreground="#6B7280"
+                                Foreground="{ThemeResource TextMutedBrush}"
                                 Glyph="&#xE715;" />
                             <TextBlock
                                 FontSize="13"
-                                Foreground="#6B7280"
+                                Foreground="{ThemeResource TextMutedBrush}"
                                 Text="{Binding Email, ElementName=RootControl}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <FontIcon
                                 FontSize="14"
-                                Foreground="#6B7280"
+                                Foreground="{ThemeResource TextMutedBrush}"
                                 Glyph="&#xE787;" />
                             <TextBlock
                                 FontSize="13"
-                                Foreground="#6B7280"
+                                Foreground="{ThemeResource TextMutedBrush}"
                                 Text="{Binding SubmittedDate, ElementName=RootControl}" />
                         </StackPanel>
                     </StackPanel>
@@ -101,15 +101,15 @@
                     <TextBlock
                         FontSize="13"
                         FontWeight="SemiBold"
-                        Foreground="#111827"
+                        Foreground="{ThemeResource TextPrimaryBrush}"
                         Text="Reason:" />
                     <Border
-                        Background="#F9FAFB"
+                        Background="{ThemeResource Gray100Brush}"
                         CornerRadius="8"
                         Padding="12">
                         <TextBlock
                             FontSize="13"
-                            Foreground="#6B7280"
+                            Foreground="{ThemeResource TextMutedBrush}"
                             Text="{Binding Reason, ElementName=RootControl}"
                             TextWrapping="Wrap" />
                     </Border>
@@ -120,15 +120,15 @@
                     <TextBlock
                         FontSize="13"
                         FontWeight="SemiBold"
-                        Foreground="#111827"
+                        Foreground="{ThemeResource TextPrimaryBrush}"
                         Text="Experience:" />
                     <Border
-                        Background="#F9FAFB"
+                        Background="{ThemeResource Gray100Brush}"
                         CornerRadius="8"
                         Padding="12">
                         <TextBlock
                             FontSize="13"
-                            Foreground="#6B7280"
+                            Foreground="{ThemeResource TextMutedBrush}"
                             Text="{Binding Experience, ElementName=RootControl}"
                             TextWrapping="Wrap" />
                     </Border>
@@ -162,7 +162,7 @@
             <!--  Action Buttons (only for pending)  -->
             <StackPanel
                 Grid.Row="3"
-                BorderBrush="#E5E7EB"
+                BorderBrush="{ThemeResource BorderLightBrush}"
                 BorderThickness="0,1,0,0"
                 Orientation="Horizontal"
                 Padding="0,16,0,0"

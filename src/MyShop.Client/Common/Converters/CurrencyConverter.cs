@@ -5,7 +5,8 @@ using System.Globalization;
 namespace MyShop.Client.Common.Converters
 {
     /// <summary>
-    /// Converts decimal values to formatted currency strings (VND)
+    /// Converts decimal values to formatted currency strings (VND).
+    /// Format: 1,234,567₫ with dot as thousand separator.
     /// </summary>
     public class CurrencyConverter : IValueConverter
     {
@@ -31,10 +32,10 @@ namespace MyShop.Client.Common.Converters
                 else if (decimal.TryParse(value.ToString(), out var parsed))
                     amount = parsed;
                 else
-                    return "₫0";
+                    return "0₫"; // Fixed: was "₫0"
 
                 // Round to whole dong and format with '.' as thousand separator
-                // Example: 1234567.89 -> "1.234.568₫"
+                // Example: 1234567.89 → "1.234.568₫"
                 amount = Math.Round(amount, 0, MidpointRounding.AwayFromZero);
 
                 var nfi = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
@@ -45,7 +46,7 @@ namespace MyShop.Client.Common.Converters
             }
             catch
             {
-                return "₫0";
+                return "0₫"; // Fixed: was "₫0"
             }
         }
 

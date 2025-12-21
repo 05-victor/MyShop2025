@@ -31,6 +31,9 @@ public sealed partial class SettingsPage : Page
             this.DataContext = ViewModel;
             LoggingService.Instance.Debug("ViewModel retrieved from DI and DataContext set");
             
+            // Initialize theme toggle based on current theme
+            ThemeToggle.IsOn = ThemeManager.CurrentTheme == ThemeManager.ThemeType.Dark;
+            
             SetupKeyboardShortcuts();
         }
         catch (Exception ex)
@@ -198,6 +201,30 @@ public sealed partial class SettingsPage : Page
         catch (Exception ex)
         {
             LoggingService.Instance.Error("Failed to copy debug info", ex);
+        }
+    }
+
+    private void ThemeToggle_Toggled(object sender, RoutedEventArgs e)
+    {
+        // Skip during page initialization
+        if (_isInitializing) return;
+
+        if (sender is ToggleSwitch toggle)
+        {
+            try
+            {
+                var newTheme = toggle.IsOn ? ThemeManager.ThemeType.Dark : ThemeManager.ThemeType.Light;
+                ThemeManager.ApplyTheme(newTheme);
+                LoggingService.Instance.Information($"Theme changed to: {newTheme}");
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.Error("Failed to change theme", ex);
+                // Revert toggle on error
+                toggle.Toggled -= ThemeToggle_Toggled;
+                toggle.IsOn = !toggle.IsOn;
+                toggle.Toggled += ThemeToggle_Toggled;
+            }
         }
     }
 }

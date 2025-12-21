@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="MyShop.Client.Views.Dialogs.ExportOptionsDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Export Options"
+    PrimaryButtonText="Export"
+    SecondaryButtonText="Cancel"
+    DefaultButton="Primary"
+    Style="{StaticResource DefaultContentDialogStyle}">
+
+    <!--
+    ExportOptionsDialog
+    ===================
+    Dialog for selecting export format and options.
+    -->
+
+    <StackPanel Spacing="16" MinWidth="320">
+        <!-- Export Format -->
+        <StackPanel Spacing="8">
+            <TextBlock Text="Export Format" FontWeight="SemiBold"/>
+            <RadioButtons x:Name="FormatRadioButtons" SelectedIndex="0">
+                <RadioButton Content="CSV (.csv)" Tag="csv"/>
+                <RadioButton Content="Excel (.xlsx)" Tag="xlsx" IsEnabled="False"/>
+            </RadioButtons>
+            <TextBlock Text="Excel export coming soon" 
+                      FontSize="12" 
+                      Foreground="{ThemeResource TextMutedBrush}"
+                      FontStyle="Italic"/>
+        </StackPanel>
+
+        <!-- Date Range (Optional) -->
+        <StackPanel Spacing="8" x:Name="DateRangeSection" Visibility="Collapsed">
+            <TextBlock Text="Date Range (Optional)" FontWeight="SemiBold"/>
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <CalendarDatePicker Grid.Column="0" 
+                                   x:Name="StartDatePicker"
+                                   PlaceholderText="Start Date"
+                                   HorizontalAlignment="Stretch"/>
+                <CalendarDatePicker Grid.Column="1" 
+                                   x:Name="EndDatePicker"
+                                   PlaceholderText="End Date"
+                                   HorizontalAlignment="Stretch"/>
+            </Grid>
+        </StackPanel>
+
+        <!-- Include Options -->
+        <StackPanel Spacing="8">
+            <TextBlock Text="Include" FontWeight="SemiBold"/>
+            <CheckBox x:Name="IncludeHeadersCheckBox" Content="Column headers" IsChecked="True"/>
+            <CheckBox x:Name="IncludeMetadataCheckBox" Content="Export metadata (date, record count)"/>
+        </StackPanel>
+
+        <!-- Preview -->
+        <Border Background="{ThemeResource Gray100Brush}" 
+               CornerRadius="8" 
+               Padding="12"
+               Visibility="Collapsed">
+            <StackPanel Spacing="4">
+                <TextBlock Text="Preview" FontWeight="SemiBold" FontSize="12"/>
+                <TextBlock x:Name="PreviewText" 
+                          Text="Ready to export"
+                          FontSize="12"
+                          Foreground="{ThemeResource TextMutedBrush}"/>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</ContentDialog>

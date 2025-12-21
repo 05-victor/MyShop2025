@@ -38,12 +38,15 @@
         <StackPanel Grid.Column="0" Spacing="4">
             <TextBlock Text="{Binding StartLabel, ElementName=RootControl, Mode=OneWay}"
                        FontSize="12"
-                       Foreground="#6B7280"/>
+                       Foreground="{ThemeResource TextMutedBrush}"/>
             <CalendarDatePicker x:Name="StartDatePicker"
                                HorizontalAlignment="Stretch"
-                               BorderBrush="#E5E7EB"
+                               BorderBrush="{ThemeResource BorderLightBrush}"
                                Date="{Binding StartDate, ElementName=RootControl, Mode=TwoWay}"
                                PlaceholderText="{Binding StartPlaceholder, ElementName=RootControl, Mode=OneWay}"
+                               AutomationProperties.Name="{Binding StartLabel, ElementName=RootControl, Mode=OneWay}"
+                               AutomationProperties.HelpText="Select start date"
+                               UseSystemFocusVisuals="True"
                                DateChanged="StartDatePicker_DateChanged"/>
         </StackPanel>
         
@@ -51,12 +54,15 @@
         <StackPanel Grid.Column="1" Spacing="4">
             <TextBlock Text="{Binding EndLabel, ElementName=RootControl, Mode=OneWay}"
                        FontSize="12"
-                       Foreground="#6B7280"/>
+                       Foreground="{ThemeResource TextMutedBrush}"/>
             <CalendarDatePicker x:Name="EndDatePicker"
                                HorizontalAlignment="Stretch"
-                               BorderBrush="#E5E7EB"
+                               BorderBrush="{ThemeResource BorderLightBrush}"
                                Date="{Binding EndDate, ElementName=RootControl, Mode=TwoWay}"
                                PlaceholderText="{Binding EndPlaceholder, ElementName=RootControl, Mode=OneWay}"
+                               AutomationProperties.Name="{Binding EndLabel, ElementName=RootControl, Mode=OneWay}"
+                               AutomationProperties.HelpText="Select end date"
+                               UseSystemFocusVisuals="True"
                                DateChanged="EndDatePicker_DateChanged"/>
         </StackPanel>
     </Grid>

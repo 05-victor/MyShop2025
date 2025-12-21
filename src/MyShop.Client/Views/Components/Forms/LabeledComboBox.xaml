@@ -34,10 +34,10 @@
     <StackPanel Spacing="4">
         <TextBlock Text="{Binding Label, ElementName=RootControl, Mode=OneWay}"
                    FontSize="12"
-                   Foreground="#6B7280"/>
+                   Foreground="{ThemeResource TextMutedBrush}"/>
         <ComboBox x:Name="InnerComboBox"
                   HorizontalAlignment="Stretch"
-                  BorderBrush="#E5E7EB"
+                  BorderBrush="{ThemeResource BorderLightBrush}"
                   BorderThickness="1"
                   PlaceholderText="{Binding PlaceholderText, ElementName=RootControl, Mode=OneWay}"
                   ItemsSource="{Binding ItemsSource, ElementName=RootControl, Mode=OneWay}"
@@ -46,6 +46,9 @@
                   SelectedValue="{Binding SelectedValue, ElementName=RootControl, Mode=TwoWay}"
                   SelectedValuePath="{Binding SelectedValuePath, ElementName=RootControl, Mode=OneWay}"
                   DisplayMemberPath="{Binding DisplayMemberPath, ElementName=RootControl, Mode=OneWay}"
+                  AutomationProperties.Name="{Binding Label, ElementName=RootControl, Mode=OneWay}"
+                  AutomationProperties.HelpText="{Binding PlaceholderText, ElementName=RootControl, Mode=OneWay}"
+                  UseSystemFocusVisuals="True"
                   SelectionChanged="InnerComboBox_SelectionChanged"/>
     </StackPanel>
 </UserControl>

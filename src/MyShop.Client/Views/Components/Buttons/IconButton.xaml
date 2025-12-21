@@ -43,6 +43,8 @@
             Command="{Binding Command, ElementName=RootControl, Mode=OneWay}"
             CommandParameter="{Binding CommandParameter, ElementName=RootControl, Mode=OneWay}"
             ToolTipService.ToolTip="{Binding Tooltip, ElementName=RootControl, Mode=OneWay}"
+            AutomationProperties.Name="{Binding Tooltip, ElementName=RootControl, Mode=OneWay}"
+            UseSystemFocusVisuals="True"
             Click="ActionButton_Click">
         <Button.Resources>
             <!-- Ghost variant overrides -->
@@ -54,7 +56,8 @@
             <FontIcon x:Name="LeftIcon"
                       Glyph="{Binding IconGlyph, ElementName=RootControl, Mode=OneWay}"
                       FontSize="{Binding IconSize, ElementName=RootControl, Mode=OneWay}"
-                      Foreground="{Binding IconColor, ElementName=RootControl, Mode=OneWay}"/>
+                      Foreground="{Binding IconColor, ElementName=RootControl, Mode=OneWay}"
+                      IsHitTestVisible="False"/>
             <TextBlock x:Name="ButtonText"
                        Text="{Binding Text, ElementName=RootControl, Mode=OneWay}"
                        FontWeight="SemiBold"
@@ -63,7 +66,8 @@
                       Visibility="Collapsed"
                       Glyph="{Binding IconGlyph, ElementName=RootControl, Mode=OneWay}"
                       FontSize="{Binding IconSize, ElementName=RootControl, Mode=OneWay}"
-                      Foreground="{Binding IconColor, ElementName=RootControl, Mode=OneWay}"/>
+                      Foreground="{Binding IconColor, ElementName=RootControl, Mode=OneWay}"
+                      IsHitTestVisible="False"/>
         </StackPanel>
     </Button>
 </UserControl>

@@ -245,7 +245,8 @@
                             Style="{StaticResource AccentButtonStyle}"
                             HorizontalAlignment="Stretch"
                             Margin="0,12,0,0"
-                            AutomationProperties.Name="Create Account Button"
+                            AutomationProperties.Name="Create Account Button, press Alt+C"
+                            AccessKey="C"
                             ToolTipService.ToolTip="Create your new MyShop account">
                         <StackPanel Orientation="Horizontal" Spacing="{StaticResource Gap_XS}" HorizontalAlignment="Center">
                             <ProgressRing Width="20" Height="20"

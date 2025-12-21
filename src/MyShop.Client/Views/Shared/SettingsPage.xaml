@@ -19,6 +19,62 @@
     </Page.Resources>
 
     <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="ResponsiveStates">
+                
+                <!-- Large Desktop: 1920px+ -->
+                <VisualState x:Name="LargeDesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1920"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="40"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Desktop: 1280-1919px -->
+                <VisualState x:Name="DesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1280"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="40"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet: 960-1279px -->
+                <VisualState x:Name="TabletState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="960"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="32"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet Portrait: 640-959px -->
+                <VisualState x:Name="TabletPortraitState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="640"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="24"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Mobile: 0-639px (Default) -->
+                <VisualState x:Name="MobileState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="20"/>
+                    </VisualState.Setters>
+                </VisualState>
+                
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
         <!--  Loading Overlay  -->
         <Border
             Background="#80000000"
@@ -33,7 +89,7 @@
 
         <!--  Main Content  -->
         <ScrollViewer>
-            <StackPanel MaxWidth="900"
+            <StackPanel x:Name="MainContent" MaxWidth="900"
                     Padding="40"
                     Spacing="24">
                 <!--  Header  -->
@@ -224,9 +280,47 @@
                                         <TextBlock FontSize="16"
                                                 FontWeight="SemiBold"
                                                 Text="Appearance Settings"/>
+
+                                        <!-- Theme Selector -->
+                                        <Border Padding="0,12"
+                                                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                                BorderThickness="0,0,0,1"
+                                                Margin="0,0,0,8">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="Theme"
+                                                            FontWeight="SemiBold"/>
+                                                    <TextBlock FontSize="12"
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                            Text="Choose between Light and Dark mode"
+                                                            TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                                <ToggleSwitch Grid.Column="1"
+                                                        x:Name="ThemeToggle"
+                                                        Toggled="ThemeToggle_Toggled"
+                                                        OnContent="Dark"
+                                                        OffContent="Light">
+                                                    <ToggleSwitch.HeaderTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                                <FontIcon x:Name="ThemeIcon" 
+                                                                        FontSize="20" 
+                                                                        Glyph="&#xE706;"
+                                                                        Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </ToggleSwitch.HeaderTemplate>
+                                                </ToggleSwitch>
+                                            </Grid>
+                                        </Border>
+                                        
                                         <TextBlock
                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                            Text="Theme and language settings will be available in a future update."
+                                            Text="Language settings will be available in a future update."
                                             TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Border>

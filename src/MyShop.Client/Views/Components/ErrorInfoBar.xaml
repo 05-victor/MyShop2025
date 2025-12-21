@@ -15,6 +15,7 @@
         Message="{x:Bind Message, Mode=OneWay}"
         IsIconVisible="{x:Bind ShowIcon, Mode=OneWay}"
         IsClosable="{x:Bind IsClosable, Mode=OneWay}"
+        AutomationProperties.LiveSetting="Assertive"
         Closed="InfoBarControl_Closed">
         <InfoBar.IconSource>
             <FontIconSource Glyph="{x:Bind IconGlyph, Mode=OneWay}" />
