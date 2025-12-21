@@ -184,18 +184,14 @@ public class DashboardRepository : IDashboardRepository
 
     /// <summary>
     /// Map client period format to API period format
-    /// Client: "current", "last", "last3"
-    /// API: "day", "week", "month", "year"
+    /// Client periods now align with API: "day", "week", "month", "year"
     /// </summary>
     private static string MapPeriodToApi(string clientPeriod)
     {
-        return clientPeriod.ToLower() switch
-        {
-            "current" => "month",
-            "last" => "month",
-            "last3" => "month", // Could be extended to support quarter
-            _ => "month"
-        };
+        var validPeriods = new[] { "day", "week", "month", "year" };
+        return validPeriods.Contains(clientPeriod?.ToLower() ?? "month")
+            ? clientPeriod.ToLower()
+            : "month";
     }
 
     /// <summary>

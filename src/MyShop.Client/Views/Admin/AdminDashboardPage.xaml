@@ -43,20 +43,22 @@
                         <layout:PageHeader.ActionContent>
                             <StackPanel Orientation="Horizontal"
                                         Spacing="12">
-                                <!-- Month Selector -->
+                                <!-- Period Selector -->
                                 <ComboBox x:Name="PeriodComboBox"
                                           Width="180"
                                           Height="40"
-                                          SelectedIndex="0"
+                                          SelectedIndex="2"
                                           CornerRadius="12"
                                           SelectionChanged="PeriodComboBox_SelectionChanged">
-                                    <ComboBoxItem Content="Current Month"
-                                                  Tag="current"
+                                    <ComboBoxItem Content="Today"
+                                                  Tag="day"/>
+                                    <ComboBoxItem Content="This Week"
+                                                  Tag="week"/>
+                                    <ComboBoxItem Content="This Month"
+                                                  Tag="month"
                                                   IsSelected="True"/>
-                                    <ComboBoxItem Content="Last Month"
-                                                  Tag="last"/>
-                                    <ComboBoxItem Content="Last 3 Months"
-                                                  Tag="last3"/>
+                                    <ComboBoxItem Content="This Year"
+                                                  Tag="year"/>
                                 </ComboBox>
 
                                 <!-- Export Button -->
@@ -87,7 +89,8 @@
                                 Grid.Column="0"
                                 Title="Total GMV This Month"
                                 Icon="&#xE7DB;"
-                                Value="{x:Bind ViewModel.TotalGmvThisMonth, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                Value="{x:Bind ViewModel.TotalGmvThisMonth, Mode=OneWay}"
+                                IsCurrency="True"
                                 Subtitle="Total sales across platform"
                                 ShowBadge="Visible"
                                 TrendIcon="&#xE74E;"
@@ -102,7 +105,8 @@
                                 Grid.Column="1"
                                 Title="Admin Commission"
                                 Icon="&#xE8D0;"
-                                Value="{x:Bind ViewModel.AdminCommission, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                Value="{x:Bind ViewModel.AdminCommission, Mode=OneWay}"
+                                IsCurrency="True"
                                 Subtitle="5% of total GMV"
                                 ShowBadge="Visible"
                                 TrendIcon="&#xE8D0;"

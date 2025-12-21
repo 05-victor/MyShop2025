@@ -83,7 +83,9 @@ public class AuthRepository : IAuthRepository
             {
                 Username = username,
                 Email = email,
-                Password = password
+                Password = password,
+                Sdt = phoneNumber,
+                RoleNames = new List<string> { role }
             };
 
             var refitResponse = await _authApi.RegisterAsync(request);

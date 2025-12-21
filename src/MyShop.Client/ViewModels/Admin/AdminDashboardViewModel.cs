@@ -39,14 +39,15 @@ public partial class AdminDashboardViewModel : BaseViewModel
 
     // Period filter
     [ObservableProperty]
-    private string _selectedPeriod = "current";
+    private string _selectedPeriod = "month";
 
-    public List<string> AvailablePeriods { get; } = new List<string> { "current", "last", "last3" };
+    public List<string> AvailablePeriods { get; } = new List<string> { "day", "week", "month", "year" };
     public Dictionary<string, string> PeriodLabels { get; } = new Dictionary<string, string>
         {
-            { "current", "Current Month" },
-            { "last", "Last Month" },
-            { "last3", "Last 3 Months" }
+            { "day", "Today" },
+            { "week", "This Week" },
+            { "month", "This Month" },
+            { "year", "This Year" }
         };
 
     // New Platform-Owner KPIs
@@ -232,6 +233,8 @@ public partial class AdminDashboardViewModel : BaseViewModel
             {
                 TotalGmvThisMonth = data.MonthRevenue;
                 AdminCommission = Math.Round(data.MonthRevenue * 0.05m, 2);
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] ✅ KPI VALUES SET - GMV: {TotalGmvThisMonth}, Commission: {AdminCommission}");
+
                 // ActiveSalesAgents: Waiting for API endpoint to provide this count
                 ActiveSalesAgents = 0;
                 // ItemsToReview: Should include flagged products (loaded separately) + low stock count
@@ -272,15 +275,29 @@ public partial class AdminDashboardViewModel : BaseViewModel
                 RunOnUIThread(() =>
                 {
                     RevenueChartData = new ObservableCollection<RevenueDataPoint>();
+                    RevenueTrendData = new ObservableCollection<TrendDataPoint>();
+                    CommissionTrendData = new ObservableCollection<TrendDataPoint>();
+
                     for (int i = 0; i < chartResult.Data.Labels.Count; i++)
                     {
+                        var revenue = chartResult.Data.Data[i];
+                        var commission = revenue * 0.05m; // 5% commission
+
                         RevenueChartData.Add(new RevenueDataPoint
                         {
                             Day = chartResult.Data.Labels[i],
-                            Revenue = chartResult.Data.Data[i],
+                            Revenue = revenue,
                             Orders = 0
                         });
+
+                        // Add to trend data for chart
+                        RevenueTrendData.Add(new TrendDataPoint { Value = revenue });
+                        CommissionTrendData.Add(new TrendDataPoint { Value = commission });
                     }
+
+                    // Update chart series
+                    UpdateChartSeries();
+
                     System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] Chart UI updated with {RevenueChartData.Count} points");
                 });
             }
@@ -397,7 +414,10 @@ public partial class AdminDashboardViewModel : BaseViewModel
                             Status = agent.Status
                         });
                     }
-                    System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Loaded {TopSalesAgents.Count} top sales agents");
+
+                    // Update ActiveSalesAgents count based on loaded data
+                    ActiveSalesAgents = topAgentsResult.Data.Count(a => a.Status == "Active");
+                    System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Loaded {TopSalesAgents.Count} top sales agents, {ActiveSalesAgents} active");
                 });
             }
 
@@ -520,14 +540,12 @@ public partial class AdminDashboardViewModel : BaseViewModel
 
     private string GetChartPeriod(string selectedPeriod)
     {
-        // Map summary period to chart period (server expects: day, week, month, year)
-        return selectedPeriod switch
-        {
-            "current" => "day",     // Current month -> show daily data
-            "last" => "day",        // Last month -> show daily data
-            "last3" => "week",      // Last 3 months -> show weekly data
-            _ => "day"
-        };
+        // Server API expects: "day", "week", "month", "year"
+        // Pass through directly since periods now align with API expectations
+        var validPeriods = new[] { "day", "week", "month", "year" };
+        return validPeriods.Contains(selectedPeriod?.ToLower() ?? "month")
+            ? selectedPeriod.ToLower()
+            : "month";
     }
 
     [RelayCommand]
