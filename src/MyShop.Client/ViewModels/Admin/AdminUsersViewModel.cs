@@ -181,7 +181,7 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
             {
                 XamlRoot = App.MainWindow?.Content?.XamlRoot
             };
-            
+
             var result = await dialog.ShowAsync();
             if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
             {
@@ -195,7 +195,7 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
                         password: dialog.ViewModel.Password,
                         role: dialog.ViewModel.SelectedRole
                     );
-                    
+
                     if (createResult.IsSuccess)
                     {
                         System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] New user added: {dialog.ViewModel.FullName}");
@@ -217,62 +217,6 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
         {
             System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Error adding user: {ex.Message}");
             await _toastHelper?.ShowError($"Error: {ex.Message}");
-        }
-    }
-
-    [RelayCommand]
-    private async Task ToggleUserStatusAsync(UserViewModel user)
-    {
-        try
-        {
-            var result = await _userFacade.ToggleUserStatusAsync(user.Id);
-            if (result.IsSuccess)
-            {
-                user.IsActive = !user.IsActive;
-                user.Status = user.IsActive ? "Active" : "Inactive";
-                user.StatusColor = user.IsActive ? "#10B981" : "#6B7280";
-                user.StatusBgColor = user.IsActive ? "#D1FAE5" : "#F3F4F6";
-                await _toastHelper?.ShowSuccess($"User {user.Name} status updated");
-            }
-            else
-            {
-                await _toastHelper?.ShowError(result.ErrorMessage ?? "Failed to update user status");
-            }
-        }
-        catch (Exception ex)
-        {
-            await _toastHelper?.ShowError($"Error updating user status: {ex.Message}");
-        }
-    }
-
-    [RelayCommand]
-    private async Task ResetPasswordAsync(UserViewModel user)
-    {
-        try
-        {
-            // Show confirmation dialog
-            var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
-            {
-                Title = "Reset Password",
-                Content = $"Are you sure you want to reset password for {user.Name}?\n\nA new password will be sent to their email: {user.Email}",
-                PrimaryButtonText = "Reset Password",
-                CloseButtonText = "Cancel",
-                DefaultButton = Microsoft.UI.Xaml.Controls.ContentDialogButton.Close,
-                XamlRoot = App.MainWindow?.Content?.XamlRoot
-            };
-            
-            var result = await dialog.ShowAsync();
-            if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
-            {
-                // TODO: Call actual password reset API
-                await _toastHelper?.ShowSuccess($"Password reset email sent to {user.Email}");
-                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Reset password for: {user.Name}");
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Reset password error: {ex.Message}");
-            await _toastHelper?.ShowError("Failed to reset password");
         }
     }
 
