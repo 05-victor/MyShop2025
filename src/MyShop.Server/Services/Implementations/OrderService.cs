@@ -1,3 +1,5 @@
+using AutoMapper;
+using MyShop.Data.Entities;
 using MyShop.Data.Repositories.Interfaces;
 using MyShop.Server.EntityMappings;
 using MyShop.Server.Exceptions;
@@ -9,6 +11,8 @@ using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
 using MyShop.Data.Entities;
 using Microsoft.Extensions.Configuration;
+using MyShop.Shared.Enums;
+using MyShop.Shared.Extensions;
 
 namespace MyShop.Server.Services.Implementations;
 
@@ -177,6 +181,69 @@ public class OrderService : IOrderService
         }
     }
 
+    public async Task<OrderResponse> UpdateAsync(Guid id, UpdateOrderRequest updateOrderRequest)
+    {
+        var existingOrder = await _orderRepository.GetByIdAsync(id);
+        if (existingOrder is null)
+        {
+            throw NotFoundException.ForEntity("Order", id);
+        }
+
+        // Validate sale agent if being updated
+        if (updateOrderRequest.SaleAgentId.HasValue)
+        {
+            var saleAgent = await _userRepository.GetByIdAsync(updateOrderRequest.SaleAgentId.Value);
+            if (saleAgent is null)
+            {
+                throw NotFoundException.ForEntity("Sale agent", updateOrderRequest.SaleAgentId.Value);
+            }
+        }
+
+        try
+        {
+            // Apply updates using Patch method
+            existingOrder.Patch(updateOrderRequest);
+            existingOrder.UpdatedAt = DateTime.UtcNow;
+
+            // Update sale agent if specified
+            if (updateOrderRequest.SaleAgentId.HasValue)
+            {
+                existingOrder.SaleAgentId = updateOrderRequest.SaleAgentId.Value;
+                _logger.LogInformation("Sale agent updated to {SaleAgentId} for order {OrderId}",
+                    updateOrderRequest.SaleAgentId, id);
+            }
+
+            var updatedOrder = await _orderRepository.UpdateAsync(existingOrder);
+            return OrderMapper.ToOrderResponse(updatedOrder);
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error updating order {OrderId}", id);
+            throw InfrastructureException.DatabaseError($"Failed to update order with ID {id}", ex);
+        }
+    }
+
+    public async Task<bool> DeleteAsync(Guid id)
+    {
+        var existingOrder = await _orderRepository.GetByIdAsync(id);
+        if (existingOrder is null)
+        {
+            return false;
+        }
+
+        try
+        {
+            await _orderRepository.DeleteAsync(id);
+            _logger.LogInformation("Order {OrderId} deleted", id);
+            return true;
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error deleting order {OrderId}", id);
+            throw InfrastructureException.DatabaseError($"Failed to delete order with ID {id}", ex);
+        }
+    }
+
     public async Task<OrderResponse> CreateOrderFromCartAsync(CreateOrderFromCartRequest request)
     {
         try
@@ -230,8 +297,8 @@ public class OrderService : IOrderService
                 CustomerId = request.CustomerId,
                 SaleAgentId = request.SalesAgentId,
                 OrderDate = DateTime.UtcNow,
-                Status = "PENDING",
-                PaymentStatus = "UNPAID",
+                Status = OrderStatus.Pending,
+                PaymentStatus = PaymentStatus.Unpaid,
                 TotalAmount = totalAmount,
                 DiscountAmount = request.DiscountAmount,
                 ShippingFee = shippingFeeAmount,
@@ -281,66 +348,307 @@ public class OrderService : IOrderService
         }
     }
 
-    public async Task<OrderResponse> UpdateAsync(Guid id, UpdateOrderRequest updateOrderRequest)
+    public async Task<PagedResult<OrderResponse>> GetMySalesOrdersAsync(PaginationRequest request, string? status = null, string? paymentStatus = null)
     {
-        var existingOrder = await _orderRepository.GetByIdAsync(id);
-        if (existingOrder is null)
-        {
-            throw NotFoundException.ForEntity("Order", id);
-        }
-
-        // Validate sale agent if being updated
-        if (updateOrderRequest.SaleAgentId.HasValue)
-        {
-            var saleAgent = await _userRepository.GetByIdAsync(updateOrderRequest.SaleAgentId.Value);
-            if (saleAgent is null)
-            {
-                throw NotFoundException.ForEntity("Sale agent", updateOrderRequest.SaleAgentId.Value);
-            }
-        }
-
         try
         {
-            // Apply updates using Patch method
-            existingOrder.Patch(updateOrderRequest);
-            existingOrder.UpdatedAt = DateTime.UtcNow;
-
-            // Update sale agent if specified
-            if (updateOrderRequest.SaleAgentId.HasValue)
+            var currentUserId = _currentUserService.UserId;
+            if (!currentUserId.HasValue)
             {
-                existingOrder.SaleAgentId = updateOrderRequest.SaleAgentId.Value;
-                _logger.LogInformation("Sale agent updated to {SaleAgentId} for order {OrderId}", 
-                    updateOrderRequest.SaleAgentId, id);
+                throw new UnauthorizedAccessException("User not authenticated");
             }
 
-            var updatedOrder = await _orderRepository.UpdateAsync(existingOrder);
-            return OrderMapper.ToOrderResponse(updatedOrder);
+            var pagedOrders = await _orderRepository.GetOrdersBySalesAgentIdAsync(request.PageNumber, request.PageSize, currentUserId.Value);
+
+            // Filter by status if provided
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                var statusEnum = StatusEnumExtensions.ParseApiString<OrderStatus>(status);
+                pagedOrders.Items = pagedOrders.Items
+                    .Where(o => o.Status == statusEnum)
+                    .ToList();
+            }
+
+            // Filter by payment status if provided
+            if (!string.IsNullOrWhiteSpace(paymentStatus))
+            {
+                var paymentStatusEnum = StatusEnumExtensions.ParseApiString<PaymentStatus>(paymentStatus);
+                pagedOrders.Items = pagedOrders.Items
+                    .Where(o => o.PaymentStatus == paymentStatusEnum)
+                    .ToList();
+            }
+
+            return new PagedResult<OrderResponse>
+            {
+                Items = pagedOrders.Items.Select(o => OrderMapper.ToOrderResponse(o)).ToList(),
+                TotalCount = pagedOrders.Items.Count,
+                Page = pagedOrders.Page,
+                PageSize = pagedOrders.PageSize
+            };
+        }
+        catch (UnauthorizedAccessException)
+        {
+            throw;
         }
         catch (Exception ex) when (ex is not BaseApplicationException)
         {
-            _logger.LogError(ex, "Error updating order {OrderId}", id);
-            throw InfrastructureException.DatabaseError($"Failed to update order with ID {id}", ex);
+            _logger.LogError(ex, "Error retrieving sales agent orders");
+            throw InfrastructureException.DatabaseError("Failed to retrieve sales agent orders", ex);
         }
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<OrderResponse?> GetMySalesOrderByIdAsync(Guid orderId)
     {
-        var existingOrder = await _orderRepository.GetByIdAsync(id);
-        if (existingOrder is null)
-        {
-            return false;
-        }
-
         try
         {
-            await _orderRepository.DeleteAsync(id);
-            _logger.LogInformation("Order {OrderId} deleted", id);
-            return true;
+            var currentUserId = _currentUserService.UserId;
+            if (!currentUserId.HasValue)
+            {
+                throw new UnauthorizedAccessException("User not authenticated");
+            }
+
+            var order = await _orderRepository.GetByIdAsync(orderId);
+            if (order is null)
+            {
+                return null;
+            }
+
+            // Verify that this order belongs to the current sales agent
+            if (order.SaleAgentId != currentUserId.Value)
+            {
+                throw new UnauthorizedAccessException("You are not authorized to view this order");
+            }
+
+            return OrderMapper.ToOrderResponse(order);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            throw;
         }
         catch (Exception ex) when (ex is not BaseApplicationException)
         {
-            _logger.LogError(ex, "Error deleting order {OrderId}", id);
-            throw InfrastructureException.DatabaseError($"Failed to delete order with ID {id}", ex);
+            _logger.LogError(ex, "Error retrieving sales agent order {OrderId}", orderId);
+            throw InfrastructureException.DatabaseError($"Failed to retrieve order with ID {orderId}", ex);
+        }
+    }
+
+    public async Task<OrderResponse> UpdateOrderStatusAsync(Guid orderId, UpdateOrderStatusRequest request)
+    {
+        try
+        {
+            var currentUserId = _currentUserService.UserId;
+            if (!currentUserId.HasValue)
+            {
+                throw new UnauthorizedAccessException("User not authenticated");
+            }
+
+            var existingOrder = await _orderRepository.GetByIdAsync(orderId);
+            if (existingOrder is null)
+            {
+                throw NotFoundException.ForEntity("Order", orderId);
+            }
+
+            // Verify that this order belongs to the current sales agent
+            if (existingOrder.SaleAgentId != currentUserId.Value)
+            {
+                throw new UnauthorizedAccessException("You are not authorized to update this order");
+            }
+
+            // Parse and validate status
+            var orderStatus = StatusEnumExtensions.ParseApiString<OrderStatus>(request.Status);
+            
+            // Validate status is a valid enum value
+            if (!Enum.IsDefined(typeof(OrderStatus), orderStatus))
+            {
+                var validStatuses = Enum.GetNames(typeof(OrderStatus));
+                throw new ValidationException($"Invalid status. Valid statuses: {string.Join(", ", validStatuses)}");
+            }
+
+            // Update order status
+            existingOrder.Status = orderStatus;
+            existingOrder.UpdatedAt = DateTime.UtcNow;
+
+            // Append notes if provided
+            if (!string.IsNullOrWhiteSpace(request.Notes))
+            {
+                existingOrder.Note = string.IsNullOrWhiteSpace(existingOrder.Note)
+                    ? request.Notes
+                    : $"{existingOrder.Note}\n{DateTime.UtcNow:yyyy-MM-dd HH:mm}: {request.Notes}";
+            }
+
+            var updatedOrder = await _orderRepository.UpdateAsync(existingOrder);
+            
+            _logger.LogInformation("Order {OrderId} status updated to {Status} by sales agent {UserId}", 
+                orderId, orderStatus.ToApiString(), currentUserId.Value);
+
+            return OrderMapper.ToOrderResponse(updatedOrder);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            throw;
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error updating order status for order {OrderId}", orderId);
+            throw InfrastructureException.DatabaseError($"Failed to update order status for order with ID {orderId}", ex);
+        }
+    }
+
+    public async Task<PagedResult<OrderResponse>> GetMyCustomerOrdersAsync(PaginationRequest request, string? status = null, string? paymentStatus = null)
+    {
+        try
+        {
+            var currentUserId = _currentUserService.UserId;
+            if (!currentUserId.HasValue)
+            {
+                throw new UnauthorizedAccessException("User not authenticated");
+            }
+
+            var pagedOrders = await _orderRepository.GetOrdersByCustomerIdAsync(request.PageNumber, request.PageSize, currentUserId.Value);
+
+            // Filter by status if provided
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                var statusEnum = StatusEnumExtensions.ParseApiString<OrderStatus>(status);
+                pagedOrders.Items = pagedOrders.Items
+                    .Where(o => o.Status == statusEnum)
+                    .ToList();
+            }
+
+            // Filter by payment status if provided
+            if (!string.IsNullOrWhiteSpace(paymentStatus))
+            {
+                var paymentStatusEnum = StatusEnumExtensions.ParseApiString<PaymentStatus>(paymentStatus);
+                pagedOrders.Items = pagedOrders.Items
+                    .Where(o => o.PaymentStatus == paymentStatusEnum)
+                    .ToList();
+            }
+
+            return new PagedResult<OrderResponse>
+            {
+                Items = pagedOrders.Items.Select(o => OrderMapper.ToOrderResponse(o)).ToList(),
+                TotalCount = pagedOrders.Items.Count,
+                Page = pagedOrders.Page,
+                PageSize = pagedOrders.PageSize
+            };
+        }
+        catch (UnauthorizedAccessException)
+        {
+            throw;
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error retrieving customer orders");
+            throw InfrastructureException.DatabaseError("Failed to retrieve customer orders", ex);
+        }
+    }
+
+    public async Task<ProcessCardPaymentResponse> ProcessCardPaymentAsync(ProcessCardPaymentRequest request)
+    {
+        try
+        {
+            // Get the order
+            var order = await _orderRepository.GetByIdAsync(request.OrderId);
+            if (order is null)
+            {
+                throw NotFoundException.ForEntity("Order", request.OrderId);
+            }
+
+            // Validate order is not already paid
+            if (order.PaymentStatus == PaymentStatus.Paid)
+            {
+                return new ProcessCardPaymentResponse
+                {
+                    OrderId = request.OrderId,
+                    Success = false,
+                    Message = "Order has already been paid",
+                    PaymentStatus = order.PaymentStatus.ToApiString()
+                };
+            }
+
+            // Validate order is not cancelled
+            if (order.Status == OrderStatus.Cancelled)
+            {
+                return new ProcessCardPaymentResponse
+                {
+                    OrderId = request.OrderId,
+                    Success = false,
+                    Message = "Cannot process payment for cancelled order",
+                    PaymentStatus = order.PaymentStatus.ToApiString()
+                };
+            }
+
+            // Remove spaces from card number for validation
+            var cardNumber = request.CardNumber.Replace(" ", "");
+
+            // Simple demo payment processing logic
+            PaymentStatus newPaymentStatus;
+            string message;
+            bool success;
+
+            if (cardNumber == "1111111111111111")
+            {
+                // Success case
+                newPaymentStatus = PaymentStatus.Paid;
+                message = "Payment processed successfully";
+                success = true;
+
+                _logger.LogInformation("Payment successful for order {OrderId} using card ending in {Last4}",
+                    order.Id, cardNumber.Substring(cardNumber.Length - 4));
+            }
+            else if (cardNumber == "0000000000000000")
+            {
+                // Failed payment case
+                newPaymentStatus = PaymentStatus.Failed;
+                message = "Payment failed. Please check your card details and try again";
+                success = false;
+
+                _logger.LogWarning("Payment failed for order {OrderId} using card ending in {Last4}",
+                    order.Id, cardNumber.Substring(cardNumber.Length - 4));
+            }
+            else
+            {
+                // Invalid card case
+                return new ProcessCardPaymentResponse
+                {
+                    OrderId = request.OrderId,
+                    Success = false,
+                    Message = "Invalid card number. This is a demo system. Use 1111 1111 1111 1111 for success or 0000 0000 0000 0000 for failure",
+                    PaymentStatus = order.PaymentStatus.ToApiString()
+                };
+            }
+
+            // Update order payment status
+            order.PaymentStatus = newPaymentStatus;
+
+            if (newPaymentStatus == PaymentStatus.Paid)
+            {
+                order.Status = OrderStatus.Confirmed;
+            }
+
+            order.UpdatedAt = DateTime.UtcNow;
+
+            await _orderRepository.UpdateAsync(order);
+
+            var response = new ProcessCardPaymentResponse
+            {
+                OrderId = request.OrderId,
+                Success = success,
+                Message = message,
+                PaymentStatus = newPaymentStatus.ToApiString(),
+                ProcessedAt = DateTime.UtcNow,
+                TransactionId = success ? $"TXN-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}" : null
+            };
+
+            _logger.LogInformation("Payment processing completed for order {OrderId}. Status: {PaymentStatus}",
+                order.Id, newPaymentStatus.ToApiString());
+
+            return response;
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error processing card payment for order {OrderId}", request.OrderId);
+            throw InfrastructureException.DatabaseError("Failed to process card payment", ex);
         }
     }
 }

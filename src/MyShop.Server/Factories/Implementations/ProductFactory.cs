@@ -1,6 +1,8 @@
 ﻿using MyShop.Data.Entities;
 using MyShop.Server.Factories.Interfaces;
 using MyShop.Shared.DTOs.Requests;
+using MyShop.Shared.Enums;
+using MyShop.Shared.Extensions;
 
 namespace MyShop.Server.Factories.Implementations
 {
@@ -27,6 +29,9 @@ namespace MyShop.Server.Factories.Implementations
             if (request.CommissionRate < 0 || request.CommissionRate > 1)
                 throw new ArgumentException("Commission rate must be between 0 and 1.");
 
+            // Parse status string to enum
+            var status = StatusEnumExtensions.ParseApiString<ProductStatus>(request.Status);
+
             // Initialize new Product entity
             var product = new Product
             {
@@ -38,7 +43,7 @@ namespace MyShop.Server.Factories.Implementations
                 SellingPrice = request.SellingPrice,
                 Quantity = request.Quantity,
                 CommissionRate = request.CommissionRate,
-                Status = request.Status != null ? request.Status.Trim() : "AVAILABLE",
+                Status = status,
                 Description = request.Description?.Trim(),
                 ImageUrl = request.ImageUrl?.Trim(),
                 CategoryId = request.CategoryId,

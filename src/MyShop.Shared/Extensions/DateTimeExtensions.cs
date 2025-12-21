@@ -69,7 +69,7 @@ public static class DateTimeExtensions
     }
 
     /// <summary>
-    /// Get start of day (00:00:00)
+    /// Get start of day (00:00:00) with UTC kind
     /// </summary>
     public static DateTime StartOfDay(this DateTime dateTime)
     {
@@ -77,10 +77,39 @@ public static class DateTimeExtensions
     }
 
     /// <summary>
-    /// Get end of day (23:59:59)
+    /// Get end of day (23:59:59) with UTC kind
     /// </summary>
     public static DateTime EndOfDay(this DateTime dateTime)
     {
         return dateTime.Date.AddDays(1).AddTicks(-1);
+    }
+    
+    /// <summary>
+    /// Get start of month (1st day, 00:00:00) with UTC kind
+    /// </summary>
+    public static DateTime StartOfMonth(this DateTime dateTime)
+    {
+        return new DateTime(dateTime.Year, dateTime.Month, 1, 0, 0, 0, dateTime.Kind);
+    }
+    
+    /// <summary>
+    /// Get end of month (last day, 23:59:59) with UTC kind
+    /// </summary>
+    public static DateTime EndOfMonth(this DateTime dateTime)
+    {
+        return StartOfMonth(dateTime).AddMonths(1).AddSeconds(-1);
+    }
+    
+    /// <summary>
+    /// Ensure DateTime has UTC kind (converts if needed)
+    /// </summary>
+    public static DateTime EnsureUtc(this DateTime dateTime)
+    {
+        return dateTime.Kind switch
+        {
+            DateTimeKind.Utc => dateTime,
+            DateTimeKind.Local => dateTime.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(dateTime, DateTimeKind.Utc)
+        };
     }
 }

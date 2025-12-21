@@ -1,7 +1,7 @@
 namespace MyShop.Shared.DTOs.Requests;
 
 /// <summary>
-/// Request DTO for searching products
+/// Request DTO for searching and filtering products with advanced criteria
 /// </summary>
 public class SearchProductsRequest
 {
@@ -31,14 +31,54 @@ public class SearchProductsRequest
     public bool? InStockOnly { get; set; }
 
     /// <summary>
-    /// Sort field (name, price, createdAt)
+    /// Filter by manufacturer
     /// </summary>
-    public string? SortBy { get; set; }
+    public string? Manufacturer { get; set; }
+
+    /// <summary>
+    /// Filter by device type
+    /// </summary>
+    public string? DeviceType { get; set; }
+
+    /// <summary>
+    /// Filter by product status (AVAILABLE, OUT_OF_STOCK, DISCONTINUED)
+    /// </summary>
+    public string? Status { get; set; }
+
+    /// <summary>
+    /// Filter by sale agent ID
+    /// </summary>
+    public Guid? SaleAgentId { get; set; }
+
+    /// <summary>
+    /// Minimum stock quantity filter
+    /// </summary>
+    public int? MinStock { get; set; }
+
+    /// <summary>
+    /// Maximum stock quantity filter
+    /// </summary>
+    public int? MaxStock { get; set; }
+
+    /// <summary>
+    /// Minimum commission rate filter (0-1)
+    /// </summary>
+    public double? MinCommissionRate { get; set; }
+
+    /// <summary>
+    /// Maximum commission rate filter (0-1)
+    /// </summary>
+    public double? MaxCommissionRate { get; set; }
+
+    /// <summary>
+    /// Sort field (name, price, stock, createdAt, commission, manufacturer)
+    /// </summary>
+    public string? SortBy { get; set; } = "createdAt";
 
     /// <summary>
     /// Sort direction (asc, desc)
     /// </summary>
-    public string? SortOrder { get; set; }
+    public string? SortOrder { get; set; } = "desc";
 
     /// <summary>
     /// Page number (default: 1)

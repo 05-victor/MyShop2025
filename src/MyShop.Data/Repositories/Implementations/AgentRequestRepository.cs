@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using MyShop.Data.Entities;
 using MyShop.Data.Repositories.Interfaces;
 using MyShop.Shared.DTOs.Commons;
+using MyShop.Shared.Enums;
 
 namespace MyShop.Data.Repositories.Implementations;
 
@@ -51,7 +52,7 @@ public class AgentRequestRepository : IAgentRequestRepository
         }
     }
 
-    public async Task<PagedResult<AgentRequest>> GetAllAsync(int pageNumber = 1, int pageSize = 20, string? status = null)
+    public async Task<PagedResult<AgentRequest>> GetAllAsync(int pageNumber = 1, int pageSize = 20, AgentRequestStatus? status = null)
     {
         try
         {
@@ -60,9 +61,9 @@ public class AgentRequestRepository : IAgentRequestRepository
                     .ThenInclude(u => u!.Profile)
                 .AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(status))
+            if (status.HasValue)
             {
-                query = query.Where(ar => ar.Status == status);
+                query = query.Where(ar => ar.Status == status.Value);
             }
 
             var totalCount = await query.CountAsync();

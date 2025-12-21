@@ -12,4 +12,9 @@ public interface IProductService
     Task<ProductResponse> CreateAsync(CreateProductRequest createProductRequest);
     Task<ProductResponse> UpdateAsync(Guid id, UpdateProductRequest updateProductRequest);
     Task<bool> DeleteAsync(Guid id);
+
+    /// <summary>
+    /// Search products with advanced filtering and sorting
+    /// </summary>
+    Task<PagedResult<ProductResponse>> SearchAsync(SearchProductsRequest request);
 }
