@@ -3,6 +3,7 @@
     x:Class="MyShop.Client.Views.Customer.CustomerDashboardPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Customer"
@@ -106,8 +107,9 @@
                     IsOpen="{x:Bind ViewModel.IsVerified, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
                     IsClosable="False">
                     <InfoBar.ActionButton>
-                        <Button Content="Resend Email"
-                                Style="{StaticResource PrimaryButtonStyle}"/>
+                        <Button
+                            Content="Resend Email"
+                            Style="{StaticResource AccentButtonStyle}"/>
                     </InfoBar.ActionButton>
                 </InfoBar>
 
@@ -152,21 +154,13 @@
                                             FontWeight="SemiBold"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource PrimaryButtonStyle}"
+                            <buttons:IconButton
                                     MinWidth="120"
+                                    Variant="Filled"
+                                    IconGlyph="&#xE719;"
+                                    Text="Shop Now"
                                     AutomationProperties.Name="Shop now"
-                                    AutomationProperties.HelpText="Browse products and start shopping"
-                                    AccessKey="N"
-                                    UseSystemFocusVisuals="True">
-                                <StackPanel Orientation="Horizontal"
-                                        Spacing="8">
-                                    <FontIcon Glyph="&#xE719;"
-                                            FontSize="16"/>
-                                    <TextBlock Text="Shop Now"
-                                            FontSize="14"
-                                            FontWeight="SemiBold"/>
-                                </StackPanel>
-                            </Button>
+                                    AccessKey="N"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -271,7 +265,7 @@
                                             <!-- Add to Cart Button -->
                                             <Button HorizontalAlignment="Stretch"
                                                     Background="{ThemeResource AccentBlueBrush}"
-                                                    Foreground="White"
+                                                    Foreground="{ThemeResource WhiteBrush}"
                                                     BorderThickness="0"
                                                     CornerRadius="8"
                                                     Padding="0,10">
@@ -392,7 +386,7 @@
                                             <!-- Add to Cart Button -->
                                             <Button HorizontalAlignment="Stretch"
                                                     Background="{ThemeResource AccentBlueBrush}"
-                                                    Foreground="White"
+                                                    Foreground="{ThemeResource WhiteBrush}"
                                                     BorderThickness="0"
                                                     CornerRadius="8"
                                                     Padding="0,10">

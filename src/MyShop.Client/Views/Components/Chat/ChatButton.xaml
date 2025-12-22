@@ -80,13 +80,13 @@
             <FontIcon x:Name="ChatIcon" 
                      Glyph="&#xE8BD;" 
                      FontSize="24" 
-                     Foreground="White"/>
+                     Foreground="{ThemeResource WhiteBrush}"/>
             
             <!-- Close Icon (when open) -->
             <FontIcon x:Name="CloseIcon" 
                      Glyph="&#xE711;" 
                      FontSize="20" 
-                     Foreground="White"
+                     Foreground="{ThemeResource WhiteBrush}"
                      Visibility="Collapsed"/>
             
             <!-- Notification Badge -->
@@ -101,7 +101,7 @@
                 <TextBlock Text="1" 
                           FontSize="10" 
                           FontWeight="Bold"
-                          Foreground="White"
+                          Foreground="{ThemeResource WhiteBrush}"
                           HorizontalAlignment="Center"
                           VerticalAlignment="Center"/>
             </Border>

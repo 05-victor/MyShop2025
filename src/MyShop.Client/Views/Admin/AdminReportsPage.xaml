@@ -323,7 +323,7 @@
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
                                                 FontWeight="SemiBold"
-                                                Foreground="White"
+                                                Foreground="{ThemeResource WhiteBrush}"
                                                 Text="{Binding Initials}"/>
                                             </Border>
                                             <StackPanel Grid.Column="1"
@@ -342,7 +342,7 @@
                                             HorizontalAlignment="Right"
                                             VerticalAlignment="Center">
                                                 <TextBlock FontWeight="SemiBold"
-                                                       Foreground="Green">
+                                                       Foreground="{ThemeResource SuccessGreenBrush}">
                                                 <Run Text="{Binding Revenue, Converter={StaticResource CurrencyConverter}}"/>
                                                 </TextBlock>
                                                 <TextBlock

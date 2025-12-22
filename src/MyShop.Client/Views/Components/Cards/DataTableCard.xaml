@@ -30,7 +30,7 @@
                 <Grid.Background>
                     <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
                         <GradientStop Color="Transparent" Offset="0"/>
-                        <GradientStop Color="#1000AEEF" Offset="0.5"/>
+                        <GradientStop Color="{ThemeResource AccentBlueSubtleBrush}" Offset="0.5"/>
                         <GradientStop Color="Transparent" Offset="1"/>
                     </LinearGradientBrush>
                 </Grid.Background>
@@ -71,13 +71,13 @@
                         Visibility="{Binding ShowViewAll, ElementName=RootControl, Mode=OneWay}"
                         Padding="16,8"
                         Background="Transparent"
-                        BorderBrush="#4D00AEEF"
+                        BorderBrush="{ThemeResource AccentBlueBorderBrush}"
                         BorderThickness="1"
                         CornerRadius="8"
                         AutomationProperties.Name="{Binding ViewAllText, ElementName=RootControl, Mode=OneWay}"
                         UseSystemFocusVisuals="True">
                     <Button.Resources>
-                        <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#1A00AEEF"/>
+                        <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="{ThemeResource AccentBlueLightBrush}"/>
                         <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="{ThemeResource AccentBlueBrush}"/>
                         <SolidColorBrush x:Key="ButtonForegroundPointerOver" Color="{ThemeResource AccentBlueBrush}"/>
                     </Button.Resources>

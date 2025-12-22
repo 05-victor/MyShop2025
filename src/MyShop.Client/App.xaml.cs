@@ -191,6 +191,13 @@ namespace MyShop.Client
                             // Show warning on UI thread
                             MainWindow.DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Normal, async () =>
                             {
+                                // Check if XamlRoot is available before showing dialog
+                                if (MainWindow.Content?.XamlRoot == null)
+                                {
+                                    System.Diagnostics.Debug.WriteLine("[HealthCheck] Cannot show dialog - XamlRoot not available yet");
+                                    return;
+                                }
+                                
                                 var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
                                 {
                                     Title = "⚠️ API Server Offline",
@@ -200,7 +207,7 @@ namespace MyShop.Client
                                     PrimaryButtonText = "Continue Anyway",
                                     CloseButtonText = "Exit Application",
                                     DefaultButton = Microsoft.UI.Xaml.Controls.ContentDialogButton.Close,
-                                    XamlRoot = MainWindow.Content?.XamlRoot
+                                    XamlRoot = MainWindow.Content.XamlRoot
                                 };
                                 
                                 var result = await dialog.ShowAsync();

@@ -4,6 +4,7 @@
     x:Name="RootPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     xmlns:components="using:MyShop.Client.Views.Components"
     xmlns:forms="using:MyShop.Client.Views.Components.Forms"
     xmlns:converters="using:MyShop.Client.Common.Converters"
@@ -12,7 +13,6 @@
     xmlns:skeletons="using:MyShop.Client.Views.Components.Skeletons"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Admin"
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
-    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     xmlns:tables="using:MyShop.Client.Views.Components.Tables"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
@@ -107,20 +107,15 @@
                         Title="Users Management"
                         Subtitle="Manage all users in the system">
                         <layout:PageHeader.ActionContent>
-                            <Button Style="{StaticResource PrimaryButtonStyle}"
+                            <buttons:IconButton
                                     MinWidth="140"
+                                    Variant="Filled"
+                                    IconGlyph="&#xE710;"
+                                    Text="Add New User"
                                     Command="{x:Bind ViewModel.AddNewUserCommand}"
-                                    ToolTipService.ToolTip="Create a new user account"
+                                    Tooltip="Create a new user account"
                                     AutomationProperties.Name="Add new user, press Alt+N"
-                                    AccessKey="N"
-                                    UseSystemFocusVisuals="True">
-                                <StackPanel Orientation="Horizontal"
-                                            Spacing="8">
-                                    <FontIcon FontSize="16"
-                                              Glyph="&#xE710;"/>
-                                    <TextBlock Text="Add New User"/>
-                                </StackPanel>
-                            </Button>
+                                    AccessKey="N"/>
                         </layout:PageHeader.ActionContent>
                     </layout:PageHeader>
 
@@ -317,7 +312,7 @@
                                         Margin="0,12,0,0"
                                         Padding="16,10"
                                         Background="{ThemeResource SecondaryBlueBrush}"
-                                        Foreground="White"
+                                        Foreground="{ThemeResource WhiteBrush}"
                                         CornerRadius="8"
                                         ToolTipService.ToolTip="Create a new user account">
                                         <StackPanel Orientation="Horizontal"
@@ -458,7 +453,7 @@
                                     Background="{ThemeResource SecondaryBlueBrush}"
                                     CornerRadius="8">
                                     <TextBlock
-                                        Foreground="White"
+                                        Foreground="{ThemeResource WhiteBrush}"
                                         Text="{x:Bind ViewModel.CurrentPage, Mode=OneWay}"/>
                                 </Border>
                                 <TextBlock

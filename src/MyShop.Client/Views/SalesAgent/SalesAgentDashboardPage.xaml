@@ -3,13 +3,13 @@
     x:Class="MyShop.Client.Views.SalesAgent.SalesAgentDashboardPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.SalesAgent"
     xmlns:cards="using:MyShop.Client.Views.Components.Cards"
     xmlns:charts="using:MyShop.Client.Views.Components.Charts"
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
-    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     mc:Ignorable="d"
     Background="{ThemeResource LayerFillColorDefaultBrush}"
@@ -125,8 +125,9 @@
                                 IsOpen="{x:Bind ViewModel.IsVerified, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
                                 IsClosable="False">
                                 <InfoBar.ActionButton>
-                                    <Button Content="Resend Email"
-                                            Style="{StaticResource PrimaryButtonStyle}"/>
+                                    <Button
+                                        Content="Resend Email"
+                                        Style="{StaticResource AccentButtonStyle}"/>
                                 </InfoBar.ActionButton>
                             </InfoBar>
 
@@ -366,17 +367,17 @@
                                                        Text="Low Stock Products"
                                                        FontSize="18"
                                                        FontWeight="SemiBold"
-                                                       Foreground="#111827"/>
+                                                       Foreground="{ThemeResource Gray900Brush}"/>
 
                                             <!-- Badge showing count -->
                                             <Border Grid.Column="1"
-                                                    Background="#FEE2E2"
+                                                    Background="{ThemeResource ErrorRedLightBrush}"
                                                     CornerRadius="12"
                                                     Padding="8,4">
                                                 <TextBlock Text="{Binding LowStockProducts.Count, Mode=OneWay}"
                                                            FontSize="12"
                                                            FontWeight="SemiBold"
-                                                           Foreground="#DC2626"/>
+                                                           Foreground="{ThemeResource ErrorRedBrush}"/>
                                             </Border>
                                         </Grid>
 
@@ -387,13 +388,13 @@
                                             <ListView.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:LowStockProduct">
                                                     <Border Padding="0,12"
-                                                            BorderBrush="#E5E7EB"
+                                                            BorderBrush="{ThemeResource Gray300Brush}"
                                                             BorderThickness="0,0,0,1">
                                                         <StackPanel Spacing="8">
                                                             <TextBlock Text="{x:Bind Name}"
                                                                        FontSize="13"
                                                                        FontWeight="SemiBold"
-                                                                       Foreground="#111827"
+                                                                       Foreground="{ThemeResource Gray900Brush}"
                                                                        TextTrimming="CharacterEllipsis"/>
 
                                                             <Grid>
@@ -406,18 +407,18 @@
                                                                             Orientation="Horizontal"
                                                                             Spacing="8">
                                                                     <TextBlock FontSize="12"
-                                                                               Foreground="#6B7280">
+                                                                               Foreground="{ThemeResource Gray600Brush}">
                                                         <Run Text="{x:Bind CategoryName}"/>
                                                                     </TextBlock>
                                                                 </StackPanel>
 
                                                                 <Border Grid.Column="1"
-                                                                        Background="#FEE2E2"
+                                                                        Background="{ThemeResource ErrorRedLightBrush}"
                                                                         CornerRadius="8"
                                                                         Padding="6,2">
                                                                     <TextBlock FontSize="11"
                                                                                FontWeight="SemiBold"
-                                                                               Foreground="#DC2626">
+                                                                               Foreground="{ThemeResource ErrorRedBrush}">
                                                         <Run Text="Qty: "/><Run Text="{x:Bind Quantity}"/>
                                                                     </TextBlock>
                                                                 </Border>
@@ -441,7 +442,7 @@
                                         <!-- Empty State when no low stock products -->
                                         <TextBlock Text="All products have healthy stock levels"
                                                    FontSize="13"
-                                                   Foreground="#9CA3AF"
+                                                   Foreground="{ThemeResource Gray500Brush}"
                                                    TextAlignment="Center"
                                                    Visibility="{Binding LowStockProducts.Count, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
                                     </StackPanel>
@@ -460,7 +461,7 @@
                                                   MaxHeight="400">
                                             <ListView.Header>
                                                 <Grid Padding="0,0,0,12"
-                                                      BorderBrush="#E5E7EB"
+                                                      BorderBrush="{ThemeResource Gray300Brush}"
                                                       BorderThickness="0,0,0,1">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="120"/>
@@ -475,39 +476,39 @@
                                                                Text="ORDER ID"
                                                                FontSize="11"
                                                                FontWeight="SemiBold"
-                                                               Foreground="#6B7280"/>
+                                                               Foreground="{ThemeResource Gray600Brush}"/>
                                                     <TextBlock Grid.Column="1"
                                                                Text="CUSTOMER"
                                                                FontSize="11"
                                                                FontWeight="SemiBold"
-                                                               Foreground="#6B7280"/>
+                                                               Foreground="{ThemeResource Gray600Brush}"/>
                                                     <TextBlock Grid.Column="2"
                                                                Text="PRODUCT"
                                                                FontSize="11"
                                                                FontWeight="SemiBold"
-                                                               Foreground="#6B7280"/>
+                                                               Foreground="{ThemeResource Gray600Brush}"/>
                                                     <TextBlock Grid.Column="3"
                                                                Text="DATE"
                                                                FontSize="11"
                                                                FontWeight="SemiBold"
-                                                               Foreground="#6B7280"/>
+                                                               Foreground="{ThemeResource Gray600Brush}"/>
                                                     <TextBlock Grid.Column="4"
                                                                Text="AMOUNT"
                                                                FontSize="11"
                                                                FontWeight="SemiBold"
-                                                               Foreground="#6B7280"/>
+                                                               Foreground="{ThemeResource Gray600Brush}"/>
                                                     <TextBlock Grid.Column="5"
                                                                Text="STATUS"
                                                                FontSize="11"
                                                                FontWeight="SemiBold"
-                                                               Foreground="#6B7280"/>
+                                                               Foreground="{ThemeResource Gray600Brush}"/>
                                                 </Grid>
                                             </ListView.Header>
 
                                             <ListView.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:RecentSalesOrder">
                                                     <Grid Padding="0,12"
-                                                          BorderBrush="#E5E7EB"
+                                                          BorderBrush="{ThemeResource Gray300Brush}"
                                                           BorderThickness="0,0,0,1">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="120"/>
@@ -522,40 +523,40 @@
                                                                    Text="{x:Bind OrderId}"
                                                                    FontSize="13"
                                                                    FontFamily="Consolas"
-                                                                   Foreground="#6B7280"/>
+                                                                   Foreground="{ThemeResource Gray600Brush}"/>
 
                                                         <TextBlock Grid.Column="1"
                                                                    Text="{x:Bind Customer}"
                                                                    FontSize="14"
-                                                                   Foreground="#111827"/>
+                                                                   Foreground="{ThemeResource Gray900Brush}"/>
 
                                                         <TextBlock Grid.Column="2"
                                                                    Text="{x:Bind Product}"
                                                                    FontSize="14"
-                                                                   Foreground="#6B7280"
+                                                                   Foreground="{ThemeResource Gray600Brush}"
                                                                    TextTrimming="CharacterEllipsis"/>
 
                                                         <TextBlock Grid.Column="3"
                                                                    Text="{x:Bind OrderDate}"
                                                                    FontSize="13"
-                                                                   Foreground="#6B7280"/>
+                                                                   Foreground="{ThemeResource Gray600Brush}"/>
 
                                                         <TextBlock Grid.Column="4"
                                                                    FontSize="14"
                                                                    FontWeight="SemiBold"
-                                                                   Foreground="#111827">
+                                                                   Foreground="{ThemeResource Gray900Brush}">
                                         <Run Text="{x:Bind Amount, Converter={StaticResource CurrencyConverter}}"/>
                                                         </TextBlock>
 
                                                         <Border Grid.Column="5"
-                                                                Background="#DBEAFE"
+                                                                Background="{ThemeResource InfoBlueLightBrush}"
                                                                 CornerRadius="999"
                                                                 Padding="8,4"
                                                                 HorizontalAlignment="Left">
                                                             <TextBlock Text="{x:Bind Status}"
                                                                        FontSize="12"
                                                                        FontWeight="SemiBold"
-                                                                       Foreground="#1E40AF"/>
+                                                                       Foreground="{ThemeResource InfoBlueDarkBrush}"/>
                                                         </Border>
                                                     </Grid>
                                                 </DataTemplate>

@@ -2,21 +2,33 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- ============================================= -->
-    <!-- CARD STYLES (Design System Standard)         -->
+    <!-- CARD SYSTEM v2.0 - STANDARDIZED              -->
+    <!-- CornerRadius: 16px (Standard)                -->
+    <!-- Padding Tiers: 12/16/20/24                   -->
     <!-- ============================================= -->
 
-    <!-- Standard Card Style -->
-    <Style x:Key="CardStyle" TargetType="Border">
+    <!-- ============================================= -->
+    <!-- 1. DEFAULT CARD                              -->
+    <!-- Standard content container                   -->
+    <!-- ============================================= -->
+    
+    <Style x:Key="DefaultCardStyle" TargetType="Border">
         <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
         <Setter Property="CornerRadius" Value="16"/>
         <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="20"/>
-        <Setter Property="Margin" Value="0,0,0,12"/>
     </Style>
 
-    <!-- Card with Shadow -->
-    <Style x:Key="CardWithShadowStyle" TargetType="Border" BasedOn="{StaticResource CardStyle}">
+    <!-- Alias: CardStyle points to DefaultCardStyle -->
+    <Style x:Key="CardStyle" TargetType="Border" BasedOn="{StaticResource DefaultCardStyle}"/>
+
+    <!-- ============================================= -->
+    <!-- 2. ELEVATED CARD                             -->
+    <!-- Cards that need visual prominence            -->
+    <!-- ============================================= -->
+    
+    <Style x:Key="ElevatedCardStyle" TargetType="Border" BasedOn="{StaticResource DefaultCardStyle}">
         <Setter Property="Shadow">
             <Setter.Value>
                 <ThemeShadow/>
@@ -24,38 +36,36 @@
         </Setter>
     </Style>
 
-    <!-- Compact Card Style -->
-    <Style x:Key="CardCompactStyle" TargetType="Border">
+    <!-- Alias: CardWithShadowStyle points to ElevatedCardStyle -->
+    <Style x:Key="CardWithShadowStyle" TargetType="Border" BasedOn="{StaticResource ElevatedCardStyle}"/>
+
+    <!-- ============================================= -->
+    <!-- 3. COMPACT CARD                              -->
+    <!-- Smaller cards for list items, compact UI     -->
+    <!-- ============================================= -->
+    
+    <Style x:Key="CompactCardStyle" TargetType="Border">
         <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
         <Setter Property="CornerRadius" Value="16"/>
         <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="16"/>
-        <Setter Property="Margin" Value="0,0,0,12"/>
+        <Setter Property="Padding" Value="12"/>
     </Style>
 
-    <!-- Product Card Style -->
-    <Style x:Key="ProductCardStyle" TargetType="Border">
-        <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
-        <Setter Property="CornerRadius" Value="16"/>
-        <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="16"/>
-        <Setter Property="Shadow">
-            <Setter.Value>
-                <ThemeShadow/>
-            </Setter.Value>
-        </Setter>
-    </Style>
+    <!-- Alias: CardCompactStyle points to CompactCardStyle -->
+    <Style x:Key="CardCompactStyle" TargetType="Border" BasedOn="{StaticResource CompactCardStyle}"/>
 
-    <!-- Large Card Style -->
-    <Style x:Key="CardLargeStyle" TargetType="Border">
+    <!-- ============================================= -->
+    <!-- 4. LARGE CARD                                -->
+    <!-- Hero cards, feature sections                 -->
+    <!-- ============================================= -->
+    
+    <Style x:Key="LargeCardStyle" TargetType="Border">
         <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
         <Setter Property="CornerRadius" Value="16"/>
         <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="24"/>
-        <Setter Property="Margin" Value="0,0,0,16"/>
         <Setter Property="Shadow">
             <Setter.Value>
                 <ThemeShadow/>
@@ -63,13 +73,122 @@
         </Setter>
     </Style>
 
-    <!-- Hover Card Style (with pointer effects) -->
-    <Style x:Key="HoverCardStyle" TargetType="Border" BasedOn="{StaticResource CardStyle}">
+    <!-- Alias: CardLargeStyle points to LargeCardStyle -->
+    <Style x:Key="CardLargeStyle" TargetType="Border" BasedOn="{StaticResource LargeCardStyle}"/>
+
+    <!-- ============================================= -->
+    <!-- 5. OUTLINED CARD                             -->
+    <!-- Minimal emphasis, border only                -->
+    <!-- ============================================= -->
+    
+    <Style x:Key="OutlinedCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="20"/>
+    </Style>
+
+    <!-- ============================================= -->
+    <!-- 6. PRODUCT CARD                              -->
+    <!-- Product display in grids                     -->
+    <!-- ============================================= -->
+    
+    <Style x:Key="ProductCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="0"/>
         <Setter Property="Shadow">
             <Setter.Value>
                 <ThemeShadow/>
             </Setter.Value>
         </Setter>
     </Style>
+
+    <!-- ============================================= -->
+    <!-- 7. DATA TABLE CARD                           -->
+    <!-- Container for tables/DataGrids               -->
+    <!-- ============================================= -->
+    
+    <Style x:Key="DataTableCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="0"/>
+    </Style>
+
+    <!-- ============================================= -->
+    <!-- 8. INTERACTIVE CARD (Button-based)           -->
+    <!-- Clickable cards with hover effects           -->
+    <!-- ============================================= -->
+    
+    <Style x:Key="InteractiveCardStyle" TargetType="Button">
+        <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+        <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Padding" Value="20"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Border x:Name="CardBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                Padding="{TemplateBinding Padding}">
+                            <Border.Shadow>
+                                <ThemeShadow/>
+                            </Border.Shadow>
+                            <ContentPresenter Content="{TemplateBinding Content}"
+                                            Foreground="{TemplateBinding Foreground}"
+                                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                        </Border>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                
+                                <VisualState x:Name="Normal">
+                                    <VisualState.Setters>
+                                        <Setter Target="CardBorder.Translation" Value="0,0,8"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="PointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="CardBorder.Background" Value="{ThemeResource SubtleFillColorSecondaryBrush}"/>
+                                        <Setter Target="CardBorder.Translation" Value="0,0,16"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <VisualState.Setters>
+                                        <Setter Target="CardBorder.Background" Value="{ThemeResource SubtleFillColorTertiaryBrush}"/>
+                                        <Setter Target="CardBorder.Translation" Value="0,0,4"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Legacy Alias: HoverCardStyle points to ElevatedCardStyle -->
+    <Style x:Key="HoverCardStyle" TargetType="Border" BasedOn="{StaticResource ElevatedCardStyle}"/>
+
+    <!-- ============================================= -->
+    <!-- CARD PADDING RESOURCES                       -->
+    <!-- Use in custom card implementations           -->
+    <!-- ============================================= -->
+    
+    <Thickness x:Key="CardPaddingCompact">12</Thickness>
+    <Thickness x:Key="CardPaddingMedium">16</Thickness>
+    <Thickness x:Key="CardPaddingDefault">20</Thickness>
+    <Thickness x:Key="CardPaddingSpacious">24</Thickness>
 
 </ResourceDictionary>

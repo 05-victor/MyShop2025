@@ -55,6 +55,38 @@
 
 
     <!-- ============================================= -->
+    <!-- SEMANTIC COLOR ALIASES                       -->
+    <!-- Generic names pointing to specific colors    -->
+    <!-- ============================================= -->
+    
+    <!-- Success Semantic -->
+    <SolidColorBrush x:Key="SuccessBrush" Color="#10B981"/>
+    <SolidColorBrush x:Key="SuccessBackgroundBrush" Color="#ECFDF5"/>
+    <SolidColorBrush x:Key="SuccessTextBrush" Color="#059669"/>
+    
+    <!-- Warning Semantic -->
+    <SolidColorBrush x:Key="WarningBrush" Color="#F59E0B"/>
+    <SolidColorBrush x:Key="WarningBackgroundBrush" Color="#FFFBEB"/>
+    <SolidColorBrush x:Key="WarningTextBrush" Color="#D97706"/>
+    
+    <!-- Error/Danger Semantic -->
+    <SolidColorBrush x:Key="ErrorBrush" Color="#DC2626"/>
+    <SolidColorBrush x:Key="DangerBrush" Color="#DC2626"/>
+    <SolidColorBrush x:Key="ErrorBackgroundBrush" Color="#FEF2F2"/>
+    <SolidColorBrush x:Key="ErrorTextBrush" Color="#B91C1C"/>
+    
+    <!-- Info Semantic -->
+    <SolidColorBrush x:Key="InfoBrush" Color="#2563EB"/>
+    <SolidColorBrush x:Key="InfoBackgroundBrush" Color="#EFF6FF"/>
+    <SolidColorBrush x:Key="InfoTextBrush" Color="#1D4ED8"/>
+    
+    <!-- Neutral Semantic -->
+    <SolidColorBrush x:Key="NeutralBrush" Color="#6B7280"/>
+    <SolidColorBrush x:Key="NeutralBackgroundBrush" Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="NeutralTextBrush" Color="#374151"/>
+
+
+    <!-- ============================================= -->
     <!-- NEUTRAL BRUSHES (Gray Scale) - LIGHT MODE    -->
     <!-- ============================================= -->
     
@@ -192,6 +224,34 @@
     <SolidColorBrush x:Key="NavigationViewItemBackgroundPressed" Color="#1A4D8F"/>
     <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected" Color="#1A4D8F"/>
     <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPointerOver" Color="#245FAE"/>
+
+    <!-- ============================================= -->
+    <!-- ADMIN SHELL NAVIGATION (Dark Sidebar)        -->
+    <!-- Used by AdminDashboardShell for dark sidebar -->
+    <!-- ============================================= -->
+    
+    <SolidColorBrush x:Key="AdminNavPaneBackground" Color="#1F2937"/>
+    <SolidColorBrush x:Key="AdminNavItemForeground" Color="#9CA3AF"/>
+    <SolidColorBrush x:Key="AdminNavItemForegroundSelected" Color="White"/>
+    <SolidColorBrush x:Key="AdminNavItemForegroundPointerOver" Color="White"/>
+    <SolidColorBrush x:Key="AdminNavItemBackgroundSelected" Color="#3B82F6"/>
+    <SolidColorBrush x:Key="AdminNavItemBackgroundSelectedPointerOver" Color="#3B82F6"/>
+    <SolidColorBrush x:Key="AdminNavItemBackgroundPointerOver" Color="#374151"/>
+    <SolidColorBrush x:Key="AdminNavHeaderForeground" Color="White"/>
+
+    <!-- ============================================= -->
+    <!-- SALESAGENT/CUSTOMER SHELL NAVIGATION         -->
+    <!-- Dark sidebar with cyan accent                -->
+    <!-- ============================================= -->
+    
+    <SolidColorBrush x:Key="AgentNavPaneBackground" Color="#1E293B"/>
+    <SolidColorBrush x:Key="AgentNavItemForeground" Color="#D1D5DB"/>
+    <SolidColorBrush x:Key="AgentNavItemForegroundSelected" Color="White"/>
+    <SolidColorBrush x:Key="AgentNavItemForegroundPointerOver" Color="White"/>
+    <SolidColorBrush x:Key="AgentNavItemBackgroundSelected" Color="#00AEEF"/>
+    <SolidColorBrush x:Key="AgentNavItemBackgroundSelectedPointerOver" Color="#00AEEF"/>
+    <SolidColorBrush x:Key="AgentNavItemBackgroundPointerOver" Color="#1A00AEEF"/>
+    <SolidColorBrush x:Key="AgentNavHeaderForeground" Color="White"/>
 
     <!-- CalendarDatePicker -->
     <SolidColorBrush x:Key="CalendarDatePickerForeground" Color="#111827"/>

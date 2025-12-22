@@ -91,11 +91,18 @@ public partial class AppNotificationService : ObservableObject, IAppNotification
             notificationManager.NotificationInvoked += OnWindowsNotificationInvoked;
             notificationManager.Register();
             
+            System.Diagnostics.Debug.WriteLine("AppNotificationService: Successfully registered for Windows notifications");
             _isInitialized = true;
+        }
+        catch (System.Runtime.InteropServices.COMException ex) when (ex.HResult == unchecked((int)0x80004005))
+        {
+            // E_FAIL: No COM servers registered - expected in packaged mode without proper manifest
+            System.Diagnostics.Debug.WriteLine($"AppNotificationService: COM servers not registered (packaged mode), notifications disabled");
+            _isInitialized = true; // Continue without notifications
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Failed to initialize Windows notifications: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"AppNotificationService: Failed to initialize: {ex.GetType().Name} - {ex.Message}");
             // Continue without Windows notifications
             _isInitialized = true;
         }

@@ -462,7 +462,7 @@
                                             <!--  TODO: Use converter to change color based on Stock  -->
                                             <!--
                                             <TextBlock Text="{x:Bind Stock}"
-                                                       Foreground="White"
+                                                       Foreground="{ThemeResource WhiteBrush}"
                                                        FontSize="12"/>
                                         </Border>-->
                                             <Border
@@ -475,7 +475,7 @@
                                                 <TextBlock
                                                     VerticalAlignment="Center"
                                                     FontSize="12"
-                                                    Foreground="White"
+                                                    Foreground="{ThemeResource WhiteBrush}"
                                                     Text="{x:Bind Stock}"/>
                                             </Border>
                                             <!--  Price  -->

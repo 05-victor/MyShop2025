@@ -29,7 +29,7 @@
             </Grid.Background>
 
             <!--  Dark overlay for better text contrast  -->
-            <Border Background="#66000000"/>
+            <Border Background="{ThemeResource BlackSemiTransparent}"/>
 
             <StackPanel
                 HorizontalAlignment="Center"
@@ -39,19 +39,19 @@
                     Width="120"
                     Height="120"
                     AutomationProperties.Name="MyShop2025 Logo"
-                    Source="/Assets/Image/logo.png"
+                    Source="/Assets/Images/logo.png"
                     Stretch="Uniform"/>
 
                 <TextBlock
                     HorizontalAlignment="Center"
                     AutomationProperties.HeadingLevel="Level1"
-                    Foreground="White"
+                    Foreground="{ThemeResource WhiteBrush}"
                     Style="{StaticResource DisplayHeadingStyle}"
                     Text="MyShop2025"/>
 
                 <TextBlock
                     HorizontalAlignment="Center"
-                    Foreground="White"
+                    Foreground="{ThemeResource WhiteBrush}"
                     Opacity="0.9"
                     Style="{StaticResource BodyLargeStyle}"
                     Text="Modern Shop Management System"/>
@@ -213,12 +213,12 @@
                             <ProgressRing
                                 Width="20"
                                 Height="20"
-                                Foreground="White"
+                                Foreground="{ThemeResource WhiteBrush}"
                                 IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
                                 Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
                             <TextBlock
                                 VerticalAlignment="Center"
-                                Foreground="Blue"
+                                Foreground="{ThemeResource WhiteBrush}"
                                 Text="{x:Bind ViewModel.LoginButtonText, Mode=OneWay}"/>
                         </StackPanel>
                     </Button>

@@ -11,14 +11,16 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-        <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="#FF1F2937" />
-        <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="#FF1F2937" />
-        <SolidColorBrush x:Key="NavigationViewItemForeground" Color="#FF9CA3AF" />
-        <SolidColorBrush x:Key="NavigationViewItemForegroundSelected" Color="White" />
-        <SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="White" />
-        <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPointerOver" Color="#FF3B82F6" />
-        <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected" Color="#FF3B82F6" />
-        <SolidColorBrush x:Key="NavigationViewItemBackgroundPointerOver" Color="#FF374151" />
+        <!-- NavigationView theme overrides - Reference centralized theme colors -->
+        <!-- Use StaticResource to reference theme-defined brushes -->
+        <StaticResource x:Key="NavigationViewExpandedPaneBackground" ResourceKey="AdminNavPaneBackground" />
+        <StaticResource x:Key="NavigationViewDefaultPaneBackground" ResourceKey="AdminNavPaneBackground" />
+        <StaticResource x:Key="NavigationViewItemForeground" ResourceKey="AdminNavItemForeground" />
+        <StaticResource x:Key="NavigationViewItemForegroundSelected" ResourceKey="AdminNavItemForegroundSelected" />
+        <StaticResource x:Key="NavigationViewItemForegroundPointerOver" ResourceKey="AdminNavItemForegroundPointerOver" />
+        <StaticResource x:Key="NavigationViewItemBackgroundSelectedPointerOver" ResourceKey="AdminNavItemBackgroundSelectedPointerOver" />
+        <StaticResource x:Key="NavigationViewItemBackgroundSelected" ResourceKey="AdminNavItemBackgroundSelected" />
+        <StaticResource x:Key="NavigationViewItemBackgroundPointerOver" ResourceKey="AdminNavItemBackgroundPointerOver" />
     </Page.Resources>
 
     <Grid>
@@ -55,7 +57,7 @@
                     <TextBlock
                         FontSize="18"
                         FontWeight="Bold"
-                        Foreground="White"
+                        Foreground="{ThemeResource AdminNavHeaderForeground}"
                         Text="MyShop2025" />
                     <TextBlock
                         FontSize="11"

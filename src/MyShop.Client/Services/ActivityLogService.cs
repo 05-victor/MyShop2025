@@ -82,8 +82,25 @@ public class ActivityLogService : IActivityLogService
 
         try
         {
-            // Set log file path in local app data
-            var localFolder = ApplicationData.Current.LocalFolder.Path;
+            // Try to use ApplicationData if available (packaged mode)
+            string localFolder;
+            try
+            {
+                localFolder = ApplicationData.Current.LocalFolder.Path;
+            }
+            catch (InvalidOperationException)
+            {
+                // ApplicationData.Current throws in unpackaged mode - use temp folder
+                localFolder = Path.GetTempPath();
+                System.Diagnostics.Debug.WriteLine("ActivityLogService: Using temp folder (unpackaged mode)");
+            }
+            catch (System.Runtime.InteropServices.COMException)
+            {
+                // COM exception - use temp folder
+                localFolder = Path.GetTempPath();
+                System.Diagnostics.Debug.WriteLine("ActivityLogService: COM exception, using temp folder");
+            }
+            
             _logFilePath = Path.Combine(localFolder, "ActivityLogs");
             
             // Ensure directory exists
