@@ -39,7 +39,7 @@
                     Width="120"
                     Height="120"
                     AutomationProperties.Name="MyShop2025 Logo"
-                    Source="/Assets/StoreLogo.png"
+                    Source="/Assets/Image/logo.png"
                     Stretch="Uniform"/>
 
                 <TextBlock
@@ -56,12 +56,7 @@
                     Style="{StaticResource BodyLargeStyle}"
                     Text="Modern Shop Management System"/>
 
-                <TextBlock
-                    HorizontalAlignment="Center"
-                    Foreground="White"
-                    Opacity="0.7"
-                    Style="{StaticResource SmallTextStyle}"
-                    Text="v1.0.0"/>
+
             </StackPanel>
         </Grid>
 
@@ -93,12 +88,12 @@
                             Spacing="{StaticResource Gap_SM}">
                         <TextBlock
                             AutomationProperties.HeadingLevel="Level1"
-                            Foreground="{StaticResource TextPrimaryBrush}"
+                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                             Style="{StaticResource Heading1Style}"
                             Text="Welcome back!"/>
 
                         <TextBlock
-                            Foreground="{StaticResource TextSecondaryBrush}"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                             Style="{StaticResource SecondaryTextStyle}"
                             Text="Enter your credentials to access your account"
                             TextWrapping="Wrap"/>
@@ -108,7 +103,7 @@
                     <StackPanel Spacing="{StaticResource Gap_SM}">
                         <TextBlock
                             AutomationProperties.LabeledBy="{Binding ElementName=UsernameTextBox}"
-                            Foreground="{StaticResource TextPrimaryBrush}"
+                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                             Style="{StaticResource InputLabelStyle}">
                             <Run Text="Username or Email"/>
                             <Run Foreground="{StaticResource ErrorRedBrush}"
@@ -141,7 +136,7 @@
 
                     <!--  Password Input  -->
                     <StackPanel Spacing="{StaticResource Gap_SM}">
-                        <TextBlock Foreground="{StaticResource TextPrimaryBrush}"
+                        <TextBlock Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                 Style="{StaticResource InputLabelStyle}">
                             <Run Text="Password"/>
                             <Run Foreground="{StaticResource ErrorRedBrush}"
@@ -239,19 +234,19 @@
                             Grid.Column="0"
                             Height="1"
                             VerticalAlignment="Center"
-                            Background="{StaticResource Gray300Brush}"
+                            Background="{ThemeResource TextFillColorTertiaryBrush}"
                             IsHitTestVisible="False" />
                         <TextBlock
                             Grid.Column="1"
                             Margin="16,0"
                             FontSize="12"
-                            Foreground="{StaticResource TextSecondaryBrush}"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                             Text="OR"/>
                         <Border
                             Grid.Column="2"
                             Height="1"
                             VerticalAlignment="Center"
-                            Background="{StaticResource Gray300Brush}"
+                            Background="{ThemeResource TextFillColorTertiaryBrush}"
                             IsHitTestVisible="False" />
                     </Grid>
 
@@ -283,7 +278,7 @@
                             Orientation="Horizontal"
                             Spacing="6">
                             <TextBlock
-                                Foreground="{StaticResource TextSecondaryBrush}"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Style="{StaticResource SecondaryTextStyle}"
                                 Text="Don't have an account?"/>
 

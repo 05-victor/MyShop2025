@@ -24,12 +24,12 @@
             <!-- Warning Icon Circle -->
             <Border Grid.Column="0"
                     Width="48" Height="48"
-                    Background="#FEF3C7"
+                    Background="{ThemeResource WarningAmberLightBrush}"
                     CornerRadius="24"
                     Margin="0,0,16,0">
                 <FontIcon Glyph="&#xE119;" 
                          FontSize="24"
-                         Foreground="#F59E0B"/>
+                         Foreground="{ThemeResource WarningAmberBrush}"/>
             </Border>
             
             <!-- Header Text -->
@@ -37,17 +37,17 @@
                 <TextBlock Text="Verify Your Email Address"
                           FontSize="18"
                           FontWeight="SemiBold"
-                          Foreground="#111827"/>
+                          Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                 <TextBlock Text="Enter the verification code sent to your email"
                           FontSize="14"
-                          Foreground="#6B7280"
+                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                           TextWrapping="Wrap"/>
             </StackPanel>
         </Grid>
 
         <!-- Email Info Card -->
-        <Border Background="#EFF6FF"
-                BorderBrush="#93C5FD"
+        <Border Background="{ThemeResource InfoBlue50Brush}"
+                BorderBrush="{ThemeResource AccentBlueBrush}"
                 BorderThickness="1"
                 CornerRadius="8"
                 Padding="16">
@@ -60,19 +60,19 @@
                 <FontIcon Grid.Column="0"
                          Glyph="&#xE119;"
                          FontSize="20"
-                         Foreground="#2563EB"
+                         Foreground="{ThemeResource SecondaryBlueBrush}"
                          Margin="0,0,12,0"/>
                 
                 <StackPanel Grid.Column="1" Spacing="4">
                     <TextBlock Text="Verification email sent to:"
                               FontSize="13"
                               FontWeight="SemiBold"
-                              Foreground="#1E40AF"/>
+                              Foreground="{ThemeResource DarkBlueBrush}"/>
                     <TextBlock x:Name="EmailText"
                               Text="user@example.com"
                               FontSize="13"
                               FontFamily="Consolas"
-                              Foreground="#3B82F6"/>
+                              Foreground="{ThemeResource PrimaryBrush}"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -82,7 +82,7 @@
             <TextBlock Text="Enter Verification Code"
                       FontWeight="SemiBold"
                       FontSize="14"
-                      Foreground="#111827"/>
+                      Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
             
             <TextBox x:Name="OtpInput"
                     PlaceholderText="Enter 6-digit code"
@@ -94,7 +94,7 @@
             
             <TextBlock Text="Check your email inbox (and spam folder) for the 6-digit code"
                       FontSize="12"
-                      Foreground="#6B7280"
+                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                       TextWrapping="Wrap"/>
         </StackPanel>
 
@@ -102,15 +102,11 @@
         <StackPanel Spacing="8" Margin="0,8,0,0">
             <TextBlock Text="Didn't receive the code?"
                       FontSize="13"
-                      Foreground="#6B7280"/>
+                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
             
             <Button x:Name="ResendButton"
+                    Style="{StaticResource SecondaryButtonStyle}"
                     Click="ResendButton_Click"
-                    Background="White"
-                    BorderBrush="#E5E7EB"
-                    BorderThickness="1"
-                    CornerRadius="6"
-                    Padding="12,8"
                     HorizontalAlignment="Stretch">
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <FontIcon x:Name="ResendIcon"
@@ -126,14 +122,14 @@
             <TextBlock x:Name="CountdownText"
                       Text="You can resend in 60 seconds"
                       FontSize="12"
-                      Foreground="#F59E0B"
+                      Foreground="{ThemeResource WarningAmberBrush}"
                       HorizontalAlignment="Center"
                       Visibility="Collapsed"/>
             
             <!-- Success Message -->
             <Border x:Name="SuccessMessage"
-                    Background="#D1FAE5"
-                    BorderBrush="#10B981"
+                    Background="{ThemeResource SuccessGreenLightBrush}"
+                    BorderBrush="{ThemeResource SuccessGreenBrush}"
                     BorderThickness="1"
                     CornerRadius="6"
                     Padding="12"
@@ -147,21 +143,21 @@
                     <FontIcon Grid.Column="0"
                              Glyph="&#xE73E;"
                              FontSize="16"
-                             Foreground="#10B981"
+                             Foreground="{ThemeResource SuccessGreenBrush}"
                              Margin="0,0,8,0"/>
                     
                     <TextBlock Grid.Column="1"
                               Text="Code sent! Check your inbox"
                               FontSize="13"
-                              Foreground="#065F46"
+                              Foreground="{ThemeResource SuccessGreenDarkBrush}"
                               TextWrapping="Wrap"/>
                 </Grid>
             </Border>
 
             <!-- Error Message -->
             <Border x:Name="ErrorMessage"
-                    Background="#FEE2E2"
-                    BorderBrush="#DC2626"
+                    Background="{ThemeResource ErrorRedLightBrush}"
+                    BorderBrush="{ThemeResource ErrorRedBrush}"
                     BorderThickness="1"
                     CornerRadius="6"
                     Padding="12"
@@ -175,14 +171,14 @@
                     <FontIcon Grid.Column="0"
                              Glyph="&#xE711;"
                              FontSize="16"
-                             Foreground="#DC2626"
+                             Foreground="{ThemeResource ErrorRedBrush}"
                              Margin="0,0,8,0"/>
                     
                     <TextBlock x:Name="ErrorText"
                               Grid.Column="1"
                               Text="Invalid code. Please try again."
                               FontSize="13"
-                              Foreground="#991B1B"
+                              Foreground="{ThemeResource ErrorRedDarkBrush}"
                               TextWrapping="Wrap"/>
                 </Grid>
             </Border>

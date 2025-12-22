@@ -12,7 +12,7 @@
     xmlns:tables="using:MyShop.Client.Views.Components.Tables"
     xmlns:feedback="using:MyShop.Client.Views.Components.Feedback"
     x:Name="MyPage"
-    Background="#F3F4F6"
+    Background="{ThemeResource SubtleFillColorSecondaryBrush}"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -147,7 +147,7 @@
                 <!--  Empty State  -->
                 <Border
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="#E5E7EB"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1"
                     CornerRadius="16"
                     Padding="64,48"
@@ -163,22 +163,22 @@
                             <Grid>
                                 <Ellipse Width="100"
                                         Height="100"
-                                        Fill="#F3F4F6"/>
+                                        Fill="{ThemeResource SubtleFillColorSecondaryBrush}"/>
                                 <FontIcon
                                     FontSize="48"
-                                    Foreground="#9CA3AF"
+                                    Foreground="{ThemeResource Gray500Brush}"
                                     Glyph="&#xE823;"/>
                             </Grid>
                         </Viewbox>
                         <TextBlock
                             FontSize="18"
                             FontWeight="SemiBold"
-                            Foreground="#374151"
+                            Foreground="{ThemeResource TextTertiaryBrush}"
                             Text="No agent requests"
                             HorizontalAlignment="Center"/>
                         <TextBlock
                             FontSize="14"
-                            Foreground="#6B7280"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                             Text="There are currently no pending agent requests"
                             HorizontalAlignment="Center"
                             TextWrapping="Wrap"
@@ -196,7 +196,7 @@
                         <DataTemplate x:DataType="viewmodels:AgentRequestItem">
                             <Border
                                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                BorderBrush="#E5E7EB"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                 BorderThickness="1"
                                 CornerRadius="16"
                                 Padding="24">
@@ -241,11 +241,11 @@
                                                             Spacing="6">
                                                         <FontIcon
                                                             FontSize="14"
-                                                            Foreground="#6B7280"
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                             Glyph="&#xE787;"/>
                                                         <TextBlock
                                                             FontSize="13"
-                                                            Foreground="#6B7280"
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                             Text="{x:Bind SubmittedDate}"/>
                                                     </StackPanel>
                                                 </StackPanel>
@@ -261,15 +261,15 @@
                                             <TextBlock
                                                 FontSize="13"
                                                 FontWeight="SemiBold"
-                                                Foreground="#111827"
+                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                 Text="Reason:"/>
                                             <Border
-                                                Background="#F9FAFB"
+                                                Background="{ThemeResource LayerFillColorDefaultBrush}"
                                                 CornerRadius="8"
                                                 Padding="12">
                                                 <TextBlock
                                                     FontSize="13"
-                                                    Foreground="#6B7280"
+                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                     Text="{x:Bind Reason}"
                                                     TextWrapping="Wrap"/>
                                             </Border>
@@ -280,15 +280,15 @@
                                             <TextBlock
                                                 FontSize="13"
                                                 FontWeight="SemiBold"
-                                                Foreground="#111827"
+                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                 Text="Experience:"/>
                                             <Border
-                                                Background="#F9FAFB"
+                                                Background="{ThemeResource LayerFillColorDefaultBrush}"
                                                 CornerRadius="8"
                                                 Padding="12">
                                                 <TextBlock
                                                     FontSize="13"
-                                                    Foreground="#6B7280"
+                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                     Text="{x:Bind Experience}"
                                                     TextWrapping="Wrap"/>
                                             </Border>
@@ -306,7 +306,7 @@
                                     <!--  Action Buttons (only for pending)  -->
                                     <StackPanel
                                         Grid.Row="3"
-                                        BorderBrush="#E5E7EB"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         BorderThickness="0,1,0,0"
                                         Orientation="Horizontal"
                                         Padding="0,16,0,0"
@@ -321,9 +321,9 @@
                                         <buttons:IconButton
                                             Variant="Outline"
                                             IconGlyph="&#xE711;"
-                                            IconColor="#DC2626"
+                                            IconColor="{ThemeResource ErrorRedBrush}"
                                             Text="Reject"
-                                            TextColor="#DC2626"
+                                            TextColor="{ThemeResource ErrorRedBrush}"
                                             Command="{Binding DataContext.RejectRequestCommand, ElementName=MyPage}"
                                             CommandParameter="{x:Bind}"/>
                                         <buttons:IconButton
@@ -342,7 +342,7 @@
                 <!--  Pagination Controls  -->
                 <Border
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="#E5E7EB"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1"
                     CornerRadius="16"
                     Padding="20">
@@ -370,12 +370,12 @@
                             <TextBlock
                                 FontSize="14"
                                 FontWeight="SemiBold"
-                                Foreground="#111827"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                 HorizontalAlignment="Center"
                                 Text="{x:Bind ViewModel.PageInfoText, Mode=OneWay}"/>
                             <TextBlock
                                 FontSize="12"
-                                Foreground="#6B7280"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 HorizontalAlignment="Center"
                                 Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}"/>
                         </StackPanel>

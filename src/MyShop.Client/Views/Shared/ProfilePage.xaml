@@ -7,7 +7,7 @@
     xmlns:winuic="using:Microsoft.UI.Xaml.Controls"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     mc:Ignorable="d"
-    Background="#F5F7FA">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.Transitions>
         <TransitionCollection>
@@ -23,36 +23,21 @@
         <converters:StringToImageSourceConverter x:Key="StringToImageSource"/>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
 
-        <!-- Định nghĩa màu sắc và brush để dễ tái sử dụng -->
-        <SolidColorBrush x:Key="TextPrimaryBrush"
-                         Color="#111827"/>
-        <SolidColorBrush x:Key="TextSecondaryBrush"
-                         Color="#6B7280"/>
-        <SolidColorBrush x:Key="BorderBrush"
-                         Color="#E5E7EB"/>
-        <SolidColorBrush x:Key="AdminBlueBrush"
-                         Color="#1A4D8F"/>
-        <SolidColorBrush x:Key="AdminCyanBrush"
-                         Color="#00AEEF"/>
-        <SolidColorBrush x:Key="SuccessBrush"
-                         Color="#10B981"/>
-        <SolidColorBrush x:Key="SuccessBackgroundBrush"
-                         Color="#D1FAE5"/>
-        <SolidColorBrush x:Key="WarningBrush"
-                         Color="#F59E0B"/>
-        <SolidColorBrush x:Key="WarningBackgroundBrush"
-                         Color="#FEF3C7"/>
-        <SolidColorBrush x:Key="DangerBrush"
-                         Color="#DC2626"/>
-        <SolidColorBrush x:Key="DisabledBackgroundBrush"
-                         Color="#F9FAFB"/>
+        <!-- Note: Using ThemeResource brushes directly in the page for proper dark/light theme support -->
+        <!-- TextPrimaryBrush → {ThemeResource TextFillColorPrimaryBrush} -->
+        <!-- TextSecondaryBrush → {ThemeResource TextFillColorSecondaryBrush} -->
+        <!-- BorderBrush → {ThemeResource CardStrokeColorDefaultBrush} -->
+        <!-- AdminBlueBrush → {ThemeResource AccentFillColorDefaultBrush} -->
+        <!-- SuccessBrush → {ThemeResource SystemFillColorSuccessBrush} -->
+        <!-- WarningBrush → {ThemeResource SystemFillColorCautionBrush} -->
+        <!-- DisabledBackgroundBrush → {ThemeResource LayerFillColorDefaultBrush} -->
 
         <LinearGradientBrush x:Key="AdminGradientBrush"
                              StartPoint="0,0"
                              EndPoint="1,0">
-            <GradientStop Color="#1A4D8F"
+            <GradientStop Color="{ThemeResource PrimaryBrush}"
                           Offset="0.0"/>
-            <GradientStop Color="#00AEEF"
+            <GradientStop Color="{ThemeResource AccentBlueBrush}"
                           Offset="1.0"/>
         </LinearGradientBrush>
 
@@ -60,9 +45,9 @@
         <Style x:Key="CardStyle"
                TargetType="Border">
             <Setter Property="Background"
-                    Value="White"/>
+                    Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
             <Setter Property="BorderBrush"
-                    Value="#D0D7E2"/>
+                    Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
             <Setter Property="BorderThickness"
                     Value="1"/>
             <Setter Property="CornerRadius"
@@ -90,11 +75,11 @@
         <Style x:Key="FormInputStyle"
                TargetType="TextBox">
             <Setter Property="Foreground"
-                    Value="{StaticResource TextPrimaryBrush}"/>
+                    Value="{ThemeResource TextFillColorPrimaryBrush}"/>
             <Setter Property="PlaceholderForeground"
-                    Value="{StaticResource TextSecondaryBrush}"/>
+                    Value="{ThemeResource TextFillColorSecondaryBrush}"/>
             <Setter Property="BorderBrush"
-                    Value="{StaticResource BorderBrush}"/>
+                    Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
         </Style>
     </Page.Resources>
 
@@ -162,9 +147,9 @@
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0"
                                              EndPoint="1,1">
-                            <GradientStop Color="#3B82F6"
+                            <GradientStop Color="{ThemeResource PrimaryBrush}"
                                           Offset="0.0"/>
-                            <GradientStop Color="#8B5CF6"
+                            <GradientStop Color="{ThemeResource PurpleBrush}"
                                           Offset="1.0"/>
                         </LinearGradientBrush>
                     </Border.Background>
@@ -175,7 +160,7 @@
                             HorizontalAlignment="Stretch"
                             Margin="48,-80,48,48">
                     <!-- Profile Card with Avatar -->
-                    <Border Background="White"
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                             CornerRadius="16"
                             Padding="32,24,32,24"
                             Margin="0,0,0,24">
@@ -207,8 +192,8 @@
                                     <Border Width="120"
                                             Height="120"
                                             CornerRadius="60"
-                                            BorderBrush="White"
-                                            BorderThickness="4">
+                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                            BorderThickness="3">
                                         <Border.Shadow>
                                             <ThemeShadow/>
                                         </Border.Shadow>
@@ -221,10 +206,7 @@
                                     <!-- Edit Avatar Button -->
                                     <Button VerticalAlignment="Bottom"
                                             HorizontalAlignment="Right"
-                                            Style="{ThemeResource AccentButtonStyle}"
-                                            Background="White"
-                                            BorderBrush="{StaticResource BorderBrush}"
-                                            BorderThickness="2"
+                                            Style="{StaticResource IconButtonStyle}"
                                             Width="36"
                                             Height="36"
                                             CornerRadius="18"
@@ -233,7 +215,7 @@
                                             ToolTipService.ToolTip="Change avatar">
                                         <FontIcon FontFamily="Segoe Fluent Icons"
                                                   Glyph="&#xE898;"
-                                                  Foreground="#3B82F6"
+                                                  Foreground="{ThemeResource AccentFillColorDefaultBrush}"
                                                   FontSize="14"/>
                                         <Button.Shadow>
                                             <ThemeShadow/>
@@ -250,23 +232,23 @@
                                         <TextBlock Text="{x:Bind ViewModel.FullName, Mode=OneWay, FallbackValue='User'}"
                                                    FontSize="28"
                                                    FontWeight="Bold"
-                                                   Foreground="{StaticResource TextPrimaryBrush}"/>
-                                        <Border Background="#E0F2FE"
+                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                        <Border Background="{ThemeResource InfoBlueLightBrush}"
                                                 CornerRadius="12"
                                                 Padding="10,4"
                                                 VerticalAlignment="Center">
                                             <TextBlock Text="{x:Bind ViewModel.RoleDisplay, Mode=OneWay, FallbackValue='User'}"
                                                        FontSize="13"
-                                                       Foreground="#0284C7"
+                                                       Foreground="{ThemeResource AccentBlueBrush}"
                                                        FontWeight="SemiBold"/>
                                         </Border>
                                     </StackPanel>
                                     <TextBlock Text="{x:Bind ViewModel.UsernameDisplay, Mode=OneWay, FallbackValue='@user'}"
                                                FontSize="15"
-                                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                     <TextBlock Text="MyShop User | Managing your account"
                                                FontSize="13"
-                                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                                     <!-- Contact Info -->
                                     <StackPanel Orientation="Horizontal"
@@ -278,20 +260,20 @@
                                             <FontIcon FontFamily="Segoe Fluent Icons"
                                                       Glyph="&#xE715;"
                                                       FontSize="14"
-                                                      Foreground="#3B82F6"/>
+                                                      Foreground="{ThemeResource PrimaryBrush}"/>
                                             <TextBlock Text="{x:Bind ViewModel.Email, Mode=OneWay}"
                                                        FontSize="13"
-                                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal"
                                                     Spacing="6">
                                             <FontIcon FontFamily="Segoe Fluent Icons"
                                                       Glyph="&#xE717;"
                                                       FontSize="14"
-                                                      Foreground="#3B82F6"/>
+                                                      Foreground="{ThemeResource PrimaryBrush}"/>
                                             <TextBlock Text="{x:Bind ViewModel.PhoneNumber, Mode=OneWay, FallbackValue='+84 987 654 321'}"
                                                        FontSize="13"
-                                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal"
                                                     Spacing="6"
@@ -299,10 +281,10 @@
                                             <FontIcon FontFamily="Segoe Fluent Icons"
                                                       Glyph="&#xE707;"
                                                       FontSize="14"
-                                                      Foreground="#3B82F6"/>
+                                                      Foreground="{ThemeResource PrimaryBrush}"/>
                                             <TextBlock Text="{x:Bind ViewModel.Address, Mode=OneWay}"
                                                        FontSize="13"
-                                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         </StackPanel>
                                     </StackPanel>
                                 </StackPanel>
@@ -312,22 +294,8 @@
                                             Orientation="Horizontal"
                                             Spacing="12"
                                             VerticalAlignment="Center">
-                                    <Button MinWidth="130"
-                                            Height="40"
-                                            IsEnabled="False"
-                                            ToolTipService.ToolTip="Coming soon - Public profile view">
-                                        <StackPanel Orientation="Horizontal"
-                                                    Spacing="8">
-                                            <FontIcon FontFamily="Segoe Fluent Icons"
-                                                      Glyph="&#xE890;"
-                                                      FontSize="16"/>
-                                            <TextBlock Text="View as Public"
-                                                       VerticalAlignment="Center"
-                                                       FontSize="13"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <Button Style="{ThemeResource AccentButtonStyle}"
-                                            Background="#3B82F6"
+
+                                    <Button Style="{StaticResource PrimaryButtonStyle}"
                                             MinWidth="130"
                                             Height="40"
                                             Click="EditButton_Click">
@@ -343,15 +311,6 @@
                                     </Button>
                                 </StackPanel>
                             </Grid>
-
-                            <!-- Stats Section - Hidden until data binding is implemented
-                            <Border Grid.Row="1" BorderBrush="{StaticResource BorderBrush}" 
-                                    BorderThickness="0,1,0,0" Padding="0,24,0,0" Visibility="Collapsed">
-                                <Grid ColumnSpacing="48">
-                                    ... Stats will be bound to real data when API is ready ...
-                                </Grid>
-                            </Border>
-                            -->
                         </Grid>
                     </Border>
 
@@ -361,7 +320,7 @@
                                 Margin="0,0,0,24"
                                 Visibility="{x:Bind ViewModel.SelectedAvatarFile, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
                         <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                 BorderThickness="1"
                                 CornerRadius="8"
                                 Padding="12">
@@ -371,11 +330,11 @@
                                     <TextBlock Text="New avatar selected"
                                                FontSize="14"
                                                FontWeight="SemiBold"
-                                               Foreground="{StaticResource TextPrimaryBrush}"
+                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                TextAlignment="Center"/>
                                     <TextBlock Text="{x:Bind ViewModel.SelectedAvatarFile.Name, Mode=OneWay}"
                                                FontSize="12"
-                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                TextAlignment="Center"
                                                MaxWidth="300"
                                                TextTrimming="CharacterEllipsis"/>
@@ -383,7 +342,7 @@
                                 <StackPanel Orientation="Horizontal"
                                             Spacing="8"
                                             HorizontalAlignment="Center">
-                                    <Button Style="{ThemeResource AccentButtonStyle}"
+                                    <Button Style="{StaticResource PrimaryButtonStyle}"
                                             Command="{x:Bind ViewModel.UploadAvatarCommand}"
                                             IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}">
                                         <StackPanel Orientation="Horizontal"
@@ -394,7 +353,8 @@
                                             <TextBlock Text="Upload"/>
                                         </StackPanel>
                                     </Button>
-                                    <Button Content="Cancel"
+                                    <Button Style="{StaticResource SecondaryButtonStyle}"
+                                            Content="Cancel"
                                             Click="CancelAvatarButton_Click"
                                             IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
                                 </StackPanel>
@@ -409,8 +369,8 @@
                     <InfoBar Title="Email Verification Required"
                              Message="Please verify your email address to ensure account security and receive system notifications."
                              Severity="Warning"
-                             BorderBrush="{StaticResource WarningBrush}"
-                             Background="{StaticResource WarningBackgroundBrush}"
+                             BorderBrush="{ThemeResource SystemFillColorCautionBrush}"
+                             Background="{ThemeResource SystemFillColorCautionBackgroundBrush}"
                              IsOpen="{x:Bind ViewModel.IsEmailVerified, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
                              IsClosable="False"
                              Margin="0,0,0,24">
@@ -426,8 +386,8 @@
                     <InfoBar Title="Email Verified"
                              Message="Your email address has been verified. You have full access to all admin features."
                              Severity="Success"
-                             BorderBrush="{StaticResource SuccessBrush}"
-                             Background="{StaticResource SuccessBackgroundBrush}"
+                             BorderBrush="{ThemeResource SystemFillColorSuccessBrush}"
+                             Background="{ThemeResource SystemFillColorSuccessBackgroundBrush}"
                              IsOpen="{x:Bind ViewModel.IsEmailVerified, Mode=OneWay}"
                              IsClosable="False"
                              Margin="0,0,0,24"/>
@@ -449,15 +409,16 @@
                                         <FontIcon FontFamily="Segoe Fluent Icons"
                                                   Glyph="&#xE77B;"
                                                   FontSize="20"
-                                                  Foreground="{StaticResource AdminBlueBrush}"/>
+                                                  Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
                                         <TextBlock Text="Personal Information"
                                                    Style="{ThemeResource SubtitleTextBlockStyle}"
                                                    VerticalAlignment="Center"
-                                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                     </StackPanel>
 
                                     <!-- Edit/Save/Cancel Buttons -->
                                     <Button Grid.Column="1"
+                                            Style="{StaticResource SecondaryButtonStyle}"
                                             Content="Edit Profile"
                                             Click="EditButton_Click"
                                             Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
@@ -465,10 +426,10 @@
                                                 Orientation="Horizontal"
                                                 Spacing="8"
                                                 Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
-                                        <Button Content="Cancel"
+                                        <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                Content="Cancel"
                                                 Click="CancelButton_Click"/>
-                                        <Button Style="{ThemeResource AccentButtonStyle}"
-                                                Background="{StaticResource AdminBlueBrush}"
+                                        <Button Style="{StaticResource PrimaryButtonStyle}"
                                                 Click="SaveButton_Click">
                                             <StackPanel Orientation="Horizontal"
                                                         Spacing="8">
@@ -518,7 +479,7 @@
                                                     Spacing="8"
                                                     Margin="0,0,0,4">
                                             <TextBlock Text="Email"/>
-                                            <Border BorderBrush="{StaticResource SuccessBrush}"
+                                            <Border BorderBrush="{ThemeResource SystemFillColorSuccessBrush}"
                                                     BorderThickness="1"
                                                     CornerRadius="12"
                                                     Padding="8,2"
@@ -528,13 +489,13 @@
                                                     <FontIcon FontFamily="Segoe Fluent Icons"
                                                               Glyph="&#xE930;"
                                                               FontSize="12"
-                                                              Foreground="{StaticResource SuccessBrush}"/>
+                                                              Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
                                                     <TextBlock Text="Verified"
                                                                FontSize="12"
-                                                               Foreground="{StaticResource SuccessBrush}"/>
+                                                               Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
                                                 </StackPanel>
                                             </Border>
-                                            <Border BorderBrush="{StaticResource WarningBrush}"
+                                            <Border BorderBrush="{ThemeResource SystemFillColorCautionBrush}"
                                                     BorderThickness="1"
                                                     CornerRadius="12"
                                                     Padding="8,2"
@@ -544,10 +505,10 @@
                                                     <FontIcon FontFamily="Segoe Fluent Icons"
                                                               Glyph="&#xE715;"
                                                               FontSize="12"
-                                                              Foreground="{StaticResource WarningBrush}"/>
+                                                              Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
                                                     <TextBlock Text="Unverified"
                                                                FontSize="12"
-                                                               Foreground="{StaticResource WarningBrush}"/>
+                                                               Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
                                                 </StackPanel>
                                             </Border>
                                         </StackPanel>
@@ -578,14 +539,14 @@
                                     <FontIcon FontFamily="Segoe Fluent Icons"
                                               Glyph="&#xE825;"
                                               FontSize="20"
-                                              Foreground="{StaticResource AdminBlueBrush}"/>
+                                              Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
                                     <TextBlock Text="Account Security"
                                                Style="{ThemeResource SubtitleTextBlockStyle}"
                                                VerticalAlignment="Center"
-                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                 </StackPanel>
 
-                                <Border Background="{StaticResource DisabledBackgroundBrush}"
+                                <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
                                         CornerRadius="6"
                                         Padding="16">
                                     <Grid>
@@ -596,31 +557,33 @@
                                         <StackPanel VerticalAlignment="Center">
                                             <TextBlock Text="Password"
                                                        FontWeight="SemiBold"
-                                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                             <TextBlock Text="Update your password regularly for security"
                                                        FontSize="12"
-                                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         </StackPanel>
                                         <Button Grid.Column="1"
+                                                Style="{StaticResource SecondaryButtonStyle}"
                                                 Content="Change Password"
                                                 Click="ChangePasswordButton_Click"
                                                 ToolTipService.ToolTip="Change your account password"/>
                                     </Grid>
                                 </Border>
 
-                                <Border Background="{StaticResource DisabledBackgroundBrush}"
+                                <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
                                         CornerRadius="6"
                                         Padding="16">
                                     <Grid>
                                         <StackPanel VerticalAlignment="Center">
                                             <TextBlock Text="Two-Factor Authentication"
                                                        FontWeight="SemiBold"
-                                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                             <TextBlock Text="Add an extra layer of security"
                                                        FontSize="12"
-                                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         </StackPanel>
                                         <Button Grid.Column="1"
+                                                Style="{StaticResource SecondaryButtonStyle}"
                                                 Content="Enable"
                                                 HorizontalAlignment="Right"
                                                 IsEnabled="False"
@@ -628,19 +591,20 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Background="{StaticResource DisabledBackgroundBrush}"
+                                <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
                                         CornerRadius="6"
                                         Padding="16">
                                     <Grid>
                                         <StackPanel VerticalAlignment="Center">
                                             <TextBlock Text="Active Sessions"
                                                        FontWeight="SemiBold"
-                                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                             <TextBlock Text="Manage your active sessions"
                                                        FontSize="12"
-                                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         </StackPanel>
                                         <Button Grid.Column="1"
+                                                Style="{StaticResource SecondaryButtonStyle}"
                                                 Content="View Sessions"
                                                 HorizontalAlignment="Right"
                                                 IsEnabled="False"
@@ -654,7 +618,7 @@
                         <!-- 
                     <Border Style="{StaticResource CardStyle}">
                         <StackPanel Spacing="16">
-                            <TextBlock Text="Recent Activity" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="{StaticResource TextPrimaryBrush}"/>
+                            <TextBlock Text="Recent Activity" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                             TODO: Add ItemsSource binding to activity list from ViewModel when API is ready
                         </StackPanel>
                     </Border>

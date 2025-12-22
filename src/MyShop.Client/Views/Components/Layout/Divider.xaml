@@ -38,7 +38,7 @@
             <TextBlock Grid.Column="1"
                        Text="{Binding Label, ElementName=RootControl, Mode=OneWay}"
                        FontSize="12"
-                       Foreground="{ThemeResource TextMutedBrush}"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                        Margin="16,0"/>
             
             <Border Grid.Column="2" Height="1" Background="{Binding Color, ElementName=RootControl, Mode=OneWay}" VerticalAlignment="Center" IsHitTestVisible="False"/>

@@ -19,7 +19,7 @@
                     VerticalAlignment="Center">
             <TextBlock Text="Show"
                        VerticalAlignment="Center"
-                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
             <ComboBox x:Name="PageSizeComboBox"
                       MinWidth="80"
                       SelectedIndex="0"
@@ -34,7 +34,7 @@
             </ComboBox>
             <TextBlock Text="entries"
                        VerticalAlignment="Center"
-                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
         </StackPanel>
 
         <!-- Center: Page Numbers -->
@@ -56,7 +56,7 @@
                 <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
                         <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="BorderBrush" Value="{StaticResource BorderDefaultBrush}"/>
+                        <Setter Property="BorderBrush" Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
                     </Style>
                 </Button.Style>
             </Button>
@@ -74,7 +74,7 @@
                 <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
                         <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="BorderBrush" Value="{StaticResource BorderDefaultBrush}"/>
+                        <Setter Property="BorderBrush" Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
                     </Style>
                 </Button.Style>
             </Button>
@@ -96,7 +96,7 @@
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
                                     <Setter Property="Background" Value="Transparent"/>
-                                    <Setter Property="BorderBrush" Value="{StaticResource BorderDefaultBrush}"/>
+                                    <Setter Property="BorderBrush" Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
                                 </Style>
                             </Button.Style>
                         </Button>
@@ -117,7 +117,7 @@
                 <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
                         <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="BorderBrush" Value="{StaticResource BorderDefaultBrush}"/>
+                        <Setter Property="BorderBrush" Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
                     </Style>
                 </Button.Style>
             </Button>
@@ -135,7 +135,7 @@
                 <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
                         <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="BorderBrush" Value="{StaticResource BorderDefaultBrush}"/>
+                        <Setter Property="BorderBrush" Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
                     </Style>
                 </Button.Style>
             </Button>
@@ -145,6 +145,6 @@
         <TextBlock Grid.Column="2"
                    x:Name="InfoText"
                    VerticalAlignment="Center"
-                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
     </Grid>
 </UserControl>

@@ -89,6 +89,23 @@ public static class ThemeManager
             app.Resources.MergedDictionaries.Add(dict);
             CurrentTheme = theme;
 
+            // CRITICAL: Set RequestedTheme on the main window content
+            // This is required for WinUI ThemeResource to resolve correctly
+            try
+            {
+                if (App.MainWindow?.Content is FrameworkElement rootElement)
+                {
+                    rootElement.RequestedTheme = theme == ThemeType.Dark 
+                        ? ElementTheme.Dark 
+                        : ElementTheme.Light;
+                    System.Diagnostics.Debug.WriteLine($"ThemeManager: Set RequestedTheme to {rootElement.RequestedTheme}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ThemeManager: Failed to set RequestedTheme: {ex.Message}");
+            }
+
             // Save preference
             SaveThemePreference(theme);
 

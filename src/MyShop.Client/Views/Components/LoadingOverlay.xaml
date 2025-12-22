@@ -54,7 +54,7 @@
             <TextBlock Text="{Binding Message, ElementName=RootControl, Mode=OneWay}"
                        FontSize="16"
                        FontWeight="SemiBold"
-                       Foreground="{ThemeResource TextPrimaryBrush}"
+                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                        HorizontalAlignment="Center"
                        AutomationProperties.LiveSetting="Assertive"
                        Visibility="{Binding Message, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}">
@@ -66,7 +66,7 @@
             <!-- Sub-message (optional) -->
             <TextBlock Text="Please wait..."
                        FontSize="13"
-                       Foreground="{ThemeResource TextMutedBrush}"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                        HorizontalAlignment="Center"
                        Visibility="{Binding ShowSubMessage, ElementName=RootControl, Mode=OneWay}"/>
             

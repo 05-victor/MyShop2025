@@ -94,7 +94,7 @@
     <!-- SEMANTIC BRUSHES                             -->
     <!-- ============================================= -->
     
-    <SolidColorBrush x:Key="WhiteBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="WhiteBrush" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
     <SolidColorBrush x:Key="BlackBrush" Color="#000000"/>
     
     <!-- Transparent Brushes -->
@@ -182,7 +182,7 @@
     <SolidColorBrush x:Key="ComboBoxItemForeground" Color="#F1F5F9"/>
     <SolidColorBrush x:Key="ComboBoxItemForegroundPointerOver" Color="#F1F5F9"/>
     <SolidColorBrush x:Key="ComboBoxItemForegroundPressed" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="ComboBoxItemForegroundSelected" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="ComboBoxItemForegroundSelected" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
     <SolidColorBrush x:Key="ComboBoxItemBackgroundPointerOver" Color="#334155"/>
     <SolidColorBrush x:Key="ComboBoxItemBackgroundPressed" Color="#475569"/>
     <SolidColorBrush x:Key="ComboBoxItemBackgroundSelected" Color="#3B82F6"/>
@@ -190,9 +190,9 @@
     <!-- NavigationView - Dark Mode -->
     <SolidColorBrush x:Key="NavigationViewBackground" Color="#0B1220"/>
     <SolidColorBrush x:Key="NavigationViewItemForeground" Color="#CBD5E1"/>
-    <SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="NavigationViewItemForegroundPressed" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="NavigationViewItemForegroundSelected" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+    <SolidColorBrush x:Key="NavigationViewItemForegroundPressed" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+    <SolidColorBrush x:Key="NavigationViewItemForegroundSelected" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
     <SolidColorBrush x:Key="NavigationViewItemBackgroundPointerOver" Color="#1E3A8A"/>
     <SolidColorBrush x:Key="NavigationViewItemBackgroundPressed" Color="#1E40AF"/>
     <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected" Color="#2563EB"/>

@@ -550,7 +550,8 @@
 
                                         <StackPanel Orientation="Horizontal"
                                                 Spacing="12">
-                                            <Button Command="{x:Bind ViewModel.CalculateCacheSizeCommand}">
+                                            <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                    Command="{x:Bind ViewModel.CalculateCacheSizeCommand}">
                                                 <StackPanel Orientation="Horizontal"
                                                         Spacing="8">
                                                     <FontIcon FontSize="14"
@@ -563,7 +564,8 @@
                                                     Text="{x:Bind ViewModel.CacheSize, Mode=OneWay}"/>
                                         </StackPanel>
 
-                                        <Button Command="{x:Bind ViewModel.ClearCacheCommand}">
+                                        <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                Command="{x:Bind ViewModel.ClearCacheCommand}">
                                             <StackPanel Orientation="Horizontal"
                                                     Spacing="8">
                                                 <FontIcon FontSize="14"
@@ -578,7 +580,8 @@
 
                                         <StackPanel Orientation="Horizontal"
                                                 Spacing="12">
-                                            <Button Command="{x:Bind ViewModel.ExportSettingsCommand}">
+                                            <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                    Command="{x:Bind ViewModel.ExportSettingsCommand}">
                                                 <StackPanel Orientation="Horizontal"
                                                         Spacing="8">
                                                     <FontIcon FontSize="14"
@@ -586,7 +589,8 @@
                                                     <TextBlock Text="Export Settings"/>
                                                 </StackPanel>
                                             </Button>
-                                            <Button Command="{x:Bind ViewModel.ImportSettingsCommand}">
+                                            <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                    Command="{x:Bind ViewModel.ImportSettingsCommand}">
                                                 <StackPanel Orientation="Horizontal"
                                                         Spacing="8">
                                                     <FontIcon FontSize="14"
@@ -602,8 +606,10 @@
                     </TabViewItem>
 
                     <!--  Developer Tab  -->
-                    <TabViewItem Header="Developer"
-                            IsClosable="False">
+                    <TabViewItem x:Name="DeveloperTab"
+                            Header="Developer"
+                            IsClosable="False"
+                            Visibility="Collapsed">
                         <TabViewItem.IconSource>
                             <FontIconSource Glyph="&#xE943;"/>
                         </TabViewItem.IconSource>
@@ -663,7 +669,8 @@
                                                      Text="{x:Bind ViewModel.ServerUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                         </StackPanel>
 
-                                        <Button Click="ConfigureServer_Click">
+                                        <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                Click="ConfigureServer_Click">
                                             <StackPanel Orientation="Horizontal"
                                                     Spacing="8">
                                                 <FontIcon FontSize="14"
@@ -739,7 +746,8 @@
 
                                         <StackPanel Orientation="Horizontal"
                                                 Spacing="12">
-                                            <Button Click="OpenLogsFolder_Click">
+                                            <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                    Click="OpenLogsFolder_Click">
                                                 <StackPanel Orientation="Horizontal"
                                                         Spacing="8">
                                                     <FontIcon FontSize="14"
@@ -747,7 +755,8 @@
                                                     <TextBlock Text="Open Logs Folder"/>
                                                 </StackPanel>
                                             </Button>
-                                            <Button Click="OpenExportsFolder_Click">
+                                            <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                    Click="OpenExportsFolder_Click">
                                                 <StackPanel Orientation="Horizontal"
                                                         Spacing="8">
                                                     <FontIcon FontSize="14"
@@ -757,7 +766,8 @@
                                             </Button>
                                         </StackPanel>
 
-                                        <Button Click="CopyDebugInfo_Click">
+                                        <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                Click="CopyDebugInfo_Click">
                                             <StackPanel Orientation="Horizontal"
                                                     Spacing="8">
                                                 <FontIcon FontSize="14"
@@ -798,7 +808,7 @@
                                             <FontIcon
                                                 Grid.Column="0"
                                                 FontSize="32"
-                                                Foreground="#F59E0B"
+                                                Foreground="{ThemeResource WarningAmberBrush}"
                                                 Glyph="&#xE7BA;"/>
                                             <StackPanel Grid.Column="1"
                                                     Margin="16,0,0,0"
@@ -833,7 +843,7 @@
                                                     <TextBlock
                                                         FontSize="32"
                                                         FontWeight="Bold"
-                                                        Foreground="#F59E0B"
+                                                        Foreground="{ThemeResource WarningAmberBrush}"
                                                         Text="{x:Bind ViewModel.TrialDaysRemaining, Mode=OneWay}"/>
                                                     <TextBlock
                                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -846,7 +856,7 @@
                                         <StackPanel Spacing="12">
                                             <Button
                                                 HorizontalAlignment="Stretch"
-                                                Background="#2563EB"
+                                                Background="{ThemeResource SecondaryBlueBrush}"
                                                 Foreground="White"
                                                 Command="{x:Bind ViewModel.OpenUpgradeProCommand}"
                                                 ToolTipService.ToolTip="Open upgrade page in browser">
@@ -954,7 +964,7 @@
                                                     Grid.Column="0"
                                                     Margin="0,0,12,0"
                                                     FontSize="20"
-                                                    Foreground="#10B981"
+                                                    Foreground="{ThemeResource SuccessGreenBrush}"
                                                     Glyph="&#xE73E;"/>
                                                 <StackPanel Grid.Column="1">
                                                     <TextBlock FontWeight="SemiBold"
@@ -979,7 +989,7 @@
                                                     Grid.Column="0"
                                                     Margin="0,0,12,0"
                                                     FontSize="20"
-                                                    Foreground="#10B981"
+                                                    Foreground="{ThemeResource SuccessGreenBrush}"
                                                     Glyph="&#xE73E;"/>
                                                 <StackPanel Grid.Column="1">
                                                     <TextBlock FontWeight="SemiBold"
@@ -1004,7 +1014,7 @@
                                                     Grid.Column="0"
                                                     Margin="0,0,12,0"
                                                     FontSize="20"
-                                                    Foreground="#10B981"
+                                                    Foreground="{ThemeResource SuccessGreenBrush}"
                                                     Glyph="&#xE73E;"/>
                                                 <StackPanel Grid.Column="1">
                                                     <TextBlock FontWeight="SemiBold"
@@ -1027,7 +1037,7 @@
                                                     Grid.Column="0"
                                                     Margin="0,0,12,0"
                                                     FontSize="20"
-                                                    Foreground="#10B981"
+                                                    Foreground="{ThemeResource SuccessGreenBrush}"
                                                     Glyph="&#xE73E;"/>
                                                 <StackPanel Grid.Column="1">
                                                     <TextBlock FontWeight="SemiBold"

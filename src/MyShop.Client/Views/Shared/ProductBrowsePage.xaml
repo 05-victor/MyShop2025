@@ -13,7 +13,7 @@
     xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:pagination="using:MyShop.Client.Views.Components.Pagination"
-    Background="#F5F7FA"
+    Background="{ThemeResource LayerFillColorDefaultBrush}"
     mc:Ignorable="d">
 
     <Page.Transitions>
@@ -208,7 +208,7 @@
                                                   HorizontalAlignment="Stretch"
                                                   Height="40"
                                                   CornerRadius="10"
-                                                  BorderBrush="#D0D7E2"
+                                                  BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
                                                   SelectedIndex="0"
                                                   SelectionChanged="SortComboBox_SelectionChanged">
                                             <ComboBoxItem Content="Newest"
@@ -248,19 +248,19 @@
                                                  Fill="#F3F4F6"/>
                                         <FontIcon
                                             FontSize="64"
-                                            Foreground="#9CA3AF"
+                                            Foreground="{ThemeResource Gray500Brush}"
                                             Glyph="&#xE721;"/>
                                     </Grid>
                                 </Viewbox>
                                 <TextBlock
                                     FontSize="20"
                                     FontWeight="SemiBold"
-                                    Foreground="#374151"
+                                    Foreground="{ThemeResource TextTertiaryBrush}"
                                     Text="No products found"
                                     TextAlignment="Center"/>
                                 <TextBlock
                                     FontSize="14"
-                                    Foreground="#6B7280"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                     Text="Try adjusting your filters or search query"
                                     TextAlignment="Center"
                                     MaxWidth="300"
@@ -269,7 +269,7 @@
                                     Margin="0,12,0,0"
                                     Padding="16,10"
                                     Background="Transparent"
-                                    BorderBrush="#E5E7EB"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
                                     CornerRadius="8"
                                     ToolTipService.ToolTip="Clear all filters">
@@ -320,7 +320,7 @@
                                             <Border
                                                 Height="160"
                                                 HorizontalAlignment="Stretch"
-                                                Background="#F3F4F6"
+                                                Background="{ThemeResource SubtleFillColorSecondaryBrush}"
                                                 CornerRadius="8">
                                                 <Image Stretch="UniformToFill">
                                                     <Image.Source>
@@ -338,16 +338,16 @@
                                                             Spacing="8">
                                                     <Border
                                                         Padding="6,2"
-                                                        Background="#EEF2FF"
+                                                        Background="{ThemeResource PurpleLightBrush}"
                                                         CornerRadius="4">
                                                         <TextBlock
                                                             FontSize="10"
-                                                            Foreground="#6366F1"
+                                                            Foreground="{ThemeResource PurpleBrush}"
                                                             Text="{x:Bind Category}"/>
                                                     </Border>
                                                     <TextBlock
                                                         FontSize="12"
-                                                        Foreground="#6B7280"
+                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                         Text="{x:Bind Manufacturer}"/>
                                                 </StackPanel>
 
@@ -355,7 +355,7 @@
                                                 <TextBlock
                                                     FontSize="16"
                                                     FontWeight="SemiBold"
-                                                    Foreground="#111827"
+                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                     Text="{x:Bind Name}"
                                                     TextTrimming="CharacterEllipsis"/>
 
@@ -364,11 +364,11 @@
                                                             Spacing="4">
                                                     <FontIcon
                                                         FontSize="14"
-                                                        Foreground="#F59E0B"
+                                                        Foreground="{ThemeResource WarningAmberBrush}"
                                                         Glyph="&#xE735;"/>
                                                     <TextBlock
                                                         FontSize="14"
-                                                        Foreground="#111827"
+                                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                         Text="{x:Bind Rating}"/>
                                                     <TextBlock FontSize="12"
                                                                Foreground="#6B7280">
@@ -385,7 +385,7 @@
                                                         <TextBlock
                                                             FontSize="20"
                                                             FontWeight="Bold"
-                                                            Foreground="#00AEEF"
+                                                            Foreground="{ThemeResource AccentBlueBrush}"
                                                             Text="{x:Bind Price, Converter={StaticResource CurrencyConverter}}"/>
                                                         <Border
                                                             Padding="6,2"
@@ -403,17 +403,13 @@
                                                 <StackPanel Margin="0,8,0,0"
                                                             Orientation="Horizontal"
                                                             Spacing="8">
-                                                    <Button Width="140"
+                                                    <Button Style="{StaticResource PrimaryButtonStyle}"
+                                                            Width="140"
                                                             Height="44"
                                                             Padding="12,0"
                                                             HorizontalAlignment="Stretch"
-                                                            Background="#1A4D8F"
                                                             Command="{Binding ElementName=ProductGridView, Path=DataContext.AddToCartCommand}"
                                                             CommandParameter="{x:Bind}"
-                                                            CornerRadius="12"
-                                                            BorderThickness="0"
-                                                            Foreground="White"
-                                                            FontWeight="SemiBold"
                                                             IsEnabled="{x:Bind IsInStock}"
                                                             ToolTipService.ToolTip="Add this product to your shopping cart">
                                                         <StackPanel Orientation="Horizontal"
@@ -424,19 +420,16 @@
                                                                        Text="Add to Cart"/>
                                                         </StackPanel>
                                                     </Button>
-                                                    <Button Height="44"
+                                                    <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                            Height="44"
                                                             Width="44"
                                                             Padding="0"
-                                                            Background="#F3F6FA"
-                                                            BorderBrush="#C4D0E3"
-                                                            BorderThickness="1"
                                                             Tag="{x:Bind}"
                                                             Click="ViewProductButton_Click"
-                                                            CornerRadius="12"
                                                             ToolTipService.ToolTip="View detailed product information">
                                                         <FontIcon
                                                             FontSize="16"
-                                                            Foreground="#6B7280"
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                             Glyph="&#xE890;"/>
                                                     </Button>
                                                 </StackPanel>
@@ -475,43 +468,43 @@
                             Visibility="Collapsed">
                             <Button
                                 Padding="12,8"
-                                Background="White"
-                                BorderBrush="#E5E7EB"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                 Content="Previous"
                                 CornerRadius="8"
-                                Foreground="#6B7280"/>
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                             <Button
                                 Width="40"
                                 Padding="12,8"
-                                Background="#00AEEF"
+                                Background="{ThemeResource AccentBlueBrush}"
                                 Content="1"
                                 CornerRadius="8"
                                 Foreground="White"/>
                             <Button
                                 Width="40"
                                 Padding="12,8"
-                                Background="White"
-                                BorderBrush="#E5E7EB"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                 Content="2"
                                 CornerRadius="8"
-                                Foreground="#6B7280"/>
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             <Button
                                 Width="40"
                                 Padding="12,8"
-                                Background="White"
-                                BorderBrush="#E5E7EB"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                 Content="3"
                                 CornerRadius="8"
-                                Foreground="#6B7280"/>
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                             <Button
                                 Padding="12,8"
-                                Background="White"
-                                BorderBrush="#E5E7EB"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                 Content="Next"
                                 CornerRadius="8"
-                                Foreground="#6B7280"/>
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         </StackPanel>
 
                     </StackPanel>
@@ -535,9 +528,9 @@
                         HorizontalAlignment="Center"
                         Width="200"
                         Height="200"
-                        Background="#F3F4F6"
+                        Background="{ThemeResource SubtleFillColorSecondaryBrush}"
                         CornerRadius="12"
-                        BorderBrush="#E5E7EB"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                         BorderThickness="1">
                         <Grid>
                             <Image
@@ -546,7 +539,7 @@
                             <FontIcon
                                 x:Name="ViewProductImagePlaceholder"
                                 FontSize="48"
-                                Foreground="#9CA3AF"
+                                Foreground="{ThemeResource Gray500Brush}"
                                 Glyph="&#xE8B9;"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"/>
@@ -558,13 +551,13 @@
                         <TextBlock
                             FontSize="12"
                             FontWeight="SemiBold"
-                            Foreground="#6B7280"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                             Text="PRODUCT NAME"/>
                         <TextBlock
                             x:Name="ViewProductName"
                             FontSize="18"
                             FontWeight="Bold"
-                            Foreground="#111827"
+                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                             TextWrapping="Wrap"/>
                     </StackPanel>
 
@@ -580,18 +573,18 @@
                             <TextBlock
                                 FontSize="12"
                                 FontWeight="SemiBold"
-                                Foreground="#6B7280"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Text="CATEGORY"/>
                             <Border
                                 Padding="8,4"
-                                Background="#E0E7FF"
+                                Background="{ThemeResource PurpleLightBrush}"
                                 CornerRadius="4"
                                 HorizontalAlignment="Left">
                                 <TextBlock
                                     x:Name="ViewProductCategory"
                                     FontSize="12"
                                     FontWeight="SemiBold"
-                                    Foreground="#3730A3"/>
+                                    Foreground="{ThemeResource PurpleDarkBrush}"/>
                             </Border>
                         </StackPanel>
 
@@ -600,18 +593,18 @@
                             <TextBlock
                                 FontSize="12"
                                 FontWeight="SemiBold"
-                                Foreground="#6B7280"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Text="MANUFACTURER"/>
                             <TextBlock
                                 x:Name="ViewProductManufacturer"
                                 FontSize="14"
-                                Foreground="#111827"/>
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                         </StackPanel>
                     </Grid>
 
                     <!--  Price Section  -->
                     <Border
-                        Background="#F0FDF4"
+                        Background="{ThemeResource SuccessGreen50Brush}"
                         CornerRadius="8"
                         Padding="16">
                         <StackPanel Spacing="4"
@@ -619,14 +612,14 @@
                             <TextBlock
                                 FontSize="12"
                                 FontWeight="SemiBold"
-                                Foreground="#059669"
+                                Foreground="{ThemeResource SuccessGreenDarkBrush}"
                                 Text="PRICE"
                                 HorizontalAlignment="Center"/>
                             <TextBlock
                                 x:Name="ViewProductPrice"
                                 FontSize="28"
                                 FontWeight="Bold"
-                                Foreground="#047857"
+                                Foreground="{ThemeResource SuccessGreenDarkBrush}"
                                 HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Border>
@@ -643,7 +636,7 @@
                             <TextBlock
                                 FontSize="12"
                                 FontWeight="SemiBold"
-                                Foreground="#6B7280"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Text="STOCK"/>
                             <StackPanel Orientation="Horizontal"
                                         Spacing="8">
@@ -651,7 +644,7 @@
                                     x:Name="ViewProductStock"
                                     FontSize="24"
                                     FontWeight="Bold"
-                                    Foreground="#111827"/>
+                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                 <Border
                                     x:Name="ViewProductStockBadge"
                                     Padding="8,4"
@@ -670,7 +663,7 @@
                             <TextBlock
                                 FontSize="12"
                                 FontWeight="SemiBold"
-                                Foreground="#6B7280"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Text="RATING"/>
                             <StackPanel Orientation="Horizontal"
                                         Spacing="8">
@@ -678,17 +671,17 @@
                                     x:Name="ViewProductRating"
                                     FontSize="24"
                                     FontWeight="Bold"
-                                    Foreground="#111827"/>
+                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                 <StackPanel Orientation="Horizontal"
                                             VerticalAlignment="Center"
                                             Spacing="2">
                                     <FontIcon FontSize="16"
-                                              Foreground="#F59E0B"
-                                              Glyph="&#xE735;"/>
+                                            Foreground="{ThemeResource WarningAmberBrush}"
+                                            Glyph="&#xE735;"/>
                                     <TextBlock
                                         x:Name="ViewProductRatingCount"
                                         FontSize="12"
-                                        Foreground="#6B7280"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                         VerticalAlignment="Center"/>
                                 </StackPanel>
                             </StackPanel>
@@ -700,7 +693,7 @@
                         x:Name="DialogAddToCartButton"
                         HorizontalAlignment="Stretch"
                         Height="48"
-                        Background="#00AEEF"
+                        Background="{ThemeResource AccentBlueBrush}"
                         Foreground="White"
                         CornerRadius="8"
                         Click="DialogAddToCartButton_Click">

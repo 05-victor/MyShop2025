@@ -28,7 +28,7 @@
             </RadioButtons>
             <TextBlock Text="Excel export coming soon" 
                       FontSize="12" 
-                      Foreground="{ThemeResource TextMutedBrush}"
+                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                       FontStyle="Italic"/>
         </StackPanel>
 
@@ -59,7 +59,7 @@
         </StackPanel>
 
         <!-- Preview -->
-        <Border Background="{ThemeResource Gray100Brush}" 
+        <Border Background="{ThemeResource LayerFillColorDefaultBrush}" 
                CornerRadius="8" 
                Padding="12"
                Visibility="Collapsed">
@@ -68,7 +68,7 @@
                 <TextBlock x:Name="PreviewText" 
                           Text="Ready to export"
                           FontSize="12"
-                          Foreground="{ThemeResource TextMutedBrush}"/>
+                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
             </StackPanel>
         </Border>
     </StackPanel>

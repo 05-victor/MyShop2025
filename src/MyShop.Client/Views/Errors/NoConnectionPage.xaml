@@ -13,7 +13,7 @@
     Displayed when there's no network/server connection.
     -->
 
-    <Grid Background="{ThemeResource BackgroundLightBrush}">
+    <Grid Background="{ThemeResource LayerFillColorDefaultBrush}">
         <Grid.ChildrenTransitions>
             <TransitionCollection>
                 <EntranceThemeTransition FromVerticalOffset="50"/>
@@ -48,20 +48,20 @@
                 Text="No Connection" 
                 FontSize="28" 
                 FontWeight="Bold" 
-                Foreground="{ThemeResource TextPrimaryBrush}"
+                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                 HorizontalAlignment="Center"/>
             
             <!-- Description -->
             <TextBlock 
                 Text="Unable to connect to the server. Please check your internet connection and try again."
                 FontSize="15" 
-                Foreground="{ThemeResource TextMutedBrush}"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                 TextAlignment="Center"
                 TextWrapping="Wrap"/>
             
             <!-- Tips Box -->
             <Border 
-                Background="{ThemeResource Gray100Brush}"
+                Background="{ThemeResource LayerFillColorDefaultBrush}"
                 CornerRadius="8"
                 Padding="16">
                 <StackPanel Spacing="12">
@@ -69,20 +69,20 @@
                         Text="Troubleshooting Tips:"
                         FontSize="14"
                         FontWeight="SemiBold"
-                        Foreground="{ThemeResource TextPrimaryBrush}"/>
+                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                     
                     <StackPanel Spacing="8">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="{ThemeResource SuccessGreenBrush}"/>
-                            <TextBlock Text="Check your Wi-Fi or Ethernet connection" FontSize="13" Foreground="{ThemeResource TextMutedBrush}"/>
+                            <TextBlock Text="Check your Wi-Fi or Ethernet connection" FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="{ThemeResource SuccessGreenBrush}"/>
-                            <TextBlock Text="Verify the server address in settings" FontSize="13" Foreground="{ThemeResource TextMutedBrush}"/>
+                            <TextBlock Text="Verify the server address in settings" FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="{ThemeResource SuccessGreenBrush}"/>
-                            <TextBlock Text="Make sure the server is running" FontSize="13" Foreground="{ThemeResource TextMutedBrush}"/>
+                            <TextBlock Text="Make sure the server is running" FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
@@ -119,7 +119,7 @@
                     x:Name="ConfigureButton"
                     Padding="24,12"
                     Background="Transparent"
-                    BorderBrush="{ThemeResource BorderDefaultBrush}"
+                    BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
                     BorderThickness="1"
                     CornerRadius="8"
                     Click="ConfigureButton_Click">

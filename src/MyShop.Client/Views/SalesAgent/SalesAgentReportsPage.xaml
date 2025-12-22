@@ -184,7 +184,7 @@
                                         MinHeight="200"
                                         AnimationsSpeed="0"
                                         IsHitTestVisible="False"
-                                        Background="{ThemeResource CardBackgroundBrush}"
+                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                         Series="{x:Bind ViewModel.RevenueSeries, Mode=OneWay}"/>
                                 </StackPanel>
                             </Border>
@@ -205,7 +205,7 @@
                                         MinHeight="200"
                                         AnimationsSpeed="0"
                                         IsHitTestVisible="False"
-                                        Background="{ThemeResource CardBackgroundBrush}"
+                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                         Series="{x:Bind ViewModel.OrdersByCategorySeries, Mode=OneWay}"/>
                                 </StackPanel>
                             </Border>
@@ -352,7 +352,7 @@
                                                         HorizontalAlignment="Right"
                                                         VerticalAlignment="Center"
                                                         FontWeight="SemiBold"
-                                                        Foreground="#10B981"
+                                                        Foreground="{ThemeResource SuccessGreenBrush}"
                                                         Text="{Binding Revenue, Converter={StaticResource CurrencyConverter}}"
                                                         TextAlignment="Right"/>
                                                 </DataTemplate>
@@ -373,7 +373,7 @@
                                                         <FontIcon
                                                             VerticalAlignment="Center"
                                                             FontSize="12"
-                                                            Foreground="#F59E0B"
+                                                            Foreground="{ThemeResource WarningAmberBrush}"
                                                             Glyph="&#xE735;"/>
                                                     </StackPanel>
                                                 </DataTemplate>

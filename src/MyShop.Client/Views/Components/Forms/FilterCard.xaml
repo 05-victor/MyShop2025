@@ -30,7 +30,7 @@
             <TextBlock Text="{Binding Title, ElementName=RootControl, Mode=OneWay}"
                        FontSize="16"
                        FontWeight="SemiBold"
-                       Foreground="{ThemeResource TextPrimaryBrush}"
+                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                        AutomationProperties.HeadingLevel="Level2"
                        Visibility="{Binding Title, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
 
@@ -47,7 +47,7 @@
                 <!-- Reset Button -->
                 <Button Padding="16,10"
                        Background="Transparent"
-                       BorderBrush="{ThemeResource BorderLightBrush}"
+                       BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                        BorderThickness="1"
                        CornerRadius="8"
                        Command="{Binding ResetCommand, ElementName=RootControl, Mode=OneWay}"
@@ -64,7 +64,7 @@
 
                 <!-- Apply Button -->
                 <Button Padding="16,10"
-                       Background="#1A4D8F"
+                       Background="{ThemeResource PrimaryBrush}"
                        Foreground="White"
                        BorderThickness="0"
                        CornerRadius="8"

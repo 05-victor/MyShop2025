@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <UserControl
     x:Class="MyShop.Client.Views.Components.BecomeAdminBanner"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -8,13 +8,13 @@
     mc:Ignorable="d">
 
     <Border CornerRadius="12"
-            BorderBrush="#93C5FD"
+            BorderBrush="{ThemeResource AccentBlueBrush}"
             BorderThickness="2"
             Margin="0,0,0,24">
         <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#1A4D8F" Offset="0"/>
-                <GradientStop Color="#00AEEF" Offset="1"/>
+                <GradientStop Color="{ThemeResource PrimaryBrush}" Offset="0"/>
+                <GradientStop Color="{ThemeResource AccentBlueBrush}" Offset="1"/>
             </LinearGradientBrush>
         </Border.Background>
         
@@ -27,7 +27,7 @@
             <!-- Crown Icon Circle -->
             <Border Grid.Column="0"
                     Width="56" Height="56"
-                    Background="#FFFFFF33"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     CornerRadius="28"
                     Margin="0,0,20,0"
                     VerticalAlignment="Top">
@@ -53,7 +53,7 @@
                     
                     <TextBlock Text="This system doesn't have an admin yet. Enter your Activation Code to become the administrator."
                               FontSize="14"
-                              Foreground="#BEEFFF"
+                              Foreground="{ThemeResource AccentBlueBrush}"
                               TextWrapping="Wrap"
                               MaxWidth="600"/>
                 </StackPanel>
@@ -65,8 +65,8 @@
                         <TextBox x:Name="ActivationCodeInput"
                                 PlaceholderText="MYSHOP-XXXX-XXXX-XXXX"
                                 MaxLength="22"
-                                Background="#FFFFFF1A"
-                                BorderBrush="#FFFFFF4D"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                 BorderThickness="1"
                                 Foreground="White"
                                 CornerRadius="6"
@@ -80,7 +80,7 @@
                                   Text="0/22"
                                   FontSize="11"
                                   FontFamily="Consolas"
-                                  Foreground="#BEEFFF"
+                                  Foreground="{ThemeResource AccentBlueBrush}"
                                   HorizontalAlignment="Right"
                                   VerticalAlignment="Center"
                                   Margin="0,0,12,0"
@@ -89,7 +89,7 @@
 
                     <!-- Error Message -->
                     <TextBlock x:Name="ErrorMessage"
-                              Foreground="#FCA5A5"
+                              Foreground="{ThemeResource ErrorRedLightBrush}"
                               FontSize="13"
                               TextWrapping="Wrap"
                               Visibility="Collapsed"/>
@@ -97,8 +97,8 @@
                     <!-- Become Admin Button -->
                     <Button x:Name="BecomeAdminButton"
                             Click="BecomeAdminButton_Click"
-                            Background="White"
-                            Foreground="#1A4D8F"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            Foreground="{ThemeResource PrimaryBrush}"
                             CornerRadius="6"
                             Padding="16,10"
                             HorizontalAlignment="Stretch"
@@ -110,21 +110,21 @@
                     </Button>
 
                     <!-- Tooltip Info -->
-                    <Border Background="#FFFFFF1A"
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                             CornerRadius="6"
                             Padding="12">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <TextBlock Text="ℹ️" FontSize="14"/>
                             <TextBlock Text="Where to get activation code?"
                                       FontSize="12"
-                                      Foreground="#BEEFFF"/>
+                                      Foreground="{ThemeResource AccentBlueBrush}"/>
                         </StackPanel>
                         <ToolTipService.ToolTip>
                             <ToolTip>
                                 <StackPanel Spacing="8" MaxWidth="300">
                                     <TextBlock Text="Contact your vendor or check your purchase email for the activation code."
                                               TextWrapping="Wrap"/>
-                                    <Border Background="#FEF3C7" CornerRadius="4" Padding="8">
+                                    <Border Background="{ThemeResource WarningAmberLightBrush}" CornerRadius="4" Padding="8">
                                         <StackPanel Spacing="4">
                                             <TextBlock Text="Demo codes:" FontWeight="SemiBold"/>
                                             <TextBlock Text="• MYSHOP-PERM-2025-ADMIN (Permanent)" FontFamily="Consolas" FontSize="11"/>

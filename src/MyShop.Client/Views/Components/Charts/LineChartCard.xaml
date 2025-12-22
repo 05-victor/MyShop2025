@@ -15,9 +15,9 @@
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
     </UserControl.Resources>
 
-    <Border Background="{ThemeResource CardBackgroundBrush}"
+    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
             CornerRadius="16"
-            BorderBrush="{ThemeResource BorderLightBrush}"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="24">
         <Border.Shadow>
@@ -42,10 +42,10 @@
                     <TextBlock Text="{Binding Title, ElementName=RootControl, Mode=OneWay}"
                                FontSize="18"
                                FontWeight="SemiBold"
-                               Foreground="{ThemeResource TextPrimaryBrush}"/>
+                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                     <TextBlock Text="{Binding Subtitle, ElementName=RootControl, Mode=OneWay}"
                                FontSize="14"
-                               Foreground="{ThemeResource TextMutedBrush}"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                Margin="0,4,0,0"
                                Visibility="{Binding ShowSubtitle, ElementName=RootControl, Mode=OneWay}"/>
                 </StackPanel>
@@ -94,7 +94,7 @@
                             </MenuFlyoutSubItem>
                         </MenuFlyout>
                     </Button.Flyout>
-                    <FontIcon Glyph="&#xE712;" FontSize="16" Foreground="{ThemeResource TextMutedBrush}"/>
+                    <FontIcon Glyph="&#xE712;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 </Button>
             </Grid>
 
@@ -106,20 +106,20 @@
                        Visibility="{Binding ShowLegend, ElementName=RootControl, Mode=OneWay}">
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <Border Width="12" Height="12" 
-                           Background="#3B82F6" 
+                           Background="{ThemeResource PrimaryBrush}" 
                            CornerRadius="2"/>
                     <TextBlock Text="{Binding Legend1Text, ElementName=RootControl, Mode=OneWay}"
                               FontSize="13"
-                              Foreground="{ThemeResource TextMutedBrush}"/>
+                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="8"
                            Visibility="{Binding ShowLegend2, ElementName=RootControl, Mode=OneWay}">
                     <Border Width="12" Height="12" 
-                           Background="#10B981" 
+                           Background="{ThemeResource SuccessGreenBrush}" 
                            CornerRadius="2"/>
                     <TextBlock Text="{Binding Legend2Text, ElementName=RootControl, Mode=OneWay}"
                               FontSize="13"
-                              Foreground="{ThemeResource TextMutedBrush}"/>
+                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 </StackPanel>
             </StackPanel>
 
@@ -131,18 +131,18 @@
                                YAxes="{Binding YAxes, ElementName=RootControl, Mode=OneWay}"
                                Height="{Binding ChartHeight, ElementName=RootControl, Mode=OneWay}"
                                MinHeight="280"
-                               Background="{ThemeResource CardBackgroundBrush}"
+                               Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                Visibility="{x:Bind IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
 
             <!-- Loading State -->
             <Grid Grid.Row="2"
                   Visibility="{x:Bind IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                  Background="{ThemeResource CardBackgroundBrush}">
+                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
                     <ProgressRing IsActive="True" Width="40" Height="40"/>
                     <TextBlock Text="Loading chart data..." 
                               FontSize="14"
-                              Foreground="{ThemeResource TextMutedBrush}"
+                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                               AutomationProperties.LiveSetting="Assertive"/>
                 </StackPanel>
             </Grid>
@@ -150,30 +150,30 @@
             <!-- Empty State -->
             <Grid Grid.Row="2"
                   Visibility="{x:Bind IsEmpty, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                  Background="{ThemeResource CardBackgroundBrush}">
+                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
-                    <FontIcon Glyph="&#xE7C3;" FontSize="48" Foreground="{ThemeResource TextMutedBrush}"/>
+                    <FontIcon Glyph="&#xE7C3;" FontSize="48" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                     <TextBlock Text="No data available" 
                               FontSize="16" FontWeight="SemiBold"
-                              Foreground="{ThemeResource TextPrimaryBrush}"/>
+                              Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                     <TextBlock Text="Try adjusting your filters or date range" 
                               FontSize="14"
-                              Foreground="{ThemeResource TextMutedBrush}"/>
+                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 </StackPanel>
             </Grid>
 
             <!-- Error State -->
             <Grid Grid.Row="2"
                   Visibility="{x:Bind HasError, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                  Background="{ThemeResource CardBackgroundBrush}">
+                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
-                    <FontIcon Glyph="&#xE783;" FontSize="48" Foreground="#EF4444"/>
+                    <FontIcon Glyph="&#xE783;" FontSize="48" Foreground="{ThemeResource ErrorRedBrush}"/>
                     <TextBlock Text="Failed to load chart" 
                               FontSize="16" FontWeight="SemiBold"
-                              Foreground="{ThemeResource TextPrimaryBrush}"/>
+                              Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                     <TextBlock Text="{x:Bind ErrorMessage, Mode=OneWay}" 
                               FontSize="14"
-                              Foreground="{ThemeResource TextMutedBrush}"/>
+                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                     <Button Content="Retry" Click="RetryButton_Click" 
                            AutomationProperties.Name="Retry loading chart"/>
                 </StackPanel>

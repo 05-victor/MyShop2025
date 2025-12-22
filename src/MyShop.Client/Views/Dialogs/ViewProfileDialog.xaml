@@ -31,11 +31,11 @@
                     <TextBlock Text="{x:Bind FullName, Mode=OneWay}"
                               FontSize="20"
                               FontWeight="SemiBold"
-                              Foreground="#111827"
+                              Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                               HorizontalAlignment="Center"/>
                     <TextBlock Text="{x:Bind Email, Mode=OneWay}"
                               FontSize="14"
-                              Foreground="#6B7280"
+                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                               HorizontalAlignment="Center"/>
                 </StackPanel>
             </StackPanel>
@@ -48,7 +48,7 @@
                 <TextBlock Text="Contact Information" 
                           FontSize="14" 
                           FontWeight="SemiBold" 
-                          Foreground="#374151"/>
+                          Foreground="{ThemeResource TextTertiaryBrush}"/>
                 
                 <!-- Phone -->
                 <layout:DetailRow
@@ -71,7 +71,7 @@
                 <TextBlock Text="Request Details" 
                           FontSize="14" 
                           FontWeight="SemiBold" 
-                          Foreground="#374151"/>
+                          Foreground="{ThemeResource TextTertiaryBrush}"/>
 
                 <!-- Submitted Date -->
                 <Grid ColumnSpacing="12">
@@ -82,10 +82,10 @@
                     <FontIcon Grid.Column="0" 
                              Glyph="&#xE787;" 
                              FontSize="16" 
-                             Foreground="#6B7280"/>
+                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                     <TextBlock Grid.Column="1" 
                               FontSize="14"
-                              Foreground="#111827"
+                              Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                               VerticalAlignment="Center">
                         <Run Text="Submitted: "/>
                         <Run Text="{x:Bind SubmittedDate, Mode=OneWay}" FontWeight="SemiBold"/>
@@ -101,19 +101,19 @@
                     <FontIcon Grid.Column="0" 
                              Glyph="&#xE9F5;" 
                              FontSize="16" 
-                             Foreground="#6B7280"/>
+                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
                         <TextBlock Text="Status:" 
                                   FontSize="14"
-                                  Foreground="#111827"
+                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                   VerticalAlignment="Center"/>
                         <Border Padding="8,4"
-                               Background="#FEF3C7"
+                               Background="{ThemeResource WarningAmberLightBrush}"
                                CornerRadius="6">
                             <TextBlock Text="{x:Bind Status, Mode=OneWay}"
                                       FontSize="12"
                                       FontWeight="SemiBold"
-                                      Foreground="#F59E0B"/>
+                                      Foreground="{ThemeResource WarningAmberBrush}"/>
                         </Border>
                     </StackPanel>
                 </Grid>
@@ -127,13 +127,13 @@
                 <TextBlock Text="Experience" 
                           FontSize="14" 
                           FontWeight="SemiBold" 
-                          Foreground="#374151"/>
-                <Border Background="#F9FAFB"
+                          Foreground="{ThemeResource TextTertiaryBrush}"/>
+                <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
                        CornerRadius="8"
                        Padding="12">
                     <TextBlock Text="{x:Bind Experience, Mode=OneWay}"
                               FontSize="13"
-                              Foreground="#4B5563"
+                              Foreground="{ThemeResource Gray400Brush}"
                               TextWrapping="Wrap"/>
                 </Border>
             </StackPanel>
@@ -143,13 +143,13 @@
                 <TextBlock Text="Reason for Applying" 
                           FontSize="14" 
                           FontWeight="SemiBold" 
-                          Foreground="#374151"/>
-                <Border Background="#F9FAFB"
+                          Foreground="{ThemeResource TextTertiaryBrush}"/>
+                <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
                        CornerRadius="8"
                        Padding="12">
                     <TextBlock Text="{x:Bind Reason, Mode=OneWay}"
                               FontSize="13"
-                              Foreground="#4B5563"
+                              Foreground="{ThemeResource Gray400Brush}"
                               TextWrapping="Wrap"/>
                 </Border>
             </StackPanel>

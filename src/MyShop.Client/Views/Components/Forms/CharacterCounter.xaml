@@ -19,7 +19,7 @@
 
     <TextBlock x:Name="CounterText"
                FontSize="12"
-               Foreground="{ThemeResource TextMutedBrush}"
+               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                HorizontalAlignment="Right"
                AutomationProperties.LiveSetting="Polite"/>
 </UserControl>

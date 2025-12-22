@@ -16,9 +16,9 @@
     Main chat UI panel with messages, input, and suggested prompts.
     -->
 
-    <Border Background="{ThemeResource CardBackgroundBrush}"
+    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
             CornerRadius="16"
-            BorderBrush="{ThemeResource BorderLightBrush}"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1">
         <Border.Shadow>
             <ThemeShadow/>
@@ -48,7 +48,7 @@
                     <Border Grid.Column="0" 
                            Width="36" Height="36" 
                            CornerRadius="18"
-                           Background="White"
+                           Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                            Margin="0,0,12,0">
                         <FontIcon Glyph="&#xE99A;" FontSize="18" Foreground="{ThemeResource PrimaryBrush}"/>
                     </Border>
@@ -59,8 +59,8 @@
                                   FontSize="16" FontWeight="SemiBold" 
                                   Foreground="White"/>
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <Ellipse Width="8" Height="8" Fill="#10B981"/>
-                            <TextBlock Text="Online" FontSize="12" Foreground="#E0E0E0"/>
+                            <Ellipse Width="8" Height="8" Fill="{ThemeResource SuccessGreenBrush}"/>
+                            <TextBlock Text="Online" FontSize="12" Foreground="{ThemeResource CardStrokeColorDefaultBrush}"/>
                         </StackPanel>
                     </StackPanel>
                     
@@ -97,13 +97,13 @@
                    VerticalAlignment="Bottom"
                    Margin="12,0,0,8"
                    Padding="12,8"
-                   Background="{ThemeResource Gray100Brush}"
+                   Background="{ThemeResource LayerFillColorDefaultBrush}"
                    CornerRadius="12"
                    Visibility="Collapsed">
                 <StackPanel Orientation="Horizontal" Spacing="4">
-                    <Ellipse Width="8" Height="8" Fill="{ThemeResource TextMutedBrush}" Opacity="0.5"/>
-                    <Ellipse Width="8" Height="8" Fill="{ThemeResource TextMutedBrush}" Opacity="0.7"/>
-                    <Ellipse Width="8" Height="8" Fill="{ThemeResource TextMutedBrush}" Opacity="0.9"/>
+                    <Ellipse Width="8" Height="8" Fill="{ThemeResource TextFillColorSecondaryBrush}" Opacity="0.5"/>
+                    <Ellipse Width="8" Height="8" Fill="{ThemeResource TextFillColorSecondaryBrush}" Opacity="0.7"/>
+                    <Ellipse Width="8" Height="8" Fill="{ThemeResource TextFillColorSecondaryBrush}" Opacity="0.9"/>
                 </StackPanel>
             </Border>
 
@@ -118,7 +118,7 @@
 
             <!-- Input Area -->
             <Border Grid.Row="3" 
-                   BorderBrush="{ThemeResource BorderLightBrush}"
+                   BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                    BorderThickness="0,1,0,0"
                    Padding="12">
                 <Grid ColumnSpacing="8">
@@ -133,7 +133,7 @@
                             CornerRadius="20"
                             Padding="16,10"
                             BorderThickness="1"
-                            BorderBrush="{ThemeResource BorderLightBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                             AutomationProperties.Name="Chat message input"
                             KeyDown="InputTextBox_KeyDown"/>
                     

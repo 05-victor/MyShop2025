@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using System;
+using System.Linq;
 using System.Windows.Input;
 using Windows.UI;
 
@@ -14,16 +15,63 @@ namespace MyShop.Client.Views.Components.Buttons;
 /// </summary>
 public sealed partial class IconButton : UserControl
 {
+    // Template children - accessed after template is applied
+    private FontIcon? _leftIcon;
+    private FontIcon? _rightIcon;
+    private TextBlock? _buttonText;
+    private StackPanel? _contentPanel;
+    
     public IconButton()
     {
         this.InitializeComponent();
         this.Loaded += OnLoaded;
+        ActionButton.Loaded += ActionButton_Loaded;
+    }
+
+    private void ActionButton_Loaded(object sender, RoutedEventArgs e)
+    {
+        // Find template children using VisualTreeHelper
+        _contentPanel = FindChildByName<StackPanel>(ActionButton, "ContentPanel");
+        if (_contentPanel != null)
+        {
+            _leftIcon = FindChildByName<FontIcon>(_contentPanel, "LeftIcon");
+            _rightIcon = FindChildByName<FontIcon>(_contentPanel, "RightIcon");
+            _buttonText = FindChildByName<TextBlock>(_contentPanel, "ButtonText");
+        }
+        
+        ApplyVariantStyle();
+        ApplyLayout();
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
         ApplyVariantStyle();
         ApplyLayout();
+    }
+    
+    // Helper method to find child element by name in visual tree
+    private static T? FindChildByName<T>(DependencyObject parent, string name) where T : FrameworkElement
+    {
+        if (parent == null) return null;
+
+        int childCount = VisualTreeHelper.GetChildrenCount(parent);
+        for (int i = 0; i < childCount; i++)
+        {
+            var child = VisualTreeHelper.GetChild(parent, i);
+            
+            if (child is T typedChild && typedChild.Name == name)
+            {
+                return typedChild;
+            }
+
+            var result = FindChildByName<T>(child, name);
+            if (result != null)
+            {
+                return result;
+            }
+        }
+
+        return null;
     }
 
     #region IconGlyph Property
@@ -130,9 +178,9 @@ public sealed partial class IconButton : UserControl
 
     private static void OnTextColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is IconButton button && e.NewValue is Brush brush)
+        if (d is IconButton button && e.NewValue is Brush brush && button._buttonText != null)
         {
-            button.ButtonText.Foreground = brush;
+            button._buttonText.Foreground = brush;
         }
     }
 
@@ -327,26 +375,26 @@ public sealed partial class IconButton : UserControl
 
     private void ApplyLayout()
     {
-        if (ActionButton == null || LeftIcon == null || RightIcon == null || ButtonText == null) return;
+        if (ActionButton == null || _leftIcon == null || _rightIcon == null || _buttonText == null) return;
 
         bool hasText = !string.IsNullOrEmpty(Text);
         bool hasIcon = !string.IsNullOrEmpty(IconGlyph);
 
         // Show/hide text
-        ButtonText.Visibility = hasText ? Visibility.Visible : Visibility.Collapsed;
+        _buttonText.Visibility = hasText ? Visibility.Visible : Visibility.Collapsed;
 
         // Apply icon position
         if (hasIcon && hasText)
         {
             if (IconPosition == IconPosition.Right)
             {
-                LeftIcon.Visibility = Visibility.Collapsed;
-                RightIcon.Visibility = Visibility.Visible;
+                _leftIcon.Visibility = Visibility.Collapsed;
+                _rightIcon.Visibility = Visibility.Visible;
             }
             else
             {
-                LeftIcon.Visibility = Visibility.Visible;
-                RightIcon.Visibility = Visibility.Collapsed;
+                _leftIcon.Visibility = Visibility.Visible;
+                _rightIcon.Visibility = Visibility.Collapsed;
             }
             // Text + Icon: use standard padding
             ActionButton.Padding = new Thickness(16, 10, 16, 10);
@@ -356,8 +404,8 @@ public sealed partial class IconButton : UserControl
         else if (hasIcon && !hasText)
         {
             // Icon only: square button
-            LeftIcon.Visibility = Visibility.Visible;
-            RightIcon.Visibility = Visibility.Collapsed;
+            _leftIcon.Visibility = Visibility.Visible;
+            _rightIcon.Visibility = Visibility.Collapsed;
             ActionButton.Padding = new Thickness(8);
             if (!double.IsNaN(Size))
             {
@@ -373,8 +421,8 @@ public sealed partial class IconButton : UserControl
         else
         {
             // Text only
-            LeftIcon.Visibility = Visibility.Collapsed;
-            RightIcon.Visibility = Visibility.Collapsed;
+            _leftIcon.Visibility = Visibility.Collapsed;
+            _rightIcon.Visibility = Visibility.Collapsed;
             ActionButton.Padding = new Thickness(16, 10, 16, 10);
             ActionButton.Width = double.NaN;
             ActionButton.Height = double.NaN;
@@ -383,31 +431,64 @@ public sealed partial class IconButton : UserControl
 
     private void ApplyVariantStyle()
     {
-        if (ActionButton == null || ButtonText == null) return;
+        if (ActionButton == null) return;
 
         switch (Variant)
         {
             case IconButtonVariant.Ghost:
                 ActionButton.Background = new SolidColorBrush(Colors.Transparent);
                 ActionButton.BorderThickness = new Thickness(0);
+                if (Application.Current.Resources.TryGetValue("TextFillColorSecondaryBrush", out var ghostText) 
+                    && ghostText is Brush ghostForeground)
+                {
+                    if (_buttonText != null) _buttonText.Foreground = ghostForeground;
+                    ActionButton.Foreground = ghostForeground;
+                }
                 break;
 
             case IconButtonVariant.Outline:
-                ActionButton.Background = new SolidColorBrush(Colors.White);
-                ActionButton.BorderBrush = new SolidColorBrush(Color.FromArgb(255, 229, 231, 235)); // #E5E7EB
+                // Match Reset button pattern - transparent background, subtle border
+                ActionButton.Background = new SolidColorBrush(Colors.Transparent);
+                
+                if (Application.Current.Resources.TryGetValue("CardStrokeColorDefaultBrush", out var borderBrush) 
+                    && borderBrush is Brush outlineBorder)
+                {
+                    ActionButton.BorderBrush = outlineBorder;
+                }
+                else
+                {
+                    ActionButton.BorderBrush = new SolidColorBrush(Color.FromArgb(255, 229, 231, 235)); // #E5E7EB
+                }
                 ActionButton.BorderThickness = new Thickness(1);
+                
+                // Default text color
+                if (Application.Current.Resources.TryGetValue("TextFillColorPrimaryBrush", out var textBrush) 
+                    && textBrush is Brush defaultText)
+                {
+                    if (_buttonText != null) _buttonText.Foreground = defaultText;
+                    ActionButton.Foreground = defaultText;
+                }
                 break;
 
             case IconButtonVariant.Filled:
-                ActionButton.Background = new SolidColorBrush(Color.FromArgb(255, 37, 99, 235)); // #2563EB
+                // Use theme-aware PrimaryBrush for consistency
+                if (Application.Current.Resources.TryGetValue("PrimaryBrush", out var primaryBrush) 
+                    && primaryBrush is Brush filledBg)
+                {
+                    ActionButton.Background = filledBg;
+                }
+                else
+                {
+                    ActionButton.Background = new SolidColorBrush(Color.FromArgb(255, 26, 77, 143)); // #1A4D8F fallback
+                }
                 ActionButton.BorderThickness = new Thickness(0);
                 ActionButton.Foreground = new SolidColorBrush(Colors.White);
-                ButtonText.Foreground = new SolidColorBrush(Colors.White);
+                if (_buttonText != null) _buttonText.Foreground = new SolidColorBrush(Colors.White);
                 // Override icon color for filled variant if not explicitly set
                 if (IconColor is SolidColorBrush brush && brush.Color == Color.FromArgb(255, 107, 114, 128))
                 {
-                    LeftIcon.Foreground = new SolidColorBrush(Colors.White);
-                    RightIcon.Foreground = new SolidColorBrush(Colors.White);
+                    if (_leftIcon != null) _leftIcon.Foreground = new SolidColorBrush(Colors.White);
+                    if (_rightIcon != null) _rightIcon.Foreground = new SolidColorBrush(Colors.White);
                 }
                 break;
         }

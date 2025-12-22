@@ -18,7 +18,7 @@
     xmlns:forms="using:MyShop.Client.Views.Components.Forms"
     xmlns:cards="using:MyShop.Client.Views.Components.Cards"
     x:Name="MyPage"
-    Background="#F3F4F6"
+    Background="{ThemeResource SubtleFillColorSecondaryBrush}"
     mc:Ignorable="d">
 
     <Page.Transitions>
@@ -36,11 +36,11 @@
         <Style x:Key="CardBorderStyle"
                TargetType="Border">
             <Setter Property="Background"
-                    Value="White"/>
+                    Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
             <Setter Property="CornerRadius"
                     Value="12"/>
             <Setter Property="BorderBrush"
-                    Value="#E5E7EB"/>
+                    Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
             <Setter Property="BorderThickness"
                     Value="1"/>
             <Setter Property="Padding"
@@ -171,7 +171,7 @@
                             <TextBlock
                                 FontSize="16"
                                 FontWeight="SemiBold"
-                                Foreground="#111827"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                 Text="Filters"
                                 AutomationProperties.HeadingLevel="Level2"/>
 
@@ -193,12 +193,12 @@
                                     <TextBlock
                                         Margin="0,0,0,4"
                                         FontSize="12"
-                                        Foreground="#6B7280"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                         Text="Category"/>
                                     <ComboBox
                                         x:Name="CategoryComboBox"
                                         HorizontalAlignment="Stretch"
-                                        BorderBrush="#E5E7EB"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         BorderThickness="1"
                                         ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
                                         SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"
@@ -215,11 +215,11 @@
                                     <TextBlock
                                         Margin="0,0,0,4"
                                         FontSize="12"
-                                        Foreground="#6B7280"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                         Text="Min Price"/>
                                     <TextBox
                                         x:Name="MinPriceTextBox"
-                                        BorderBrush="#E5E7EB"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         BorderThickness="1"
                                         InputScope="Number"
                                         TextChanged="PriceTextBox_TextChanged"
@@ -231,11 +231,11 @@
                                     <TextBlock
                                         Margin="0,0,0,4"
                                         FontSize="12"
-                                        Foreground="#6B7280"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                         Text="Max Price"/>
                                     <TextBox
                                         x:Name="MaxPriceTextBox"
-                                        BorderBrush="#E5E7EB"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         BorderThickness="1"
                                         InputScope="Number"
                                         TextChanged="PriceTextBox_TextChanged"
@@ -247,12 +247,12 @@
                                     <TextBlock
                                         Margin="0,0,0,4"
                                         FontSize="12"
-                                        Foreground="#6B7280"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                         Text="Sort By"/>
                                     <ComboBox
                                         x:Name="SortByComboBox"
                                         HorizontalAlignment="Stretch"
-                                        BorderBrush="#E5E7EB"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         BorderThickness="1"
                                         SelectedIndex="0"
                                         SelectionChanged="SortByComboBox_SelectionChanged">
@@ -349,34 +349,42 @@
                                         <TextBlock
                                             Grid.Column="0"
                                             FontWeight="SemiBold"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                             Text="Image"/>
                                         <TextBlock
                                             Grid.Column="1"
                                             FontWeight="SemiBold"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                             Text="Product Name"/>
                                         <TextBlock
                                             Grid.Column="2"
                                             FontWeight="SemiBold"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                             Text="Category"/>
                                         <TextBlock
                                             Grid.Column="3"
                                             FontWeight="SemiBold"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                             Text="Price"/>
                                         <TextBlock
                                             Grid.Column="4"
                                             FontWeight="SemiBold"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                             Text="Import Price"/>
                                         <TextBlock
                                             Grid.Column="5"
                                             FontWeight="SemiBold"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                             Text="Stock"/>
                                         <TextBlock
                                             Grid.Column="6"
                                             FontWeight="SemiBold"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                             Text="Rating"/>
                                         <TextBlock
                                             Grid.Column="7"
                                             FontWeight="SemiBold"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                             Text="Actions"/>
                                     </Grid>
                                 </ListView.Header>
@@ -402,7 +410,7 @@
                                                 Width="48"
                                                 Height="48"
                                                 HorizontalAlignment="Left"
-                                                Background="#E5E7EB"
+                                                Background="{ThemeResource CardStrokeColorDefaultBrush}"
                                                 CornerRadius="8">
                                                 <Image Stretch="UniformToFill">
                                                     <Image.Source>
@@ -419,10 +427,10 @@
                                                 VerticalAlignment="Center"
                                                 Spacing="2">
                                                 <TextBlock Text="{x:Bind Name}"
-                                                           TextTrimming="CharacterEllipsis"/>
+                                                        TextTrimming="CharacterEllipsis"/>
                                                 <TextBlock
                                                     FontSize="12"
-                                                    Foreground="#6B7280"
+                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                     Text="{x:Bind Sku}"/>
                                             </StackPanel>
 
@@ -430,25 +438,26 @@
                                             <TextBlock
                                                 Grid.Column="2"
                                                 VerticalAlignment="Center"
+                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                 Text="{x:Bind Category}"/>
                                             <!--  Price  -->
                                             <TextBlock
                                                 Grid.Column="3"
                                                 VerticalAlignment="Center"
-                                                Foreground="#10B981"
+                                                Foreground="{ThemeResource SuccessGreenBrush}"
                                                 Text="{x:Bind Price, Converter={StaticResource CurrencyConverter}}"/>
 
                                             <!--  Import price  -->
                                             <TextBlock
                                                 Grid.Column="4"
                                                 VerticalAlignment="Center"
-                                                Foreground="#6B7280"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                 Text="{x:Bind ImportPrice, Converter={StaticResource CurrencyConverter}}"/>
 
                                             <!--  Stock badge  -->
                                             <!--<Border Grid.Column="5"
                                                 Style="{StaticResource StockBadgeStyle}"
-                                                Background="#10B981">
+                                                Background="{ThemeResource SuccessGreenBrush}">
                                         -->
                                             <!--  TODO: Use converter to change color based on Stock  -->
                                             <!--
@@ -461,7 +470,7 @@
                                                 Margin="0,12"
                                                 Padding="8,4"
                                                 HorizontalAlignment="Center"
-                                                Background="#10B981"
+                                                Background="{ThemeResource SuccessGreenBrush}"
                                                 CornerRadius="4">
                                                 <TextBlock
                                                     VerticalAlignment="Center"
@@ -473,14 +482,14 @@
                                             <TextBlock
                                                 Grid.Column="3"
                                                 VerticalAlignment="Center"
-                                                Foreground="#10B981"
+                                                Foreground="{ThemeResource SuccessGreenBrush}"
                                                 Text="{x:Bind Price, Converter={StaticResource CurrencyConverter}}"/>
 
                                             <!--  Import price  -->
                                             <TextBlock
                                                 Grid.Column="4"
                                                 VerticalAlignment="Center"
-                                                Foreground="#6B7280"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                 Text="{x:Bind ImportPrice, Converter={StaticResource CurrencyConverter}}"/>
 
                                             <!--  Stock badge  -->
@@ -499,7 +508,7 @@
                                                            Text="{x:Bind Rating}"/>
                                                 <FontIcon
                                                     FontSize="14"
-                                                    Foreground="#F59E0B"
+                                                    Foreground="{ThemeResource WarningAmberBrush}"
                                                     Glyph="&#xE735;"/>
                                             </StackPanel>
 
@@ -512,7 +521,7 @@
                                                 <buttons:IconButton
                                                     Variant="Ghost"
                                                     IconGlyph="&#xE8A7;"
-                                                    IconColor="#6B7280"
+                                                    IconColor="{ThemeResource TextFillColorSecondaryBrush}"
                                                     Command="{Binding DataContext.ViewProductCommand, ElementName=MyPage}"
                                                     CommandParameter="{x:Bind}"
                                                     ToolTipService.ToolTip="View details"/>
@@ -521,7 +530,7 @@
                                                 <buttons:IconButton
                                                     Variant="Ghost"
                                                     IconGlyph="&#xE74D;"
-                                                    IconColor="#DC2626"
+                                                    IconColor="{ThemeResource ErrorRedBrush}"
                                                     Command="{Binding DataContext.DeleteProductCommand, ElementName=MyPage}"
                                                     CommandParameter="{x:Bind}"
                                                     ToolTipService.ToolTip="Delete product"/>
@@ -536,7 +545,7 @@
                                 Margin="0,16,0,0"
                                 Padding="16,12"
                                 Background="Transparent"
-                                BorderBrush="#E5E7EB"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                 BorderThickness="0,1,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -548,8 +557,8 @@
                                 <Button
                                     Grid.Column="0"
                                     Padding="12,8"
-                                    Background="White"
-                                    BorderBrush="#E5E7EB"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
                                     Command="{x:Bind ViewModel.PreviousPageCommand}"
                                     CornerRadius="8">
@@ -570,12 +579,12 @@
                                     <TextBlock
                                         FontSize="14"
                                         FontWeight="SemiBold"
-                                        Foreground="#111827"
+                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                         HorizontalAlignment="Center"
                                         Text="{x:Bind ViewModel.PageInfoText, Mode=OneWay}"/>
                                     <TextBlock
                                         FontSize="12"
-                                        Foreground="#6B7280"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                         HorizontalAlignment="Center"
                                         Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}"/>
                                 </StackPanel>
@@ -584,8 +593,8 @@
                                 <Button
                                     Grid.Column="2"
                                     Padding="12,8"
-                                    Background="White"
-                                    BorderBrush="#E5E7EB"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
                                     Command="{x:Bind ViewModel.NextPageCommand}"
                                     CornerRadius="8">
@@ -621,7 +630,7 @@
                                Text="Product Name *"/>
                     <TextBox
                         x:Name="NewNameTextBox"
-                        BorderBrush="#E5E7EB"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                         BorderThickness="1"
                         PlaceholderText="Enter product name"/>
                 </StackPanel>
@@ -640,7 +649,7 @@
                         <ComboBox
                             x:Name="NewCategoryComboBox"
                             HorizontalAlignment="Stretch"
-                            BorderBrush="#E5E7EB"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                             BorderThickness="1"
                             PlaceholderText="Select category">
                             <ComboBoxItem Content="Smartphones"/>
@@ -657,7 +666,7 @@
                                    Text="Stock *"/>
                         <TextBox
                             x:Name="NewStockTextBox"
-                            BorderBrush="#E5E7EB"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                             BorderThickness="1"
                             InputScope="Number"
                             PlaceholderText="0"/>
@@ -676,7 +685,7 @@
                                    Text="Sale Price *"/>
                         <TextBox
                             x:Name="NewPriceTextBox"
-                            BorderBrush="#E5E7EB"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                             BorderThickness="1"
                             InputScope="Number"
                             PlaceholderText="0.00"/>
@@ -687,7 +696,7 @@
                                    Text="Import Price"/>
                         <TextBox
                             x:Name="NewImportPriceTextBox"
-                            BorderBrush="#E5E7EB"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                             BorderThickness="1"
                             InputScope="Number"
                             PlaceholderText="0.00"/>
@@ -702,7 +711,7 @@
                         x:Name="NewDescriptionTextBox"
                         MinHeight="80"
                         AcceptsReturn="True"
-                        BorderBrush="#E5E7EB"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                         BorderThickness="1"
                         TextWrapping="Wrap"/>
                 </StackPanel>
@@ -730,7 +739,7 @@
                                Text="Product Name *"/>
                     <TextBox
                         x:Name="EditNameTextBox"
-                        BorderBrush="#E5E7EB"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                         BorderThickness="1"
                         PlaceholderText="Enter product name"/>
                 </StackPanel>
@@ -741,7 +750,7 @@
                                Text="SKU"/>
                     <TextBox
                         x:Name="EditSkuTextBox"
-                        BorderBrush="#E5E7EB"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                         BorderThickness="1"
                         PlaceholderText="Product SKU"/>
                 </StackPanel>
@@ -760,7 +769,7 @@
                         <ComboBox
                             x:Name="EditCategoryComboBox"
                             HorizontalAlignment="Stretch"
-                            BorderBrush="#E5E7EB"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                             BorderThickness="1"
                             PlaceholderText="Select category">
                             <ComboBoxItem Content="Smartphones"
@@ -782,7 +791,7 @@
                                    Text="Stock *"/>
                         <TextBox
                             x:Name="EditStockTextBox"
-                            BorderBrush="#E5E7EB"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                             BorderThickness="1"
                             InputScope="Number"
                             PlaceholderText="0"/>
@@ -801,7 +810,7 @@
                                    Text="Sale Price *"/>
                         <TextBox
                             x:Name="EditPriceTextBox"
-                            BorderBrush="#E5E7EB"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                             BorderThickness="1"
                             InputScope="Number"
                             PlaceholderText="0.00"/>
@@ -812,7 +821,7 @@
                                    Text="Import Price"/>
                         <TextBox
                             x:Name="EditImportPriceTextBox"
-                            BorderBrush="#E5E7EB"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                             BorderThickness="1"
                             InputScope="Number"
                             PlaceholderText="0.00"/>
@@ -827,7 +836,7 @@
                         x:Name="EditDescriptionTextBox"
                         MinHeight="80"
                         AcceptsReturn="True"
-                        BorderBrush="#E5E7EB"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                         BorderThickness="1"
                         TextWrapping="Wrap"/>
                 </StackPanel>
@@ -850,9 +859,9 @@
                         HorizontalAlignment="Center"
                         Width="200"
                         Height="200"
-                        Background="#F3F4F6"
+                        Background="{ThemeResource SubtleFillColorSecondaryBrush}"
                         CornerRadius="12"
-                        BorderBrush="#E5E7EB"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                         BorderThickness="1">
                         <Grid>
                             <Image
@@ -861,7 +870,7 @@
                             <FontIcon
                                 x:Name="ViewProductImagePlaceholder"
                                 FontSize="48"
-                                Foreground="#9CA3AF"
+                                Foreground="{ThemeResource Gray500Brush}"
                                 Glyph="&#xE8B9;"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"/>
@@ -873,13 +882,13 @@
                         <TextBlock
                             FontSize="12"
                             FontWeight="SemiBold"
-                            Foreground="#6B7280"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                             Text="PRODUCT NAME"/>
                         <TextBlock
                             x:Name="ViewProductName"
                             FontSize="18"
                             FontWeight="Bold"
-                            Foreground="#111827"
+                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                             TextWrapping="Wrap"/>
                     </StackPanel>
 
@@ -895,12 +904,12 @@
                             <TextBlock
                                 FontSize="12"
                                 FontWeight="SemiBold"
-                                Foreground="#6B7280"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Text="SKU"/>
                             <TextBlock
                                 x:Name="ViewProductSku"
                                 FontSize="14"
-                                Foreground="#111827"/>
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                         </StackPanel>
 
                         <StackPanel Grid.Column="1"
@@ -908,25 +917,25 @@
                             <TextBlock
                                 FontSize="12"
                                 FontWeight="SemiBold"
-                                Foreground="#6B7280"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Text="CATEGORY"/>
                             <Border
                                 Padding="8,4"
-                                Background="#E0E7FF"
+                                Background="{ThemeResource PurpleLightBrush}"
                                 CornerRadius="4"
                                 HorizontalAlignment="Left">
                                 <TextBlock
                                     x:Name="ViewProductCategory"
                                     FontSize="12"
                                     FontWeight="SemiBold"
-                                    Foreground="#3730A3"/>
+                                    Foreground="{ThemeResource PurpleDarkBrush}"/>
                             </Border>
                         </StackPanel>
                     </Grid>
 
                     <!--  Price Section  -->
                     <Border
-                        Background="#F0FDF4"
+                        Background="{ThemeResource SuccessGreen50Brush}"
                         CornerRadius="8"
                         Padding="16">
                         <Grid ColumnSpacing="24">
@@ -941,13 +950,13 @@
                                 <TextBlock
                                     FontSize="12"
                                     FontWeight="SemiBold"
-                                    Foreground="#059669"
+                                    Foreground="{ThemeResource SuccessGreenDarkBrush}"
                                     Text="SELLING PRICE"/>
                                 <TextBlock
                                     x:Name="ViewProductPrice"
                                     FontSize="20"
                                     FontWeight="Bold"
-                                    Foreground="#047857"/>
+                                    Foreground="{ThemeResource SuccessGreenDarkBrush}"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="1"
@@ -955,12 +964,12 @@
                                 <TextBlock
                                     FontSize="12"
                                     FontWeight="SemiBold"
-                                    Foreground="#6B7280"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                     Text="IMPORT PRICE"/>
                                 <TextBlock
                                     x:Name="ViewProductImportPrice"
                                     FontSize="16"
-                                    Foreground="#374151"/>
+                                    Foreground="{ThemeResource TextTertiaryBrush}"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="2"
@@ -968,13 +977,13 @@
                                 <TextBlock
                                     FontSize="12"
                                     FontWeight="SemiBold"
-                                    Foreground="#6B7280"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                     Text="PROFIT MARGIN"/>
                                 <TextBlock
                                     x:Name="ViewProductMargin"
                                     FontSize="16"
                                     FontWeight="SemiBold"
-                                    Foreground="#10B981"/>
+                                    Foreground="{ThemeResource SuccessGreenBrush}"/>
                             </StackPanel>
                         </Grid>
                     </Border>
@@ -991,7 +1000,7 @@
                             <TextBlock
                                 FontSize="12"
                                 FontWeight="SemiBold"
-                                Foreground="#6B7280"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Text="STOCK"/>
                             <StackPanel Orientation="Horizontal"
                                         Spacing="8">
@@ -999,7 +1008,7 @@
                                     x:Name="ViewProductStock"
                                     FontSize="24"
                                     FontWeight="Bold"
-                                    Foreground="#111827"/>
+                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                 <Border
                                     x:Name="ViewProductStockBadge"
                                     Padding="8,4"
@@ -1018,7 +1027,7 @@
                             <TextBlock
                                 FontSize="12"
                                 FontWeight="SemiBold"
-                                Foreground="#6B7280"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Text="RATING"/>
                             <StackPanel Orientation="Horizontal"
                                         Spacing="8">
@@ -1026,12 +1035,12 @@
                                     x:Name="ViewProductRating"
                                     FontSize="24"
                                     FontWeight="Bold"
-                                    Foreground="#111827"/>
+                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                 <StackPanel Orientation="Horizontal"
                                             VerticalAlignment="Center">
                                     <FontIcon
                                         FontSize="16"
-                                        Foreground="#F59E0B"
+                                        Foreground="{ThemeResource WarningAmberBrush}"
                                         Glyph="&#xE735;"/>
                                 </StackPanel>
                             </StackPanel>
@@ -1040,20 +1049,20 @@
 
                     <!--  ID (Technical Info)  -->
                     <Border
-                        Background="#F3F4F6"
+                        Background="{ThemeResource SubtleFillColorSecondaryBrush}"
                         CornerRadius="8"
                         Padding="12">
                         <StackPanel Spacing="4">
                             <TextBlock
                                 FontSize="11"
                                 FontWeight="SemiBold"
-                                Foreground="#9CA3AF"
+                                Foreground="{ThemeResource Gray500Brush}"
                                 Text="PRODUCT ID"/>
                             <TextBlock
                                 x:Name="ViewProductId"
                                 FontSize="12"
                                 FontFamily="Consolas"
-                                Foreground="#6B7280"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 IsTextSelectionEnabled="True"/>
                         </StackPanel>
                     </Border>

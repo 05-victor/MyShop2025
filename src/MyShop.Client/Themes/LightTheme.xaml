@@ -82,14 +82,14 @@
     <SolidColorBrush x:Key="BorderFocusBrush" Color="#1A4D8F"/>
     <SolidColorBrush x:Key="BackgroundLightBrush" Color="#F5F7FA"/>
     <SolidColorBrush x:Key="BackgroundMediumBrush" Color="#F9FAFB"/>
-    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="CardBackgroundBrush" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
 
 
     <!-- ============================================= -->
     <!-- SEMANTIC BRUSHES                             -->
     <!-- ============================================= -->
     
-    <SolidColorBrush x:Key="WhiteBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="WhiteBrush" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
     <SolidColorBrush x:Key="BlackBrush" Color="#000000"/>
     
     <!-- Transparent Brushes -->
@@ -153,9 +153,9 @@
     <SolidColorBrush x:Key="TextControlPlaceholderForeground" Color="#6B7280"/>
     <SolidColorBrush x:Key="TextControlPlaceholderForegroundPointerOver" Color="#6B7280"/>
     <SolidColorBrush x:Key="TextControlPlaceholderForegroundFocused" Color="#6B7280"/>
-    <SolidColorBrush x:Key="TextControlBackground" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="TextControlBackground" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+    <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+    <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
     <SolidColorBrush x:Key="TextControlBorderBrush" Color="#D0D7E2"/>
     <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="#1A4D8F"/>
     <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="#1A4D8F"/>
@@ -166,9 +166,9 @@
     <SolidColorBrush x:Key="ComboBoxForegroundFocused" Color="#111827"/>
     <SolidColorBrush x:Key="ComboBoxForegroundDisabled" Color="#9CA3AF"/>
     <SolidColorBrush x:Key="ComboBoxPlaceHolderForeground" Color="#6B7280"/>
-    <SolidColorBrush x:Key="ComboBoxBackground" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="ComboBoxBackgroundFocused" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="ComboBoxBackground" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+    <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+    <SolidColorBrush x:Key="ComboBoxBackgroundFocused" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
     <SolidColorBrush x:Key="ComboBoxBorderBrush" Color="#D0D7E2"/>
     <SolidColorBrush x:Key="ComboBoxBorderBrushPointerOver" Color="#1A4D8F"/>
     <SolidColorBrush x:Key="ComboBoxBorderBrushFocused" Color="#1A4D8F"/>
@@ -177,17 +177,17 @@
     <SolidColorBrush x:Key="ComboBoxItemForeground" Color="#111827"/>
     <SolidColorBrush x:Key="ComboBoxItemForegroundPointerOver" Color="#111827"/>
     <SolidColorBrush x:Key="ComboBoxItemForegroundPressed" Color="#111827"/>
-    <SolidColorBrush x:Key="ComboBoxItemForegroundSelected" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="ComboBoxItemForegroundSelected" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
     <SolidColorBrush x:Key="ComboBoxItemBackgroundPointerOver" Color="#F3F4F6"/>
     <SolidColorBrush x:Key="ComboBoxItemBackgroundPressed" Color="#E5E7EB"/>
     <SolidColorBrush x:Key="ComboBoxItemBackgroundSelected" Color="#1A4D8F"/>
 
     <!-- NavigationView -->
-    <SolidColorBrush x:Key="NavigationViewBackground" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="NavigationViewBackground" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
     <SolidColorBrush x:Key="NavigationViewItemForeground" Color="#374151"/>
-    <SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="NavigationViewItemForegroundPressed" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="NavigationViewItemForegroundSelected" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+    <SolidColorBrush x:Key="NavigationViewItemForegroundPressed" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+    <SolidColorBrush x:Key="NavigationViewItemForegroundSelected" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
     <SolidColorBrush x:Key="NavigationViewItemBackgroundPointerOver" Color="#245FAE"/>
     <SolidColorBrush x:Key="NavigationViewItemBackgroundPressed" Color="#1A4D8F"/>
     <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected" Color="#1A4D8F"/>

@@ -207,7 +207,7 @@ namespace MyShop.Client.Views.Shell
         {
             try
             {
-                // Show confirmation dialog
+                // Show confirmation dialog with theme support
                 var dialog = new ContentDialog
                 {
                     Title = "Logout",
@@ -215,7 +215,8 @@ namespace MyShop.Client.Views.Shell
                     PrimaryButtonText = "Logout",
                     CloseButtonText = "Cancel",
                     DefaultButton = ContentDialogButton.Close,
-                    XamlRoot = this.XamlRoot
+                    XamlRoot = this.XamlRoot,
+                    RequestedTheme = this.ActualTheme
                 };
 
                 var result = await dialog.ShowAsync();

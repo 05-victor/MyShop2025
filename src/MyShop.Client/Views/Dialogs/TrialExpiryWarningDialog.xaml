@@ -31,7 +31,7 @@
                     <FontIcon
                         Grid.Column="0"
                         FontSize="36"
-                        Foreground="#F59E0B"
+                        Foreground="{ThemeResource WarningAmberBrush}"
                         Glyph="&#xE7BA;"
                         VerticalAlignment="Center" />
                     
@@ -44,7 +44,7 @@
                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                             TextWrapping="Wrap">
                             <Run Text="You have" />
-                            <Run x:Name="DaysRemainingRun" FontWeight="Bold" Foreground="#F59E0B" Text="1" />
+                            <Run x:Name="DaysRemainingRun" FontWeight="Bold" Foreground="{ThemeResource WarningAmberBrush}" Text="1" />
                             <Run Text="day(s) remaining in your trial period." />
                         </TextBlock>
                     </StackPanel>

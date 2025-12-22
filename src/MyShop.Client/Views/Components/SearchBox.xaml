@@ -12,7 +12,7 @@
         <TextBox
             x:Name="SearchTextBox"
             Padding="36,12,40,12"
-            BorderBrush="{ThemeResource BorderLightBrush}"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             CornerRadius="8"
             PlaceholderText="{x:Bind PlaceholderText, Mode=OneWay}"
             Text="{x:Bind Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -21,7 +21,7 @@
             UseSystemFocusVisuals="True">
             <TextBox.Resources>
                 <Style TargetType="TextBox">
-                    <Setter Property="Background" Value="{ThemeResource CardBackgroundBrush}" />
+                    <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
                 </Style>
             </TextBox.Resources>
         </TextBox>
@@ -58,7 +58,7 @@
             <FontIcon
                 FontFamily="Segoe Fluent Icons"
                 FontSize="12"
-                Foreground="{ThemeResource TextMutedBrush}"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                 Glyph="&#xE711;" />
         </Button>
     </Grid>

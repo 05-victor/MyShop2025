@@ -12,7 +12,7 @@
     xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     mc:Ignorable="d"
-    Background="#F5F7FA"
+    Background="{ThemeResource LayerFillColorDefaultBrush}"
     x:Name="MyPage">
 
     <Page.Resources>
@@ -126,7 +126,7 @@
                                 IsClosable="False">
                                 <InfoBar.ActionButton>
                                     <Button Content="Resend Email"
-                                            Style="{StaticResource AccentButtonStyle}"/>
+                                            Style="{StaticResource PrimaryButtonStyle}"/>
                                 </InfoBar.ActionButton>
                             </InfoBar>
 
@@ -140,7 +140,7 @@
                                         <ComboBox Width="180"
                                                   Height="40"
                                                   CornerRadius="10"
-                                                  BorderBrush="#D0D7E2"
+                                                  BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
                                                   ItemsSource="{x:Bind ViewModel.DateRangeOptions}"
                                                   SelectedIndex="{x:Bind ViewModel.SelectedDateRangeIndex, Mode=TwoWay}"
                                                   AutomationProperties.Name="Select date range"
@@ -191,10 +191,10 @@
                                     ShowBadge="Visible"
                                     TrendIcon="&#xE74E;"
                                     TrendText="+8.5%"
-                                    IconBackgroundBrush="#DFF0FF"
-                                    IconForegroundBrush="#3B82F6"
-                                    BadgeBackgroundBrush="#DFF0FF"
-                                    BadgeForegroundBrush="#3B82F6"/>
+                                    IconBackgroundBrush="{ThemeResource InfoBlueLightBrush}"
+                                    IconForegroundBrush="{ThemeResource PrimaryBrush}"
+                                    BadgeBackgroundBrush="{ThemeResource InfoBlueLightBrush}"
+                                    BadgeForegroundBrush="{ThemeResource PrimaryBrush}"/>
 
                                 <!-- Commission KPI -->
                                 <cards:KPICard
@@ -206,11 +206,11 @@
                                     IsCurrency="True"
                                     ShowBadge="Visible"
                                     TrendIcon="&#xE74E;"
-                                    TrendText="+8.5%"
-                                    IconBackgroundBrush="#D1FAE5"
-                                    IconForegroundBrush="#10B981"
-                                    BadgeBackgroundBrush="#D1FAE5"
-                                    BadgeForegroundBrush="#10B981"/>
+                                    TrendText="{x:Bind ViewModel.ThisWeekCommission, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                    IconBackgroundBrush="{ThemeResource SuccessGreenLightBrush}"
+                                    IconForegroundBrush="{ThemeResource SuccessGreenBrush}"
+                                    BadgeBackgroundBrush="{ThemeResource SuccessGreenLightBrush}"
+                                    BadgeForegroundBrush="{ThemeResource SuccessGreenBrush}"/>
 
                                 <!-- Total Revenue KPI -->
                                 <cards:KPICard
@@ -223,10 +223,10 @@
                                     ShowBadge="Visible"
                                     TrendIcon="&#xE74E;"
                                     TrendText="+15.2%"
-                                    IconBackgroundBrush="#FCE7F3"
-                                    IconForegroundBrush="#EC4899"
-                                    BadgeBackgroundBrush="#FCE7F3"
-                                    BadgeForegroundBrush="#EC4899"/>
+                                    IconBackgroundBrush="{ThemeResource PurpleLightBrush}"
+                                    IconForegroundBrush="{ThemeResource PurpleBrush}"
+                                    BadgeBackgroundBrush="{ThemeResource PurpleLightBrush}"
+                                    BadgeForegroundBrush="{ThemeResource PurpleBrush}"/>
                             </Grid>
 
                             <!-- Row 1: Chart + Top Links -->
@@ -256,22 +256,35 @@
                                         <TextBlock Text="Top Selling Products"
                                                    FontSize="18"
                                                    FontWeight="SemiBold"
-                                                   Foreground="#111827"/>
+                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
 
                                         <!-- Changed to {Binding} for async loaded API data -->
                                         <ListView ItemsSource="{Binding TopLinks, Mode=OneWay}"
                                                   SelectionMode="None">
                                             <ListView.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:TopAffiliateLink">
-                                                    <Border Padding="12"
-                                                            BorderBrush="#E5E7EB"
+                                                    <Border Padding="0,12"
+                                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                                             BorderThickness="0,0,0,1">
-                                                        <Grid ColumnSpacing="12">
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="70"/>
-                                                                <ColumnDefinition Width="*"/>
-                                                                <ColumnDefinition Width="Auto"/>
-                                                            </Grid.ColumnDefinitions>
+                                                        <Grid>
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition Height="Auto"/>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+
+                                                            <TextBlock Grid.Row="0"
+                                                                       Text="{x:Bind Product}"
+                                                                       FontSize="14"
+                                                                       FontWeight="SemiBold"
+                                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                                       TextTrimming="CharacterEllipsis"/>
+
+                                                            <Grid Grid.Row="1"
+                                                                  Margin="0,4,0,0">
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                </Grid.ColumnDefinitions>
 
                                                             <!-- Product Image -->
                                                             <Border Grid.Column="0"
@@ -306,9 +319,9 @@
 
                                                             <!-- Revenue -->
                                                             <TextBlock Grid.Column="2"
-                                                                       FontSize="13"
+                                                                       FontSize="14"
                                                                        FontWeight="Bold"
-                                                                       Foreground="#10B981"
+                                                                       Foreground="{ThemeResource SuccessGreenBrush}"
                                                                        VerticalAlignment="Center"
                                                                        Text="{x:Bind Revenue, Converter={StaticResource CurrencyConverter}}"/>
                                                         </Grid>

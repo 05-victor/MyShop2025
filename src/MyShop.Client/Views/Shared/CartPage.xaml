@@ -9,7 +9,7 @@
     xmlns:vm="using:MyShop.Client.ViewModels.Shared"
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
-    Background="#F5F7FA"
+    Background="{ThemeResource LayerFillColorDefaultBrush}"
     mc:Ignorable="d">
 
     <Page.Transitions>
@@ -107,7 +107,7 @@
                                 Variant="Outline"
                                 IconGlyph="&#xE74D;"
                                 Text="Clear Cart"
-                                IconColor="#DC2626"
+                                IconColor="{ThemeResource ErrorRedBrush}"
                                 Command="{x:Bind ViewModel.ClearCartCommand}"/>
                         </StackPanel>
                     </layout:PageHeader.ActionContent>
@@ -136,22 +136,22 @@
                                     <Grid>
                                         <Ellipse Width="120"
                                                  Height="120"
-                                                 Fill="#F3F4F6"/>
+                                                 Fill="{ThemeResource SubtleFillColorSecondaryBrush}"/>
                                         <FontIcon
                                             FontSize="64"
-                                            Foreground="#9CA3AF"
+                                            Foreground="{ThemeResource Gray500Brush}"
                                             Glyph="&#xE7BF;"/>
                                     </Grid>
                                 </Viewbox>
                                 <TextBlock
                                     FontSize="20"
                                     FontWeight="SemiBold"
-                                    Foreground="#374151"
+                                    Foreground="{ThemeResource TextTertiaryBrush}"
                                     Text="Your cart is empty"
                                     TextAlignment="Center"/>
                                 <TextBlock
                                     FontSize="14"
-                                    Foreground="#6B7280"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                     Text="Browse products and add items to start shopping"
                                     TextAlignment="Center"
                                     MaxWidth="300"
@@ -201,7 +201,7 @@
                                                 Width="96"
                                                 Height="96"
                                                 Margin="0,0,16,0"
-                                                Background="#F9FAFB"
+                                                Background="{ThemeResource LayerFillColorDefaultBrush}"
                                                 CornerRadius="8">
                                                 <Image Stretch="UniformToFill">
                                                     <Image.Source>
@@ -220,11 +220,11 @@
                                                 <TextBlock
                                                     FontSize="16"
                                                     FontWeight="SemiBold"
-                                                    Foreground="#111827"
+                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                     Text="{x:Bind Name}"/>
                                                 <TextBlock
                                                     FontSize="12"
-                                                    Foreground="#6B7280"
+                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                     Text="{x:Bind Category}"/>
 
                                                 <!--  Quantity Controls  -->
@@ -236,8 +236,8 @@
                                                         Width="32"
                                                         Height="32"
                                                         Padding="0"
-                                                        Background="White"
-                                                        BorderBrush="#E5E7EB"
+                                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                                         Command="{Binding ElementName=CartItemsListView, Path=DataContext.DecreaseQuantityCommand}"
                                                         CommandParameter="{x:Bind}"
                                                         CornerRadius="6">
@@ -247,18 +247,18 @@
                                                     <Border
                                                         Width="60"
                                                         Padding="12,6"
-                                                        BorderBrush="#E5E7EB"
+                                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                                         BorderThickness="1"
                                                         CornerRadius="8">
                                                         <TextBlock
-                                                            Foreground="#111827"
+                                                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                             Text="{x:Bind Quantity, Mode=OneWay}"
                                                             TextAlignment="Center"/>
                                                     </Border>
                                                     <Button Width="32"
                                                             Height="32"
                                                             Padding="0"
-                                                            Background="#1A4D8F"
+                                                            Background="{ThemeResource PrimaryBrush}"
                                                             BorderThickness="0"
                                                             Command="{Binding ElementName=CartItemsListView, Path=DataContext.IncreaseQuantityCommand}"
                                                             CommandParameter="{x:Bind}"
@@ -276,7 +276,7 @@
                                                         CommandParameter="{x:Bind}">
                                                         <FontIcon
                                                             FontSize="16"
-                                                            Foreground="#DC2626"
+                                                            Foreground="{ThemeResource ErrorRedBrush}"
                                                             Glyph="&#xE74D;"/>
                                                     </Button>
                                                 </StackPanel>
@@ -290,19 +290,19 @@
                                                 <TextBlock
                                                     FontSize="20"
                                                     FontWeight="Bold"
-                                                    Foreground="#111827"
+                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                     Text="{x:Bind Price, Converter={StaticResource CurrencyConverter}}"
                                                     TextAlignment="Right"/>
                                                 <TextBlock
                                                     FontSize="12"
-                                                    Foreground="#6B7280"
+                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                     Text="each"
                                                     TextAlignment="Right"/>
                                                 <TextBlock
                                                     Margin="0,8,0,0"
                                                     FontSize="14"
                                                     FontWeight="SemiBold"
-                                                    Foreground="#00AEEF"
+                                                    Foreground="{ThemeResource AccentBlueBrush}"
                                                     Text="{x:Bind Total, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                     TextAlignment="Right"/>
                                             </StackPanel>
@@ -320,51 +320,51 @@
                             <TextBlock
                                 FontSize="18"
                                 FontWeight="SemiBold"
-                                Foreground="#111827"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                 Text="Order Summary"/>
 
                             <StackPanel Spacing="12">
                                 <Grid>
-                                    <TextBlock Foreground="#6B7280"
+                                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                Text="Subtotal"/>
                                     <TextBlock
                                         HorizontalAlignment="Right"
-                                        Foreground="#111827"
+                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                         Text="{x:Bind ViewModel.Subtotal, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"/>
                                 </Grid>
                                 <Grid>
-                                    <TextBlock Foreground="#6B7280"
+                                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                Text="Shipping"/>
                                     <TextBlock
                                         HorizontalAlignment="Right"
-                                        Foreground="#111827"
+                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                         Text="{x:Bind ViewModel.ShippingFee, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"/>
                                 </Grid>
                                 <Grid>
-                                    <TextBlock Foreground="#6B7280"
+                                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                Text="Tax (10%)"/>
                                     <TextBlock
                                         HorizontalAlignment="Right"
-                                        Foreground="#111827"
+                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                         Text="{x:Bind ViewModel.Tax, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"/>
                                 </Grid>
 
                                 <Border
                                     Height="1"
                                     Margin="0,8"
-                                    Background="#E5E7EB"/>
+                                    Background="{ThemeResource CardStrokeColorDefaultBrush}"/>
 
                                 <Grid>
                                     <TextBlock
                                         FontSize="18"
                                         FontWeight="SemiBold"
-                                        Foreground="#111827"
+                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                         Text="Total"/>
                                     <TextBlock
                                         HorizontalAlignment="Right"
                                         FontSize="20"
                                         FontWeight="Bold"
-                                        Foreground="#00AEEF"
+                                        Foreground="{ThemeResource AccentBlueBrush}"
                                         Text="{x:Bind ViewModel.Total, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"/>
                                 </Grid>
                             </StackPanel>
@@ -379,7 +379,7 @@
                                 HorizontalAlignment="Center"
                                 Command="{x:Bind ViewModel.ContinueShoppingCommand}"
                                 Content="Continue Shopping"
-                                Foreground="#6B7280"/>
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         </StackPanel>
                     </Border>
                 </Grid>

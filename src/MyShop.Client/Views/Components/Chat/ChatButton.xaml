@@ -28,10 +28,48 @@
             UseSystemFocusVisuals="True"
             Click="FloatingButton_Click">
         
-        <Button.Resources>
-            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#1A5BA8"/>
-            <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#164B8C"/>
-        </Button.Resources>
+        <Button.Template>
+            <ControlTemplate TargetType="Button">
+                <Grid>
+                    <Ellipse x:Name="RootEllipse"
+                            Fill="{TemplateBinding Background}"
+                            Width="56" Height="56"/>
+                    
+                    <ContentPresenter x:Name="ContentPresenter"
+                                    Content="{TemplateBinding Content}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"/>
+                    
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualStateGroup.Transitions>
+                                <VisualTransition GeneratedDuration="0:0:0.15"/>
+                            </VisualStateGroup.Transitions>
+                            
+                            <VisualState x:Name="Normal"/>
+                            
+                            <VisualState x:Name="PointerOver">
+                                <VisualState.Setters>
+                                    <Setter Target="RootEllipse.Opacity" Value="0.85"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Target="RootEllipse.Opacity" Value="0.7"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            
+                            <VisualState x:Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Target="RootEllipse.Opacity" Value="0.5"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
+                </Grid>
+            </ControlTemplate>
+        </Button.Template>
         
         <Button.Shadow>
             <ThemeShadow/>
@@ -55,7 +93,7 @@
             <Border x:Name="NotificationBadge"
                    Width="18" Height="18"
                    CornerRadius="9"
-                   Background="#EF4444"
+                   Background="{ThemeResource ErrorRedBrush}"
                    HorizontalAlignment="Right"
                    VerticalAlignment="Top"
                    Margin="0,-4,-4,0"
