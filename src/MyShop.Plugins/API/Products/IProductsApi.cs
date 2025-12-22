@@ -24,7 +24,7 @@ public interface IProductsApi
     [Post("/api/v1/products")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<ProductResponse>>> CreateAsync([Body] object request);
 
-    [Put("/api/v1/products/{id}")]
+    [Patch("/api/v1/products/{id}")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<ProductResponse>>> UpdateAsync(Guid id, [Body] object request);
 
     [Delete("/api/v1/products/{id}")]

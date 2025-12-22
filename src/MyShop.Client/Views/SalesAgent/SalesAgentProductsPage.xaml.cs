@@ -271,15 +271,6 @@ namespace MyShop.Client.Views.SalesAgent
                 {
                     System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] ❌ VALIDATION FAILED - Product name is empty");
                     args.Cancel = true;
-
-                    ContentDialog errorDialog = new ContentDialog
-                    {
-                        Title = "Validation Error",
-                        Content = "Product name is required.",
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await errorDialog.ShowAsync();
                     return;
                 }
 
@@ -288,15 +279,6 @@ namespace MyShop.Client.Views.SalesAgent
                 {
                     System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] ❌ VALIDATION FAILED - SKU is empty");
                     args.Cancel = true;
-
-                    ContentDialog errorDialog = new ContentDialog
-                    {
-                        Title = "Validation Error",
-                        Content = "SKU is required.",
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await errorDialog.ShowAsync();
                     return;
                 }
 
@@ -306,15 +288,6 @@ namespace MyShop.Client.Views.SalesAgent
                 {
                     System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] ❌ VALIDATION FAILED - Manufacturer is empty");
                     args.Cancel = true;
-
-                    ContentDialog errorDialog = new ContentDialog
-                    {
-                        Title = "Validation Error",
-                        Content = "Manufacturer/Brand is required.",
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await errorDialog.ShowAsync();
                     return;
                 }
 
@@ -325,15 +298,6 @@ namespace MyShop.Client.Views.SalesAgent
                 {
                     System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] ❌ VALIDATION FAILED - Category is not selected");
                     args.Cancel = true;
-
-                    ContentDialog errorDialog = new ContentDialog
-                    {
-                        Title = "Validation Error",
-                        Content = "Please select a category.",
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await errorDialog.ShowAsync();
                     return;
                 }
 
@@ -487,10 +451,15 @@ namespace MyShop.Client.Views.SalesAgent
                 // Populate dialog with product data
                 EditProductIdTextBox.Text = product.Id.ToString();
                 EditNameTextBox.Text = product.Name;
+                EditSkuTextBox.Text = product.Sku ?? string.Empty;
+                EditManufacturerComboBox.SelectedItem = product.Manufacturer ?? "Select manufacturer";
                 EditStockTextBox.Text = product.Stock.ToString();
+                EditCommissionRateTextBox.Text = product.CommissionRate.ToString("F2");
                 EditPriceTextBox.Text = product.Price.ToString("F0");
-                EditImportPriceTextBox.Text = "0"; // We don't have import price in ProductViewModel
-                EditDescriptionTextBox.Text = string.Empty;
+                EditImportPriceTextBox.Text = product.ImportPrice.ToString("F0") ?? "0";
+                EditStatusComboBox.SelectedItem = product.Status ?? "AVAILABLE";
+                EditImageUrlTextBox.Text = product.ImageUrl ?? string.Empty;
+                EditDescriptionTextBox.Text = product.Description ?? string.Empty;
 
                 // Select the correct category by matching Name
                 var categoryToSelect = ViewModel.Categories.FirstOrDefault(c => c.Name == product.Category);
@@ -526,15 +495,22 @@ namespace MyShop.Client.Views.SalesAgent
                 {
                     System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] ❌ VALIDATION FAILED - Product name is empty");
                     args.Cancel = true;
+                    return;
+                }
 
-                    ContentDialog errorDialog = new ContentDialog
-                    {
-                        Title = "Validation Error",
-                        Content = "Product name is required.",
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await errorDialog.ShowAsync();
+                var sku = EditSkuTextBox.Text.Trim();
+                if (string.IsNullOrEmpty(sku))
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] ❌ VALIDATION FAILED - SKU is empty");
+                    args.Cancel = true;
+                    return;
+                }
+
+                var manufacturer = EditManufacturerComboBox.SelectedItem as string;
+                if (string.IsNullOrEmpty(manufacturer))
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] ❌ VALIDATION FAILED - Manufacturer is not selected");
+                    args.Cancel = true;
                     return;
                 }
 
@@ -545,21 +521,16 @@ namespace MyShop.Client.Views.SalesAgent
                 {
                     System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] ❌ VALIDATION FAILED - Category is not selected");
                     args.Cancel = true;
-
-                    ContentDialog errorDialog = new ContentDialog
-                    {
-                        Title = "Validation Error",
-                        Content = "Please select a category.",
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await errorDialog.ShowAsync();
                     return;
                 }
 
                 int.TryParse(EditStockTextBox.Text, out var stock);
                 decimal.TryParse(EditPriceTextBox.Text, out var price);
                 decimal.TryParse(EditImportPriceTextBox.Text, out var importPrice);
+                double.TryParse(EditCommissionRateTextBox.Text, out var commissionRate);
+
+                var status = EditStatusComboBox.SelectedItem as string ?? "AVAILABLE";
+                var imageUrl = EditImageUrlTextBox.Text.Trim();
                 var description = EditDescriptionTextBox.Text.Trim();
 
                 // Create product object with updated values
@@ -567,14 +538,19 @@ namespace MyShop.Client.Views.SalesAgent
                 {
                     Id = _editingProduct.Id,
                     Name = name,
+                    SKU = sku,
+                    Manufacturer = manufacturer,
                     CategoryId = categoryId,
                     Quantity = stock,
+                    CommissionRate = commissionRate,
                     SellingPrice = price,
                     ImportPrice = importPrice,
+                    Status = status,
+                    ImageUrl = imageUrl,
                     Description = description
                 };
 
-                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] Dialog data extracted - Product ID: {product.Id}, Name: {product.Name}, Category: {product.CategoryId}");
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] Dialog data extracted - Product ID: {product.Id}, Name: {product.Name}, SKU: {product.SKU}, Manufacturer: {product.Manufacturer}");
 
                 System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] Validation passed, executing SaveEditProductCommand");
 
@@ -585,10 +561,6 @@ namespace MyShop.Client.Views.SalesAgent
                     await ViewModel.SaveEditProductCommand.ExecuteAsync(product);
                     System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] ✅ SaveEditProductCommand executed successfully");
                 }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] ❌ SaveEditProductCommand is not executable");
-                }
 
                 _editingProduct = null;
             }
@@ -597,14 +569,8 @@ namespace MyShop.Client.Views.SalesAgent
                 System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] ❌ EXCEPTION - {ex.GetType().Name}: {ex.Message}");
                 System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] Stack Trace: {ex.StackTrace}");
 
-                ContentDialog errorDialog = new ContentDialog
-                {
-                    Title = "Error",
-                    Content = $"An error occurred: {ex.Message}",
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await errorDialog.ShowAsync();
+                args.Cancel = true;
+                LoggingService.Instance.Error("[SalesAgentProductsPage] EditProductDialog_PrimaryButtonClick failed", ex);
 
                 _editingProduct = null;
             }
@@ -613,6 +579,71 @@ namespace MyShop.Client.Views.SalesAgent
         private void EditProductDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             _editingProduct = null;
+        }
+
+        private async void EditImagePickButton_Click(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditImagePickButton_Click] Image picker button clicked");
+
+            try
+            {
+                var picker = new Windows.Storage.Pickers.FileOpenPicker();
+                picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
+                picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary;
+                picker.FileTypeFilter.Add(".jpg");
+                picker.FileTypeFilter.Add(".jpeg");
+                picker.FileTypeFilter.Add(".png");
+                picker.FileTypeFilter.Add(".gif");
+                picker.FileTypeFilter.Add(".bmp");
+
+                // Get window handle from App.MainWindow
+                var window = App.MainWindow;
+                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+                var file = await picker.PickSingleFileAsync();
+                if (file != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditImagePickButton_Click] File selected: {file.Name}");
+
+                    // Show loading indicator
+                    ViewModel.IsLoading = true;
+
+                    try
+                    {
+                        // Upload image and get URL
+                        var result = await ViewModel.UploadProductImageAsync(file);
+                        if (result.IsSuccess)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditImagePickButton_Click] ✅ Image uploaded successfully: {result.Data}");
+                            EditImageUrlTextBox.Text = result.Data;
+                            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditImagePickButton_Click] Image URL set to textbox");
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditImagePickButton_Click] ❌ Image upload failed: {result.ErrorMessage}");
+                            // Log error - cannot show dialog while EditProductDialog is open
+                            LoggingService.Instance.Error("[SalesAgentProductsPage.EditImagePickButton_Click] Upload failed", new Exception(result.ErrorMessage));
+                        }
+                    }
+                    finally
+                    {
+                        ViewModel.IsLoading = false;
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditImagePickButton_Click] File selection cancelled");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditImagePickButton_Click] ❌ EXCEPTION - {ex.GetType().Name}: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditImagePickButton_Click] Stack Trace: {ex.StackTrace}");
+
+                // Log error - cannot show dialog while EditProductDialog is open
+                LoggingService.Instance.Error("[SalesAgentProductsPage.EditImagePickButton_Click] Exception during image selection", ex);
+            }
         }
 
         #endregion

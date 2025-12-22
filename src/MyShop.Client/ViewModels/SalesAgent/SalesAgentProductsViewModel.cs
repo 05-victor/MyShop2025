@@ -282,13 +282,16 @@ public partial class SalesAgentProductsViewModel : ObservableObject
                 Id = p.Id,
                 Name = p.Name,
                 Sku = p.SKU ?? string.Empty,
+                Manufacturer = p.Manufacturer ?? string.Empty,
                 Category = p.CategoryName ?? p.Category ?? "Uncategorized",
                 Price = p.SellingPrice,
                 ImportPrice = p.ImportPrice,
                 CommissionRate = (int)(p.CommissionRate * 100),
                 Stock = p.Quantity,
                 Rating = p.Rating,
-                ImageUrl = p.ImageUrl ?? "/Assets/placeholder-product.png"
+                Status = p.Status ?? "AVAILABLE",
+                ImageUrl = p.ImageUrl ?? "/Assets/placeholder-product.png",
+                Description = p.Description ?? string.Empty
             })
             .ToList();
 
@@ -746,6 +749,9 @@ public partial class ProductViewModel : ObservableObject
     private string _sku = string.Empty;
 
     [ObservableProperty]
+    private string _manufacturer = string.Empty;
+
+    [ObservableProperty]
     private string _category = string.Empty;
 
     [ObservableProperty]
@@ -764,7 +770,13 @@ public partial class ProductViewModel : ObservableObject
     private double _rating;
 
     [ObservableProperty]
+    private string _status = string.Empty;
+
+    [ObservableProperty]
     private string _imageUrl = string.Empty;
+
+    [ObservableProperty]
+    private string _description = string.Empty;
 
     public decimal CommissionAmount => Price * CommissionRate / 100;
 }

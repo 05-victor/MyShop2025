@@ -777,33 +777,70 @@
                             PlaceholderText="Enter product name"/>
                     </StackPanel>
 
-                    <!-- Category + Stock -->
+                    <!-- SKU + Manufacturer -->
                     <Grid ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Category -->
+                        <!-- SKU -->
                         <StackPanel Grid.Column="0">
                             <TextBlock Margin="0,0,0,4"
-                                       Text="Category *"
+                                       Text="SKU *"
+                                       FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBox
+                                x:Name="EditSkuTextBox"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                PlaceholderText="e.g., PRD-001"/>
+                        </StackPanel>
+
+                        <!-- Manufacturer/Brand -->
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Margin="0,0,0,4"
+                                       Text="Manufacturer/Brand *"
                                        FontSize="12"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             <ComboBox
-                                x:Name="EditCategoryComboBox"
+                                x:Name="EditManufacturerComboBox"
                                 HorizontalAlignment="Stretch"
                                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                 BorderThickness="1"
                                 CornerRadius="8"
-                                ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
-                                DisplayMemberPath="Name"
-                                PlaceholderText="Select category">
-                            </ComboBox>
+                                ItemsSource="{x:Bind ViewModel.Brands, Mode=OneWay}"
+                                PlaceholderText="Select manufacturer"/>
                         </StackPanel>
+                    </Grid>
+
+                    <!-- Category -->
+                    <StackPanel>
+                        <TextBlock Margin="0,0,0,4"
+                                   Text="Category (Device Type) *"
+                                   FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <ComboBox
+                            x:Name="EditCategoryComboBox"
+                            HorizontalAlignment="Stretch"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
+                            DisplayMemberPath="Name"
+                            PlaceholderText="Select category"/>
+                    </StackPanel>
+
+                    <!-- Stock + Commission Rate -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
                         <!-- Stock -->
-                        <StackPanel Grid.Column="1">
+                        <StackPanel Grid.Column="0">
                             <TextBlock Margin="0,0,0,4"
                                        Text="Stock *"
                                        FontSize="12"
@@ -816,9 +853,24 @@
                                 InputScope="Number"
                                 PlaceholderText="0"/>
                         </StackPanel>
+
+                        <!-- Commission Rate -->
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Margin="0,0,0,4"
+                                       Text="Commission Rate"
+                                       FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBox
+                                x:Name="EditCommissionRateTextBox"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                InputScope="Number"
+                                PlaceholderText="0.05"/>
+                        </StackPanel>
                     </Grid>
 
-                    <!-- Price + Import price -->
+                    <!-- Sale Price + Import Price -->
                     <Grid ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -853,6 +905,56 @@
                                 PlaceholderText="0"/>
                         </StackPanel>
                     </Grid>
+
+                    <!-- Status -->
+                    <StackPanel>
+                        <TextBlock Margin="0,0,0,4"
+                                   Text="Status"
+                                   FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <ComboBox
+                            x:Name="EditStatusComboBox"
+                            HorizontalAlignment="Stretch"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            SelectedIndex="0">
+                            <ComboBoxItem>AVAILABLE</ComboBoxItem>
+                            <ComboBoxItem>DISCONTINUED</ComboBoxItem>
+                            <ComboBoxItem>OUT_OF_STOCK</ComboBoxItem>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <!-- Image Upload -->
+                    <StackPanel>
+                        <TextBlock Margin="0,0,0,4"
+                                   Text="Product Image"
+                                   FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox
+                                x:Name="EditImageUrlTextBox"
+                                Grid.Column="0"
+                                IsReadOnly="True"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                PlaceholderText="No image selected"/>
+
+                            <Button
+                                x:Name="EditImagePickButton"
+                                Grid.Column="1"
+                                Content="Choose Image"
+                                CornerRadius="8"
+                                Click="EditImagePickButton_Click"
+                                MinWidth="100"/>
+                        </Grid>
+                    </StackPanel>
 
                     <!-- Description -->
                     <StackPanel>

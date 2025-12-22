@@ -141,10 +141,15 @@ public class ProductRepository : IProductRepository
             var request = new
             {
                 name = product.Name,
+                sku = product.SKU,
+                manufacturer = product.Manufacturer,
                 description = product.Description,
                 price = product.SellingPrice,
+                importPrice = product.ImportPrice,
                 stock = product.Quantity,
                 categoryId = product.CategoryId,
+                commissionRate = product.CommissionRate,
+                status = product.Status,
                 imageUrl = product.ImageUrl
             };
 
