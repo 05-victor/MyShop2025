@@ -4,6 +4,7 @@ using MyShop.Client.Facades;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Core.Common;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,6 +22,9 @@ public partial class SalesAgentProductsViewModel : ObservableObject
 
     [ObservableProperty]
     private string _searchQuery = string.Empty;
+
+    [ObservableProperty]
+    private ObservableCollection<string> _categories = new() { "All Categories" };
 
     [ObservableProperty]
     private string _selectedCategory = "All Categories";
@@ -61,7 +65,46 @@ public partial class SalesAgentProductsViewModel : ObservableObject
 
     public async Task InitializeAsync()
     {
+        await LoadCategoriesAsync();
         await LoadProductsAsync();
+    }
+
+    /// <summary>
+    /// Load categories from API for the filter dropdown
+    /// </summary>
+    private async Task LoadCategoriesAsync()
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine("[SalesAgentProductsViewModel] LoadCategoriesAsync: Starting category load from API");
+
+            var result = await _productFacade.LoadCategoriesAsync();
+
+            if (!result.IsSuccess || result.Data == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel] LoadCategoriesAsync: Failed to load - {result.ErrorMessage}");
+                return;
+            }
+
+            // Clear existing items but keep "All Categories" at index 0
+            while (Categories.Count > 1)
+            {
+                Categories.RemoveAt(Categories.Count - 1);
+            }
+
+            // Add API categories
+            foreach (var category in result.Data)
+            {
+                Categories.Add(category.Name);
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel] ✅ LoadCategoriesAsync: Loaded {result.Data.Count} categories from API");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel] ❌ LoadCategoriesAsync: ERROR - {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel] Stack trace: {ex.StackTrace}");
+        }
     }
 
     [RelayCommand]
@@ -75,21 +118,21 @@ public partial class SalesAgentProductsViewModel : ObservableObject
     private async Task ApplyFiltersAsync()
     {
         CurrentPage = 1;
-        ApplyFiltersAndSort();
-        await Task.CompletedTask;
+        System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.ApplyFiltersAsync] Applying filters - Search: '{SearchQuery}', Category: '{SelectedCategory}', Stock: '{SelectedStockStatus}', Sort: '{SortBy}' {(SortDescending ? "DESC" : "ASC")}");
+        await LoadProductsAsync();
     }
 
     [RelayCommand]
     private async Task ResetFiltersAsync()
     {
+        System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.ResetFiltersAsync] Resetting all filters");
         SearchQuery = string.Empty;
         SelectedCategory = "All Categories";
         SelectedStockStatus = string.Empty;
         SortBy = "name";
         SortDescending = false;
         CurrentPage = 1;
-        ApplyFiltersAndSort();
-        await Task.CompletedTask;
+        await LoadProductsAsync();
     }
 
     [RelayCommand]

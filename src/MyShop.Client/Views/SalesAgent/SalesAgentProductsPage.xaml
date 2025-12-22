@@ -28,14 +28,15 @@
     <Grid>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="ResponsiveStates">
-                
+
                 <!-- Large Desktop: 1920px+ -->
                 <VisualState x:Name="LargeDesktopState">
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="1920"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainGrid.Padding" Value="40"/>
+                        <Setter Target="MainGrid.Padding"
+                                Value="40"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -45,7 +46,8 @@
                         <AdaptiveTrigger MinWindowWidth="1280"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainGrid.Padding" Value="32"/>
+                        <Setter Target="MainGrid.Padding"
+                                Value="32"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -55,7 +57,8 @@
                         <AdaptiveTrigger MinWindowWidth="960"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainGrid.Padding" Value="24"/>
+                        <Setter Target="MainGrid.Padding"
+                                Value="24"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -65,7 +68,8 @@
                         <AdaptiveTrigger MinWindowWidth="640"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainGrid.Padding" Value="20"/>
+                        <Setter Target="MainGrid.Padding"
+                                Value="20"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -75,531 +79,611 @@
                         <AdaptiveTrigger MinWindowWidth="0"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainGrid.Padding" Value="16"/>
+                        <Setter Target="MainGrid.Padding"
+                                Value="16"/>
                     </VisualState.Setters>
                 </VisualState>
-                
+
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
         <Grid RowDefinitions="*,Auto">
-        <!-- Layer 0: Main Content (Hidden during loading) -->
-        <Grid x:Name="MainContent"
-              Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-            <Grid.Transitions>
-                <TransitionCollection>
-                    <EntranceThemeTransition FromVerticalOffset="50"/>
-                </TransitionCollection>
-            </Grid.Transitions>
-        <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid x:Name="MainGrid" Padding="24" RowSpacing="16">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+            <!-- Layer 0: Main Content (Hidden during loading) -->
+            <Grid x:Name="MainContent"
+                  Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                <Grid.Transitions>
+                    <TransitionCollection>
+                        <EntranceThemeTransition FromVerticalOffset="50"/>
+                    </TransitionCollection>
+                </Grid.Transitions>
+                <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <Grid x:Name="MainGrid"
+                              Padding="24"
+                              RowSpacing="16">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
 
-            <!-- Page Header Section -->
-            <StackPanel Grid.Row="0" Spacing="16">
+                            <!-- Page Header Section -->
+                            <StackPanel Grid.Row="0"
+                                        Spacing="16">
 
-            <!-- PAGE HEADER -->
-            <layout:PageHeader
-                Title="My Products"
-                Subtitle="Manage your product listings and inventory">
-                <layout:PageHeader.ActionContent>
-                    <StackPanel Orientation="Horizontal" Spacing="12">
-                        <buttons:IconButton
-                            Variant="Outline"
-                            IconGlyph="&#xE72C;"
-                            Text="Refresh"
-                            Click="RefreshButton_Click" />
-                        <buttons:IconButton
-                            Variant="Outline"
-                            IconGlyph="&#xE896;"
-                            Text="Export"
-                            Click="ExportButton_Click" />
-                        <buttons:IconButton
-                            Variant="Filled"
-                            IconGlyph="&#xE710;"
-                            Text="Add Product"
-                            Click="AddProductButton_Click" />
+                                <!-- PAGE HEADER -->
+                                <layout:PageHeader
+                                    Title="My Products"
+                                    Subtitle="Manage your product listings and inventory">
+                                    <layout:PageHeader.ActionContent>
+                                        <StackPanel Orientation="Horizontal"
+                                                    Spacing="12">
+                                            <buttons:IconButton
+                                                Variant="Outline"
+                                                IconGlyph="&#xE72C;"
+                                                Text="Refresh"
+                                                Click="RefreshButton_Click"/>
+                                            <buttons:IconButton
+                                                Variant="Outline"
+                                                IconGlyph="&#xE896;"
+                                                Text="Export"
+                                                Click="ExportButton_Click"/>
+                                            <buttons:IconButton
+                                                Variant="Filled"
+                                                IconGlyph="&#xE710;"
+                                                Text="Add Product"
+                                                Click="AddProductButton_Click"/>
+                                        </StackPanel>
+                                    </layout:PageHeader.ActionContent>
+                                </layout:PageHeader>
+
+                            </StackPanel>
+
+                            <!-- Main Content -->
+                            <StackPanel Grid.Row="1"
+                                        Spacing="20">
+
+                                <!-- SEARCH CARD with Auto-Complete -->
+                                <forms:SearchCard
+                                    x:Name="ProductSearchCard"
+                                    PlaceholderText="Search by product name, SKU, or category..."
+                                    SearchText="{x:Bind ViewModel.SearchQuery, Mode=TwoWay}"
+                                    TextChanged="SearchCard_TextChanged"
+                                    SuggestionChosen="SearchCard_SuggestionChosen"
+                                    QuerySubmitted="SearchCard_QuerySubmitted"/>
+
+                                <!-- FILTERS CARD with Apply Button -->
+                                <forms:FilterCard Title="Filters"
+                                                  ApplyCommand="{x:Bind ViewModel.ApplyFiltersCommand}"
+                                                  ResetCommand="{x:Bind ViewModel.ResetFiltersCommand}"
+                                                  ShowActions="True"
+                                                  ShowResetButton="True">
+                                    <forms:FilterCard.FilterContent>
+                                        <Grid ColumnSpacing="16">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Category Filter -->
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="Category"
+                                                           FontSize="12"
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                           Margin="0,0,0,4"/>
+                                                <ComboBox x:Name="CategoryComboBox"
+                                                          Height="40"
+                                                          CornerRadius="10"
+                                                          BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
+                                                          HorizontalAlignment="Stretch"
+                                                          ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
+                                                          SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"
+                                                          SelectionChanged="CategoryComboBox_SelectionChanged"
+                                                          PlaceholderText="All Categories"
+                                                          AutomationProperties.Name="Category filter"/>
+                                            </StackPanel>
+
+                                            <!-- Stock Status Filter -->
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Text="Stock Status"
+                                                           FontSize="12"
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                           Margin="0,0,0,4"/>
+                                                <ComboBox x:Name="StockStatusComboBox"
+                                                          Height="40"
+                                                          CornerRadius="10"
+                                                          BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
+                                                          SelectedIndex="0"
+                                                          HorizontalAlignment="Stretch"
+                                                          SelectionChanged="StockStatusComboBox_SelectionChanged">
+                                                    <ComboBoxItem Content="All Stock"
+                                                                  Tag=""/>
+                                                    <ComboBoxItem Content="In Stock"
+                                                                  Tag="InStock"/>
+                                                    <ComboBoxItem Content="Low Stock"
+                                                                  Tag="LowStock"/>
+                                                    <ComboBoxItem Content="Out of Stock"
+                                                                  Tag="OutOfStock"/>
+                                                </ComboBox>
+                                            </StackPanel>
+
+                                            <!-- Sort By -->
+                                            <StackPanel Grid.Column="2">
+                                                <TextBlock Text="Sort By"
+                                                           FontSize="12"
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                           Margin="0,0,0,4"/>
+                                                <ComboBox x:Name="SortByComboBox"
+                                                          Height="40"
+                                                          CornerRadius="10"
+                                                          BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
+                                                          SelectedIndex="0"
+                                                          HorizontalAlignment="Stretch"
+                                                          SelectionChanged="SortByComboBox_SelectionChanged">
+                                                    <ComboBoxItem Content="Name (A-Z)"
+                                                                  Tag="name-asc"/>
+                                                    <ComboBoxItem Content="Name (Z-A)"
+                                                                  Tag="name-desc"/>
+                                                    <ComboBoxItem Content="Price (Low to High)"
+                                                                  Tag="price-asc"/>
+                                                    <ComboBoxItem Content="Price (High to Low)"
+                                                                  Tag="price-desc"/>
+                                                    <ComboBoxItem Content="Stock (Low to High)"
+                                                                  Tag="stock-asc"/>
+                                                    <ComboBoxItem Content="Stock (High to Low)"
+                                                                  Tag="stock-desc"/>
+                                                </ComboBox>
+                                            </StackPanel>
+                                        </Grid>
+                                    </forms:FilterCard.FilterContent>
+                                </forms:FilterCard>
+
+                                <!-- PRODUCTS TABLE -->
+                                <Border Style="{StaticResource CardWithShadowStyle}"
+                                        Padding="0">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!-- Table Header -->
+                                        <tables:TableHeader Grid.Row="0">
+                                            <tables:TableHeader.Columns>
+                                                <x:String>3*|PRODUCT</x:String>
+                                                <x:String>*|CATEGORY</x:String>
+                                                <x:String>*|PRICE</x:String>
+                                                <x:String>*|STOCK</x:String>
+                                                <x:String>*|COMMISSION</x:String>
+                                                <x:String>120|ACTIONS</x:String>
+                                            </tables:TableHeader.Columns>
+                                        </tables:TableHeader>
+
+                                        <!-- Table Body -->
+                                        <ItemsRepeater Grid.Row="1"
+                                                       ItemsSource="{x:Bind ViewModel.Products, Mode=OneWay}">
+                                            <ItemsRepeater.ItemTemplate>
+                                                <DataTemplate x:DataType="viewmodels:ProductViewModel">
+                                                    <Grid Padding="24,16"
+                                                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                          BorderThickness="0,0,0,1">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="3*"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="120"/>
+                                                        </Grid.ColumnDefinitions>
+
+                                                        <!-- Product Info -->
+                                                        <StackPanel Grid.Column="0"
+                                                                    Orientation="Horizontal"
+                                                                    Spacing="12">
+                                                            <Border Width="48"
+                                                                    Height="48"
+                                                                    Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                                                    CornerRadius="8">
+                                                                <FontIcon Glyph="&#xE7B8;"
+                                                                          FontSize="24"
+                                                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                            </Border>
+                                                            <StackPanel VerticalAlignment="Center">
+                                                                <TextBlock Text="{x:Bind Name, Mode=OneWay}"
+                                                                           FontSize="14"
+                                                                           FontWeight="SemiBold"
+                                                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                                                <TextBlock Text="{x:Bind Category, Mode=OneWay}"
+                                                                           FontSize="12"
+                                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                            </StackPanel>
+                                                        </StackPanel>
+
+                                                        <!-- Category -->
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="{x:Bind Category, Mode=OneWay}"
+                                                                   FontSize="14"
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                   VerticalAlignment="Center"/>
+
+                                                        <!-- Price -->
+                                                        <TextBlock Grid.Column="2"
+                                                                   Text="{x:Bind Price, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                                                   FontSize="14"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                                   VerticalAlignment="Center"/>
+
+                                                        <!-- Stock -->
+                                                        <StackPanel Grid.Column="3"
+                                                                    VerticalAlignment="Center">
+                                                            <badges:StockBadge Stock="{x:Bind Stock, Mode=OneWay}"
+                                                                               LowStockThreshold="10"/>
+                                                        </StackPanel>
+
+                                                        <!-- Commission Rate -->
+                                                        <StackPanel Grid.Column="4"
+                                                                    VerticalAlignment="Center">
+                                                            <TextBlock FontSize="14"
+                                                                       Foreground="{ThemeResource SuccessGreenBrush}">
+                                                <Run Text="{x:Bind CommissionRate, Mode=OneWay}"/>
+                                                <Run Text="%"/>
+                                                            </TextBlock>
+                                                        </StackPanel>
+
+                                                        <!-- Actions -->
+                                                        <StackPanel Grid.Column="5"
+                                                                    Orientation="Horizontal"
+                                                                    Spacing="4"
+                                                                    VerticalAlignment="Center">
+                                                            <!-- Edit -->
+                                                            <buttons:IconButton
+                                                                Variant="Ghost"
+                                                                IconGlyph="&#xE70F;"
+                                                                IconColor="{ThemeResource SecondaryBlueBrush}"
+                                                                Command="{Binding ElementName=RootPage, Path=ViewModel.EditProductCommand}"
+                                                                CommandParameter="{x:Bind}"
+                                                                ToolTipService.ToolTip="Edit product"/>
+                                                            <!-- Delete -->
+                                                            <buttons:IconButton
+                                                                Variant="Ghost"
+                                                                IconGlyph="&#xE74D;"
+                                                                IconColor="{ThemeResource ErrorRedBrush}"
+                                                                Command="{Binding ElementName=RootPage, Path=ViewModel.DeleteProductCommand}"
+                                                                CommandParameter="{x:Bind}"
+                                                                ToolTipService.ToolTip="Delete product"/>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsRepeater.ItemTemplate>
+                                        </ItemsRepeater>
+                                    </Grid>
+                                </Border>
+
+                            </StackPanel>
+                        </Grid>
+                    </ScrollViewer>
+                </RefreshContainer>
+            </Grid>
+
+            <!-- Bottom Pagination - Fixed at bottom -->
+            <Border Grid.Row="1"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="0,1,0,0"
+                    Padding="24,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0"
+                               VerticalAlignment="Center"
+                               FontSize="14"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                    <Run Text="Showing"/>
+                    <Run Text="{x:Bind ViewModel.Products.Count, Mode=OneWay}"
+                         FontWeight="SemiBold"/>
+                    <Run Text="of"/>
+                    <Run Text="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
+                         FontWeight="SemiBold"/>
+                    <Run Text="products"/>
+                    </TextBlock>
+
+                    <pagination:PaginationControl Grid.Column="1"
+                                                  CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
+                                                  TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
+                                                  PageSize="{x:Bind ViewModel.PageSize, Mode=OneWay}"
+                                                  PageChanged="OnPageChanged"
+                                                  VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+
+            <!-- Layer 2: Loading Overlay (Shown during loading) -->
+            <Grid x:Name="LoadingOverlay"
+                  Background="{ThemeResource LayerFillColorDefaultBrush}"
+                  Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Spacing="24"
+                            Padding="48">
+                    <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                                  Width="64"
+                                  Height="64"/>
+                    <TextBlock Text="Loading products..."
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="Please wait while we fetch your product list"
+                               FontSize="14"
+                               Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ADD PRODUCT DIALOG -->
+            <ContentDialog
+                x:Name="AddProductDialog"
+                Title="Add New Product"
+                DefaultButton="Primary"
+                PrimaryButtonClick="AddProductDialog_PrimaryButtonClick"
+                PrimaryButtonText="Save Product"
+                SecondaryButtonClick="AddProductDialog_SecondaryButtonClick"
+                SecondaryButtonText="Cancel">
+                <StackPanel Spacing="12"
+                            MinWidth="400">
+                    <!-- Name -->
+                    <StackPanel>
+                        <TextBlock Margin="0,0,0,4"
+                                   Text="Product Name *"
+                                   FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBox
+                            x:Name="NewNameTextBox"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            PlaceholderText="Enter product name"/>
                     </StackPanel>
-                </layout:PageHeader.ActionContent>
-            </layout:PageHeader>
 
-            </StackPanel>
-            
-            <!-- Main Content -->
-            <StackPanel Grid.Row="1" Spacing="20">
-            
-            <!-- SEARCH CARD with Auto-Complete -->
-            <forms:SearchCard
-                x:Name="ProductSearchCard"
-                PlaceholderText="Search by product name, SKU, or category..."
-                SearchText="{x:Bind ViewModel.SearchQuery, Mode=TwoWay}"
-                ShowSearchButton="Collapsed"
-                TextChanged="SearchCard_TextChanged"
-                SuggestionChosen="SearchCard_SuggestionChosen"
-                QuerySubmitted="SearchCard_QuerySubmitted" />
-
-            <!-- FILTERS CARD with Apply Button -->
-            <forms:FilterCard Title="Filters"
-                              ApplyCommand="{x:Bind ViewModel.ApplyFiltersCommand}"
-                              ResetCommand="{x:Bind ViewModel.ResetFiltersCommand}"
-                              ShowActions="True"
-                              ShowResetButton="True">
-                <forms:FilterCard.FilterContent>
-                    <Grid ColumnSpacing="16">
+                    <!-- Category + Stock -->
+                    <Grid ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Category Filter -->
+                        <!-- Category -->
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="Category" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
-                            <ComboBox x:Name="CategoryComboBox"
-                                     Height="40"
-                                     CornerRadius="10"
-                                     BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
-                                     SelectedIndex="0"
-                                     HorizontalAlignment="Stretch"
-                                     SelectionChanged="CategoryComboBox_SelectionChanged">
-                                <ComboBoxItem Content="All Categories" Tag=""/>
-                                <ComboBoxItem Content="Smartphones" Tag="Smartphones"/>
-                                <ComboBoxItem Content="Laptops" Tag="Laptops"/>
-                                <ComboBoxItem Content="Audio" Tag="Audio"/>
-                                <ComboBoxItem Content="Tablets" Tag="Tablets"/>
+                            <TextBlock Margin="0,0,0,4"
+                                       Text="Category *"
+                                       FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <ComboBox
+                                x:Name="NewCategoryComboBox"
+                                HorizontalAlignment="Stretch"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                PlaceholderText="Select category">
+                                <ComboBoxItem Content="Smartphones"
+                                              Tag="Smartphones"/>
+                                <ComboBoxItem Content="Laptops"
+                                              Tag="Laptops"/>
+                                <ComboBoxItem Content="Audio"
+                                              Tag="Audio"/>
+                                <ComboBoxItem Content="Tablets"
+                                              Tag="Tablets"/>
+                                <ComboBoxItem Content="Wearables"
+                                              Tag="Wearables"/>
                             </ComboBox>
                         </StackPanel>
 
-                        <!-- Stock Status Filter -->
+                        <!-- Stock -->
                         <StackPanel Grid.Column="1">
-                            <TextBlock Text="Stock Status" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
-                            <ComboBox x:Name="StockStatusComboBox"
-                                     Height="40"
-                                     CornerRadius="10"
-                                     BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
-                                     SelectedIndex="0"
-                                     HorizontalAlignment="Stretch"
-                                     SelectionChanged="StockStatusComboBox_SelectionChanged">
-                                <ComboBoxItem Content="All Stock" Tag=""/>
-                                <ComboBoxItem Content="In Stock" Tag="InStock"/>
-                                <ComboBoxItem Content="Low Stock" Tag="LowStock"/>
-                                <ComboBoxItem Content="Out of Stock" Tag="OutOfStock"/>
-                            </ComboBox>
-                        </StackPanel>
-
-                        <!-- Sort By -->
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Sort By" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
-                            <ComboBox x:Name="SortByComboBox"
-                                     Height="40"
-                                     CornerRadius="10"
-                                     BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
-                                     SelectedIndex="0"
-                                     HorizontalAlignment="Stretch"
-                                     SelectionChanged="SortByComboBox_SelectionChanged">
-                                <ComboBoxItem Content="Name (A-Z)" Tag="name-asc"/>
-                                <ComboBoxItem Content="Name (Z-A)" Tag="name-desc"/>
-                                <ComboBoxItem Content="Price (Low to High)" Tag="price-asc"/>
-                                <ComboBoxItem Content="Price (High to Low)" Tag="price-desc"/>
-                                <ComboBoxItem Content="Stock (Low to High)" Tag="stock-asc"/>
-                                <ComboBoxItem Content="Stock (High to Low)" Tag="stock-desc"/>
-                            </ComboBox>
+                            <TextBlock Margin="0,0,0,4"
+                                       Text="Stock *"
+                                       FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBox
+                                x:Name="NewStockTextBox"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                InputScope="Number"
+                                PlaceholderText="0"/>
                         </StackPanel>
                     </Grid>
-                </forms:FilterCard.FilterContent>
-            </forms:FilterCard>
 
-            <!-- PRODUCTS TABLE -->
-            <Border Style="{StaticResource CardWithShadowStyle}" Padding="0">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
+                    <!-- Price + Import price -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                    <!-- Table Header -->
-                    <tables:TableHeader Grid.Row="0">
-                        <tables:TableHeader.Columns>
-                            <x:String>3*|PRODUCT</x:String>
-                            <x:String>*|CATEGORY</x:String>
-                            <x:String>*|PRICE</x:String>
-                            <x:String>*|STOCK</x:String>
-                            <x:String>*|COMMISSION</x:String>
-                            <x:String>120|ACTIONS</x:String>
-                        </tables:TableHeader.Columns>
-                    </tables:TableHeader>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Margin="0,0,0,4"
+                                       Text="Sale Price *"
+                                       FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBox
+                                x:Name="NewPriceTextBox"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                InputScope="Number"
+                                PlaceholderText="0"/>
+                        </StackPanel>
 
-                    <!-- Table Body -->
-                    <ItemsRepeater Grid.Row="1" ItemsSource="{x:Bind ViewModel.Products, Mode=OneWay}">
-                            <ItemsRepeater.ItemTemplate>
-                                <DataTemplate x:DataType="viewmodels:ProductViewModel">
-                                    <Grid Padding="24,16" 
-                                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                         BorderThickness="0,0,0,1">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="3*"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="120"/>
-                                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Margin="0,0,0,4"
+                                       Text="Import Price"
+                                       FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBox
+                                x:Name="NewImportPriceTextBox"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                InputScope="Number"
+                                PlaceholderText="0"/>
+                        </StackPanel>
+                    </Grid>
 
-                                        <!-- Product Info -->
-                                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                                            <Border Width="48" Height="48" 
-                                                   Background="{ThemeResource LayerFillColorDefaultBrush}" 
-                                                   CornerRadius="8">
-                                                <FontIcon Glyph="&#xE7B8;" 
-                                                         FontSize="24" 
-                                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                            </Border>
-                                            <StackPanel VerticalAlignment="Center">
-                                                <TextBlock Text="{x:Bind Name, Mode=OneWay}" 
-                                                          FontSize="14" 
-                                                          FontWeight="SemiBold"
-                                                          Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                                <TextBlock Text="{x:Bind Category, Mode=OneWay}" 
-                                                          FontSize="12" 
-                                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                            </StackPanel>
-                                        </StackPanel>
+                    <!-- Description -->
+                    <StackPanel>
+                        <TextBlock Margin="0,0,0,4"
+                                   Text="Description"
+                                   FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBox
+                            x:Name="NewDescriptionTextBox"
+                            MinHeight="80"
+                            AcceptsReturn="True"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            TextWrapping="Wrap"
+                            PlaceholderText="Enter product description..."/>
+                    </StackPanel>
+                </StackPanel>
+            </ContentDialog>
 
-                                        <!-- Category -->
-                                        <TextBlock Grid.Column="1" 
-                                                  Text="{x:Bind Category, Mode=OneWay}"
-                                                  FontSize="14"
-                                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                  VerticalAlignment="Center"/>
+            <!-- EDIT PRODUCT DIALOG -->
+            <ContentDialog
+                x:Name="EditProductDialog"
+                Title="Edit Product"
+                DefaultButton="Primary"
+                PrimaryButtonClick="EditProductDialog_PrimaryButtonClick"
+                PrimaryButtonText="Save Changes"
+                SecondaryButtonClick="EditProductDialog_SecondaryButtonClick"
+                SecondaryButtonText="Cancel">
+                <StackPanel Spacing="12"
+                            MinWidth="400">
+                    <!-- Hidden ID -->
+                    <TextBox x:Name="EditProductIdTextBox"
+                             Visibility="Collapsed"/>
 
-                                        <!-- Price -->
-                                        <TextBlock Grid.Column="2" 
-                                                  Text="{x:Bind Price, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
-                                                  FontSize="14"
-                                                  FontWeight="SemiBold"
-                                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                                  VerticalAlignment="Center"/>
+                    <!-- Name -->
+                    <StackPanel>
+                        <TextBlock Margin="0,0,0,4"
+                                   Text="Product Name *"
+                                   FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBox
+                            x:Name="EditNameTextBox"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            PlaceholderText="Enter product name"/>
+                    </StackPanel>
 
-                                        <!-- Stock -->
-                                        <StackPanel Grid.Column="3" VerticalAlignment="Center">
-                                            <badges:StockBadge Stock="{x:Bind Stock, Mode=OneWay}" LowStockThreshold="10"/>
-                                        </StackPanel>
+                    <!-- Category + Stock -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                                        <!-- Commission Rate -->
-                                        <StackPanel Grid.Column="4" VerticalAlignment="Center">
-                                            <TextBlock FontSize="14" 
-                                                      Foreground="{ThemeResource SuccessGreenBrush}">
-                                                <Run Text="{x:Bind CommissionRate, Mode=OneWay}"/>
-                                                <Run Text="%"/>
-                                            </TextBlock>
-                                        </StackPanel>
+                        <!-- Category -->
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Margin="0,0,0,4"
+                                       Text="Category *"
+                                       FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <ComboBox
+                                x:Name="EditCategoryComboBox"
+                                HorizontalAlignment="Stretch"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                PlaceholderText="Select category">
+                                <ComboBoxItem Content="Smartphones"
+                                              Tag="Smartphones"/>
+                                <ComboBoxItem Content="Laptops"
+                                              Tag="Laptops"/>
+                                <ComboBoxItem Content="Audio"
+                                              Tag="Audio"/>
+                                <ComboBoxItem Content="Tablets"
+                                              Tag="Tablets"/>
+                                <ComboBoxItem Content="Wearables"
+                                              Tag="Wearables"/>
+                            </ComboBox>
+                        </StackPanel>
 
-                                        <!-- Actions -->
-                                        <StackPanel Grid.Column="5" 
-                                                   Orientation="Horizontal" 
-                                                   Spacing="4"
-                                                   VerticalAlignment="Center">
-                                            <!-- Edit -->
-                                            <buttons:IconButton
-                                                Variant="Ghost"
-                                                IconGlyph="&#xE70F;"
-                                                IconColor="{ThemeResource SecondaryBlueBrush}"
-                                                Command="{Binding ElementName=RootPage, Path=ViewModel.EditProductCommand}"
-                                                CommandParameter="{x:Bind}"
-                                                ToolTipService.ToolTip="Edit product" />
-                                            <!-- Delete -->
-                                            <buttons:IconButton
-                                                Variant="Ghost"
-                                                IconGlyph="&#xE74D;"
-                                                IconColor="{ThemeResource ErrorRedBrush}"
-                                                Command="{Binding ElementName=RootPage, Path=ViewModel.DeleteProductCommand}"
-                                                CommandParameter="{x:Bind}"
-                                                ToolTipService.ToolTip="Delete product" />
-                                        </StackPanel>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsRepeater.ItemTemplate>
-                        </ItemsRepeater>
-                </Grid>
-            </Border>
+                        <!-- Stock -->
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Margin="0,0,0,4"
+                                       Text="Stock *"
+                                       FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBox
+                                x:Name="EditStockTextBox"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                InputScope="Number"
+                                PlaceholderText="0"/>
+                        </StackPanel>
+                    </Grid>
 
-            </StackPanel>
+                    <!-- Price + Import price -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Margin="0,0,0,4"
+                                       Text="Sale Price *"
+                                       FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBox
+                                x:Name="EditPriceTextBox"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                InputScope="Number"
+                                PlaceholderText="0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Margin="0,0,0,4"
+                                       Text="Import Price"
+                                       FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBox
+                                x:Name="EditImportPriceTextBox"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                InputScope="Number"
+                                PlaceholderText="0"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Description -->
+                    <StackPanel>
+                        <TextBlock Margin="0,0,0,4"
+                                   Text="Description"
+                                   FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBox
+                            x:Name="EditDescriptionTextBox"
+                            MinHeight="80"
+                            AcceptsReturn="True"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            TextWrapping="Wrap"
+                            PlaceholderText="Enter product description..."/>
+                    </StackPanel>
+                </StackPanel>
+            </ContentDialog>
         </Grid>
-        </ScrollViewer>
-        </RefreshContainer>
-        </Grid>
-
-        <!-- Bottom Pagination - Fixed at bottom -->
-        <Border Grid.Row="1" 
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                BorderThickness="0,1,0,0"
-                Padding="24,12">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <TextBlock Grid.Column="0"
-                          VerticalAlignment="Center"
-                          FontSize="14"
-                          Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                    <Run Text="Showing"/>
-                    <Run Text="{x:Bind ViewModel.Products.Count, Mode=OneWay}" FontWeight="SemiBold"/>
-                    <Run Text="of"/>
-                    <Run Text="{x:Bind ViewModel.TotalItems, Mode=OneWay}" FontWeight="SemiBold"/>
-                    <Run Text="products"/>
-                </TextBlock>
-
-                <pagination:PaginationControl Grid.Column="1"
-                                             CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
-                                             TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
-                                             PageSize="{x:Bind ViewModel.PageSize, Mode=OneWay}"
-                                             PageChanged="OnPageChanged"
-                                             VerticalAlignment="Center"/>
-            </Grid>
-        </Border>
-
-        <!-- Layer 2: Loading Overlay (Shown during loading) -->
-        <Grid x:Name="LoadingOverlay"
-              Background="{ThemeResource LayerFillColorDefaultBrush}"
-              Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-            <StackPanel HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Spacing="24"
-                        Padding="48">
-                <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
-                              Width="64"
-                              Height="64" />
-                <TextBlock Text="Loading products..."
-                           FontSize="18"
-                           FontWeight="SemiBold"
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           HorizontalAlignment="Center" />
-                <TextBlock Text="Please wait while we fetch your product list"
-                           FontSize="14"
-                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                           HorizontalAlignment="Center" />
-            </StackPanel>
-        </Grid>
-
-        <!-- ADD PRODUCT DIALOG -->
-        <ContentDialog
-            x:Name="AddProductDialog"
-            Title="Add New Product"
-            DefaultButton="Primary"
-            PrimaryButtonClick="AddProductDialog_PrimaryButtonClick"
-            PrimaryButtonText="Save Product"
-            SecondaryButtonClick="AddProductDialog_SecondaryButtonClick"
-            SecondaryButtonText="Cancel">
-            <StackPanel Spacing="12" MinWidth="400">
-                <!-- Name -->
-                <StackPanel>
-                    <TextBlock Margin="0,0,0,4" Text="Product Name *" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                    <TextBox
-                        x:Name="NewNameTextBox"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="1"
-                        CornerRadius="8"
-                        PlaceholderText="Enter product name" />
-                </StackPanel>
-
-                <!-- Category + Stock -->
-                <Grid ColumnSpacing="12">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Category -->
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Margin="0,0,0,4" Text="Category *" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <ComboBox
-                            x:Name="NewCategoryComboBox"
-                            HorizontalAlignment="Stretch"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            PlaceholderText="Select category">
-                            <ComboBoxItem Content="Smartphones" Tag="Smartphones"/>
-                            <ComboBoxItem Content="Laptops" Tag="Laptops"/>
-                            <ComboBoxItem Content="Audio" Tag="Audio"/>
-                            <ComboBoxItem Content="Tablets" Tag="Tablets"/>
-                            <ComboBoxItem Content="Wearables" Tag="Wearables"/>
-                        </ComboBox>
-                    </StackPanel>
-
-                    <!-- Stock -->
-                    <StackPanel Grid.Column="1">
-                        <TextBlock Margin="0,0,0,4" Text="Stock *" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <TextBox
-                            x:Name="NewStockTextBox"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            InputScope="Number"
-                            PlaceholderText="0" />
-                    </StackPanel>
-                </Grid>
-
-                <!-- Price + Import price -->
-                <Grid ColumnSpacing="12">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Margin="0,0,0,4" Text="Sale Price *" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <TextBox
-                            x:Name="NewPriceTextBox"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            InputScope="Number"
-                            PlaceholderText="0" />
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="1">
-                        <TextBlock Margin="0,0,0,4" Text="Import Price" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <TextBox
-                            x:Name="NewImportPriceTextBox"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            InputScope="Number"
-                            PlaceholderText="0" />
-                    </StackPanel>
-                </Grid>
-
-                <!-- Description -->
-                <StackPanel>
-                    <TextBlock Margin="0,0,0,4" Text="Description" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                    <TextBox
-                        x:Name="NewDescriptionTextBox"
-                        MinHeight="80"
-                        AcceptsReturn="True"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="1"
-                        CornerRadius="8"
-                        TextWrapping="Wrap"
-                        PlaceholderText="Enter product description..." />
-                </StackPanel>
-            </StackPanel>
-        </ContentDialog>
-
-        <!-- EDIT PRODUCT DIALOG -->
-        <ContentDialog
-            x:Name="EditProductDialog"
-            Title="Edit Product"
-            DefaultButton="Primary"
-            PrimaryButtonClick="EditProductDialog_PrimaryButtonClick"
-            PrimaryButtonText="Save Changes"
-            SecondaryButtonClick="EditProductDialog_SecondaryButtonClick"
-            SecondaryButtonText="Cancel">
-            <StackPanel Spacing="12" MinWidth="400">
-                <!-- Hidden ID -->
-                <TextBox x:Name="EditProductIdTextBox" Visibility="Collapsed" />
-
-                <!-- Name -->
-                <StackPanel>
-                    <TextBlock Margin="0,0,0,4" Text="Product Name *" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                    <TextBox
-                        x:Name="EditNameTextBox"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="1"
-                        CornerRadius="8"
-                        PlaceholderText="Enter product name" />
-                </StackPanel>
-
-                <!-- Category + Stock -->
-                <Grid ColumnSpacing="12">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Category -->
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Margin="0,0,0,4" Text="Category *" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <ComboBox
-                            x:Name="EditCategoryComboBox"
-                            HorizontalAlignment="Stretch"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            PlaceholderText="Select category">
-                            <ComboBoxItem Content="Smartphones" Tag="Smartphones"/>
-                            <ComboBoxItem Content="Laptops" Tag="Laptops"/>
-                            <ComboBoxItem Content="Audio" Tag="Audio"/>
-                            <ComboBoxItem Content="Tablets" Tag="Tablets"/>
-                            <ComboBoxItem Content="Wearables" Tag="Wearables"/>
-                        </ComboBox>
-                    </StackPanel>
-
-                    <!-- Stock -->
-                    <StackPanel Grid.Column="1">
-                        <TextBlock Margin="0,0,0,4" Text="Stock *" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <TextBox
-                            x:Name="EditStockTextBox"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            InputScope="Number"
-                            PlaceholderText="0" />
-                    </StackPanel>
-                </Grid>
-
-                <!-- Price + Import price -->
-                <Grid ColumnSpacing="12">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Margin="0,0,0,4" Text="Sale Price *" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <TextBox
-                            x:Name="EditPriceTextBox"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            InputScope="Number"
-                            PlaceholderText="0" />
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="1">
-                        <TextBlock Margin="0,0,0,4" Text="Import Price" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <TextBox
-                            x:Name="EditImportPriceTextBox"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            InputScope="Number"
-                            PlaceholderText="0" />
-                    </StackPanel>
-                </Grid>
-
-                <!-- Description -->
-                <StackPanel>
-                    <TextBlock Margin="0,0,0,4" Text="Description" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                    <TextBox
-                        x:Name="EditDescriptionTextBox"
-                        MinHeight="80"
-                        AcceptsReturn="True"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="1"
-                        CornerRadius="8"
-                        TextWrapping="Wrap"
-                        PlaceholderText="Enter product description..." />
-                </StackPanel>
-            </StackPanel>
-        </ContentDialog>
     </Grid>
-</Grid>
 </Page>

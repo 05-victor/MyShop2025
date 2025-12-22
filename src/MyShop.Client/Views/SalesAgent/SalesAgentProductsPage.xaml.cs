@@ -7,6 +7,7 @@ using MyShop.Client.Services;
 using MyShop.Client.Views.Components.Pagination;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MyShop.Client.Views.SalesAgent
@@ -14,6 +15,7 @@ namespace MyShop.Client.Views.SalesAgent
     public sealed partial class SalesAgentProductsPage : Page
     {
         public SalesAgentProductsViewModel ViewModel { get; }
+        private Timer? _searchDebounceTimer;
 
         public SalesAgentProductsPage()
         {
@@ -68,6 +70,7 @@ namespace MyShop.Client.Views.SalesAgent
                 if (string.IsNullOrWhiteSpace(query))
                 {
                     sender.ItemsSource = null;
+                    ViewModel.SearchQuery = string.Empty;
                     return;
                 }
 
@@ -81,6 +84,28 @@ namespace MyShop.Client.Views.SalesAgent
                     .ToList();
 
                 sender.ItemsSource = suggestions;
+
+                // Debounce search: wait 500ms before triggering auto-search
+                _searchDebounceTimer?.Dispose();
+                _searchDebounceTimer = new Timer(_ =>
+                {
+                    // Dispatch to UI thread to avoid COMException when accessing UI resources
+                    this.DispatcherQueue.TryEnqueue(() =>
+                    {
+                        try
+                        {
+                            ViewModel.SearchQuery = query;
+                            if (ViewModel.ApplyFiltersCommand?.CanExecute(null) == true)
+                            {
+                                _ = ViewModel.ApplyFiltersCommand.ExecuteAsync(null);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.SearchCard_TextChanged] Error in debounce timer: {ex.Message}");
+                        }
+                    });
+                }, null, 500, Timeout.Infinite);
             }
         }
 
@@ -91,6 +116,8 @@ namespace MyShop.Client.Views.SalesAgent
 
         private async void SearchCard_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
+            _searchDebounceTimer?.Dispose();
+
             if (args.ChosenSuggestion != null)
             {
                 ViewModel.SearchQuery = args.ChosenSuggestion.ToString() ?? string.Empty;
@@ -100,6 +127,7 @@ namespace MyShop.Client.Views.SalesAgent
                 ViewModel.SearchQuery = args.QueryText;
             }
 
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.SearchCard_QuerySubmitted] Search query: '{ViewModel.SearchQuery}'");
             if (ViewModel.ApplyFiltersCommand?.CanExecute(null) == true)
             {
                 await ViewModel.ApplyFiltersCommand.ExecuteAsync(null);
@@ -110,28 +138,29 @@ namespace MyShop.Client.Views.SalesAgent
 
         #region Filter Event Handlers
 
-        private void CategoryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void CategoryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (ViewModel == null) return;
 
-            if (CategoryComboBox.SelectedItem is ComboBoxItem item)
+            if (CategoryComboBox.SelectedItem is string category)
             {
-                var category = item.Tag?.ToString();
-                ViewModel.SelectedCategory = string.IsNullOrEmpty(category) ? "All Categories" : category;
+                ViewModel.SelectedCategory = category ?? "All Categories";
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.CategoryComboBox_SelectionChanged] Selected category: '{ViewModel.SelectedCategory}'");
             }
         }
 
-        private void StockStatusComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void StockStatusComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (ViewModel == null) return;
 
             if (StockStatusComboBox.SelectedItem is ComboBoxItem item)
             {
                 ViewModel.SelectedStockStatus = item.Tag?.ToString() ?? string.Empty;
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.StockStatusComboBox_SelectionChanged] Selected stock status: '{ViewModel.SelectedStockStatus}'");
             }
         }
 
-        private void SortByComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void SortByComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (ViewModel == null) return;
 
@@ -143,6 +172,7 @@ namespace MyShop.Client.Views.SalesAgent
                 {
                     ViewModel.SortBy = parts[0];
                     ViewModel.SortDescending = parts[1] == "desc";
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.SortByComboBox_SelectionChanged] Sort: {ViewModel.SortBy} {(ViewModel.SortDescending ? "DESC" : "ASC")}");
                 }
             }
         }
