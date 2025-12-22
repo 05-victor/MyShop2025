@@ -231,11 +231,17 @@ namespace MyShop.Client.Views.SalesAgent
             {
                 // Reset dialog fields
                 NewNameTextBox.Text = string.Empty;
+                NewSkuTextBox.Text = string.Empty;
+                NewManufacturerTextBox.Text = string.Empty;
+                NewDeviceTypeTextBox.Text = string.Empty;
                 NewStockTextBox.Text = string.Empty;
                 NewPriceTextBox.Text = string.Empty;
                 NewImportPriceTextBox.Text = string.Empty;
+                NewCommissionRateTextBox.Text = string.Empty;
                 NewDescriptionTextBox.Text = string.Empty;
+                NewImageUrlTextBox.Text = string.Empty;
                 NewCategoryComboBox.SelectedItem = null;
+                NewStatusComboBox.SelectedIndex = 0;
 
                 AddProductDialog.XamlRoot = this.XamlRoot;
                 await AddProductDialog.ShowAsync();
@@ -273,6 +279,40 @@ namespace MyShop.Client.Views.SalesAgent
                     return;
                 }
 
+                var sku = NewSkuTextBox.Text.Trim();
+                if (string.IsNullOrEmpty(sku))
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] ❌ VALIDATION FAILED - SKU is empty");
+                    args.Cancel = true;
+
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        Title = "Validation Error",
+                        Content = "SKU is required.",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
+                }
+
+                var manufacturer = NewManufacturerTextBox.Text.Trim();
+                if (string.IsNullOrEmpty(manufacturer))
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] ❌ VALIDATION FAILED - Manufacturer is empty");
+                    args.Cancel = true;
+
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        Title = "Validation Error",
+                        Content = "Manufacturer/Brand is required.",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
+                }
+
                 var categoryItem = NewCategoryComboBox.SelectedItem as MyShop.Shared.Models.Category;
                 var categoryId = categoryItem?.Id ?? Guid.Empty;
 
@@ -295,21 +335,31 @@ namespace MyShop.Client.Views.SalesAgent
                 int.TryParse(NewStockTextBox.Text, out var stock);
                 decimal.TryParse(NewPriceTextBox.Text, out var price);
                 decimal.TryParse(NewImportPriceTextBox.Text, out var importPrice);
+                double.TryParse(NewCommissionRateTextBox.Text, out var commissionRate);
                 var description = NewDescriptionTextBox.Text.Trim();
+                var deviceType = NewDeviceTypeTextBox.Text.Trim();
+                var status = (NewStatusComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "AVAILABLE";
+                var imageUrl = NewImageUrlTextBox.Text.Trim();
 
                 // Create product object
                 var product = new MyShop.Shared.Models.Product
                 {
                     Id = Guid.NewGuid(),
                     Name = name,
+                    SKU = sku,
+                    Manufacturer = manufacturer,
+                    DeviceType = deviceType,
                     CategoryId = categoryId,
                     Quantity = stock,
                     SellingPrice = price,
                     ImportPrice = importPrice,
-                    Description = description
+                    CommissionRate = commissionRate,
+                    Description = description,
+                    Status = status,
+                    ImageUrl = imageUrl
                 };
 
-                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] Dialog data extracted - Product: {product.Name}, Category: {product.CategoryId}, Quantity: {product.Quantity}");
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] Dialog data extracted - Product: {product.Name}, SKU: {product.SKU}, Manufacturer: {product.Manufacturer}, Category: {product.CategoryId}, Quantity: {product.Quantity}");
 
                 System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] Validation passed, executing SaveNewProductCommand");
 
@@ -334,6 +384,73 @@ namespace MyShop.Client.Views.SalesAgent
                 {
                     Title = "Error",
                     Content = $"An error occurred: {ex.Message}",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await errorDialog.ShowAsync();
+            }
+        }
+
+        private async void NewImagePickButton_Click(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.NewImagePickButton_Click] Image picker button clicked");
+
+            try
+            {
+                var picker = new Windows.Storage.Pickers.FileOpenPicker();
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(this));
+                picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
+                picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary;
+                picker.FileTypeFilter.Add(".jpg");
+                picker.FileTypeFilter.Add(".jpeg");
+                picker.FileTypeFilter.Add(".png");
+                picker.FileTypeFilter.Add(".gif");
+                picker.FileTypeFilter.Add(".bmp");
+
+                var file = await picker.PickSingleFileAsync();
+                if (file != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.NewImagePickButton_Click] File selected: {file.Name}");
+
+                    // TODO: Show loading indicator
+                    ViewModel.IsLoading = true;
+
+                    try
+                    {
+                        // Upload image and get URL
+                        var result = await ViewModel.UploadProductImageAsync(file);
+                        if (result.IsSuccess)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.NewImagePickButton_Click] ✅ Image uploaded successfully: {result.Data}");
+                            NewImageUrlTextBox.Text = result.Data;
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.NewImagePickButton_Click] ❌ Image upload failed: {result.ErrorMessage}");
+                            ContentDialog errorDialog = new ContentDialog
+                            {
+                                Title = "Upload Failed",
+                                Content = $"Failed to upload image: {result.ErrorMessage}",
+                                CloseButtonText = "OK",
+                                XamlRoot = this.XamlRoot
+                            };
+                            await errorDialog.ShowAsync();
+                        }
+                    }
+                    finally
+                    {
+                        ViewModel.IsLoading = false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.NewImagePickButton_Click] ❌ EXCEPTION - {ex.GetType().Name}: {ex.Message}");
+
+                ContentDialog errorDialog = new ContentDialog
+                {
+                    Title = "Error",
+                    Content = $"Error selecting image: {ex.Message}",
                     CloseButtonText = "OK",
                     XamlRoot = this.XamlRoot
                 };

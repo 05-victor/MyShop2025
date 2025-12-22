@@ -126,4 +126,9 @@ public interface IProductFacade
     /// Upload image for a product
     /// </summary>
     Task<Result<string>> UploadProductImageAsync(Guid productId, string imageFilePath);
+
+    /// <summary>
+    /// Upload product image from file path (for new products without ID yet)
+    /// </summary>
+    Task<Result<string>> UploadProductImageForNewProductAsync(string imageFilePath);
 }

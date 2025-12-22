@@ -510,6 +510,35 @@ public partial class SalesAgentProductsViewModel : ObservableObject
     }
 
     /// <summary>
+    /// Upload product image to server
+    /// </summary>
+    public async Task<Core.Common.Result<string>> UploadProductImageAsync(Windows.Storage.StorageFile imageFile)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.UploadProductImageAsync] START - File: {imageFile.Name}");
+
+            var result = await _productFacade.UploadProductImageForNewProductAsync(imageFile.Path);
+
+            if (result.IsSuccess)
+            {
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.UploadProductImageAsync] ✅ Image uploaded successfully: {result.Data}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.UploadProductImageAsync] ❌ Upload failed: {result.ErrorMessage}");
+            }
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.UploadProductImageAsync] ❌ EXCEPTION: {ex.Message}");
+            return Core.Common.Result<string>.Failure("Failed to upload image", ex);
+        }
+    }
+
+    /// <summary>
     /// Command to update an existing product.
     /// </summary>
     [RelayCommand]

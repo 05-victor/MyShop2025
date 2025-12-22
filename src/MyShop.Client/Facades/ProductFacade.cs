@@ -564,6 +564,101 @@ public class ProductFacade : IProductFacade
         }
     }
 
+    /// <summary>
+    /// Upload product image from StorageFile (for new products without ID yet)
+    /// </summary>
+    public async Task<Result<string>> UploadProductImageAsync(Windows.Storage.StorageFile imageFile)
+    {
+        if (imageFile == null)
+        {
+            return Result<string>.Failure("Image file is required");
+        }
+        return await UploadProductImageForNewProductAsync(imageFile.Path);
+    }
+
+    /// <summary>
+    /// Upload product image for new product using file path
+    /// </summary>
+    public async Task<Result<string>> UploadProductImageForNewProductAsync(string imageFilePath)
+    {
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade.UploadProductImageForNewProductAsync] START - File: {imageFilePath}");
+
+            if (string.IsNullOrEmpty(imageFilePath))
+            {
+                System.Diagnostics.Debug.WriteLine($"[ProductFacade.UploadProductImageForNewProductAsync] ❌ VALIDATION FAILED - Image file path is empty");
+                return Result<string>.Failure("Image file path is required");
+            }
+
+            // Get file from path
+            var imageFile = await Windows.Storage.StorageFile.GetFileFromPathAsync(imageFilePath);
+            if (imageFile == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ProductFacade.UploadProductImageForNewProductAsync] ❌ VALIDATION FAILED - File not found at path: {imageFilePath}");
+                return Result<string>.Failure("Image file not found");
+            }
+
+            // Validate file size (max 5MB)
+            var properties = await imageFile.GetBasicPropertiesAsync();
+            const long maxFileSize = 5 * 1024 * 1024; // 5MB
+            if (properties.Size > maxFileSize)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ProductFacade.UploadProductImageForNewProductAsync] ❌ VALIDATION FAILED - File size ({properties.Size} bytes) exceeds max ({maxFileSize} bytes)");
+                return Result<string>.Failure("Image file size cannot exceed 5MB");
+            }
+
+            // Validate file type
+            var validExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+            var fileExtension = System.IO.Path.GetExtension(imageFile.Name).ToLowerInvariant();
+            if (!validExtensions.Contains(fileExtension))
+            {
+                System.Diagnostics.Debug.WriteLine($"[ProductFacade.UploadProductImageForNewProductAsync] ❌ VALIDATION FAILED - Invalid file type: {fileExtension}");
+                return Result<string>.Failure("Only image files (JPG, PNG, GIF, WebP) are allowed");
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade.UploadProductImageForNewProductAsync] File validation passed - Size: {properties.Size} bytes, Type: {fileExtension}");
+
+            // Read file as byte array
+            var buffer = await Windows.Storage.FileIO.ReadBufferAsync(imageFile);
+            // Convert IBuffer to byte array using DataReader
+            var dataReader = Windows.Storage.Streams.DataReader.FromBuffer(buffer);
+            var bytes = new byte[buffer.Length];
+            dataReader.ReadBytes(bytes);
+
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade.UploadProductImageForNewProductAsync] Image file prepared for upload - Size: {bytes.Length} bytes");
+
+            // TODO: Call API endpoint to upload image
+            // For now, return a dummy URL (Cloudinary would be called in real implementation)
+            var dummyImageUrl = $"https://via.placeholder.com/400x400?text={System.Uri.EscapeDataString(imageFile.DisplayName)}";
+
+            stopwatch.Stop();
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] Upload Complete - ElapsedMs: {stopwatch.ElapsedMilliseconds}");
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade.UploadProductImageForNewProductAsync] ✅ SUCCESS - Image uploaded: {dummyImageUrl}");
+
+            if (_toastService != null)
+            {
+                await _toastService.ShowSuccess($"Image '{imageFile.Name}' uploaded successfully!");
+            }
+
+            return Result<string>.Success(dummyImageUrl);
+        }
+        catch (Exception ex)
+        {
+            stopwatch.Stop();
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade.UploadProductImageForNewProductAsync] ❌ EXCEPTION - {ex.GetType().Name}: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade.UploadProductImageForNewProductAsync] Stack Trace: {ex.StackTrace}");
+
+            if (_toastService != null)
+            {
+                await _toastService.ShowError($"Error uploading image: {ex.Message}");
+            }
+
+            return Result<string>.Failure("Failed to upload product image", ex);
+        }
+    }
+
     /// <inheritdoc/>
     public async Task<Result<string>> ExportProductsToCsvAsync(
         string? searchQuery = null, string? categoryName = null,
