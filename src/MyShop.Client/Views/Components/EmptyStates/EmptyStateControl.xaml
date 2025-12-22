@@ -1,6 +1,7 @@
 <UserControl x:Class="MyShop.Client.Views.Components.EmptyStates.EmptyStateControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
@@ -37,9 +38,11 @@
                        Visibility="{Binding Description, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
             
             <!-- Action Button -->
-            <Button Content="{Binding ActionText, ElementName=RootControl, Mode=OneWay}"
+            <buttons:IconButton
+                    Text="{Binding ActionText, ElementName=RootControl, Mode=OneWay}"
                     Command="{Binding ActionCommand, ElementName=RootControl, Mode=OneWay}"
-                    Style="{StaticResource PrimaryButtonStyle}"
+                    Variant="Filled"
+                    IconGlyph="&#xE710;"
                     HorizontalAlignment="Center"
                     Visibility="{Binding ActionText, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
             

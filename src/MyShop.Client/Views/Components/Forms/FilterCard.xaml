@@ -65,7 +65,7 @@
                 <!-- Apply Button -->
                 <Button Padding="16,10"
                        Background="{ThemeResource PrimaryBrush}"
-                       Foreground="White"
+                       Foreground="{ThemeResource WhiteBrush}"
                        BorderThickness="0"
                        CornerRadius="8"
                        Command="{Binding ApplyCommand, ElementName=RootControl, Mode=OneWay}"

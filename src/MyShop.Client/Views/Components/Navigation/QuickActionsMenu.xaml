@@ -32,7 +32,7 @@
     </UserControl.Resources>
 
     <Grid x:Name="OverlayGrid" 
-          Background="#80000000" 
+          Background="{ThemeResource BlackSemiTransparent}" 
           Visibility="Collapsed"
           Opacity="0">
         <!-- Click outside to close -->

@@ -45,7 +45,7 @@
                         <TextBlock Text="🎉 You're the first user!"
                                   FontSize="22"
                                   FontWeight="Bold"
-                                  Foreground="White"/>
+                                  Foreground="{ThemeResource WhiteBrush}"/>
                         <TextBlock Text="✨"
                                   FontSize="20"
                                   VerticalAlignment="Center"/>
@@ -68,7 +68,7 @@
                                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                 BorderBrush="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                 BorderThickness="1"
-                                Foreground="White"
+                                Foreground="{ThemeResource WhiteBrush}"
                                 CornerRadius="6"
                                 Padding="12,10"
                                 FontFamily="Consolas"
