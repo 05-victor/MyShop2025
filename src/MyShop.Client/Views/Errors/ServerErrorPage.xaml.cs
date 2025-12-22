@@ -44,10 +44,6 @@ public sealed partial class ServerErrorPage : Page
     {
         if (_retryAction != null)
         {
-            // Show loading state
-            RetryIcon.Visibility = Visibility.Collapsed;
-            RetryProgress.Visibility = Visibility.Visible;
-            RetryText.Text = "Retrying...";
             RetryButton.IsEnabled = false;
 
             try
@@ -57,9 +53,6 @@ public sealed partial class ServerErrorPage : Page
             catch
             {
                 // Retry failed, reset button state
-                RetryIcon.Visibility = Visibility.Visible;
-                RetryProgress.Visibility = Visibility.Collapsed;
-                RetryText.Text = "Try Again";
                 RetryButton.IsEnabled = true;
             }
         }

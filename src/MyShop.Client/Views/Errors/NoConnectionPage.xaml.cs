@@ -34,10 +34,6 @@ public sealed partial class NoConnectionPage : Page
 
     private async void RetryButton_Click(object sender, RoutedEventArgs e)
     {
-        // Show loading state
-        RetryIcon.Visibility = Visibility.Collapsed;
-        RetryProgress.Visibility = Visibility.Visible;
-        RetryText.Text = "Checking...";
         RetryButton.IsEnabled = false;
 
         try
@@ -65,9 +61,6 @@ public sealed partial class NoConnectionPage : Page
         finally
         {
             // Reset button state
-            RetryIcon.Visibility = Visibility.Visible;
-            RetryProgress.Visibility = Visibility.Collapsed;
-            RetryText.Text = "Retry Connection";
             RetryButton.IsEnabled = true;
         }
     }
