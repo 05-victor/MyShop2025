@@ -87,13 +87,25 @@
 
                     <!-- Header -->
                     <StackPanel Spacing="{StaticResource Gap_XS}" Margin="0,0,0,16">
-                        <TextBlock Text="Create Account" 
+                        
+                        <!-- Brand Name (Restored) -->
+                        <TextBlock Text="MyShop2025" 
                                   FontSize="32"
-                                  FontWeight="SemiBold"
+                                  FontWeight="Bold"
+                                  HorizontalAlignment="Center"
                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                  Margin="0,0,0,4"
                                   AutomationProperties.HeadingLevel="Level1"/>
+                        
+                        <TextBlock Text="Create Account" 
+                                  FontSize="24"
+                                  FontWeight="SemiBold"
+                                  HorizontalAlignment="Center"
+                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                  AutomationProperties.HeadingLevel="Level2"/>
                         <TextBlock Text="Fill in the information below to get started" 
                                   FontSize="14"
+                                  HorizontalAlignment="Center"
                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                   TextWrapping="Wrap"/>
                     </StackPanel>
