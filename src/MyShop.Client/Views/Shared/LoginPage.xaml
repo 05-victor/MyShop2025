@@ -218,7 +218,7 @@
                                 Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
                             <TextBlock
                                 VerticalAlignment="Center"
-                                Foreground="White"
+                                Foreground="Blue"
                                 Text="{x:Bind ViewModel.LoginButtonText, Mode=OneWay}"/>
                         </StackPanel>
                     </Button>

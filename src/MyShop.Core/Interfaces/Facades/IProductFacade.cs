@@ -103,4 +103,24 @@ public interface IProductFacade
     /// Update product stock quantity
     /// </summary>
     Task<Result<Unit>> UpdateStockAsync(Guid productId, int newQuantity);
+
+    /// <summary>
+    /// Create a new product from Product model (simplified API)
+    /// </summary>
+    Task<Result<Product>> CreateProductAsync(Product product);
+
+    /// <summary>
+    /// Update an existing product from Product model (simplified API)
+    /// </summary>
+    Task<Result<Product>> UpdateProductAsync(Guid id, Product product);
+
+    /// <summary>
+    /// Search for products by query
+    /// </summary>
+    Task<Result<List<Product>>> SearchProductsAsync(string searchQuery);
+
+    /// <summary>
+    /// Upload image for a product
+    /// </summary>
+    Task<Result<string>> UploadProductImageAsync(Guid productId, string imageFilePath);
 }
