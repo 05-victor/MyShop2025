@@ -237,7 +237,7 @@ namespace MyShop.Client.Views.SalesAgent
                 // Reset dialog fields
                 NewNameTextBox.Text = string.Empty;
                 NewSkuTextBox.Text = string.Empty;
-                NewManufacturerTextBox.Text = string.Empty;
+                NewManufacturerComboBox.SelectedItem = null;
                 NewStockTextBox.Text = string.Empty;
                 NewPriceTextBox.Text = string.Empty;
                 NewImportPriceTextBox.Text = string.Empty;
@@ -300,7 +300,8 @@ namespace MyShop.Client.Views.SalesAgent
                     return;
                 }
 
-                var manufacturer = NewManufacturerTextBox.Text.Trim();
+                var manufacturer = (NewManufacturerComboBox.SelectedItem as string) ?? string.Empty;
+                manufacturer = manufacturer.Trim();
                 if (string.IsNullOrEmpty(manufacturer))
                 {
                     System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] ❌ VALIDATION FAILED - Manufacturer is empty");

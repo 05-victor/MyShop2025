@@ -577,12 +577,14 @@
                                        Text="Manufacturer/Brand *"
                                        FontSize="12"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            <TextBox
-                                x:Name="NewManufacturerTextBox"
+                            <ComboBox
+                                x:Name="NewManufacturerComboBox"
+                                HorizontalAlignment="Stretch"
                                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                 BorderThickness="1"
                                 CornerRadius="8"
-                                PlaceholderText="e.g., Apple, Samsung"/>
+                                ItemsSource="{x:Bind ViewModel.Brands, Mode=OneWay}"
+                                PlaceholderText="Select manufacturer"/>
                         </StackPanel>
                     </Grid>
 
