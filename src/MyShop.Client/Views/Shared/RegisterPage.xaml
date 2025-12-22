@@ -51,10 +51,10 @@
             </Grid.Background>
             
             <!-- Dark overlay for better text contrast -->
-            <Border Background="#66000000"/>
+            <Border Background="{ThemeResource BlackSemiTransparent}"/>
             
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="{StaticResource Gap_LG}">
-                <Image Source="/Assets/Image/logo.png" 
+                <Image Source="/Assets/Images/logo.png" 
                        Width="120" 
                        Height="120" 
                        Stretch="Uniform"
@@ -62,13 +62,13 @@
                 <TextBlock Text="Join MyShop2025" 
                            FontSize="48" 
                            FontWeight="Bold"
-                           Foreground="White"
+                           Foreground="{ThemeResource WhiteBrush}"
                            HorizontalAlignment="Center"
                            AutomationProperties.HeadingLevel="Level1"/>
                 <TextBlock Text="Start managing your shop efficiently" 
                            FontSize="18" 
                            FontWeight="Normal"
-                           Foreground="White"
+                           Foreground="{ThemeResource WhiteBrush}"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
                            MaxWidth="400"
