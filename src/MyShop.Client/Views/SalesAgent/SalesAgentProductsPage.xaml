@@ -253,8 +253,10 @@
                                                 <x:String>3*|PRODUCT</x:String>
                                                 <x:String>*|CATEGORY</x:String>
                                                 <x:String>*|PRICE</x:String>
+                                                <x:String>*|IMPORT PRICE</x:String>
                                                 <x:String>*|STOCK</x:String>
                                                 <x:String>*|COMMISSION</x:String>
+                                                <x:String>*|RATING</x:String>
                                                 <x:String>120|ACTIONS</x:String>
                                             </tables:TableHeader.Columns>
                                         </tables:TableHeader>
@@ -269,6 +271,8 @@
                                                           BorderThickness="0,0,0,1">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="3*"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="*"/>
@@ -293,7 +297,7 @@
                                                                            FontSize="14"
                                                                            FontWeight="SemiBold"
                                                                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                                                <TextBlock Text="{x:Bind Category, Mode=OneWay}"
+                                                                <TextBlock Text="{x:Bind Sku, Mode=OneWay}"
                                                                            FontSize="12"
                                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                             </StackPanel>
@@ -311,18 +315,25 @@
                                                                    Text="{x:Bind Price, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                                    FontSize="14"
                                                                    FontWeight="SemiBold"
-                                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                                   Foreground="{ThemeResource SuccessGreenBrush}"
+                                                                   VerticalAlignment="Center"/>
+
+                                                        <!-- Import Price -->
+                                                        <TextBlock Grid.Column="3"
+                                                                   Text="{x:Bind ImportPrice, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                                                   FontSize="14"
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                                    VerticalAlignment="Center"/>
 
                                                         <!-- Stock -->
-                                                        <StackPanel Grid.Column="3"
+                                                        <StackPanel Grid.Column="4"
                                                                     VerticalAlignment="Center">
                                                             <badges:StockBadge Stock="{x:Bind Stock, Mode=OneWay}"
                                                                                LowStockThreshold="10"/>
                                                         </StackPanel>
 
                                                         <!-- Commission Rate -->
-                                                        <StackPanel Grid.Column="4"
+                                                        <StackPanel Grid.Column="5"
                                                                     VerticalAlignment="Center">
                                                             <TextBlock FontSize="14"
                                                                        Foreground="{ThemeResource SuccessGreenBrush}">
@@ -331,8 +342,21 @@
                                                             </TextBlock>
                                                         </StackPanel>
 
+                                                        <!-- Rating -->
+                                                        <StackPanel
+                                                            Grid.Column="6"
+                                                            Orientation="Horizontal"
+                                                            Spacing="4">
+                                                            <TextBlock VerticalAlignment="Center"
+                                                                       Text="{x:Bind Rating}"/>
+                                                            <FontIcon
+                                                                FontSize="14"
+                                                                Foreground="{ThemeResource WarningAmberBrush}"
+                                                                Glyph="&#xE735;"/>
+                                                        </StackPanel>
+
                                                         <!-- Actions -->
-                                                        <StackPanel Grid.Column="5"
+                                                        <StackPanel Grid.Column="7"
                                                                     Orientation="Horizontal"
                                                                     Spacing="4"
                                                                     VerticalAlignment="Center">

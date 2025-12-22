@@ -234,10 +234,13 @@ public partial class SalesAgentProductsViewModel : ObservableObject
             {
                 Id = p.Id,
                 Name = p.Name,
+                Sku = p.SKU ?? string.Empty,
                 Category = p.CategoryName ?? p.Category ?? "Uncategorized",
                 Price = p.SellingPrice,
+                ImportPrice = p.ImportPrice,
                 CommissionRate = (int)(p.CommissionRate * 100),
                 Stock = p.Quantity,
+                Rating = p.Rating,
                 ImageUrl = p.ImageUrl ?? "/Assets/placeholder-product.png"
             })
             .ToList();
@@ -664,16 +667,25 @@ public partial class ProductViewModel : ObservableObject
     private string _name = string.Empty;
 
     [ObservableProperty]
+    private string _sku = string.Empty;
+
+    [ObservableProperty]
     private string _category = string.Empty;
 
     [ObservableProperty]
     private decimal _price;
 
     [ObservableProperty]
+    private decimal _importPrice;
+
+    [ObservableProperty]
     private int _commissionRate;
 
     [ObservableProperty]
     private int _stock;
+
+    [ObservableProperty]
+    private double _rating;
 
     [ObservableProperty]
     private string _imageUrl = string.Empty;
