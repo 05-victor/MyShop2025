@@ -3,12 +3,12 @@
     x:Class="MyShop.Client.Views.Shared.CartPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:MyShop.Client.ViewModels.Shared"
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
-    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     Background="{ThemeResource LayerFillColorDefaultBrush}"
     mc:Ignorable="d">
 
@@ -157,18 +157,14 @@
                                     MaxWidth="300"
                                     TextWrapping="Wrap"/>
 
-                                <Button Style="{StaticResource PrimaryButtonStyle}"
+                                <buttons:IconButton
                                         Margin="0,12,0,0"
                                         MinWidth="160"
+                                        Variant="Filled"
+                                        IconGlyph="&#xE719;"
+                                        Text="Start Shopping"
                                         Command="{x:Bind ViewModel.ContinueShoppingCommand}"
-                                        ToolTipService.ToolTip="Browse available products">
-                                    <StackPanel Orientation="Horizontal"
-                                                Spacing="8">
-                                        <FontIcon FontSize="16"
-                                                  Glyph="&#xE719;"/>
-                                        <TextBlock Text="Start Shopping"/>
-                                    </StackPanel>
-                                </Button>
+                                        Tooltip="Browse available products"/>
                             </StackPanel>
                         </Border>
 
@@ -263,7 +259,7 @@
                                                             Command="{Binding ElementName=CartItemsListView, Path=DataContext.IncreaseQuantityCommand}"
                                                             CommandParameter="{x:Bind}"
                                                             CornerRadius="8"
-                                                            Foreground="White">
+                                                            Foreground="{ThemeResource WhiteBrush}">
                                                         <FontIcon FontSize="12"
                                                                   Glyph="&#xE710;"/>
                                                     </Button>
@@ -369,11 +365,13 @@
                                 </Grid>
                             </StackPanel>
 
-                            <Button Style="{StaticResource PrimaryButtonStyle}"
+                            <buttons:IconButton
                                     Margin="0,16,0,0"
                                     HorizontalAlignment="Stretch"
-                                    Command="{x:Bind ViewModel.ProceedToCheckoutCommand}"
-                                    Content="Proceed to Checkout"/>
+                                    Variant="Filled"
+                                    IconGlyph="&#xE8A1;"
+                                    Text="Proceed to Checkout"
+                                    Command="{x:Bind ViewModel.ProceedToCheckoutCommand}"/>
 
                             <HyperlinkButton
                                 HorizontalAlignment="Center"

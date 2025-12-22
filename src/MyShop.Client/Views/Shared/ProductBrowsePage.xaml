@@ -3,6 +3,7 @@
     x:Class="MyShop.Client.Views.Shared.ProductBrowsePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     xmlns:components="using:MyShop.Client.Views.Components"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -10,7 +11,6 @@
     xmlns:vm="using:MyShop.Client.ViewModels.Shared"
     xmlns:skeletons="using:MyShop.Client.Views.Components.Skeletons"
     xmlns:forms="using:MyShop.Client.Views.Components.Forms"
-    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:pagination="using:MyShop.Client.Views.Components.Pagination"
     Background="{ThemeResource LayerFillColorDefaultBrush}"
@@ -168,13 +168,13 @@
                                         <TextBlock Text="Category"
                                                    FontSize="12"
                                                    FontWeight="SemiBold"
-                                                   Foreground="#1B1D1F"
+                                                   Foreground="{ThemeResource Gray900Brush}"
                                                    Margin="0,0,0,8"/>
                                         <ComboBox x:Name="CategoryComboBox"
                                                   HorizontalAlignment="Stretch"
                                                   Height="40"
                                                   CornerRadius="10"
-                                                  BorderBrush="#D0D7E2"
+                                                  BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                   ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
                                                   SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"
                                                   SelectionChanged="CategoryComboBox_SelectionChanged"/>
@@ -185,13 +185,13 @@
                                         <TextBlock Text="Brand"
                                                    FontSize="12"
                                                    FontWeight="SemiBold"
-                                                   Foreground="#1B1D1F"
+                                                   Foreground="{ThemeResource Gray900Brush}"
                                                    Margin="0,0,0,8"/>
                                         <ComboBox x:Name="BrandComboBox"
                                                   HorizontalAlignment="Stretch"
                                                   Height="40"
                                                   CornerRadius="10"
-                                                  BorderBrush="#D0D7E2"
+                                                  BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                   ItemsSource="{x:Bind ViewModel.Brands, Mode=OneWay}"
                                                   SelectedItem="{x:Bind ViewModel.SelectedBrand, Mode=TwoWay}"
                                                   SelectionChanged="BrandComboBox_SelectionChanged"/>
@@ -202,7 +202,7 @@
                                         <TextBlock Text="Sort By"
                                                    FontSize="12"
                                                    FontWeight="SemiBold"
-                                                   Foreground="#1B1D1F"
+                                                   Foreground="{ThemeResource Gray900Brush}"
                                                    Margin="0,0,0,8"/>
                                         <ComboBox x:Name="SortComboBox"
                                                   HorizontalAlignment="Stretch"
@@ -277,9 +277,9 @@
                                                 Spacing="8">
                                         <FontIcon FontSize="16"
                                                   Glyph="&#xE894;"
-                                                  Foreground="#6B7280"/>
+                                                  Foreground="{ThemeResource Gray600Brush}"/>
                                         <TextBlock Text="Clear Filters"
-                                                   Foreground="#111827"/>
+                                                   Foreground="{ThemeResource Gray900Brush}"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
@@ -371,7 +371,7 @@
                                                         Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                         Text="{x:Bind Rating}"/>
                                                     <TextBlock FontSize="12"
-                                                               Foreground="#6B7280">
+                                                               Foreground="{ThemeResource Gray600Brush}">
                                                 <Run Text="("/><Run Text="{x:Bind RatingCount}"/><Run Text=")"/>
                                                     </TextBlock>
                                                 </StackPanel>
@@ -393,7 +393,7 @@
                                                             CornerRadius="4">
                                                             <TextBlock
                                                                 FontSize="10"
-                                                                Foreground="White"
+                                                                Foreground="{ThemeResource WhiteBrush}"
                                                                 Text="{x:Bind StockStatus}"/>
                                                         </Border>
                                                     </StackPanel>
@@ -403,23 +403,15 @@
                                                 <StackPanel Margin="0,8,0,0"
                                                             Orientation="Horizontal"
                                                             Spacing="8">
-                                                    <Button Style="{StaticResource PrimaryButtonStyle}"
+                                                    <buttons:IconButton
                                                             Width="140"
-                                                            Height="44"
-                                                            Padding="12,0"
-                                                            HorizontalAlignment="Stretch"
+                                                            Variant="Filled"
+                                                            IconGlyph="&#xE7BF;"
+                                                            Text="Add to Cart"
                                                             Command="{Binding ElementName=ProductGridView, Path=DataContext.AddToCartCommand}"
                                                             CommandParameter="{x:Bind}"
                                                             IsEnabled="{x:Bind IsInStock}"
-                                                            ToolTipService.ToolTip="Add this product to your shopping cart">
-                                                        <StackPanel Orientation="Horizontal"
-                                                                    Spacing="8">
-                                                            <FontIcon FontSize="14"
-                                                                      Glyph="&#xE7BF;"/>
-                                                            <TextBlock FontSize="12"
-                                                                       Text="Add to Cart"/>
-                                                        </StackPanel>
-                                                    </Button>
+                                                            Tooltip="Add this product to your shopping cart"/>
                                                     <Button Style="{StaticResource SecondaryButtonStyle}"
                                                             Height="44"
                                                             Width="44"
@@ -453,7 +445,7 @@
                                     PageChanged="OnPageChanged"/>
 
                                 <TextBlock FontSize="12"
-                                           Foreground="#6B7280"
+                                           Foreground="{ThemeResource Gray600Brush}"
                                            HorizontalAlignment="Center"
                                            Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}"/>
                             </StackPanel>
@@ -480,7 +472,7 @@
                                 Background="{ThemeResource AccentBlueBrush}"
                                 Content="1"
                                 CornerRadius="8"
-                                Foreground="White"/>
+                                Foreground="{ThemeResource WhiteBrush}"/>
                             <Button
                                 Width="40"
                                 Padding="12,8"
@@ -694,7 +686,7 @@
                         HorizontalAlignment="Stretch"
                         Height="48"
                         Background="{ThemeResource AccentBlueBrush}"
-                        Foreground="White"
+                        Foreground="{ThemeResource WhiteBrush}"
                         CornerRadius="8"
                         Click="DialogAddToCartButton_Click">
                         <StackPanel Orientation="Horizontal"
