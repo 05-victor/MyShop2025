@@ -25,7 +25,11 @@ public sealed partial class IconButton : UserControl
     {
         this.InitializeComponent();
         this.Loaded += OnLoaded;
+        this.Unloaded += OnUnloaded;
         ActionButton.Loaded += ActionButton_Loaded;
+        
+        // Subscribe to theme changes to reapply styles when theme switches
+        MyShop.Client.Services.ThemeManager.ThemeChanged += OnThemeChanged;
     }
 
     private void ActionButton_Loaded(object sender, RoutedEventArgs e)
@@ -47,6 +51,21 @@ public sealed partial class IconButton : UserControl
     {
         ApplyVariantStyle();
         ApplyLayout();
+    }
+    
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        // Unsubscribe from theme changes to prevent memory leaks
+        MyShop.Client.Services.ThemeManager.ThemeChanged -= OnThemeChanged;
+    }
+    
+    private void OnThemeChanged(MyShop.Client.Services.ThemeManager.ThemeType newTheme)
+    {
+        // Reapply variant styles when theme changes
+        DispatcherQueue?.TryEnqueue(() =>
+        {
+            ApplyVariantStyle();
+        });
     }
     
     // Helper method to find child element by name in visual tree
@@ -457,7 +476,12 @@ public sealed partial class IconButton : UserControl
                 }
                 else
                 {
-                    ActionButton.BorderBrush = new SolidColorBrush(Color.FromArgb(255, 229, 231, 235)); // #E5E7EB
+                    // Theme-aware fallback colors
+                    var currentTheme = MyShop.Client.Services.ThemeManager.CurrentTheme;
+                    var fallbackColor = currentTheme == MyShop.Client.Services.ThemeManager.ThemeType.Dark 
+                        ? Color.FromArgb(255, 51, 65, 85)    // #334155 for dark theme
+                        : Color.FromArgb(255, 229, 231, 235); // #E5E7EB for light theme
+                    ActionButton.BorderBrush = new SolidColorBrush(fallbackColor);
                 }
                 ActionButton.BorderThickness = new Thickness(1);
                 
