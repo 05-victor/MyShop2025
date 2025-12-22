@@ -24,15 +24,17 @@
     <Grid>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="ResponsiveStates">
-                
+
                 <!-- Large Desktop: 1920px+ -->
                 <VisualState x:Name="LargeDesktopState">
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="1920"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="40"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="24"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="40"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="24"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -42,8 +44,10 @@
                         <AdaptiveTrigger MinWindowWidth="1280"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="32"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="20"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="32"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="20"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -53,8 +57,10 @@
                         <AdaptiveTrigger MinWindowWidth="960"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="24"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="16"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="24"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="16"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -64,8 +70,10 @@
                         <AdaptiveTrigger MinWindowWidth="640"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="20"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="12"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="20"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="12"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -75,11 +83,13 @@
                         <AdaptiveTrigger MinWindowWidth="0"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="16"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="8"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="16"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="8"/>
                     </VisualState.Setters>
                 </VisualState>
-                
+
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
@@ -93,7 +103,8 @@
             </Grid.Transitions>
             <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <Grid x:Name="MainContent" Padding="24"
+                    <Grid x:Name="MainContent"
+                            Padding="24"
                           RowSpacing="16">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -150,7 +161,8 @@
                                     Spacing="20">
 
                             <!-- KPI Cards -->
-                            <Grid x:Name="KPIGrid" ColumnSpacing="16">
+                            <Grid x:Name="KPIGrid"
+                                    ColumnSpacing="16">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
@@ -187,11 +199,12 @@
                                     Grid.Column="2"
                                     Title="Commission Earned"
                                     Icon="&#xE7DB;"
-                                    Value="{x:Bind ViewModel.TotalCommission, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                    Value="{x:Bind ViewModel.TotalCommission, Mode=OneWay}"
                                     Subtitle="This month"
+                                    IsCurrency="True"
                                     ShowBadge="Visible"
                                     TrendIcon="&#xE74E;"
-                                    TrendText="{x:Bind ViewModel.ThisWeekCommission, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                    TrendText="+8.5%"
                                     IconBackgroundBrush="#D1FAE5"
                                     IconForegroundBrush="#10B981"
                                     BadgeBackgroundBrush="#D1FAE5"
@@ -202,8 +215,9 @@
                                     Grid.Column="3"
                                     Title="Total Revenue"
                                     Icon="&#xE8EC;"
-                                    Value="{x:Bind ViewModel.TotalRevenue, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                    Value="{x:Bind ViewModel.TotalRevenue, Mode=OneWay}"
                                     Subtitle="Sales generated"
+                                    IsCurrency="True"
                                     ShowBadge="Visible"
                                     TrendIcon="&#xE74E;"
                                     TrendText="+15.2%"
