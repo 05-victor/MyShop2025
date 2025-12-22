@@ -13,7 +13,7 @@
     Displayed when a server error occurs.
     -->
 
-    <Grid Background="{ThemeResource BackgroundLightBrush}">
+    <Grid Background="{ThemeResource LayerFillColorDefaultBrush}">
         <Grid.ChildrenTransitions>
             <TransitionCollection>
                 <EntranceThemeTransition FromVerticalOffset="50"/>
@@ -49,21 +49,21 @@
                 Text="Server Error" 
                 FontSize="28" 
                 FontWeight="Bold" 
-                Foreground="{ThemeResource TextPrimaryBrush}"
+                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                 HorizontalAlignment="Center"/>
             
             <!-- Description -->
             <TextBlock 
                 Text="Oops! Something went wrong on our end. Our team has been notified. Please try again later or contact support if the problem persists."
                 FontSize="15" 
-                Foreground="{ThemeResource TextMutedBrush}"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                 TextAlignment="Center"
                 TextWrapping="Wrap"/>
             
             <!-- Error Details (optional - hidden by default) -->
             <Border 
                 x:Name="ErrorDetailsBorder"
-                Background="{ThemeResource Gray100Brush}"
+                Background="{ThemeResource LayerFillColorDefaultBrush}"
                 CornerRadius="8"
                 Padding="16"
                 Visibility="Collapsed">
@@ -71,7 +71,7 @@
                     x:Name="ErrorDetailsText"
                     FontSize="12"
                     FontFamily="Consolas"
-                    Foreground="{ThemeResource TextMutedBrush}"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                     TextWrapping="Wrap"
                     IsTextSelectionEnabled="True"/>
             </Border>
@@ -107,7 +107,7 @@
                     x:Name="GoHomeButton"
                     Padding="24,12"
                     Background="Transparent"
-                    BorderBrush="{ThemeResource BorderDefaultBrush}"
+                    BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
                     BorderThickness="1"
                     CornerRadius="8"
                     Click="GoHomeButton_Click">

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="MyShop.Client.Views.Admin.AdminReportsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -146,7 +146,7 @@
                         <TextBlock
                             FontSize="16"
                             FontWeight="SemiBold"
-                            Foreground="#111827"
+                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                             Text="Filters"/>
 
                         <!--  First Row: Quick Date Range and Category  -->
@@ -202,17 +202,17 @@
                         <TextBlock
                             FontSize="16"
                             FontWeight="SemiBold"
-                            Foreground="#111827"
+                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                             Text="Export Report"/>
                         <TextBlock
                             FontSize="14"
-                            Foreground="#6B7280"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                             Text="Download the current report data"/>
                         <StackPanel Orientation="Horizontal" Spacing="12">
                             <buttons:IconButton
                                 IconGlyph="&#xE74E;"
                                 Text="Export CSV"
-                                Variant="Outline"
+                                Variant="Filled"
                                 Click="ExportButton_Click"
                                 AutomationProperties.Name="Export report as CSV"/>
                             <buttons:IconButton
@@ -355,7 +355,7 @@
                                             <buttons:IconButton
                                             Grid.Column="3"
                                             Click="ViewSalespersonDetails_Click"
-                                            IconColor="#6B7280"
+                                            IconColor="{ThemeResource TextFillColorSecondaryBrush}"
                                             IconGlyph="&#xE8A7;"
                                             Tag="{Binding}"
                                             ToolTipService.ToolTip="View details"
@@ -438,7 +438,7 @@
                                                 HorizontalAlignment="Right"
                                                 VerticalAlignment="Center"
                                                 FontWeight="SemiBold"
-                                                Foreground="#10B981"
+                                                Foreground="{ThemeResource SuccessGreenBrush}"
                                                 Text="{Binding Revenue, Converter={StaticResource CurrencyConverter}}"
                                                 TextAlignment="Right"/>
                                             </DataTemplate>
@@ -462,7 +462,7 @@
                                                     <FontIcon
                                                     VerticalAlignment="Center"
                                                     FontSize="12"
-                                                    Foreground="#F59E0B"
+                                                    Foreground="{ThemeResource WarningAmberBrush}"
                                                     Glyph="&#xE735;"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -503,7 +503,7 @@
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
                                                 Click="ViewProductDetails_Click"
-                                                IconColor="#6B7280"
+                                                IconColor="{ThemeResource TextFillColorSecondaryBrush}"
                                                 IconGlyph="&#xE8A7;"
                                                 Tag="{Binding}"
                                                 ToolTipService.ToolTip="View details"
@@ -608,7 +608,7 @@
                         x:Name="ProductDetailRevenue"
                         Grid.Row="3"
                         Grid.Column="1"
-                        Foreground="#10B981"/>
+                        Foreground="{ThemeResource SuccessGreenBrush}"/>
 
                     <TextBlock
                         Grid.Row="4"
@@ -623,7 +623,7 @@
                         <TextBlock x:Name="ProductDetailRating"/>
                         <FontIcon
                             FontSize="12"
-                            Foreground="#F59E0B"
+                            Foreground="{ThemeResource WarningAmberBrush}"
                             Glyph="&#xE735;"/>
                     </StackPanel>
 
@@ -690,7 +690,7 @@
                         x:Name="SalespersonDetailRevenue"
                         Grid.Row="2"
                         Grid.Column="1"
-                        Foreground="#10B981"/>
+                        Foreground="{ThemeResource SuccessGreenBrush}"/>
 
                     <TextBlock
                         Grid.Row="3"
@@ -701,7 +701,7 @@
                         x:Name="SalespersonDetailCommission"
                         Grid.Row="3"
                         Grid.Column="1"
-                        Foreground="#8B5CF6"/>
+                        Foreground="{ThemeResource PurpleBrush}"/>
                 </Grid>
             </StackPanel>
         </ContentDialog>

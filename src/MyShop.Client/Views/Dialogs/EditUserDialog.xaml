@@ -22,7 +22,7 @@
             <forms:FormField Label="User ID">
                 <TextBox Text="{x:Bind ViewModel.UserId, Mode=OneWay}"
                         IsReadOnly="True"
-                        Background="#F9FAFB"/>
+                        Background="{ThemeResource LayerFillColorDefaultBrush}"/>
             </forms:FormField>
 
             <!-- Full Name -->

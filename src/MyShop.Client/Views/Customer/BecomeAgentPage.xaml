@@ -107,7 +107,7 @@
                         Padding="12,6" 
                         Margin="0,0,0,16">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE735;" FontSize="12" Foreground="#00AEEF"/>
+                        <FontIcon Glyph="&#xE735;" FontSize="12" Foreground="{ThemeResource AccentBlueBrush}"/>
                         <TextBlock Text="Become a Sales Agent" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                     </StackPanel>
                 </Border>
@@ -132,8 +132,8 @@
                         <Border Style="{StaticResource IconContainerStyle}">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#00AEEF" Offset="0"/>
-                                    <GradientStop Color="#2563EB" Offset="1"/>
+                                    <GradientStop Color="{ThemeResource AccentBlueBrush}" Offset="0"/>
+                                    <GradientStop Color="{ThemeResource SecondaryBlueBrush}" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
                             <FontIcon Glyph="&#xE77B;" Foreground="White" FontSize="16"/>
@@ -187,8 +187,8 @@
                         <Border Style="{StaticResource IconContainerStyle}">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#2563EB" Offset="0"/>
-                                    <GradientStop Color="#8B5CF6" Offset="1"/>
+                                    <GradientStop Color="{ThemeResource SecondaryBlueBrush}" Offset="0"/>
+                                    <GradientStop Color="{ThemeResource PurpleBrush}" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
                             <FontIcon Glyph="&#xE707;" Foreground="White" FontSize="16"/>
@@ -235,8 +235,8 @@
                         <Border Style="{StaticResource IconContainerStyle}">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#8B5CF6" Offset="0"/>
-                                    <GradientStop Color="#EC4899" Offset="1"/>
+                                    <GradientStop Color="{ThemeResource PurpleBrush}" Offset="0"/>
+                                    <GradientStop Color="{ThemeResource PurpleBrush}" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
                             <FontIcon Glyph="&#xEC07;" Foreground="White" FontSize="16"/>
@@ -278,8 +278,8 @@
                         <Border Style="{StaticResource IconContainerStyle}">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#10B981" Offset="0"/>
-                                    <GradientStop Color="#00AEEF" Offset="1"/>
+                                    <GradientStop Color="{ThemeResource SuccessGreenBrush}" Offset="0"/>
+                                    <GradientStop Color="{ThemeResource AccentBlueBrush}" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
                             <FontIcon Glyph="&#xE8F1;" Foreground="White" FontSize="16"/>
@@ -362,9 +362,9 @@
                             IsEnabled="{x:Bind ViewModel.CanSubmit, Mode=OneWay}">
                         <Button.Background>
                             <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-                                <GradientStop Color="#00AEEF" Offset="0"/>
-                                <GradientStop Color="#2563EB" Offset="0.5"/>
-                                <GradientStop Color="#8B5CF6" Offset="1"/>
+                                <GradientStop Color="{ThemeResource AccentBlueBrush}" Offset="0"/>
+                                <GradientStop Color="{ThemeResource SecondaryBlueBrush}" Offset="0.5"/>
+                                <GradientStop Color="{ThemeResource PurpleBrush}" Offset="1"/>
                             </LinearGradientBrush>
                         </Button.Background>
                         <StackPanel Orientation="Horizontal" Spacing="8">

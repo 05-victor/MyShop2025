@@ -31,7 +31,7 @@
                     <FontIcon 
                         Glyph="&#xE76C;"
                         FontSize="10"
-                        Foreground="{ThemeResource TextMutedBrush}"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         VerticalAlignment="Center"
                         Visibility="{Binding IsFirst, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
                     
@@ -40,13 +40,13 @@
                         Content="{Binding Title}"
                         Padding="4,2"
                         FontSize="13"
-                        Foreground="{ThemeResource TextMutedBrush}"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         IsEnabled="{Binding IsClickable}"
                         Tag="{Binding}"
                         Click="BreadcrumbItem_Click">
                         <HyperlinkButton.Resources>
                             <Style TargetType="HyperlinkButton">
-                                <Setter Property="Foreground" Value="{ThemeResource TextMutedBrush}"/>
+                                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}"/>
                             </Style>
                         </HyperlinkButton.Resources>
                     </HyperlinkButton>

@@ -38,10 +38,10 @@
         <StackPanel Grid.Column="0" Spacing="4">
             <TextBlock Text="{Binding StartLabel, ElementName=RootControl, Mode=OneWay}"
                        FontSize="12"
-                       Foreground="{ThemeResource TextMutedBrush}"/>
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
             <CalendarDatePicker x:Name="StartDatePicker"
                                HorizontalAlignment="Stretch"
-                               BorderBrush="{ThemeResource BorderLightBrush}"
+                               BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                Date="{Binding StartDate, ElementName=RootControl, Mode=TwoWay}"
                                PlaceholderText="{Binding StartPlaceholder, ElementName=RootControl, Mode=OneWay}"
                                AutomationProperties.Name="{Binding StartLabel, ElementName=RootControl, Mode=OneWay}"
@@ -54,10 +54,10 @@
         <StackPanel Grid.Column="1" Spacing="4">
             <TextBlock Text="{Binding EndLabel, ElementName=RootControl, Mode=OneWay}"
                        FontSize="12"
-                       Foreground="{ThemeResource TextMutedBrush}"/>
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
             <CalendarDatePicker x:Name="EndDatePicker"
                                HorizontalAlignment="Stretch"
-                               BorderBrush="{ThemeResource BorderLightBrush}"
+                               BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                Date="{Binding EndDate, ElementName=RootControl, Mode=TwoWay}"
                                PlaceholderText="{Binding EndPlaceholder, ElementName=RootControl, Mode=OneWay}"
                                AutomationProperties.Name="{Binding EndLabel, ElementName=RootControl, Mode=OneWay}"

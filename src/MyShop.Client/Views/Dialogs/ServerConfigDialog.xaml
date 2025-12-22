@@ -7,6 +7,7 @@
     PrimaryButtonText="Save"
     CloseButtonText="Cancel"
     DefaultButton="Primary"
+    PrimaryButtonStyle="{ThemeResource AccentButtonStyle}"
     PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
 
     <StackPanel Spacing="16"
@@ -18,7 +19,8 @@
         <!-- API Mode Selection -->
         <StackPanel Spacing="12">
             <TextBlock Text="API Mode"
-                    FontWeight="SemiBold"/>
+                    FontWeight="SemiBold"
+                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
             <RadioButtons x:Name="ApiModeRadioButtons"
                           SelectionChanged="ApiModeRadioButtons_SelectionChanged"
                           MaxColumns="2">
@@ -41,16 +43,20 @@
             <StackPanel Spacing="4">
                 <TextBlock Text="💡 Quick Tips:"
                         FontWeight="SemiBold"
-                        FontSize="13"/>
+                        FontSize="13"
+                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                 <TextBlock Text="• Make sure the server is running before connecting"
                            FontSize="12"
-                        TextWrapping="Wrap"/>
+                        TextWrapping="Wrap"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 <TextBlock Text="• Use https:// for secure connections"
                            FontSize="12"
-                        TextWrapping="Wrap"/>
+                        TextWrapping="Wrap"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 <TextBlock Text="• Check firewall settings if connection fails"
                            FontSize="12"
-                        TextWrapping="Wrap"/>
+                        TextWrapping="Wrap"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
             </StackPanel>
         </Border>
 
@@ -59,7 +65,8 @@
                 Spacing="8"
                 Visibility="Visible">
             <TextBlock Text="Server URL"
-                    FontWeight="SemiBold"/>
+                    FontWeight="SemiBold"
+                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
             <TextBox x:Name="ServerUrlTextBox"
                      PlaceholderText="https://localhost:7120"
                      Text="{x:Bind ServerUrl, Mode=TwoWay}"/>
@@ -80,7 +87,8 @@
             <StackPanel Spacing="12">
                 <TextBlock Text="🎭 Mock Data Mode"
                            FontWeight="SemiBold"
-                           FontSize="14"/>
+                           FontSize="14"
+                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                 <TextBlock Text="Using simulated data for demo purposes. No server connection required."
                            TextWrapping="Wrap"
                            FontSize="12"
@@ -89,22 +97,26 @@
                 <StackPanel Spacing="6">
                     <TextBlock Text="Available Test Accounts:"
                                FontWeight="SemiBold"
-                               FontSize="12"/>
+                               FontSize="12"
+                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                     <StackPanel Spacing="4">
                         <TextBlock FontSize="11"
-                                FontFamily="Consolas">
+                                FontFamily="Consolas"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}">
                             <Run Text="👤 Admin: "
                                     FontWeight="SemiBold"/>
                             <Run Text="admin / admin123"/>
                         </TextBlock>
                         <TextBlock FontSize="11"
-                                FontFamily="Consolas">
+                                FontFamily="Consolas"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}">
                             <Run Text="💼 Sales Agent: "
                                     FontWeight="SemiBold"/>
                             <Run Text="salesagent / sales123"/>
                         </TextBlock>
                         <TextBlock FontSize="11"
-                                FontFamily="Consolas">
+                                FontFamily="Consolas"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}">
                             <Run Text="🛍️ Customer: "
                                     FontWeight="SemiBold"/>
                             <Run Text="customer / customer123"/>
@@ -116,7 +128,7 @@
 
         <TextBlock x:Name="ValidationMessage"
                    Text=""
-                   Foreground="#DC2626"
+                   Foreground="{ThemeResource ErrorRedBrush}"
                    FontSize="12"
                    TextWrapping="Wrap"
                    Visibility="Collapsed"/>

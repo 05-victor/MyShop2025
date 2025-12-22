@@ -10,7 +10,7 @@
 
     <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
             CornerRadius="16"
-            BorderBrush="{ThemeResource BorderLightBrush}"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="24">
         <Border.Shadow>
@@ -36,7 +36,7 @@
                            Text="{Binding Title, ElementName=RootControl, Mode=OneWay}"
                            FontSize="18"
                            FontWeight="SemiBold"
-                           Foreground="{ThemeResource TextPrimaryBrush}"
+                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                            AutomationProperties.HeadingLevel="Level2"
                            VerticalAlignment="Center"/>
 
@@ -58,7 +58,7 @@
                     </Button.Flyout>
                     <FontIcon Glyph="&#xE712;" 
                               FontSize="16" 
-                              Foreground="{ThemeResource TextMutedBrush}"/>
+                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 </Button>
             </Grid>
 

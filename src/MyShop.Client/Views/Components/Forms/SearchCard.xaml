@@ -52,7 +52,7 @@
                            Foreground="{ThemeResource TextTertiaryBrush}"/>
                 <TextBlock Text="{Binding Subtitle, ElementName=RootControl, Mode=OneWay}"
                            FontSize="12"
-                           Foreground="{ThemeResource TextMutedBrush}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                            Visibility="{Binding HasSubtitle, ElementName=RootControl, Mode=OneWay}"/>
             </StackPanel>
             
@@ -66,7 +66,7 @@
                 <AutoSuggestBox x:Name="SearchAutoSuggestBox"
                                Grid.Column="0"
                                Height="40"
-                               BorderBrush="{ThemeResource BorderLightBrush}"
+                               BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                CornerRadius="8"
                                QueryIcon="Find"
                                PlaceholderText="{Binding PlaceholderText, ElementName=RootControl, Mode=OneWay}"

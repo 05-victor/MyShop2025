@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="MyShop.Client.Views.Admin.AdminUsersPage"
     x:Name="RootPage"
@@ -14,7 +14,7 @@
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     xmlns:tables="using:MyShop.Client.Views.Components.Tables"
-    Background="#F5F7FA"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
 
     <Page.Transitions>
@@ -141,12 +141,12 @@
                                     <TextBlock
                                         FontSize="14"
                                         FontWeight="SemiBold"
-                                        Foreground="#374151"
+                                        Foreground="{ThemeResource TextTertiaryBrush}"
                                         Text="Search Users"
                                         AutomationProperties.HeadingLevel="Level2"/>
                                     <TextBlock
                                         FontSize="12"
-                                        Foreground="#6B7280"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                         Text="Find users by name, email, or phone number"/>
                                 </StackPanel>
 
@@ -181,13 +181,13 @@
                                     <TextBlock
                                         FontSize="12"
                                         FontWeight="SemiBold"
-                                        Foreground="#6B7280"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                         Text="Role"/>
                                     <ComboBox
                                         x:Name="RoleComboBox"
                                         Width="150"
                                         Padding="12"
-                                        BorderBrush="#E5E7EB"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         PlaceholderText="All Roles"
                                         AutomationProperties.Name="Role filter"
                                         AutomationProperties.HelpText="Filter users by role"
@@ -212,13 +212,13 @@
                                     <TextBlock
                                         FontSize="12"
                                         FontWeight="SemiBold"
-                                        Foreground="#6B7280"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                         Text="Status"/>
                                     <ComboBox
                                         x:Name="StatusComboBox"
                                         Width="150"
                                         Padding="12"
-                                        BorderBrush="#E5E7EB"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         PlaceholderText="All Status"
                                         SelectionChanged="StatusComboBox_SelectionChanged">
                                         <ComboBoxItem Content="All Status"
@@ -291,10 +291,10 @@
                                         <Grid>
                                             <Ellipse Width="120"
                                                      Height="120"
-                                                     Fill="#F3F4F6"/>
+                                                     Fill="{ThemeResource SubtleFillColorSecondaryBrush}"/>
                                             <FontIcon
                                                 FontSize="64"
-                                                Foreground="#9CA3AF"
+                                                Foreground="{ThemeResource Gray500Brush}"
                                                 Glyph="&#xE77B;"/>
                                         </Grid>
                                     </Viewbox>
@@ -302,12 +302,12 @@
                                     <TextBlock
                                         FontSize="20"
                                         FontWeight="SemiBold"
-                                        Foreground="#374151"
+                                        Foreground="{ThemeResource TextTertiaryBrush}"
                                         Text="No users found"
                                         TextAlignment="Center"/>
                                     <TextBlock
                                         FontSize="14"
-                                        Foreground="#6B7280"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                         Text="Start by adding your first user to the system"
                                         TextAlignment="Center"
                                         MaxWidth="300"
@@ -316,7 +316,7 @@
                                     <Button
                                         Margin="0,12,0,0"
                                         Padding="16,10"
-                                        Background="#2563EB"
+                                        Background="{ThemeResource SecondaryBlueBrush}"
                                         Foreground="White"
                                         CornerRadius="8"
                                         ToolTipService.ToolTip="Create a new user account">
@@ -346,7 +346,7 @@
                                         <DataTemplate x:DataType="viewmodels:UserViewModel">
                                             <Grid
                                                 Padding="16"
-                                                BorderBrush="#E5E7EB"
+                                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                                 BorderThickness="0,1,0,0">
                                                 <Grid.ChildrenTransitions>
                                                     <TransitionCollection>
@@ -389,7 +389,7 @@
                                                     Grid.Column="2"
                                                     VerticalAlignment="Center"
                                                     FontSize="14"
-                                                    Foreground="#111827"
+                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                     Text="{x:Bind Phone, Mode=OneWay}"/>
 
                                                 <!--  Status Badge  -->
@@ -438,7 +438,7 @@
                                 <TextBlock
                                     VerticalAlignment="Center"
                                     FontSize="14"
-                                    Foreground="#6B7280"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                     Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}"/>
                             </StackPanel>
                             <StackPanel
@@ -448,14 +448,14 @@
                                 <Button
                                     Padding="12,8"
                                     Background="Transparent"
-                                    BorderBrush="#E5E7EB"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     Content="Previous"
                                     CornerRadius="8"
                                     IsEnabled="{x:Bind ViewModel.HasPreviousPage, Mode=OneWay}"
                                     Command="{x:Bind ViewModel.PreviousPageCommand}"/>
                                 <Border
                                     Padding="12,8"
-                                    Background="#2563EB"
+                                    Background="{ThemeResource SecondaryBlueBrush}"
                                     CornerRadius="8">
                                     <TextBlock
                                         Foreground="White"
@@ -463,16 +463,16 @@
                                 </Border>
                                 <TextBlock
                                     VerticalAlignment="Center"
-                                    Foreground="#6B7280"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                     Text="/"/>
                                 <TextBlock
                                     VerticalAlignment="Center"
-                                    Foreground="#6B7280"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                     Text="{x:Bind ViewModel.TotalPages, Mode=OneWay}"/>
                                 <Button
                                     Padding="12,8"
                                     Background="Transparent"
-                                    BorderBrush="#E5E7EB"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     Content="Next"
                                     CornerRadius="8"
                                     IsEnabled="{x:Bind ViewModel.HasNextPage, Mode=OneWay}"

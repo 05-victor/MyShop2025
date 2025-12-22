@@ -34,10 +34,10 @@
     <StackPanel Spacing="4">
         <TextBlock Text="{Binding Label, ElementName=RootControl, Mode=OneWay}"
                    FontSize="12"
-                   Foreground="{ThemeResource TextMutedBrush}"/>
+                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
         <ComboBox x:Name="InnerComboBox"
                   HorizontalAlignment="Stretch"
-                  BorderBrush="{ThemeResource BorderLightBrush}"
+                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                   BorderThickness="1"
                   PlaceholderText="{Binding PlaceholderText, ElementName=RootControl, Mode=OneWay}"
                   ItemsSource="{Binding ItemsSource, ElementName=RootControl, Mode=OneWay}"

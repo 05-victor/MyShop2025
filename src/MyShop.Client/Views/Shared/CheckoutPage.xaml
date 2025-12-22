@@ -8,7 +8,7 @@
     xmlns:vm="using:MyShop.Client.ViewModels.Shared"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     mc:Ignorable="d"
-    Background="#F5F7FA">
+    Background="{ThemeResource LayerFillColorDefaultBrush}">
 
     <Page.Transitions>
         <TransitionCollection>
@@ -24,11 +24,11 @@
         <Style x:Key="CardStyle"
                 TargetType="Border">
             <Setter Property="Background"
-                    Value="White"/>
+                    Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
             <Setter Property="CornerRadius"
                     Value="16"/>
             <Setter Property="BorderBrush"
-                    Value="#D0D7E2"/>
+                    Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
             <Setter Property="BorderThickness"
                     Value="1"/>
             <Setter Property="Padding"
@@ -42,7 +42,7 @@
             <Setter Property="FontWeight"
                     Value="SemiBold"/>
             <Setter Property="Foreground"
-                    Value="#374151"/>
+                    Value="{ThemeResource TextTertiaryBrush}"/>
             <Setter Property="Margin"
                     Value="0,0,0,8"/>
         </Style>
@@ -56,9 +56,9 @@
             <Setter Property="Padding"
                     Value="12,8"/>
             <Setter Property="BorderBrush"
-                    Value="#D0D7E2"/>
+                    Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
             <Setter Property="Background"
-                    Value="White"/>
+                    Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
         </Style>
 
         <DataTemplate x:Key="CheckoutItemTemplate"
@@ -72,7 +72,7 @@
 
                 <Border Width="64"
                         Height="64"
-                        Background="#F9FAFB"
+                        Background="{ThemeResource LayerFillColorDefaultBrush}"
                         CornerRadius="8">
                     <Image Stretch="UniformToFill">
                         <Image.Source>
@@ -89,11 +89,11 @@
                     <TextBlock Text="{x:Bind Name}"
                                FontSize="14"
                                FontWeight="SemiBold"
-                               Foreground="#111827"
+                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                TextTrimming="CharacterEllipsis"
                                MaxLines="2"/>
                     <TextBlock FontSize="12"
-                            Foreground="#6B7280">
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                         <Run Text="Qty: "/><Run Text="{x:Bind Quantity}"/>
                     </TextBlock>
                 </StackPanel>
@@ -102,7 +102,7 @@
                            Text="{x:Bind Total, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                            FontSize="14"
                            FontWeight="SemiBold"
-                           Foreground="#111827"
+                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                            VerticalAlignment="Center"/>
             </Grid>
         </DataTemplate>
@@ -194,10 +194,10 @@
                             <TextBlock Text="Checkout"
                                        FontSize="28"
                                        FontWeight="Bold"
-                                       Foreground="#1B1D1F"/>
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                             <TextBlock Text="Complete your purchase"
                                        FontSize="14"
-                                       Foreground="#4A5568"/>
+                                       Foreground="{ThemeResource Gray400Brush}"/>
                         </StackPanel>
                     </StackPanel>
                 </Grid>
@@ -220,7 +220,7 @@
                                 <TextBlock Text="Shipping Information"
                                            FontSize="18"
                                            FontWeight="SemiBold"
-                                           Foreground="#111827"/>
+                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
 
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -316,7 +316,7 @@
                             <StackPanel Spacing="16">
                                 <TextBlock FontSize="18"
                                         FontWeight="SemiBold"
-                                        Foreground="#111827">
+                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}">
                                     <Run Text="Order Items ("/>
                                     <Run Text="{x:Bind ViewModel.OrderItems.Count, Mode=OneWay}"/>
                                     <Run Text=")"/>
@@ -348,78 +348,78 @@
                             <TextBlock Text="Order Summary"
                                        FontSize="18"
                                        FontWeight="SemiBold"
-                                       Foreground="#111827"/>
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
 
                             <!-- Price Breakdown -->
                             <StackPanel Spacing="12">
                                 <Grid>
                                     <TextBlock Text="Subtotal"
-                                            Foreground="#6B7280"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                             FontSize="14"/>
                                     <TextBlock Text="{x:Bind ViewModel.Subtotal, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                HorizontalAlignment="Right"
-                                               Foreground="#111827"
+                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                FontSize="14"/>
                                 </Grid>
                                 <Grid>
                                     <TextBlock Text="Shipping"
-                                            Foreground="#6B7280"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                             FontSize="14"/>
                                     <TextBlock Text="{x:Bind ViewModel.Shipping, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                HorizontalAlignment="Right"
-                                               Foreground="#111827"
+                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                FontSize="14"/>
                                 </Grid>
                                 <Grid>
                                     <TextBlock Text="Tax (8%)"
-                                            Foreground="#6B7280"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                             FontSize="14"/>
                                     <TextBlock Text="{x:Bind ViewModel.Tax, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                HorizontalAlignment="Right"
-                                               Foreground="#111827"
+                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                FontSize="14"/>
                                 </Grid>
 
                                 <Border Height="1"
-                                        Background="#E5E7EB"
+                                        Background="{ThemeResource CardStrokeColorDefaultBrush}"
                                         Margin="0,8"/>
 
                                 <Grid>
                                     <TextBlock Text="Total"
                                                FontSize="18"
                                                FontWeight="SemiBold"
-                                               Foreground="#111827"/>
+                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                     <TextBlock Text="{x:Bind ViewModel.Total, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                FontSize="20"
                                                FontWeight="Bold"
                                                HorizontalAlignment="Right"
-                                               Foreground="#2563EB"/>
+                                               Foreground="{ThemeResource SecondaryBlueBrush}"/>
                                 </Grid>
                             </StackPanel>
 
                             <!-- QR Code Payment Section -->
                             <Border Height="1"
-                                    Background="#E5E7EB"
+                                    Background="{ThemeResource CardStrokeColorDefaultBrush}"
                                     Margin="0,8"/>
 
                             <StackPanel Spacing="12">
                                 <TextBlock Text="Payment via QR Code"
                                            FontSize="16"
                                            FontWeight="SemiBold"
-                                           Foreground="#111827"
+                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                            HorizontalAlignment="Center"/>
 
                                 <TextBlock Text="Scan to pay with your banking app"
                                            FontSize="12"
-                                           Foreground="#6B7280"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                            HorizontalAlignment="Center"/>
 
                                 <!-- QR Code Image Only -->
-                                <Border Background="White"
+                                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                         CornerRadius="12"
                                         Padding="12"
                                         HorizontalAlignment="Center"
-                                        BorderBrush="#E5E7EB"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         BorderThickness="1">
                                     <Image x:Name="QrCodeImage"
                                            Source="ms-appx:///Assets/payment-qr.png"
@@ -432,7 +432,7 @@
                                 <!-- Fallback placeholder when image fails -->
                                 <Border x:Name="QrPlaceholder"
                                         Visibility="Collapsed"
-                                        Background="#F3F4F6"
+                                        Background="{ThemeResource SubtleFillColorSecondaryBrush}"
                                         CornerRadius="12"
                                         Padding="24"
                                         HorizontalAlignment="Center">
@@ -440,14 +440,14 @@
                                             Spacing="8">
                                         <FontIcon Glyph="&#xED14;"
                                                 FontSize="48"
-                                                Foreground="#9CA3AF"/>
+                                                Foreground="{ThemeResource Gray500Brush}"/>
                                         <TextBlock Text="QR Code"
                                                 FontSize="14"
-                                                Foreground="#6B7280"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                    HorizontalAlignment="Center"/>
                                         <TextBlock Text="Add payment-qr.png to Assets"
                                                 FontSize="11"
-                                                Foreground="#9CA3AF"
+                                                Foreground="{ThemeResource Gray500Brush}"
                                                    HorizontalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
@@ -472,7 +472,7 @@
 
                             <TextBlock Text="Your order will be processed once payment is confirmed"
                                        FontSize="11"
-                                       Foreground="#9CA3AF"
+                                       Foreground="{ThemeResource Gray500Brush}"
                                        TextAlignment="Center"
                                        TextWrapping="Wrap"/>
                         </StackPanel>

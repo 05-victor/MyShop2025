@@ -17,7 +17,7 @@
     xmlns:converters="using:MyShop.Client.Common.Converters"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.SalesAgent"
     mc:Ignorable="d"
-    Background="#F5F7FA">
+    Background="{ThemeResource LayerFillColorDefaultBrush}">
 
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
@@ -151,19 +151,19 @@
                     Grid.Column="1"
                     Label="Pending"
                     Value="{x:Bind ViewModel.PendingOrders, Mode=OneWay}"
-                    ValueColor="#F59E0B" />
+                    ValueColor="{ThemeResource WarningAmberBrush}" />
 
                 <cards:SimpleStatCard
                     Grid.Column="2"
                     Label="Processing"
                     Value="0"
-                    ValueColor="#3B82F6" />
+                    ValueColor="{ThemeResource PrimaryBrush}" />
 
                 <cards:SimpleStatCard
                     Grid.Column="3"
                     Label="Completed"
                     Value="{x:Bind ViewModel.CompletedOrders, Mode=OneWay}"
-                    ValueColor="#10B981" />
+                    ValueColor="{ThemeResource SuccessGreenBrush}" />
             </Grid>
 
             <!-- SEARCH CARD with Auto-Complete -->
@@ -190,7 +190,7 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="Status" FontSize="12" Foreground="#6B7280" Margin="0,0,0,4"/>
+                            <TextBlock Text="Status" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
                             <ComboBox x:Name="StatusComboBox"
                                      HorizontalAlignment="Stretch"
                                      CornerRadius="8"
@@ -205,7 +205,7 @@
                         </StackPanel>
 
                         <StackPanel Grid.Column="1">
-                            <TextBlock Text="Sort By" FontSize="12" Foreground="#6B7280" Margin="0,0,0,4"/>
+                            <TextBlock Text="Sort By" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
                             <ComboBox x:Name="SortComboBox"
                                      HorizontalAlignment="Stretch"
                                      CornerRadius="8"
@@ -247,7 +247,7 @@
                             <ItemsRepeater.ItemTemplate>
                                 <DataTemplate x:DataType="viewmodels:OrderViewModel">
                                     <Grid Padding="24,16" 
-                                         BorderBrush="#E5E7EB"
+                                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                          BorderThickness="0,0,0,1">
                                         <Grid.ChildrenTransitions>
                                             <TransitionCollection>
@@ -269,33 +269,33 @@
                                                   Text="{x:Bind OrderId, Mode=OneWay}" 
                                                   FontSize="13" 
                                                   FontFamily="Consolas"
-                                                  Foreground="#6B7280"
+                                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                   VerticalAlignment="Center"/>
 
                                         <TextBlock Grid.Column="1" 
                                                   Text="{x:Bind CustomerName, Mode=OneWay}" 
                                                   FontSize="14" 
-                                                  Foreground="#111827"
+                                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                   VerticalAlignment="Center"/>
 
                                         <TextBlock Grid.Column="2" 
                                                   Text="{x:Bind ProductDescription, Mode=OneWay}" 
                                                   FontSize="14" 
-                                                  Foreground="#6B7280"
+                                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                   TextTrimming="CharacterEllipsis"
                                                   VerticalAlignment="Center"/>
 
                                         <TextBlock Grid.Column="3" 
                                                   Text="{x:Bind FormattedDate, Mode=OneWay}" 
                                                   FontSize="13" 
-                                                  Foreground="#6B7280"
+                                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                   VerticalAlignment="Center"/>
 
                                         <TextBlock Grid.Column="4" 
                                                   Text="{x:Bind TotalAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" 
                                                   FontSize="14" 
                                                   FontWeight="SemiBold"
-                                                  Foreground="#111827"
+                                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                   VerticalAlignment="Center"/>
 
                                         <Border Grid.Column="5"
@@ -317,7 +317,7 @@
                                                Command="{Binding ElementName=RootPage, Path=ViewModel.ViewOrderDetailsCommand}"
                                                CommandParameter="{x:Bind}"
                                                VerticalAlignment="Center">
-                                            <FontIcon Glyph="&#xE7A6;" FontSize="16" Foreground="#6B7280"/>
+                                            <FontIcon Glyph="&#xE7A6;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         </Button>
                                     </Grid>
                                 </DataTemplate>
@@ -334,8 +334,8 @@
 
         <!-- Bottom Pagination - Fixed at bottom -->
         <Border Grid.Row="1" 
-                Background="White" 
-                BorderBrush="#E5E7EB" 
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
                 BorderThickness="0,1,0,0"
                 Padding="24,12">
             <Grid>
@@ -347,7 +347,7 @@
                 <TextBlock Grid.Column="0"
                           VerticalAlignment="Center"
                           FontSize="14"
-                          Foreground="#6B7280">
+                          Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                     <Run Text="Showing"/>
                     <Run Text="{x:Bind ViewModel.Items.Count, Mode=OneWay}" FontWeight="SemiBold"/>
                     <Run Text="of"/>

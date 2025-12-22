@@ -51,7 +51,7 @@
         
         <!-- Menu Card -->
         <Border Grid.Row="1"
-                Background="{ThemeResource CardBackgroundBrush}"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 CornerRadius="12"
                 MaxWidth="600"
                 MinWidth="400"
@@ -89,7 +89,7 @@
                                 <FontIcon Grid.Column="0" 
                                          Glyph="{Binding IconGlyph}" 
                                          FontSize="16"
-                                         Foreground="{ThemeResource TextMutedBrush}"/>
+                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                 
                                 <TextBlock Grid.Column="1" 
                                           Text="{Binding Title}" 
@@ -99,7 +99,7 @@
                                 <TextBlock Grid.Column="2" 
                                           Text="{Binding Shortcut}" 
                                           FontSize="12"
-                                          Foreground="{ThemeResource TextMutedBrush}"
+                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                           VerticalAlignment="Center"/>
                             </Grid>
                         </DataTemplate>
@@ -111,9 +111,9 @@
                            HorizontalAlignment="Center" 
                            Spacing="16"
                            Padding="8,4">
-                    <TextBlock Text="↵ to select" FontSize="11" Foreground="{ThemeResource TextMutedBrush}"/>
-                    <TextBlock Text="↑↓ to navigate" FontSize="11" Foreground="{ThemeResource TextMutedBrush}"/>
-                    <TextBlock Text="Esc to close" FontSize="11" Foreground="{ThemeResource TextMutedBrush}"/>
+                    <TextBlock Text="↵ to select" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock Text="↑↓ to navigate" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock Text="Esc to close" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 </StackPanel>
             </StackPanel>
         </Border>

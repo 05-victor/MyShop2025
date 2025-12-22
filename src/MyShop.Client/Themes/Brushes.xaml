@@ -76,14 +76,14 @@
     <SolidColorBrush x:Key="BorderFocusBrush" Color="#1A4D8F"/>
     <SolidColorBrush x:Key="BackgroundLightBrush" Color="#F5F7FA"/>
     <SolidColorBrush x:Key="BackgroundMediumBrush" Color="#F9FAFB"/>
-    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="CardBackgroundBrush" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
 
 
     <!-- ============================================= -->
     <!-- SEMANTIC BRUSHES                             -->
     <!-- ============================================= -->
     
-    <SolidColorBrush x:Key="WhiteBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="WhiteBrush" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
     <SolidColorBrush x:Key="BlackBrush" Color="#000000"/>
     
     <!-- Transparent Brushes -->

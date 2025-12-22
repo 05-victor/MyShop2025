@@ -21,9 +21,9 @@
             <!-- KPI Card 1 -->
             <Border
                 Grid.Column="0"
-                Background="{ThemeResource CardBackgroundBrush}"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 CornerRadius="12"
-                BorderBrush="{ThemeResource BorderLightBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1"
                 Padding="20">
                 <StackPanel Spacing="12">
@@ -36,9 +36,9 @@
             <!-- KPI Card 2 -->
             <Border
                 Grid.Column="1"
-                Background="{ThemeResource CardBackgroundBrush}"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 CornerRadius="12"
-                BorderBrush="{ThemeResource BorderLightBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1"
                 Padding="20">
                 <StackPanel Spacing="12">
@@ -51,9 +51,9 @@
             <!-- KPI Card 3 -->
             <Border
                 Grid.Column="2"
-                Background="{ThemeResource CardBackgroundBrush}"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 CornerRadius="12"
-                BorderBrush="{ThemeResource BorderLightBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1"
                 Padding="20">
                 <StackPanel Spacing="12">
@@ -66,9 +66,9 @@
             <!-- KPI Card 4 -->
             <Border
                 Grid.Column="3"
-                Background="{ThemeResource CardBackgroundBrush}"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 CornerRadius="12"
-                BorderBrush="{ThemeResource BorderLightBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1"
                 Padding="20">
                 <StackPanel Spacing="12">
@@ -89,9 +89,9 @@
             <!-- Main Chart -->
             <Border
                 Grid.Column="0"
-                Background="{ThemeResource CardBackgroundBrush}"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 CornerRadius="12"
-                BorderBrush="{ThemeResource BorderLightBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1"
                 Padding="20"
                 Height="300">
@@ -104,9 +104,9 @@
             <!-- Secondary Chart -->
             <Border
                 Grid.Column="1"
-                Background="{ThemeResource CardBackgroundBrush}"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 CornerRadius="12"
-                BorderBrush="{ThemeResource BorderLightBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1"
                 Padding="20"
                 Height="300">
@@ -119,9 +119,9 @@
 
         <!-- Recent Activity / Table -->
         <Border
-            Background="{ThemeResource CardBackgroundBrush}"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
             CornerRadius="12"
-            BorderBrush="{ThemeResource BorderLightBrush}"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="20">
             <StackPanel Spacing="16">

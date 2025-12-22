@@ -14,7 +14,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Shared"
     mc:Ignorable="d"
-    Background="#F8FAFC">
+    Background="{ThemeResource LayerFillColorAltBrush}">
 
     <Page.Resources>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
@@ -24,11 +24,11 @@
         <Style x:Key="CardStyle"
                 TargetType="Border">
             <Setter Property="Background"
-                    Value="White"/>
+                    Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
             <Setter Property="CornerRadius"
                     Value="12"/>
             <Setter Property="BorderBrush"
-                    Value="#E5E7EB"/>
+                    Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
             <Setter Property="BorderThickness"
                     Value="1"/>
             <Setter Property="Padding"
@@ -38,11 +38,11 @@
         <Style x:Key="StatCardStyle"
                 TargetType="Border">
             <Setter Property="Background"
-                    Value="White"/>
+                    Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
             <Setter Property="CornerRadius"
                     Value="12"/>
             <Setter Property="BorderBrush"
-                    Value="#E5E7EB"/>
+                    Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
             <Setter Property="BorderThickness"
                     Value="1"/>
             <Setter Property="Padding"
@@ -52,11 +52,11 @@
         <Style x:Key="FilterToggleButtonStyle"
                 TargetType="ToggleButton">
             <Setter Property="Background"
-                    Value="White"/>
+                    Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
             <Setter Property="Foreground"
-                    Value="#6B7280"/>
+                    Value="{ThemeResource TextFillColorSecondaryBrush}"/>
             <Setter Property="BorderBrush"
-                    Value="#E5E7EB"/>
+                    Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
             <Setter Property="BorderThickness"
                     Value="1"/>
             <Setter Property="Padding"
@@ -154,22 +154,22 @@
                                 Spacing="12">
                             <Border Width="40"
                                     Height="40"
-                                    Background="#EEF2FF"
+                                    Background="{ThemeResource PurpleLightBrush}"
                                     CornerRadius="8">
                                 <FontIcon Glyph="&#xF133;"
                                         FontSize="20"
-                                        Foreground="#2563EB"
+                                        Foreground="{ThemeResource SecondaryBlueBrush}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel>
                                 <TextBlock Text="Total Orders"
                                         FontSize="12"
-                                        Foreground="#6B7280"/>
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                 <TextBlock Text="{x:Bind ViewModel.TotalOrders, Mode=OneWay}"
                                         FontSize="18"
                                         FontWeight="SemiBold"
-                                        Foreground="#111827"/>
+                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
@@ -182,22 +182,22 @@
                                 Spacing="12">
                             <Border Width="40"
                                     Height="40"
-                                    Background="#F3F4F6"
+                                    Background="{ThemeResource SubtleFillColorSecondaryBrush}"
                                     CornerRadius="8">
                                 <FontIcon Glyph="&#xE121;"
                                         FontSize="20"
-                                        Foreground="#6B7280"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel>
                                 <TextBlock Text="Pending"
                                         FontSize="12"
-                                        Foreground="#6B7280"/>
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                 <TextBlock Text="{x:Bind ViewModel.PendingOrders, Mode=OneWay}"
                                         FontSize="18"
                                         FontWeight="SemiBold"
-                                        Foreground="#111827"/>
+                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
@@ -210,22 +210,22 @@
                                 Spacing="12">
                             <Border Width="40"
                                     Height="40"
-                                    Background="#DBEAFE"
+                                    Background="{ThemeResource InfoBlueLightBrush}"
                                     CornerRadius="8">
                                 <FontIcon Glyph="&#xE916;"
                                         FontSize="20"
-                                        Foreground="#00AEEF"
+                                        Foreground="{ThemeResource AccentBlueBrush}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel>
                                 <TextBlock Text="In Transit"
                                         FontSize="12"
-                                        Foreground="#6B7280"/>
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                 <TextBlock Text="{x:Bind ViewModel.InTransitOrders, Mode=OneWay}"
                                         FontSize="18"
                                         FontWeight="SemiBold"
-                                        Foreground="#111827"/>
+                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
@@ -238,22 +238,22 @@
                                 Spacing="12">
                             <Border Width="40"
                                     Height="40"
-                                    Background="#D1FAE5"
+                                    Background="{ThemeResource SuccessGreenLightBrush}"
                                     CornerRadius="8">
                                 <FontIcon Glyph="&#xE73E;"
                                         FontSize="20"
-                                        Foreground="#10B981"
+                                        Foreground="{ThemeResource SuccessGreenBrush}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel>
                                 <TextBlock Text="Delivered"
                                         FontSize="12"
-                                        Foreground="#6B7280"/>
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                 <TextBlock Text="{x:Bind ViewModel.DeliveredOrders, Mode=OneWay}"
                                         FontSize="18"
                                         FontWeight="SemiBold"
-                                        Foreground="#111827"/>
+                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
@@ -266,22 +266,22 @@
                                 Spacing="12">
                             <Border Width="40"
                                     Height="40"
-                                    Background="#FEF3C7"
+                                    Background="{ThemeResource WarningAmberLightBrush}"
                                     CornerRadius="8">
                                 <FontIcon Glyph="&#xE8C7;"
                                         FontSize="20"
-                                        Foreground="#F59E0B"
+                                        Foreground="{ThemeResource WarningAmberBrush}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel>
                                 <TextBlock Text="Total Spent"
                                         FontSize="12"
-                                        Foreground="#6B7280"/>
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                 <TextBlock Text="{x:Bind ViewModel.TotalSpent, Converter={StaticResource CurrencyConverter}, Mode=OneWay}"
                                         FontSize="18"
                                         FontWeight="SemiBold"
-                                        Foreground="#111827"/>
+                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
@@ -336,7 +336,7 @@
                                     x:Name="SortComboBox"
                                     Width="200"
                                     PlaceholderText="Sort by"
-                                      BorderBrush="#E5E7EB"
+                                      BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     SelectionChanged="SortComboBox_SelectionChanged">
                                 <ComboBoxItem Content="Newest First"
                                         IsSelected="True"/>
@@ -362,7 +362,7 @@
                                     <Border Width="80"
                                             Height="80"
                                             CornerRadius="8"
-                                            Background="#F3F4F6"
+                                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
                                             Margin="0,0,16,0">
                                         <Image Stretch="UniformToFill">
                                             <Image.Source>
@@ -380,12 +380,12 @@
                                                 <TextBlock Text="{x:Bind ProductSummary}"
                                                         FontSize="18"
                                                         FontWeight="SemiBold"
-                                                        Foreground="#111827"
+                                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                         TextTrimming="CharacterEllipsis"
                                                         MaxWidth="400"/>
                                                 <TextBlock Text="{x:Bind OrderId}"
                                                         FontSize="13"
-                                                        Foreground="#6B7280"
+                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                         Margin="0,4,0,0"/>
                                                 <StackPanel Orientation="Horizontal"
                                                         Spacing="12"
@@ -394,13 +394,13 @@
                                                             Spacing="4">
                                                         <FontIcon Glyph="&#xE787;"
                                                                 FontSize="14"
-                                                                Foreground="#6B7280"/>
+                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                         <TextBlock Text="{x:Bind FormattedOrderDate}"
                                                                 FontSize="12"
-                                                                Foreground="#6B7280"/>
+                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                     </StackPanel>
                                                     <TextBlock FontSize="12"
-                                                            Foreground="#6B7280">
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                                         <Run Text="Tracking: "/>
                                                         <Run Text="{x:Bind TrackingNumber}"/>
                                                     </TextBlock>
@@ -433,7 +433,7 @@
                                         </Grid>
 
                                         <!-- Status Alert -->
-                                        <Border Background="#D1FAE5"
+                                        <Border Background="{ThemeResource SuccessGreenLightBrush}"
                                                 Padding="12"
                                                 CornerRadius="8"
                                                 Visibility="{x:Bind DeliveredDate, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
@@ -441,10 +441,10 @@
                                                     Spacing="8">
                                                 <FontIcon Glyph="&#xE73E;"
                                                         FontSize="16"
-                                                        Foreground="#10B981"/>
+                                                        Foreground="{ThemeResource SuccessGreenBrush}"/>
                                                 <TextBlock Text="{x:Bind DeliveryMessage}"
                                                         FontSize="14"
-                                                        Foreground="#10B981"/>
+                                                        Foreground="{ThemeResource SuccessGreenBrush}"/>
                                             </StackPanel>
                                         </Border>
                                     </StackPanel>
@@ -453,68 +453,61 @@
                                     <StackPanel Grid.Column="2"
                                             Margin="24,0,0,0"
                                             Spacing="16">
-                                        <Border Background="#F9FAFB"
+                                        <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
                                                 Padding="16"
                                                 CornerRadius="8">
                                             <StackPanel Spacing="12">
                                                 <Grid>
                                                     <TextBlock Text="Subtotal"
                                                             FontSize="14"
-                                                            Foreground="#6B7280"/>
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                     <TextBlock Text="{x:Bind Subtotal, Converter={StaticResource CurrencyConverter}}"
                                                             FontSize="14"
-                                                            Foreground="#111827"
+                                                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                             HorizontalAlignment="Right"/>
                                                 </Grid>
                                                 <Grid>
                                                     <TextBlock Text="Shipping"
                                                             FontSize="14"
-                                                            Foreground="#6B7280"/>
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                     <TextBlock Text="{x:Bind Shipping, Converter={StaticResource CurrencyConverter}}"
                                                             FontSize="14"
-                                                            Foreground="#111827"
+                                                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                             HorizontalAlignment="Right"/>
                                                 </Grid>
                                                 <Grid>
                                                     <TextBlock Text="Tax"
                                                             FontSize="14"
-                                                            Foreground="#6B7280"/>
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                     <TextBlock Text="{x:Bind Tax, Converter={StaticResource CurrencyConverter}}"
                                                             FontSize="14"
-                                                            Foreground="#111827"
+                                                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                             HorizontalAlignment="Right"/>
                                                 </Grid>
                                                 <Border Height="1"
-                                                        Background="#E5E7EB"/>
+                                                        Background="{ThemeResource CardStrokeColorDefaultBrush}"/>
                                                 <Grid>
                                                     <TextBlock Text="Total"
                                                             FontSize="14"
                                                             FontWeight="SemiBold"
-                                                            Foreground="#111827"/>
+                                                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                                     <TextBlock Text="{x:Bind Total, Converter={StaticResource CurrencyConverter}}"
                                                             FontSize="18"
                                                             FontWeight="Bold"
-                                                            Foreground="#111827"
+                                                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                             HorizontalAlignment="Right"/>
                                                 </Grid>
                                             </StackPanel>
                                         </Border>
 
                                         <StackPanel Spacing="8">
-                                            <Button Content="View Details &amp; Tracking"
-                                                    Background="#2563EB"
-                                                    Foreground="White"
-                                                    Padding="16"
-                                                    CornerRadius="8"
+                                            <Button Style="{StaticResource PrimaryButtonStyle}"
+                                                    Content="View Details &amp; Tracking"
                                                     HorizontalAlignment="Stretch"
                                                     Command="{Binding ElementName=OrdersRepeater, Path=Tag.ViewOrderDetailsCommand}"
                                                     CommandParameter="{x:Bind}"/>
-                                            <Button Content="🛒 Buy Again"
-                                                    Background="Transparent"
-                                                    BorderBrush="#2563EB"
-                                                    Foreground="#2563EB"
-                                                    Padding="16"
-                                                    CornerRadius="8"
+                                            <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                    Content="🛒 Buy Again"
                                                     HorizontalAlignment="Stretch"
                                                     Command="{Binding ElementName=OrdersRepeater, Path=Tag.BuyAgainCommand}"
                                                     CommandParameter="{x:Bind}"/>
@@ -535,15 +528,15 @@
                             Padding="48">
                         <FontIcon Glyph="&#xE719;"
                                 FontSize="48"
-                                Foreground="#9CA3AF"/>
+                                Foreground="{ThemeResource Gray500Brush}"/>
                         <TextBlock Text="No orders found"
                                 FontSize="16"
                                 FontWeight="SemiBold"
-                                Foreground="#6B7280"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 HorizontalAlignment="Center"/>
                         <TextBlock Text="Try adjusting your search or filters"
                                 FontSize="14"
-                                Foreground="#9CA3AF"
+                                Foreground="{ThemeResource Gray500Brush}"
                                 HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Border>

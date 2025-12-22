@@ -12,7 +12,7 @@
     xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     mc:Ignorable="d"
-    Background="#F5F7FA"
+    Background="{ThemeResource LayerFillColorDefaultBrush}"
     x:Name="MyPage">
 
     <Page.Resources>
@@ -113,7 +113,7 @@
                                 IsClosable="False">
                                 <InfoBar.ActionButton>
                                     <Button Content="Resend Email"
-                                            Style="{StaticResource AccentButtonStyle}"/>
+                                            Style="{StaticResource PrimaryButtonStyle}"/>
                                 </InfoBar.ActionButton>
                             </InfoBar>
 
@@ -127,7 +127,7 @@
                                         <ComboBox Width="180"
                                                   Height="40"
                                                   CornerRadius="10"
-                                                  BorderBrush="#D0D7E2"
+                                                  BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
                                                   ItemsSource="{x:Bind ViewModel.DateRangeOptions}"
                                                   SelectedIndex="{x:Bind ViewModel.SelectedDateRangeIndex, Mode=TwoWay}"
                                                   AutomationProperties.Name="Select date range"
@@ -177,10 +177,10 @@
                                     ShowBadge="Visible"
                                     TrendIcon="&#xE74E;"
                                     TrendText="+8.5%"
-                                    IconBackgroundBrush="#DFF0FF"
-                                    IconForegroundBrush="#3B82F6"
-                                    BadgeBackgroundBrush="#DFF0FF"
-                                    BadgeForegroundBrush="#3B82F6"/>
+                                    IconBackgroundBrush="{ThemeResource InfoBlueLightBrush}"
+                                    IconForegroundBrush="{ThemeResource PrimaryBrush}"
+                                    BadgeBackgroundBrush="{ThemeResource InfoBlueLightBrush}"
+                                    BadgeForegroundBrush="{ThemeResource PrimaryBrush}"/>
 
                                 <!-- Commission KPI -->
                                 <cards:KPICard
@@ -192,10 +192,10 @@
                                     ShowBadge="Visible"
                                     TrendIcon="&#xE74E;"
                                     TrendText="{x:Bind ViewModel.ThisWeekCommission, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
-                                    IconBackgroundBrush="#D1FAE5"
-                                    IconForegroundBrush="#10B981"
-                                    BadgeBackgroundBrush="#D1FAE5"
-                                    BadgeForegroundBrush="#10B981"/>
+                                    IconBackgroundBrush="{ThemeResource SuccessGreenLightBrush}"
+                                    IconForegroundBrush="{ThemeResource SuccessGreenBrush}"
+                                    BadgeBackgroundBrush="{ThemeResource SuccessGreenLightBrush}"
+                                    BadgeForegroundBrush="{ThemeResource SuccessGreenBrush}"/>
 
                                 <!-- Total Revenue KPI -->
                                 <cards:KPICard
@@ -207,10 +207,10 @@
                                     ShowBadge="Visible"
                                     TrendIcon="&#xE74E;"
                                     TrendText="+15.2%"
-                                    IconBackgroundBrush="#FCE7F3"
-                                    IconForegroundBrush="#EC4899"
-                                    BadgeBackgroundBrush="#FCE7F3"
-                                    BadgeForegroundBrush="#EC4899"/>
+                                    IconBackgroundBrush="{ThemeResource PurpleLightBrush}"
+                                    IconForegroundBrush="{ThemeResource PurpleBrush}"
+                                    BadgeBackgroundBrush="{ThemeResource PurpleLightBrush}"
+                                    BadgeForegroundBrush="{ThemeResource PurpleBrush}"/>
                             </Grid>
 
                             <!-- Charts Row -->
@@ -240,7 +240,7 @@
                                         <TextBlock Text="Top Performing Links"
                                                    FontSize="18"
                                                    FontWeight="SemiBold"
-                                                   Foreground="#111827"/>
+                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
 
                                         <!-- Changed to {Binding} for async loaded API data -->
                                         <ListView ItemsSource="{Binding TopLinks, Mode=OneWay}"
@@ -248,7 +248,7 @@
                                             <ListView.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:TopAffiliateLink">
                                                     <Border Padding="0,12"
-                                                            BorderBrush="#E5E7EB"
+                                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                                             BorderThickness="0,0,0,1">
                                                         <Grid>
                                                             <Grid.RowDefinitions>
@@ -260,7 +260,7 @@
                                                                        Text="{x:Bind Product}"
                                                                        FontSize="14"
                                                                        FontWeight="SemiBold"
-                                                                       Foreground="#111827"
+                                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                                        TextTrimming="CharacterEllipsis"/>
 
                                                             <Grid Grid.Row="1"
@@ -274,12 +274,12 @@
                                                                             Orientation="Horizontal"
                                                                             Spacing="12">
                                                                     <TextBlock FontSize="12"
-                                                                               Foreground="#6B7280">
+                                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                                         <Run Text="{x:Bind Orders}"/>
                                                         <Run Text=" orders"/>
                                                                     </TextBlock>
                                                                     <TextBlock FontSize="12"
-                                                                               Foreground="#6B7280">
+                                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                                         <Run Text="{x:Bind Clicks}"/>
                                                         <Run Text=" clicks"/>
                                                                     </TextBlock>
@@ -288,7 +288,7 @@
                                                                 <TextBlock Grid.Column="1"
                                                                            FontSize="14"
                                                                            FontWeight="Bold"
-                                                                           Foreground="#10B981">
+                                                                           Foreground="{ThemeResource SuccessGreenBrush}">
                                                            <Run Text="{x:Bind Commission, Converter={StaticResource CurrencyConverter}}"/>
                                                                 </TextBlock>
                                                             </Grid>
@@ -323,7 +323,7 @@
                                               MaxHeight="400">
                                         <ListView.Header>
                                             <Grid Padding="0,0,0,12"
-                                                  BorderBrush="#E5E7EB"
+                                                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                                   BorderThickness="0,0,0,1">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="120"/>
@@ -338,39 +338,39 @@
                                                            Text="ORDER ID"
                                                            FontSize="11"
                                                            FontWeight="SemiBold"
-                                                           Foreground="#6B7280"/>
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                 <TextBlock Grid.Column="1"
                                                            Text="CUSTOMER"
                                                            FontSize="11"
                                                            FontWeight="SemiBold"
-                                                           Foreground="#6B7280"/>
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                 <TextBlock Grid.Column="2"
                                                            Text="PRODUCT"
                                                            FontSize="11"
                                                            FontWeight="SemiBold"
-                                                           Foreground="#6B7280"/>
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                 <TextBlock Grid.Column="3"
                                                            Text="DATE"
                                                            FontSize="11"
                                                            FontWeight="SemiBold"
-                                                           Foreground="#6B7280"/>
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                 <TextBlock Grid.Column="4"
                                                            Text="AMOUNT"
                                                            FontSize="11"
                                                            FontWeight="SemiBold"
-                                                           Foreground="#6B7280"/>
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                 <TextBlock Grid.Column="5"
                                                            Text="STATUS"
                                                            FontSize="11"
                                                            FontWeight="SemiBold"
-                                                           Foreground="#6B7280"/>
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                             </Grid>
                                         </ListView.Header>
 
                                         <ListView.ItemTemplate>
                                             <DataTemplate x:DataType="viewmodels:RecentSalesOrder">
                                                 <Grid Padding="0,12"
-                                                      BorderBrush="#E5E7EB"
+                                                      BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                                       BorderThickness="0,0,0,1">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="120"/>
@@ -385,40 +385,40 @@
                                                                Text="{x:Bind OrderId}"
                                                                FontSize="13"
                                                                FontFamily="Consolas"
-                                                               Foreground="#6B7280"/>
+                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                                                     <TextBlock Grid.Column="1"
                                                                Text="{x:Bind Customer}"
                                                                FontSize="14"
-                                                               Foreground="#111827"/>
+                                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
 
                                                     <TextBlock Grid.Column="2"
                                                                Text="{x:Bind Product}"
                                                                FontSize="14"
-                                                               Foreground="#6B7280"
+                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                                TextTrimming="CharacterEllipsis"/>
 
                                                     <TextBlock Grid.Column="3"
                                                                Text="{x:Bind OrderDate}"
                                                                FontSize="13"
-                                                               Foreground="#6B7280"/>
+                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                                                     <TextBlock Grid.Column="4"
                                                                FontSize="14"
                                                                FontWeight="SemiBold"
-                                                               Foreground="#111827">
+                                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}">
                                         <Run Text="{x:Bind Amount, Converter={StaticResource CurrencyConverter}}"/>
                                                     </TextBlock>
 
                                                     <Border Grid.Column="5"
-                                                            Background="#DBEAFE"
+                                                            Background="{ThemeResource InfoBlueLightBrush}"
                                                             CornerRadius="999"
                                                             Padding="8,4"
                                                             HorizontalAlignment="Left">
                                                         <TextBlock Text="{x:Bind Status}"
                                                                    FontSize="12"
                                                                    FontWeight="SemiBold"
-                                                                   Foreground="#1E40AF"/>
+                                                                   Foreground="{ThemeResource DarkBlueBrush}"/>
                                                     </Border>
                                                 </Grid>
                                             </DataTemplate>

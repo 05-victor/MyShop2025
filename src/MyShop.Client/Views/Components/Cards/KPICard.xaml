@@ -55,7 +55,7 @@
         <Border x:Name="CardBorder"
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 CornerRadius="16"
-                BorderBrush="{ThemeResource BorderLightBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1"
                 Padding="24"
                 AutomationProperties.Name="{x:Bind Title, Mode=OneWay}"
@@ -128,7 +128,7 @@
                 <TextBlock Grid.Row="1"
                            Text="{x:Bind Title, Mode=OneWay}" 
                            FontSize="14" 
-                           Foreground="{ThemeResource TextMutedBrush}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                            Margin="0,0,0,8"/>
 
                 <!-- Value (with count-up animation) -->
@@ -137,7 +137,7 @@
                            Text="{x:Bind DisplayValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                            FontSize="32" 
                            FontWeight="Bold" 
-                           Foreground="{ThemeResource TextPrimaryBrush}"
+                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                            AutomationProperties.LiveSetting="Polite"
                            AutomationProperties.Name="{x:Bind Title, Mode=OneWay}"
                            Margin="0,0,0,12"/>

@@ -15,7 +15,7 @@
     xmlns:converters="using:MyShop.Client.Common.Converters"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.SalesAgent"
     mc:Ignorable="d"
-    Background="#F3F4F6">
+    Background="{ThemeResource SubtleFillColorSecondaryBrush}">
 
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
@@ -168,10 +168,10 @@
                     ShowBadge="Visible"
                     TrendIcon="&#xE74E;"
                     TrendText="+12.5%"
-                    IconBackgroundBrush="#D1FAE5"
-                    IconForegroundBrush="#10B981"
-                    BadgeBackgroundBrush="#D1FAE5"
-                    BadgeForegroundBrush="#10B981"/>
+                    IconBackgroundBrush="{ThemeResource SuccessGreenLightBrush}"
+                    IconForegroundBrush="{ThemeResource SuccessGreenBrush}"
+                    BadgeBackgroundBrush="{ThemeResource SuccessGreenLightBrush}"
+                    BadgeForegroundBrush="{ThemeResource SuccessGreenBrush}"/>
 
                 <!-- Platform Fees -->
                 <cards:KPICard 
@@ -181,8 +181,8 @@
                     Value="$485.00"
                     Subtitle="10% commission"
                     ShowBadge="Collapsed"
-                    IconBackgroundBrush="#FEE2E2"
-                    IconForegroundBrush="#DC2626"/>
+                    IconBackgroundBrush="{ThemeResource ErrorRedLightBrush}"
+                    IconForegroundBrush="{ThemeResource ErrorRedBrush}"/>
 
                 <!-- Net Earnings -->
                 <cards:KPICard 
@@ -194,10 +194,10 @@
                     ShowBadge="Visible"
                     TrendIcon="&#xE74E;"
                     TrendText="+8.2%"
-                    IconBackgroundBrush="#DFF0FF"
-                    IconForegroundBrush="#3B82F6"
-                    BadgeBackgroundBrush="#DFF0FF"
-                    BadgeForegroundBrush="#3B82F6"/>
+                    IconBackgroundBrush="{ThemeResource InfoBlueLightBrush}"
+                    IconForegroundBrush="{ThemeResource PrimaryBrush}"
+                    BadgeBackgroundBrush="{ThemeResource InfoBlueLightBrush}"
+                    BadgeForegroundBrush="{ThemeResource PrimaryBrush}"/>
 
                 <!-- Paid Out -->
                 <cards:KPICard 
@@ -207,8 +207,8 @@
                     Value="$3,200.00"
                     Subtitle="This month"
                     ShowBadge="Collapsed"
-                    IconBackgroundBrush="#FCE7F3"
-                    IconForegroundBrush="#EC4899"/>
+                    IconBackgroundBrush="{ThemeResource PurpleLightBrush}"
+                    IconForegroundBrush="{ThemeResource PurpleBrush}"/>
             </Grid>
 
             <!-- SEARCH CARD with Auto-Complete -->
@@ -229,7 +229,7 @@
                               ShowResetButton="True">
                 <forms:FilterCard.FilterContent>
                     <StackPanel>
-                        <TextBlock Text="Status" FontSize="12" Foreground="#6B7280" Margin="0,0,0,4"/>
+                        <TextBlock Text="Status" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
                         <ComboBox x:Name="StatusComboBox"
                                  HorizontalAlignment="Stretch"
                                  SelectedIndex="0"
@@ -257,7 +257,7 @@
                         <!-- Table Header -->
                         <Grid Grid.Row="0" 
                              Padding="0,12"
-                             BorderBrush="#E5E7EB"
+                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                              BorderThickness="0,0,0,1">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="100"/>
@@ -271,25 +271,25 @@
 
                             <TextBlock Grid.Column="0" Text="ORDER ID" 
                                       FontSize="11" FontWeight="SemiBold" 
-                                      Foreground="#6B7280"/>
+                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             <TextBlock Grid.Column="1" Text="PRODUCT" 
                                       FontSize="11" FontWeight="SemiBold" 
-                                      Foreground="#6B7280"/>
+                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             <TextBlock Grid.Column="2" Text="CUSTOMER" 
                                       FontSize="11" FontWeight="SemiBold" 
-                                      Foreground="#6B7280"/>
+                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             <TextBlock Grid.Column="3" Text="TOTAL" 
                                       FontSize="11" FontWeight="SemiBold" 
-                                      Foreground="#6B7280"/>
+                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             <TextBlock Grid.Column="4" Text="FEE (10%)" 
                                       FontSize="11" FontWeight="SemiBold" 
-                                      Foreground="#6B7280"/>
+                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             <TextBlock Grid.Column="5" Text="NET" 
                                       FontSize="11" FontWeight="SemiBold" 
-                                      Foreground="#6B7280"/>
+                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             <TextBlock Grid.Column="6" Text="STATUS" 
                                       FontSize="11" FontWeight="SemiBold" 
-                                      Foreground="#6B7280"/>
+                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         </Grid>
 
                         <!-- Table Body -->
@@ -298,7 +298,7 @@
                                 <ItemsRepeater.ItemTemplate>
                                     <DataTemplate x:DataType="viewmodels:CommissionViewModel">
                                         <Grid Padding="0,12" 
-                                             BorderBrush="#E5E7EB"
+                                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                              BorderThickness="0,0,0,1">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="100"/>
@@ -314,35 +314,35 @@
                                                       Text="{x:Bind OrderId, Mode=OneWay}" 
                                                       FontSize="13" 
                                                       FontFamily="Consolas"
-                                                      Foreground="#6B7280"/>
+                                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                             
                                             <TextBlock Grid.Column="1" 
                                                       Text="{x:Bind ProductName, Mode=OneWay}" 
                                                       FontSize="14" 
-                                                      Foreground="#111827"
+                                                      Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                       TextTrimming="CharacterEllipsis"/>
                                             
                                             <TextBlock Grid.Column="2" 
                                                       Text="{x:Bind CustomerName, Mode=OneWay}" 
                                                       FontSize="14" 
-                                                      Foreground="#6B7280"/>
+                                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                             
                                             <TextBlock Grid.Column="3" 
                                                       Text="{x:Bind SaleAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" 
                                                       FontSize="14" 
                                                       FontWeight="SemiBold"
-                                                      Foreground="#111827"/>
+                                                      Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                             
                                             <TextBlock Grid.Column="4" 
                                                       Text="{x:Bind CommissionAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" 
                                                       FontSize="14" 
-                                                      Foreground="#DC2626"/>
+                                                      Foreground="{ThemeResource ErrorRedBrush}"/>
                                             
                                             <TextBlock Grid.Column="5" 
                                                       Text="{x:Bind NetIncome, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" 
                                                       FontSize="14" 
                                                       FontWeight="Bold"
-                                                      Foreground="#10B981"/>
+                                                      Foreground="{ThemeResource SuccessGreenBrush}"/>
                                             
                                             <Border Grid.Column="6"
                                                    Background="{x:Bind StatusBgColor, Mode=OneWay, Converter={StaticResource StringToBrushConverter}}"
@@ -365,7 +365,7 @@
                                Margin="0,16,0,0"
                                Padding="16,12"
                                Background="Transparent"
-                               BorderBrush="#E5E7EB"
+                               BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                BorderThickness="0,1,0,0">
                             <pagination:PaginationControl
                                 CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"

@@ -11,9 +11,9 @@
     <StackPanel Spacing="12">
         <!-- Order Card 1 -->
         <Border
-            Background="{ThemeResource CardBackgroundBrush}"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
             CornerRadius="12"
-            BorderBrush="{ThemeResource BorderLightBrush}"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="20">
             <Grid RowSpacing="12">
@@ -57,9 +57,9 @@
 
         <!-- Order Card 2 -->
         <Border
-            Background="{ThemeResource CardBackgroundBrush}"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
             CornerRadius="12"
-            BorderBrush="{ThemeResource BorderLightBrush}"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="20">
             <Grid RowSpacing="12">
@@ -96,9 +96,9 @@
 
         <!-- Order Card 3 -->
         <Border
-            Background="{ThemeResource CardBackgroundBrush}"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
             CornerRadius="12"
-            BorderBrush="{ThemeResource BorderLightBrush}"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="20">
             <Grid RowSpacing="12">
@@ -135,9 +135,9 @@
 
         <!-- Order Card 4 -->
         <Border
-            Background="{ThemeResource CardBackgroundBrush}"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
             CornerRadius="12"
-            BorderBrush="{ThemeResource BorderLightBrush}"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="20">
             <Grid RowSpacing="12">
@@ -174,9 +174,9 @@
 
         <!-- Order Card 5 -->
         <Border
-            Background="{ThemeResource CardBackgroundBrush}"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
             CornerRadius="12"
-            BorderBrush="{ThemeResource BorderLightBrush}"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="20">
             <Grid RowSpacing="12">

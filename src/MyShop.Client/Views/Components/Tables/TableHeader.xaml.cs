@@ -115,16 +115,27 @@ public sealed partial class TableHeader : UserControl
             }
             HeaderGrid.ColumnDefinitions.Add(columnDef);
 
-            // Create TextBlock
+            // Create TextBlock with theme-aware foreground
             var textBlock = new TextBlock
             {
                 Text = headerText,
                 FontSize = 11,
                 FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
-                Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(
-                    Windows.UI.Color.FromArgb(255, 107, 114, 128)), // #6B7280
                 VerticalAlignment = VerticalAlignment.Center
             };
+            
+            // Use TextFillColorSecondaryBrush from theme resources for proper dark theme support
+            if (Application.Current.Resources.TryGetValue("TextFillColorSecondaryBrush", out var brush) 
+                && brush is Microsoft.UI.Xaml.Media.Brush themeBrush)
+            {
+                textBlock.Foreground = themeBrush;
+            }
+            else
+            {
+                // Fallback to default gray if theme resource not found
+                textBlock.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(
+                    Windows.UI.Color.FromArgb(255, 107, 114, 128));
+            }
 
             // Set alignment
             textBlock.HorizontalAlignment = alignment.ToLower() switch

@@ -226,7 +226,7 @@ namespace MyShop.Client.Views.Shell
         {
             try
             {
-                // Show confirmation dialog
+                // Show confirmation dialog with theme support
                 var dialog = new ContentDialog
                 {
                     Title = "Logout",
@@ -234,7 +234,8 @@ namespace MyShop.Client.Views.Shell
                     PrimaryButtonText = "Logout",
                     CloseButtonText = "Cancel",
                     DefaultButton = ContentDialogButton.Close,
-                    XamlRoot = this.XamlRoot
+                    XamlRoot = this.XamlRoot,
+                    RequestedTheme = this.ActualTheme
                 };
 
                 var result = await dialog.ShowAsync();
@@ -290,7 +291,8 @@ namespace MyShop.Client.Views.Shell
                     PrimaryButtonText = "Activate",
                     CloseButtonText = "Cancel",
                     DefaultButton = ContentDialogButton.Primary,
-                    XamlRoot = this.XamlRoot
+                    XamlRoot = this.XamlRoot,
+                    RequestedTheme = this.ActualTheme
                 };
 
                 var result = await dialog.ShowAsync();
@@ -328,7 +330,8 @@ namespace MyShop.Client.Views.Shell
                         PrimaryButtonText = "Logout Now",
                         CloseButtonText = "Later",
                         DefaultButton = ContentDialogButton.Primary,
-                        XamlRoot = this.XamlRoot
+                        XamlRoot = this.XamlRoot,
+                        RequestedTheme = this.ActualTheme
                     };
 
                     var successResult = await successDialog.ShowAsync();
@@ -365,7 +368,8 @@ namespace MyShop.Client.Views.Shell
                 Title = "Error",
                 Content = message,
                 CloseButtonText = "OK",
-                XamlRoot = this.XamlRoot
+                XamlRoot = this.XamlRoot,
+                RequestedTheme = this.ActualTheme
             };
             await errorDialog.ShowAsync();
         }

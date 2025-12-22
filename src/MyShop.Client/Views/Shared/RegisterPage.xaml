@@ -54,7 +54,7 @@
             <Border Background="#66000000"/>
             
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="{StaticResource Gap_LG}">
-                <Image Source="/Assets/StoreLogo.png" 
+                <Image Source="/Assets/Image/logo.png" 
                        Width="120" 
                        Height="120" 
                        Stretch="Uniform"
@@ -90,11 +90,11 @@
                         <TextBlock Text="Create Account" 
                                   FontSize="32"
                                   FontWeight="SemiBold"
-                                  Foreground="{StaticResource TextPrimaryBrush}"
+                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                   AutomationProperties.HeadingLevel="Level1"/>
                         <TextBlock Text="Fill in the information below to get started" 
                                   FontSize="14"
-                                  Foreground="{StaticResource TextSecondaryBrush}"
+                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                   TextWrapping="Wrap"/>
                     </StackPanel>
 
@@ -242,7 +242,7 @@
 
                     <!-- Register Button -->
                     <Button Command="{x:Bind ViewModel.AttemptRegisterCommand}"
-                            Style="{StaticResource AccentButtonStyle}"
+                            Style="{StaticResource PrimaryButtonStyle}"
                             HorizontalAlignment="Stretch"
                             Margin="0,12,0,0"
                             AutomationProperties.Name="Create Account Button, press Alt+C"
@@ -263,13 +263,13 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Height="1" VerticalAlignment="Center" Background="{StaticResource Gray300Brush}"/>
+                        <Border Grid.Column="0" Height="1" VerticalAlignment="Center" Background="{ThemeResource TextFillColorTertiaryBrush}"/>
                         <TextBlock Grid.Column="1" 
                                   Text="OR" 
                                   Margin="12,0" 
                                   Style="{StaticResource CaptionStyle}"
-                                  Foreground="{StaticResource TextSecondaryBrush}"/>
-                        <Border Grid.Column="2" Height="1" VerticalAlignment="Center" Background="{StaticResource Gray300Brush}"/>
+                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <Border Grid.Column="2" Height="1" VerticalAlignment="Center" Background="{ThemeResource TextFillColorTertiaryBrush}"/>
                     </Grid>
 
                     <!-- Google Sign-Up Button -->
@@ -294,7 +294,7 @@
                                Margin="0,12,0,0">
                         <TextBlock Text="Already have an account?" 
                                   Style="{StaticResource BodyStyle}"
-                                  Foreground="{StaticResource TextSecondaryBrush}"/>
+                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         <HyperlinkButton Content="Login here"
                                         Command="{x:Bind ViewModel.BackToLoginCommand}"
                                         Style="{StaticResource LinkButtonStyle}"
@@ -304,7 +304,7 @@
                     <!-- Terms Notice -->
                     <TextBlock TextWrapping="Wrap"
                               Style="{StaticResource CaptionStyle}"
-                              Foreground="{StaticResource TextSecondaryBrush}"
+                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                               TextAlignment="Center"
                               Margin="0,8,0,0">
                         By creating an account, you agree to our 

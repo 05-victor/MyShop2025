@@ -18,19 +18,19 @@
             <FontIcon Glyph="{Binding IconGlyph, ElementName=RootControl, Mode=OneWay}"
                       FontFamily="{StaticResource SymbolThemeFontFamily}"
                       FontSize="72"
-                      Foreground="{StaticResource TextSecondaryBrush}"/>
+                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
             
             <!-- Title -->
             <TextBlock Text="{Binding Title, ElementName=RootControl, Mode=OneWay}"
                        Style="{StaticResource TitleTextBlockStyle}"
-                       Foreground="{StaticResource TextPrimaryBrush}"
+                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                        HorizontalAlignment="Center"
                        TextWrapping="Wrap"/>
             
             <!-- Description -->
             <TextBlock Text="{Binding Description, ElementName=RootControl, Mode=OneWay}"
                        Style="{StaticResource BodyTextBlockStyle}"
-                       Foreground="{StaticResource TextSecondaryBrush}"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                        HorizontalAlignment="Center"
                        TextAlignment="Center"
                        TextWrapping="Wrap"
@@ -39,7 +39,7 @@
             <!-- Action Button -->
             <Button Content="{Binding ActionText, ElementName=RootControl, Mode=OneWay}"
                     Command="{Binding ActionCommand, ElementName=RootControl, Mode=OneWay}"
-                    Style="{StaticResource AccentButtonStyle}"
+                    Style="{StaticResource PrimaryButtonStyle}"
                     HorizontalAlignment="Center"
                     Visibility="{Binding ActionText, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
             

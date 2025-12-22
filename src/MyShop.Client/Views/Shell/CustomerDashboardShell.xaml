@@ -40,12 +40,13 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 
-                <!-- Logo/Icon -->
-                <Border Grid.Column="0" Width="48" Height="48" 
-                        Background="#00AEEF" CornerRadius="12" 
-                        VerticalAlignment="Center">
-                    <FontIcon Glyph="&#xE719;" FontSize="24" Foreground="White"/>
-                </Border>
+                <!-- Logo -->
+                <Image Grid.Column="0" 
+                       Width="48" 
+                       Height="48" 
+                       Source="/Assets/Images/logo.png"
+                       Stretch="Uniform"
+                       VerticalAlignment="Center"/>
                 
                 <!-- Title - Only visible when pane is open -->
                 <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center"
@@ -57,7 +58,7 @@
                         Text="MyShop2025" />
                     <TextBlock
                         FontSize="11"
-                        Foreground="#9CA3AF"
+                        Foreground="{ThemeResource Gray500Brush}"
                         Text="Welcome back!" />
                 </StackPanel>
             </Grid>
@@ -115,7 +116,7 @@
                                 Visibility="Collapsed"
                                 Tapped="BecomeAdminItem_Tapped">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE7EE;" Foreground="#F59E0B"/>
+                    <FontIcon Glyph="&#xE7EE;" Foreground="{ThemeResource WarningAmberBrush}"/>
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
         </NavigationView.MenuItems>
@@ -123,7 +124,7 @@
             <NavigationView.PaneFooter>
                 <NavigationViewItem Content="Logout" Tag="logout" Tapped="LogoutItem_Tapped">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE7E8;" />
+                        <FontIcon Glyph="&#xE7E8;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
             </NavigationView.PaneFooter>
