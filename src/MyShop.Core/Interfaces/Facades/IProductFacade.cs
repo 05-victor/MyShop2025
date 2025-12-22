@@ -19,6 +19,7 @@ public interface IProductFacade
     /// <param name="manufacturerName">Manufacturer/Brand filter</param>
     /// <param name="minPrice">Minimum price filter</param>
     /// <param name="maxPrice">Maximum price filter</param>
+    /// <param name="stockStatus">Stock status filter (e.g., "InStock", "LowStock", "OutOfStock")</param>
     /// <param name="sortBy">Sort field (e.g., "name", "price", "date")</param>
     /// <param name="sortDescending">Sort direction</param>
     /// <param name="page">Current page (1-based)</param>
@@ -27,8 +28,10 @@ public interface IProductFacade
         string? searchQuery = null,
         string? categoryName = null,
         string? manufacturerName = null,
+        string? brandName = null,
         decimal? minPrice = null,
         decimal? maxPrice = null,
+        string? stockStatus = null,
         string sortBy = "name",
         bool sortDescending = false,
         int page = 1,
@@ -103,4 +106,24 @@ public interface IProductFacade
     /// Update product stock quantity
     /// </summary>
     Task<Result<Unit>> UpdateStockAsync(Guid productId, int newQuantity);
+
+    /// <summary>
+    /// Create a new product from Product model (simplified API)
+    /// </summary>
+    Task<Result<Product>> CreateProductAsync(Product product);
+
+    /// <summary>
+    /// Update an existing product from Product model (simplified API)
+    /// </summary>
+    Task<Result<Product>> UpdateProductAsync(Guid id, Product product);
+
+    /// <summary>
+    /// Search for products by query
+    /// </summary>
+    Task<Result<List<Product>>> SearchProductsAsync(string searchQuery);
+
+    /// <summary>
+    /// Upload image for a product
+    /// </summary>
+    Task<Result<string>> UploadProductImageAsync(Guid productId, string imageFilePath);
 }

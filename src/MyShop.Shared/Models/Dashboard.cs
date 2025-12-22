@@ -7,10 +7,16 @@ public class DashboardSummary
 {
     public DateTime Date { get; set; }
     public int TotalProducts { get; set; }
+
+    // Support both API formats
     public int TodayOrders { get; set; }
+    public int TotalOrders { get; set; } // Real API uses this - Required for JSON deserialization from Real API
+
     public decimal TodayRevenue { get; set; }
     public decimal WeekRevenue { get; set; }
     public decimal MonthRevenue { get; set; }
+    public decimal TotalRevenue { get; set; } // Real API uses this - Required for JSON deserialization from Real API
+
     public List<LowStockProduct> LowStockProducts { get; set; } = new();
     public List<TopSellingProduct> TopSellingProducts { get; set; } = new();
     public List<RecentOrder> RecentOrders { get; set; } = new();

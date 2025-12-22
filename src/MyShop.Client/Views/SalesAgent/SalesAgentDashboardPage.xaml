@@ -283,31 +283,49 @@
                                                             <Grid Grid.Row="1"
                                                                   Margin="0,4,0,0">
                                                                 <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="Auto"/>
                                                                     <ColumnDefinition Width="*"/>
                                                                     <ColumnDefinition Width="Auto"/>
                                                                 </Grid.ColumnDefinitions>
 
-                                                                <StackPanel Grid.Column="0"
-                                                                            Orientation="Horizontal"
-                                                                            Spacing="12">
-                                                                    <TextBlock FontSize="12"
-                                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                                        <Run Text="{x:Bind Orders}"/>
-                                                        <Run Text=" orders"/>
-                                                                    </TextBlock>
-                                                                    <TextBlock FontSize="12"
-                                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                                        <Run Text="{x:Bind Clicks}"/>
-                                                        <Run Text=" clicks"/>
+                                                                <!-- Product Image -->
+                                                                <Border Grid.Column="0"
+                                                                        Width="70"
+                                                                        Height="70"
+                                                                        CornerRadius="6"
+                                                                        Background="#F3F4F6">
+                                                                    <Image Source="{x:Bind ImageUrl, Converter={StaticResource StringToImageSourceConverter}}"
+                                                                           Stretch="UniformToFill"/>
+                                                                </Border>
+
+                                                                <!-- Product Details -->
+                                                                <StackPanel Grid.Column="1"
+                                                                            Spacing="6"
+                                                                            VerticalAlignment="Center">
+                                                                    <TextBlock Text="{x:Bind Product}"
+                                                                               FontSize="13"
+                                                                               FontWeight="SemiBold"
+                                                                               Foreground="#111827"
+                                                                               TextTrimming="CharacterEllipsis"/>
+                                                                    <TextBlock Text="{x:Bind CategoryName}"
+                                                                               FontSize="11"
+                                                                               Foreground="#6B7280"/>
+                                                                    <TextBlock FontSize="11"
+                                                                               Foreground="#6B7280">
+                                                                    <Run Text="Sold: "/>
+                                                                    <Run Text="{x:Bind SoldCount}"
+                                                                         Foreground="#111827"
+                                                                         FontWeight="SemiBold"/>
                                                                     </TextBlock>
                                                                 </StackPanel>
 
-                                                                <TextBlock Grid.Column="1"
+                                                                <!-- Revenue -->
+                                                                <TextBlock Grid.Column="2"
                                                                            FontSize="14"
                                                                            FontWeight="Bold"
-                                                                           Foreground="{ThemeResource SuccessGreenBrush}">
-                                                           <Run Text="{x:Bind Commission, Converter={StaticResource CurrencyConverter}}"/>
-                                                                </TextBlock>
+                                                                           Foreground="{ThemeResource SuccessGreenBrush}"
+                                                                           VerticalAlignment="Center"
+                                                                           Text="{x:Bind Revenue, Converter={StaticResource CurrencyConverter}}"/>
                                                             </Grid>
                                                         </Grid>
                                                     </Border>

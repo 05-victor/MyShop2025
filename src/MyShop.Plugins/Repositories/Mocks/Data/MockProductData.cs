@@ -327,6 +327,7 @@ public static class MockProductData
         string? searchQuery = null,
         string? categoryName = null,
         string? manufacturerName = null,
+        string? brandName = null,
         decimal? minPrice = null,
         decimal? maxPrice = null,
         string sortBy = "name",
@@ -359,6 +360,12 @@ public static class MockProductData
         if (!string.IsNullOrWhiteSpace(manufacturerName))
         {
             query = query.Where(p => p.Manufacturer != null && p.Manufacturer.Equals(manufacturerName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Apply brand filter
+        if (!string.IsNullOrWhiteSpace(brandName))
+        {
+            query = query.Where(p => p.Manufacturer != null && p.Manufacturer.Equals(brandName, StringComparison.OrdinalIgnoreCase));
         }
 
         // Apply price filters

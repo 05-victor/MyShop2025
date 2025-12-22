@@ -39,8 +39,10 @@ public interface IProductRepository
         string? searchQuery = null,
         string? categoryName = null,
         string? manufacturerName = null,
+        string? brandName = null,
         decimal? minPrice = null,
         decimal? maxPrice = null,
+        string? stockStatus = null,
         string sortBy = "name",
         bool sortDescending = false);
 }

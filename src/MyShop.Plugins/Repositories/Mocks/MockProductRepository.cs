@@ -141,15 +141,17 @@ public class MockProductRepository : IProductRepository
         string? searchQuery = null,
         string? categoryName = null,
         string? manufacturerName = null,
+        string? brandName = null,
         decimal? minPrice = null,
         decimal? maxPrice = null,
+        string? stockStatus = null,
         string sortBy = "name",
         bool sortDescending = false)
     {
         try
         {
             var (items, totalCount) = await MockProductData.GetPagedAsync(
-                page, pageSize, searchQuery, categoryName, manufacturerName, minPrice, maxPrice, sortBy, sortDescending);
+                page, pageSize, searchQuery, categoryName, manufacturerName, brandName, minPrice, maxPrice, sortBy, sortDescending);
 
             var pagedList = new PagedList<Product>(items, totalCount, page, pageSize);
 

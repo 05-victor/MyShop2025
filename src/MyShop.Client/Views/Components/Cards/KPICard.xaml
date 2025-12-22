@@ -12,10 +12,11 @@
         <!-- Lift Animation Storyboard (WinUI Gallery pattern) -->
         <!-- Note: ThemeShadow doesn't support BlurRadius animation, only translation is animated -->
         <Storyboard x:Name="LiftUpAnimation">
-            <DoubleAnimation 
+            <DoubleAnimation
                 Storyboard.TargetName="CardBorder"
                 Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
-                From="0" To="-8" 
+                From="0"
+                To="-8"
                 Duration="0:0:0.2">
                 <DoubleAnimation.EasingFunction>
                     <CubicEase EasingMode="EaseOut"/>
@@ -24,10 +25,11 @@
         </Storyboard>
 
         <Storyboard x:Name="LiftDownAnimation">
-            <DoubleAnimation 
+            <DoubleAnimation
                 Storyboard.TargetName="CardBorder"
                 Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
-                From="-8" To="0" 
+                From="-8"
+                To="0"
                 Duration="0:0:0.2">
                 <DoubleAnimation.EasingFunction>
                     <CubicEase EasingMode="EaseOut"/>
@@ -37,11 +39,12 @@
 
         <!-- Count-up animation (triggered in code-behind) -->
         <Storyboard x:Name="CountUpAnimation">
-            <DoubleAnimation 
+            <DoubleAnimation
                 x:Name="ValueAnimation"
                 Storyboard.TargetName="ValueTextBlock"
                 Storyboard.TargetProperty="Opacity"
-                From="0.5" To="1.0" 
+                From="0.5"
+                To="1.0"
                 Duration="0:0:0.8">
                 <DoubleAnimation.EasingFunction>
                     <CubicEase EasingMode="EaseOut"/>
@@ -79,7 +82,8 @@
                 </Grid.RowDefinitions>
 
                 <!-- Header: Icon + Badge -->
-                <Grid Grid.Row="0" Margin="0,0,0,16">
+                <Grid Grid.Row="0"
+                      Margin="0,0,0,16">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
@@ -90,12 +94,13 @@
                             Grid.Column="0"
                             Background="{x:Bind IconBackgroundBrush, Mode=OneWay}"
                             CornerRadius="12"
-                            Width="48" Height="48"
+                            Width="48"
+                            Height="48"
                             HorizontalAlignment="Left"
                             VerticalAlignment="Center"
                             IsHitTestVisible="False">
                         <FontIcon x:Name="IconGlyph"
-                                  Glyph="{x:Bind Icon, Mode=OneWay}" 
+                                  Glyph="{x:Bind Icon, Mode=OneWay}"
                                   FontSize="20"
                                   Foreground="{x:Bind IconForegroundBrush, Mode=OneWay}"/>
                     </Border>
@@ -104,7 +109,7 @@
                     <Border x:Name="TrendBadge"
                             Grid.Column="1"
                             Background="{x:Bind BadgeBackgroundBrush, Mode=OneWay}"
-                            CornerRadius="999" 
+                            CornerRadius="999"
                             Padding="10,6"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Top"
@@ -112,12 +117,13 @@
                             AutomationProperties.LiveSetting="Polite"
                             IsTabStop="False"
                             Visibility="{x:Bind ShowBadge, Mode=OneWay}">
-                        <StackPanel Orientation="Horizontal" Spacing="4">
-                            <FontIcon Glyph="{x:Bind TrendIcon, Mode=OneWay}" 
-                                      FontSize="12" 
+                        <StackPanel Orientation="Horizontal"
+                                    Spacing="4">
+                            <FontIcon Glyph="{x:Bind TrendIcon, Mode=OneWay}"
+                                      FontSize="12"
                                       Foreground="{x:Bind BadgeForegroundBrush, Mode=OneWay}"/>
-                            <TextBlock Text="{x:Bind TrendText, Mode=OneWay}" 
-                                       FontSize="12" 
+                            <TextBlock Text="{x:Bind TrendText, Mode=OneWay}"
+                                       FontSize="12"
                                        FontWeight="SemiBold"
                                        Foreground="{x:Bind BadgeForegroundBrush, Mode=OneWay}"/>
                         </StackPanel>
@@ -144,8 +150,8 @@
 
                 <!-- Subtitle / Description -->
                 <TextBlock Grid.Row="3"
-                           Text="{x:Bind Subtitle, Mode=OneWay}" 
-                           FontSize="13" 
+                           Text="{x:Bind Subtitle, Mode=OneWay}"
+                           FontSize="13"
                            Foreground="{ThemeResource Gray500Brush}"
                            TextWrapping="Wrap"
                            VerticalAlignment="Bottom"/>

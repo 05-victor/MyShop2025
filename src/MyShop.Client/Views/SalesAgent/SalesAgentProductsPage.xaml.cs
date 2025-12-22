@@ -7,6 +7,7 @@ using MyShop.Client.Services;
 using MyShop.Client.Views.Components.Pagination;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MyShop.Client.Views.SalesAgent
@@ -14,6 +15,7 @@ namespace MyShop.Client.Views.SalesAgent
     public sealed partial class SalesAgentProductsPage : Page
     {
         public SalesAgentProductsViewModel ViewModel { get; }
+        private Timer? _searchDebounceTimer;
 
         public SalesAgentProductsPage()
         {
@@ -64,14 +66,15 @@ namespace MyShop.Client.Views.SalesAgent
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
                 var query = sender.Text?.ToLower() ?? string.Empty;
-                
+
                 if (string.IsNullOrWhiteSpace(query))
                 {
                     sender.ItemsSource = null;
+                    ViewModel.SearchQuery = string.Empty;
                     return;
                 }
 
-                // Generate suggestions from current products
+                // Generate suggestions from current products (don't filter list yet)
                 var suggestions = ViewModel.Products
                     .Where(p => p.Name.ToLower().Contains(query) ||
                                p.Category.ToLower().Contains(query))
@@ -81,16 +84,47 @@ namespace MyShop.Client.Views.SalesAgent
                     .ToList();
 
                 sender.ItemsSource = suggestions;
+
+                // Debounce: just update SearchQuery for binding, don't apply filters
+                // Filters will only be applied when user submits search or selects suggestion
+                _searchDebounceTimer?.Dispose();
+                _searchDebounceTimer = new Timer(_ =>
+                {
+                    this.DispatcherQueue.TryEnqueue(() =>
+                    {
+                        try
+                        {
+                            // Only update the property, don't trigger filter application
+                            ViewModel.SearchQuery = query;
+                            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.SearchCard_TextChanged] SearchQuery updated to: '{query}' (no filter applied yet)");
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.SearchCard_TextChanged] Error in debounce timer: {ex.Message}");
+                        }
+                    });
+                }, null, 500, Timeout.Infinite);
             }
         }
 
-        private void SearchCard_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+        private async void SearchCard_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
         {
+            _searchDebounceTimer?.Dispose();
             sender.Text = args.SelectedItem?.ToString() ?? string.Empty;
+
+            // Apply filters when suggestion is selected
+            ViewModel.SearchQuery = sender.Text;
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.SearchCard_SuggestionChosen] Suggestion selected: '{ViewModel.SearchQuery}', applying filters");
+            if (ViewModel.ApplyFiltersCommand?.CanExecute(null) == true)
+            {
+                await ViewModel.ApplyFiltersCommand.ExecuteAsync(null);
+            }
         }
 
         private async void SearchCard_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
+            _searchDebounceTimer?.Dispose();
+
             if (args.ChosenSuggestion != null)
             {
                 ViewModel.SearchQuery = args.ChosenSuggestion.ToString() ?? string.Empty;
@@ -100,6 +134,7 @@ namespace MyShop.Client.Views.SalesAgent
                 ViewModel.SearchQuery = args.QueryText;
             }
 
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.SearchCard_QuerySubmitted] Search query: '{ViewModel.SearchQuery}'");
             if (ViewModel.ApplyFiltersCommand?.CanExecute(null) == true)
             {
                 await ViewModel.ApplyFiltersCommand.ExecuteAsync(null);
@@ -110,31 +145,43 @@ namespace MyShop.Client.Views.SalesAgent
 
         #region Filter Event Handlers
 
-        private void CategoryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void CategoryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (ViewModel == null) return;
-            
-            if (CategoryComboBox.SelectedItem is ComboBoxItem item)
+
+            if (CategoryComboBox.SelectedItem is MyShop.Shared.Models.Category category)
             {
-                var category = item.Tag?.ToString();
-                ViewModel.SelectedCategory = string.IsNullOrEmpty(category) ? "All Categories" : category;
+                ViewModel.SelectedCategory = category;
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.CategoryComboBox_SelectionChanged] Selected category: '{ViewModel.SelectedCategory?.Name}'");
             }
         }
 
-        private void StockStatusComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void BrandComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (ViewModel == null) return;
-            
+
+            if (BrandComboBox.SelectedItem is string brand)
+            {
+                ViewModel.SelectedBrand = brand;
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.BrandComboBox_SelectionChanged] Selected brand: '{ViewModel.SelectedBrand}'");
+            }
+        }
+
+        private async void StockStatusComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ViewModel == null) return;
+
             if (StockStatusComboBox.SelectedItem is ComboBoxItem item)
             {
                 ViewModel.SelectedStockStatus = item.Tag?.ToString() ?? string.Empty;
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.StockStatusComboBox_SelectionChanged] Selected stock status: '{ViewModel.SelectedStockStatus}'");
             }
         }
 
-        private void SortByComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void SortByComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (ViewModel == null) return;
-            
+
             if (SortByComboBox.SelectedItem is ComboBoxItem item)
             {
                 var tag = item.Tag?.ToString() ?? "name-asc";
@@ -143,6 +190,7 @@ namespace MyShop.Client.Views.SalesAgent
                 {
                     ViewModel.SortBy = parts[0];
                     ViewModel.SortDescending = parts[1] == "desc";
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.SortByComboBox_SelectionChanged] Sort: {ViewModel.SortBy} {(ViewModel.SortDescending ? "DESC" : "ASC")}");
                 }
             }
         }
@@ -187,7 +235,7 @@ namespace MyShop.Client.Views.SalesAgent
                 NewPriceTextBox.Text = string.Empty;
                 NewImportPriceTextBox.Text = string.Empty;
                 NewDescriptionTextBox.Text = string.Empty;
-                NewCategoryComboBox.SelectedIndex = -1;
+                NewCategoryComboBox.SelectedItem = null;
 
                 AddProductDialog.XamlRoot = this.XamlRoot;
                 await AddProductDialog.ShowAsync();
@@ -204,29 +252,92 @@ namespace MyShop.Client.Views.SalesAgent
 
         private async void AddProductDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            var name = NewNameTextBox.Text.Trim();
-            if (string.IsNullOrEmpty(name))
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] START - Dialog closed with AddProduct action");
+
+            try
             {
-                // Block dialog close if name is empty
-                args.Cancel = true;
-                return;
+                var name = NewNameTextBox.Text.Trim();
+                if (string.IsNullOrEmpty(name))
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] ❌ VALIDATION FAILED - Product name is empty");
+                    args.Cancel = true;
+
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        Title = "Validation Error",
+                        Content = "Product name is required.",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
+                }
+
+                var categoryItem = NewCategoryComboBox.SelectedItem as MyShop.Shared.Models.Category;
+                var categoryId = categoryItem?.Id ?? Guid.Empty;
+
+                if (categoryId == Guid.Empty)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] ❌ VALIDATION FAILED - Category is not selected");
+                    args.Cancel = true;
+
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        Title = "Validation Error",
+                        Content = "Please select a category.",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
+                }
+
+                int.TryParse(NewStockTextBox.Text, out var stock);
+                decimal.TryParse(NewPriceTextBox.Text, out var price);
+                decimal.TryParse(NewImportPriceTextBox.Text, out var importPrice);
+                var description = NewDescriptionTextBox.Text.Trim();
+
+                // Create product object
+                var product = new MyShop.Shared.Models.Product
+                {
+                    Id = Guid.NewGuid(),
+                    Name = name,
+                    CategoryId = categoryId,
+                    Quantity = stock,
+                    SellingPrice = price,
+                    ImportPrice = importPrice,
+                    Description = description
+                };
+
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] Dialog data extracted - Product: {product.Name}, Category: {product.CategoryId}, Quantity: {product.Quantity}");
+
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] Validation passed, executing SaveNewProductCommand");
+
+                // Execute the command from ViewModel
+                if (ViewModel.SaveNewProductCommand.CanExecute(product))
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] SaveNewProductCommand is executable, executing");
+                    await ViewModel.SaveNewProductCommand.ExecuteAsync(product);
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] ✅ SaveNewProductCommand executed successfully");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] ❌ SaveNewProductCommand is not executable");
+                }
             }
-
-            var categoryItem = NewCategoryComboBox.SelectedItem as ComboBoxItem;
-            var category = categoryItem?.Tag?.ToString() ?? "Uncategorized";
-
-            int.TryParse(NewStockTextBox.Text, out var stock);
-            decimal.TryParse(NewPriceTextBox.Text, out var price);
-            decimal.TryParse(NewImportPriceTextBox.Text, out var importPrice);
-            var description = NewDescriptionTextBox.Text.Trim();
-
-            // TODO: Call ViewModel to add product via API
-            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage] Add product: {name}, Category: {category}, Stock: {stock}, Price: {price}");
-            
-            // Refresh the list after adding
-            if (ViewModel.RefreshCommand?.CanExecute(null) == true)
+            catch (Exception ex)
             {
-                await ViewModel.RefreshCommand.ExecuteAsync(null);
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] ❌ EXCEPTION - {ex.GetType().Name}: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] Stack Trace: {ex.StackTrace}");
+
+                ContentDialog errorDialog = new ContentDialog
+                {
+                    Title = "Error",
+                    Content = $"An error occurred: {ex.Message}",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await errorDialog.ShowAsync();
             }
         }
 
@@ -255,15 +366,11 @@ namespace MyShop.Client.Views.SalesAgent
                 EditImportPriceTextBox.Text = "0"; // We don't have import price in ProductViewModel
                 EditDescriptionTextBox.Text = string.Empty;
 
-                // Select the correct category
-                for (int i = 0; i < EditCategoryComboBox.Items.Count; i++)
+                // Select the correct category by matching Name
+                var categoryToSelect = ViewModel.Categories.FirstOrDefault(c => c.Name == product.Category);
+                if (categoryToSelect != null)
                 {
-                    if (EditCategoryComboBox.Items[i] is ComboBoxItem item &&
-                        item.Tag?.ToString() == product.Category)
-                    {
-                        EditCategoryComboBox.SelectedIndex = i;
-                        break;
-                    }
+                    EditCategoryComboBox.SelectedItem = categoryToSelect;
                 }
 
                 EditProductDialog.XamlRoot = this.XamlRoot;
@@ -277,32 +384,103 @@ namespace MyShop.Client.Views.SalesAgent
 
         private async void EditProductDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            var name = EditNameTextBox.Text.Trim();
-            if (string.IsNullOrEmpty(name))
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] START - Dialog closed with EditProduct action");
+
+            try
             {
-                args.Cancel = true;
-                return;
+                if (_editingProduct == null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] ❌ ERROR - _editingProduct is null");
+                    args.Cancel = true;
+                    return;
+                }
+
+                var name = EditNameTextBox.Text.Trim();
+                if (string.IsNullOrEmpty(name))
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] ❌ VALIDATION FAILED - Product name is empty");
+                    args.Cancel = true;
+
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        Title = "Validation Error",
+                        Content = "Product name is required.",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
+                }
+
+                var categoryItem = EditCategoryComboBox.SelectedItem as MyShop.Shared.Models.Category;
+                var categoryId = categoryItem?.Id ?? Guid.Empty;
+
+                if (categoryId == Guid.Empty)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] ❌ VALIDATION FAILED - Category is not selected");
+                    args.Cancel = true;
+
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        Title = "Validation Error",
+                        Content = "Please select a category.",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
+                }
+
+                int.TryParse(EditStockTextBox.Text, out var stock);
+                decimal.TryParse(EditPriceTextBox.Text, out var price);
+                decimal.TryParse(EditImportPriceTextBox.Text, out var importPrice);
+                var description = EditDescriptionTextBox.Text.Trim();
+
+                // Create product object with updated values
+                var product = new MyShop.Shared.Models.Product
+                {
+                    Id = _editingProduct.Id,
+                    Name = name,
+                    CategoryId = categoryId,
+                    Quantity = stock,
+                    SellingPrice = price,
+                    ImportPrice = importPrice,
+                    Description = description
+                };
+
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] Dialog data extracted - Product ID: {product.Id}, Name: {product.Name}, Category: {product.CategoryId}");
+
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] Validation passed, executing SaveEditProductCommand");
+
+                // Execute the command from ViewModel
+                if (ViewModel.SaveEditProductCommand.CanExecute(product))
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] SaveEditProductCommand is executable, executing");
+                    await ViewModel.SaveEditProductCommand.ExecuteAsync(product);
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] ✅ SaveEditProductCommand executed successfully");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] ❌ SaveEditProductCommand is not executable");
+                }
+
+                _editingProduct = null;
             }
-
-            var categoryItem = EditCategoryComboBox.SelectedItem as ComboBoxItem;
-            var category = categoryItem?.Tag?.ToString() ?? "Uncategorized";
-
-            int.TryParse(EditStockTextBox.Text, out var stock);
-            decimal.TryParse(EditPriceTextBox.Text, out var price);
-            decimal.TryParse(EditImportPriceTextBox.Text, out var importPrice);
-
-            if (_editingProduct != null)
+            catch (Exception ex)
             {
-                // TODO: Call ViewModel to update product via API
-                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage] Edit product: {_editingProduct.Id}, Name: {name}");
-            }
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] ❌ EXCEPTION - {ex.GetType().Name}: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] Stack Trace: {ex.StackTrace}");
 
-            _editingProduct = null;
+                ContentDialog errorDialog = new ContentDialog
+                {
+                    Title = "Error",
+                    Content = $"An error occurred: {ex.Message}",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await errorDialog.ShowAsync();
 
-            // Refresh the list after editing
-            if (ViewModel.RefreshCommand?.CanExecute(null) == true)
-            {
-                await ViewModel.RefreshCommand.ExecuteAsync(null);
+                _editingProduct = null;
             }
         }
 

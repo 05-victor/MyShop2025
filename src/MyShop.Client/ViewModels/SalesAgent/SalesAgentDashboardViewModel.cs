@@ -56,15 +56,27 @@ public partial class SalesAgentDashboardViewModel : BaseViewModel
     [ObservableProperty]
     private int _selectedDateRangeIndex = 0;
 
-    public string[] DateRangeOptions { get; } = new[] { "This Month", "Last Month", "Last 3 Months" };
+    public string[] DateRangeOptions { get; } = new[] { "Day", "Week", "Month", "Year" };
 
-    // Map index to API period
+    // Map UI selection to Backend API periods
+    // Backend expects: "day", "week", "month", "year"
     private string GetSelectedPeriod() => SelectedDateRangeIndex switch
     {
-        0 => "current",
-        1 => "last",
-        2 => "last3",
-        _ => "current"
+        0 => "day",       // day
+        1 => "week",      // week
+        2 => "month",     // month
+        3 => "year",      // year
+        _ => "month"
+    };
+
+    // Map UI selection to Chart period for revenue visualization
+    private string GetChartPeriod() => SelectedDateRangeIndex switch
+    {
+        0 => "day",       // day
+        1 => "week",      // week
+        2 => "month",     // month
+        3 => "year",      // year
+        _ => "month"
     };
 
     // LiveCharts Series (same as Admin)
@@ -154,12 +166,17 @@ public partial class SalesAgentDashboardViewModel : BaseViewModel
             }
 
             var data = result.Data;
-            System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadDashboardDataAsync] Data: Products={data.TotalProducts}, Sales={data.TodayOrders}, Revenue={data.MonthRevenue}, TopProducts={data.TopSellingProducts?.Count}, RecentOrders={data.RecentOrders?.Count}");
+
+            // Support both API formats: Real API uses TotalOrders/TotalRevenue, Mock uses TodayOrders/MonthRevenue
+            var orders = data.TotalOrders > 0 ? data.TotalOrders : data.TodayOrders;
+            var revenue = data.TotalRevenue > 0 ? data.TotalRevenue : data.MonthRevenue;
+
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadDashboardDataAsync] Data: Products={data.TotalProducts}, Sales={orders}, Revenue={revenue}, TopProducts={data.TopSellingProducts?.Count}, RecentOrders={data.RecentOrders?.Count}");
 
             TotalProducts = data.TotalProducts;
-            TotalSales = data.TodayOrders;
-            TotalCommission = Math.Round(data.MonthRevenue * 0.05m, 2);
-            TotalRevenue = data.MonthRevenue;
+            TotalSales = orders;
+            TotalCommission = Math.Round(revenue * 0.05m, 2);
+            TotalRevenue = revenue;
             ThisWeekCommission = "+8.2%";
 
             TopLinks.Clear();
@@ -170,11 +187,12 @@ public partial class SalesAgentDashboardViewModel : BaseViewModel
                 {
                     TopLinks.Add(new TopAffiliateLink
                     {
+                        Id = product.Id.ToString(),
                         Product = product.Name ?? "Unknown",
-                        Clicks = 0,
-                        Orders = product.SoldCount,
+                        CategoryName = product.CategoryName ?? "Uncategorized",
+                        SoldCount = product.SoldCount,
                         Revenue = product.Revenue,
-                        Commission = Math.Round(product.Revenue * 0.05m, 2),
+                        ImageUrl = product.ImageUrl ?? string.Empty,
                         Status = "Active"
                     });
                 }
@@ -242,14 +260,7 @@ public partial class SalesAgentDashboardViewModel : BaseViewModel
     {
         try
         {
-            var period = GetSelectedPeriod();
-            var chartPeriod = period switch
-            {
-                "current" => "day",
-                "last" => "day",
-                "last3" => "week",
-                _ => "day"
-            };
+            var chartPeriod = GetChartPeriod();  // Use GetChartPeriod() for chart visualization
 
             System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadChartDataAsync] START - ChartPeriod: {chartPeriod}");
             System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadChartDataAsync] Calling facade.GetRevenueChartDataAsync({chartPeriod})");
@@ -377,10 +388,10 @@ public partial class SalesAgentDashboardViewModel : BaseViewModel
 
                 // Top Links
                 csv.AddHeader("Top Selling Products")
-                   .AddColumnHeaders("Product", "Orders", "Revenue", "Commission");
+                   .AddColumnHeaders("Product", "Category", "Sold Count", "Revenue");
                 foreach (var link in TopLinks)
                 {
-                    csv.AddRow(link.Product, link.Orders, $"${link.Revenue:N2}", $"${link.Commission:N2}");
+                    csv.AddRow(link.Product, link.CategoryName, link.SoldCount.ToString(), $"${link.Revenue:N2}");
                 }
                 csv.AddBlankLine();
 
@@ -546,11 +557,12 @@ public partial class SalesAgentDashboardViewModel : BaseViewModel
 // Helper classes for data binding
 public class TopAffiliateLink
 {
+    public string Id { get; set; } = string.Empty;
     public string Product { get; set; } = string.Empty;
-    public int Clicks { get; set; }
-    public int Orders { get; set; }
+    public string CategoryName { get; set; } = string.Empty;
+    public int SoldCount { get; set; }
     public decimal Revenue { get; set; }
-    public decimal Commission { get; set; }
+    public string ImageUrl { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
 }
 

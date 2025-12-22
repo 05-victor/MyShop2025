@@ -342,7 +342,7 @@
                                             <!--  Stock  -->
                                             <ColumnDefinition Width="1*"/>
                                             <!--  Rating  -->
-                                            <ColumnDefinition Width="2*"/>
+                                            <ColumnDefinition Width="80"/>
                                             <!--  Actions  -->
                                         </Grid.ColumnDefinitions>
 
@@ -401,7 +401,7 @@
                                                 <ColumnDefinition Width="2*"/>
                                                 <ColumnDefinition Width="2*"/>
                                                 <ColumnDefinition Width="1*"/>
-                                                <ColumnDefinition Width="2*"/>
+                                                <ColumnDefinition Width="80"/>
                                             </Grid.ColumnDefinitions>
 
                                             <!--  Image with DecodePixelWidth optimization  -->
