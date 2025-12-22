@@ -10,14 +10,16 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-        <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="#FF1E293B" />
-        <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="#FF1E293B" />
-        <SolidColorBrush x:Key="NavigationViewItemForeground" Color="#FFD1D5DB" />
-        <SolidColorBrush x:Key="NavigationViewItemForegroundSelected" Color="White" />
-        <SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="White" />
-        <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPointerOver" Color="#FF00AEEF" />
-        <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected" Color="#FF00AEEF" />
-        <SolidColorBrush x:Key="NavigationViewItemBackgroundPointerOver" Color="#1A00AEEF" />
+        <!-- NavigationView theme overrides - Reference centralized theme colors -->
+        <!-- Use StaticResource to reference theme-defined brushes -->
+        <StaticResource x:Key="NavigationViewExpandedPaneBackground" ResourceKey="AgentNavPaneBackground" />
+        <StaticResource x:Key="NavigationViewDefaultPaneBackground" ResourceKey="AgentNavPaneBackground" />
+        <StaticResource x:Key="NavigationViewItemForeground" ResourceKey="AgentNavItemForeground" />
+        <StaticResource x:Key="NavigationViewItemForegroundSelected" ResourceKey="AgentNavItemForegroundSelected" />
+        <StaticResource x:Key="NavigationViewItemForegroundPointerOver" ResourceKey="AgentNavItemForegroundPointerOver" />
+        <StaticResource x:Key="NavigationViewItemBackgroundSelectedPointerOver" ResourceKey="AgentNavItemBackgroundSelectedPointerOver" />
+        <StaticResource x:Key="NavigationViewItemBackgroundSelected" ResourceKey="AgentNavItemBackgroundSelected" />
+        <StaticResource x:Key="NavigationViewItemBackgroundPointerOver" ResourceKey="AgentNavItemBackgroundPointerOver" />
     </Page.Resources>
 
     <Grid>
@@ -54,7 +56,7 @@
                     <TextBlock
                         FontSize="18"
                         FontWeight="Bold"
-                        Foreground="White"
+                        Foreground="{ThemeResource AgentNavHeaderForeground}"
                         Text="MyShop2025" />
                     <TextBlock
                         FontSize="11"
