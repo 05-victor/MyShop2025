@@ -146,7 +146,7 @@ public partial class AdminDashboardViewModel : BaseViewModel
     private Axis[] _yAxes;
 
     public AdminDashboardViewModel(
-        IDashboardFacade dashboardFacade, 
+        IDashboardFacade dashboardFacade,
         INavigationService navigationService,
         IConfigurationService configService,
         IActivityLogService? activityLogService = null,
@@ -157,7 +157,7 @@ public partial class AdminDashboardViewModel : BaseViewModel
         _configService = configService;
         _activityLogService = activityLogService;
         _notificationService = notificationService;
-        
+
         // Initialize notification service if available
         _notificationService?.Initialize();
     }
@@ -241,30 +241,38 @@ public partial class AdminDashboardViewModel : BaseViewModel
 
     private async Task LoadDashboardDataAsync()
     {
-        System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] LoadDashboardDataAsync started with period: {SelectedPeriod}");
+        System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] LoadDashboardDataAsync: Starting dashboard data load (Period={SelectedPeriod})");
         SetLoadingState(true);
 
         try
         {
-            System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] START - Period: {SelectedPeriod}");
+            System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] ⏳ START - Period: {SelectedPeriod}");
             var sw = System.Diagnostics.Stopwatch.StartNew();
 
+            // Call facade to fetch dashboard data
+            System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] Calling _dashboardFacade.LoadDashboardAsync...");
             var result = await _dashboardFacade.LoadDashboardAsync(SelectedPeriod);
             sw.Stop();
-            System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] Facade returned - Success: {result.IsSuccess}, ElapsedMs: {sw.ElapsedMilliseconds}");
+
+            System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] ✅ Facade returned - Success: {result.IsSuccess}, ElapsedMs: {sw.ElapsedMilliseconds}ms");
 
             if (!result.IsSuccess || result.Data == null)
             {
-                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] ERROR - {result.ErrorMessage}");
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] ❌ ERROR - {result.ErrorMessage}");
                 SetError(result.ErrorMessage ?? "Failed to load dashboard data");
                 return;
             }
 
             var data = result.Data;
-            System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] Data: TotalProducts={data.TotalProducts}, Orders={data.TodayOrders}, Revenue={data.MonthRevenue}, LowStock={data.LowStockProducts?.Count}, TopProducts={data.TopSellingProducts?.Count}");
+            System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] 📊 DATA RECEIVED:");
+            System.Diagnostics.Debug.WriteLine($"  TotalProducts={data.TotalProducts}, TodayOrders={data.TodayOrders}");
+            System.Diagnostics.Debug.WriteLine($"  Revenue: Today={data.TodayRevenue}, Week={data.WeekRevenue}, Month={data.MonthRevenue}");
+            System.Diagnostics.Debug.WriteLine($"  LowStockProducts={data.LowStockProducts?.Count}, TopProducts={data.TopSellingProducts?.Count}");
 
             RunOnUIThread(() =>
             {
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] 🔄 UPDATING UI PROPERTIES");
+
                 TotalGmvThisMonth = data.MonthRevenue;
                 AdminCommission = Math.Round(data.MonthRevenue * 0.05m, 2);
                 System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] ✅ KPI VALUES SET - GMV: {TotalGmvThisMonth}, Commission: {AdminCommission}");
@@ -298,7 +306,7 @@ public partial class AdminDashboardViewModel : BaseViewModel
                 }
 
                 LowStockCount = data.LowStockProducts.Count;
-                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] UI updated");
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] ✅ UI PROPERTIES UPDATED - Dashboard data loaded successfully");
             });
 
             System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] Loading chart data...");

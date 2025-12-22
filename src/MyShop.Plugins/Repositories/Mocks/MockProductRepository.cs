@@ -31,7 +31,7 @@ public class MockProductRepository : IProductRepository
         {
             var product = await MockProductData.GetByIdAsync(id);
             System.Diagnostics.Debug.WriteLine($"[MockProductRepository] GetByIdAsync({id}) - Found: {product != null}");
-            return product != null 
+            return product != null
                 ? Result<Product>.Success(product)
                 : Result<Product>.Failure($"Product with ID {id} not found");
         }
@@ -79,7 +79,7 @@ public class MockProductRepository : IProductRepository
         {
             var result = await MockProductData.DeleteAsync(id);
             System.Diagnostics.Debug.WriteLine($"[MockProductRepository] DeleteAsync({id}) - Success: {result}");
-            return result 
+            return result
                 ? Result<bool>.Success(true)
                 : Result<bool>.Failure($"Failed to delete product with ID {id}");
         }
@@ -140,6 +140,7 @@ public class MockProductRepository : IProductRepository
         int pageSize = 20,
         string? searchQuery = null,
         string? categoryName = null,
+        string? manufacturerName = null,
         decimal? minPrice = null,
         decimal? maxPrice = null,
         string sortBy = "name",
@@ -148,10 +149,10 @@ public class MockProductRepository : IProductRepository
         try
         {
             var (items, totalCount) = await MockProductData.GetPagedAsync(
-                page, pageSize, searchQuery, categoryName, minPrice, maxPrice, sortBy, sortDescending);
+                page, pageSize, searchQuery, categoryName, manufacturerName, minPrice, maxPrice, sortBy, sortDescending);
 
             var pagedList = new PagedList<Product>(items, totalCount, page, pageSize);
-            
+
             System.Diagnostics.Debug.WriteLine($"[MockProductRepository] GetPagedAsync: Page {page}, Size {pageSize}, Total {totalCount}");
             return Result<PagedList<Product>>.Success(pagedList);
         }

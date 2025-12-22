@@ -24,25 +24,6 @@ public class UserRepository : IUserRepository
         _profileApi = profileApi;
     }
 
-    public async Task<Result<bool>> HasAnyUsersAsync()
-    {
-        try
-        {
-            var allUsersResult = await GetAllAsync();
-            if (!allUsersResult.IsSuccess)
-            {
-                return Result<bool>.Failure(allUsersResult.ErrorMessage ?? "Failed to check users");
-            }
-
-            var hasUsers = allUsersResult.Data?.Any() == true;
-            return Result<bool>.Success(hasUsers);
-        }
-        catch (Exception ex)
-        {
-            return Result<bool>.Failure($"Error checking users: {ex.Message}");
-        }
-    }
-
     public async Task<Result<IEnumerable<User>>> GetAllAsync()
     {
         try

@@ -12,11 +12,6 @@ namespace MyShop.Core.Interfaces.Repositories;
 public interface IUserRepository
 {
     /// <summary>
-    /// Check if any users exist in the system (for first-user setup flow)
-    /// </summary>
-    Task<Result<bool>> HasAnyUsersAsync();
-
-    /// <summary>
     /// Get all users (for admin management)
     /// </summary>
     Task<Result<IEnumerable<User>>> GetAllAsync();

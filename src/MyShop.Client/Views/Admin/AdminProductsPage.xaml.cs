@@ -57,10 +57,14 @@ public sealed partial class AdminProductsPage : Page
 
     private async void AdminProductPage_Loaded(object sender, RoutedEventArgs e)
     {
-        // Load products from repository
-        if (ViewModel.LoadProductsCommand.CanExecute(null))
+        // Initialize ViewModel (load categories and products)
+        try
         {
-            await ViewModel.LoadProductsCommand.ExecuteAsync(null);
+            await ViewModel.InitializeAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminProductsPage] InitializeAsync failed: {ex.Message}");
         }
     }
 
@@ -72,11 +76,11 @@ public sealed partial class AdminProductsPage : Page
     {
         // Guard: ViewModel may be null during page initialization
         if (ViewModel == null) return;
-        
-        if (CategoryComboBox.SelectedItem is ComboBoxItem item)
+
+        if (CategoryComboBox.SelectedItem is string category)
         {
-            var category = item.Tag?.ToString();
-            ViewModel.SelectedCategory = string.IsNullOrEmpty(category) ? null : category;
+            // Update ViewModel with selected category
+            ViewModel.SelectedCategory = category;
         }
     }
 
@@ -84,7 +88,7 @@ public sealed partial class AdminProductsPage : Page
     {
         // Guard: ViewModel may be null during page initialization
         if (ViewModel == null) return;
-        
+
         if (SortByComboBox.SelectedItem is ComboBoxItem item)
         {
             var tag = item.Tag?.ToString() ?? "name-asc";
@@ -138,7 +142,7 @@ public sealed partial class AdminProductsPage : Page
         if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
         {
             var query = sender.Text?.ToLower() ?? string.Empty;
-            
+
             if (string.IsNullOrWhiteSpace(query))
             {
                 sender.ItemsSource = null;
@@ -147,7 +151,7 @@ public sealed partial class AdminProductsPage : Page
 
             // Filter current items as suggestions (from loaded products)
             var suggestions = ViewModel.Items
-                .Where(p => p.Name.ToLower().Contains(query) || 
+                .Where(p => p.Name.ToLower().Contains(query) ||
                            (p.Sku?.ToLower().Contains(query) ?? false) ||
                            (p.Category?.ToLower().Contains(query) ?? false))
                 .Select(p => p.Name)
@@ -182,7 +186,7 @@ public sealed partial class AdminProductsPage : Page
         {
             ViewModel.SearchQuery = args.QueryText;
         }
-        
+
         // Apply the search
         await ViewModel.LoadDataAsync();
     }
@@ -296,7 +300,7 @@ public sealed partial class AdminProductsPage : Page
             // Select the correct category
             for (int i = 0; i < EditCategoryComboBox.Items.Count; i++)
             {
-                if (EditCategoryComboBox.Items[i] is ComboBoxItem item && 
+                if (EditCategoryComboBox.Items[i] is ComboBoxItem item &&
                     item.Tag?.ToString() == product.Category)
                 {
                     EditCategoryComboBox.SelectedIndex = i;

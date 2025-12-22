@@ -34,7 +34,7 @@
 
         <!--  Card style (giống card trắng bo góc trong React)  -->
         <Style x:Key="CardBorderStyle"
-                TargetType="Border">
+               TargetType="Border">
             <Setter Property="Background"
                     Value="White"/>
             <Setter Property="CornerRadius"
@@ -51,7 +51,7 @@
 
         <!--  Badge stock  -->
         <Style x:Key="StockBadgeStyle"
-                TargetType="Border">
+               TargetType="Border">
             <Setter Property="CornerRadius"
                     Value="999"/>
             <Setter Property="Padding"
@@ -65,14 +65,15 @@
     <Grid>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="ResponsiveStates">
-                
+
                 <!-- Large Desktop: 1920px+ -->
                 <VisualState x:Name="LargeDesktopState">
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="1920"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="40"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="40"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -82,7 +83,8 @@
                         <AdaptiveTrigger MinWindowWidth="1280"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="32"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="32"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -92,7 +94,8 @@
                         <AdaptiveTrigger MinWindowWidth="960"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="24"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="24"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -102,7 +105,8 @@
                         <AdaptiveTrigger MinWindowWidth="640"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="20"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="20"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -112,17 +116,19 @@
                         <AdaptiveTrigger MinWindowWidth="0"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="16"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="16"/>
                     </VisualState.Setters>
                 </VisualState>
-                
+
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
         <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel x:Name="MainContent" Padding="32"
-                        Spacing="24">
+                <StackPanel x:Name="MainContent"
+                        Padding="32"
+                            Spacing="24">
 
                     <!--  PAGE TITLE  -->
                     <layout:PageHeader
@@ -130,7 +136,7 @@
                         Subtitle="View and manage all products in the system">
                         <layout:PageHeader.ActionContent>
                             <StackPanel Orientation="Horizontal"
-                                    Spacing="8">
+                                        Spacing="8">
                                 <!--  Refresh  -->
                                 <buttons:IconButton
                                     Variant="Outline"
@@ -170,7 +176,7 @@
                                 AutomationProperties.HeadingLevel="Level2"/>
 
                             <Grid HorizontalAlignment="Stretch"
-                                    ColumnSpacing="12">
+                                  ColumnSpacing="12">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <!--  Category  -->
@@ -194,25 +200,14 @@
                                         HorizontalAlignment="Stretch"
                                         BorderBrush="#E5E7EB"
                                         BorderThickness="1"
-                                        SelectedIndex="0"
+                                        ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
+                                        SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"
                                         SelectionChanged="CategoryComboBox_SelectionChanged"
                                         PlaceholderText="All Categories"
                                         AutomationProperties.Name="Category filter"
                                         AutomationProperties.HelpText="Filter products by category"
-                                        UseSystemFocusVisuals="True">
-                                        <ComboBoxItem Content="All Categories"
-                                                Tag=""/>
-                                        <ComboBoxItem Content="Smartphones"
-                                                Tag="Smartphones"/>
-                                        <ComboBoxItem Content="Laptops"
-                                                Tag="Laptops"/>
-                                        <ComboBoxItem Content="Audio"
-                                                Tag="Audio"/>
-                                        <ComboBoxItem Content="Tablets"
-                                                Tag="Tablets"/>
-                                        <ComboBoxItem Content="Wearables"
-                                                Tag="Wearables"/>
-                                    </ComboBox>
+                                        UseSystemFocusVisuals="True"/>
+
                                 </StackPanel>
 
                                 <!--  Min Price  -->
@@ -262,15 +257,15 @@
                                         SelectedIndex="0"
                                         SelectionChanged="SortByComboBox_SelectionChanged">
                                         <ComboBoxItem Content="Rating (High to Low)"
-                                                Tag="rating-desc"/>
+                                                      Tag="rating-desc"/>
                                         <ComboBoxItem Content="Price (High to Low)"
-                                                Tag="price-desc"/>
+                                                      Tag="price-desc"/>
                                         <ComboBoxItem Content="Price (Low to High)"
-                                                Tag="price-asc"/>
+                                                      Tag="price-asc"/>
                                         <ComboBoxItem Content="Name (A-Z)"
-                                                Tag="name-asc"/>
+                                                      Tag="name-asc"/>
                                         <ComboBoxItem Content="Name (Z-A)"
-                                                Tag="name-desc"/>
+                                                      Tag="name-desc"/>
                                     </ComboBox>
                                 </StackPanel>
                             </Grid>
@@ -424,7 +419,7 @@
                                                 VerticalAlignment="Center"
                                                 Spacing="2">
                                                 <TextBlock Text="{x:Bind Name}"
-                                                        TextTrimming="CharacterEllipsis"/>
+                                                           TextTrimming="CharacterEllipsis"/>
                                                 <TextBlock
                                                     FontSize="12"
                                                     Foreground="#6B7280"
@@ -501,7 +496,7 @@
                                                 Orientation="Horizontal"
                                                 Spacing="4">
                                                 <TextBlock VerticalAlignment="Center"
-                                                        Text="{x:Bind Rating}"/>
+                                                           Text="{x:Bind Rating}"/>
                                                 <FontIcon
                                                     FontSize="14"
                                                     Foreground="#F59E0B"
@@ -559,9 +554,9 @@
                                     Command="{x:Bind ViewModel.PreviousPageCommand}"
                                     CornerRadius="8">
                                     <StackPanel Orientation="Horizontal"
-                                            Spacing="8">
+                                                Spacing="8">
                                         <FontIcon FontSize="14"
-                                                Glyph="&#xE76B;"/>
+                                                  Glyph="&#xE76B;"/>
                                         <TextBlock Text="Previous"/>
                                     </StackPanel>
                                 </Button>
@@ -595,10 +590,10 @@
                                     Command="{x:Bind ViewModel.NextPageCommand}"
                                     CornerRadius="8">
                                     <StackPanel Orientation="Horizontal"
-                                            Spacing="8">
+                                                Spacing="8">
                                         <TextBlock Text="Next"/>
                                         <FontIcon FontSize="14"
-                                                Glyph="&#xE76C;"/>
+                                                  Glyph="&#xE76C;"/>
                                     </StackPanel>
                                 </Button>
                             </Grid>
@@ -623,7 +618,7 @@
                 <!--  Name  -->
                 <StackPanel>
                     <TextBlock Margin="0,0,0,4"
-                            Text="Product Name *"/>
+                               Text="Product Name *"/>
                     <TextBox
                         x:Name="NewNameTextBox"
                         BorderBrush="#E5E7EB"
@@ -641,7 +636,7 @@
                     <!--  Category  -->
                     <StackPanel Grid.Column="0">
                         <TextBlock Margin="0,0,0,4"
-                                Text="Category *"/>
+                                   Text="Category *"/>
                         <ComboBox
                             x:Name="NewCategoryComboBox"
                             HorizontalAlignment="Stretch"
@@ -659,7 +654,7 @@
                     <!--  Stock  -->
                     <StackPanel Grid.Column="1">
                         <TextBlock Margin="0,0,0,4"
-                                Text="Stock *"/>
+                                   Text="Stock *"/>
                         <TextBox
                             x:Name="NewStockTextBox"
                             BorderBrush="#E5E7EB"
@@ -678,7 +673,7 @@
 
                     <StackPanel Grid.Column="0">
                         <TextBlock Margin="0,0,0,4"
-                                Text="Sale Price *"/>
+                                   Text="Sale Price *"/>
                         <TextBox
                             x:Name="NewPriceTextBox"
                             BorderBrush="#E5E7EB"
@@ -689,7 +684,7 @@
 
                     <StackPanel Grid.Column="1">
                         <TextBlock Margin="0,0,0,4"
-                                Text="Import Price"/>
+                                   Text="Import Price"/>
                         <TextBox
                             x:Name="NewImportPriceTextBox"
                             BorderBrush="#E5E7EB"
@@ -702,7 +697,7 @@
                 <!--  Description  -->
                 <StackPanel>
                     <TextBlock Margin="0,0,0,4"
-                            Text="Description"/>
+                               Text="Description"/>
                     <TextBox
                         x:Name="NewDescriptionTextBox"
                         MinHeight="80"
@@ -724,15 +719,15 @@
             SecondaryButtonClick="EditProductDialog_SecondaryButtonClick"
             SecondaryButtonText="Cancel">
             <StackPanel Spacing="12"
-                    MinWidth="400">
+                        MinWidth="400">
                 <!--  Hidden ID field  -->
                 <TextBox x:Name="EditProductIdTextBox"
-                        Visibility="Collapsed"/>
+                         Visibility="Collapsed"/>
 
                 <!--  Name  -->
                 <StackPanel>
                     <TextBlock Margin="0,0,0,4"
-                            Text="Product Name *"/>
+                               Text="Product Name *"/>
                     <TextBox
                         x:Name="EditNameTextBox"
                         BorderBrush="#E5E7EB"
@@ -743,7 +738,7 @@
                 <!--  SKU  -->
                 <StackPanel>
                     <TextBlock Margin="0,0,0,4"
-                            Text="SKU"/>
+                               Text="SKU"/>
                     <TextBox
                         x:Name="EditSkuTextBox"
                         BorderBrush="#E5E7EB"
@@ -761,7 +756,7 @@
                     <!--  Category  -->
                     <StackPanel Grid.Column="0">
                         <TextBlock Margin="0,0,0,4"
-                                Text="Category *"/>
+                                   Text="Category *"/>
                         <ComboBox
                             x:Name="EditCategoryComboBox"
                             HorizontalAlignment="Stretch"
@@ -769,22 +764,22 @@
                             BorderThickness="1"
                             PlaceholderText="Select category">
                             <ComboBoxItem Content="Smartphones"
-                                    Tag="Smartphones"/>
+                                          Tag="Smartphones"/>
                             <ComboBoxItem Content="Laptops"
-                                    Tag="Laptops"/>
+                                          Tag="Laptops"/>
                             <ComboBoxItem Content="Audio"
-                                    Tag="Audio"/>
+                                          Tag="Audio"/>
                             <ComboBoxItem Content="Tablets"
-                                    Tag="Tablets"/>
+                                          Tag="Tablets"/>
                             <ComboBoxItem Content="Wearables"
-                                    Tag="Wearables"/>
+                                          Tag="Wearables"/>
                         </ComboBox>
                     </StackPanel>
 
                     <!--  Stock  -->
                     <StackPanel Grid.Column="1">
                         <TextBlock Margin="0,0,0,4"
-                                Text="Stock *"/>
+                                   Text="Stock *"/>
                         <TextBox
                             x:Name="EditStockTextBox"
                             BorderBrush="#E5E7EB"
@@ -803,7 +798,7 @@
 
                     <StackPanel Grid.Column="0">
                         <TextBlock Margin="0,0,0,4"
-                                Text="Sale Price *"/>
+                                   Text="Sale Price *"/>
                         <TextBox
                             x:Name="EditPriceTextBox"
                             BorderBrush="#E5E7EB"
@@ -814,7 +809,7 @@
 
                     <StackPanel Grid.Column="1">
                         <TextBlock Margin="0,0,0,4"
-                                Text="Import Price"/>
+                                   Text="Import Price"/>
                         <TextBox
                             x:Name="EditImportPriceTextBox"
                             BorderBrush="#E5E7EB"
@@ -827,7 +822,7 @@
                 <!--  Description  -->
                 <StackPanel>
                     <TextBlock Margin="0,0,0,4"
-                            Text="Description"/>
+                               Text="Description"/>
                     <TextBox
                         x:Name="EditDescriptionTextBox"
                         MinHeight="80"
@@ -846,10 +841,10 @@
             CloseButtonText="Close"
             DefaultButton="Close">
             <ScrollViewer MaxHeight="500"
-                    VerticalScrollBarVisibility="Auto">
+                          VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="16"
-                        MinWidth="450"
-                        Padding="0,8">
+                            MinWidth="450"
+                            Padding="0,8">
                     <!--  Product Image  -->
                     <Border
                         HorizontalAlignment="Center"
@@ -896,7 +891,7 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0"
-                                Spacing="4">
+                                    Spacing="4">
                             <TextBlock
                                 FontSize="12"
                                 FontWeight="SemiBold"
@@ -909,7 +904,7 @@
                         </StackPanel>
 
                         <StackPanel Grid.Column="1"
-                                Spacing="4">
+                                    Spacing="4">
                             <TextBlock
                                 FontSize="12"
                                 FontWeight="SemiBold"
@@ -942,7 +937,7 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0"
-                                    Spacing="4">
+                                        Spacing="4">
                                 <TextBlock
                                     FontSize="12"
                                     FontWeight="SemiBold"
@@ -956,7 +951,7 @@
                             </StackPanel>
 
                             <StackPanel Grid.Column="1"
-                                    Spacing="4">
+                                        Spacing="4">
                                 <TextBlock
                                     FontSize="12"
                                     FontWeight="SemiBold"
@@ -969,7 +964,7 @@
                             </StackPanel>
 
                             <StackPanel Grid.Column="2"
-                                    Spacing="4">
+                                        Spacing="4">
                                 <TextBlock
                                     FontSize="12"
                                     FontWeight="SemiBold"
@@ -992,14 +987,14 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0"
-                                Spacing="4">
+                                    Spacing="4">
                             <TextBlock
                                 FontSize="12"
                                 FontWeight="SemiBold"
                                 Foreground="#6B7280"
                                 Text="STOCK"/>
                             <StackPanel Orientation="Horizontal"
-                                    Spacing="8">
+                                        Spacing="8">
                                 <TextBlock
                                     x:Name="ViewProductStock"
                                     FontSize="24"
@@ -1019,21 +1014,21 @@
                         </StackPanel>
 
                         <StackPanel Grid.Column="1"
-                                Spacing="4">
+                                    Spacing="4">
                             <TextBlock
                                 FontSize="12"
                                 FontWeight="SemiBold"
                                 Foreground="#6B7280"
                                 Text="RATING"/>
                             <StackPanel Orientation="Horizontal"
-                                    Spacing="8">
+                                        Spacing="8">
                                 <TextBlock
                                     x:Name="ViewProductRating"
                                     FontSize="24"
                                     FontWeight="Bold"
                                     Foreground="#111827"/>
                                 <StackPanel Orientation="Horizontal"
-                                        VerticalAlignment="Center">
+                                            VerticalAlignment="Center">
                                     <FontIcon
                                         FontSize="16"
                                         Foreground="#F59E0B"

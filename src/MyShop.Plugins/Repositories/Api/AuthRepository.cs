@@ -85,6 +85,7 @@ public class AuthRepository : IAuthRepository
                 Email = email,
                 Password = password,
                 Sdt = phoneNumber,
+                ActivateTrial = false,
                 RoleNames = new List<string> { role }
             };
 

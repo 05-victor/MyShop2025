@@ -243,6 +243,7 @@ public class ProductRepository : IProductRepository
         int pageSize = 20,
         string? searchQuery = null,
         string? categoryName = null,
+        string? manufacturerName = null,
         decimal? minPrice = null,
         decimal? maxPrice = null,
         string sortBy = "name",
@@ -274,6 +275,12 @@ public class ProductRepository : IProductRepository
             {
                 query = query.Where(p => p.CategoryName != null &&
                     p.CategoryName.Equals(categoryName, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(manufacturerName))
+            {
+                query = query.Where(p => p.Manufacturer != null &&
+                    p.Manufacturer.Equals(manufacturerName, StringComparison.OrdinalIgnoreCase));
             }
 
             if (minPrice.HasValue)
