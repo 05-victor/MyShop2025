@@ -30,6 +30,12 @@ public partial class SalesAgentProductsViewModel : ObservableObject
     private MyShop.Shared.Models.Category? _selectedCategory;
 
     [ObservableProperty]
+    private ObservableCollection<string> _brands = new() { "All Brands" };
+
+    [ObservableProperty]
+    private string _selectedBrand = "All Brands";
+
+    [ObservableProperty]
     private string _selectedStockStatus = string.Empty;
 
     [ObservableProperty]
@@ -66,6 +72,7 @@ public partial class SalesAgentProductsViewModel : ObservableObject
     public async Task InitializeAsync()
     {
         await LoadCategoriesAsync();
+        await LoadBrandsAsync();
         await LoadProductsAsync();
     }
 
@@ -107,6 +114,44 @@ public partial class SalesAgentProductsViewModel : ObservableObject
         }
     }
 
+    /// <summary>
+    /// Load brands (manufacturers) from API
+    /// </summary>
+    private async Task LoadBrandsAsync()
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine("[SalesAgentProductsViewModel] LoadBrandsAsync: Starting brand load from API");
+
+            var result = await _productFacade.LoadBrandsAsync();
+
+            if (!result.IsSuccess || result.Data == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel] LoadBrandsAsync: Failed to load - {result.ErrorMessage}");
+                return;
+            }
+
+            // Clear existing items but keep "All Brands" at index 0
+            while (Brands.Count > 1)
+            {
+                Brands.RemoveAt(Brands.Count - 1);
+            }
+
+            // Add API brands
+            foreach (var brand in result.Data)
+            {
+                Brands.Add(brand);
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel] ✅ LoadBrandsAsync: Loaded {result.Data.Count} brands from API");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel] ❌ LoadBrandsAsync: ERROR - {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel] Stack trace: {ex.StackTrace}");
+        }
+    }
+
     [RelayCommand]
     private async Task RefreshAsync()
     {
@@ -128,6 +173,7 @@ public partial class SalesAgentProductsViewModel : ObservableObject
         System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.ResetFiltersAsync] Resetting all filters");
         SearchQuery = string.Empty;
         SelectedCategory = null;
+        SelectedBrand = "All Brands";
         SelectedStockStatus = string.Empty;
         SortBy = "name";
         SortDescending = false;
@@ -169,13 +215,14 @@ public partial class SalesAgentProductsViewModel : ObservableObject
         try
         {
             IsLoading = true;
-            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.LoadProductsAsync] START - Page: {CurrentPage}, PageSize: {PageSize}, Search: '{SearchQuery}', Category: '{SelectedCategory?.Name}', StockStatus: '{SelectedStockStatus}'");
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.LoadProductsAsync] START - Page: {CurrentPage}, PageSize: {PageSize}, Search: '{SearchQuery}', Category: '{SelectedCategory?.Name}', Brand: '{SelectedBrand}', StockStatus: '{SelectedStockStatus}'");
 
             // Call facade with pagination parameters and filters
             var result = await _productFacade.LoadProductsAsync(
                 searchQuery: string.IsNullOrWhiteSpace(SearchQuery) ? null : SearchQuery,
                 categoryName: SelectedCategory?.Name,
                 manufacturerName: null,
+                brandName: SelectedBrand != "All Brands" ? SelectedBrand : null,
                 minPrice: null,
                 maxPrice: null,
                 stockStatus: string.IsNullOrWhiteSpace(SelectedStockStatus) ? null : SelectedStockStatus,

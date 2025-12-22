@@ -156,6 +156,17 @@ namespace MyShop.Client.Views.SalesAgent
             }
         }
 
+        private async void BrandComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ViewModel == null) return;
+
+            if (BrandComboBox.SelectedItem is string brand)
+            {
+                ViewModel.SelectedBrand = brand;
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.BrandComboBox_SelectionChanged] Selected brand: '{ViewModel.SelectedBrand}'");
+            }
+        }
+
         private async void StockStatusComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (ViewModel == null) return;

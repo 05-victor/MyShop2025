@@ -46,6 +46,7 @@ public class ProductFacade : IProductFacade
         string? searchQuery = null,
         string? categoryName = null,
         string? manufacturerName = null,
+        string? brandName = null,
         decimal? minPrice = null,
         decimal? maxPrice = null,
         string? stockStatus = null,
@@ -65,7 +66,7 @@ public class ProductFacade : IProductFacade
 
             // Call repository's paged method (server-side paging and filtering)
             var result = await _productRepository.GetPagedAsync(
-                page, pageSize, searchQuery, categoryName, manufacturerName, minPrice, maxPrice, stockStatus, sortBy, sortDescending);
+                page, pageSize, searchQuery, categoryName, manufacturerName, brandName, minPrice, maxPrice, stockStatus, sortBy, sortDescending);
 
             if (!result.IsSuccess || result.Data == null)
             {
@@ -572,7 +573,7 @@ public class ProductFacade : IProductFacade
         {
             // Load filtered products with large page size to get all
             var result = await _productRepository.GetPagedAsync(
-                1, 10000, searchQuery, categoryName, null, minPrice, maxPrice, null, "name", false);
+                1, 10000, searchQuery, categoryName, null, null, minPrice, maxPrice, null, "name", false);
 
             if (!result.IsSuccess || result.Data == null)
             {

@@ -163,6 +163,7 @@
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
 
                                             <!-- Category Filter -->
@@ -183,8 +184,25 @@
                                                           AutomationProperties.Name="Category filter"/>
                                             </StackPanel>
 
-                                            <!-- Stock Status Filter -->
+                                            <!-- Brand Filter -->
                                             <StackPanel Grid.Column="1">
+                                                <TextBlock Text="Brand"
+                                                           FontSize="12"
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                           Margin="0,0,0,4"/>
+                                                <ComboBox x:Name="BrandComboBox"
+                                                          Height="40"
+                                                          CornerRadius="10"
+                                                          BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
+                                                          HorizontalAlignment="Stretch"
+                                                          ItemsSource="{x:Bind ViewModel.Brands, Mode=OneWay}"
+                                                          SelectedItem="{x:Bind ViewModel.SelectedBrand, Mode=TwoWay}"
+                                                          SelectionChanged="BrandComboBox_SelectionChanged"
+                                                          AutomationProperties.Name="Brand filter"/>
+                                            </StackPanel>
+
+                                            <!-- Stock Status Filter -->
+                                            <StackPanel Grid.Column="2">
                                                 <TextBlock Text="Stock Status"
                                                            FontSize="12"
                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -208,7 +226,7 @@
                                             </StackPanel>
 
                                             <!-- Sort By -->
-                                            <StackPanel Grid.Column="2">
+                                            <StackPanel Grid.Column="3">
                                                 <TextBlock Text="Sort By"
                                                            FontSize="12"
                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -248,18 +266,69 @@
                                         </Grid.RowDefinitions>
 
                                         <!-- Table Header -->
-                                        <tables:TableHeader Grid.Row="0">
-                                            <tables:TableHeader.Columns>
-                                                <x:String>3*|PRODUCT</x:String>
-                                                <x:String>*|CATEGORY</x:String>
-                                                <x:String>*|PRICE</x:String>
-                                                <x:String>*|IMPORT PRICE</x:String>
-                                                <x:String>*|STOCK</x:String>
-                                                <x:String>*|COMMISSION</x:String>
-                                                <x:String>*|RATING</x:String>
-                                                <x:String>120|ACTIONS</x:String>
-                                            </tables:TableHeader.Columns>
-                                        </tables:TableHeader>
+                                        <Grid Grid.Row="0"
+                                              Padding="24,16"
+                                              Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                              BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                              BorderThickness="0,0,0,1">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <!-- Image -->
+                                                <ColumnDefinition Width="2.5*"/>
+                                                <!-- Product Name -->
+                                                <ColumnDefinition Width="1.2*"/>
+                                                <!-- Category -->
+                                                <ColumnDefinition Width="1.2*"/>
+                                                <!-- Price -->
+                                                <ColumnDefinition Width="1.2*"/>
+                                                <!-- Import Price -->
+                                                <ColumnDefinition Width="1.2*"/>
+                                                <!-- Stock -->
+                                                <ColumnDefinition Width="1.2*"/>
+                                                <!-- Tax -->
+                                                <ColumnDefinition Width="*"/>
+                                                <!-- Rating -->
+                                                <ColumnDefinition Width="80"/>
+                                                <!-- Actions -->
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Grid.Column="0"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="IMAGE"/>
+                                            <TextBlock Grid.Column="1"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="PRODUCT"/>
+                                            <TextBlock Grid.Column="2"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="CATEGORY"/>
+                                            <TextBlock Grid.Column="3"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="PRICE"/>
+                                            <TextBlock Grid.Column="4"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="IMPORT PRICE"/>
+                                            <TextBlock Grid.Column="5"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="STOCK"/>
+                                            <TextBlock Grid.Column="6"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="TAX"/>
+                                            <TextBlock Grid.Column="7"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="RATING"/>
+                                            <TextBlock Grid.Column="8"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="ACTIONS"/>
+                                        </Grid>
 
                                         <!-- Table Body -->
                                         <ItemsRepeater Grid.Row="1"
@@ -270,48 +339,56 @@
                                                           BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                                           BorderThickness="0,0,0,1">
                                                         <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="3*"/>
                                                             <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="120"/>
+                                                            <ColumnDefinition Width="2.5*"/>
+                                                            <ColumnDefinition Width="1.2*"/>
+                                                            <ColumnDefinition Width="1.2*"/>
+                                                            <ColumnDefinition Width="1.2*"/>
+                                                            <ColumnDefinition Width="1.2*"/>
+                                                            <ColumnDefinition Width="1*"/>
+                                                            <ColumnDefinition Width="1*"/>
+                                                            <ColumnDefinition Width="80"/>
                                                         </Grid.ColumnDefinitions>
 
-                                                        <!-- Product Info -->
-                                                        <StackPanel Grid.Column="0"
-                                                                    Orientation="Horizontal"
-                                                                    Spacing="12">
-                                                            <Border Width="48"
-                                                                    Height="48"
-                                                                    Background="{ThemeResource LayerFillColorDefaultBrush}"
-                                                                    CornerRadius="8">
-                                                                <FontIcon Glyph="&#xE7B8;"
-                                                                          FontSize="24"
-                                                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                            </Border>
-                                                            <StackPanel VerticalAlignment="Center">
-                                                                <TextBlock Text="{x:Bind Name, Mode=OneWay}"
-                                                                           FontSize="14"
-                                                                           FontWeight="SemiBold"
-                                                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                                                <TextBlock Text="{x:Bind Sku, Mode=OneWay}"
-                                                                           FontSize="12"
-                                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                            </StackPanel>
+                                                        <!-- Image -->
+                                                        <Border Grid.Column="0"
+                                                                Width="48"
+                                                                Height="48"
+                                                                HorizontalAlignment="Left"
+                                                                Background="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                                CornerRadius="8">
+                                                            <Image Stretch="UniformToFill">
+                                                                <Image.Source>
+                                                                    <BitmapImage UriSource="{x:Bind ImageUrl, Mode=OneWay}"
+                                                                                 DecodePixelWidth="96"
+                                                                                 DecodePixelType="Logical"/>
+                                                                </Image.Source>
+                                                            </Image>
+                                                        </Border>
+
+                                                        <!-- Product Info (Name + SKU) -->
+                                                        <StackPanel Grid.Column="1"
+                                                                    VerticalAlignment="Center"
+                                                                    Spacing="2">
+                                                            <TextBlock Text="{x:Bind Name, Mode=OneWay}"
+                                                                       FontSize="14"
+                                                                       FontWeight="SemiBold"
+                                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                                       TextTrimming="CharacterEllipsis"/>
+                                                            <TextBlock Text="{x:Bind Sku, Mode=OneWay}"
+                                                                       FontSize="12"
+                                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                         </StackPanel>
 
                                                         <!-- Category -->
-                                                        <TextBlock Grid.Column="1"
+                                                        <TextBlock Grid.Column="2"
                                                                    Text="{x:Bind Category, Mode=OneWay}"
                                                                    FontSize="14"
-                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                                    VerticalAlignment="Center"/>
 
                                                         <!-- Price -->
-                                                        <TextBlock Grid.Column="2"
+                                                        <TextBlock Grid.Column="3"
                                                                    Text="{x:Bind Price, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                                    FontSize="14"
                                                                    FontWeight="SemiBold"
@@ -319,21 +396,21 @@
                                                                    VerticalAlignment="Center"/>
 
                                                         <!-- Import Price -->
-                                                        <TextBlock Grid.Column="3"
+                                                        <TextBlock Grid.Column="4"
                                                                    Text="{x:Bind ImportPrice, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                                    FontSize="14"
                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                                    VerticalAlignment="Center"/>
 
                                                         <!-- Stock -->
-                                                        <StackPanel Grid.Column="4"
+                                                        <StackPanel Grid.Column="5"
                                                                     VerticalAlignment="Center">
                                                             <badges:StockBadge Stock="{x:Bind Stock, Mode=OneWay}"
                                                                                LowStockThreshold="10"/>
                                                         </StackPanel>
 
                                                         <!-- Commission Rate -->
-                                                        <StackPanel Grid.Column="5"
+                                                        <StackPanel Grid.Column="6"
                                                                     VerticalAlignment="Center">
                                                             <TextBlock FontSize="14"
                                                                        Foreground="{ThemeResource SuccessGreenBrush}">
@@ -343,12 +420,13 @@
                                                         </StackPanel>
 
                                                         <!-- Rating -->
-                                                        <StackPanel
-                                                            Grid.Column="6"
-                                                            Orientation="Horizontal"
-                                                            Spacing="4">
+                                                        <StackPanel Grid.Column="7"
+                                                                    Orientation="Horizontal"
+                                                                    Spacing="4"
+                                                                    VerticalAlignment="Center">
                                                             <TextBlock VerticalAlignment="Center"
-                                                                       Text="{x:Bind Rating}"/>
+                                                                       FontSize="14"
+                                                                       Text="{x:Bind Rating, Mode=OneWay}"/>
                                                             <FontIcon
                                                                 FontSize="14"
                                                                 Foreground="{ThemeResource WarningAmberBrush}"
@@ -356,7 +434,7 @@
                                                         </StackPanel>
 
                                                         <!-- Actions -->
-                                                        <StackPanel Grid.Column="7"
+                                                        <StackPanel Grid.Column="8"
                                                                     Orientation="Horizontal"
                                                                     Spacing="4"
                                                                     VerticalAlignment="Center">

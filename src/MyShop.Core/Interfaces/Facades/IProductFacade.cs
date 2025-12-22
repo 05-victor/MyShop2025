@@ -28,6 +28,7 @@ public interface IProductFacade
         string? searchQuery = null,
         string? categoryName = null,
         string? manufacturerName = null,
+        string? brandName = null,
         decimal? minPrice = null,
         decimal? maxPrice = null,
         string? stockStatus = null,

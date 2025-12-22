@@ -254,6 +254,7 @@ public class ProductRepository : IProductRepository
         string? searchQuery = null,
         string? categoryName = null,
         string? manufacturerName = null,
+        string? brandName = null,
         decimal? minPrice = null,
         decimal? maxPrice = null,
         string? stockStatus = null,
@@ -301,6 +302,13 @@ public class ProductRepository : IProductRepository
                 query = query.Where(p => p.Manufacturer != null &&
                     p.Manufacturer.Equals(manufacturerName, StringComparison.OrdinalIgnoreCase));
                 System.Diagnostics.Debug.WriteLine($"[ProductRepository.GetPagedAsync] After manufacturer filter: {query.Count()} products");
+            }
+
+            if (!string.IsNullOrWhiteSpace(brandName))
+            {
+                query = query.Where(p => p.Manufacturer != null &&
+                    p.Manufacturer.Equals(brandName, StringComparison.OrdinalIgnoreCase));
+                System.Diagnostics.Debug.WriteLine($"[ProductRepository.GetPagedAsync] After brand filter: {query.Count()} products");
             }
 
             if (minPrice.HasValue)
