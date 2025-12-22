@@ -56,15 +56,27 @@ public partial class SalesAgentDashboardViewModel : BaseViewModel
     [ObservableProperty]
     private int _selectedDateRangeIndex = 0;
 
-    public string[] DateRangeOptions { get; } = new[] { "This Month", "Last Month", "Last 3 Months" };
+    public string[] DateRangeOptions { get; } = new[] { "Day", "Week", "Month", "Year" };
 
-    // Map index to API period
+    // Map UI selection to Backend API periods
+    // Backend expects: "day", "week", "month", "year"
     private string GetSelectedPeriod() => SelectedDateRangeIndex switch
     {
-        0 => "current",
-        1 => "last",
-        2 => "last3",
-        _ => "current"
+        0 => "day",       // day
+        1 => "week",      // week
+        2 => "month",     // month
+        3 => "year",      // year
+        _ => "month"
+    };
+
+    // Map UI selection to Chart period for revenue visualization
+    private string GetChartPeriod() => SelectedDateRangeIndex switch
+    {
+        0 => "day",       // day
+        1 => "week",      // week
+        2 => "month",     // month
+        3 => "year",      // year
+        _ => "month"
     };
 
     // LiveCharts Series (same as Admin)
@@ -248,14 +260,7 @@ public partial class SalesAgentDashboardViewModel : BaseViewModel
     {
         try
         {
-            var period = GetSelectedPeriod();
-            var chartPeriod = period switch
-            {
-                "current" => "day",
-                "last" => "day",
-                "last3" => "week",
-                _ => "day"
-            };
+            var chartPeriod = GetChartPeriod();  // Use GetChartPeriod() for chart visualization
 
             System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadChartDataAsync] START - ChartPeriod: {chartPeriod}");
             System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadChartDataAsync] Calling facade.GetRevenueChartDataAsync({chartPeriod})");
