@@ -282,48 +282,50 @@
                                                             <Grid Grid.Row="1"
                                                                   Margin="0,4,0,0">
                                                                 <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="Auto"/>
                                                                     <ColumnDefinition Width="*"/>
                                                                     <ColumnDefinition Width="Auto"/>
                                                                 </Grid.ColumnDefinitions>
 
-                                                            <!-- Product Image -->
-                                                            <Border Grid.Column="0"
-                                                                    Width="70"
-                                                                    Height="70"
-                                                                    CornerRadius="6"
-                                                                    Background="#F3F4F6">
-                                                                <Image Source="{x:Bind ImageUrl, Converter={StaticResource StringToImageSourceConverter}}"
-                                                                       Stretch="UniformToFill"/>
-                                                            </Border>
+                                                                <!-- Product Image -->
+                                                                <Border Grid.Column="0"
+                                                                        Width="70"
+                                                                        Height="70"
+                                                                        CornerRadius="6"
+                                                                        Background="#F3F4F6">
+                                                                    <Image Source="{x:Bind ImageUrl, Converter={StaticResource StringToImageSourceConverter}}"
+                                                                           Stretch="UniformToFill"/>
+                                                                </Border>
 
-                                                            <!-- Product Details -->
-                                                            <StackPanel Grid.Column="1"
-                                                                        Spacing="6"
-                                                                        VerticalAlignment="Center">
-                                                                <TextBlock Text="{x:Bind Product}"
-                                                                           FontSize="13"
-                                                                           FontWeight="SemiBold"
-                                                                           Foreground="#111827"
-                                                                           TextTrimming="CharacterEllipsis"/>
-                                                                <TextBlock Text="{x:Bind CategoryName}"
-                                                                           FontSize="11"
-                                                                           Foreground="#6B7280"/>
-                                                                <TextBlock FontSize="11"
-                                                                           Foreground="#6B7280">
+                                                                <!-- Product Details -->
+                                                                <StackPanel Grid.Column="1"
+                                                                            Spacing="6"
+                                                                            VerticalAlignment="Center">
+                                                                    <TextBlock Text="{x:Bind Product}"
+                                                                               FontSize="13"
+                                                                               FontWeight="SemiBold"
+                                                                               Foreground="#111827"
+                                                                               TextTrimming="CharacterEllipsis"/>
+                                                                    <TextBlock Text="{x:Bind CategoryName}"
+                                                                               FontSize="11"
+                                                                               Foreground="#6B7280"/>
+                                                                    <TextBlock FontSize="11"
+                                                                               Foreground="#6B7280">
                                                                     <Run Text="Sold: "/>
                                                                     <Run Text="{x:Bind SoldCount}"
                                                                          Foreground="#111827"
                                                                          FontWeight="SemiBold"/>
-                                                                </TextBlock>
-                                                            </StackPanel>
+                                                                    </TextBlock>
+                                                                </StackPanel>
 
-                                                            <!-- Revenue -->
-                                                            <TextBlock Grid.Column="2"
-                                                                       FontSize="14"
-                                                                       FontWeight="Bold"
-                                                                       Foreground="{ThemeResource SuccessGreenBrush}"
-                                                                       VerticalAlignment="Center"
-                                                                       Text="{x:Bind Revenue, Converter={StaticResource CurrencyConverter}}"/>
+                                                                <!-- Revenue -->
+                                                                <TextBlock Grid.Column="2"
+                                                                           FontSize="14"
+                                                                           FontWeight="Bold"
+                                                                           Foreground="{ThemeResource SuccessGreenBrush}"
+                                                                           VerticalAlignment="Center"
+                                                                           Text="{x:Bind Revenue, Converter={StaticResource CurrencyConverter}}"/>
+                                                            </Grid>
                                                         </Grid>
                                                     </Border>
                                                 </DataTemplate>
