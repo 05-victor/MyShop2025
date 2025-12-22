@@ -38,6 +38,7 @@ public interface IProductRepository
         int pageSize = Common.PaginationConstants.ProductsPageSize,
         string? searchQuery = null,
         string? categoryName = null,
+        string? manufacturerName = null,
         decimal? minPrice = null,
         decimal? maxPrice = null,
         string sortBy = "name",

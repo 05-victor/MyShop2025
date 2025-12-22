@@ -43,6 +43,7 @@ public class ProductFacade : IProductFacade
     public async Task<Result<PagedList<Product>>> LoadProductsAsync(
         string? searchQuery = null,
         string? categoryName = null,
+        string? manufacturerName = null,
         decimal? minPrice = null,
         decimal? maxPrice = null,
         string sortBy = "name",
@@ -59,7 +60,7 @@ public class ProductFacade : IProductFacade
 
             // Call repository's paged method (server-side paging and filtering)
             var result = await _productRepository.GetPagedAsync(
-                page, pageSize, searchQuery, categoryName, minPrice, maxPrice, sortBy, sortDescending);
+                page, pageSize, searchQuery, categoryName, manufacturerName, minPrice, maxPrice, sortBy, sortDescending);
 
             if (!result.IsSuccess || result.Data == null)
             {
@@ -98,6 +99,38 @@ public class ProductFacade : IProductFacade
         }
     }
 
+    /// <summary>
+    /// Load all categories from API with optional paging
+    /// Used by UI to populate category filters
+    /// </summary>
+    public async Task<Result<List<Category>>> GetCategoriesAsync(int pageNumber = 1, int pageSize = 100)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] GetCategoriesAsync: Starting category load from API (Page={pageNumber}, PageSize={pageSize})");
+
+            // Call repository to get categories
+            var result = await _categoryRepository.GetPagedAsync(pageNumber, pageSize);
+
+            if (!result.IsSuccess || result.Data == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ProductFacade] GetCategoriesAsync: Failed - {result.ErrorMessage}");
+                return Result<List<Category>>.Failure(result.ErrorMessage ?? "Failed to load categories");
+            }
+
+            var categories = result.Data.Items;
+
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] ✅ GetCategoriesAsync: Loaded {categories.Count} categories from API");
+            return Result<List<Category>>.Success(categories.ToList());
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] ❌ GetCategoriesAsync: ERROR - {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] Stack trace: {ex.StackTrace}");
+            return Result<List<Category>>.Failure("Failed to load categories", ex);
+        }
+    }
+
     /// <inheritdoc/>
     public async Task<Result<Product>> AddProductAsync(
         string name, string sku, string description, string imageUrl,
@@ -106,24 +139,45 @@ public class ProductFacade : IProductFacade
     {
         try
         {
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] AddProductAsync: Starting product creation");
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] AddProductAsync: Name={name}, SKU={sku}, Category={categoryName}, Price={sellingPrice}");
+
             // Validate inputs
             if (string.IsNullOrWhiteSpace(name))
+            {
+                System.Diagnostics.Debug.WriteLine($"[ProductFacade] AddProductAsync: Validation failed - Product name is required");
                 return Result<Product>.Failure("Product name is required");
+            }
 
             if (importPrice < 0)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ProductFacade] AddProductAsync: Validation failed - Import price cannot be negative");
                 return Result<Product>.Failure("Import price cannot be negative");
+            }
 
             if (sellingPrice < 0)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ProductFacade] AddProductAsync: Validation failed - Selling price cannot be negative");
                 return Result<Product>.Failure("Selling price cannot be negative");
+            }
 
             if (sellingPrice < importPrice)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ProductFacade] AddProductAsync: Validation failed - Selling price less than import price");
                 return Result<Product>.Failure("Selling price must be greater than or equal to import price");
+            }
 
             if (quantity < 0)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ProductFacade] AddProductAsync: Validation failed - Quantity cannot be negative");
                 return Result<Product>.Failure("Quantity cannot be negative");
+            }
 
             if (commissionRate < 0 || commissionRate > 100)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ProductFacade] AddProductAsync: Validation failed - Commission rate out of range");
                 return Result<Product>.Failure("Commission rate must be between 0% and 100%");
+            }
 
             // Create product object
             var product = new Product
@@ -144,19 +198,23 @@ public class ProductFacade : IProductFacade
                 CreatedAt = DateTime.UtcNow
             };
 
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] AddProductAsync: Calling repository to create product");
             var result = await _productRepository.CreateAsync(product);
 
             if (!result.IsSuccess || result.Data == null)
             {
+                System.Diagnostics.Debug.WriteLine($"[ProductFacade] ❌ AddProductAsync: Failed - {result.ErrorMessage}");
                 return Result<Product>.Failure(result.ErrorMessage ?? "Failed to create product");
             }
 
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] ✅ AddProductAsync: Product created successfully (ID={result.Data.Id})");
             await _toastService.ShowSuccess($"Product '{name}' created successfully!");
             return Result<Product>.Success(result.Data);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[ProductFacade] AddProductAsync failed: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] ❌ AddProductAsync: Exception - {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] Stack trace: {ex.StackTrace}");
             return Result<Product>.Failure("Failed to create product", ex);
         }
     }
@@ -170,12 +228,21 @@ public class ProductFacade : IProductFacade
     {
         try
         {
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] UpdateProductAsync: Starting product update");
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] UpdateProductAsync: ID={productId}, Name={name}, Category={categoryName}, Price={sellingPrice}");
+
             // Validate similar to AddProductAsync
             if (string.IsNullOrWhiteSpace(name))
+            {
+                System.Diagnostics.Debug.WriteLine($"[ProductFacade] UpdateProductAsync: Validation failed - Product name is required");
                 return Result<Product>.Failure("Product name is required");
+            }
 
             if (sellingPrice < importPrice)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ProductFacade] UpdateProductAsync: Validation failed - Selling price less than import price");
                 return Result<Product>.Failure("Selling price must be greater than or equal to import price");
+            }
 
             // Create updated product object
             var product = new Product
@@ -196,19 +263,23 @@ public class ProductFacade : IProductFacade
                 UpdatedAt = DateTime.UtcNow
             };
 
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] UpdateProductAsync: Calling repository to update product");
             var result = await _productRepository.UpdateAsync(product);
 
             if (!result.IsSuccess || result.Data == null)
             {
+                System.Diagnostics.Debug.WriteLine($"[ProductFacade] ❌ UpdateProductAsync: Failed - {result.ErrorMessage}");
                 return Result<Product>.Failure(result.ErrorMessage ?? "Failed to update product");
             }
 
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] ✅ UpdateProductAsync: Product updated successfully");
             await _toastService.ShowSuccess($"Product '{name}' updated successfully!");
             return Result<Product>.Success(result.Data);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[ProductFacade] UpdateProductAsync failed: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] ❌ UpdateProductAsync: Exception - {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] Stack trace: {ex.StackTrace}");
             return Result<Product>.Failure("Failed to update product", ex);
         }
     }
@@ -218,18 +289,23 @@ public class ProductFacade : IProductFacade
     {
         try
         {
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] DeleteProductAsync: Starting product deletion (ID={productId})");
+
             var result = await _productRepository.DeleteAsync(productId);
             if (!result.IsSuccess)
             {
+                System.Diagnostics.Debug.WriteLine($"[ProductFacade] ❌ DeleteProductAsync: Failed - {result.ErrorMessage}");
                 return Result<Unit>.Failure(result.ErrorMessage ?? "Failed to delete product");
             }
 
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] ✅ DeleteProductAsync: Product deleted successfully");
             await _toastService.ShowSuccess("Product deleted successfully!");
             return Result<Unit>.Success(Unit.Value);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[ProductFacade] DeleteProductAsync failed: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] ❌ DeleteProductAsync: Exception - {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] Stack trace: {ex.StackTrace}");
             return Result<Unit>.Failure("Failed to delete product", ex);
         }
     }
@@ -243,7 +319,7 @@ public class ProductFacade : IProductFacade
         {
             // Load filtered products with large page size to get all
             var result = await _productRepository.GetPagedAsync(
-                1, 10000, searchQuery, categoryName, minPrice, maxPrice, "name", false);
+                1, 10000, searchQuery, categoryName, null, minPrice, maxPrice, "name", false);
 
             if (!result.IsSuccess || result.Data == null)
             {
@@ -261,7 +337,7 @@ public class ProductFacade : IProductFacade
             // Generate CSV content
             var csv = new StringBuilder();
             csv.AppendLine("SKU,Name,Category,Import Price,Selling Price,Stock,Manufacturer,Device Type,Commission Rate,Status");
-            
+
             foreach (var product in products)
             {
                 csv.AppendLine($"\"{product.SKU ?? string.Empty}\"," +
@@ -321,6 +397,39 @@ public class ProductFacade : IProductFacade
         {
             System.Diagnostics.Debug.WriteLine($"[ProductFacade] LoadCategoriesAsync failed: {ex.Message}");
             return Result<List<Category>>.Failure("Failed to load categories", ex);
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<Result<List<string>>> LoadBrandsAsync()
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] LoadBrandsAsync: Starting brand load");
+
+            // Get all products to extract unique brands (manufacturers)
+            var result = await _productRepository.GetAllAsync();
+            if (!result.IsSuccess || result.Data == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ProductFacade] LoadBrandsAsync: Failed to load products");
+                return Result<List<string>>.Failure(result.ErrorMessage ?? "Failed to load brands");
+            }
+
+            // Extract distinct manufacturers and sort them
+            var brands = result.Data
+                .Where(p => !string.IsNullOrWhiteSpace(p.Manufacturer))
+                .Select(p => p.Manufacturer)
+                .Distinct()
+                .OrderBy(b => b)
+                .ToList();
+
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] ✅ LoadBrandsAsync: Loaded {brands.Count} brands from products");
+            return Result<List<string>>.Success(brands);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] ❌ LoadBrandsAsync failed: {ex.Message}");
+            return Result<List<string>>.Failure("Failed to load brands", ex);
         }
     }
 

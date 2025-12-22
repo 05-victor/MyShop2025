@@ -77,9 +77,13 @@ public partial class SalesAgentDashboardViewModel : BaseViewModel
     [ObservableProperty]
     private ISeries[] _revenueSeries = Array.Empty<ISeries>();
 
-    // Top Performing Links
+    // Top Selling Products
     [ObservableProperty]
     private ObservableCollection<TopAffiliateLink> _topLinks = new();
+
+    // Low Stock Products
+    [ObservableProperty]
+    private ObservableCollection<LowStockProduct> _lowStockProducts = new();
 
     // Recent Orders
     [ObservableProperty]
@@ -175,6 +179,25 @@ public partial class SalesAgentDashboardViewModel : BaseViewModel
                     });
                 }
                 System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadDashboardDataAsync] Top links loaded: {TopLinks.Count}");
+            }
+
+            LowStockProducts.Clear();
+            if (data.LowStockProducts != null && data.LowStockProducts.Count > 0)
+            {
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadDashboardDataAsync] Loading {data.LowStockProducts.Count} low stock products");
+                foreach (var product in data.LowStockProducts)
+                {
+                    LowStockProducts.Add(new LowStockProduct
+                    {
+                        Id = product.Id,
+                        Name = product.Name ?? "Unknown",
+                        CategoryName = product.CategoryName ?? "Uncategorized",
+                        Quantity = product.Quantity,
+                        ImageUrl = product.ImageUrl ?? "",
+                        Status = product.Status ?? "0"
+                    });
+                }
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadDashboardDataAsync] Low stock products loaded: {LowStockProducts.Count}");
             }
 
             RecentOrders.Clear();
@@ -353,7 +376,7 @@ public partial class SalesAgentDashboardViewModel : BaseViewModel
                    .AddBlankLine();
 
                 // Top Links
-                csv.AddHeader("Top Performing Links")
+                csv.AddHeader("Top Selling Products")
                    .AddColumnHeaders("Product", "Orders", "Revenue", "Commission");
                 foreach (var link in TopLinks)
                 {
@@ -547,4 +570,14 @@ public class TrendDataPoint
     public DateTime Date { get; set; }
     public string Label { get; set; } = string.Empty;
     public decimal Value { get; set; }
+}
+
+public class LowStockProduct
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string CategoryName { get; set; } = string.Empty;
+    public int Quantity { get; set; }
+    public string ImageUrl { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
 }

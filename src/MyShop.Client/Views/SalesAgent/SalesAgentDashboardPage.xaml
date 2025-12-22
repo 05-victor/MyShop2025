@@ -19,20 +19,24 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+        <converters:CurrencyConverter x:Key="CurrencyConverter"/>
     </Page.Resources>
 
     <Grid>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="ResponsiveStates">
-                
+
                 <!-- Large Desktop: 1920px+ -->
                 <VisualState x:Name="LargeDesktopState">
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="1920"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="40"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="24"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="40"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="24"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -42,8 +46,10 @@
                         <AdaptiveTrigger MinWindowWidth="1280"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="32"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="20"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="32"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="20"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -53,8 +59,10 @@
                         <AdaptiveTrigger MinWindowWidth="960"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="24"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="16"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="24"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="16"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -64,8 +72,10 @@
                         <AdaptiveTrigger MinWindowWidth="640"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="20"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="12"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="20"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="12"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -75,11 +85,13 @@
                         <AdaptiveTrigger MinWindowWidth="0"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="16"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="8"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="16"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="8"/>
                     </VisualState.Setters>
                 </VisualState>
-                
+
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
@@ -93,7 +105,8 @@
             </Grid.Transitions>
             <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <Grid x:Name="MainContent" Padding="24"
+                    <Grid x:Name="MainContent"
+                          Padding="24"
                           RowSpacing="16">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -150,7 +163,8 @@
                                     Spacing="20">
 
                             <!-- KPI Cards -->
-                            <Grid x:Name="KPIGrid" ColumnSpacing="16">
+                            <Grid x:Name="KPIGrid"
+                                  ColumnSpacing="16">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
@@ -187,8 +201,9 @@
                                     Grid.Column="2"
                                     Title="Commission Earned"
                                     Icon="&#xE7DB;"
-                                    Value="{x:Bind ViewModel.TotalCommission, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                    Value="{x:Bind ViewModel.TotalCommission, Mode=OneWay}"
                                     Subtitle="This month"
+                                    IsCurrency="True"
                                     ShowBadge="Visible"
                                     TrendIcon="&#xE74E;"
                                     TrendText="{x:Bind ViewModel.ThisWeekCommission, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
@@ -202,8 +217,9 @@
                                     Grid.Column="3"
                                     Title="Total Revenue"
                                     Icon="&#xE8EC;"
-                                    Value="{x:Bind ViewModel.TotalRevenue, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                    Value="{x:Bind ViewModel.TotalRevenue, Mode=OneWay}"
                                     Subtitle="Sales generated"
+                                    IsCurrency="True"
                                     ShowBadge="Visible"
                                     TrendIcon="&#xE74E;"
                                     TrendText="+15.2%"
@@ -213,7 +229,7 @@
                                     BadgeForegroundBrush="{ThemeResource PurpleBrush}"/>
                             </Grid>
 
-                            <!-- Charts Row -->
+                            <!-- Row 1: Chart + Top Links -->
                             <Grid ColumnSpacing="16">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="2*"/>
@@ -233,11 +249,11 @@
                                                       RefreshRequested="LineChart_RefreshRequested"
                                                       ExportRequested="LineChart_ExportRequested"/>
 
-                                <!-- Top Performing Links -->
+                                <!-- Top Selling Products -->
                                 <Border Grid.Column="1"
                                         Style="{StaticResource CardWithShadowStyle}">
                                     <StackPanel Spacing="16">
-                                        <TextBlock Text="Top Performing Links"
+                                        <TextBlock Text="Top Selling Products"
                                                    FontSize="18"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
@@ -311,66 +327,122 @@
                                 </Border>
                             </Grid>
 
-                            <!-- Recent Orders Table -->
-                            <cards:DataTableCard Title="Recent Orders"
-                                                 ViewAllText="View All Orders"
-                                                 ShowViewAll="Visible"
-                                                 ViewAllCommand="{x:Bind ViewModel.ViewAllOrdersCommand}">
-                                <cards:DataTableCard.TableContent>
-                                    <!-- Changed to {Binding} for async loaded API data -->
-                                    <ListView ItemsSource="{Binding RecentOrders, Mode=OneWay}"
-                                              SelectionMode="None"
-                                              MaxHeight="400">
-                                        <ListView.Header>
-                                            <Grid Padding="0,0,0,12"
-                                                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                                  BorderThickness="0,0,0,1">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="120"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="100"/>
-                                                    <ColumnDefinition Width="100"/>
-                                                    <ColumnDefinition Width="100"/>
-                                                </Grid.ColumnDefinitions>
+                            <!-- Row 2: Low Stock Products + Recent Orders -->
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="2*"/>
+                                </Grid.ColumnDefinitions>
 
-                                                <TextBlock Grid.Column="0"
-                                                           Text="ORDER ID"
-                                                           FontSize="11"
-                                                           FontWeight="SemiBold"
-                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                <TextBlock Grid.Column="1"
-                                                           Text="CUSTOMER"
-                                                           FontSize="11"
-                                                           FontWeight="SemiBold"
-                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                <TextBlock Grid.Column="2"
-                                                           Text="PRODUCT"
-                                                           FontSize="11"
-                                                           FontWeight="SemiBold"
-                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                <TextBlock Grid.Column="3"
-                                                           Text="DATE"
-                                                           FontSize="11"
-                                                           FontWeight="SemiBold"
-                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                <TextBlock Grid.Column="4"
-                                                           Text="AMOUNT"
-                                                           FontSize="11"
-                                                           FontWeight="SemiBold"
-                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                <TextBlock Grid.Column="5"
-                                                           Text="STATUS"
-                                                           FontSize="11"
-                                                           FontWeight="SemiBold"
-                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                            </Grid>
-                                        </ListView.Header>
+                                <!-- Low Stock Products List -->
+                                <Border Grid.Column="0"
+                                        Style="{StaticResource CardWithShadowStyle}">
+                                    <StackPanel Spacing="16">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
 
-                                        <ListView.ItemTemplate>
-                                            <DataTemplate x:DataType="viewmodels:RecentSalesOrder">
-                                                <Grid Padding="0,12"
-                                                      BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                            <TextBlock Grid.Column="0"
+                                                       Text="Low Stock Products"
+                                                       FontSize="18"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="#111827"/>
+
+                                            <!-- Badge showing count -->
+                                            <Border Grid.Column="1"
+                                                    Background="#FEE2E2"
+                                                    CornerRadius="12"
+                                                    Padding="8,4">
+                                                <TextBlock Text="{Binding LowStockProducts.Count, Mode=OneWay}"
+                                                           FontSize="12"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="#DC2626"/>
+                                            </Border>
+                                        </Grid>
+
+                                        <!-- Low Stock Products List (Visibility based on count) -->
+                                        <ListView ItemsSource="{Binding LowStockProducts, Mode=OneWay}"
+                                                  SelectionMode="None"
+                                                  Visibility="{Binding LowStockProducts.Count, Mode=OneWay, Converter={StaticResource CountToVisibilityConverter}}">
+                                            <ListView.ItemTemplate>
+                                                <DataTemplate x:DataType="viewmodels:LowStockProduct">
+                                                    <Border Padding="0,12"
+                                                            BorderBrush="#E5E7EB"
+                                                            BorderThickness="0,0,0,1">
+                                                        <StackPanel Spacing="8">
+                                                            <TextBlock Text="{x:Bind Name}"
+                                                                       FontSize="13"
+                                                                       FontWeight="SemiBold"
+                                                                       Foreground="#111827"
+                                                                       TextTrimming="CharacterEllipsis"/>
+
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                </Grid.ColumnDefinitions>
+
+                                                                <StackPanel Grid.Column="0"
+                                                                            Orientation="Horizontal"
+                                                                            Spacing="8">
+                                                                    <TextBlock FontSize="12"
+                                                                               Foreground="#6B7280">
+                                                        <Run Text="{x:Bind CategoryName}"/>
+                                                                    </TextBlock>
+                                                                </StackPanel>
+
+                                                                <Border Grid.Column="1"
+                                                                        Background="#FEE2E2"
+                                                                        CornerRadius="8"
+                                                                        Padding="6,2">
+                                                                    <TextBlock FontSize="11"
+                                                                               FontWeight="SemiBold"
+                                                                               Foreground="#DC2626">
+                                                        <Run Text="Qty: "/><Run Text="{x:Bind Quantity}"/>
+                                                                    </TextBlock>
+                                                                </Border>
+                                                            </Grid>
+                                                        </StackPanel>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ListView.ItemTemplate>
+                                            <ListView.ItemContainerStyle>
+                                                <Style TargetType="ListViewItem">
+                                                    <Setter Property="Padding"
+                                                            Value="0"/>
+                                                    <Setter Property="Margin"
+                                                            Value="0"/>
+                                                    <Setter Property="HorizontalContentAlignment"
+                                                            Value="Stretch"/>
+                                                </Style>
+                                            </ListView.ItemContainerStyle>
+                                        </ListView>
+
+                                        <!-- Empty State when no low stock products -->
+                                        <TextBlock Text="All products have healthy stock levels"
+                                                   FontSize="13"
+                                                   Foreground="#9CA3AF"
+                                                   TextAlignment="Center"
+                                                   Visibility="{Binding LowStockProducts.Count, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Recent Orders Table -->
+                                <cards:DataTableCard Grid.Column="1"
+                                                     Title="Recent Orders"
+                                                     ViewAllText="View All Orders"
+                                                     ShowViewAll="Visible"
+                                                     ViewAllCommand="{x:Bind ViewModel.ViewAllOrdersCommand}">
+                                    <cards:DataTableCard.TableContent>
+                                        <!-- Changed to {Binding} for async loaded API data -->
+                                        <ListView ItemsSource="{Binding RecentOrders, Mode=OneWay}"
+                                                  SelectionMode="None"
+                                                  MaxHeight="400">
+                                            <ListView.Header>
+                                                <Grid Padding="0,0,0,12"
+                                                      BorderBrush="#E5E7EB"
                                                       BorderThickness="0,0,0,1">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="120"/>
@@ -382,61 +454,109 @@
                                                     </Grid.ColumnDefinitions>
 
                                                     <TextBlock Grid.Column="0"
-                                                               Text="{x:Bind OrderId}"
-                                                               FontSize="13"
-                                                               FontFamily="Consolas"
-                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-
-                                                    <TextBlock Grid.Column="1"
-                                                               Text="{x:Bind Customer}"
-                                                               FontSize="14"
-                                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-
-                                                    <TextBlock Grid.Column="2"
-                                                               Text="{x:Bind Product}"
-                                                               FontSize="14"
-                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                               TextTrimming="CharacterEllipsis"/>
-
-                                                    <TextBlock Grid.Column="3"
-                                                               Text="{x:Bind OrderDate}"
-                                                               FontSize="13"
-                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-
-                                                    <TextBlock Grid.Column="4"
-                                                               FontSize="14"
+                                                               Text="ORDER ID"
+                                                               FontSize="11"
                                                                FontWeight="SemiBold"
-                                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}">
-                                        <Run Text="{x:Bind Amount, Converter={StaticResource CurrencyConverter}}"/>
-                                                    </TextBlock>
-
-                                                    <Border Grid.Column="5"
-                                                            Background="{ThemeResource InfoBlueLightBrush}"
-                                                            CornerRadius="999"
-                                                            Padding="8,4"
-                                                            HorizontalAlignment="Left">
-                                                        <TextBlock Text="{x:Bind Status}"
-                                                                   FontSize="12"
-                                                                   FontWeight="SemiBold"
-                                                                   Foreground="{ThemeResource DarkBlueBrush}"/>
-                                                    </Border>
+                                                               Foreground="#6B7280"/>
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="CUSTOMER"
+                                                               FontSize="11"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="#6B7280"/>
+                                                    <TextBlock Grid.Column="2"
+                                                               Text="PRODUCT"
+                                                               FontSize="11"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="#6B7280"/>
+                                                    <TextBlock Grid.Column="3"
+                                                               Text="DATE"
+                                                               FontSize="11"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="#6B7280"/>
+                                                    <TextBlock Grid.Column="4"
+                                                               Text="AMOUNT"
+                                                               FontSize="11"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="#6B7280"/>
+                                                    <TextBlock Grid.Column="5"
+                                                               Text="STATUS"
+                                                               FontSize="11"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="#6B7280"/>
                                                 </Grid>
-                                            </DataTemplate>
-                                        </ListView.ItemTemplate>
+                                            </ListView.Header>
 
-                                        <ListView.ItemContainerStyle>
-                                            <Style TargetType="ListViewItem">
-                                                <Setter Property="Padding"
-                                                        Value="0"/>
-                                                <Setter Property="Margin"
-                                                        Value="0"/>
-                                                <Setter Property="HorizontalContentAlignment"
-                                                        Value="Stretch"/>
-                                            </Style>
-                                        </ListView.ItemContainerStyle>
-                                    </ListView>
-                                </cards:DataTableCard.TableContent>
-                            </cards:DataTableCard>
+                                            <ListView.ItemTemplate>
+                                                <DataTemplate x:DataType="viewmodels:RecentSalesOrder">
+                                                    <Grid Padding="0,12"
+                                                          BorderBrush="#E5E7EB"
+                                                          BorderThickness="0,0,0,1">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="120"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="100"/>
+                                                            <ColumnDefinition Width="100"/>
+                                                            <ColumnDefinition Width="100"/>
+                                                        </Grid.ColumnDefinitions>
+
+                                                        <TextBlock Grid.Column="0"
+                                                                   Text="{x:Bind OrderId}"
+                                                                   FontSize="13"
+                                                                   FontFamily="Consolas"
+                                                                   Foreground="#6B7280"/>
+
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="{x:Bind Customer}"
+                                                                   FontSize="14"
+                                                                   Foreground="#111827"/>
+
+                                                        <TextBlock Grid.Column="2"
+                                                                   Text="{x:Bind Product}"
+                                                                   FontSize="14"
+                                                                   Foreground="#6B7280"
+                                                                   TextTrimming="CharacterEllipsis"/>
+
+                                                        <TextBlock Grid.Column="3"
+                                                                   Text="{x:Bind OrderDate}"
+                                                                   FontSize="13"
+                                                                   Foreground="#6B7280"/>
+
+                                                        <TextBlock Grid.Column="4"
+                                                                   FontSize="14"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="#111827">
+                                        <Run Text="{x:Bind Amount, Converter={StaticResource CurrencyConverter}}"/>
+                                                        </TextBlock>
+
+                                                        <Border Grid.Column="5"
+                                                                Background="#DBEAFE"
+                                                                CornerRadius="999"
+                                                                Padding="8,4"
+                                                                HorizontalAlignment="Left">
+                                                            <TextBlock Text="{x:Bind Status}"
+                                                                       FontSize="12"
+                                                                       FontWeight="SemiBold"
+                                                                       Foreground="#1E40AF"/>
+                                                        </Border>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ListView.ItemTemplate>
+
+                                            <ListView.ItemContainerStyle>
+                                                <Style TargetType="ListViewItem">
+                                                    <Setter Property="Padding"
+                                                            Value="0"/>
+                                                    <Setter Property="Margin"
+                                                            Value="0"/>
+                                                    <Setter Property="HorizontalContentAlignment"
+                                                            Value="Stretch"/>
+                                                </Style>
+                                            </ListView.ItemContainerStyle>
+                                        </ListView>
+                                    </cards:DataTableCard.TableContent>
+                                </cards:DataTableCard>
+                            </Grid>
 
                         </StackPanel>
                     </Grid>

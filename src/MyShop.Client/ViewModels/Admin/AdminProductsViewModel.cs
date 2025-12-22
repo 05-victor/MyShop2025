@@ -4,6 +4,7 @@ using MyShop.Client.ViewModels.Base;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Services;
 using System;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
 namespace MyShop.Client.ViewModels.Admin;
@@ -17,10 +18,14 @@ public partial class AdminProductsViewModel : PagedViewModelBase<ProductRow>
     private readonly IProductFacade _productFacade;
     private readonly IDialogService _dialogService;
 
-    // Filter properties
+    // Category filter
     [ObservableProperty]
-    private string? _selectedCategory;
+    private ObservableCollection<string> _categories = new() { "All Categories" };
 
+    [ObservableProperty]
+    private string? _selectedCategory = "All Categories";
+
+    // Filter properties
     [ObservableProperty]
     private decimal? _minPrice;
 
@@ -46,7 +51,46 @@ public partial class AdminProductsViewModel : PagedViewModelBase<ProductRow>
 
     public async Task InitializeAsync()
     {
+        await LoadCategoriesAsync();
         await LoadDataAsync();
+    }
+
+    /// <summary>
+    /// Load categories from API for the filter dropdown
+    /// </summary>
+    private async Task LoadCategoriesAsync()
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine("[AdminProductsViewModel] LoadCategoriesAsync: Starting category load from API");
+
+            var result = await _productFacade.LoadCategoriesAsync();
+
+            if (!result.IsSuccess || result.Data == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] LoadCategoriesAsync: Failed to load - {result.ErrorMessage}");
+                return;
+            }
+
+            // Clear existing items but keep "All Categories" at index 0
+            while (Categories.Count > 1)
+            {
+                Categories.RemoveAt(Categories.Count - 1);
+            }
+
+            // Add API categories
+            foreach (var category in result.Data)
+            {
+                Categories.Add(category.Name);
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] ✅ LoadCategoriesAsync: Loaded {result.Data.Count} categories from API");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] ❌ LoadCategoriesAsync: ERROR - {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] Stack trace: {ex.StackTrace}");
+        }
     }
 
     // NOTE: Filter changes no longer auto-reload
@@ -60,9 +104,12 @@ public partial class AdminProductsViewModel : PagedViewModelBase<ProductRow>
         SetLoadingState(true);
         try
         {
+            // Convert "All Categories" to null for API call
+            var categoryName = SelectedCategory == "All Categories" ? null : SelectedCategory;
+
             var result = await _productFacade.LoadProductsAsync(
                 searchQuery: SearchQuery,
-                categoryName: SelectedCategory,
+                categoryName: categoryName,
                 minPrice: MinPrice,
                 maxPrice: MaxPrice,
                 sortBy: SortBy,
@@ -127,31 +174,41 @@ public partial class AdminProductsViewModel : PagedViewModelBase<ProductRow>
     {
         if (row is null) return;
 
+        System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] DeleteProductAsync: Product ID={row.Id}, Name={row.Name}");
+
         var confirmResult = await _dialogService.ShowConfirmationAsync(
             "Delete Product",
             $"Are you sure you want to delete '{row.Name}'? This action cannot be undone.");
 
         if (!confirmResult.IsSuccess || !confirmResult.Data)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] DeleteProductAsync: User cancelled deletion");
             return;
+        }
 
         SetLoadingState(true);
         try
         {
+            System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] DeleteProductAsync: Calling facade to delete product");
             var deleteResult = await _productFacade.DeleteProductAsync(row.Id);
 
             if (deleteResult.IsSuccess)
             {
+                System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] ✅ DeleteProductAsync: Product deleted successfully");
                 await _toastHelper?.ShowSuccess($"Product '{row.Name}' deleted successfully");
                 Items.Remove(row);
                 UpdatePagingInfo(TotalItems - 1);
             }
             else
             {
+                System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] ❌ DeleteProductAsync: Failed - {deleteResult.ErrorMessage}");
                 await _toastHelper?.ShowError(deleteResult.ErrorMessage ?? "Failed to delete product");
             }
         }
         catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] ❌ DeleteProductAsync: Exception - {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] Stack trace: {ex.StackTrace}");
             await _toastHelper?.ShowError($"Failed to delete product: {ex.Message}");
         }
         finally
@@ -185,9 +242,13 @@ public partial class AdminProductsViewModel : PagedViewModelBase<ProductRow>
         Guid productId, string name, string sku, string description, string imageUrl,
         decimal importPrice, decimal sellingPrice, int stock, string category)
     {
+        System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] UpdateProductAsync: ID={productId}, Name={name}, Category={category}");
+        System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] UpdateProductAsync: Price={sellingPrice}, ImportPrice={importPrice}, Stock={stock}");
+
         SetLoadingState(true);
         try
         {
+            System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] UpdateProductAsync: Calling facade to update product");
             // Pass category as both CategoryName and DeviceType to ensure persistence
             var result = await _productFacade.UpdateProductAsync(
                 productId, name, sku, description, imageUrl,
@@ -196,17 +257,21 @@ public partial class AdminProductsViewModel : PagedViewModelBase<ProductRow>
 
             if (result.IsSuccess)
             {
+                System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] ✅ UpdateProductAsync: Product updated successfully");
                 // Toast is already shown by ProductFacade, no need to show again
                 // Reload the list to show updated data
                 await LoadPageAsync();
             }
             else
             {
+                System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] ❌ UpdateProductAsync: Failed - {result.ErrorMessage}");
                 await _toastHelper?.ShowError(result.ErrorMessage ?? "Failed to update product");
             }
         }
         catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] ❌ UpdateProductAsync: Exception - {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] Stack trace: {ex.StackTrace}");
             await _toastHelper?.ShowError($"Failed to update product: {ex.Message}");
         }
         finally
@@ -219,20 +284,20 @@ public partial class AdminProductsViewModel : PagedViewModelBase<ProductRow>
     private Task ViewProductAsync(ProductRow? row)
     {
         if (row is null) return Task.CompletedTask;
-        
+
         // Raise event to show View Product Details dialog
         ViewProductRequested?.Invoke(this, row);
         System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] View product: {row.Name}");
-        
+
         return Task.CompletedTask;
     }
 
     [RelayCommand]
     private async Task AddProductAsync()
     {
+        System.Diagnostics.Debug.WriteLine("[AdminProductsViewModel] AddProductAsync: Add product requested");
         // TODO: Open AddProductDialog when created
         await _toastHelper?.ShowInfo("Add product feature coming soon");
-        System.Diagnostics.Debug.WriteLine("[AdminProductsViewModel] Add product requested");
     }
 
     /// <summary>

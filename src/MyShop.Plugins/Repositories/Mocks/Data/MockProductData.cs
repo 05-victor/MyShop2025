@@ -180,8 +180,8 @@ public static class MockProductData
         existing.Name = product.Name;
         existing.Manufacturer = product.Manufacturer;
         // DeviceType stores category - use CategoryName or DeviceType from product
-        existing.DeviceType = !string.IsNullOrEmpty(product.CategoryName) 
-            ? product.CategoryName 
+        existing.DeviceType = !string.IsNullOrEmpty(product.CategoryName)
+            ? product.CategoryName
             : (!string.IsNullOrEmpty(product.DeviceType) ? product.DeviceType : existing.DeviceType);
         existing.ImportPrice = (int)product.ImportPrice;
         existing.SellingPrice = (int)product.SellingPrice;
@@ -326,6 +326,7 @@ public static class MockProductData
         int pageSize = 20,
         string? searchQuery = null,
         string? categoryName = null,
+        string? manufacturerName = null,
         decimal? minPrice = null,
         decimal? maxPrice = null,
         string sortBy = "name",
@@ -342,7 +343,7 @@ public static class MockProductData
         if (!string.IsNullOrWhiteSpace(searchQuery))
         {
             var lowerQuery = searchQuery.ToLower();
-            query = query.Where(p => 
+            query = query.Where(p =>
                 p.Name.ToLower().Contains(lowerQuery) ||
                 (p.SKU != null && p.SKU.ToLower().Contains(lowerQuery)) ||
                 (p.Manufacturer != null && p.Manufacturer.ToLower().Contains(lowerQuery)));
@@ -352,6 +353,12 @@ public static class MockProductData
         if (!string.IsNullOrWhiteSpace(categoryName))
         {
             query = query.Where(p => p.DeviceType != null && p.DeviceType.Equals(categoryName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Apply manufacturer filter
+        if (!string.IsNullOrWhiteSpace(manufacturerName))
+        {
+            query = query.Where(p => p.Manufacturer != null && p.Manufacturer.Equals(manufacturerName, StringComparison.OrdinalIgnoreCase));
         }
 
         // Apply price filters

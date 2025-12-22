@@ -16,6 +16,7 @@ public interface IProductFacade
     /// </summary>
     /// <param name="searchQuery">Search keyword</param>
     /// <param name="categoryName">Category filter</param>
+    /// <param name="manufacturerName">Manufacturer/Brand filter</param>
     /// <param name="minPrice">Minimum price filter</param>
     /// <param name="maxPrice">Maximum price filter</param>
     /// <param name="sortBy">Sort field (e.g., "name", "price", "date")</param>
@@ -25,6 +26,7 @@ public interface IProductFacade
     Task<Result<PagedList<Product>>> LoadProductsAsync(
         string? searchQuery = null,
         string? categoryName = null,
+        string? manufacturerName = null,
         decimal? minPrice = null,
         decimal? maxPrice = null,
         string sortBy = "name",
@@ -91,6 +93,11 @@ public interface IProductFacade
     /// Load all categories for filter dropdown
     /// </summary>
     Task<Result<List<Category>>> LoadCategoriesAsync();
+
+    /// <summary>
+    /// Load all brands (manufacturers) for filter dropdown
+    /// </summary>
+    Task<Result<List<string>>> LoadBrandsAsync();
 
     /// <summary>
     /// Update product stock quantity

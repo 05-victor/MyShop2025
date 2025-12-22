@@ -442,29 +442,6 @@ public class AuthFacade : IAuthFacade
     }
 
     /// <inheritdoc/>
-    public async Task<Result<bool>> IsFirstUserSetupRequiredAsync()
-    {
-        try
-        {
-            var hasUsersResult = await _userRepository.HasAnyUsersAsync();
-            if (!hasUsersResult.IsSuccess)
-            {
-                return Result<bool>.Failure(hasUsersResult.ErrorMessage ?? "Failed to check users");
-            }
-
-            // First-user setup required if no users exist
-            var isRequired = !hasUsersResult.Data;
-            System.Diagnostics.Debug.WriteLine($"[AuthFacade] IsFirstUserSetupRequiredAsync: {isRequired}");
-            return Result<bool>.Success(isRequired);
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[AuthFacade] IsFirstUserSetupRequiredAsync failed: {ex.Message}");
-            return Result<bool>.Failure("Failed to check first-user setup", ex);
-        }
-    }
-
-    /// <inheritdoc/>
     public async Task<Result<bool>> ValidateAdminCodeAsync(string adminCode)
     {
         try

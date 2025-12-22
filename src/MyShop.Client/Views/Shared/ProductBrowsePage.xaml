@@ -39,14 +39,15 @@
     <Grid>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="ResponsiveStates">
-                
+
                 <!-- Large Desktop: 1920px+ -->
                 <VisualState x:Name="LargeDesktopState">
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="1920"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="40"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="40"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -56,7 +57,8 @@
                         <AdaptiveTrigger MinWindowWidth="1280"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="32"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="32"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -66,7 +68,8 @@
                         <AdaptiveTrigger MinWindowWidth="960"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="24"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="24"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -76,7 +79,8 @@
                         <AdaptiveTrigger MinWindowWidth="640"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="20"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="20"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -86,10 +90,11 @@
                         <AdaptiveTrigger MinWindowWidth="0"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="16"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="16"/>
                     </VisualState.Setters>
                 </VisualState>
-                
+
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
@@ -100,8 +105,9 @@
         </Grid.Transitions>
         <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <Grid x:Name="MainContent" Padding="24"
-                        RowSpacing="16">
+                <Grid x:Name="MainContent"
+                      Padding="24"
+                      RowSpacing="16">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
@@ -113,7 +119,7 @@
                         Subtitle="Explore our complete product collection">
                         <layout:PageHeader.ActionContent>
                             <StackPanel Orientation="Horizontal"
-                                    Spacing="12">
+                                        Spacing="12">
                                 <buttons:IconButton
                                     Variant="Outline"
                                     IconGlyph="&#xE72C;"
@@ -126,7 +132,7 @@
 
                     <!-- Main Content -->
                     <StackPanel Grid.Row="1"
-                            Spacing="20">
+                                Spacing="20">
 
                         <!--  SEARCH CARD with Auto-Complete  -->
                         <forms:SearchCard
@@ -146,7 +152,7 @@
                                           ShowResetButton="True">
                             <forms:FilterCard.FilterContent>
                                 <Grid ColumnSpacing="16"
-                                        RowSpacing="16">
+                                      RowSpacing="16">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
@@ -160,63 +166,44 @@
                                     <!--  Category  -->
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="Category"
-                                                FontSize="12"
-                                                FontWeight="SemiBold"
-                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                                Margin="0,0,0,8"/>
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="#1B1D1F"
+                                                   Margin="0,0,0,8"/>
                                         <ComboBox x:Name="CategoryComboBox"
                                                   HorizontalAlignment="Stretch"
                                                   Height="40"
                                                   CornerRadius="10"
-                                                  BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
-                                                  SelectedIndex="0"
-                                                  SelectionChanged="CategoryComboBox_SelectionChanged">
-                                            <ComboBoxItem Content="All"
-                                                    Tag="All"/>
-                                            <ComboBoxItem Content="Laptop"
-                                                    Tag="Laptop"/>
-                                            <ComboBoxItem Content="Smartphone"
-                                                    Tag="Smartphone"/>
-                                            <ComboBoxItem Content="Tablet"
-                                                    Tag="Tablet"/>
-                                            <ComboBoxItem Content="Smartwatch"
-                                                    Tag="Smartwatch"/>
-                                            <ComboBoxItem Content="Headphone"
-                                                    Tag="Headphone"/>
-                                        </ComboBox>
+                                                  BorderBrush="#D0D7E2"
+                                                  ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
+                                                  SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"
+                                                  SelectionChanged="CategoryComboBox_SelectionChanged"/>
                                     </StackPanel>
 
                                     <!--  Brand  -->
                                     <StackPanel Grid.Column="1">
                                         <TextBlock Text="Brand"
-                                                FontSize="12"
-                                                FontWeight="SemiBold"
-                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                                Margin="0,0,0,8"/>
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="#1B1D1F"
+                                                   Margin="0,0,0,8"/>
                                         <ComboBox x:Name="BrandComboBox"
                                                   HorizontalAlignment="Stretch"
                                                   Height="40"
                                                   CornerRadius="10"
-                                                  BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
-                                                  SelectedIndex="0">
-                                            <ComboBoxItem Content="All Brands"
-                                                    Tag=""/>
-                                            <ComboBoxItem Content="Apple"
-                                                    Tag="Apple"/>
-                                            <ComboBoxItem Content="Samsung"
-                                                    Tag="Samsung"/>
-                                            <ComboBoxItem Content="Nike"
-                                                    Tag="Nike"/>
-                                        </ComboBox>
+                                                  BorderBrush="#D0D7E2"
+                                                  ItemsSource="{x:Bind ViewModel.Brands, Mode=OneWay}"
+                                                  SelectedItem="{x:Bind ViewModel.SelectedBrand, Mode=TwoWay}"
+                                                  SelectionChanged="BrandComboBox_SelectionChanged"/>
                                     </StackPanel>
 
                                     <!--  Sort  -->
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="Sort By"
-                                                FontSize="12"
-                                                FontWeight="SemiBold"
-                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                                Margin="0,0,0,8"/>
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="#1B1D1F"
+                                                   Margin="0,0,0,8"/>
                                         <ComboBox x:Name="SortComboBox"
                                                   HorizontalAlignment="Stretch"
                                                   Height="40"
@@ -225,17 +212,17 @@
                                                   SelectedIndex="0"
                                                   SelectionChanged="SortComboBox_SelectionChanged">
                                             <ComboBoxItem Content="Newest"
-                                                    Tag="Newest"/>
+                                                          Tag="Newest"/>
                                             <ComboBoxItem Content="Name: A to Z"
-                                                    Tag="Name: A to Z"/>
+                                                          Tag="Name: A to Z"/>
                                             <ComboBoxItem Content="Name: Z to A"
-                                                    Tag="Name: Z to A"/>
+                                                          Tag="Name: Z to A"/>
                                             <ComboBoxItem Content="Price: Low to High"
-                                                    Tag="Price: Low to High"/>
+                                                          Tag="Price: Low to High"/>
                                             <ComboBoxItem Content="Price: High to Low"
-                                                    Tag="Price: High to Low"/>
+                                                          Tag="Price: High to Low"/>
                                             <ComboBoxItem Content="Rating"
-                                                    Tag="Rating"/>
+                                                          Tag="Rating"/>
                                         </ComboBox>
                                     </StackPanel>
                                 </Grid>
@@ -252,13 +239,13 @@
                             Style="{StaticResource CardStyle}"
                             Visibility="Collapsed">
                             <StackPanel HorizontalAlignment="Center"
-                                    Spacing="20">
+                                        Spacing="20">
                                 <Viewbox Width="120"
-                                        Height="120">
+                                         Height="120">
                                     <Grid>
                                         <Ellipse Width="120"
-                                                Height="120"
-                                                Fill="{ThemeResource SubtleFillColorSecondaryBrush}"/>
+                                                 Height="120"
+                                                 Fill="#F3F4F6"/>
                                         <FontIcon
                                             FontSize="64"
                                             Foreground="{ThemeResource Gray500Brush}"
@@ -287,12 +274,12 @@
                                     CornerRadius="8"
                                     ToolTipService.ToolTip="Clear all filters">
                                     <StackPanel Orientation="Horizontal"
-                                            Spacing="8">
+                                                Spacing="8">
                                         <FontIcon FontSize="16"
-                                                Glyph="&#xE894;"
-                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                  Glyph="&#xE894;"
+                                                  Foreground="#6B7280"/>
                                         <TextBlock Text="Clear Filters"
-                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                                   Foreground="#111827"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
@@ -348,7 +335,7 @@
                                             <StackPanel Spacing="8">
                                                 <!--  Brand & Category  -->
                                                 <StackPanel Orientation="Horizontal"
-                                                        Spacing="8">
+                                                            Spacing="8">
                                                     <Border
                                                         Padding="6,2"
                                                         Background="{ThemeResource PurpleLightBrush}"
@@ -374,7 +361,7 @@
 
                                                 <!--  Rating  -->
                                                 <StackPanel Orientation="Horizontal"
-                                                        Spacing="4">
+                                                            Spacing="4">
                                                     <FontIcon
                                                         FontSize="14"
                                                         Foreground="{ThemeResource WarningAmberBrush}"
@@ -384,7 +371,7 @@
                                                         Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                         Text="{x:Bind Rating}"/>
                                                     <TextBlock FontSize="12"
-                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                               Foreground="#6B7280">
                                                 <Run Text="("/><Run Text="{x:Bind RatingCount}"/><Run Text=")"/>
                                                     </TextBlock>
                                                 </StackPanel>
@@ -426,11 +413,11 @@
                                                             IsEnabled="{x:Bind IsInStock}"
                                                             ToolTipService.ToolTip="Add this product to your shopping cart">
                                                         <StackPanel Orientation="Horizontal"
-                                                                Spacing="8">
+                                                                    Spacing="8">
                                                             <FontIcon FontSize="14"
-                                                                    Glyph="&#xE7BF;"/>
+                                                                      Glyph="&#xE7BF;"/>
                                                             <TextBlock FontSize="12"
-                                                                    Text="Add to Cart"/>
+                                                                       Text="Add to Cart"/>
                                                         </StackPanel>
                                                     </Button>
                                                     <Button Style="{StaticResource SecondaryButtonStyle}"
@@ -458,7 +445,7 @@
                                 Margin="0,24,0,0"
                                 Visibility="{x:Bind ViewModel.ShowPagination, Mode=OneWay}">
                             <StackPanel Spacing="16"
-                                    Padding="16">
+                                        Padding="16">
                                 <pagination:PaginationControl
                                     CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
                                     TotalItems="{x:Bind ViewModel.TotalProducts, Mode=OneWay}"
@@ -466,8 +453,8 @@
                                     PageChanged="OnPageChanged"/>
 
                                 <TextBlock FontSize="12"
-                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                        HorizontalAlignment="Center"
+                                           Foreground="#6B7280"
+                                           HorizontalAlignment="Center"
                                            Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}"/>
                             </StackPanel>
                         </Border>
@@ -532,10 +519,10 @@
             CloseButtonText="Close"
             DefaultButton="Close">
             <ScrollViewer MaxHeight="500"
-                    VerticalScrollBarVisibility="Auto">
+                          VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="16"
-                        MinWidth="450"
-                        Padding="0,8">
+                            MinWidth="450"
+                            Padding="0,8">
                     <!--  Product Image  -->
                     <Border
                         HorizontalAlignment="Center"
@@ -582,7 +569,7 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0"
-                                Spacing="4">
+                                    Spacing="4">
                             <TextBlock
                                 FontSize="12"
                                 FontWeight="SemiBold"
@@ -602,7 +589,7 @@
                         </StackPanel>
 
                         <StackPanel Grid.Column="1"
-                                Spacing="4">
+                                    Spacing="4">
                             <TextBlock
                                 FontSize="12"
                                 FontWeight="SemiBold"
@@ -621,7 +608,7 @@
                         CornerRadius="8"
                         Padding="16">
                         <StackPanel Spacing="4"
-                                HorizontalAlignment="Center">
+                                    HorizontalAlignment="Center">
                             <TextBlock
                                 FontSize="12"
                                 FontWeight="SemiBold"
@@ -645,14 +632,14 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0"
-                                Spacing="4">
+                                    Spacing="4">
                             <TextBlock
                                 FontSize="12"
                                 FontWeight="SemiBold"
                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Text="STOCK"/>
                             <StackPanel Orientation="Horizontal"
-                                    Spacing="8">
+                                        Spacing="8">
                                 <TextBlock
                                     x:Name="ViewProductStock"
                                     FontSize="24"
@@ -672,22 +659,22 @@
                         </StackPanel>
 
                         <StackPanel Grid.Column="1"
-                                Spacing="4">
+                                    Spacing="4">
                             <TextBlock
                                 FontSize="12"
                                 FontWeight="SemiBold"
                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Text="RATING"/>
                             <StackPanel Orientation="Horizontal"
-                                    Spacing="8">
+                                        Spacing="8">
                                 <TextBlock
                                     x:Name="ViewProductRating"
                                     FontSize="24"
                                     FontWeight="Bold"
                                     Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                 <StackPanel Orientation="Horizontal"
-                                        VerticalAlignment="Center"
-                                        Spacing="2">
+                                            VerticalAlignment="Center"
+                                            Spacing="2">
                                     <FontIcon FontSize="16"
                                             Foreground="{ThemeResource WarningAmberBrush}"
                                             Glyph="&#xE735;"/>
@@ -711,11 +698,11 @@
                         CornerRadius="8"
                         Click="DialogAddToCartButton_Click">
                         <StackPanel Orientation="Horizontal"
-                                Spacing="8">
+                                    Spacing="8">
                             <FontIcon FontSize="16"
-                                    Glyph="&#xE7BF;"/>
+                                      Glyph="&#xE7BF;"/>
                             <TextBlock Text="Add to Cart"
-                                    FontWeight="SemiBold"/>
+                                       FontWeight="SemiBold"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>

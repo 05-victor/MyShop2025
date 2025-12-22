@@ -45,29 +45,34 @@ public class DashboardFacade : IDashboardFacade
                 period = "current"; // Default to current if invalid
             }
 
-            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.LoadDashboardAsync] START - Period: {period}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.LoadDashboardAsync] ⏳ START - Period: {period}");
             System.Diagnostics.Debug.WriteLine($"[DashboardFacade.LoadDashboardAsync] Calling repository.GetSummaryAsync({period})");
 
             var sw = System.Diagnostics.Stopwatch.StartNew();
             var result = await _dashboardRepository.GetSummaryAsync(period);
             sw.Stop();
 
-            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.LoadDashboardAsync] Repository returned - Success: {result.IsSuccess}, ElapsedMs: {sw.ElapsedMilliseconds}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.LoadDashboardAsync] ✅ Repository returned - Success: {result.IsSuccess}, ElapsedMs: {sw.ElapsedMilliseconds}ms");
 
             if (!result.IsSuccess || result.Data == null)
             {
-                System.Diagnostics.Debug.WriteLine($"[DashboardFacade.LoadDashboardAsync] ERROR - {result.ErrorMessage}");
+                System.Diagnostics.Debug.WriteLine($"[DashboardFacade.LoadDashboardAsync] ❌ ERROR - {result.ErrorMessage}");
                 _ = _toastService.ShowError("Failed to load dashboard data");
                 return Result<DashboardSummary>.Failure(result.ErrorMessage ?? "Failed to load dashboard");
             }
 
             var data = result.Data;
-            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.LoadDashboardAsync] COMPLETED - TotalProducts: {data.TotalProducts}, Orders: {data.TodayOrders}, Revenue: {data.MonthRevenue}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.LoadDashboardAsync] 📊 DATA SUMMARY:");
+            System.Diagnostics.Debug.WriteLine($"  TotalProducts={data.TotalProducts}, TodayOrders={data.TodayOrders}");
+            System.Diagnostics.Debug.WriteLine($"  Revenue: Today={data.TodayRevenue}, Week={data.WeekRevenue}, Month={data.MonthRevenue}");
+            System.Diagnostics.Debug.WriteLine($"  LowStock={data.LowStockProducts?.Count}, TopProducts={data.TopSellingProducts?.Count}");
+
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.LoadDashboardAsync] ✅ COMPLETED - Dashboard data loaded successfully");
             return result;
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.LoadDashboardAsync] Exception - Type: {ex.GetType().Name}, Message: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.LoadDashboardAsync] ❌ Exception - Type: {ex.GetType().Name}, Message: {ex.Message}");
             System.Diagnostics.Debug.WriteLine($"[DashboardFacade.LoadDashboardAsync] StackTrace: {ex.StackTrace}");
             _ = _toastService.ShowError($"Error loading dashboard: {ex.Message}");
             return Result<DashboardSummary>.Failure($"Error: {ex.Message}");
