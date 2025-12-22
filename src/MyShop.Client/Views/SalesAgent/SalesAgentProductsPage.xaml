@@ -586,44 +586,22 @@
                         </StackPanel>
                     </Grid>
 
-                    <!-- Category + Device Type -->
-                    <Grid ColumnSpacing="12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Category -->
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Margin="0,0,0,4"
-                                       Text="Category *"
-                                       FontSize="12"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            <ComboBox
-                                x:Name="NewCategoryComboBox"
-                                HorizontalAlignment="Stretch"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
-                                DisplayMemberPath="Name"
-                                PlaceholderText="Select category"/>
-                        </StackPanel>
-
-                        <!-- Device Type -->
-                        <StackPanel Grid.Column="1">
-                            <TextBlock Margin="0,0,0,4"
-                                       Text="Device Type"
-                                       FontSize="12"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            <TextBox
-                                x:Name="NewDeviceTypeTextBox"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                PlaceholderText="e.g., Smartphone"/>
-                        </StackPanel>
-                    </Grid>
+                    <!-- Category -->
+                    <StackPanel>
+                        <TextBlock Margin="0,0,0,4"
+                                   Text="Category (Device Type) *"
+                                   FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <ComboBox
+                            x:Name="NewCategoryComboBox"
+                            HorizontalAlignment="Stretch"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
+                            DisplayMemberPath="Name"
+                            PlaceholderText="Select category"/>
+                    </StackPanel>
 
                     <!-- Stock + Commission Rate -->
                     <Grid ColumnSpacing="12">

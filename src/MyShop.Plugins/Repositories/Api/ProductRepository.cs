@@ -92,16 +92,25 @@ public class ProductRepository : IProductRepository
     {
         try
         {
-            // Map Product to CreateProductRequest (anonymous object for now)
+            // Map Product to CreateProductRequest - match API spec exactly
             var request = new
             {
+                sku = product.SKU,
                 name = product.Name,
+                manufacturer = product.Manufacturer,
+                deviceType = product.DeviceType,
+                importPrice = product.ImportPrice,
+                sellingPrice = product.SellingPrice,
+                quantity = product.Quantity,
+                commissionRate = product.CommissionRate,
+                status = product.Status,
                 description = product.Description,
-                price = product.SellingPrice,
-                stock = product.Quantity,
+                imageUrl = product.ImageUrl,
                 categoryId = product.CategoryId,
-                imageUrl = product.ImageUrl
+                saleAgentId = product.SaleAgentId
             };
+
+            System.Diagnostics.Debug.WriteLine($"[ProductRepository.CreateAsync] Sending request: categoryId={request.categoryId}, saleAgentId={request.saleAgentId}");
 
             var response = await _api.CreateAsync(request);
 

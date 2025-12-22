@@ -2,7 +2,9 @@ using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
+using MyShop.Plugins.API.Files;
 using MyShop.Shared.Models;
+using Refit;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,19 +28,22 @@ public class ProductFacade : IProductFacade
     private readonly IValidationService _validationService;
     private readonly IToastService _toastService;
     private readonly IExportService _exportService;
+    private readonly IFilesApi _filesApi;
 
     public ProductFacade(
         IProductRepository productRepository,
         ICategoryRepository categoryRepository,
         IValidationService validationService,
         IToastService toastService,
-        IExportService exportService)
+        IExportService exportService,
+        IFilesApi filesApi)
     {
         _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
         _categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
         _validationService = validationService ?? throw new ArgumentNullException(nameof(validationService));
         _toastService = toastService ?? throw new ArgumentNullException(nameof(toastService));
         _exportService = exportService ?? throw new ArgumentNullException(nameof(exportService));
+        _filesApi = filesApi ?? throw new ArgumentNullException(nameof(filesApi));
     }
 
     /// <inheritdoc/>
@@ -629,33 +634,45 @@ public class ProductFacade : IProductFacade
 
             System.Diagnostics.Debug.WriteLine($"[ProductFacade.UploadProductImageForNewProductAsync] Image file prepared for upload - Size: {bytes.Length} bytes");
 
-            // TODO: Call API endpoint to upload image
-            // For now, return a dummy URL (Cloudinary would be called in real implementation)
-            var dummyImageUrl = $"https://via.placeholder.com/400x400?text={System.Uri.EscapeDataString(imageFile.DisplayName)}";
+            // Call API to upload image to actual server
+            var fileStream = new System.IO.MemoryStream(bytes);
+            var fileName = imageFile.Name;
+            var fileIdentifier = Guid.NewGuid().ToString();
 
-            stopwatch.Stop();
-            System.Diagnostics.Debug.WriteLine($"[ProductFacade] Upload Complete - ElapsedMs: {stopwatch.ElapsedMilliseconds}");
-            System.Diagnostics.Debug.WriteLine($"[ProductFacade.UploadProductImageForNewProductAsync] ✅ SUCCESS - Image uploaded: {dummyImageUrl}");
+            var streamPart = new StreamPart(fileStream, fileName, "image/" + fileExtension.TrimStart('.'));
 
-            if (_toastService != null)
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade.UploadProductImageForNewProductAsync] Calling API /api/v1/files/upload with identifier: {fileIdentifier}");
+
+            var response = await _filesApi.UploadImageAsync(streamPart, fileIdentifier);
+
+            if (response.IsSuccessStatusCode && response.Content != null && response.Content.Success)
             {
-                await _toastService.ShowSuccess($"Image '{imageFile.Name}' uploaded successfully!");
-            }
+                var imageUrl = response.Content.Result;
+                stopwatch.Stop();
+                System.Diagnostics.Debug.WriteLine($"[ProductFacade] Upload Complete - ElapsedMs: {stopwatch.ElapsedMilliseconds}");
+                System.Diagnostics.Debug.WriteLine($"[ProductFacade.UploadProductImageForNewProductAsync] ✅ SUCCESS - Image uploaded: {imageUrl}");
 
-            return Result<string>.Success(dummyImageUrl);
+                if (_toastService != null)
+                {
+                    await _toastService.ShowSuccess($"Image '{imageFile.Name}' uploaded successfully!");
+                }
+
+                return Result<string>.Success(imageUrl);
+            }
+            else
+            {
+                stopwatch.Stop();
+                var errorMessage = response.Content?.Message ?? "Unknown error uploading file";
+                System.Diagnostics.Debug.WriteLine($"[ProductFacade.UploadProductImageForNewProductAsync] ❌ API ERROR - {response.StatusCode}: {errorMessage}");
+                return Result<string>.Failure($"Failed to upload image: {errorMessage}");
+            }
         }
         catch (Exception ex)
         {
             stopwatch.Stop();
             System.Diagnostics.Debug.WriteLine($"[ProductFacade.UploadProductImageForNewProductAsync] ❌ EXCEPTION - {ex.GetType().Name}: {ex.Message}");
             System.Diagnostics.Debug.WriteLine($"[ProductFacade.UploadProductImageForNewProductAsync] Stack Trace: {ex.StackTrace}");
-
-            if (_toastService != null)
-            {
-                await _toastService.ShowError($"Error uploading image: {ex.Message}");
-            }
-
-            return Result<string>.Failure("Failed to upload product image", ex);
+            return Result<string>.Failure($"Error uploading image: {ex.Message}");
         }
     }
 

@@ -16,6 +16,7 @@ using MyShop.Core.Interfaces.Services;
 using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Plugins.API.Auth;
 using MyShop.Plugins.API.Dashboard;
+using MyShop.Plugins.API.Files;
 using MyShop.Plugins.API.Products;
 using MyShop.Plugins.API.Orders;
 using MyShop.Plugins.API.Categories;
@@ -197,6 +198,10 @@ namespace MyShop.Client.Config
                             .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
 
                         services.AddRefitClient<IDashboardApi>()
+                            .ConfigureHttpClient(ConfigureApiClient)
+                            .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
+
+                        services.AddRefitClient<IFilesApi>()
                             .ConfigureHttpClient(ConfigureApiClient)
                             .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
 

@@ -13,18 +13,19 @@ public class Product
     public decimal ImportPrice { get; set; }
     public decimal SellingPrice { get; set; }
     public int Quantity { get; set; }
-    
+
     // Category references
     public Guid? CategoryId { get; set; }
     public string? CategoryName { get; set; }
     public string? Category { get; set; }  // For backward compatibility
-    
+
     public string? Manufacturer { get; set; }
     public string? DeviceType { get; set; }
     public double CommissionRate { get; set; }
     public double Rating { get; set; }
     public int RatingCount { get; set; }
     public string Status { get; set; } = "AVAILABLE";
+    public Guid? SaleAgentId { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 }

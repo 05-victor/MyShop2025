@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Navigation;
 using MyShop.Client.ViewModels.SalesAgent;
 using MyShop.Client.Services;
 using MyShop.Client.Views.Components.Pagination;
+using MyShop.Core.Interfaces.Repositories;
 using System;
 using System.Linq;
 using System.Threading;
@@ -16,12 +17,16 @@ namespace MyShop.Client.Views.SalesAgent
     {
         public SalesAgentProductsViewModel ViewModel { get; }
         private Timer? _searchDebounceTimer;
+        private readonly IAuthRepository _authRepository;
 
         public SalesAgentProductsPage()
         {
             this.InitializeComponent();
             ViewModel = App.Current.Services.GetRequiredService<SalesAgentProductsViewModel>();
             this.DataContext = ViewModel;
+
+            // Get auth repository for retrieving current user ID from token
+            _authRepository = App.Current.Services.GetRequiredService<IAuthRepository>();
 
             // Subscribe to edit/delete events
             ViewModel.EditProductRequested += ViewModel_EditProductRequested;
@@ -233,7 +238,6 @@ namespace MyShop.Client.Views.SalesAgent
                 NewNameTextBox.Text = string.Empty;
                 NewSkuTextBox.Text = string.Empty;
                 NewManufacturerTextBox.Text = string.Empty;
-                NewDeviceTypeTextBox.Text = string.Empty;
                 NewStockTextBox.Text = string.Empty;
                 NewPriceTextBox.Text = string.Empty;
                 NewImportPriceTextBox.Text = string.Empty;
@@ -337,9 +341,14 @@ namespace MyShop.Client.Views.SalesAgent
                 decimal.TryParse(NewImportPriceTextBox.Text, out var importPrice);
                 double.TryParse(NewCommissionRateTextBox.Text, out var commissionRate);
                 var description = NewDescriptionTextBox.Text.Trim();
-                var deviceType = NewDeviceTypeTextBox.Text.Trim();
+                // Device Type is represented by the Category name from the selected category
+                var deviceType = categoryItem?.Name ?? string.Empty;
                 var status = (NewStatusComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "AVAILABLE";
                 var imageUrl = NewImageUrlTextBox.Text.Trim();
+
+                // Get current user ID from auth repository
+                var userIdResult = await _authRepository.GetCurrentUserIdAsync();
+                var saleAgentId = userIdResult.IsSuccess ? userIdResult.Data : Guid.Empty;
 
                 // Create product object
                 var product = new MyShop.Shared.Models.Product
@@ -356,10 +365,11 @@ namespace MyShop.Client.Views.SalesAgent
                     CommissionRate = commissionRate,
                     Description = description,
                     Status = status,
-                    ImageUrl = imageUrl
+                    ImageUrl = imageUrl,
+                    SaleAgentId = saleAgentId
                 };
 
-                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] Dialog data extracted - Product: {product.Name}, SKU: {product.SKU}, Manufacturer: {product.Manufacturer}, Category: {product.CategoryId}, Quantity: {product.Quantity}");
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] Dialog data extracted - Product: {product.Name}, SKU: {product.SKU}, Manufacturer: {product.Manufacturer}, Category: {product.CategoryId}, SaleAgentId: {product.SaleAgentId}");
 
                 System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] Validation passed, executing SaveNewProductCommand");
 
@@ -398,7 +408,6 @@ namespace MyShop.Client.Views.SalesAgent
             try
             {
                 var picker = new Windows.Storage.Pickers.FileOpenPicker();
-                WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(this));
                 picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
                 picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary;
                 picker.FileTypeFilter.Add(".jpg");
@@ -407,12 +416,17 @@ namespace MyShop.Client.Views.SalesAgent
                 picker.FileTypeFilter.Add(".gif");
                 picker.FileTypeFilter.Add(".bmp");
 
+                // Get window handle from App.MainWindow
+                var window = App.MainWindow;
+                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
                 var file = await picker.PickSingleFileAsync();
                 if (file != null)
                 {
                     System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.NewImagePickButton_Click] File selected: {file.Name}");
 
-                    // TODO: Show loading indicator
+                    // Show loading indicator
                     ViewModel.IsLoading = true;
 
                     try
@@ -423,18 +437,13 @@ namespace MyShop.Client.Views.SalesAgent
                         {
                             System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.NewImagePickButton_Click] ✅ Image uploaded successfully: {result.Data}");
                             NewImageUrlTextBox.Text = result.Data;
+                            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.NewImagePickButton_Click] Image URL set to textbox");
                         }
                         else
                         {
                             System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.NewImagePickButton_Click] ❌ Image upload failed: {result.ErrorMessage}");
-                            ContentDialog errorDialog = new ContentDialog
-                            {
-                                Title = "Upload Failed",
-                                Content = $"Failed to upload image: {result.ErrorMessage}",
-                                CloseButtonText = "OK",
-                                XamlRoot = this.XamlRoot
-                            };
-                            await errorDialog.ShowAsync();
+                            // Log error - cannot show dialog while AddProductDialog is open
+                            LoggingService.Instance.Error("[SalesAgentProductsPage.NewImagePickButton_Click] Upload failed", new Exception(result.ErrorMessage));
                         }
                     }
                     finally
@@ -442,19 +451,18 @@ namespace MyShop.Client.Views.SalesAgent
                         ViewModel.IsLoading = false;
                     }
                 }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.NewImagePickButton_Click] File selection cancelled");
+                }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.NewImagePickButton_Click] ❌ EXCEPTION - {ex.GetType().Name}: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.NewImagePickButton_Click] Stack Trace: {ex.StackTrace}");
 
-                ContentDialog errorDialog = new ContentDialog
-                {
-                    Title = "Error",
-                    Content = $"Error selecting image: {ex.Message}",
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await errorDialog.ShowAsync();
+                // Log error - cannot show dialog while AddProductDialog is open
+                LoggingService.Instance.Error("[SalesAgentProductsPage.NewImagePickButton_Click] Exception during image selection", ex);
             }
         }
 
