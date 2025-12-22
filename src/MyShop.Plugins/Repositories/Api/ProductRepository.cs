@@ -256,12 +256,13 @@ public class ProductRepository : IProductRepository
         string? manufacturerName = null,
         decimal? minPrice = null,
         decimal? maxPrice = null,
+        string? stockStatus = null,
         string sortBy = "name",
         bool sortDescending = false)
     {
         try
         {
-            System.Diagnostics.Debug.WriteLine($"[ProductRepository.GetPagedAsync] START - Page: {page}, PageSize: {pageSize}, Search: '{searchQuery}', Category: '{categoryName}'");
+            System.Diagnostics.Debug.WriteLine($"[ProductRepository.GetPagedAsync] START - Page: {page}, PageSize: {pageSize}, Search: '{searchQuery}', Category: '{categoryName}', StockStatus: '{stockStatus}'");
 
             // Note: Backend API doesn't support server-side paging yet
             // Fallback: fetch all products and apply client-side paging/filtering
@@ -312,6 +313,19 @@ public class ProductRepository : IProductRepository
             {
                 query = query.Where(p => p.SellingPrice <= maxPrice.Value);
                 System.Diagnostics.Debug.WriteLine($"[ProductRepository.GetPagedAsync] After maxPrice filter: {query.Count()} products");
+            }
+
+            // Apply stock status filter
+            if (!string.IsNullOrWhiteSpace(stockStatus))
+            {
+                query = stockStatus.ToLower() switch
+                {
+                    "instock" => query.Where(p => p.Quantity > 0),
+                    "lowstock" => query.Where(p => p.Quantity > 0 && p.Quantity <= 10),
+                    "outofstock" => query.Where(p => p.Quantity == 0),
+                    _ => query
+                };
+                System.Diagnostics.Debug.WriteLine($"[ProductRepository.GetPagedAsync] After stock status filter '{stockStatus}': {query.Count()} products");
             }
 
             // Apply sorting

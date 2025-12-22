@@ -74,7 +74,7 @@ namespace MyShop.Client.Views.SalesAgent
                     return;
                 }
 
-                // Generate suggestions from current products
+                // Generate suggestions from current products (don't filter list yet)
                 var suggestions = ViewModel.Products
                     .Where(p => p.Name.ToLower().Contains(query) ||
                                p.Category.ToLower().Contains(query))
@@ -85,20 +85,18 @@ namespace MyShop.Client.Views.SalesAgent
 
                 sender.ItemsSource = suggestions;
 
-                // Debounce search: wait 500ms before triggering auto-search
+                // Debounce: just update SearchQuery for binding, don't apply filters
+                // Filters will only be applied when user submits search or selects suggestion
                 _searchDebounceTimer?.Dispose();
                 _searchDebounceTimer = new Timer(_ =>
                 {
-                    // Dispatch to UI thread to avoid COMException when accessing UI resources
                     this.DispatcherQueue.TryEnqueue(() =>
                     {
                         try
                         {
+                            // Only update the property, don't trigger filter application
                             ViewModel.SearchQuery = query;
-                            if (ViewModel.ApplyFiltersCommand?.CanExecute(null) == true)
-                            {
-                                _ = ViewModel.ApplyFiltersCommand.ExecuteAsync(null);
-                            }
+                            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.SearchCard_TextChanged] SearchQuery updated to: '{query}' (no filter applied yet)");
                         }
                         catch (Exception ex)
                         {
@@ -109,9 +107,18 @@ namespace MyShop.Client.Views.SalesAgent
             }
         }
 
-        private void SearchCard_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+        private async void SearchCard_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
         {
+            _searchDebounceTimer?.Dispose();
             sender.Text = args.SelectedItem?.ToString() ?? string.Empty;
+
+            // Apply filters when suggestion is selected
+            ViewModel.SearchQuery = sender.Text;
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.SearchCard_SuggestionChosen] Suggestion selected: '{ViewModel.SearchQuery}', applying filters");
+            if (ViewModel.ApplyFiltersCommand?.CanExecute(null) == true)
+            {
+                await ViewModel.ApplyFiltersCommand.ExecuteAsync(null);
+            }
         }
 
         private async void SearchCard_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
@@ -142,10 +149,10 @@ namespace MyShop.Client.Views.SalesAgent
         {
             if (ViewModel == null) return;
 
-            if (CategoryComboBox.SelectedItem is string category)
+            if (CategoryComboBox.SelectedItem is MyShop.Shared.Models.Category category)
             {
-                ViewModel.SelectedCategory = category ?? "All Categories";
-                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.CategoryComboBox_SelectionChanged] Selected category: '{ViewModel.SelectedCategory}'");
+                ViewModel.SelectedCategory = category;
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.CategoryComboBox_SelectionChanged] Selected category: '{ViewModel.SelectedCategory?.Name}'");
             }
         }
 
@@ -217,7 +224,7 @@ namespace MyShop.Client.Views.SalesAgent
                 NewPriceTextBox.Text = string.Empty;
                 NewImportPriceTextBox.Text = string.Empty;
                 NewDescriptionTextBox.Text = string.Empty;
-                NewCategoryComboBox.SelectedIndex = -1;
+                NewCategoryComboBox.SelectedItem = null;
 
                 AddProductDialog.XamlRoot = this.XamlRoot;
                 await AddProductDialog.ShowAsync();
@@ -255,10 +262,10 @@ namespace MyShop.Client.Views.SalesAgent
                     return;
                 }
 
-                var categoryItem = NewCategoryComboBox.SelectedItem as ComboBoxItem;
-                var categoryId = categoryItem?.Tag?.ToString() ?? string.Empty;
+                var categoryItem = NewCategoryComboBox.SelectedItem as MyShop.Shared.Models.Category;
+                var categoryId = categoryItem?.Id ?? Guid.Empty;
 
-                if (string.IsNullOrEmpty(categoryId) || !Guid.TryParse(categoryId, out var parsedCategoryId) || parsedCategoryId == Guid.Empty)
+                if (categoryId == Guid.Empty)
                 {
                     System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.AddProductDialog_PrimaryButtonClick] ❌ VALIDATION FAILED - Category is not selected");
                     args.Cancel = true;
@@ -284,7 +291,7 @@ namespace MyShop.Client.Views.SalesAgent
                 {
                     Id = Guid.NewGuid(),
                     Name = name,
-                    CategoryId = parsedCategoryId,
+                    CategoryId = categoryId,
                     Quantity = stock,
                     SellingPrice = price,
                     ImportPrice = importPrice,
@@ -348,15 +355,11 @@ namespace MyShop.Client.Views.SalesAgent
                 EditImportPriceTextBox.Text = "0"; // We don't have import price in ProductViewModel
                 EditDescriptionTextBox.Text = string.Empty;
 
-                // Select the correct category
-                for (int i = 0; i < EditCategoryComboBox.Items.Count; i++)
+                // Select the correct category by matching Name
+                var categoryToSelect = ViewModel.Categories.FirstOrDefault(c => c.Name == product.Category);
+                if (categoryToSelect != null)
                 {
-                    if (EditCategoryComboBox.Items[i] is ComboBoxItem item &&
-                        item.Tag?.ToString() == product.Category)
-                    {
-                        EditCategoryComboBox.SelectedIndex = i;
-                        break;
-                    }
+                    EditCategoryComboBox.SelectedItem = categoryToSelect;
                 }
 
                 EditProductDialog.XamlRoot = this.XamlRoot;
@@ -398,10 +401,10 @@ namespace MyShop.Client.Views.SalesAgent
                     return;
                 }
 
-                var categoryItem = EditCategoryComboBox.SelectedItem as ComboBoxItem;
-                var categoryId = categoryItem?.Tag?.ToString() ?? string.Empty;
+                var categoryItem = EditCategoryComboBox.SelectedItem as MyShop.Shared.Models.Category;
+                var categoryId = categoryItem?.Id ?? Guid.Empty;
 
-                if (string.IsNullOrEmpty(categoryId) || !Guid.TryParse(categoryId, out var parsedCategoryId) || parsedCategoryId == Guid.Empty)
+                if (categoryId == Guid.Empty)
                 {
                     System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditProductDialog_PrimaryButtonClick] ❌ VALIDATION FAILED - Category is not selected");
                     args.Cancel = true;
@@ -427,7 +430,7 @@ namespace MyShop.Client.Views.SalesAgent
                 {
                     Id = _editingProduct.Id,
                     Name = name,
-                    CategoryId = parsedCategoryId,
+                    CategoryId = categoryId,
                     Quantity = stock,
                     SellingPrice = price,
                     ImportPrice = importPrice,

@@ -19,6 +19,7 @@ public interface IProductFacade
     /// <param name="manufacturerName">Manufacturer/Brand filter</param>
     /// <param name="minPrice">Minimum price filter</param>
     /// <param name="maxPrice">Maximum price filter</param>
+    /// <param name="stockStatus">Stock status filter (e.g., "InStock", "LowStock", "OutOfStock")</param>
     /// <param name="sortBy">Sort field (e.g., "name", "price", "date")</param>
     /// <param name="sortDescending">Sort direction</param>
     /// <param name="page">Current page (1-based)</param>
@@ -29,6 +30,7 @@ public interface IProductFacade
         string? manufacturerName = null,
         decimal? minPrice = null,
         decimal? maxPrice = null,
+        string? stockStatus = null,
         string sortBy = "name",
         bool sortDescending = false,
         int page = 1,

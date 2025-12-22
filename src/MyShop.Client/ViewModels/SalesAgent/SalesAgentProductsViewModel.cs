@@ -24,10 +24,10 @@ public partial class SalesAgentProductsViewModel : ObservableObject
     private string _searchQuery = string.Empty;
 
     [ObservableProperty]
-    private ObservableCollection<string> _categories = new() { "All Categories" };
+    private ObservableCollection<MyShop.Shared.Models.Category> _categories = new();
 
     [ObservableProperty]
-    private string _selectedCategory = "All Categories";
+    private MyShop.Shared.Models.Category? _selectedCategory;
 
     [ObservableProperty]
     private string _selectedStockStatus = string.Empty;
@@ -86,17 +86,17 @@ public partial class SalesAgentProductsViewModel : ObservableObject
                 return;
             }
 
-            // Clear existing items but keep "All Categories" at index 0
-            while (Categories.Count > 1)
-            {
-                Categories.RemoveAt(Categories.Count - 1);
-            }
+            // Clear and repopulate with API categories
+            Categories.Clear();
 
             // Add API categories
             foreach (var category in result.Data)
             {
-                Categories.Add(category.Name);
+                Categories.Add(category);
             }
+
+            // Reset selected category to null (which means all categories)
+            SelectedCategory = null;
 
             System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel] ✅ LoadCategoriesAsync: Loaded {result.Data.Count} categories from API");
         }
@@ -127,7 +127,7 @@ public partial class SalesAgentProductsViewModel : ObservableObject
     {
         System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.ResetFiltersAsync] Resetting all filters");
         SearchQuery = string.Empty;
-        SelectedCategory = "All Categories";
+        SelectedCategory = null;
         SelectedStockStatus = string.Empty;
         SortBy = "name";
         SortDescending = false;
@@ -143,7 +143,7 @@ public partial class SalesAgentProductsViewModel : ObservableObject
         {
             await _productFacade.ExportProductsToCsvAsync(
                 SearchQuery,
-                SelectedCategory == "All Categories" ? null : SelectedCategory,
+                SelectedCategory?.Name,
                 null,
                 null);
         }
@@ -169,15 +169,16 @@ public partial class SalesAgentProductsViewModel : ObservableObject
         try
         {
             IsLoading = true;
-            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.LoadProductsAsync] START - Page: {CurrentPage}, PageSize: {PageSize}, Search: '{SearchQuery}', Category: '{SelectedCategory}'");
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.LoadProductsAsync] START - Page: {CurrentPage}, PageSize: {PageSize}, Search: '{SearchQuery}', Category: '{SelectedCategory?.Name}', StockStatus: '{SelectedStockStatus}'");
 
             // Call facade with pagination parameters and filters
             var result = await _productFacade.LoadProductsAsync(
                 searchQuery: string.IsNullOrWhiteSpace(SearchQuery) ? null : SearchQuery,
-                categoryName: (SelectedCategory == "All Categories" || string.IsNullOrEmpty(SelectedCategory)) ? null : SelectedCategory,
+                categoryName: SelectedCategory?.Name,
                 manufacturerName: null,
                 minPrice: null,
                 maxPrice: null,
+                stockStatus: string.IsNullOrWhiteSpace(SelectedStockStatus) ? null : SelectedStockStatus,
                 sortBy: SortBy,
                 sortDescending: SortDescending,
                 page: CurrentPage,
@@ -265,12 +266,14 @@ public partial class SalesAgentProductsViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task FilterCategoryAsync(string category)
+    private async Task FilterCategoryAsync(string categoryName)
     {
-        SelectedCategory = category;
+        // Find the category by name
+        var selectedCat = Categories.FirstOrDefault(c => c.Name == categoryName);
+        SelectedCategory = selectedCat;
         CurrentPage = 1;
         await LoadProductsAsync();
-        System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.FilterCategoryAsync] Filtered by category: '{category}'");
+        System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.FilterCategoryAsync] Filtered by category: '{categoryName}'");
     }
 
     #region Pagination Navigation

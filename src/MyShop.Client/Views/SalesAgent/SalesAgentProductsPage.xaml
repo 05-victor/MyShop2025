@@ -467,18 +467,9 @@
                                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                 BorderThickness="1"
                                 CornerRadius="8"
-                                PlaceholderText="Select category">
-                                <ComboBoxItem Content="Smartphones"
-                                              Tag="Smartphones"/>
-                                <ComboBoxItem Content="Laptops"
-                                              Tag="Laptops"/>
-                                <ComboBoxItem Content="Audio"
-                                              Tag="Audio"/>
-                                <ComboBoxItem Content="Tablets"
-                                              Tag="Tablets"/>
-                                <ComboBoxItem Content="Wearables"
-                                              Tag="Wearables"/>
-                            </ComboBox>
+                                ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
+                                DisplayMemberPath="Name"
+                                PlaceholderText="Select category"/>
                         </StackPanel>
 
                         <!-- Stock -->
@@ -600,17 +591,9 @@
                                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                 BorderThickness="1"
                                 CornerRadius="8"
+                                ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
+                                DisplayMemberPath="Name"
                                 PlaceholderText="Select category">
-                                <ComboBoxItem Content="Smartphones"
-                                              Tag="Smartphones"/>
-                                <ComboBoxItem Content="Laptops"
-                                              Tag="Laptops"/>
-                                <ComboBoxItem Content="Audio"
-                                              Tag="Audio"/>
-                                <ComboBoxItem Content="Tablets"
-                                              Tag="Tablets"/>
-                                <ComboBoxItem Content="Wearables"
-                                              Tag="Wearables"/>
                             </ComboBox>
                         </StackPanel>
 

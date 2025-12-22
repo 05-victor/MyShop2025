@@ -48,6 +48,7 @@ public class ProductFacade : IProductFacade
         string? manufacturerName = null,
         decimal? minPrice = null,
         decimal? maxPrice = null,
+        string? stockStatus = null,
         string sortBy = "name",
         bool sortDescending = false,
         int page = 1,
@@ -55,7 +56,7 @@ public class ProductFacade : IProductFacade
     {
         try
         {
-            System.Diagnostics.Debug.WriteLine($"[ProductFacade.LoadProductsAsync] START - Page: {page}, PageSize: {pageSize}, Search: '{searchQuery}', Category: '{categoryName}'");
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade.LoadProductsAsync] START - Page: {page}, PageSize: {pageSize}, Search: '{searchQuery}', Category: '{categoryName}', StockStatus: '{stockStatus}'");
 
             // Validate page parameters
             if (page < 1) page = 1;
@@ -64,7 +65,7 @@ public class ProductFacade : IProductFacade
 
             // Call repository's paged method (server-side paging and filtering)
             var result = await _productRepository.GetPagedAsync(
-                page, pageSize, searchQuery, categoryName, manufacturerName, minPrice, maxPrice, sortBy, sortDescending);
+                page, pageSize, searchQuery, categoryName, manufacturerName, minPrice, maxPrice, stockStatus, sortBy, sortDescending);
 
             if (!result.IsSuccess || result.Data == null)
             {
@@ -571,7 +572,7 @@ public class ProductFacade : IProductFacade
         {
             // Load filtered products with large page size to get all
             var result = await _productRepository.GetPagedAsync(
-                1, 10000, searchQuery, categoryName, null, minPrice, maxPrice, "name", false);
+                1, 10000, searchQuery, categoryName, null, minPrice, maxPrice, null, "name", false);
 
             if (!result.IsSuccess || result.Data == null)
             {
