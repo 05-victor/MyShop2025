@@ -20,7 +20,6 @@
     <Button x:Name="FloatingButton"
             Width="56" Height="56"
             CornerRadius="28"
-            Background="{ThemeResource PrimaryBrush}"
             BorderThickness="0"
             Padding="0"
             ToolTipService.ToolTip="Chat with AI Assistant"
