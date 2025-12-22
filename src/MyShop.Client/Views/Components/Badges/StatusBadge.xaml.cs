@@ -26,12 +26,52 @@ public sealed partial class StatusBadge : UserControl
             nameof(Text),
             typeof(string),
             typeof(StatusBadge),
-            new PropertyMetadata(string.Empty));
+            new PropertyMetadata(string.Empty, OnTextChanged));
 
     public string Text
     {
         get => (string)GetValue(TextProperty);
         set => SetValue(TextProperty, value);
+    }
+
+    private static void OnTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is StatusBadge badge && e.NewValue is string text)
+        {
+            // Auto-detect variant from text if variant is Default
+            if (badge.Variant == BadgeVariant.Default)
+            {
+                badge.Variant = badge.DetectVariantFromText(text);
+            }
+        }
+    }
+
+    private BadgeVariant DetectVariantFromText(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return BadgeVariant.Default;
+
+        var lowerText = text.ToLower();
+        
+        // Success patterns
+        if (lowerText.Contains("approved") || lowerText.Contains("success") || 
+            lowerText.Contains("active") || lowerText.Contains("completed"))
+            return BadgeVariant.Success;
+        
+        // Warning patterns  
+        if (lowerText.Contains("pending") || lowerText.Contains("warning") ||
+            lowerText.Contains("in progress"))
+            return BadgeVariant.Warning;
+        
+        // Error patterns
+        if (lowerText.Contains("rejected") || lowerText.Contains("error") ||
+            lowerText.Contains("failed") || lowerText.Contains("inactive"))
+            return BadgeVariant.Error;
+        
+        // Info patterns
+        if (lowerText.Contains("info") || lowerText.Contains("processing"))
+            return BadgeVariant.Info;
+
+        return BadgeVariant.Default;
     }
 
     public static readonly DependencyProperty VariantProperty =

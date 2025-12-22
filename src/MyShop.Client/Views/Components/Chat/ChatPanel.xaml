@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <UserControl
     x:Class="MyShop.Client.Views.Components.Chat.ChatPanel"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -57,10 +57,10 @@
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="AI Assistant" 
                                   FontSize="16" FontWeight="SemiBold" 
-                                  Foreground="{ThemeResource WhiteBrush}"/>
+                                  Foreground="White"/>
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <Ellipse Width="8" Height="8" Fill="{ThemeResource SuccessGreenBrush}"/>
-                            <TextBlock Text="Online" FontSize="12" Foreground="{ThemeResource CardStrokeColorDefaultBrush}"/>
+                            <TextBlock Text="Online" FontSize="12" Foreground="White" Opacity="0.8"/>
                         </StackPanel>
                     </StackPanel>
                     
@@ -72,7 +72,7 @@
                            ToolTipService.ToolTip="Clear chat"
                            AutomationProperties.Name="Clear chat history"
                            Click="ClearButton_Click">
-                        <FontIcon Glyph="&#xE74D;" FontSize="16" Foreground="{ThemeResource WhiteBrush}"/>
+                        <FontIcon Glyph="&#xE74D;" FontSize="16" Foreground="White"/>
                     </Button>
                 </Grid>
             </Border>
@@ -146,7 +146,7 @@
                            Padding="0"
                            AutomationProperties.Name="Send message"
                            Click="SendButton_Click">
-                        <FontIcon Glyph="&#xE724;" FontSize="16" Foreground="{ThemeResource WhiteBrush}"/>
+                        <FontIcon Glyph="&#xE724;" FontSize="16" Foreground="White"/>
                     </Button>
                 </Grid>
             </Border>

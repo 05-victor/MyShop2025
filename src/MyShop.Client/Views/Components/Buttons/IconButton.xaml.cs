@@ -25,11 +25,8 @@ public sealed partial class IconButton : UserControl
     {
         this.InitializeComponent();
         this.Loaded += OnLoaded;
-        this.Unloaded += OnUnloaded;
         ActionButton.Loaded += ActionButton_Loaded;
-        
-        // Subscribe to theme changes to reapply styles when theme switches
-        MyShop.Client.Services.ThemeManager.ThemeChanged += OnThemeChanged;
+        // ✅ NO ThemeChanged subscription - styles handle theme automatically
     }
 
     private void ActionButton_Loaded(object sender, RoutedEventArgs e)
@@ -51,21 +48,6 @@ public sealed partial class IconButton : UserControl
     {
         ApplyVariantStyle();
         ApplyLayout();
-    }
-    
-    private void OnUnloaded(object sender, RoutedEventArgs e)
-    {
-        // Unsubscribe from theme changes to prevent memory leaks
-        MyShop.Client.Services.ThemeManager.ThemeChanged -= OnThemeChanged;
-    }
-    
-    private void OnThemeChanged(MyShop.Client.Services.ThemeManager.ThemeType newTheme)
-    {
-        // Reapply variant styles when theme changes
-        DispatcherQueue?.TryEnqueue(() =>
-        {
-            ApplyVariantStyle();
-        });
     }
     
     // Helper method to find child element by name in visual tree
@@ -452,69 +434,29 @@ public sealed partial class IconButton : UserControl
     {
         if (ActionButton == null) return;
 
-        switch (Variant)
+        // ✅ Microsoft pattern: Apply style based on variant
+        // Styles are defined in ButtonStyles.xaml with ThemeResource
+        var styleKey = Variant switch
         {
-            case IconButtonVariant.Ghost:
-                ActionButton.Background = new SolidColorBrush(Colors.Transparent);
-                ActionButton.BorderThickness = new Thickness(0);
-                if (Application.Current.Resources.TryGetValue("TextFillColorSecondaryBrush", out var ghostText) 
-                    && ghostText is Brush ghostForeground)
-                {
-                    if (_buttonText != null) _buttonText.Foreground = ghostForeground;
-                    ActionButton.Foreground = ghostForeground;
-                }
-                break;
+            IconButtonVariant.Ghost => "IconButtonGhostStyle",
+            IconButtonVariant.Outline => "IconButtonOutlineStyle",
+            IconButtonVariant.Filled => "IconButtonFilledStyle",
+            _ => "IconButtonGhostStyle"
+        };
 
-            case IconButtonVariant.Outline:
-                // Match Reset button pattern - transparent background, subtle border
-                ActionButton.Background = new SolidColorBrush(Colors.Transparent);
-                
-                if (Application.Current.Resources.TryGetValue("CardStrokeColorDefaultBrush", out var borderBrush) 
-                    && borderBrush is Brush outlineBorder)
-                {
-                    ActionButton.BorderBrush = outlineBorder;
-                }
-                else
-                {
-                    // Theme-aware fallback colors
-                    var currentTheme = MyShop.Client.Services.ThemeManager.CurrentTheme;
-                    var fallbackColor = currentTheme == MyShop.Client.Services.ThemeManager.ThemeType.Dark 
-                        ? Color.FromArgb(255, 51, 65, 85)    // #334155 for dark theme
-                        : Color.FromArgb(255, 229, 231, 235); // #E5E7EB for light theme
-                    ActionButton.BorderBrush = new SolidColorBrush(fallbackColor);
-                }
-                ActionButton.BorderThickness = new Thickness(1);
-                
-                // Default text color
-                if (Application.Current.Resources.TryGetValue("TextFillColorPrimaryBrush", out var textBrush) 
-                    && textBrush is Brush defaultText)
-                {
-                    if (_buttonText != null) _buttonText.Foreground = defaultText;
-                    ActionButton.Foreground = defaultText;
-                }
-                break;
-
-            case IconButtonVariant.Filled:
-                // Use theme-aware PrimaryBrush for consistency
-                if (Application.Current.Resources.TryGetValue("PrimaryBrush", out var primaryBrush) 
-                    && primaryBrush is Brush filledBg)
-                {
-                    ActionButton.Background = filledBg;
-                }
-                else
-                {
-                    ActionButton.Background = new SolidColorBrush(Color.FromArgb(255, 26, 77, 143)); // #1A4D8F fallback
-                }
-                ActionButton.BorderThickness = new Thickness(0);
-                ActionButton.Foreground = new SolidColorBrush(Colors.White);
-                if (_buttonText != null) _buttonText.Foreground = new SolidColorBrush(Colors.White);
-                // Override icon color for filled variant if not explicitly set
-                if (IconColor is SolidColorBrush brush && brush.Color == Color.FromArgb(255, 107, 114, 128))
-                {
-                    if (_leftIcon != null) _leftIcon.Foreground = new SolidColorBrush(Colors.White);
-                    if (_rightIcon != null) _rightIcon.Foreground = new SolidColorBrush(Colors.White);
-                }
-                break;
+        if (Application.Current.Resources.TryGetValue(styleKey, out var style) 
+            && style is Style buttonStyle)
+        {
+            ActionButton.Style = buttonStyle;
+        }
+        
+        // For Filled variant, ensure white icons if not explicitly set
+        if (Variant == IconButtonVariant.Filled && 
+            IconColor is SolidColorBrush brush && 
+            brush.Color == Color.FromArgb(255, 107, 114, 128))
+        {
+            if (_leftIcon != null) _leftIcon.Foreground = new SolidColorBrush(Colors.White);
+            if (_rightIcon != null) _rightIcon.Foreground = new SolidColorBrush(Colors.White);
         }
     }
 }

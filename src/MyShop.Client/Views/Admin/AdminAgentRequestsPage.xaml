@@ -234,9 +234,7 @@
                                             <tables:UserAvatarInfo.ExtraContent>
                                                 <StackPanel Orientation="Horizontal"
                                                         Spacing="12">
-                                                    <badges:StatusBadge
-                                                        Text="{x:Bind Status}"
-                                                        Variant="Warning"/>
+                                                    <badges:StatusBadge Text="{x:Bind Status}"/>
                                                     <StackPanel Orientation="Horizontal"
                                                             Spacing="6">
                                                         <FontIcon
