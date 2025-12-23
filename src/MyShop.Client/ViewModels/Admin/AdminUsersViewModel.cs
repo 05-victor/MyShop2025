@@ -182,53 +182,6 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
         _ => "#F3F4F6"
     };
 
-    [RelayCommand]
-    private async Task AddNewUserAsync()
-    {
-        try
-        {
-            var dialog = new Views.Dialogs.AddUserDialog
-            {
-                XamlRoot = App.MainWindow?.Content?.XamlRoot
-            };
-
-            var result = await dialog.ShowAsync();
-            if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
-            {
-                try
-                {
-                    // Create user via facade (saves to JSON)
-                    var createResult = await _userFacade.CreateUserAsync(
-                        username: dialog.ViewModel.Email.Split('@')[0], // Generate username from email
-                        email: dialog.ViewModel.Email,
-                        phoneNumber: dialog.ViewModel.Phone,
-                        password: dialog.ViewModel.Password,
-                        role: dialog.ViewModel.SelectedRole
-                    );
-
-                    if (createResult.IsSuccess)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] New user added: {dialog.ViewModel.FullName}");
-                        await RefreshAsync();
-                    }
-                    else
-                    {
-                        await _toastHelper?.ShowError(createResult.ErrorMessage ?? "Failed to create user");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Error saving user: {ex.Message}");
-                    await _toastHelper?.ShowError($"Error creating user: {ex.Message}");
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Error adding user: {ex.Message}");
-            await _toastHelper?.ShowError($"Error: {ex.Message}");
-        }
-    }
 
     [RelayCommand]
     private async Task ExportUsersAsync()

@@ -304,9 +304,33 @@ public sealed partial class AdminUsersPage : Page
 
             System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Dialog fields populated - Username: {userDetails.Username}, Email: {userDetails.Email}, Phone: {userDetails.PhoneNumber}, Address: {userDetails.Address}, Role: {primaryRole}");
 
-            // Set XamlRoot directly (same pattern as SalesAgentProductsPage)
-            System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Setting XamlRoot...");
-            UserDetailsDialog.XamlRoot = this.XamlRoot;
+            // Set XamlRoot from Window root (not Page root) to ensure proper bounds after window resize
+            // This fixes dialog offset when window is maximized/minimized/restored before opening dialog
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Setting XamlRoot from Window root...");
+            try
+            {
+                var windowRoot = (Microsoft.UI.Xaml.FrameworkElement)App.MainWindow.Content;
+                if (windowRoot != null)
+                {
+                    // Force layout pass to stabilize bounds after any window state changes
+                    windowRoot.UpdateLayout();
+                    System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Window root layout updated");
+
+                    UserDetailsDialog.XamlRoot = windowRoot.XamlRoot;
+                    System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] XamlRoot set from Window root successfully");
+                }
+                else
+                {
+                    // Fallback to page XamlRoot if window root not available
+                    System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Window root is null, falling back to page XamlRoot");
+                    UserDetailsDialog.XamlRoot = this.XamlRoot;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Error setting XamlRoot from window root: {ex.Message}, using page XamlRoot");
+                UserDetailsDialog.XamlRoot = this.XamlRoot;
+            }
 
             if (UserDetailsDialog.XamlRoot == null)
             {
@@ -314,9 +338,27 @@ public sealed partial class AdminUsersPage : Page
                 return;
             }
 
-            System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] XamlRoot set successfully, calling ShowAsync()...");
-            await UserDetailsDialog.ShowAsync();
-            System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] ShowAsync() completed successfully, dialog closed");
+            // Defer ShowAsync to next UI tick to allow layout to stabilize after window resize
+            // This prevents dialog offset when opened after window maximize/minimize/restore
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Deferring ShowAsync to next UI tick...");
+            var result = DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Normal, async () =>
+            {
+                try
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] ShowAsync executing on next UI tick...");
+                    await UserDetailsDialog.ShowAsync();
+                    System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] ShowAsync() completed successfully, dialog closed");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Error in ShowAsync: {ex.Message}");
+                }
+            });
+
+            if (!result)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] WARNING: Failed to enqueue ShowAsync to DispatcherQueue");
+            }
         }
         catch (Exception ex)
         {

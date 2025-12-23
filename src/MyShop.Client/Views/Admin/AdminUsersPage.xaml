@@ -114,17 +114,7 @@
                         Grid.Row="0"
                         Title="Users Management"
                         Subtitle="Manage all users in the system">
-                        <layout:PageHeader.ActionContent>
-                            <buttons:IconButton
-                                MinWidth="140"
-                                Variant="Filled"
-                                IconGlyph="&#xE710;"
-                                Text="Add New User"
-                                Command="{x:Bind ViewModel.AddNewUserCommand}"
-                                Tooltip="Create a new user account"
-                                AutomationProperties.Name="Add new user, press Alt+N"
-                                AccessKey="N"/>
-                        </layout:PageHeader.ActionContent>
+
                     </layout:PageHeader>
 
 
