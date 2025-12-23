@@ -126,7 +126,7 @@ public class UserRepository : IUserRepository
                 {
                     return Result<bool>.Success(true);
                 }
-                
+
                 // If Result is false, it means current password was incorrect
                 if (apiResponse.Success && !apiResponse.Result)
                 {
@@ -282,6 +282,56 @@ public class UserRepository : IUserRepository
         catch (Exception ex)
         {
             return Result<User>.Failure($"Error creating user: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<User>> GetByIdAsync(Guid userId)
+    {
+        try
+        {
+            var response = await _api.GetByIdAsync(userId);
+
+            if (response.IsSuccessStatusCode && response.Content != null)
+            {
+                var apiResponse = response.Content;
+                if (apiResponse.Success && apiResponse.Result != null)
+                {
+                    var user = UserAdapter.ToModel(apiResponse.Result);
+                    return Result<User>.Success(user);
+                }
+            }
+
+            return Result<User>.Failure("Failed to retrieve user");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[UserRepository] Error getting user {userId}: {ex.Message}");
+            return Result<User>.Failure($"Error retrieving user: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<bool>> DeleteUserAsync(Guid userId)
+    {
+        try
+        {
+            var response = await _api.DeleteAsync(userId);
+
+            // DELETE returns 204 NoContent on success (no response body)
+            if (response.IsSuccessStatusCode)
+            {
+                System.Diagnostics.Debug.WriteLine($"[UserRepository] User {userId} deleted successfully - Status: {response.StatusCode}");
+                return Result<bool>.Success(true);
+            }
+
+            // If not successful, try to get error message from response
+            var errorMessage = response.Error?.Content ?? "Failed to delete user";
+            System.Diagnostics.Debug.WriteLine($"[UserRepository] Delete failed - Status: {response.StatusCode}, Error: {errorMessage}");
+            return Result<bool>.Failure(errorMessage);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[UserRepository] Error deleting user {userId}: {ex.Message}");
+            return Result<bool>.Failure($"Error deleting user: {ex.Message}");
         }
     }
 }

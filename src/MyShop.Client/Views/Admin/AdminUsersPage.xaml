@@ -100,10 +100,12 @@
         </VisualStateManager.VisualStateGroups>
 
         <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
                 <Grid x:Name="MainContent"
-                        Padding="24"
-                      RowSpacing="16">
+                      Padding="24"
+                      RowSpacing="16"
+                      Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
@@ -114,17 +116,7 @@
                         Grid.Row="0"
                         Title="Users Management"
                         Subtitle="Manage all users in the system">
-                        <layout:PageHeader.ActionContent>
-                            <buttons:IconButton
-                                MinWidth="140"
-                                Variant="Filled"
-                                IconGlyph="&#xE710;"
-                                Text="Add New User"
-                                Command="{x:Bind ViewModel.AddNewUserCommand}"
-                                Tooltip="Create a new user account"
-                                AutomationProperties.Name="Add new user, press Alt+N"
-                                AccessKey="N"/>
-                        </layout:PageHeader.ActionContent>
+
                     </layout:PageHeader>
 
 
@@ -389,6 +381,40 @@
                                                     HorizontalAlignment="Right"
                                                     Orientation="Horizontal"
                                                     Spacing="8">
+                                                    <Button
+                                                        x:Name="ViewDetailsButtonInTemplate"
+                                                        Padding="8,6"
+                                                        Background="{ThemeResource SecondaryBlueBrush}"
+                                                        Foreground="{ThemeResource WhiteBrush}"
+                                                        CornerRadius="6"
+                                                        ToolTipService.ToolTip="View user details"
+                                                        CommandParameter="{x:Bind}"
+                                                        Click="ViewDetailsButton_Click">
+                                                        <StackPanel Orientation="Horizontal"
+                                                                    Spacing="4">
+                                                            <FontIcon FontSize="14"
+                                                                      Glyph="&#xE71B;"/>
+                                                            <TextBlock FontSize="12"
+                                                                       Text="View Details"/>
+                                                        </StackPanel>
+                                                    </Button>
+                                                    <Button
+                                                        x:Name="DeleteButtonInTemplate"
+                                                        Padding="8,6"
+                                                        Background="{ThemeResource ErrorRedBrush}"
+                                                        Foreground="{ThemeResource WhiteBrush}"
+                                                        CornerRadius="6"
+                                                        ToolTipService.ToolTip="Delete user account"
+                                                        CommandParameter="{x:Bind}"
+                                                        Click="DeleteButton_Click">
+                                                        <StackPanel Orientation="Horizontal"
+                                                                    Spacing="4">
+                                                            <FontIcon FontSize="14"
+                                                                      Glyph="&#xE74D;"/>
+                                                            <TextBlock FontSize="12"
+                                                                       Text="Delete"/>
+                                                        </StackPanel>
+                                                    </Button>
                                                 </StackPanel>
                                             </Grid>
                                         </DataTemplate>
@@ -453,6 +479,122 @@
                 </Grid>
             </ScrollViewer>
         </RefreshContainer>
+
+        <!-- USER DETAILS DIALOG -->
+        <ContentDialog
+            x:Name="UserDetailsDialog"
+            Title="User Details"
+            DefaultButton="Close"
+            CloseButtonText="Close">
+            <ScrollViewer MaxWidth="500"
+                          MaxHeight="600">
+                <StackPanel Spacing="16"
+                            Padding="0,0,16,0">
+
+                    <!-- Loading Indicator -->
+                    <ProgressRing IsActive="{x:Bind ViewModel.IsDetailsLoading, Mode=OneWay}"
+                                  Visibility="{x:Bind ViewModel.IsDetailsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                  Width="40"
+                                  Height="40"
+                                  HorizontalAlignment="Center"/>
+
+                    <!-- Avatar + Basic Info -->
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Avatar -->
+                        <Ellipse x:Name="UserAvatarEllipse"
+                                 Grid.Column="0"
+                                 Width="80"
+                                 Height="80"
+                                 Fill="{ThemeResource SecondaryBlueBrush}">
+                        </Ellipse>
+                        <TextBlock Grid.Column="0"
+                                   x:Name="UserAvatarText"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   FontSize="32"
+                                   FontWeight="Bold"
+                                   Foreground="{ThemeResource WhiteBrush}"
+                                   Text="A"/>
+
+                        <!-- Basic Info -->
+                        <StackPanel Grid.Column="1"
+                                    Spacing="4">
+                            <TextBlock x:Name="UserFullNameText"
+                                       FontSize="16"
+                                       FontWeight="Bold"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                       Text="Full Name"/>
+                            <TextBlock x:Name="UserRoleText"
+                                       FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       Text="Role"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Divider -->
+                    <Rectangle Height="1"
+                               Fill="{ThemeResource CardStrokeColorDefaultBrush}"/>
+
+                    <!-- Account Information -->
+                    <StackPanel Spacing="12">
+                        <TextBlock FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                   Text="Account Information"/>
+
+                        <!-- Username -->
+                        <StackPanel Spacing="4">
+                            <TextBlock FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       Text="Username"/>
+                            <TextBlock x:Name="UserUsernameText"
+                                       FontSize="13"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                       Text="username"/>
+                        </StackPanel>
+
+                        <!-- Email -->
+                        <StackPanel Spacing="4">
+                            <TextBlock FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       Text="Email"/>
+                            <TextBlock x:Name="UserEmailText"
+                                       FontSize="13"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                       Text="email@example.com"/>
+                        </StackPanel>
+
+                        <!-- Phone -->
+                        <StackPanel Spacing="4">
+                            <TextBlock FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       Text="Phone Number"/>
+                            <TextBlock x:Name="UserPhoneText"
+                                       FontSize="13"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                       Text="N/A"/>
+                        </StackPanel>
+
+                        <!-- Address -->
+                        <StackPanel Spacing="4">
+                            <TextBlock FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       Text="Address"/>
+                            <TextBlock x:Name="UserAddressText"
+                                       FontSize="13"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                       Text="N/A"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </ContentDialog>
     </Grid>
 </Page>
 
