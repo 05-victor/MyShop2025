@@ -45,7 +45,7 @@
                 <TextBlock Text="{Binding DisplayName, ElementName=RootControl, Mode=OneWay}"
                            FontSize="{Binding NameFontSize, ElementName=RootControl, Mode=OneWay}"
                            FontWeight="SemiBold"
-                           Foreground="#111827"
+                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                            VerticalAlignment="Center"
                            TextTrimming="CharacterEllipsis"/>
                 
@@ -57,7 +57,7 @@
             
             <TextBlock Text="{Binding SecondaryText, ElementName=RootControl, Mode=OneWay}"
                        FontSize="{Binding SecondaryFontSize, ElementName=RootControl, Mode=OneWay}"
-                       Foreground="#6B7280"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                        TextTrimming="CharacterEllipsis"
                        Visibility="{Binding HasSecondaryText, ElementName=RootControl, Mode=OneWay}"/>
         </StackPanel>

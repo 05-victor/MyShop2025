@@ -16,10 +16,7 @@
     </UserControl.Resources>
 
     <Border
-        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-        BorderBrush="#E5E7EB"
-        BorderThickness="1"
-        CornerRadius="16"
+        Style="{StaticResource DefaultCardStyle}"
         Padding="24">
         <Border.Shadow>
             <ThemeShadow />
@@ -60,7 +57,7 @@
                         <TextBlock
                             FontSize="16"
                             FontWeight="SemiBold"
-                            Foreground="#111827"
+                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                             Text="{Binding FullName, ElementName=RootControl}"
                             VerticalAlignment="Center" />
                         <badges:StatusBadge
@@ -73,21 +70,21 @@
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <FontIcon
                                 FontSize="14"
-                                Foreground="#6B7280"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Glyph="&#xE715;" />
                             <TextBlock
                                 FontSize="13"
-                                Foreground="#6B7280"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Text="{Binding Email, ElementName=RootControl}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <FontIcon
                                 FontSize="14"
-                                Foreground="#6B7280"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Glyph="&#xE787;" />
                             <TextBlock
                                 FontSize="13"
-                                Foreground="#6B7280"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Text="{Binding SubmittedDate, ElementName=RootControl}" />
                         </StackPanel>
                     </StackPanel>
@@ -101,15 +98,15 @@
                     <TextBlock
                         FontSize="13"
                         FontWeight="SemiBold"
-                        Foreground="#111827"
+                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                         Text="Reason:" />
                     <Border
-                        Background="#F9FAFB"
+                        Background="{ThemeResource LayerFillColorDefaultBrush}"
                         CornerRadius="8"
                         Padding="12">
                         <TextBlock
                             FontSize="13"
-                            Foreground="#6B7280"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                             Text="{Binding Reason, ElementName=RootControl}"
                             TextWrapping="Wrap" />
                     </Border>
@@ -120,15 +117,15 @@
                     <TextBlock
                         FontSize="13"
                         FontWeight="SemiBold"
-                        Foreground="#111827"
+                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                         Text="Experience:" />
                     <Border
-                        Background="#F9FAFB"
+                        Background="{ThemeResource LayerFillColorDefaultBrush}"
                         CornerRadius="8"
                         Padding="12">
                         <TextBlock
                             FontSize="13"
-                            Foreground="#6B7280"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                             Text="{Binding Experience, ElementName=RootControl}"
                             TextWrapping="Wrap" />
                     </Border>
@@ -143,17 +140,17 @@
                 <TextBlock
                     FontSize="13"
                     FontWeight="SemiBold"
-                    Foreground="#B91C1C"
+                    Foreground="{ThemeResource ErrorRedDarkBrush}"
                     Text="Rejection Reason:" />
                 <Border
-                    Background="#FEF2F2"
-                    BorderBrush="#FCA5A5"
+                    Background="{ThemeResource ErrorRed50Brush}"
+                    BorderBrush="{ThemeResource ErrorRedLightBrush}"
                     BorderThickness="1"
                     CornerRadius="8"
                     Padding="12">
                     <TextBlock
                         FontSize="13"
-                        Foreground="#DC2626"
+                        Foreground="{ThemeResource ErrorRedBrush}"
                         Text="{Binding RejectionReason, ElementName=RootControl}"
                         TextWrapping="Wrap" />
                 </Border>
@@ -162,7 +159,7 @@
             <!--  Action Buttons (only for pending)  -->
             <StackPanel
                 Grid.Row="3"
-                BorderBrush="#E5E7EB"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="0,1,0,0"
                 Orientation="Horizontal"
                 Padding="0,16,0,0"
@@ -170,22 +167,19 @@
                 Visibility="{Binding IsPending, ElementName=RootControl}">
                 <Button
                     Command="{Binding ApproveCommand, ElementName=RootControl}"
-                    Style="{StaticResource AccentButtonStyle}">
+                    Style="{StaticResource SmallSuccessButtonStyle}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon FontSize="14" Glyph="&#xE73E;" />
                         <TextBlock Text="Approve" />
                     </StackPanel>
                 </Button>
-                <Button Style="{StaticResource DefaultButtonStyle}">
+                <Button Style="{StaticResource SmallDangerButtonStyle}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon
-                            FontSize="14"
-                            Foreground="#DC2626"
-                            Glyph="&#xE711;" />
-                        <TextBlock Foreground="#DC2626" Text="Reject" />
+                        <FontIcon FontSize="14" Glyph="&#xE711;" />
+                        <TextBlock Text="Reject" />
                     </StackPanel>
                 </Button>
-                <Button Style="{StaticResource DefaultButtonStyle}">
+                <Button Style="{StaticResource SecondaryButtonStyle}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon FontSize="14" Glyph="&#xE77B;" />
                         <TextBlock Text="View Profile" />

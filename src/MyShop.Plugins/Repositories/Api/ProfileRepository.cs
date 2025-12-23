@@ -88,4 +88,91 @@ public class ProfileRepository : IProfileRepository
         // May need dedicated backend endpoint
         return Result<bool>.Failure("Profile deletion not supported via API");
     }
+
+    /// <summary>
+    /// PATCH Update My Profile - uses the new PATCH endpoint
+    /// </summary>
+    public async Task<Result<ProfileData>> PatchUpdateMyProfileAsync(UpdateProfileRequest request)
+    {
+        try
+        {
+            var response = await _api.PatchUpdateMyProfileAsync(request);
+
+            if (response.IsSuccessStatusCode && response.Content != null)
+            {
+                var apiResponse = response.Content;
+                if (apiResponse.Success && apiResponse.Result != null)
+                {
+                    // UpdateProfileResponse only contains partial data, convert to ProfileData
+                    var result = apiResponse.Result;
+                    var profile = new ProfileData
+                    {
+                        Avatar = result.Avatar,
+                        FullName = result.FullName,
+                        PhoneNumber = result.PhoneNumber,
+                        Address = result.Address
+                    };
+                    return Result<ProfileData>.Success(profile);
+                }
+            }
+
+            return Result<ProfileData>.Failure("Failed to update profile");
+        }
+        catch (Exception ex)
+        {
+            return Result<ProfileData>.Failure($"Error updating profile: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Upload Avatar to backend - streams file to server
+    /// </summary>
+    public async Task<Result<string>> UploadAvatarAsync(Stream fileStream, string fileName)
+    {
+        try
+        {
+            if (fileStream == null || !fileStream.CanRead)
+            {
+                return Result<string>.Failure("Invalid file stream");
+            }
+
+            // Infer content type from file extension
+            var extension = Path.GetExtension(fileName).ToLowerInvariant();
+            var contentType = GetContentTypeFromExtension(extension);
+
+            // Create StreamPart with proper content type
+            var streamPart = new Refit.StreamPart(fileStream, fileName, contentType);
+            var response = await _api.UploadAvatarAsync(streamPart);
+
+            if (response.IsSuccessStatusCode && response.Content != null)
+            {
+                var apiResponse = response.Content;
+                if (apiResponse.Success && apiResponse.Result != null)
+                {
+                    return Result<string>.Success(apiResponse.Result);
+                }
+            }
+
+            return Result<string>.Failure("Failed to upload avatar");
+        }
+        catch (Exception ex)
+        {
+            return Result<string>.Failure($"Error uploading avatar: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Helper to infer content type from file extension
+    /// </summary>
+    private string GetContentTypeFromExtension(string extension)
+    {
+        return extension switch
+        {
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".gif" => "image/gif",
+            ".webp" => "image/webp",
+            _ => "application/octet-stream"
+        };
+    }
 }

@@ -35,6 +35,10 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
     [ObservableProperty]
     private string _pendingSearchQuery = string.Empty;
 
+    // State for fetching user details (separate from list loading)
+    [ObservableProperty]
+    private bool _isDetailsLoading = false;
+
     public AdminUsersViewModel(
         IUserFacade userFacade,
         IToastService toastService,
@@ -86,6 +90,7 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
     {
         try
         {
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] LoadPageAsync START - CurrentPage: {CurrentPage}");
             SetLoadingState(true);
 
             // Get filter parameters
@@ -102,11 +107,14 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
 
             if (!result.IsSuccess || result.Data == null)
             {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] LoadPageAsync FAILED: {result.ErrorMessage}");
                 await _toastHelper?.ShowError(result.ErrorMessage ?? "Failed to load users");
                 Items.Clear();
                 UpdatePagingInfo(0);
                 return;
             }
+
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] LoadPageAsync SUCCESS: {result.Data.Items.Count} items loaded");
 
             // Map DTOs to ViewModels
             var users = result.Data.Items.Select(u =>
@@ -125,8 +133,6 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
                     RoleColor = GetRoleColor(roleString),
                     RoleBgColor = GetRoleBgColor(roleString),
                     Status = isActiveUser ? "Active" : "Inactive",
-                    StatusColor = isActiveUser ? "#10B981" : "#6B7280",
-                    StatusBgColor = isActiveUser ? "#D1FAE5" : "#F3F4F6",
                     IsActive = isActiveUser,
                     FullName = u.FullName ?? u.Username,
                     Avatar = u.Avatar ?? string.Empty
@@ -141,14 +147,16 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
 
             UpdatePagingInfo(result.Data.TotalCount);
 
-            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Loaded page {CurrentPage}/{TotalPages} ({Items.Count} items, {TotalItems} total)");
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] LoadPageAsync END - Loaded page {CurrentPage}/{TotalPages} ({Items.Count} items, {TotalItems} total)");
+            SetLoadingState(false);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Error loading users: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] LoadPageAsync EXCEPTION: {ex.Message}");
             await _toastHelper?.ShowError($"Error loading users: {ex.Message}");
             Items.Clear();
             UpdatePagingInfo(0);
+            SetLoadingState(false);
         }
         finally
         {
@@ -159,7 +167,7 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
     private static string GetRoleColor(string role) => role switch
     {
         "Admin" => "#DC2626",
-        "Salesman" => "#2563EB",
+        "SalesAgent" => "#2563EB",
         "Customer" => "#10B981",
         _ => "#6B7280"
     };
@@ -167,114 +175,11 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
     private static string GetRoleBgColor(string role) => role switch
     {
         "Admin" => "#FEE2E2",
-        "Salesman" => "#DBEAFE",
+        "SalesAgent" => "#DBEAFE",
         "Customer" => "#D1FAE5",
         _ => "#F3F4F6"
     };
 
-    [RelayCommand]
-    private async Task AddNewUserAsync()
-    {
-        try
-        {
-            var dialog = new Views.Dialogs.AddUserDialog
-            {
-                XamlRoot = App.MainWindow?.Content?.XamlRoot
-            };
-            
-            var result = await dialog.ShowAsync();
-            if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
-            {
-                try
-                {
-                    // Create user via facade (saves to JSON)
-                    var createResult = await _userFacade.CreateUserAsync(
-                        username: dialog.ViewModel.Email.Split('@')[0], // Generate username from email
-                        email: dialog.ViewModel.Email,
-                        phoneNumber: dialog.ViewModel.Phone,
-                        password: dialog.ViewModel.Password,
-                        role: dialog.ViewModel.SelectedRole
-                    );
-                    
-                    if (createResult.IsSuccess)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] New user added: {dialog.ViewModel.FullName}");
-                        await RefreshAsync();
-                    }
-                    else
-                    {
-                        await _toastHelper?.ShowError(createResult.ErrorMessage ?? "Failed to create user");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Error saving user: {ex.Message}");
-                    await _toastHelper?.ShowError($"Error creating user: {ex.Message}");
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Error adding user: {ex.Message}");
-            await _toastHelper?.ShowError($"Error: {ex.Message}");
-        }
-    }
-
-    [RelayCommand]
-    private async Task ToggleUserStatusAsync(UserViewModel user)
-    {
-        try
-        {
-            var result = await _userFacade.ToggleUserStatusAsync(user.Id);
-            if (result.IsSuccess)
-            {
-                user.IsActive = !user.IsActive;
-                user.Status = user.IsActive ? "Active" : "Inactive";
-                user.StatusColor = user.IsActive ? "#10B981" : "#6B7280";
-                user.StatusBgColor = user.IsActive ? "#D1FAE5" : "#F3F4F6";
-                await _toastHelper?.ShowSuccess($"User {user.Name} status updated");
-            }
-            else
-            {
-                await _toastHelper?.ShowError(result.ErrorMessage ?? "Failed to update user status");
-            }
-        }
-        catch (Exception ex)
-        {
-            await _toastHelper?.ShowError($"Error updating user status: {ex.Message}");
-        }
-    }
-
-    [RelayCommand]
-    private async Task ResetPasswordAsync(UserViewModel user)
-    {
-        try
-        {
-            // Show confirmation dialog
-            var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
-            {
-                Title = "Reset Password",
-                Content = $"Are you sure you want to reset password for {user.Name}?\n\nA new password will be sent to their email: {user.Email}",
-                PrimaryButtonText = "Reset Password",
-                CloseButtonText = "Cancel",
-                DefaultButton = Microsoft.UI.Xaml.Controls.ContentDialogButton.Close,
-                XamlRoot = App.MainWindow?.Content?.XamlRoot
-            };
-            
-            var result = await dialog.ShowAsync();
-            if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
-            {
-                // TODO: Call actual password reset API
-                await _toastHelper?.ShowSuccess($"Password reset email sent to {user.Email}");
-                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Reset password for: {user.Name}");
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Reset password error: {ex.Message}");
-            await _toastHelper?.ShowError("Failed to reset password");
-        }
-    }
 
     [RelayCommand]
     private async Task ExportUsersAsync()
@@ -304,6 +209,123 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
         finally
         {
             SetLoadingState(false);
+        }
+    }
+
+    /// <summary>
+    /// Show user details (fetches from API: GET /api/v1/users/{id})
+    /// Uses IsDetailsLoading instead of IsLoading to avoid layout jumps from UserListSkeleton
+    /// </summary>
+    [RelayCommand]
+    private async Task ViewUserDetailsAsync(UserViewModel user)
+    {
+        try
+        {
+            if (user == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] ViewUserDetailsAsync - user is null");
+                await _toastHelper?.ShowError("User not found");
+                return;
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] ViewUserDetailsAsync called for user: {user.Name} (ID: {user.Id})");
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Items count before API call: {Items.Count}");
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Calling API: GET /api/v1/users/{user.Id}");
+
+            // Use IsDetailsLoading instead of IsLoading to avoid showing UserListSkeleton
+            IsDetailsLoading = true;
+
+            // Call API to get user details
+            var result = await _userFacade.GetUserByIdAsync(user.Id);
+
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] API response received, Items count after API: {Items.Count}");
+
+            if (result.IsSuccess && result.Data != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] API response received - User: {result.Data.Username}");
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Response data: Full Name={result.Data.FullName}, Email={result.Data.Email}, Phone={result.Data.PhoneNumber}");
+
+                // Stop loading indicator before showing dialog
+                // (ShowUserDetailsDialogAsync will await until dialog is closed)
+                IsDetailsLoading = false;
+
+                // Show user details dialog with API response data
+                await _navigationService.ShowUserDetailsDialogAsync(result.Data);
+
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] User details dialog displayed successfully: {result.Data.Username}");
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Items count after dialog display: {Items.Count}");
+            }
+            else
+            {
+                var errorMsg = result.ErrorMessage ?? "Failed to retrieve user details";
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] API call failed: {errorMsg}");
+                IsDetailsLoading = false;
+                await _toastHelper?.ShowError(errorMsg);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Error viewing user details: {ex.Message}\n{ex.StackTrace}");
+            IsDetailsLoading = false;
+            await _toastHelper?.ShowError($"Error: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Delete user (calls API: DELETE /api/v1/users/{id})
+    /// </summary>
+    [RelayCommand]
+    private async Task DeleteUserAsync(UserViewModel user)
+    {
+        try
+        {
+            if (user == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] DeleteUserAsync - user is null");
+                await _toastHelper?.ShowError("User not found");
+                return;
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] DeleteUserAsync called for user: {user.Name} (ID: {user.Id})");
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Calling API: DELETE /api/v1/users/{user.Id}");
+
+            SetLoadingState(true);
+
+            // Call API to delete user
+            var deleteResult = await _userFacade.DeleteUserAsync(user.Id);
+
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] DeleteUserAsync - Delete result received: IsSuccess={deleteResult.IsSuccess}");
+
+            if (deleteResult.IsSuccess)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] User deleted successfully: {user.Name}");
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] API response: Status=Success, Message={deleteResult.ErrorMessage}");
+
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] About to show success toast");
+                await _toastHelper?.ShowSuccess($"User '{user.Name}' deleted successfully");
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Success toast shown");
+
+                // Reload the page to refresh the list
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Reloading user list...");
+                CurrentPage = 1;
+                await LoadPageAsync();
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] User list reloaded");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Delete failed: {deleteResult.ErrorMessage}");
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] API response: Status=Failed, Message={deleteResult.ErrorMessage}");
+                await _toastHelper?.ShowError(deleteResult.ErrorMessage ?? "Failed to delete user");
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] DeleteUserAsync - About to call SetLoadingState(false)");
+            SetLoadingState(false);
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] DeleteUserAsync - SetLoadingState(false) called");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Error deleting user: {ex.Message}\n{ex.StackTrace}");
+            await _toastHelper?.ShowError($"Error: {ex.Message}");
         }
     }
 }
@@ -339,12 +361,6 @@ public partial class UserViewModel : ObservableObject
 
     [ObservableProperty]
     private string _status = string.Empty;
-
-    [ObservableProperty]
-    private string _statusColor = string.Empty;
-
-    [ObservableProperty]
-    private string _statusBgColor = string.Empty;
 
     [ObservableProperty]
     private bool _isActive = true;

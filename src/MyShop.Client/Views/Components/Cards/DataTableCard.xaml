@@ -8,10 +8,7 @@
     mc:Ignorable="d"
     x:Name="RootControl">
 
-    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-            CornerRadius="16"
-            BorderBrush="#E5E7EB"
-            BorderThickness="1">
+    <Border Style="{StaticResource DefaultCardStyle}">
         <Border.Shadow>
             <ThemeShadow/>
         </Border.Shadow>
@@ -25,12 +22,12 @@
             <!-- Header with accent line -->
             <Grid Grid.Row="0" 
                   Padding="24,20,24,16" 
-                  BorderBrush="#E5E7EB"
+                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                   BorderThickness="0,0,0,1">
                 <Grid.Background>
                     <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
                         <GradientStop Color="Transparent" Offset="0"/>
-                        <GradientStop Color="#1000AEEF" Offset="0.5"/>
+                        <GradientStop Color="{ThemeResource AccentBlueSubtleBrush}" Offset="0.5"/>
                         <GradientStop Color="Transparent" Offset="1"/>
                     </LinearGradientBrush>
                 </Grid.Background>
@@ -46,11 +43,12 @@
                         Width="4"
                         CornerRadius="2"
                         Margin="0,0,12,0"
-                        VerticalAlignment="Stretch">
+                        VerticalAlignment="Stretch"
+                        IsHitTestVisible="False">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                            <GradientStop Color="#00AEEF" Offset="0"/>
-                            <GradientStop Color="#1A4D8F" Offset="1"/>
+                            <GradientStop Color="{ThemeResource AccentBlueBrush}" Offset="0"/>
+                            <GradientStop Color="{ThemeResource PrimaryBrush}" Offset="1"/>
                         </LinearGradientBrush>
                     </Border.Background>
                 </Border>
@@ -60,7 +58,8 @@
                            Text="{Binding Title, ElementName=RootControl, Mode=OneWay}"
                            FontSize="18"
                            FontWeight="SemiBold"
-                           Foreground="#111827"
+                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                           AutomationProperties.HeadingLevel="Level2"
                            VerticalAlignment="Center"/>
 
                 <!-- View All Button -->
@@ -69,21 +68,23 @@
                         Visibility="{Binding ShowViewAll, ElementName=RootControl, Mode=OneWay}"
                         Padding="16,8"
                         Background="Transparent"
-                        BorderBrush="#4D00AEEF"
+                        BorderBrush="{ThemeResource AccentBlueBorderBrush}"
                         BorderThickness="1"
-                        CornerRadius="8">
+                        CornerRadius="8"
+                        AutomationProperties.Name="{Binding ViewAllText, ElementName=RootControl, Mode=OneWay}"
+                        UseSystemFocusVisuals="True">
                     <Button.Resources>
-                        <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#1A00AEEF"/>
-                        <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="#00AEEF"/>
-                        <SolidColorBrush x:Key="ButtonForegroundPointerOver" Color="#00AEEF"/>
+                        <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="{ThemeResource AccentBlueLightBrush}"/>
+                        <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="{ThemeResource AccentBlueBrush}"/>
+                        <SolidColorBrush x:Key="ButtonForegroundPointerOver" Color="{ThemeResource AccentBlueBrush}"/>
                     </Button.Resources>
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <TextBlock Text="{Binding ViewAllText, ElementName=RootControl, Mode=OneWay}" 
                                    FontSize="13"
-                                   Foreground="#6B7280"/>
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         <FontIcon Glyph="&#xE76C;" 
                                   FontSize="12"
-                                  Foreground="#6B7280"/>
+                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                     </StackPanel>
                 </Button>
             </Grid>

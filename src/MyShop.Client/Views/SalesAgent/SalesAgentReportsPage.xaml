@@ -15,6 +15,12 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
 
+    <Page.Transitions>
+        <TransitionCollection>
+            <EntranceThemeTransition FromVerticalOffset="50"/>
+        </TransitionCollection>
+    </Page.Transitions>
+
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
@@ -40,6 +46,62 @@
     </Page.Resources>
 
     <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="ResponsiveStates">
+                
+                <!-- Large Desktop: 1920px+ -->
+                <VisualState x:Name="LargeDesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1920"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="40"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Desktop: 1280-1919px -->
+                <VisualState x:Name="DesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1280"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="32"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet: 960-1279px -->
+                <VisualState x:Name="TabletState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="960"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="24"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet Portrait: 640-959px -->
+                <VisualState x:Name="TabletPortraitState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="640"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="20"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Mobile: 0-639px (Default) -->
+                <VisualState x:Name="MobileState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="16"/>
+                    </VisualState.Setters>
+                </VisualState>
+                
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
         <!-- Main Content -->
         <Grid Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
             <Grid.Transitions>
@@ -49,7 +111,7 @@
             </Grid.Transitions>
             <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
                 <ScrollViewer>
-                    <StackPanel Padding="24"
+                    <StackPanel x:Name="MainContent" Padding="{StaticResource Padding_XL}"
                                 Spacing="24">
 
                         <layout:PageHeader
@@ -84,13 +146,18 @@
                                         ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
                                         SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"/>
 
-                                    <buttons:IconButton
-                                        Grid.Column="2"
-                                        VerticalAlignment="Bottom"
-                                        Variant="Outline"
-                                        IconGlyph="&#xE896;"
-                                        Text="Export"
-                                        Command="{x:Bind ViewModel.ExportReportCommand}"/>
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom">
+                                        <buttons:IconButton
+                                            Variant="Outline"
+                                            IconGlyph="&#xE74E;"
+                                            Text="Export CSV"
+                                            Command="{x:Bind ViewModel.ExportReportCommand}"/>
+                                        <buttons:IconButton
+                                            Variant="Filled"
+                                            IconGlyph="&#xEA90;"
+                                            Text="Export PDF"
+                                            Click="ExportPdfButton_Click"/>
+                                    </StackPanel>
                                 </Grid>
                             </forms:FilterCard.FilterContent>
                         </forms:FilterCard>
@@ -123,6 +190,7 @@
                                         MinHeight="200"
                                         AnimationsSpeed="0"
                                         IsHitTestVisible="False"
+                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                         Series="{x:Bind ViewModel.RevenueSeries, Mode=OneWay}"/>
                                 </StackPanel>
                             </Border>
@@ -143,6 +211,7 @@
                                         MinHeight="200"
                                         AnimationsSpeed="0"
                                         IsHitTestVisible="False"
+                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                         Series="{x:Bind ViewModel.OrdersByCategorySeries, Mode=OneWay}"/>
                                 </StackPanel>
                             </Border>
@@ -179,13 +248,23 @@
                                         Margin="0,0,0,16"
                                         Style="{StaticResource SubtitleTextBlockStyle}"
                                         Text="Salesperson Contributions"/>
-                                    <!-- Changed to {x:Bind} to prevent ItemsControl crash -->
-                                    <ItemsControl ItemsSource="{x:Bind ViewModel.SalespersonData, Mode=OneWay}">
-                                        <ItemsControl.ItemTemplate>
+                                    <!-- ListView with virtualization for performance -->
+                                    <ListView ItemsSource="{x:Bind ViewModel.SalespersonData, Mode=OneWay}"
+                                              SelectionMode="None"
+                                              IsItemClickEnabled="False"
+                                              MaxHeight="400">
+                                        <ListView.ItemContainerStyle>
+                                            <Style TargetType="ListViewItem">
+                                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                                <Setter Property="Padding" Value="0"/>
+                                                <Setter Property="Margin" Value="0"/>
+                                            </Style>
+                                        </ListView.ItemContainerStyle>
+                                        <ListView.ItemTemplate>
                                             <DataTemplate>
                                                 <Grid
                                                     Margin="0,0,0,8"
-                                                    Padding="12"
+                                                    Padding="{StaticResource Padding_MD}"
                                                     Background="{ThemeResource LayerFillColorDefaultBrush}"
                                                     CornerRadius="6">
                                                     <Grid.ColumnDefinitions>
@@ -197,13 +276,13 @@
                                                         Width="40"
                                                         Height="40"
                                                         Margin="0,0,12,0"
-                                                        Background="CornflowerBlue"
-                                                        CornerRadius="20">
+                                                        Background="{ThemeResource PrimaryBrush}"
+                                                        CornerRadius="8">
                                                         <TextBlock
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Center"
                                                             FontWeight="SemiBold"
-                                                            Foreground="White"
+                                                            Foreground="{ThemeResource WhiteBrush}"
                                                             Text="{Binding Initials}"/>
                                                     </Border>
                                                     <StackPanel Grid.Column="1"
@@ -221,7 +300,7 @@
                                                         HorizontalAlignment="Right"
                                                         VerticalAlignment="Center">
                                                         <TextBlock FontWeight="SemiBold"
-                                                                   Foreground="Green">
+                                                                   Foreground="{ThemeResource SuccessGreenBrush}">
                                                 <Run Text="{Binding Revenue, Converter={StaticResource CurrencyConverter}}"/>
                                                         </TextBlock>
                                                         <TextBlock
@@ -232,8 +311,8 @@
                                                     </StackPanel>
                                                 </Grid>
                                             </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
                                 </StackPanel>
                             </Border>
                         </Grid>
@@ -247,6 +326,7 @@
                                     Text="Product Summary"/>
                                 <!-- Changed to {x:Bind} to prevent DataGrid crash -->
                                 <controls:DataGrid AutoGenerateColumns="False"
+                                                   CanUserReorderColumns="False"
                                                    ItemsSource="{x:Bind ViewModel.FilteredProducts, Mode=OneWay}">
                                     <controls:DataGrid.Columns>
                                         <controls:DataGridTextColumn
@@ -279,7 +359,7 @@
                                                         HorizontalAlignment="Right"
                                                         VerticalAlignment="Center"
                                                         FontWeight="SemiBold"
-                                                        Foreground="#10B981"
+                                                        Foreground="{ThemeResource SuccessGreenBrush}"
                                                         Text="{Binding Revenue, Converter={StaticResource CurrencyConverter}}"
                                                         TextAlignment="Right"/>
                                                 </DataTemplate>
@@ -300,7 +380,7 @@
                                                         <FontIcon
                                                             VerticalAlignment="Center"
                                                             FontSize="12"
-                                                            Foreground="#F59E0B"
+                                                            Foreground="{ThemeResource WarningAmberBrush}"
                                                             Glyph="&#xE735;"/>
                                                     </StackPanel>
                                                 </DataTemplate>
@@ -357,3 +437,4 @@
         </Grid>
     </Grid>
 </Page>
+

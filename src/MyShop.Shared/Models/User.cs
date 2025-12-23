@@ -98,14 +98,14 @@ namespace MyShop.Shared.Models
         public bool HasRole(UserRole role) => Roles.Contains(role);
 
         /// <summary>
-        /// Get the highest priority role (Admin > Salesman > Customer).
+        /// Get the highest priority role (Admin > SalesAgent > Customer).
         /// Used for navigation and permission determination.
         /// </summary>
         /// <returns>The primary role for this user.</returns>
         public UserRole GetPrimaryRole()
         {
             if (Roles.Contains(UserRole.Admin)) return UserRole.Admin;
-            if (Roles.Contains(UserRole.Salesman)) return UserRole.Salesman;
+            if (Roles.Contains(UserRole.SalesAgent)) return UserRole.SalesAgent;
             return UserRole.Customer;
         }
     }

@@ -9,6 +9,12 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
+    <Page.Transitions>
+        <TransitionCollection>
+            <EntranceThemeTransition FromVerticalOffset="50"/>
+        </TransitionCollection>
+    </Page.Transitions>
+
     <Page.Resources>
         <Style x:Key="CardStyle" TargetType="Border">
             <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
@@ -37,20 +43,77 @@
         </Style>
     </Page.Resources>
 
-    <ScrollViewer Padding="0,40,0,40">
-        <StackPanel MaxWidth="800" HorizontalAlignment="Center" Spacing="0">
+    <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="ResponsiveStates">
+                
+                <!-- Large Desktop: 1920px+ -->
+                <VisualState x:Name="LargeDesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1920"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="0,40,0,40"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Desktop: 1280-1919px -->
+                <VisualState x:Name="DesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1280"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="0,40,0,40"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet: 960-1279px -->
+                <VisualState x:Name="TabletState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="960"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="0,32,0,32"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet Portrait: 640-959px -->
+                <VisualState x:Name="TabletPortraitState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="640"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="0,24,0,24"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Mobile: 0-639px (Default) -->
+                <VisualState x:Name="MobileState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="0,16,0,16"/>
+                    </VisualState.Setters>
+                </VisualState>
+                
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <ScrollViewer x:Name="MainContent" Padding="0,40,0,40">
+            <StackPanel MaxWidth="800" HorizontalAlignment="Center" Spacing="0">
             
             <!-- Header -->
             <StackPanel HorizontalAlignment="Center" Margin="0,0,0,40">
                 <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
                         BorderThickness="1" 
-                        CornerRadius="20" 
+                        CornerRadius="8" 
                         HorizontalAlignment="Center" 
                         Padding="12,6" 
                         Margin="0,0,0,16">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE735;" FontSize="12" Foreground="#00AEEF"/>
+                        <FontIcon Glyph="&#xE735;" FontSize="12" Foreground="{ThemeResource AccentBlueBrush}"/>
                         <TextBlock Text="Become a Sales Agent" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                     </StackPanel>
                 </Border>
@@ -75,11 +138,11 @@
                         <Border Style="{StaticResource IconContainerStyle}">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#00AEEF" Offset="0"/>
-                                    <GradientStop Color="#2563EB" Offset="1"/>
+                                    <GradientStop Color="{ThemeResource AccentBlueBrush}" Offset="0"/>
+                                    <GradientStop Color="{ThemeResource SecondaryBlueBrush}" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
-                            <FontIcon Glyph="&#xE77B;" Foreground="White" FontSize="16"/>
+                            <FontIcon Glyph="&#xE77B;" Foreground="{ThemeResource WhiteBrush}" FontSize="16"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="Personal Information" 
@@ -130,11 +193,11 @@
                         <Border Style="{StaticResource IconContainerStyle}">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#2563EB" Offset="0"/>
-                                    <GradientStop Color="#8B5CF6" Offset="1"/>
+                                    <GradientStop Color="{ThemeResource SecondaryBlueBrush}" Offset="0"/>
+                                    <GradientStop Color="{ThemeResource PurpleBrush}" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
-                            <FontIcon Glyph="&#xE707;" Foreground="White" FontSize="16"/>
+                            <FontIcon Glyph="&#xE707;" Foreground="{ThemeResource WhiteBrush}" FontSize="16"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="Address Information" 
@@ -178,11 +241,11 @@
                         <Border Style="{StaticResource IconContainerStyle}">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#8B5CF6" Offset="0"/>
-                                    <GradientStop Color="#EC4899" Offset="1"/>
+                                    <GradientStop Color="{ThemeResource PurpleBrush}" Offset="0"/>
+                                    <GradientStop Color="{ThemeResource PurpleBrush}" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
-                            <FontIcon Glyph="&#xEC07;" Foreground="White" FontSize="16"/>
+                            <FontIcon Glyph="&#xEC07;" Foreground="{ThemeResource WhiteBrush}" FontSize="16"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="Business Information" 
@@ -221,11 +284,11 @@
                         <Border Style="{StaticResource IconContainerStyle}">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#10B981" Offset="0"/>
-                                    <GradientStop Color="#00AEEF" Offset="1"/>
+                                    <GradientStop Color="{ThemeResource SuccessGreenBrush}" Offset="0"/>
+                                    <GradientStop Color="{ThemeResource AccentBlueBrush}" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
-                            <FontIcon Glyph="&#xE8F1;" Foreground="White" FontSize="16"/>
+                            <FontIcon Glyph="&#xE8F1;" Foreground="{ThemeResource WhiteBrush}" FontSize="16"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="Experience and Motivation" 
@@ -289,25 +352,19 @@
                     </Grid.ColumnDefinitions>
                     
                     <Button Content="Cancel" 
-                            Command="{x:Bind ViewModel.CancelCommand}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                            Height="44" 
-                            Padding="24,0" 
-                            CornerRadius="8"/>
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Command="{x:Bind ViewModel.CancelCommand}"/>
                     
                     <Button Grid.Column="1" 
-                            HorizontalAlignment="Stretch" 
-                            Height="44" 
-                            CornerRadius="8" 
-                            BorderThickness="0"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            HorizontalAlignment="Stretch"
                             Command="{x:Bind ViewModel.SubmitCommand}"
                             IsEnabled="{x:Bind ViewModel.CanSubmit, Mode=OneWay}">
                         <Button.Background>
                             <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-                                <GradientStop Color="#00AEEF" Offset="0"/>
-                                <GradientStop Color="#2563EB" Offset="0.5"/>
-                                <GradientStop Color="#8B5CF6" Offset="1"/>
+                                <GradientStop Color="{ThemeResource AccentBlueBrush}" Offset="0"/>
+                                <GradientStop Color="{ThemeResource SecondaryBlueBrush}" Offset="0.5"/>
+                                <GradientStop Color="{ThemeResource PurpleBrush}" Offset="1"/>
                             </LinearGradientBrush>
                         </Button.Background>
                         <StackPanel Orientation="Horizontal" Spacing="8">
@@ -316,11 +373,11 @@
                                           IsActive="{x:Bind ViewModel.IsSubmitting, Mode=OneWay}"
                                           Visibility="{x:Bind ViewModel.IsSubmitting, Mode=OneWay}"/>
                             <FontIcon Glyph="&#xE930;" 
-                                      Foreground="White" 
+                                      Foreground="{ThemeResource WhiteBrush}" 
                                       FontSize="16"
                                       Visibility="{x:Bind ViewModel.IsNotSubmitting, Mode=OneWay}"/>
                             <TextBlock Text="{x:Bind ViewModel.SubmitButtonText, Mode=OneWay}" 
-                                       Foreground="White" 
+                                       Foreground="{ThemeResource WhiteBrush}" 
                                        FontWeight="SemiBold"/>
                         </StackPanel>
                     </Button>
@@ -331,7 +388,7 @@
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
                            Margin="0,16,0,0"/>
             </StackPanel>
-
-        </StackPanel>
-    </ScrollViewer>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
 </Page>

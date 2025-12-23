@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="MyShop.Client.Views.Errors.NoConnectionPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Page.Transitions>
+        <TransitionCollection>
+            <EntranceThemeTransition FromVerticalOffset="50"/>
+        </TransitionCollection>
+    </Page.Transitions>
+
+    <!--
+    No Connection Page
+    ==================
+    Displayed when there's no network/server connection.
+    -->
+
+    <Grid Background="{ThemeResource LayerFillColorDefaultBrush}">
+        <Grid.ChildrenTransitions>
+            <TransitionCollection>
+                <EntranceThemeTransition FromVerticalOffset="50"/>
+            </TransitionCollection>
+        </Grid.ChildrenTransitions>
+        <StackPanel 
+            HorizontalAlignment="Center" 
+            VerticalAlignment="Center" 
+            Spacing="24"
+            MaxWidth="500"
+            Padding="32">
+            
+            <!-- No Connection Illustration -->
+            <Grid Width="200" Height="200" HorizontalAlignment="Center">
+                <!-- Circle Background -->
+                <Ellipse 
+                    Width="200" Height="200" 
+                    Fill="{ThemeResource WarningAmber50Brush}" 
+                    Opacity="0.5"/>
+                
+                <!-- WiFi Off Icon -->
+                <FontIcon 
+                    Glyph="&#xEB5E;"
+                    FontSize="80"
+                    Foreground="{ThemeResource WarningAmberBrush}"
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center"/>
+            </Grid>
+            
+            <!-- Title -->
+            <TextBlock 
+                Text="No Connection" 
+                FontSize="28" 
+                FontWeight="Bold" 
+                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                HorizontalAlignment="Center"/>
+            
+            <!-- Description -->
+            <TextBlock 
+                Text="Unable to connect to the server. Please check your internet connection and try again."
+                FontSize="15" 
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                TextAlignment="Center"
+                TextWrapping="Wrap"/>
+            
+            <!-- Tips Box -->
+            <Border 
+                Background="{ThemeResource LayerFillColorDefaultBrush}"
+                CornerRadius="8"
+                Padding="16">
+                <StackPanel Spacing="12">
+                    <TextBlock 
+                        Text="Troubleshooting Tips:"
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                    
+                    <StackPanel Spacing="8">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="{ThemeResource SuccessGreenBrush}"/>
+                            <TextBlock Text="Check your Wi-Fi or Ethernet connection" FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="{ThemeResource SuccessGreenBrush}"/>
+                            <TextBlock Text="Verify the server address in settings" FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="{ThemeResource SuccessGreenBrush}"/>
+                            <TextBlock Text="Make sure the server is running" FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+            
+            <!-- Action Buttons -->
+            <StackPanel 
+                Orientation="Horizontal" 
+                HorizontalAlignment="Center" 
+                Spacing="12">
+                
+                <!-- Retry Button -->
+                <buttons:IconButton
+                    x:Name="RetryButton"
+                    Variant="Filled"
+                    IconGlyph="&#xE72C;"
+                    Text="Retry Connection"
+                    Click="RetryButton_Click"/>
+                
+                <!-- Configure Server Button -->
+                <Button 
+                    x:Name="ConfigureButton"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Click="ConfigureButton_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE713;" FontSize="14"/>
+                        <TextBlock Text="Settings"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Page>

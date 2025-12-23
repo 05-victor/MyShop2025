@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using MyShop.Client.ViewModels.SalesAgent;
 using System;
@@ -90,5 +91,11 @@ public sealed partial class SalesAgentReportsPage : Page
         {
             Services.LoggingService.Instance.Error("Failed to refresh reports", ex);
         }
+    }
+
+    private void ExportPdfButton_Click(object sender, RoutedEventArgs e)
+    {
+        // Export PDF functionality - placeholder for now
+        Services.LoggingService.Instance.Information("Export PDF requested");
     }
 }

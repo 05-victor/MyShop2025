@@ -21,7 +21,7 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
     private readonly ICartFacade _cartFacade;
     private readonly IAuthRepository _authRepository;
     private readonly IProductRepository _productRepository;
-    
+
     private Guid? _currentUserId;
     private Guid? _salesAgentId; // For Sales Agent role
     private bool _isSalesAgent;
@@ -76,19 +76,19 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
         {
             var user = userResult.Data;
             _currentUserId = user.Id;
-            
+
             // Check if user is Sales Agent
-            _isSalesAgent = user.HasRole(UserRole.Salesman);
-            
+            _isSalesAgent = user.HasRole(UserRole.SalesAgent);
+
             // Purchase Orders = orders where current user is the CUSTOMER (buyer)
             // Even Sales Agents can be customers when they buy products
             // So we always use customerId = user.Id for this page
             // (SalesOrders page uses salesAgentId for orders they SOLD)
             _salesAgentId = null; // Don't filter by salesAgentId for purchase orders
-            
+
             System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Customer mode: {_currentUserId} (isSalesAgent: {_isSalesAgent})");
         }
-        
+
         await LoadDataAsync();
     }
 
@@ -102,7 +102,7 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
 
         // Generate suggestions based on order IDs and status
         var suggestions = new List<string>();
-        
+
         foreach (var order in Items)
         {
             if (order.OrderId.Contains(query, StringComparison.OrdinalIgnoreCase))
@@ -176,16 +176,16 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
             {
                 // Get order items from the order
                 var orderItems = o.OrderItems ?? o.Items ?? new List<MyShop.Shared.Models.OrderItem>();
-                
+
                 // Fetch product info from database for each order item
                 var itemViewModels = new ObservableCollection<OrderItemViewModel>();
                 string? firstProductImage = null;
-                
+
                 foreach (var item in orderItems)
                 {
                     var productName = item.ProductName ?? "Unknown Product";
                     var imageUrl = "ms-appx:///Assets/Images/placeholder.png";
-                    
+
                     // Fetch product from database to get image
                     if (item.ProductId != Guid.Empty)
                     {
@@ -196,13 +196,13 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
                             imageUrl = productResult.Data.ImageUrl ?? imageUrl;
                         }
                     }
-                    
+
                     // Store first product image for card display
                     if (firstProductImage == null)
                     {
                         firstProductImage = imageUrl;
                     }
-                    
+
                     itemViewModels.Add(new OrderItemViewModel
                     {
                         ProductName = productName,
@@ -211,10 +211,10 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
                         ImageUrl = imageUrl
                     });
                 }
-                
+
                 // Generate product summary (e.g., "MacBook Pro + 2 more items")
                 var productSummary = GenerateProductSummary(itemViewModels);
-                
+
                 Items.Add(new OrderViewModel
                 {
                     OrderId = o.OrderCode ?? $"ORD-{o.Id.ToString().Substring(0, 8)}",
@@ -224,8 +224,6 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
                     OrderDate = o.OrderDate,
                     TrackingNumber = $"TRK{o.Id.ToString().Substring(0, 9)}",
                     Status = o.Status,
-                    StatusColor = GetStatusColor(o.Status),
-                    StatusBgColor = GetStatusBgColor(o.Status),
                     DeliveredDate = o.Status == "Delivered" || o.Status == "DELIVERED" ? o.OrderDate.AddDays(3) : null,
                     Items = itemViewModels,
                     Subtotal = o.Subtotal > 0 ? o.Subtotal : o.FinalPrice * 0.9m,
@@ -254,24 +252,6 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
         }
     }
 
-    private string GetStatusColor(string status) => status switch
-    {
-        "Delivered" => "#10B981",
-        "Shipped" or "Processing" => "#00AEEF",
-        "Pending" => "#F59E0B",
-        "Cancelled" => "#DC2626",
-        _ => "#6B7280"
-    };
-
-    private string GetStatusBgColor(string status) => status switch
-    {
-        "Delivered" => "#D1FAE5",
-        "Shipped" or "Processing" => "#DBEAFE",
-        "Pending" => "#FEF3C7",
-        "Cancelled" => "#FEE2E2",
-        _ => "#F3F4F6"
-    };
-
     private void UpdateStats()
     {
         TotalOrders = Items.Count;
@@ -288,7 +268,7 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
 
         var firstProduct = loadedItems[0].ProductName ?? "Product";
         var firstQty = loadedItems[0].Quantity;
-        
+
         // Truncate long product names
         if (firstProduct.Length > 35)
             firstProduct = firstProduct.Substring(0, 32) + "...";
@@ -344,7 +324,7 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
             {
                 XamlRoot = App.MainWindow?.Content?.XamlRoot
             };
-            
+
             await dialog.ShowAsync();
         }
         catch (Exception ex)
@@ -359,11 +339,11 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
         try
         {
             System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Buy again: {order.OrderId}");
-            
+
             // Add order items back to cart (mock implementation)
             // In real implementation, would call _cartFacade.AddItemsFromOrder(orderId)
             await _toastHelper?.ShowSuccess($"Items from {order.OrderId} added to cart!");
-            
+
             // Navigate to cart page
             _navigationService?.NavigateTo("Cart");
         }
@@ -397,12 +377,6 @@ public partial class OrderViewModel : ObservableObject
 
     [ObservableProperty]
     private string _status = string.Empty;
-
-    [ObservableProperty]
-    private string _statusColor = string.Empty;
-
-    [ObservableProperty]
-    private string _statusBgColor = string.Empty;
 
     [ObservableProperty]
     private DateTime? _deliveredDate;

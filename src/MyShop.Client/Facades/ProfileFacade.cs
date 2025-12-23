@@ -3,6 +3,7 @@ using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Shared.Models;
+using MyShop.Shared.DTOs.Requests;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -18,17 +19,20 @@ public class ProfileFacade : IProfileFacade
 {
     private readonly IAuthRepository _authRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IProfileRepository _profileRepository;
     private readonly IValidationService _validationService;
     private readonly IToastService _toastService;
 
     public ProfileFacade(
         IAuthRepository authRepository,
         IUserRepository userRepository,
+        IProfileRepository profileRepository,
         IValidationService validationService,
         IToastService toastService)
     {
         _authRepository = authRepository ?? throw new ArgumentNullException(nameof(authRepository));
         _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+        _profileRepository = profileRepository ?? throw new ArgumentNullException(nameof(profileRepository));
         _validationService = validationService ?? throw new ArgumentNullException(nameof(validationService));
         _toastService = toastService ?? throw new ArgumentNullException(nameof(toastService));
     }
@@ -58,11 +62,14 @@ public class ProfileFacade : IProfileFacade
     {
         try
         {
+            System.Diagnostics.Debug.WriteLine($"[ProfileFacade] UpdateProfileAsync called with: FullName={fullName}, Phone={phoneNumber}, Address={address}");
+
             // Step 1: Validate inputs
             var emailValidation = await _validationService.ValidateEmail(email);
             if (!emailValidation.IsSuccess || emailValidation.Data == null || !emailValidation.Data.IsValid)
             {
                 var error = emailValidation.Data?.ErrorMessage ?? "Invalid email";
+                System.Diagnostics.Debug.WriteLine($"[ProfileFacade] Email validation failed: {error}");
                 return Result<User>.Failure(error);
             }
 
@@ -70,25 +77,27 @@ public class ProfileFacade : IProfileFacade
             if (!phoneValidation.IsSuccess || phoneValidation.Data == null || !phoneValidation.Data.IsValid)
             {
                 var error = phoneValidation.Data?.ErrorMessage ?? "Invalid phone number";
+                System.Diagnostics.Debug.WriteLine($"[ProfileFacade] Phone validation failed: {error}");
                 return Result<User>.Failure(error);
             }
 
-            // Step 2: Get current user ID
-            var userIdResult = await _authRepository.GetCurrentUserIdAsync();
-            if (!userIdResult.IsSuccess)
-            {
-                return Result<User>.Failure(userIdResult.ErrorMessage ?? "Failed to get user ID");
-            }
-
-            // Step 3: Update profile using DTO
+            // Step 2: Create update request with new PATCH endpoint
+            // Note: Email is validated above but not included in the request body
+            // since UpdateProfileRequest doesn't support email updates yet.
+            // Email validation is kept for future enhancement.
             var request = new MyShop.Shared.DTOs.Requests.UpdateProfileRequest
             {
                 FullName = fullName,
                 PhoneNumber = phoneNumber,
                 Address = address
             };
-            
-            var updateResult = await _userRepository.UpdateProfileAsync(request);
+
+            System.Diagnostics.Debug.WriteLine("[ProfileFacade] Calling PatchUpdateMyProfileAsync");
+
+            // Step 3: Call PATCH endpoint via ProfileRepository
+            var updateResult = await _profileRepository.PatchUpdateMyProfileAsync(request);
+
+            System.Diagnostics.Debug.WriteLine($"[ProfileFacade] PatchUpdateMyProfileAsync returned: IsSuccess={updateResult.IsSuccess}, Message={updateResult.ErrorMessage}");
 
             if (!updateResult.IsSuccess || updateResult.Data == null)
             {
@@ -98,7 +107,30 @@ public class ProfileFacade : IProfileFacade
             // Step 4: Show success notification
             await _toastService.ShowSuccess("Profile updated successfully!");
 
-            return Result<User>.Success(updateResult.Data);
+            System.Diagnostics.Debug.WriteLine("[ProfileFacade] Profile update successful, fetching fresh user data via GetMe");
+
+            // Step 5: Fetch fresh user data from GetMe endpoint to ensure all data is in sync
+            // This is important because PATCH only returns profile fields, not complete user info
+            var userResult = await LoadProfileAsync();
+
+            if (userResult.IsSuccess && userResult.Data != null)
+            {
+                System.Diagnostics.Debug.WriteLine("[ProfileFacade] ✓ GetMe after update successful, returning complete user data");
+                return userResult;
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[ProfileFacade] ✗ GetMe after update failed: {userResult.ErrorMessage}, using partial data from PATCH");
+                // Fallback: Return partial user object from PATCH response
+                var user = new User
+                {
+                    Avatar = updateResult.Data.Avatar,
+                    FullName = updateResult.Data.FullName,
+                    PhoneNumber = updateResult.Data.PhoneNumber,
+                    Address = updateResult.Data.Address
+                };
+                return Result<User>.Success(user);
+            }
         }
         catch (Exception ex)
         {
@@ -146,9 +178,10 @@ public class ProfileFacade : IProfileFacade
             var request = new MyShop.Shared.DTOs.Requests.ChangePasswordRequest
             {
                 CurrentPassword = currentPassword,
-                NewPassword = newPassword
+                NewPassword = newPassword,
+                ConfirmPassword = confirmPassword
             };
-            
+
             var changeResult = await _userRepository.ChangePasswordAsync(request);
 
             if (!changeResult.IsSuccess || !changeResult.Data)
@@ -215,7 +248,7 @@ public class ProfileFacade : IProfileFacade
             // Step 1: Get user ID and avatar directory using StorageConstants
             var userIdResult = await _authRepository.GetCurrentUserIdAsync();
             var userId = userIdResult.IsSuccess ? userIdResult.Data.ToString() : Guid.NewGuid().ToString();
-            
+
             // Use StorageConstants for consistent path management (works in unpackaged WinUI 3)
             var avatarDirectory = StorageConstants.GetUserAvatarDirectory(userId!);
             StorageConstants.EnsureDirectoryExists(avatarDirectory);
@@ -262,7 +295,7 @@ public class ProfileFacade : IProfileFacade
             // Step 1: Get user ID and avatar directory using StorageConstants
             var userIdResult = await _authRepository.GetCurrentUserIdAsync();
             var userId = userIdResult.IsSuccess ? userIdResult.Data.ToString() : Guid.NewGuid().ToString();
-            
+
             // Use StorageConstants for consistent path management (works in unpackaged WinUI 3)
             var avatarDirectory = StorageConstants.GetUserAvatarDirectory(userId!);
             StorageConstants.EnsureDirectoryExists(avatarDirectory);
@@ -379,7 +412,7 @@ public class ProfileFacade : IProfileFacade
             // This would need to be implemented via a settings or configuration service
             // For now, just store it locally or show a message
             await _toastService.ShowInfo($"Tax rate setting: {taxRate}% (feature pending implementation)");
-            
+
             // TODO: Implement via ISettingsService or extend IUserRepository
             return Result<Unit>.Success(Unit.Value);
         }
@@ -387,6 +420,70 @@ public class ProfileFacade : IProfileFacade
         {
             System.Diagnostics.Debug.WriteLine($"[ProfileFacade] UpdateTaxRateAsync failed: {ex.Message}");
             return Result<Unit>.Failure("Failed to update tax rate", ex);
+        }
+    }
+
+    /// <summary>
+    /// Upload avatar file to backend server
+    /// </summary>
+    public async Task<Result<User>> UploadAvatarToBackendAsync(Stream fileStream, string fileName)
+    {
+        try
+        {
+            // Validate stream
+            if (fileStream == null || !fileStream.CanRead)
+            {
+                return Result<User>.Failure("Invalid file stream");
+            }
+
+            // Validate file type
+            var extension = Path.GetExtension(fileName).ToLowerInvariant();
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+
+            if (!allowedExtensions.Contains(extension))
+            {
+                return Result<User>.Failure("Only JPG, JPEG, and PNG files are allowed");
+            }
+
+            // Validate file size (max 5MB)
+            const long maxSizeInBytes = 5 * 1024 * 1024; // 5MB
+            if (fileStream.CanSeek && fileStream.Length > maxSizeInBytes)
+            {
+                return Result<User>.Failure($"File size exceeds maximum allowed size (5MB)");
+            }
+
+            // Upload to backend
+            var uploadResult = await _profileRepository.UploadAvatarAsync(fileStream, fileName);
+
+            if (!uploadResult.IsSuccess || string.IsNullOrEmpty(uploadResult.Data))
+            {
+                return Result<User>.Failure(uploadResult.ErrorMessage ?? "Failed to upload avatar to server");
+            }
+
+            await _toastService.ShowSuccess("Avatar uploaded successfully!");
+            System.Diagnostics.Debug.WriteLine($"[ProfileFacade] Avatar uploaded to server: {uploadResult.Data}");
+
+            // Fetch fresh user data via GetMe to sync avatar across app
+            System.Diagnostics.Debug.WriteLine($"[ProfileFacade] Avatar uploaded, fetching fresh user data via GetMe");
+            var userResult = await LoadProfileAsync();
+
+            if (userResult.IsSuccess && userResult.Data != null)
+            {
+                System.Diagnostics.Debug.WriteLine("[ProfileFacade] ✓ GetMe after avatar upload successful");
+                return userResult;
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[ProfileFacade] ✗ GetMe after avatar upload failed: {userResult.ErrorMessage}");
+                // Fallback: Return basic user object with just the avatar URL
+                var user = new User { Avatar = uploadResult.Data };
+                return Result<User>.Success(user);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProfileFacade] UploadAvatarToBackendAsync failed: {ex.Message}");
+            return Result<User>.Failure($"Failed to upload avatar: {ex.Message}", ex);
         }
     }
 }

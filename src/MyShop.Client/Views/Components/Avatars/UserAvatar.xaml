@@ -19,8 +19,8 @@
             <Border x:Name="ImageBorder"
                     CornerRadius="999"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1">
+                    BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
+                    BorderThickness="3">
                 <!-- Don't bind ProfilePicture directly from string - use code-behind to convert -->
                 <PersonPicture x:Name="AvatarImage"
                               Initials="{Binding Initials, ElementName=RootControl, Mode=OneWay}"

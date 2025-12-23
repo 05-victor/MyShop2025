@@ -9,7 +9,9 @@
             CornerRadius="4"
             Padding="8,4"
             HorizontalAlignment="Left"
-            VerticalAlignment="Center">
+            VerticalAlignment="Center"
+            AutomationProperties.Name="Stock status badge"
+            IsTabStop="False">
         
         <StackPanel Orientation="Horizontal" Spacing="4">
             <FontIcon x:Name="StockIcon"

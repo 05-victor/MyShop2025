@@ -71,22 +71,12 @@ public class OrderRepository : IOrderRepository
     {
         try
         {
-            // Note: Using GetMyOrdersAsync - assumes JWT contains customer ID
-            var response = await _api.GetMyOrdersAsync();
-
-            if (response.IsSuccessStatusCode && response.Content != null)
+            // Use paginated method with high page size to get all customer orders
+            var pagedResult = await GetMyCustomerOrdersPagedAsync(page: 1, pageSize: 1000);
+            if (pagedResult.IsSuccess && pagedResult.Data != null)
             {
-                var apiResponse = response.Content;
-                if (apiResponse.Success && apiResponse.Result != null)
-                {
-                    var orders = apiResponse.Result
-                        .Where(o => o.CustomerId == customerId)
-                        .Select(OrderAdapter.ToModel)
-                        .ToList();
-                    return Result<IEnumerable<Order>>.Success(orders);
-                }
+                return Result<IEnumerable<Order>>.Success(pagedResult.Data.Items);
             }
-
             return Result<IEnumerable<Order>>.Failure("Failed to retrieve customer orders");
         }
         catch (Exception ex)
@@ -207,9 +197,19 @@ public class OrderRepository : IOrderRepository
     {
         try
         {
-            // Note: Backend may need dedicated PUT /orders/{id} endpoint for full update
-            // Currently only UpdateStatusAsync is available
-            return Result<Order>.Failure("Full order update not yet implemented in backend API");
+            var request = new UpdateOrderRequest
+            {
+                Status = order.Status,
+                PaymentStatus = null
+            };
+
+            var response = await _api.UpdateAsync(order.Id, request);
+            if (response.IsSuccessStatusCode && response.Content?.Result != null)
+            {
+                var updatedOrder = OrderAdapter.ToModel(response.Content.Result);
+                return Result<Order>.Success(updatedOrder);
+            }
+            return Result<Order>.Failure("Failed to update order");
         }
         catch (Exception ex)
         {
@@ -272,12 +272,125 @@ public class OrderRepository : IOrderRepository
     {
         try
         {
-            // Note: Backend doesn't have DELETE endpoint - use status update to "CANCELLED"
-            return await UpdateStatusAsync(id, "CANCELLED");
+            var response = await _api.DeleteAsync(id);
+            if (response.IsSuccessStatusCode && response.Content?.Result == true)
+            {
+                return Result<bool>.Success(true);
+            }
+            return Result<bool>.Failure("Failed to delete order");
         }
         catch (Exception ex)
         {
             return Result<bool>.Failure($"Error deleting order: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<PagedList<Order>>> GetMySalesOrdersPagedAsync(
+        int page = 1,
+        int pageSize = 10,
+        string? status = null,
+        string? paymentStatus = null)
+    {
+        try
+        {
+            var response = await _api.GetMySalesOrdersAsync(
+                pageNumber: page,
+                pageSize: pageSize,
+                status: status,
+                paymentStatus: paymentStatus);
+
+            if (response.IsSuccessStatusCode && response.Content != null)
+            {
+                var apiResponse = response.Content;
+                if (apiResponse.Success && apiResponse.Result != null)
+                {
+                    var orders = apiResponse.Result.Items
+                        .Select(OrderAdapter.ToModel)
+                        .ToList();
+
+                    var pagedList = new PagedList<Order>
+                    {
+                        Items = orders,
+                        PageNumber = page,
+                        PageSize = pageSize,
+                        TotalCount = apiResponse.Result.TotalCount
+                    };
+
+                    return Result<PagedList<Order>>.Success(pagedList);
+                }
+            }
+
+            return Result<PagedList<Order>>.Failure("Failed to retrieve sales agent orders");
+        }
+        catch (Exception ex)
+        {
+            return Result<PagedList<Order>>.Failure($"Error retrieving sales agent orders: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<PagedList<Order>>> GetMyCustomerOrdersPagedAsync(
+        int page = 1,
+        int pageSize = 10,
+        string? status = null,
+        string? paymentStatus = null)
+    {
+        try
+        {
+            var response = await _api.GetMyOrdersAsync(
+                pageNumber: page,
+                pageSize: pageSize,
+                status: status,
+                paymentStatus: paymentStatus);
+
+            if (response.IsSuccessStatusCode && response.Content != null)
+            {
+                var apiResponse = response.Content;
+                if (apiResponse.Success && apiResponse.Result != null)
+                {
+                    var orders = apiResponse.Result.Items
+                        .Select(OrderAdapter.ToModel)
+                        .ToList();
+
+                    var pagedList = new PagedList<Order>
+                    {
+                        Items = orders,
+                        PageNumber = page,
+                        PageSize = pageSize,
+                        TotalCount = apiResponse.Result.TotalCount
+                    };
+
+                    return Result<PagedList<Order>>.Success(pagedList);
+                }
+            }
+
+            return Result<PagedList<Order>>.Failure("Failed to retrieve customer orders");
+        }
+        catch (Exception ex)
+        {
+            return Result<PagedList<Order>>.Failure($"Error retrieving customer orders: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<bool>> ProcessCardPaymentAsync(Guid orderId, ProcessCardPaymentRequest request)
+    {
+        try
+        {
+            var response = await _api.ProcessCardPaymentAsync(orderId, request);
+
+            if (response.IsSuccessStatusCode && response.Content != null)
+            {
+                var apiResponse = response.Content;
+                if (apiResponse.Success && apiResponse.Result != null)
+                {
+                    return Result<bool>.Success(apiResponse.Result.Success);
+                }
+            }
+
+            return Result<bool>.Failure("Failed to process card payment");
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error processing card payment: {ex.Message}");
         }
     }
 

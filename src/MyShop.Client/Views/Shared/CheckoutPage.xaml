@@ -3,12 +3,13 @@
     x:Class="MyShop.Client.Views.Shared.CheckoutPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:MyShop.Client.ViewModels.Shared"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     mc:Ignorable="d"
-    Background="#F5F7FA">
+    Background="{ThemeResource LayerFillColorDefaultBrush}">
 
     <Page.Transitions>
         <TransitionCollection>
@@ -24,11 +25,11 @@
         <Style x:Key="CardStyle"
                 TargetType="Border">
             <Setter Property="Background"
-                    Value="White"/>
+                    Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
             <Setter Property="CornerRadius"
                     Value="16"/>
             <Setter Property="BorderBrush"
-                    Value="#D0D7E2"/>
+                    Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
             <Setter Property="BorderThickness"
                     Value="1"/>
             <Setter Property="Padding"
@@ -42,7 +43,7 @@
             <Setter Property="FontWeight"
                     Value="SemiBold"/>
             <Setter Property="Foreground"
-                    Value="#374151"/>
+                    Value="{ThemeResource TextTertiaryBrush}"/>
             <Setter Property="Margin"
                     Value="0,0,0,8"/>
         </Style>
@@ -56,14 +57,14 @@
             <Setter Property="Padding"
                     Value="12,8"/>
             <Setter Property="BorderBrush"
-                    Value="#D0D7E2"/>
+                    Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
             <Setter Property="Background"
-                    Value="White"/>
+                    Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
         </Style>
 
         <DataTemplate x:Key="CheckoutItemTemplate"
                 x:DataType="vm:CheckoutItem">
-            <Grid Padding="0,8">
+            <Grid Padding="{StaticResource Spacing_2_Thickness}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
@@ -72,7 +73,7 @@
 
                 <Border Width="64"
                         Height="64"
-                        Background="#F9FAFB"
+                        Background="{ThemeResource LayerFillColorDefaultBrush}"
                         CornerRadius="8">
                     <Image Stretch="UniformToFill">
                         <Image.Source>
@@ -89,11 +90,11 @@
                     <TextBlock Text="{x:Bind Name}"
                                FontSize="14"
                                FontWeight="SemiBold"
-                               Foreground="#111827"
+                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                TextTrimming="CharacterEllipsis"
                                MaxLines="2"/>
                     <TextBlock FontSize="12"
-                            Foreground="#6B7280">
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                         <Run Text="Qty: "/><Run Text="{x:Bind Quantity}"/>
                     </TextBlock>
                 </StackPanel>
@@ -102,16 +103,72 @@
                            Text="{x:Bind Total, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                            FontSize="14"
                            FontWeight="SemiBold"
-                           Foreground="#111827"
+                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                            VerticalAlignment="Center"/>
             </Grid>
         </DataTemplate>
     </Page.Resources>
 
     <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="ResponsiveStates">
+                
+                <!-- Large Desktop: 1920px+ -->
+                <VisualState x:Name="LargeDesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1920"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="40"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Desktop: 1280-1919px -->
+                <VisualState x:Name="DesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1280"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="32"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet: 960-1279px -->
+                <VisualState x:Name="TabletState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="960"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="24"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet Portrait: 640-959px -->
+                <VisualState x:Name="TabletPortraitState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="640"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="20"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Mobile: 0-639px (Default) -->
+                <VisualState x:Name="MobileState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="16"/>
+                    </VisualState.Setters>
+                </VisualState>
+                
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                 HorizontalScrollBarVisibility="Disabled">
-            <Grid Padding="24"
+            <Grid x:Name="MainContent" Padding="{StaticResource Padding_XL}"
                     MaxWidth="1200"
                     HorizontalAlignment="Center">
                 <Grid.RowDefinitions>
@@ -138,10 +195,10 @@
                             <TextBlock Text="Checkout"
                                        FontSize="28"
                                        FontWeight="Bold"
-                                       Foreground="#1B1D1F"/>
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                             <TextBlock Text="Complete your purchase"
                                        FontSize="14"
-                                       Foreground="#4A5568"/>
+                                       Foreground="{ThemeResource Gray400Brush}"/>
                         </StackPanel>
                     </StackPanel>
                 </Grid>
@@ -164,7 +221,7 @@
                                 <TextBlock Text="Shipping Information"
                                            FontSize="18"
                                            FontWeight="SemiBold"
-                                           Foreground="#111827"/>
+                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
 
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -260,14 +317,25 @@
                             <StackPanel Spacing="16">
                                 <TextBlock FontSize="18"
                                         FontWeight="SemiBold"
-                                        Foreground="#111827">
+                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}">
                                     <Run Text="Order Items ("/>
                                     <Run Text="{x:Bind ViewModel.OrderItems.Count, Mode=OneWay}"/>
                                     <Run Text=")"/>
                                 </TextBlock>
 
-                                <ItemsControl ItemsSource="{x:Bind ViewModel.OrderItems, Mode=OneWay}"
-                                              ItemTemplate="{StaticResource CheckoutItemTemplate}"/>
+                                <!-- ListView with virtualization for better performance -->
+                                <ListView ItemsSource="{x:Bind ViewModel.OrderItems, Mode=OneWay}"
+                                          ItemTemplate="{StaticResource CheckoutItemTemplate}"
+                                          SelectionMode="None"
+                                          IsItemClickEnabled="False"
+                                          MaxHeight="300">
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                            <Setter Property="Padding" Value="0"/>
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                </ListView>
                             </StackPanel>
                         </Border>
 
@@ -281,78 +349,78 @@
                             <TextBlock Text="Order Summary"
                                        FontSize="18"
                                        FontWeight="SemiBold"
-                                       Foreground="#111827"/>
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
 
                             <!-- Price Breakdown -->
                             <StackPanel Spacing="12">
                                 <Grid>
                                     <TextBlock Text="Subtotal"
-                                            Foreground="#6B7280"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                             FontSize="14"/>
                                     <TextBlock Text="{x:Bind ViewModel.Subtotal, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                HorizontalAlignment="Right"
-                                               Foreground="#111827"
+                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                FontSize="14"/>
                                 </Grid>
                                 <Grid>
                                     <TextBlock Text="Shipping"
-                                            Foreground="#6B7280"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                             FontSize="14"/>
                                     <TextBlock Text="{x:Bind ViewModel.Shipping, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                HorizontalAlignment="Right"
-                                               Foreground="#111827"
+                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                FontSize="14"/>
                                 </Grid>
                                 <Grid>
                                     <TextBlock Text="Tax (8%)"
-                                            Foreground="#6B7280"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                             FontSize="14"/>
                                     <TextBlock Text="{x:Bind ViewModel.Tax, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                HorizontalAlignment="Right"
-                                               Foreground="#111827"
+                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                FontSize="14"/>
                                 </Grid>
 
                                 <Border Height="1"
-                                        Background="#E5E7EB"
+                                        Background="{ThemeResource CardStrokeColorDefaultBrush}"
                                         Margin="0,8"/>
 
                                 <Grid>
                                     <TextBlock Text="Total"
                                                FontSize="18"
                                                FontWeight="SemiBold"
-                                               Foreground="#111827"/>
+                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                     <TextBlock Text="{x:Bind ViewModel.Total, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                FontSize="20"
                                                FontWeight="Bold"
                                                HorizontalAlignment="Right"
-                                               Foreground="#2563EB"/>
+                                               Foreground="{ThemeResource SecondaryBlueBrush}"/>
                                 </Grid>
                             </StackPanel>
 
                             <!-- QR Code Payment Section -->
                             <Border Height="1"
-                                    Background="#E5E7EB"
+                                    Background="{ThemeResource CardStrokeColorDefaultBrush}"
                                     Margin="0,8"/>
 
                             <StackPanel Spacing="12">
                                 <TextBlock Text="Payment via QR Code"
                                            FontSize="16"
                                            FontWeight="SemiBold"
-                                           Foreground="#111827"
+                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                            HorizontalAlignment="Center"/>
 
                                 <TextBlock Text="Scan to pay with your banking app"
                                            FontSize="12"
-                                           Foreground="#6B7280"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                            HorizontalAlignment="Center"/>
 
                                 <!-- QR Code Image Only -->
-                                <Border Background="White"
-                                        CornerRadius="12"
-                                        Padding="12"
+                                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                        CornerRadius="8"
+                                        Padding="{StaticResource Padding_MD}"
                                         HorizontalAlignment="Center"
-                                        BorderBrush="#E5E7EB"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         BorderThickness="1">
                                     <Image x:Name="QrCodeImage"
                                            Source="ms-appx:///Assets/payment-qr.png"
@@ -365,47 +433,40 @@
                                 <!-- Fallback placeholder when image fails -->
                                 <Border x:Name="QrPlaceholder"
                                         Visibility="Collapsed"
-                                        Background="#F3F4F6"
-                                        CornerRadius="12"
-                                        Padding="24"
+                                        Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                        CornerRadius="8"
+                                        Padding="{StaticResource Padding_XL}"
                                         HorizontalAlignment="Center">
                                     <StackPanel HorizontalAlignment="Center"
                                             Spacing="8">
                                         <FontIcon Glyph="&#xED14;"
                                                 FontSize="48"
-                                                Foreground="#9CA3AF"/>
+                                                Foreground="{ThemeResource Gray500Brush}"/>
                                         <TextBlock Text="QR Code"
                                                 FontSize="14"
-                                                Foreground="#6B7280"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                    HorizontalAlignment="Center"/>
                                         <TextBlock Text="Add payment-qr.png to Assets"
                                                 FontSize="11"
-                                                Foreground="#9CA3AF"
+                                                Foreground="{ThemeResource Gray500Brush}"
                                                    HorizontalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
                             </StackPanel>
 
                             <!-- Confirm Payment Button -->
-                            <Button Style="{StaticResource PrimaryButtonStyle}"
-                                    Command="{x:Bind ViewModel.ConfirmPaymentCommand}"
-                                    IsEnabled="{x:Bind ViewModel.IsProcessing, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                            <buttons:IconButton
                                     HorizontalAlignment="Stretch"
-                                    Margin="0,16,0,0">
-                                <StackPanel Orientation="Horizontal"
-                                        Spacing="8">
-                                    <ProgressRing IsActive="{x:Bind ViewModel.IsProcessing, Mode=OneWay}"
-                                                  Visibility="{x:Bind ViewModel.IsProcessing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                                                  Width="16"
-                                            Height="16"
-                                                  Foreground="White"/>
-                                    <TextBlock Text="I've Made the Payment"/>
-                                </StackPanel>
-                            </Button>
+                                    Margin="0,16,0,0"
+                                    Variant="Filled"
+                                    IconGlyph="&#xE8FB;"
+                                    Text="I've Made the Payment"
+                                    Command="{x:Bind ViewModel.ConfirmPaymentCommand}"
+                                    IsEnabled="{x:Bind ViewModel.IsProcessing, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
 
                             <TextBlock Text="Your order will be processed once payment is confirmed"
                                        FontSize="11"
-                                       Foreground="#9CA3AF"
+                                       Foreground="{ThemeResource Gray500Brush}"
                                        TextAlignment="Center"
                                        TextWrapping="Wrap"/>
                         </StackPanel>

@@ -141,7 +141,7 @@ public class MockUserRepository : IUserRepository
             // Get current user from token (mock implementation uses first user)
             var users = await MockUserData.GetAllAsync();
             var currentUser = users.FirstOrDefault();
-            
+
             if (currentUser == null)
             {
                 return Result<User>.Failure("User not found");
@@ -162,7 +162,7 @@ public class MockUserRepository : IUserRepository
 
             var updated = await MockUserData.UpdateAsync(currentUser);
             System.Diagnostics.Debug.WriteLine($"[MockUserRepository] Profile updated for user: {updated.Username}");
-            
+
             return Result<User>.Success(updated);
         }
         catch (Exception ex)
@@ -202,7 +202,7 @@ public class MockUserRepository : IUserRepository
             }
 
             System.Diagnostics.Debug.WriteLine($"[MockUserRepository] Password changed successfully");
-            
+
             return Result<bool>.Success(true);
         }
         catch (Exception ex)
@@ -237,7 +237,7 @@ public class MockUserRepository : IUserRepository
 
             var users = await MockUserData.GetAllAsync();
             var currentUser = users.FirstOrDefault();
-            
+
             if (currentUser == null)
             {
                 return Result<User>.Failure("User not found");
@@ -249,13 +249,58 @@ public class MockUserRepository : IUserRepository
 
             var updated = await MockUserData.UpdateAsync(currentUser);
             System.Diagnostics.Debug.WriteLine($"[MockUserRepository] Avatar uploaded: {avatarUrl}");
-            
+
             return Result<User>.Success(updated);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MockUserRepository] UploadAvatar error: {ex.Message}");
             return Result<User>.Failure("Failed to upload avatar", ex);
+        }
+    }
+
+    public async Task<Result<User>> GetByIdAsync(Guid userId)
+    {
+        try
+        {
+            var allUsers = await MockUserData.GetAllAsync();
+            var user = allUsers.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[MockUserRepository] User {userId} not found");
+                return Result<User>.Failure("User not found");
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] GetByIdAsync returned user: {user.Username}");
+            return Result<User>.Success(user);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] GetByIdAsync error: {ex.Message}");
+            return Result<User>.Failure($"Error retrieving user: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<bool>> DeleteUserAsync(Guid userId)
+    {
+        try
+        {
+            var removed = await MockUserData.DeleteAsync(userId);
+
+            if (!removed)
+            {
+                System.Diagnostics.Debug.WriteLine($"[MockUserRepository] User {userId} not found for deletion");
+                return Result<bool>.Failure("User not found");
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] User {userId} deleted successfully");
+            return Result<bool>.Success(removed);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockUserRepository] DeleteUserAsync error: {ex.Message}");
+            return Result<bool>.Failure($"Error deleting user: {ex.Message}");
         }
     }
 }

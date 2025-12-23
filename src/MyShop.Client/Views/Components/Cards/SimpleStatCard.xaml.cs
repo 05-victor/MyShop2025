@@ -13,7 +13,35 @@ public sealed partial class SimpleStatCard : UserControl
     public SimpleStatCard()
     {
         this.InitializeComponent();
+        this.Loaded += OnLoaded;
     }
+    
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        // Apply theme-aware default colors if not explicitly set
+        if (LabelColor == null || LabelColor == GetDefaultLabelBrush())
+        {
+            if (Application.Current.Resources.TryGetValue("TextFillColorSecondaryBrush", out var labelBrush) 
+                && labelBrush is Brush lb)
+            {
+                LabelColor = lb;
+            }
+        }
+        
+        if (ValueColor == null || ValueColor == GetDefaultValueBrush())
+        {
+            if (Application.Current.Resources.TryGetValue("TextFillColorPrimaryBrush", out var valueBrush) 
+                && valueBrush is Brush vb)
+            {
+                ValueColor = vb;
+            }
+        }
+    }
+    
+    private static Brush GetDefaultLabelBrush() => 
+        new SolidColorBrush(Color.FromArgb(255, 107, 114, 128));
+    private static Brush GetDefaultValueBrush() => 
+        new SolidColorBrush(Color.FromArgb(255, 17, 24, 39));
 
     #region Label Property
 

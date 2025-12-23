@@ -1,11 +1,13 @@
 {
   "dashboardSummary": {
-    "date": "2025-11-10",
-    "totalProducts": 12,
-    "todayOrders": 0,
-    "todayRevenue": 0,
-    "weekRevenue": 56460000,
-    "monthRevenue": 243920000,
+    "date": "2025-12-22",
+    "totalProducts": 8,
+    "todayOrders": 2,
+    "totalOrders": 2,
+    "todayRevenue": 15000000,
+    "weekRevenue": 45000000,
+    "monthRevenue": 44588000,
+    "totalRevenue": 44588000,
     "lowStockProducts": [
       {
         "id": "20000000-0000-0000-0000-000000000010",
@@ -42,86 +44,38 @@
     ],
     "topSellingProducts": [
       {
-        "id": "20000000-0000-0000-0000-000000000001",
-        "name": "iPhone 15 Pro 256GB Titanium",
-        "categoryName": "Smartphones",
-        "soldCount": 3,
-        "revenue": 89970000,
-        "imageUrl": "ms-appx:///Assets/Images/products/product-placeholder.png"
-      },
-      {
-        "id": "20000000-0000-0000-0000-000000000006",
-        "name": "Apple Watch Series 9 GPS 45mm",
-        "categoryName": "Wearables",
-        "soldCount": 4,
-        "revenue": 45960000,
-        "imageUrl": "ms-appx:///Assets/Images/products/product-placeholder.png"
-      },
-      {
-        "id": "20000000-0000-0000-0000-000000000008",
-        "name": "Dell XPS 13 Intel Core i7 Gen 13",
-        "categoryName": "Laptops",
+        "id": "d4000000-0000-0000-0000-000000000003",
+        "name": "Sony WH-1000XM5",
+        "categoryName": "Audio",
         "soldCount": 1,
-        "revenue": 38990000,
+        "revenue": 8990000,
         "imageUrl": "ms-appx:///Assets/Images/products/product-placeholder.png"
       },
       {
-        "id": "20000000-0000-0000-0000-000000000002",
-        "name": "Samsung Galaxy S23 Ultra 512GB",
+        "id": "d1000000-0000-0000-0000-000000000003",
+        "name": "Samsung Galaxy S24 Ultra 256GB",
         "categoryName": "Smartphones",
         "soldCount": 1,
         "revenue": 31990000,
-        "imageUrl": "ms-appx:///Assets/Images/products/product-placeholder.png"
-      },
-      {
-        "id": "20000000-0000-0000-0000-000000000003",
-        "name": "AirPods Pro (2nd Generation)",
-        "categoryName": "Accessories",
-        "soldCount": 3,
-        "revenue": 19470000,
         "imageUrl": "ms-appx:///Assets/Images/products/product-placeholder.png"
       }
     ],
     "recentOrders": [
       {
-        "id": "30000000-0000-0000-0000-000000000004",
-        "customerName": "Jane Smith",
-        "orderDate": "2025-11-08T15:20:00Z",
-        "totalAmount": 22980000,
-        "status": "CREATED",
-        "salesAgentName": "Trần Thị Bích Salesman"
+        "id": "e1000000-0000-0000-0000-000000000004",
+        "customerName": "Emily Brown",
+        "orderDate": "2025-12-18T15:18:37.6348Z",
+        "totalAmount": 9369000,
+        "status": "CONFIRMED",
+        "salesAgentName": "Trần Thị Bích SalesAgent"
       },
       {
-        "id": "30000000-0000-0000-0000-000000000003",
-        "customerName": "John Customer Doe",
-        "orderDate": "2025-11-08T09:00:00Z",
-        "totalAmount": 33480000,
-        "status": "CREATED",
-        "salesAgentName": "Trần Thị Bích Salesman"
-      },
-      {
-        "id": "30000000-0000-0000-0000-000000000002",
-        "customerName": "Jane Smith",
-        "orderDate": "2025-11-07T10:15:00Z",
-        "totalAmount": 37980000,
-        "status": "PAID",
-        "salesAgentName": "Trần Thị Bích Salesman"
-      },
-      {
-        "id": "30000000-0000-0000-0000-000000000006",
-        "customerName": "Jane Smith",
-        "orderDate": "2025-11-06T16:30:00Z",
-        "totalAmount": 21000000,
-        "status": "PAID",
-        "salesAgentName": "Trần Thị Bích Salesman"
-      },
-      {
-        "id": "30000000-0000-0000-0000-000000000001",
-        "customerName": "John Customer Doe",
-        "orderDate": "2025-11-05T14:30:00Z",
-        "totalAmount": 29990000,
-        "status": "PAID",
-        "salesAgentName": "Trần Thị Bích Salesman"
+        "id": "e1000000-0000-0000-0000-000000000003",
+        "customerName": "Robert Wilson",
+        "orderDate": "2025-12-16T15:18:37.6348Z",
+        "totalAmount": 35219000,
+        "status": "PROCESSING",
+        "salesAgentName": "Trần Thị Bích SalesAgent"
       }
     ],
     "salesByCategory": [

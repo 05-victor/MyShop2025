@@ -2,12 +2,13 @@
     x:Class="MyShop.Client.Views.Shared.ProfilePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuic="using:Microsoft.UI.Xaml.Controls"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     mc:Ignorable="d"
-    Background="#F5F7FA">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.Transitions>
         <TransitionCollection>
@@ -17,232 +18,331 @@
 
     <Page.Resources>
         <!-- Converters for visibility -->
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
-        <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
-        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
-        <converters:StringToImageSourceConverter x:Key="StringToImageSource" />
-        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
+        <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <converters:StringToImageSourceConverter x:Key="StringToImageSource"/>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
 
-        <!-- Định nghĩa màu sắc và brush để dễ tái sử dụng -->
-        <SolidColorBrush x:Key="TextPrimaryBrush" Color="#111827" />
-        <SolidColorBrush x:Key="TextSecondaryBrush" Color="#6B7280" />
-        <SolidColorBrush x:Key="BorderBrush" Color="#E5E7EB" />
-        <SolidColorBrush x:Key="AdminBlueBrush" Color="#1A4D8F" />
-        <SolidColorBrush x:Key="AdminCyanBrush" Color="#00AEEF" />
-        <SolidColorBrush x:Key="SuccessBrush" Color="#10B981" />
-        <SolidColorBrush x:Key="SuccessBackgroundBrush" Color="#D1FAE5" />
-        <SolidColorBrush x:Key="WarningBrush" Color="#F59E0B" />
-        <SolidColorBrush x:Key="WarningBackgroundBrush" Color="#FEF3C7" />
-        <SolidColorBrush x:Key="DangerBrush" Color="#DC2626" />
-        <SolidColorBrush x:Key="DisabledBackgroundBrush" Color="#F9FAFB" />
+        <!-- Note: Using ThemeResource brushes directly in the page for proper dark/light theme support -->
+        <!-- TextPrimaryBrush → {ThemeResource TextFillColorPrimaryBrush} -->
+        <!-- TextSecondaryBrush → {ThemeResource TextFillColorSecondaryBrush} -->
+        <!-- BorderBrush → {ThemeResource CardStrokeColorDefaultBrush} -->
+        <!-- AdminBlueBrush → {ThemeResource AccentFillColorDefaultBrush} -->
+        <!-- SuccessBrush → {ThemeResource SystemFillColorSuccessBrush} -->
+        <!-- WarningBrush → {ThemeResource SystemFillColorCautionBrush} -->
+        <!-- DisabledBackgroundBrush → {ThemeResource LayerFillColorDefaultBrush} -->
 
-        <LinearGradientBrush x:Key="AdminGradientBrush" StartPoint="0,0" EndPoint="1,0">
-            <GradientStop Color="#1A4D8F" Offset="0.0" />
-            <GradientStop Color="#00AEEF" Offset="1.0" />
+        <LinearGradientBrush x:Key="AdminGradientBrush"
+                             StartPoint="0,0"
+                             EndPoint="1,0">
+            <GradientStop Color="{ThemeResource PrimaryBrush}"
+                          Offset="0.0"/>
+            <GradientStop Color="{ThemeResource AccentBlueBrush}"
+                          Offset="1.0"/>
         </LinearGradientBrush>
 
         <!-- Style cho Card -->
-        <Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Background" Value="White" />
-            <Setter Property="BorderBrush" Value="#D0D7E2" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="16" />
-            <Setter Property="Padding" Value="24" />
+        <Style x:Key="CardStyle"
+               TargetType="Border">
+            <Setter Property="Background"
+                    Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+            <Setter Property="BorderBrush"
+                    Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
+            <Setter Property="BorderThickness"
+                    Value="1"/>
+            <Setter Property="CornerRadius"
+                    Value="16"/>
+            <Setter Property="Padding"
+                    Value="24"/>
             <Setter Property="Shadow">
                 <Setter.Value>
-                    <ThemeShadow />
+                    <ThemeShadow/>
                 </Setter.Value>
             </Setter>
         </Style>
 
         <!-- Style cho các nút hành động phụ -->
-        <Style x:Key="OutlineButtonStyle" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
-            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            <Setter Property="Padding" Value="10,5" />
+        <Style x:Key="OutlineButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource DefaultButtonStyle}">
+            <Setter Property="HorizontalContentAlignment"
+                    Value="Stretch"/>
+            <Setter Property="Padding"
+                    Value="10,5"/>
         </Style>
 
         <!-- Style cho Input -->
-        <Style x:Key="FormInputStyle" TargetType="TextBox">
-            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
-            <Setter Property="PlaceholderForeground" Value="{StaticResource TextSecondaryBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+        <Style x:Key="FormInputStyle"
+               TargetType="TextBox">
+            <Setter Property="Foreground"
+                    Value="{ThemeResource TextFillColorPrimaryBrush}"/>
+            <Setter Property="PlaceholderForeground"
+                    Value="{ThemeResource TextFillColorSecondaryBrush}"/>
+            <Setter Property="BorderBrush"
+                    Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
         </Style>
     </Page.Resources>
 
     <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="ResponsiveStates">
+                
+                <!-- Large Desktop: 1920px+ -->
+                <VisualState x:Name="LargeDesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1920"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainScroller.Padding" Value="40"/>
+                    </VisualState.Setters>
+                </VisualState>
 
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <!-- Desktop: 1280-1919px -->
+                <VisualState x:Name="DesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1280"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainScroller.Padding" Value="32"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet: 960-1279px -->
+                <VisualState x:Name="TabletState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="960"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainScroller.Padding" Value="24"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet Portrait: 640-959px -->
+                <VisualState x:Name="TabletPortraitState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="640"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainScroller.Padding" Value="20"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Mobile: 0-639px (Default) -->
+                <VisualState x:Name="MobileState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainScroller.Padding" Value="16"/>
+                    </VisualState.Setters>
+                </VisualState>
+                
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <ScrollViewer x:Name="MainScroller" VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="0">
                 <!-- Gradient Header Banner -->
                 <Border Height="200">
                     <Border.Background>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#3B82F6" Offset="0.0" />
-                            <GradientStop Color="#8B5CF6" Offset="1.0" />
+                        <LinearGradientBrush StartPoint="0,0"
+                                             EndPoint="1,1">
+                            <GradientStop Color="{ThemeResource PrimaryBrush}"
+                                          Offset="0.0"/>
+                            <GradientStop Color="{ThemeResource PurpleBrush}"
+                                          Offset="1.0"/>
                         </LinearGradientBrush>
                     </Border.Background>
                 </Border>
 
                 <!-- Main Profile Content -->
-                <StackPanel MaxWidth="1400" HorizontalAlignment="Stretch" Margin="48,-80,48,48">
+                <StackPanel MaxWidth="1400"
+                            HorizontalAlignment="Stretch"
+                            Margin="48,-80,48,48">
                     <!-- Profile Card with Avatar -->
-                    <Border Background="White" CornerRadius="16" Padding="32,24,32,24" Margin="0,0,0,24">
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            CornerRadius="8"
+                            Padding="32,24,32,24"
+                            Margin="0,0,0,24">
                         <Border.Shadow>
-                            <ThemeShadow />
+                            <ThemeShadow/>
                         </Border.Shadow>
-                        
+
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <!-- Avatar and Profile Info Section -->
-                            <Grid Grid.Row="0" Padding="0,0,0,24">
+                            <Grid Grid.Row="0"
+                                  Padding="{StaticResource Spacing_6_Thickness}">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
                                 <!-- Avatar with Edit Button -->
-                                <Grid Grid.Column="0" Width="120" Height="120" VerticalAlignment="Top" Margin="0,0,24,0">
-                                    <Border Width="120" Height="120" CornerRadius="60" 
-                                            BorderBrush="White" BorderThickness="4">
+                                <Grid Grid.Column="0"
+                                      Width="120"
+                                      Height="120"
+                                      VerticalAlignment="Top"
+                                      Margin="0,0,24,0">
+                                    <Border Width="120"
+                                            Height="120"
+                                            CornerRadius="60"
+                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                            BorderThickness="3">
                                         <Border.Shadow>
-                                            <ThemeShadow />
+                                            <ThemeShadow/>
                                         </Border.Shadow>
                                         <PersonPicture ProfilePicture="{x:Bind ViewModel.AvatarUrl, Mode=OneWay, Converter={StaticResource StringToImageSource}}"
                                                        Initials="{x:Bind GetInitial(ViewModel.Username), Mode=OneWay}"
-                                                       Width="120" Height="120" />
+                                                       Width="120"
+                                                       Height="120"/>
                                     </Border>
-                                    
+
                                     <!-- Edit Avatar Button -->
-                                    <Button VerticalAlignment="Bottom" HorizontalAlignment="Right"
-                                            Style="{ThemeResource AccentButtonStyle}"
-                                            Background="White" BorderBrush="{StaticResource BorderBrush}" 
-                                            BorderThickness="2"
-                                            Width="36" Height="36" CornerRadius="18" Padding="0"
+                                    <Button VerticalAlignment="Bottom"
+                                            HorizontalAlignment="Right"
+                                            Style="{StaticResource IconButtonStyle}"
                                             Command="{x:Bind ViewModel.PickAvatarCommand}"
                                             ToolTipService.ToolTip="Change avatar">
-                                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE898;" 
-                                                  Foreground="#3B82F6" FontSize="14"/>
+                                        <FontIcon FontFamily="Segoe Fluent Icons"
+                                                  Glyph="&#xE898;"
+                                                  Foreground="{ThemeResource AccentFillColorDefaultBrush}"
+                                                  FontSize="14"/>
                                         <Button.Shadow>
-                                            <ThemeShadow />
+                                            <ThemeShadow/>
                                         </Button.Shadow>
                                     </Button>
                                 </Grid>
 
                                 <!-- Name and Contact Info -->
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="8">
-                                    <StackPanel Orientation="Horizontal" Spacing="12">
-                                        <TextBlock Text="{x:Bind ViewModel.FullName, Mode=OneWay, FallbackValue='User'}" 
-                                                   FontSize="28" FontWeight="Bold" 
-                                                   Foreground="{StaticResource TextPrimaryBrush}"/>
-                                        <Border Background="#E0F2FE" CornerRadius="12" 
-                                                Padding="10,4" VerticalAlignment="Center">
-                                            <TextBlock Text="{x:Bind ViewModel.RoleDisplay, Mode=OneWay, FallbackValue='User'}" FontSize="13" 
-                                                       Foreground="#0284C7" FontWeight="SemiBold"/>
+                                <StackPanel Grid.Column="1"
+                                            VerticalAlignment="Center"
+                                            Spacing="8">
+                                    <StackPanel Orientation="Horizontal"
+                                                Spacing="12">
+                                        <TextBlock Text="{x:Bind ViewModel.FullName, Mode=OneWay, FallbackValue='User'}"
+                                                   FontSize="28"
+                                                   FontWeight="Bold"
+                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                        <Border Background="{ThemeResource InfoBlueLightBrush}"
+                                                CornerRadius="8"
+                                                Padding="10,4"
+                                                VerticalAlignment="Center">
+                                            <TextBlock Text="{x:Bind ViewModel.RoleDisplay, Mode=OneWay, FallbackValue='User'}"
+                                                       FontSize="13"
+                                                       Foreground="{ThemeResource AccentBlueBrush}"
+                                                       FontWeight="SemiBold"/>
                                         </Border>
                                     </StackPanel>
-                                    <TextBlock Text="{x:Bind ViewModel.UsernameDisplay, Mode=OneWay, FallbackValue='@user'}" FontSize="15" 
-                                               Foreground="{StaticResource TextSecondaryBrush}"/>
-                                    <TextBlock Text="{x:Bind ViewModel.JobTitle, Mode=OneWay, FallbackValue='MyShop User | Managing your account'}" 
-                                               FontSize="13" Foreground="{StaticResource TextSecondaryBrush}"
-                                               TextWrapping="Wrap"/>
-                                    
+                                    <TextBlock Text="{x:Bind ViewModel.UsernameDisplay, Mode=OneWay, FallbackValue='@user'}"
+                                               FontSize="15"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    <TextBlock Text="MyShop User | Managing your account"
+                                               FontSize="13"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+
                                     <!-- Contact Info -->
-                                    <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,4,0,0" FlowDirection="LeftToRight">
-                                        <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE715;" 
-                                                      FontSize="14" Foreground="#3B82F6"/>
-                                            <TextBlock Text="{x:Bind ViewModel.Email, Mode=OneWay}" FontSize="13" 
-                                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <StackPanel Orientation="Horizontal"
+                                                Spacing="16"
+                                                Margin="0,4,0,0"
+                                                FlowDirection="LeftToRight">
+                                        <StackPanel Orientation="Horizontal"
+                                                    Spacing="6">
+                                            <FontIcon FontFamily="Segoe Fluent Icons"
+                                                      Glyph="&#xE715;"
+                                                      FontSize="14"
+                                                      Foreground="{ThemeResource PrimaryBrush}"/>
+                                            <TextBlock Text="{x:Bind ViewModel.Email, Mode=OneWay}"
+                                                       FontSize="13"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         </StackPanel>
-                                        <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE717;" 
-                                                      FontSize="14" Foreground="#3B82F6"/>
-                                            <TextBlock Text="{x:Bind ViewModel.PhoneNumber, Mode=OneWay, FallbackValue='+84 987 654 321'}" FontSize="13" 
-                                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        <StackPanel Orientation="Horizontal"
+                                                    Spacing="6">
+                                            <FontIcon FontFamily="Segoe Fluent Icons"
+                                                      Glyph="&#xE717;"
+                                                      FontSize="14"
+                                                      Foreground="{ThemeResource PrimaryBrush}"/>
+                                            <TextBlock Text="{x:Bind ViewModel.PhoneNumber, Mode=OneWay, FallbackValue='+84 987 654 321'}"
+                                                       FontSize="13"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         </StackPanel>
-                                        <StackPanel Orientation="Horizontal" Spacing="6"
+                                        <StackPanel Orientation="Horizontal"
+                                                    Spacing="6"
                                                     Visibility="{x:Bind ViewModel.Address, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
-                                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE707;" 
-                                                      FontSize="14" Foreground="#3B82F6"/>
-                                            <TextBlock Text="{x:Bind ViewModel.Address, Mode=OneWay}" FontSize="13" 
-                                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                            <FontIcon FontFamily="Segoe Fluent Icons"
+                                                      Glyph="&#xE707;"
+                                                      FontSize="14"
+                                                      Foreground="{ThemeResource PrimaryBrush}"/>
+                                            <TextBlock Text="{x:Bind ViewModel.Address, Mode=OneWay}"
+                                                       FontSize="13"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         </StackPanel>
                                     </StackPanel>
                                 </StackPanel>
 
                                 <!-- Action Buttons -->
-                                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="12" 
+                                <StackPanel Grid.Column="2"
+                                            Orientation="Horizontal"
+                                            Spacing="12"
                                             VerticalAlignment="Center">
-                                    <Button MinWidth="130" Height="40" IsEnabled="False"
-                                            ToolTipService.ToolTip="Coming soon - Public profile view">
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE890;" FontSize="16"/>
-                                            <TextBlock Text="View as Public" VerticalAlignment="Center" FontSize="13"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <Button Style="{ThemeResource AccentButtonStyle}" 
-                                            Background="#3B82F6" MinWidth="130" Height="40"
-                                            Click="EditButton_Click">
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE70F;" FontSize="16"/>
-                                            <TextBlock Text="Edit Profile" VerticalAlignment="Center" FontSize="13"/>
-                                        </StackPanel>
-                                    </Button>
+
+                                    <buttons:IconButton
+                                            MinWidth="130"
+                                            Variant="Filled"
+                                            IconGlyph="&#xE70F;"
+                                            Text="Edit Profile"
+                                            Click="EditButton_Click"/>
                                 </StackPanel>
                             </Grid>
-
-                            <!-- Stats Section - Hidden until data binding is implemented
-                            <Border Grid.Row="1" BorderBrush="{StaticResource BorderBrush}" 
-                                    BorderThickness="0,1,0,0" Padding="0,24,0,0" Visibility="Collapsed">
-                                <Grid ColumnSpacing="48">
-                                    ... Stats will be bound to real data when API is ready ...
-                                </Grid>
-                            </Border>
-                            -->
                         </Grid>
                     </Border>
 
                     <!-- Avatar Upload Controls (visible when image is selected) -->
-                    <StackPanel Spacing="12" HorizontalAlignment="Center" Margin="0,0,0,24"
+                    <StackPanel Spacing="12"
+                                HorizontalAlignment="Center"
+                                Margin="0,0,0,24"
                                 Visibility="{x:Bind ViewModel.SelectedAvatarFile, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
                         <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                 BorderThickness="1"
                                 CornerRadius="8"
-                                Padding="12">
+                                Padding="{StaticResource Padding_MD}">
                             <StackPanel Spacing="8">
-                                <StackPanel Spacing="4" HorizontalAlignment="Center">
-                                    <TextBlock Text="New avatar selected" 
-                                               FontSize="14" 
-                                               FontWeight="SemiBold" 
-                                               Foreground="{StaticResource TextPrimaryBrush}"
+                                <StackPanel Spacing="4"
+                                            HorizontalAlignment="Center">
+                                    <TextBlock Text="New avatar selected"
+                                               FontSize="14"
+                                               FontWeight="SemiBold"
+                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                TextAlignment="Center"/>
-                                    <TextBlock Text="{x:Bind ViewModel.SelectedAvatarFile.Name, Mode=OneWay}" 
-                                               FontSize="12" 
-                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                    <TextBlock Text="{x:Bind ViewModel.SelectedAvatarFile.Name, Mode=OneWay}"
+                                               FontSize="12"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                TextAlignment="Center"
                                                MaxWidth="300"
                                                TextTrimming="CharacterEllipsis"/>
                                 </StackPanel>
-                                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                                    <Button Style="{ThemeResource AccentButtonStyle}"
+                                <StackPanel Orientation="Horizontal"
+                                            Spacing="8"
+                                            HorizontalAlignment="Center">
+                                    <buttons:IconButton
+                                            Variant="Filled"
+                                            IconGlyph="&#xE898;"
+                                            Text="Upload"
                                             Command="{x:Bind ViewModel.UploadAvatarCommand}"
-                                            IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}">
-                                        <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE898;" FontSize="14"/>
-                                            <TextBlock Text="Upload" />
-                                        </StackPanel>
-                                    </Button>
-                                    <Button Content="Cancel" 
+                                            IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
+                                    <Button Style="{StaticResource SecondaryButtonStyle}"
+                                            Content="Cancel"
                                             Click="CancelAvatarButton_Click"
                                             IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
                                 </StackPanel>
-                                <ProgressBar IsIndeterminate="True" 
+                                <ProgressBar IsIndeterminate="True"
                                              Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibility}}"
                                              Margin="0,8,0,0"/>
                             </StackPanel>
@@ -253,14 +353,16 @@
                     <InfoBar Title="Email Verification Required"
                              Message="Please verify your email address to ensure account security and receive system notifications."
                              Severity="Warning"
-                             BorderBrush="{StaticResource WarningBrush}"
-                             Background="{StaticResource WarningBackgroundBrush}"
+                             BorderBrush="{ThemeResource SystemFillColorCautionBrush}"
+                             Background="{ThemeResource SystemFillColorCautionBackgroundBrush}"
                              IsOpen="{x:Bind ViewModel.IsEmailVerified, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
                              IsClosable="False"
                              Margin="0,0,0,24">
                         <InfoBar.Content>
-                            <StackPanel Orientation="Horizontal" Spacing="4">
-                                <HyperlinkButton Content="Resend verification email" Click="ResendVerificationButton_Click" />
+                            <StackPanel Orientation="Horizontal"
+                                        Spacing="4">
+                                <HyperlinkButton Content="Resend verification email"
+                                                 Click="ResendVerificationButton_Click"/>
                             </StackPanel>
                         </InfoBar.Content>
                     </InfoBar>
@@ -268,141 +370,233 @@
                     <InfoBar Title="Email Verified"
                              Message="Your email address has been verified. You have full access to all admin features."
                              Severity="Success"
-                             BorderBrush="{StaticResource SuccessBrush}"
-                             Background="{StaticResource SuccessBackgroundBrush}"
+                             BorderBrush="{ThemeResource SystemFillColorSuccessBrush}"
+                             Background="{ThemeResource SystemFillColorSuccessBackgroundBrush}"
                              IsOpen="{x:Bind ViewModel.IsEmailVerified, Mode=OneWay}"
                              IsClosable="False"
                              Margin="0,0,0,24"/>
 
                     <!-- Content Sections -->
                     <StackPanel Spacing="24">
-                    <!-- Personal Information -->
-                    <Border Style="{StaticResource CardStyle}">
-                        <StackPanel Spacing="24">
-                            <!-- Card Header -->
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE77B;" FontSize="20" Foreground="{StaticResource AdminBlueBrush}"/>
-                                    <TextBlock Text="Personal Information" Style="{ThemeResource SubtitleTextBlockStyle}" VerticalAlignment="Center" Foreground="{StaticResource TextPrimaryBrush}"/>
-                                </StackPanel>
-
-                                <!-- Edit/Save/Cancel Buttons -->
-                                <Button Grid.Column="1" Content="Edit Profile" Click="EditButton_Click"
-                                        Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
-                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8"
-                                            Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
-                                    <Button Content="Cancel" Click="CancelButton_Click" />
-                                    <Button Style="{ThemeResource AccentButtonStyle}" Background="{StaticResource AdminBlueBrush}" Click="SaveButton_Click">
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74E;" FontSize="16"/>
-                                            <TextBlock Text="Save Changes" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Button>
-                                </StackPanel>
-                            </Grid>
-
-                            <!-- Form Fields -->
-                            <Grid ColumnSpacing="24" RowSpacing="24">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-
-                                <TextBox Grid.Row="0" Grid.Column="0" Header="First Name" Text="{x:Bind ViewModel.FirstName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
-                                <TextBox Grid.Row="0" Grid.Column="1" Header="Last Name" Text="{x:Bind ViewModel.LastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
-                                <TextBox Grid.Row="1" Grid.Column="0" Header="Username" Text="{x:Bind ViewModel.Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
-                                
-                                <!-- Email with Badge -->
-                                <StackPanel Grid.Row="1" Grid.Column="1">
-                                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,4">
-                                        <TextBlock Text="Email" />
-                                        <Border BorderBrush="{StaticResource SuccessBrush}" BorderThickness="1" CornerRadius="12" Padding="8,2"
-                                                Visibility="{x:Bind ViewModel.IsEmailVerified, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
-                                            <StackPanel Orientation="Horizontal" Spacing="4">
-                                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE930;" FontSize="12" Foreground="{StaticResource SuccessBrush}"/>
-                                                <TextBlock Text="Verified" FontSize="12" Foreground="{StaticResource SuccessBrush}"/>
-                                            </StackPanel>
-                                        </Border>
-                                        <Border BorderBrush="{StaticResource WarningBrush}" BorderThickness="1" CornerRadius="12" Padding="8,2"
-                                                Visibility="{x:Bind ViewModel.IsEmailVerified, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                            <StackPanel Orientation="Horizontal" Spacing="4">
-                                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE715;" FontSize="12" Foreground="{StaticResource WarningBrush}"/>
-                                                <TextBlock Text="Unverified" FontSize="12" Foreground="{StaticResource WarningBrush}"/>
-                                            </StackPanel>
-                                        </Border>
-                                    </StackPanel>
-                                    <TextBox Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
-                                </StackPanel>
-                                
-                                <TextBox Grid.Row="2" Grid.Column="0" Header="Phone Number" Text="{x:Bind ViewModel.PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
-                                <TextBox Grid.Row="2" Grid.Column="1" Header="Department" Text="{x:Bind ViewModel.Department, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
-                                <TextBox Grid.Row="3" Grid.ColumnSpan="2" Header="Job Title" Text="{x:Bind ViewModel.JobTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
-                            </Grid>
-                        </StackPanel>
-                    </Border>
-                    
-                    <!-- Account Security -->
-                    <Border Style="{StaticResource CardStyle}">
-                        <StackPanel Spacing="16">
-                            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" Margin="0,0,0,8">
-                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE825;" FontSize="20" Foreground="{StaticResource AdminBlueBrush}"/>
-                                <TextBlock Text="Account Security" Style="{ThemeResource SubtitleTextBlockStyle}" VerticalAlignment="Center" Foreground="{StaticResource TextPrimaryBrush}"/>
-                            </StackPanel>
-
-                            <Border Background="{StaticResource DisabledBackgroundBrush}" CornerRadius="6" Padding="16">
+                        <!-- Personal Information -->
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel Spacing="24">
+                                <!-- Card Header -->
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="Password" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                                        <TextBlock Text="Update your password regularly for security" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <StackPanel Orientation="Horizontal"
+                                                Spacing="8"
+                                                VerticalAlignment="Center">
+                                        <FontIcon FontFamily="Segoe Fluent Icons"
+                                                  Glyph="&#xE77B;"
+                                                  FontSize="20"
+                                                  Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                                        <TextBlock Text="Personal Information"
+                                                   Style="{ThemeResource SubtitleTextBlockStyle}"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                     </StackPanel>
-                                    <Button Grid.Column="1" Content="Change Password" Click="ChangePasswordButton_Click"
-                                            ToolTipService.ToolTip="Change your account password" />
-                                </Grid>
-                            </Border>
 
-                            <Border Background="{StaticResource DisabledBackgroundBrush}" CornerRadius="6" Padding="16">
-                                <Grid>
-                                    <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="Two-Factor Authentication" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                                        <TextBlock Text="Add an extra layer of security" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <!-- Edit/Save/Cancel Buttons -->
+                                    <Button Grid.Column="1"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            Content="Edit Profile"
+                                            Click="EditButton_Click"
+                                            Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                                    <StackPanel Grid.Column="1"
+                                                Orientation="Horizontal"
+                                                Spacing="8"
+                                                Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
+                                        <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                Content="Cancel"
+                                                Click="CancelButton_Click"/>
+                                        <buttons:IconButton
+                                                Variant="Filled"
+                                                IconGlyph="&#xE74E;"
+                                                Text="Save Changes"
+                                                Click="SaveButton_Click"/>
                                     </StackPanel>
-                                    <Button Grid.Column="1" Content="Enable" HorizontalAlignment="Right"
-                                            IsEnabled="False" ToolTipService.ToolTip="Coming soon - 2FA support"/>
                                 </Grid>
-                            </Border>
 
-                            <Border Background="{StaticResource DisabledBackgroundBrush}" CornerRadius="6" Padding="16">
-                                <Grid>
-                                    <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="Active Sessions" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                                        <TextBlock Text="Manage your active sessions" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <!-- Form Fields -->
+                                <Grid ColumnSpacing="24"
+                                      RowSpacing="24">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Full Name (spans 2 columns) -->
+                                    <TextBox Grid.Row="0"
+                                             Grid.ColumnSpan="2"
+                                             Header="Full Name"
+                                             Text="{x:Bind ViewModel.FullName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource FormInputStyle}"
+                                             IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
+
+                                    <!-- Phone Number (left) -->
+                                    <TextBox Grid.Row="1"
+                                             Grid.Column="0"
+                                             Header="Phone Number"
+                                             Text="{x:Bind ViewModel.PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource FormInputStyle}"
+                                             IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
+
+                                    <!-- Email with Badge (right) -->
+                                    <StackPanel Grid.Row="1"
+                                                Grid.Column="1">
+                                        <StackPanel Orientation="Horizontal"
+                                                    Spacing="8"
+                                                    Margin="0,0,0,4">
+                                            <TextBlock Text="Email"/>
+                                            <Border BorderBrush="{ThemeResource SystemFillColorSuccessBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="8"
+                                                    Padding="8,2"
+                                                    Visibility="{x:Bind ViewModel.IsEmailVerified, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
+                                                <StackPanel Orientation="Horizontal"
+                                                            Spacing="4">
+                                                    <FontIcon FontFamily="Segoe Fluent Icons"
+                                                              Glyph="&#xE930;"
+                                                              FontSize="12"
+                                                              Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
+                                                    <TextBlock Text="Verified"
+                                                               FontSize="12"
+                                                               Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
+                                                </StackPanel>
+                                            </Border>
+                                            <Border BorderBrush="{ThemeResource SystemFillColorCautionBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="8"
+                                                    Padding="8,2"
+                                                    Visibility="{x:Bind ViewModel.IsEmailVerified, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                                <StackPanel Orientation="Horizontal"
+                                                            Spacing="4">
+                                                    <FontIcon FontFamily="Segoe Fluent Icons"
+                                                              Glyph="&#xE715;"
+                                                              FontSize="12"
+                                                              Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+                                                    <TextBlock Text="Unverified"
+                                                               FontSize="12"
+                                                               Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </StackPanel>
+                                        <TextBox Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource FormInputStyle}"
+                                                 IsEnabled="{x:Bind ViewModel.CanEditEmail, Mode=OneWay}"/>
+
                                     </StackPanel>
-                                    <Button Grid.Column="1" Content="View Sessions" HorizontalAlignment="Right"
-                                            IsEnabled="False" ToolTipService.ToolTip="Coming soon - Session management"/>
-                                </Grid>
-                            </Border>
-                        </StackPanel>
-                    </Border>
 
-                    <!-- Activity Log - Hidden until activity tracking is implemented -->
-                    <!-- 
+                                    <!-- Address (spans 2 columns) -->
+                                    <TextBox Grid.Row="2"
+                                             Grid.ColumnSpan="2"
+                                             Header="Address"
+                                             Text="{x:Bind ViewModel.Address, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource FormInputStyle}"
+                                             IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Account Security -->
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel Spacing="16">
+                                <StackPanel Orientation="Horizontal"
+                                            Spacing="8"
+                                            VerticalAlignment="Center"
+                                            Margin="0,0,0,8">
+                                    <FontIcon FontFamily="Segoe Fluent Icons"
+                                              Glyph="&#xE825;"
+                                              FontSize="20"
+                                              Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                                    <TextBlock Text="Account Security"
+                                               Style="{ThemeResource SubtitleTextBlockStyle}"
+                                               VerticalAlignment="Center"
+                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                </StackPanel>
+
+                                <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                        CornerRadius="4"
+                                        Padding="{StaticResource Padding_LG}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="Password"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                            <TextBlock Text="Update your password regularly for security"
+                                                       FontSize="12"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        </StackPanel>
+                                        <Button Grid.Column="1"
+                                                Style="{StaticResource SecondaryButtonStyle}"
+                                                Content="Change Password"
+                                                Click="ChangePasswordButton_Click"
+                                                ToolTipService.ToolTip="Change your account password"/>
+                                    </Grid>
+                                </Border>
+
+                                <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                        CornerRadius="4"
+                                        Padding="{StaticResource Padding_LG}">
+                                    <Grid>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="Two-Factor Authentication"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                            <TextBlock Text="Add an extra layer of security"
+                                                       FontSize="12"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        </StackPanel>
+                                        <Button Grid.Column="1"
+                                                Style="{StaticResource SecondaryButtonStyle}"
+                                                Content="Enable"
+                                                HorizontalAlignment="Right"
+                                                IsEnabled="False"
+                                                ToolTipService.ToolTip="Coming soon - 2FA support"/>
+                                    </Grid>
+                                </Border>
+
+                                <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                        CornerRadius="4"
+                                        Padding="{StaticResource Padding_LG}">
+                                    <Grid>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="Active Sessions"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                            <TextBlock Text="Manage your active sessions"
+                                                       FontSize="12"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        </StackPanel>
+                                        <Button Grid.Column="1"
+                                                Style="{StaticResource SecondaryButtonStyle}"
+                                                Content="View Sessions"
+                                                HorizontalAlignment="Right"
+                                                IsEnabled="False"
+                                                ToolTipService.ToolTip="Coming soon - Session management"/>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Activity Log - Hidden until activity tracking is implemented -->
+                        <!-- 
                     <Border Style="{StaticResource CardStyle}">
                         <StackPanel Spacing="16">
-                            <TextBlock Text="Recent Activity" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="{StaticResource TextPrimaryBrush}"/>
+                            <TextBlock Text="Recent Activity" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                             TODO: Add ItemsSource binding to activity list from ViewModel when API is ready
                         </StackPanel>
                     </Border>

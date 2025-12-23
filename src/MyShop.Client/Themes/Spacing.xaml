@@ -25,6 +25,25 @@
     <x:Double x:Key="Spacing_24">96</x:Double>      <!-- 96px -->
     <x:Double x:Key="Spacing_32">128</x:Double>     <!-- 128px -->
 
+    <!-- Thickness variants for Padding, Margin properties -->
+    <Thickness x:Key="Spacing_0_Thickness">0</Thickness>
+    <Thickness x:Key="Spacing_0.5_Thickness">2</Thickness>      <!-- 2px -->
+    <Thickness x:Key="Spacing_1_Thickness">4</Thickness>        <!-- 4px -->
+    <Thickness x:Key="Spacing_1.5_Thickness">6</Thickness>      <!-- 6px -->
+    <Thickness x:Key="Spacing_2_Thickness">8</Thickness>        <!-- 8px -->
+    <Thickness x:Key="Spacing_2.5_Thickness">10</Thickness>     <!-- 10px -->
+    <Thickness x:Key="Spacing_3_Thickness">12</Thickness>       <!-- 12px -->
+    <Thickness x:Key="Spacing_4_Thickness">16</Thickness>       <!-- 16px -->
+    <Thickness x:Key="Spacing_5_Thickness">20</Thickness>       <!-- 20px -->
+    <Thickness x:Key="Spacing_6_Thickness">24</Thickness>       <!-- 24px -->
+    <Thickness x:Key="Spacing_7_Thickness">28</Thickness>       <!-- 28px -->
+    <Thickness x:Key="Spacing_8_Thickness">32</Thickness>       <!-- 32px -->
+    <Thickness x:Key="Spacing_10_Thickness">40</Thickness>      <!-- 40px -->
+    <Thickness x:Key="Spacing_12_Thickness">48</Thickness>      <!-- 48px -->
+    <Thickness x:Key="Spacing_16_Thickness">64</Thickness>      <!-- 64px -->
+    <Thickness x:Key="Spacing_20_Thickness">80</Thickness>      <!-- 80px -->
+    <Thickness x:Key="Spacing_24_Thickness">96</Thickness>      <!-- 96px -->
+    <Thickness x:Key="Spacing_32_Thickness">128</Thickness>     <!-- 128px -->
 
     <!-- ============================================= -->
     <!-- PADDING THICKNESS                            -->

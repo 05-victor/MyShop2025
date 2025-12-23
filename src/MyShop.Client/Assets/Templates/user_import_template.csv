@@ -1,0 +1,4 @@
+Email,FullName,Role,Phone,IsActive
+john.doe@example.com,John Doe,Customer,+1234567890,true
+jane.smith@example.com,Jane Smith,SalesAgent,+0987654321,true
+admin@myshop.com,Admin User,Admin,+1122334455,true

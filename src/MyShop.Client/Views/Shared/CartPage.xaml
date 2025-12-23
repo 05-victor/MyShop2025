@@ -3,13 +3,13 @@
     x:Class="MyShop.Client.Views.Shared.CartPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:MyShop.Client.ViewModels.Shared"
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
-    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
-    Background="#F5F7FA"
+    Background="{ThemeResource LayerFillColorDefaultBrush}"
     mc:Ignorable="d">
 
     <Page.Transitions>
@@ -27,8 +27,64 @@
     </Page.Resources>
 
     <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="ResponsiveStates">
+                
+                <!-- Large Desktop: 1920px+ -->
+                <VisualState x:Name="LargeDesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1920"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="40"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Desktop: 1280-1919px -->
+                <VisualState x:Name="DesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1280"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="32"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet: 960-1279px -->
+                <VisualState x:Name="TabletState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="960"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="24"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet Portrait: 640-959px -->
+                <VisualState x:Name="TabletPortraitState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="640"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="20"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Mobile: 0-639px (Default) -->
+                <VisualState x:Name="MobileState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="16"/>
+                    </VisualState.Setters>
+                </VisualState>
+                
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <Grid Padding="24"
+            <Grid x:Name="MainContent" Padding="{StaticResource Padding_XL}"
                   RowSpacing="16">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -51,7 +107,7 @@
                                 Variant="Outline"
                                 IconGlyph="&#xE74D;"
                                 Text="Clear Cart"
-                                IconColor="#DC2626"
+                                IconColor="{ThemeResource ErrorRedBrush}"
                                 Command="{x:Bind ViewModel.ClearCartCommand}"/>
                         </StackPanel>
                     </layout:PageHeader.ActionContent>
@@ -80,47 +136,52 @@
                                     <Grid>
                                         <Ellipse Width="120"
                                                  Height="120"
-                                                 Fill="#F3F4F6"/>
+                                                 Fill="{ThemeResource SubtleFillColorSecondaryBrush}"/>
                                         <FontIcon
                                             FontSize="64"
-                                            Foreground="#9CA3AF"
+                                            Foreground="{ThemeResource Gray500Brush}"
                                             Glyph="&#xE7BF;"/>
                                     </Grid>
                                 </Viewbox>
                                 <TextBlock
                                     FontSize="20"
                                     FontWeight="SemiBold"
-                                    Foreground="#374151"
+                                    Foreground="{ThemeResource TextTertiaryBrush}"
                                     Text="Your cart is empty"
                                     TextAlignment="Center"/>
                                 <TextBlock
                                     FontSize="14"
-                                    Foreground="#6B7280"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                     Text="Browse products and add items to start shopping"
                                     TextAlignment="Center"
                                     MaxWidth="300"
                                     TextWrapping="Wrap"/>
 
-                                <Button Style="{StaticResource PrimaryButtonStyle}"
+                                <buttons:IconButton
                                         Margin="0,12,0,0"
                                         MinWidth="160"
+                                        Variant="Filled"
+                                        IconGlyph="&#xE719;"
+                                        Text="Start Shopping"
                                         Command="{x:Bind ViewModel.ContinueShoppingCommand}"
-                                        ToolTipService.ToolTip="Browse available products">
-                                    <StackPanel Orientation="Horizontal"
-                                                Spacing="8">
-                                        <FontIcon FontSize="16"
-                                                  Glyph="&#xE719;"/>
-                                        <TextBlock Text="Start Shopping"/>
-                                    </StackPanel>
-                                </Button>
+                                        Tooltip="Browse available products"/>
                             </StackPanel>
                         </Border>
 
                         <!--  Cart Items List  -->
-                        <!-- Changed to {Binding} for dynamic cart data -->
-                        <ItemsControl x:Name="CartItemsControl"
-                                      ItemsSource="{Binding Items, Mode=OneWay}">
-                            <ItemsControl.ItemTemplate>
+                        <!-- ListView with virtualization for performance -->
+                        <ListView x:Name="CartItemsListView"
+                                  ItemsSource="{Binding Items, Mode=OneWay}"
+                                  SelectionMode="None"
+                                  IsItemClickEnabled="False">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                    <Setter Property="Padding" Value="0"/>
+                                    <Setter Property="Margin" Value="0"/>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.ItemTemplate>
                                 <DataTemplate x:DataType="vm:CartItemViewModel">
                                     <Border Margin="0,0,0,16"
                                             Style="{StaticResource CardWithShadowStyle}">
@@ -131,15 +192,20 @@
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <!--  Product Image  -->
+                                            <!--  Product Image with DecodePixelWidth optimization  -->
                                             <Border
                                                 Width="96"
                                                 Height="96"
                                                 Margin="0,0,16,0"
-                                                Background="#F9FAFB"
+                                                Background="{ThemeResource LayerFillColorDefaultBrush}"
                                                 CornerRadius="8">
-                                                <Image Source="{x:Bind ImageUrl}"
-                                                       Stretch="UniformToFill"/>
+                                                <Image Stretch="UniformToFill">
+                                                    <Image.Source>
+                                                        <BitmapImage UriSource="{x:Bind ImageUrl}"
+                                                                     DecodePixelWidth="192"
+                                                                     DecodePixelType="Logical"/>
+                                                    </Image.Source>
+                                                </Image>
                                             </Border>
 
                                             <!--  Product Info  -->
@@ -150,11 +216,11 @@
                                                 <TextBlock
                                                     FontSize="16"
                                                     FontWeight="SemiBold"
-                                                    Foreground="#111827"
+                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                     Text="{x:Bind Name}"/>
                                                 <TextBlock
                                                     FontSize="12"
-                                                    Foreground="#6B7280"
+                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                     Text="{x:Bind Category}"/>
 
                                                 <!--  Quantity Controls  -->
@@ -163,50 +229,44 @@
                                                     Orientation="Horizontal"
                                                     Spacing="12">
                                                     <Button
+                                                        Style="{StaticResource SecondaryButtonStyle}"
                                                         Width="32"
                                                         Height="32"
-                                                        Padding="0"
-                                                        Background="White"
-                                                        BorderBrush="#E5E7EB"
-                                                        Command="{Binding ElementName=CartItemsControl, Path=DataContext.DecreaseQuantityCommand}"
-                                                        CommandParameter="{x:Bind}"
-                                                        CornerRadius="6">
+                                                        Padding="{StaticResource Padding_None}"
+                                                        Command="{Binding ElementName=CartItemsListView, Path=DataContext.DecreaseQuantityCommand}"
+                                                        CommandParameter="{x:Bind}">
                                                         <FontIcon FontSize="12"
                                                                   Glyph="&#xE738;"/>
                                                     </Button>
                                                     <Border
                                                         Width="60"
                                                         Padding="12,6"
-                                                        BorderBrush="#E5E7EB"
+                                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                                         BorderThickness="1"
                                                         CornerRadius="8">
                                                         <TextBlock
-                                                            Foreground="#111827"
+                                                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                             Text="{x:Bind Quantity, Mode=OneWay}"
                                                             TextAlignment="Center"/>
                                                     </Border>
-                                                    <Button Width="32"
-                                                            Height="32"
-                                                            Padding="0"
-                                                            Background="#1A4D8F"
-                                                            BorderThickness="0"
-                                                            Command="{Binding ElementName=CartItemsControl, Path=DataContext.IncreaseQuantityCommand}"
-                                                            CommandParameter="{x:Bind}"
-                                                            CornerRadius="8"
-                                                            Foreground="White">
+                                                    <Button
+                                                        Style="{StaticResource PrimaryButtonStyle}"
+                                                        Width="32"
+                                                        Height="32"
+                                                        Padding="{StaticResource Padding_None}"
+                                                        Command="{Binding ElementName=CartItemsListView, Path=DataContext.IncreaseQuantityCommand}"
+                                                        CommandParameter="{x:Bind}">
                                                         <FontIcon FontSize="12"
                                                                   Glyph="&#xE710;"/>
                                                     </Button>
                                                     <Button
+                                                        Style="{StaticResource IconButtonStyle}"
                                                         Margin="12,0,0,0"
-                                                        Padding="8"
-                                                        Background="Transparent"
-                                                        BorderBrush="Transparent"
-                                                        Command="{Binding ElementName=CartItemsControl, Path=DataContext.RemoveItemCommand}"
+                                                        Command="{Binding ElementName=CartItemsListView, Path=DataContext.RemoveItemCommand}"
                                                         CommandParameter="{x:Bind}">
                                                         <FontIcon
                                                             FontSize="16"
-                                                            Foreground="#DC2626"
+                                                            Foreground="{ThemeResource ErrorRedBrush}"
                                                             Glyph="&#xE74D;"/>
                                                     </Button>
                                                 </StackPanel>
@@ -220,27 +280,27 @@
                                                 <TextBlock
                                                     FontSize="20"
                                                     FontWeight="Bold"
-                                                    Foreground="#111827"
+                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                     Text="{x:Bind Price, Converter={StaticResource CurrencyConverter}}"
                                                     TextAlignment="Right"/>
                                                 <TextBlock
                                                     FontSize="12"
-                                                    Foreground="#6B7280"
+                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                     Text="each"
                                                     TextAlignment="Right"/>
                                                 <TextBlock
                                                     Margin="0,8,0,0"
                                                     FontSize="14"
                                                     FontWeight="SemiBold"
-                                                    Foreground="#00AEEF"
+                                                    Foreground="{ThemeResource AccentBlueBrush}"
                                                     Text="{x:Bind Total, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                     TextAlignment="Right"/>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                            </ListView.ItemTemplate>
+                        </ListView>
                     </StackPanel>
 
                     <!--  Order Summary Card  -->
@@ -250,66 +310,68 @@
                             <TextBlock
                                 FontSize="18"
                                 FontWeight="SemiBold"
-                                Foreground="#111827"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                 Text="Order Summary"/>
 
                             <StackPanel Spacing="12">
                                 <Grid>
-                                    <TextBlock Foreground="#6B7280"
+                                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                Text="Subtotal"/>
                                     <TextBlock
                                         HorizontalAlignment="Right"
-                                        Foreground="#111827"
+                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                         Text="{x:Bind ViewModel.Subtotal, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"/>
                                 </Grid>
                                 <Grid>
-                                    <TextBlock Foreground="#6B7280"
+                                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                Text="Shipping"/>
                                     <TextBlock
                                         HorizontalAlignment="Right"
-                                        Foreground="#111827"
+                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                         Text="{x:Bind ViewModel.ShippingFee, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"/>
                                 </Grid>
                                 <Grid>
-                                    <TextBlock Foreground="#6B7280"
+                                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                Text="Tax (10%)"/>
                                     <TextBlock
                                         HorizontalAlignment="Right"
-                                        Foreground="#111827"
+                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                         Text="{x:Bind ViewModel.Tax, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"/>
                                 </Grid>
 
                                 <Border
                                     Height="1"
                                     Margin="0,8"
-                                    Background="#E5E7EB"/>
+                                    Background="{ThemeResource CardStrokeColorDefaultBrush}"/>
 
                                 <Grid>
                                     <TextBlock
                                         FontSize="18"
                                         FontWeight="SemiBold"
-                                        Foreground="#111827"
+                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                         Text="Total"/>
                                     <TextBlock
                                         HorizontalAlignment="Right"
                                         FontSize="20"
                                         FontWeight="Bold"
-                                        Foreground="#00AEEF"
+                                        Foreground="{ThemeResource AccentBlueBrush}"
                                         Text="{x:Bind ViewModel.Total, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"/>
                                 </Grid>
                             </StackPanel>
 
-                            <Button Style="{StaticResource PrimaryButtonStyle}"
+                            <buttons:IconButton
                                     Margin="0,16,0,0"
                                     HorizontalAlignment="Stretch"
-                                    Command="{x:Bind ViewModel.ProceedToCheckoutCommand}"
-                                    Content="Proceed to Checkout"/>
+                                    Variant="Filled"
+                                    IconGlyph="&#xE8A1;"
+                                    Text="Proceed to Checkout"
+                                    Command="{x:Bind ViewModel.ProceedToCheckoutCommand}"/>
 
                             <HyperlinkButton
                                 HorizontalAlignment="Center"
                                 Command="{x:Bind ViewModel.ContinueShoppingCommand}"
                                 Content="Continue Shopping"
-                                Foreground="#6B7280"/>
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         </StackPanel>
                     </Border>
                 </Grid>

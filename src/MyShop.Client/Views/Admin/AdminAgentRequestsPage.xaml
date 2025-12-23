@@ -12,153 +12,228 @@
     xmlns:tables="using:MyShop.Client.Views.Components.Tables"
     xmlns:feedback="using:MyShop.Client.Views.Components.Feedback"
     x:Name="MyPage"
-    Background="#F3F4F6"
+    Background="{ThemeResource SubtleFillColorSecondaryBrush}"
     mc:Ignorable="d">
+
+    <Page.Transitions>
+        <TransitionCollection>
+            <EntranceThemeTransition FromVerticalOffset="50"/>
+        </TransitionCollection>
+    </Page.Transitions>
 
     <Page.Resources>
         <!-- No custom styles needed - TabView uses built-in WinUI 3 styles -->
     </Page.Resources>
 
+    <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="ResponsiveStates">
 
+                <!-- Large Desktop: 1920px+ -->
+                <VisualState x:Name="LargeDesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1920"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding"
+                                Value="40"/>
+                    </VisualState.Setters>
+                </VisualState>
 
+                <!-- Desktop: 1280-1919px -->
+                <VisualState x:Name="DesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1280"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding"
+                                Value="32"/>
+                    </VisualState.Setters>
+                </VisualState>
 
+                <!-- Tablet: 960-1279px -->
+                <VisualState x:Name="TabletState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="960"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding"
+                                Value="24"/>
+                    </VisualState.Setters>
+                </VisualState>
 
-    <Grid Padding="32">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+                <!-- Tablet Portrait: 640-959px -->
+                <VisualState x:Name="TabletPortraitState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="640"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding"
+                                Value="20"/>
+                    </VisualState.Setters>
+                </VisualState>
 
-        <!--  Header  -->
-        <layout:PageHeader 
-            Grid.Row="0" 
-            Margin="0,0,0,24"
-            Title="Agent Requests"
-            Subtitle="Manage salesman registration requests">
-            <layout:PageHeader.ActionContent>
-                <buttons:IconButton
-                    Variant="Filled"
-                    IconGlyph="&#xE72C;"
-                    Text="Refresh"
-                    Command="{x:Bind ViewModel.RefreshCommand}" />
-            </layout:PageHeader.ActionContent>
-        </layout:PageHeader>
+                <!-- Mobile: 0-639px (Default) -->
+                <VisualState x:Name="MobileState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding"
+                                Value="16"/>
+                    </VisualState.Setters>
+                </VisualState>
 
-        <!--  Status Tabs - Using TabView  -->
-        <TabView
-            Grid.Row="1"
-            Margin="0,0,0,16"
-            IsAddTabButtonVisible="False"
-            SelectedIndex="{x:Bind ViewModel.SelectedTabIndex, Mode=TwoWay}"
-            TabWidthMode="SizeToContent">
-            
-            <!--  All Requests Tab  -->
-            <TabViewItem Header="All Requests" IsClosable="False">
-                <TabViewItem.IconSource>
-                    <FontIconSource Glyph="&#xE8FD;" />
-                </TabViewItem.IconSource>
-            </TabViewItem>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
 
-            <!--  Pending Tab  -->
-            <TabViewItem Header="Pending" IsClosable="False">
-                <TabViewItem.IconSource>
-                    <FontIconSource Glyph="&#xE9F5;" />
-                </TabViewItem.IconSource>
-            </TabViewItem>
+        <Grid x:Name="MainContent"
+                Padding="{StaticResource Padding_2XL}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-            <!--  Approved Tab  -->
-            <TabViewItem Header="Approved" IsClosable="False">
-                <TabViewItem.IconSource>
-                    <FontIconSource Glyph="&#xE73E;" />
-                </TabViewItem.IconSource>
-            </TabViewItem>
+            <!--  Header  -->
+            <layout:PageHeader
+                Grid.Row="0"
+                Margin="0,0,0,24"
+                Title="Agent Requests"
+                Subtitle="Manage sales agent registration requests">
+                <layout:PageHeader.ActionContent>
+                    <buttons:IconButton
+                        Variant="Filled"
+                        IconGlyph="&#xE72C;"
+                        Text="Refresh"
+                        Command="{x:Bind ViewModel.RefreshCommand}"/>
+                </layout:PageHeader.ActionContent>
+            </layout:PageHeader>
 
-            <!--  Rejected Tab  -->
-            <TabViewItem Header="Rejected" IsClosable="False">
-                <TabViewItem.IconSource>
-                    <FontIconSource Glyph="&#xE711;" />
-                </TabViewItem.IconSource>
-            </TabViewItem>
-        </TabView>
+            <!--  Status Tabs - Using TabView  -->
+            <TabView
+                Grid.Row="1"
+                Margin="0,0,0,16"
+                IsAddTabButtonVisible="False"
+                CanReorderTabs="False"
+                SelectedIndex="{x:Bind ViewModel.SelectedTabIndex, Mode=TwoWay}"
+                TabWidthMode="SizeToContent">
 
-        <!--  Requests Cards  -->
-        <ScrollViewer x:Name="PageScrollViewer" Grid.Row="2" VerticalScrollBarVisibility="Auto">
-            <StackPanel Spacing="16">
-                <!--  Empty State  -->
-                <Border
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="#E5E7EB"
-                    BorderThickness="1"
-                    CornerRadius="16"
-                    Padding="64,48"
-                    Visibility="{x:Bind ViewModel.HasNoRequests, Mode=OneWay}">
-                    <Border.Shadow>
-                        <ThemeShadow />
-                    </Border.Shadow>
-                    <StackPanel
-                        HorizontalAlignment="Center"
-                        Spacing="20">
-                        <Viewbox Width="100" Height="100">
-                            <Grid>
-                                <Ellipse Width="100" Height="100" Fill="#F3F4F6" />
-                                <FontIcon
-                                    FontSize="48"
-                                    Foreground="#9CA3AF"
-                                    Glyph="&#xE823;" />
-                            </Grid>
-                        </Viewbox>
-                        <TextBlock
-                            FontSize="18"
-                            FontWeight="SemiBold"
-                            Foreground="#374151"
-                            Text="No agent requests"
-                            HorizontalAlignment="Center" />
-                        <TextBlock
-                            FontSize="14"
-                            Foreground="#6B7280"
-                            Text="There are currently no pending agent requests"
+                <!--  All Requests Tab  -->
+                <TabViewItem Header="All Requests"
+                             IsClosable="False">
+                    <TabViewItem.IconSource>
+                        <FontIconSource Glyph="&#xE8FD;"/>
+                    </TabViewItem.IconSource>
+                </TabViewItem>
+
+                <!--  Pending Tab  -->
+                <TabViewItem Header="Pending"
+                             IsClosable="False">
+                    <TabViewItem.IconSource>
+                        <FontIconSource Glyph="&#xE9F5;"/>
+                    </TabViewItem.IconSource>
+                </TabViewItem>
+
+                <!--  Approved Tab  -->
+                <TabViewItem Header="Approved"
+                             IsClosable="False">
+                    <TabViewItem.IconSource>
+                        <FontIconSource Glyph="&#xE73E;"/>
+                    </TabViewItem.IconSource>
+                </TabViewItem>
+
+                <!--  Rejected Tab  -->
+                <TabViewItem Header="Rejected"
+                             IsClosable="False">
+                    <TabViewItem.IconSource>
+                        <FontIconSource Glyph="&#xE711;"/>
+                    </TabViewItem.IconSource>
+                </TabViewItem>
+            </TabView>
+
+            <!--  Requests Cards  -->
+            <ScrollViewer x:Name="PageScrollViewer"
+                          Grid.Row="2"
+                          VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="16">
+                    <!--  Empty State  -->
+                    <Border
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="64,48"
+                        Visibility="{x:Bind ViewModel.HasNoRequests, Mode=OneWay}">
+                        <Border.Shadow>
+                            <ThemeShadow/>
+                        </Border.Shadow>
+                        <StackPanel
                             HorizontalAlignment="Center"
-                            TextWrapping="Wrap"
-                            MaxWidth="300"
-                            TextAlignment="Center" />
-                    </StackPanel>
-                </Border>
+                            Spacing="20">
+                            <Viewbox Width="100"
+                                     Height="100">
+                                <Grid>
+                                    <Ellipse Width="100"
+                                             Height="100"
+                                             Fill="{ThemeResource SubtleFillColorSecondaryBrush}"/>
+                                    <FontIcon
+                                        FontSize="48"
+                                        Foreground="{ThemeResource Gray500Brush}"
+                                        Glyph="&#xE823;"/>
+                                </Grid>
+                            </Viewbox>
+                            <TextBlock
+                                FontSize="18"
+                                FontWeight="SemiBold"
+                                Foreground="{ThemeResource TextTertiaryBrush}"
+                                Text="No agent requests"
+                                HorizontalAlignment="Center"/>
+                            <TextBlock
+                                FontSize="14"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Text="There are currently no pending agent requests"
+                                HorizontalAlignment="Center"
+                                TextWrapping="Wrap"
+                                MaxWidth="300"
+                                TextAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
 
-                <!--  Request Cards  -->
-                <ItemsRepeater ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}">
-                    <ItemsRepeater.Layout>
-                        <StackLayout Spacing="16" />
-                    </ItemsRepeater.Layout>
-                    <ItemsRepeater.ItemTemplate>
-                        <DataTemplate x:DataType="viewmodels:AgentRequestItem">
-                            <Border
-                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                BorderBrush="#E5E7EB"
-                                BorderThickness="1"
-                                CornerRadius="16"
-                                Padding="24">
-                                <Border.Shadow>
-                                    <ThemeShadow />
-                                </Border.Shadow>
+                    <!--  Request Cards  -->
+                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}">
+                        <ItemsRepeater.Layout>
+                            <StackLayout Spacing="16"/>
+                        </ItemsRepeater.Layout>
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="viewmodels:AgentRequestItem">
+                                <Border
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="{StaticResource Padding_XL}">
+                                    <Border.Shadow>
+                                        <ThemeShadow/>
+                                    </Border.Shadow>
 
-                                <Grid RowSpacing="16">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <!--  Header  -->
-                                        <RowDefinition Height="Auto" />
-                                        <!--  Reason & Experience  -->
-                                        <RowDefinition Height="Auto" />
-                                        <!--  Rejection (conditional)  -->
-                                        <RowDefinition Height="Auto" />
-                                        <!--  Actions  -->
-                                    </Grid.RowDefinitions>
+                                    <Grid RowSpacing="16">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <!--  Header  -->
+                                            <RowDefinition Height="Auto"/>
+                                            <!--  Reason & Experience  -->
+                                            <RowDefinition Height="Auto"/>
+                                            <!--  Rejection (conditional)  -->
+                                            <RowDefinition Height="Auto"/>
+                                            <!--  Actions  -->
+                                        </Grid.RowDefinitions>
 
                                         <!--  Header Section: Avatar + Name + Badge + Email + Date  -->
                                         <Grid Grid.Row="0">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
 
                                             <!--  User Info with Avatar  -->
@@ -170,162 +245,180 @@
                                                 SecondaryText="{x:Bind Email}"
                                                 AvatarUrl="{x:Bind Avatar}">
                                                 <tables:UserAvatarInfo.ExtraContent>
-                                                    <StackPanel Orientation="Horizontal" Spacing="12">
-                                                        <badges:StatusBadge
-                                                            Text="{x:Bind Status}"
-                                                            Variant="Warning" />
-                                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                                    <StackPanel Orientation="Vertical"
+                                                                Spacing="8">
+                                                        <StackPanel Orientation="Horizontal"
+                                                                    Spacing="12">
+                                                            <badges:StatusBadge 
+                                                                Text="{x:Bind Status}"
+                                                                Variant="{x:Bind StatusVariant}"/>
+                                                            <StackPanel Orientation="Horizontal"
+                                                                        Spacing="6">
+                                                                <FontIcon
+                                                                    FontSize="14"
+                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                    Glyph="&#xE787;"/>
+                                                                <TextBlock
+                                                                    FontSize="13"
+                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                    Text="{x:Bind SubmittedDate}"/>
+                                                            </StackPanel>
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal"
+                                                                    Spacing="6">
                                                             <FontIcon
                                                                 FontSize="14"
-                                                                Foreground="#6B7280"
-                                                                Glyph="&#xE787;" />
+                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                Glyph="&#xE717;"/>
                                                             <TextBlock
                                                                 FontSize="13"
-                                                                Foreground="#6B7280"
-                                                                Text="{x:Bind SubmittedDate}" />
+                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                Text="{x:Bind Phone}"/>
                                                         </StackPanel>
                                                     </StackPanel>
                                                 </tables:UserAvatarInfo.ExtraContent>
                                             </tables:UserAvatarInfo>
                                         </Grid>
 
-                                    <!--  Reason & Experience Section  -->
-                                    <StackPanel Grid.Row="1" Spacing="12">
-                                        <!--  Reason  -->
-                                        <StackPanel Spacing="8">
-                                            <TextBlock
-                                                FontSize="13"
-                                                FontWeight="SemiBold"
-                                                Foreground="#111827"
-                                                Text="Reason:" />
-                                            <Border
-                                                Background="#F9FAFB"
-                                                CornerRadius="8"
-                                                Padding="12">
+                                        <!--  Reason & Experience Section  -->
+                                        <StackPanel Grid.Row="1"
+                                                    Spacing="12">
+                                            <!--  Reason  -->
+                                            <StackPanel Spacing="8">
                                                 <TextBlock
                                                     FontSize="13"
-                                                    Foreground="#6B7280"
-                                                    Text="{x:Bind Reason}"
-                                                    TextWrapping="Wrap" />
-                                            </Border>
-                                        </StackPanel>
+                                                    FontWeight="SemiBold"
+                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                    Text="Reason:"/>
+                                                <Border
+                                                    Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                                    CornerRadius="8"
+                                                    Padding="12">
+                                                    <TextBlock
+                                                        FontSize="13"
+                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                        Text="{x:Bind Reason}"
+                                                        TextWrapping="Wrap"/>
+                                                </Border>
+                                            </StackPanel>
 
-                                        <!--  Experience  -->
-                                        <StackPanel Spacing="8">
-                                            <TextBlock
-                                                FontSize="13"
-                                                FontWeight="SemiBold"
-                                                Foreground="#111827"
-                                                Text="Experience:" />
-                                            <Border
-                                                Background="#F9FAFB"
-                                                CornerRadius="8"
-                                                Padding="12">
+                                            <!--  Experience  -->
+                                            <StackPanel Spacing="8">
                                                 <TextBlock
                                                     FontSize="13"
-                                                    Foreground="#6B7280"
-                                                    Text="{x:Bind Experience}"
-                                                    TextWrapping="Wrap" />
-                                            </Border>
+                                                    FontWeight="SemiBold"
+                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                    Text="Experience:"/>
+                                                <Border
+                                                    Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                                    CornerRadius="8"
+                                                    Padding="{StaticResource Padding_MD}">
+                                                    <TextBlock
+                                                        FontSize="13"
+                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                        Text="{x:Bind Experience}"
+                                                        TextWrapping="Wrap"/>
+                                                </Border>
+                                            </StackPanel>
                                         </StackPanel>
-                                    </StackPanel>
 
-                                    <!--  Rejection Reason (only if rejected) - Using AlertBox  -->
-                                    <feedback:AlertBox
-                                        Grid.Row="2"
-                                        Variant="Error"
-                                        Title="Rejection Reason"
-                                        Message="{x:Bind RejectionReason}"
-                                        Visibility="{x:Bind HasRejectionReason}" />
+                                        <!--  Rejection Reason (only if rejected) - Using AlertBox  -->
+                                        <feedback:AlertBox
+                                            Grid.Row="2"
+                                            Variant="Error"
+                                            Title="Rejection Reason"
+                                            Message="{x:Bind RejectionReason}"
+                                            Visibility="{x:Bind HasRejectionReason}"/>
 
-                                    <!--  Action Buttons (only for pending)  -->
-                                    <StackPanel
-                                        Grid.Row="3"
-                                        BorderBrush="#E5E7EB"
-                                        BorderThickness="0,1,0,0"
-                                        Orientation="Horizontal"
-                                        Padding="0,16,0,0"
-                                        Spacing="12"
-                                        Visibility="{x:Bind IsPending}">
-                                        <buttons:IconButton
-                                            Variant="Filled"
-                                            IconGlyph="&#xE73E;"
-                                            Text="Approve"
-                                            Command="{Binding DataContext.ApproveRequestCommand, ElementName=MyPage}"
-                                            CommandParameter="{x:Bind}" />
-                                        <buttons:IconButton
-                                            Variant="Outline"
-                                            IconGlyph="&#xE711;"
-                                            IconColor="#DC2626"
-                                            Text="Reject"
-                                            TextColor="#DC2626"
-                                            Command="{Binding DataContext.RejectRequestCommand, ElementName=MyPage}"
-                                            CommandParameter="{x:Bind}" />
-                                        <buttons:IconButton
-                                            Variant="Outline"
-                                            IconGlyph="&#xE77B;"
-                                            Text="View Profile"
-                                            Command="{Binding DataContext.ViewProfileCommand, ElementName=MyPage}"
-                                            CommandParameter="{x:Bind}" />
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsRepeater.ItemTemplate>
-                </ItemsRepeater>
+                                        <!--  Action Buttons (only for pending)  -->
+                                        <StackPanel
+                                            Grid.Row="3"
+                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                            BorderThickness="0,1,0,0"
+                                            Orientation="Horizontal"
+                                            Padding="{StaticResource Padding_LG}"
+                                            Spacing="12"
+                                            Visibility="{x:Bind IsPending}">
+                                            <buttons:IconButton
+                                                Variant="Filled"
+                                                IconGlyph="&#xE73E;"
+                                                Text="Approve"
+                                                Command="{Binding DataContext.ApproveRequestCommand, ElementName=MyPage}"
+                                                CommandParameter="{x:Bind}"/>
+                                            <buttons:IconButton
+                                                Variant="Outline"
+                                                IconGlyph="&#xE711;"
+                                                IconColor="{ThemeResource ErrorRedBrush}"
+                                                Text="Reject"
+                                                TextColor="{ThemeResource ErrorRedBrush}"
+                                                Command="{Binding DataContext.RejectRequestCommand, ElementName=MyPage}"
+                                                CommandParameter="{x:Bind}"/>
+                                            <buttons:IconButton
+                                                Variant="Outline"
+                                                IconGlyph="&#xE77B;"
+                                                Text="View Profile"
+                                                Command="{Binding DataContext.ViewProfileCommand, ElementName=MyPage}"
+                                                CommandParameter="{x:Bind}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
 
-                <!--  Pagination Controls  -->
-                <Border
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="#E5E7EB"
-                    BorderThickness="1"
-                    CornerRadius="16"
-                    Padding="20">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
+                    <!--  Pagination Controls  -->
+                    <Border
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="{ThemeResource Spacing_5}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
 
-                        <!--  Previous Button  -->
-                        <buttons:IconButton
-                            Grid.Column="0"
-                            Variant="Outline"
-                            IconGlyph="&#xE76B;"
-                            Text="Previous"
-                            Command="{x:Bind ViewModel.PreviousPageCommand}" />
+                            <!--  Previous Button  -->
+                            <buttons:IconButton
+                                Grid.Column="0"
+                                Variant="Outline"
+                                IconGlyph="&#xE76B;"
+                                Text="Previous"
+                                Command="{x:Bind ViewModel.PreviousPageCommand}"/>
 
-                        <!--  Page Info  -->
-                        <StackPanel
-                            Grid.Column="1"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Spacing="4">
-                            <TextBlock
-                                FontSize="14"
-                                FontWeight="SemiBold"
-                                Foreground="#111827"
+                            <!--  Page Info  -->
+                            <StackPanel
+                                Grid.Column="1"
                                 HorizontalAlignment="Center"
-                                Text="{x:Bind ViewModel.PageInfoText, Mode=OneWay}" />
-                            <TextBlock
-                                FontSize="12"
-                                Foreground="#6B7280"
-                                HorizontalAlignment="Center"
-                                Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}" />
-                        </StackPanel>
+                                VerticalAlignment="Center"
+                                Spacing="4">
+                                <TextBlock
+                                    FontSize="14"
+                                    FontWeight="SemiBold"
+                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                    HorizontalAlignment="Center"
+                                    Text="{x:Bind ViewModel.PageInfoText, Mode=OneWay}"/>
+                                <TextBlock
+                                    FontSize="12"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    HorizontalAlignment="Center"
+                                    Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}"/>
+                            </StackPanel>
 
-                        <!--  Next Button  -->
-                        <buttons:IconButton
-                            Grid.Column="2"
-                            Variant="Outline"
-                            IconGlyph="&#xE76C;"
-                            Text="Next"
-                            IconPosition="Right"
-                            Command="{x:Bind ViewModel.NextPageCommand}" />
-                    </Grid>
-                </Border>
-            </StackPanel>
-        </ScrollViewer>
+                            <!--  Next Button  -->
+                            <buttons:IconButton
+                                Grid.Column="2"
+                                Variant="Outline"
+                                IconGlyph="&#xE76C;"
+                                Text="Next"
+                                IconPosition="Right"
+                                Command="{x:Bind ViewModel.NextPageCommand}"/>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </Page>

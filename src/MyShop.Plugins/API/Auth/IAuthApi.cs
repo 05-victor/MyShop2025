@@ -26,6 +26,6 @@ public interface IAuthApi
     /// <summary>
     /// Get current authenticated user information.
     /// </summary>
-    [Get("/api/v1/auth/me")]
+    [Get("/api/v1/users/me")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<UserInfoResponse>>> GetMeAsync();
 }

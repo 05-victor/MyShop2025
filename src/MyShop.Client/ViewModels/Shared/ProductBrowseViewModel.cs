@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
 using MyShop.Client.Facades;
+using MyShop.Client.ViewModels.Base;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Shared.Models;
@@ -15,45 +16,28 @@ namespace MyShop.Client.ViewModels.Shared;
 /// ViewModel for Product Browse page with SERVER-SIDE paging
 /// Loads products page by page from the API, not all at once
 /// </summary>
-public partial class ProductBrowseViewModel : ObservableObject
+public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardViewModel>
 {
     private readonly IProductFacade _productFacade;
     private readonly ICartFacade _cartFacade;
-    private readonly INavigationService? _navigationService;
+
+    // Alias for backward compatibility with XAML
+    public ObservableCollection<ProductCardViewModel> Products => Items;
 
     [ObservableProperty]
-    private ObservableCollection<ProductCardViewModel> _products = new();
-
-    [ObservableProperty]
-    private ObservableCollection<string> _categories = new();
+    private ObservableCollection<string> _categories = new() { "All" };
 
     [ObservableProperty]
     private string _selectedCategory = "All";
 
     [ObservableProperty]
-    private string _searchQuery = string.Empty;
+    private ObservableCollection<string> _brands = new() { "All Brands" };
+
+    [ObservableProperty]
+    private string _selectedBrand = "All Brands";
 
     [ObservableProperty]
     private string _selectedSort = "Newest";
-
-    [ObservableProperty]
-    private bool _isLoading;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasPreviousPage))]
-    [NotifyPropertyChangedFor(nameof(HasNextPage))]
-    [NotifyPropertyChangedFor(nameof(PageInfoText))]
-    private int _currentPage = 1;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ShowPagination))]
-    [NotifyPropertyChangedFor(nameof(HasNextPage))]
-    [NotifyPropertyChangedFor(nameof(PageInfoText))]
-    private int _totalPages = 1;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ItemsInfoText))]
-    private int _totalProducts;
 
     [ObservableProperty]
     private bool _isLoadingMore;
@@ -61,75 +45,132 @@ public partial class ProductBrowseViewModel : ObservableObject
     [ObservableProperty]
     private bool _hasMoreItems = true;
 
-    // Computed properties for pagination
-    public bool HasPreviousPage => CurrentPage > 1;
-    public bool HasNextPage => CurrentPage < TotalPages;
+    // Additional pagination property for UI
     public Visibility ShowPagination => TotalPages > 1 ? Visibility.Visible : Visibility.Collapsed;
-    public string PageInfoText => TotalPages > 0 ? $"Page {CurrentPage} of {TotalPages}" : "No data";
-    
-    public string ItemsInfoText
-    {
-        get
-        {
-            if (TotalProducts == 0) return "No products found";
-            var startIndex = (CurrentPage - 1) * PageSize + 1;
-            var endIndex = Math.Min(CurrentPage * PageSize, TotalProducts);
-            return $"Showing {startIndex}-{endIndex} of {TotalProducts} products";
-        }
-    }
-
-    private const int PageSize = 12; // Show 12 products per page for grid layout
 
     public ProductBrowseViewModel(
-        IProductFacade productFacade, 
+        IProductFacade productFacade,
         ICartFacade cartFacade,
         INavigationService? navigationService = null)
+        : base(null, navigationService)
     {
         _productFacade = productFacade;
         _cartFacade = cartFacade;
-        _navigationService = navigationService;
+        PageSize = 12; // Show 12 products per page for grid layout
     }
 
     public async Task InitializeAsync()
     {
         await LoadCategoriesAsync();
-        await LoadPageAsync();
+        await LoadBrandsAsync();
+        await LoadDataAsync(); // Use base class method
     }
 
     private async Task LoadCategoriesAsync()
     {
-        // TODO: Load from API
-        Categories = new ObservableCollection<string> 
-        { 
-            "All", 
-            "Laptop", 
-            "Smartphone", 
-            "Tablet", 
-            "Smartwatch", 
-            "Headphone" 
-        };
-        await Task.CompletedTask;
+        try
+        {
+            System.Diagnostics.Debug.WriteLine("[ProductBrowseViewModel] LoadCategoriesAsync: Starting category load from API");
+
+            // Call facade to load categories from API
+            var result = await _productFacade.LoadCategoriesAsync();
+
+            if (!result.IsSuccess || result.Data == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] LoadCategoriesAsync: Failed to load - {result.ErrorMessage}");
+                // Fallback: Keep "All" only if API fails
+                return;
+            }
+
+            // Clear existing items but keep "All" at index 0
+            // This preserves the SelectedItem binding
+            while (Categories.Count > 1)
+            {
+                Categories.RemoveAt(Categories.Count - 1);
+            }
+
+            // Add API categories
+            foreach (var category in result.Data)
+            {
+                Categories.Add(category.Name);
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] ✅ LoadCategoriesAsync: Loaded {result.Data.Count} categories from API");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] ❌ LoadCategoriesAsync: ERROR - {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] Stack trace: {ex.StackTrace}");
+            // Keep "All" if exception occurs
+        }
     }
 
     /// <summary>
-    /// Load products from server with current filters and page
+    /// Load brands (manufacturers) from server
     /// </summary>
-    private async Task LoadPageAsync()
+    private async Task LoadBrandsAsync()
     {
-        IsLoading = true;
+        System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] LoadBrandsAsync: Starting brand load from API");
         try
         {
+            // Call facade to load brands from API
+            var result = await _productFacade.LoadBrandsAsync();
+
+            if (!result.IsSuccess || result.Data == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] LoadBrandsAsync: Failed to load - {result.ErrorMessage}");
+                // Fallback: Keep "All Brands" only if API fails
+                return;
+            }
+
+            // Clear existing items but keep "All Brands" at index 0
+            // This preserves the SelectedItem binding
+            while (Brands.Count > 1)
+            {
+                Brands.RemoveAt(Brands.Count - 1);
+            }
+
+            // Add API brands
+            foreach (var brand in result.Data)
+            {
+                Brands.Add(brand);
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] ✅ LoadBrandsAsync: Loaded {result.Data.Count} brands from API");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] ❌ LoadBrandsAsync: ERROR - {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] Stack trace: {ex.StackTrace}");
+            // Keep "All Brands" if exception occurs
+        }
+    }
+
+    /// <summary>
+    /// Override LoadPageAsync - required by PagedViewModelBase
+    /// Load products from server with current filters and page
+    /// </summary>
+    protected override async Task LoadPageAsync()
+    {
+        try
+        {
+            SetLoadingState(true);
+            
             // Map sort option to API parameter
             var (sortBy, sortDesc) = MapSortOption(SelectedSort);
-            
+
             // Map category - "All" means no filter
             var category = SelectedCategory == "All" ? null : SelectedCategory;
 
-            System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] LoadPageAsync: Page={CurrentPage}, Category={category}, Sort={sortBy}, Search={SearchQuery}");
+            // Map brand/manufacturer - "All Brands" means no filter
+            var manufacturer = SelectedBrand == "All Brands" ? null : SelectedBrand;
+
+            System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] LoadPageAsync: Page={CurrentPage}, Category={category}, Brand={manufacturer}, Sort={sortBy}, Search={SearchQuery}");
 
             var result = await _productFacade.LoadProductsAsync(
                 searchQuery: string.IsNullOrWhiteSpace(SearchQuery) ? null : SearchQuery,
                 categoryName: category,
+                manufacturerName: manufacturer,
                 minPrice: null,
                 maxPrice: null,
                 sortBy: sortBy,
@@ -140,11 +181,11 @@ public partial class ProductBrowseViewModel : ObservableObject
             if (result.IsSuccess && result.Data != null)
             {
                 var pagedData = result.Data;
-                
-                Products.Clear();
+
+                Items.Clear();
                 foreach (var product in pagedData.Items)
                 {
-                    Products.Add(new ProductCardViewModel
+                    Items.Add(new ProductCardViewModel
                     {
                         Id = product.Id,
                         Name = product.Name,
@@ -158,35 +199,31 @@ public partial class ProductBrowseViewModel : ObservableObject
                     });
                 }
 
-                TotalProducts = pagedData.TotalCount;
-                TotalPages = pagedData.TotalPages;
+                UpdatePagingInfo(pagedData.TotalCount);
                 HasMoreItems = CurrentPage < TotalPages;
 
-                System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] Loaded page {CurrentPage}/{TotalPages} ({Products.Count} items, {TotalProducts} total)");
+                System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] Loaded page {CurrentPage}/{TotalPages} ({Items.Count} items, {TotalItems} total)");
             }
             else
             {
-                Products.Clear();
-                TotalProducts = 0;
-                TotalPages = 1;
+                Items.Clear();
+                UpdatePagingInfo(0);
                 HasMoreItems = false;
                 System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] Failed to load products: {result.ErrorMessage}");
             }
 
-            // Notify UI of changes
-            OnPropertyChanged(nameof(ItemsInfoText));
+            OnPropertyChanged(nameof(ShowPagination));
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] Error loading products: {ex.Message}");
-            Products.Clear();
-            TotalProducts = 0;
-            TotalPages = 1;
+            Items.Clear();
+            UpdatePagingInfo(0);
             HasMoreItems = false;
         }
         finally
         {
-            IsLoading = false;
+            SetLoadingState(false);
         }
     }
 
@@ -202,33 +239,30 @@ public partial class ProductBrowseViewModel : ObservableObject
     };
 
     [RelayCommand]
-    private async Task SearchAsync()
-    {
-        CurrentPage = 1;
-        await LoadPageAsync();
-    }
-
-    [RelayCommand]
     private async Task FilterByCategoryAsync(string category)
     {
         SelectedCategory = category;
-        CurrentPage = 1;
-        await LoadPageAsync();
+        await LoadDataAsync(); // Use base method to reset to page 1
+    }
+
+    [RelayCommand]
+    private async Task FilterByBrandAsync(string brand)
+    {
+        SelectedBrand = brand;
+        await LoadDataAsync(); // Use base method to reset to page 1
     }
 
     [RelayCommand]
     private async Task SortAsync(string sortOption)
     {
         SelectedSort = sortOption;
-        CurrentPage = 1;
-        await LoadPageAsync();
+        await LoadDataAsync(); // Use base method to reset to page 1
     }
 
     [RelayCommand]
     private async Task ApplyFiltersAsync()
     {
-        CurrentPage = 1;
-        await LoadPageAsync();
+        await LoadDataAsync(); // Use base method to reset to page 1
     }
 
     [RelayCommand]
@@ -237,41 +271,10 @@ public partial class ProductBrowseViewModel : ObservableObject
         SelectedCategory = "All";
         SearchQuery = string.Empty;
         SelectedSort = "Newest";
-        CurrentPage = 1;
-        await LoadPageAsync();
+        await LoadDataAsync(); // Use base method to reset to page 1
     }
 
-    [RelayCommand]
-    public async Task GoToPageAsync(int page)
-    {
-        System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] GoToPageAsync called: page={page}, CurrentPage={CurrentPage}, TotalPages={TotalPages}");
-        
-        if (page >= 1 && page <= TotalPages)
-        {
-            CurrentPage = page;
-            await LoadPageAsync();
-        }
-    }
-
-    [RelayCommand]
-    private async Task NextPageAsync()
-    {
-        if (HasNextPage)
-        {
-            CurrentPage++;
-            await LoadPageAsync();
-        }
-    }
-
-    [RelayCommand]
-    private async Task PreviousPageAsync()
-    {
-        if (HasPreviousPage)
-        {
-            CurrentPage--;
-            await LoadPageAsync();
-        }
-    }
+    // NOTE: NextPageAsync, PreviousPageAsync, SearchAsync, GoToPageAsync are provided by PagedViewModelBase
 
     [RelayCommand]
     private async Task AddToCartAsync(ProductCardViewModel product)
@@ -290,12 +293,7 @@ public partial class ProductBrowseViewModel : ObservableObject
         await Task.CompletedTask;
     }
 
-    [RelayCommand]
-    private async Task RefreshAsync()
-    {
-        await LoadCategoriesAsync();
-        await LoadPageAsync();
-    }
+    // NOTE: RefreshAsync is provided by PagedViewModelBase
 
     [RelayCommand]
     private async Task LoadMoreProductsAsync()

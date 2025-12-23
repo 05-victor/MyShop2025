@@ -1,5 +1,8 @@
 {
   "profiles": {
+    "MyShop.Client (Package)": {
+      "commandName": "MsixPackage"
+    },
     "MyShop.Client (Unpackaged)": {
       "commandName": "Project",
       "environmentVariables": {

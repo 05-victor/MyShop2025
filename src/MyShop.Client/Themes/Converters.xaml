@@ -31,5 +31,8 @@
     
     <!-- Password Converters -->
     <converters:PasswordStrengthToColorConverter x:Key="PasswordStrengthToColorConverter"/>
+    
+    <!-- Status Badge Converters -->
+    <converters:StatusToVariantConverter x:Key="StatusToVariantConverter"/>
 
 </ResourceDictionary>

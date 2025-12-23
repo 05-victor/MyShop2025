@@ -95,23 +95,25 @@ public class CategoryFacade : ICategoryFacade
                 UpdatedAt = DateTime.UtcNow
             };
 
-        var result = await _categoryRepository.CreateAsync(category);
-        if (result.IsSuccess)
-        {
-            await _toastService.ShowSuccess($"Category '{name}' created successfully");
+            var result = await _categoryRepository.CreateAsync(category);
+            if (result.IsSuccess)
+            {
+                await _toastService.ShowSuccess($"Category '{name}' created successfully");
+            }
+            else
+            {
+                await _toastService.ShowError("Failed to create category");
+            }
+            return result;
         }
-        else
+        catch (Exception ex)
         {
-            await _toastService.ShowError("Failed to create category");
-        }            return result;
+            System.Diagnostics.Debug.WriteLine($"[CategoryFacade] Error creating category: {ex.Message}");
+            await _toastService.ShowError($"Error: {ex.Message}");
+            return Result<Category>.Failure($"Error: {ex.Message}");
         }
-    catch (Exception ex)
-    {
-        System.Diagnostics.Debug.WriteLine($"[CategoryFacade] Error creating category: {ex.Message}");
-        await _toastService.ShowError($"Error: {ex.Message}");
-        return Result<Category>.Failure($"Error: {ex.Message}");
     }
-}    public async Task<Result<Category>> UpdateCategoryAsync(Guid categoryId, string name, string description)
+    public async Task<Result<Category>> UpdateCategoryAsync(Guid categoryId, string name, string description)
     {
         try
         {
@@ -125,33 +127,36 @@ public class CategoryFacade : ICategoryFacade
             }
 
             // Get existing category
-        var getResult = await _categoryRepository.GetByIdAsync(categoryId);
-        if (!getResult.IsSuccess || getResult.Data == null)
-        {
-            await _toastService.ShowError("Category not found");
-            return Result<Category>.Failure("Category not found");
-        }            var category = getResult.Data;
+            var getResult = await _categoryRepository.GetByIdAsync(categoryId);
+            if (!getResult.IsSuccess || getResult.Data == null)
+            {
+                await _toastService.ShowError("Category not found");
+                return Result<Category>.Failure("Category not found");
+            }
+            var category = getResult.Data;
             category.Name = name;
             category.Description = description;
             category.UpdatedAt = DateTime.UtcNow;
 
-        var result = await _categoryRepository.UpdateAsync(category);
-        if (result.IsSuccess)
-        {
-            await _toastService.ShowSuccess($"Category '{name}' updated successfully");
+            var result = await _categoryRepository.UpdateAsync(category);
+            if (result.IsSuccess)
+            {
+                await _toastService.ShowSuccess($"Category '{name}' updated successfully");
+            }
+            else
+            {
+                await _toastService.ShowError("Failed to update category");
+            }
+            return result;
         }
-        else
+        catch (Exception ex)
         {
-            await _toastService.ShowError("Failed to update category");
-        }            return result;
+            System.Diagnostics.Debug.WriteLine($"[CategoryFacade] Error updating category: {ex.Message}");
+            await _toastService.ShowError($"Error: {ex.Message}");
+            return Result<Category>.Failure($"Error: {ex.Message}");
         }
-    catch (Exception ex)
-    {
-        System.Diagnostics.Debug.WriteLine($"[CategoryFacade] Error updating category: {ex.Message}");
-        await _toastService.ShowError($"Error: {ex.Message}");
-        return Result<Category>.Failure($"Error: {ex.Message}");
     }
-}    public async Task<Result<Unit>> DeleteCategoryAsync(Guid categoryId)
+    public async Task<Result<Unit>> DeleteCategoryAsync(Guid categoryId)
     {
         try
         {
@@ -249,15 +254,16 @@ public class UserFacade : IUserFacade
             var users = result.Data!.AsEnumerable();
 
             // Apply filters
-        if (!string.IsNullOrWhiteSpace(searchQuery))
-        {
-            users = users.Where(u =>
-                (u.Username != null && u.Username.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)) ||
-                (u.Email != null && u.Email.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)) ||
-                (u.FullName != null && u.FullName.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)) ||
-                (u.PhoneNumber != null && u.PhoneNumber.Contains(searchQuery, StringComparison.Ordinal))
-            );
-        }            if (!string.IsNullOrWhiteSpace(role))
+            if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                users = users.Where(u =>
+                    (u.Username != null && u.Username.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)) ||
+                    (u.Email != null && u.Email.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)) ||
+                    (u.FullName != null && u.FullName.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)) ||
+                    (u.PhoneNumber != null && u.PhoneNumber.Contains(searchQuery, StringComparison.Ordinal))
+                );
+            }
+            if (!string.IsNullOrWhiteSpace(role))
             {
                 users = users.Where(u => u.GetPrimaryRole().ToString().Equals(role, StringComparison.OrdinalIgnoreCase));
             }
@@ -280,22 +286,23 @@ public class UserFacade : IUserFacade
 
             return Result<PagedList<User>>.Success(pagedResult);
         }
-    catch (Exception ex)
-    {
-        System.Diagnostics.Debug.WriteLine($"[UserFacade] Error loading users: {ex.Message}");
-        await _toastService.ShowError($"Error: {ex.Message}");
-        return Result<PagedList<User>>.Failure($"Error: {ex.Message}");
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[UserFacade] Error loading users: {ex.Message}");
+            await _toastService.ShowError($"Error: {ex.Message}");
+            return Result<PagedList<User>>.Failure($"Error: {ex.Message}");
+        }
     }
-}    public async Task<Result<User>> GetUserByIdAsync(Guid userId)
+    public async Task<Result<User>> GetUserByIdAsync(Guid userId)
     {
         // IUserRepository doesn't have GetByIdAsync - need to get from GetAllAsync
         var allUsers = await _userRepository.GetAllAsync();
         if (!allUsers.IsSuccess || allUsers.Data == null)
             return Result<User>.Failure("Failed to load users");
-        
+
         var user = allUsers.Data.FirstOrDefault(u => u.Id == userId);
-        return user != null 
-            ? Result<User>.Success(user) 
+        return user != null
+            ? Result<User>.Success(user)
             : Result<User>.Failure("User not found");
     }
 
@@ -491,7 +498,7 @@ public class UserFacade : IUserFacade
             {
                 TotalUsers = users.Count,
                 TotalCustomers = users.Count(u => u.HasRole(Shared.Models.Enums.UserRole.Customer)),
-                TotalSalesAgents = users.Count(u => u.HasRole(Shared.Models.Enums.UserRole.Salesman)),
+                TotalSalesAgents = users.Count(u => u.HasRole(Shared.Models.Enums.UserRole.SalesAgent)),
                 TotalAdmins = users.Count(u => u.HasRole(Shared.Models.Enums.UserRole.Admin)),
                 ActiveUsers = users.Count(u => u.IsTrialActive),
                 InactiveUsers = users.Count(u => !u.IsTrialActive)
@@ -558,7 +565,7 @@ public class CommissionFacade : ICommissionFacade
             // Load commissions with filters (large page size to get all)
             var result = await _commissionRepository.GetPagedAsync(
                 salesAgentId: agentId ?? Guid.Empty,
-                page: 1, pageSize: 10000, 
+                page: 1, pageSize: 10000,
                 status: null,
                 startDate: startDate, endDate: endDate);
 
@@ -638,10 +645,10 @@ public class ReportFacade : IReportFacade
                     endDate = DateTime.UtcNow;
                     break;
             }
-            
+
             var adminAgentId = Guid.Empty;
             var result = await _reportRepository.GetSalesReportAsync(adminAgentId, startDate, endDate);
-            
+
             System.Diagnostics.Debug.WriteLine($"[ReportFacade] GetSalesReportAsync: {result.IsSuccess}");
             return result;
         }
@@ -658,14 +665,14 @@ public class ReportFacade : IReportFacade
         {
             var adminAgentId = Guid.Empty;
             var result = await _reportRepository.GetTopProductsAsync(adminAgentId, top);
-            
+
             if (result.IsSuccess && result.Data != null)
             {
                 var list = result.Data.ToList();
                 System.Diagnostics.Debug.WriteLine($"[ReportFacade] GetProductPerformanceAsync: {list.Count} products");
                 return Result<List<ProductPerformance>>.Success(list);
             }
-            
+
             return Result<List<ProductPerformance>>.Failure(result.ErrorMessage ?? "Failed to load products");
         }
         catch (Exception ex)
@@ -681,7 +688,7 @@ public class ReportFacade : IReportFacade
         {
             // Generate agent performance from multiple agent metrics
             var agents = new List<AgentPerformance>();
-            
+
             // Get performance for 3-5 mock agents
             var agentIds = new[]
             {
@@ -689,13 +696,13 @@ public class ReportFacade : IReportFacade
                 new Guid("10000000-0000-0000-0000-000000000002"),
                 new Guid("10000000-0000-0000-0000-000000000003")
             };
-            
+
             var agentNames = new[] { "John Smith", "Sarah Johnson", "Mike Wilson" };
-            
+
             for (int i = 0; i < agentIds.Length; i++)
             {
                 var metricsResult = await _reportRepository.GetPerformanceMetricsAsync(agentIds[i]);
-                
+
                 if (metricsResult.IsSuccess && metricsResult.Data != null)
                 {
                     var metrics = metricsResult.Data;
@@ -710,7 +717,7 @@ public class ReportFacade : IReportFacade
                     });
                 }
             }
-            
+
             System.Diagnostics.Debug.WriteLine($"[ReportFacade] GetAgentPerformanceAsync: {agents.Count} agents from repository");
             return Result<List<AgentPerformance>>.Success(agents);
         }
@@ -727,7 +734,7 @@ public class ReportFacade : IReportFacade
         {
             var adminAgentId = Guid.Empty;
             var result = await _reportRepository.GetSalesTrendAsync(adminAgentId, period);
-            
+
             System.Diagnostics.Debug.WriteLine($"[ReportFacade] GetSalesTrendAsync: {result.IsSuccess}");
             return result;
         }
@@ -744,7 +751,7 @@ public class ReportFacade : IReportFacade
         {
             var adminAgentId = Guid.Empty;
             var result = await _reportRepository.GetPerformanceMetricsAsync(adminAgentId);
-            
+
             System.Diagnostics.Debug.WriteLine($"[ReportFacade] GetPerformanceMetricsAsync: {result.IsSuccess}");
             return result;
         }
@@ -912,7 +919,7 @@ public class AgentRequestFacade : IAgentRequestFacade
             };
 
             var result = await _agentRequestRepository.CreateAsync(newRequest);
-            
+
             if (result.IsSuccess && result.Data != null)
             {
                 System.Diagnostics.Debug.WriteLine($"[AgentRequestFacade] Agent request submitted: {newRequest.Id}");

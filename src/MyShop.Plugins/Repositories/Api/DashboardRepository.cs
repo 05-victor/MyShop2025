@@ -26,45 +26,62 @@ public class DashboardRepository : IDashboardRepository
         {
             // Map client period format to API period format
             var apiPeriod = MapPeriodToApi(period);
-            
-            Debug.WriteLine($"[DashboardRepository] Fetching dashboard summary from API (period: {apiPeriod})");
+
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetSummaryAsync] START - Period: {period} (mapped to: {apiPeriod})");
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetSummaryAsync] Calling API: GET /api/v1/dashboard/summary?period={apiPeriod}");
+
+            var sw = System.Diagnostics.Stopwatch.StartNew();
             var refitResponse = await _apiClient.GetSalesAgentSummaryAsync(apiPeriod);
+            sw.Stop();
+
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetSummaryAsync] API Response - StatusCode: {refitResponse.StatusCode}, ElapsedMs: {sw.ElapsedMilliseconds}");
 
             // Check Refit outer wrapper (HTTP status)
             if (refitResponse.IsSuccessStatusCode && refitResponse.Content != null)
             {
                 var apiResponse = refitResponse.Content;
+                System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetSummaryAsync] ApiResponse.Success: {apiResponse.Success}");
 
                 // Check inner ApiResponse (business logic)
                 if (apiResponse.Success == true && apiResponse.Result != null)
                 {
+                    var response = apiResponse.Result;
+                    System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetSummaryAsync] Response Data: TotalProducts={response.TotalProducts}, TotalOrders={response.TotalOrders}, TotalRevenue={response.TotalRevenue}");
+                    System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetSummaryAsync] LowStockProducts={response.LowStockProducts?.Count ?? 0}, TopSellingProducts={response.TopSellingProducts?.Count ?? 0}, RecentOrders={response.RecentOrders?.Count ?? 0}");
+
                     // Map SalesAgentDashboardSummaryResponse to DashboardSummary
                     var dashboardSummary = MapToDashboardSummary(apiResponse.Result);
-                    
-                    Debug.WriteLine($"[DashboardRepository] Successfully fetched summary: {dashboardSummary.TotalProducts} products, {dashboardSummary.TodayOrders} orders");
+
+                    System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetSummaryAsync] COMPLETED - Summary mapped successfully");
                     return Result<DashboardSummary>.Success(dashboardSummary);
                 }
 
-                return Result<DashboardSummary>.Failure(apiResponse.Message ?? "Failed to load dashboard summary");
+                var errorMsg = apiResponse.Message ?? "Failed to load dashboard summary";
+                System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetSummaryAsync] ERROR - {errorMsg}");
+                return Result<DashboardSummary>.Failure(errorMsg);
             }
 
             // HTTP error
-            return Result<DashboardSummary>.Failure($"HTTP Error: {refitResponse.StatusCode}");
+            var httpError = $"HTTP Error: {refitResponse.StatusCode}";
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetSummaryAsync] ERROR - {httpError}");
+            return Result<DashboardSummary>.Failure(httpError);
         }
         catch (ApiException apiEx)
         {
             var errorMessage = MapApiError(apiEx);
-            Debug.WriteLine($"[DashboardRepository] API Error: {errorMessage}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetSummaryAsync] ApiException - StatusCode: {apiEx.StatusCode}, Message: {errorMessage}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetSummaryAsync] Content: {apiEx.Content}");
             return Result<DashboardSummary>.Failure(errorMessage, apiEx);
         }
         catch (HttpRequestException httpEx)
         {
-            Debug.WriteLine($"[DashboardRepository] Network Error: {httpEx.Message}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetSummaryAsync] HttpRequestException - {httpEx.Message}");
             return Result<DashboardSummary>.Failure("Cannot connect to server. Please check your network connection and ensure the server is running.", httpEx);
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[DashboardRepository] Unexpected Error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetSummaryAsync] Unexpected Exception - Type: {ex.GetType().Name}, Message: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetSummaryAsync] StackTrace: {ex.StackTrace}");
             return Result<DashboardSummary>.Failure("An unexpected error occurred while loading dashboard data. Please try again.", ex);
         }
     }
@@ -73,17 +90,32 @@ public class DashboardRepository : IDashboardRepository
     {
         try
         {
-            Debug.WriteLine($"[DashboardRepository] Fetching revenue chart for period: {period}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetRevenueChartAsync] START - Period: {period}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetRevenueChartAsync] Calling API: GET /api/v1/dashboard/revenue-chart?period={period}");
+
+            var sw = System.Diagnostics.Stopwatch.StartNew();
             var refitResponse = await _apiClient.GetRevenueChartAsync(period);
+            sw.Stop();
+
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetRevenueChartAsync] API Response - StatusCode: {refitResponse.StatusCode}, ElapsedMs: {sw.ElapsedMilliseconds}");
 
             // Check Refit outer wrapper (HTTP status)
             if (refitResponse.IsSuccessStatusCode && refitResponse.Content != null)
             {
                 var apiResponse = refitResponse.Content;
+                System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetRevenueChartAsync] ApiResponse.Success: {apiResponse.Success}");
 
                 // Check inner ApiResponse (business logic)
                 if (apiResponse.Success == true && apiResponse.Result != null)
                 {
+                    var response = apiResponse.Result;
+                    System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetRevenueChartAsync] Chart Data: Labels={response.Labels?.Count ?? 0}, DataPoints={response.Data?.Count ?? 0}");
+                    if (response.Labels?.Count > 0)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetRevenueChartAsync] Labels: {string.Join(", ", response.Labels.Take(5))}{(response.Labels.Count > 5 ? "..." : "")}");
+                        System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetRevenueChartAsync] Data: {string.Join(", ", response.Data?.Take(5) ?? new List<decimal>())}{(response.Data?.Count > 5 ? "..." : "")}");
+                    }
+
                     // Map RevenueChartResponse to RevenueChartData
                     var chartData = new RevenueChartData
                     {
@@ -91,30 +123,36 @@ public class DashboardRepository : IDashboardRepository
                         Data = apiResponse.Result.Data
                     };
 
-                    Debug.WriteLine($"[DashboardRepository] Successfully fetched chart data with {chartData.Labels.Count} data points");
+                    System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetRevenueChartAsync] COMPLETED - Chart data mapped with {chartData.Labels.Count} data points");
                     return Result<RevenueChartData>.Success(chartData);
                 }
 
-                return Result<RevenueChartData>.Failure(apiResponse.Message ?? "Failed to load revenue chart data");
+                var errorMsg = apiResponse.Message ?? "Failed to load revenue chart data";
+                System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetRevenueChartAsync] ERROR - {errorMsg}");
+                return Result<RevenueChartData>.Failure(errorMsg);
             }
 
             // HTTP error
-            return Result<RevenueChartData>.Failure($"HTTP Error: {refitResponse.StatusCode}");
+            var httpError = $"HTTP Error: {refitResponse.StatusCode}";
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetRevenueChartAsync] ERROR - {httpError}");
+            return Result<RevenueChartData>.Failure(httpError);
         }
         catch (ApiException apiEx)
         {
             var errorMessage = MapApiError(apiEx);
-            Debug.WriteLine($"[DashboardRepository] API Error: {errorMessage}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetRevenueChartAsync] ApiException - StatusCode: {apiEx.StatusCode}, Message: {errorMessage}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetRevenueChartAsync] Content: {apiEx.Content}");
             return Result<RevenueChartData>.Failure(errorMessage, apiEx);
         }
         catch (HttpRequestException httpEx)
         {
-            Debug.WriteLine($"[DashboardRepository] Network Error: {httpEx.Message}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetRevenueChartAsync] HttpRequestException - {httpEx.Message}");
             return Result<RevenueChartData>.Failure("Cannot connect to server. Please check your network connection and ensure the server is running.", httpEx);
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[DashboardRepository] Unexpected Error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetRevenueChartAsync] Unexpected Exception - Type: {ex.GetType().Name}, Message: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetRevenueChartAsync] StackTrace: {ex.StackTrace}");
             return Result<RevenueChartData>.Failure("An unexpected error occurred while loading chart data. Please try again.", ex);
         }
     }
@@ -128,11 +166,11 @@ public class DashboardRepository : IDashboardRepository
         try
         {
             Debug.WriteLine($"[DashboardRepository] Temporary: GetTopSalesAgentsAsync not yet implemented in API");
-            
+
             // TODO: Replace with real API call when endpoint is ready
             // For now, return empty list to avoid errors
             await Task.CompletedTask; // Keep async signature
-            
+
             return Result<List<TopSalesAgent>>.Success(new List<TopSalesAgent>());
         }
         catch (Exception ex)
@@ -146,18 +184,14 @@ public class DashboardRepository : IDashboardRepository
 
     /// <summary>
     /// Map client period format to API period format
-    /// Client: "current", "last", "last3"
-    /// API: "day", "week", "month", "year"
+    /// Client periods now align with API: "day", "week", "month", "year"
     /// </summary>
     private static string MapPeriodToApi(string clientPeriod)
     {
-        return clientPeriod.ToLower() switch
-        {
-            "current" => "month",
-            "last" => "month",
-            "last3" => "month", // Could be extended to support quarter
-            _ => "month"
-        };
+        var validPeriods = new[] { "day", "week", "month", "year" };
+        return validPeriods.Contains(clientPeriod?.ToLower() ?? "month")
+            ? clientPeriod.ToLower()
+            : "month";
     }
 
     /// <summary>

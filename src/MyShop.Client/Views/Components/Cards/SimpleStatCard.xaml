@@ -17,7 +17,7 @@
     <cards:SimpleStatCard 
         Label="Total Orders"
         Value="156"
-        ValueColor="#111827"/>
+        ValueColor="{ThemeResource TextFillColorPrimaryBrush}"/>
     -->
 
     <Border Style="{StaticResource CardWithShadowStyle}">
@@ -36,7 +36,7 @@
             <!-- Subtitle (optional) -->
             <TextBlock Text="{Binding Subtitle, ElementName=RootControl, Mode=OneWay}"
                        FontSize="12"
-                       Foreground="#6B7280"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                        Visibility="{Binding Subtitle, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
         </StackPanel>
     </Border>

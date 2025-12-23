@@ -42,10 +42,11 @@
                 <TextBlock Text="{Binding Title, ElementName=RootControl, Mode=OneWay}"
                            FontSize="16"
                            FontWeight="SemiBold"
-                           Foreground="#111827"/>
+                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                           AutomationProperties.HeadingLevel="Level2"/>
                 <TextBlock Text="{Binding Description, ElementName=RootControl, Mode=OneWay}"
                            FontSize="13"
-                           Foreground="#6B7280"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                            TextWrapping="Wrap"/>
             </StackPanel>
             

@@ -3,18 +3,18 @@ using MyShop.Shared.Models.Enums;
 namespace MyShop.Client.Strategies;
 
 /// <summary>
-/// Strategy implementation for Salesman role.
+/// Strategy implementation for SalesAgent role.
 /// </summary>
-public class SalesmanDashboardStrategy : IRoleStrategy
+public class SalesAgentDashboardStrategy : IRoleStrategy
 {
-    public UserRole Role => UserRole.Salesman;
+    public UserRole Role => UserRole.SalesAgent;
 
     public Type GetDashboardPageType()
     => typeof(MyShop.Client.Views.Shell.SalesAgentDashboardShell);
 
     public bool CanAccessFeature(string featureName)
     {
-        // Salesman has limited access
+        // SalesAgent has limited access
         var allowedFeatures = new[]
         {
             "Orders",
@@ -22,7 +22,7 @@ public class SalesmanDashboardStrategy : IRoleStrategy
             "Customers"
         };
 
-        return Array.Exists(allowedFeatures, f => 
+        return Array.Exists(allowedFeatures, f =>
             f.Equals(featureName, StringComparison.OrdinalIgnoreCase));
     }
 }

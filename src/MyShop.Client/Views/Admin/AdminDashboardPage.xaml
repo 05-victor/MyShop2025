@@ -15,10 +15,77 @@
     Background="{ThemeResource LayerFillColorDefaultBrush}"
     x:Name="MyPage">
 
+    <Page.Transitions>
+        <TransitionCollection>
+            <EntranceThemeTransition FromVerticalOffset="50"/>
+        </TransitionCollection>
+    </Page.Transitions>
+
     <!-- Note: Converters are already merged in App.xaml -> Generic.xaml -->
     <!-- No need to merge them again here to avoid circular dependency -->
 
     <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="ResponsiveStates">
+                
+                <!-- Large Desktop: 1920px+ -->
+                <VisualState x:Name="LargeDesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1920"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="40"/>
+                        <Setter Target="KPIGrid.ColumnSpacing" Value="24"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Desktop: 1280-1919px -->
+                <VisualState x:Name="DesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1280"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="32"/>
+                        <Setter Target="KPIGrid.ColumnSpacing" Value="20"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet: 960-1279px -->
+                <VisualState x:Name="TabletState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="960"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="24"/>
+                        <Setter Target="KPIGrid.ColumnSpacing" Value="16"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet Portrait: 640-959px -->
+                <VisualState x:Name="TabletPortraitState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="640"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="20"/>
+                        <Setter Target="KPIGrid.ColumnSpacing" Value="12"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Mobile: 0-639px (Default) -->
+                <VisualState x:Name="MobileState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="16"/>
+                        <Setter Target="KPIGrid.ColumnSpacing" Value="8"/>
+                    </VisualState.Setters>
+                </VisualState>
+                
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
         <!-- Layer 0: Dashboard Content (Hidden during loading) -->
         <Grid x:Name="DashboardContent"
               Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
@@ -28,8 +95,8 @@
                 </TransitionCollection>
             </Grid.Transitions>
             <ScrollViewer VerticalScrollBarVisibility="Auto"
-                          Background="#F9FAFB">
-                <Grid Padding="24"
+                          Background="{ThemeResource LayerFillColorDefaultBrush}">
+                <Grid x:Name="MainContent" Padding="{StaticResource Padding_XL}"
                       RowSpacing="20">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -43,20 +110,25 @@
                         <layout:PageHeader.ActionContent>
                             <StackPanel Orientation="Horizontal"
                                         Spacing="12">
-                                <!-- Month Selector -->
+                                <!-- Period Selector -->
                                 <ComboBox x:Name="PeriodComboBox"
                                           Width="180"
                                           Height="40"
-                                          SelectedIndex="0"
-                                          CornerRadius="12"
+                                          SelectedIndex="2"
+                                          CornerRadius="8"
+                                          AutomationProperties.Name="Select time period"
+                                          AutomationProperties.HelpText="Choose the reporting period for dashboard data"
+                                          UseSystemFocusVisuals="True"
                                           SelectionChanged="PeriodComboBox_SelectionChanged">
-                                    <ComboBoxItem Content="Current Month"
-                                                  Tag="current"
+                                    <ComboBoxItem Content="Today"
+                                                  Tag="day"/>
+                                    <ComboBoxItem Content="This Week"
+                                                  Tag="week"/>
+                                    <ComboBoxItem Content="This Month"
+                                                  Tag="month"
                                                   IsSelected="True"/>
-                                    <ComboBoxItem Content="Last Month"
-                                                  Tag="last"/>
-                                    <ComboBoxItem Content="Last 3 Months"
-                                                  Tag="last3"/>
+                                    <ComboBoxItem Content="This Year"
+                                                  Tag="year"/>
                                 </ComboBox>
 
                                 <!-- Export Button -->
@@ -74,7 +146,7 @@
                                 Spacing="20"
                                 Margin="0,4,0,0">
                         <!-- Statistics Cards (KPICard Components) -->
-                        <Grid ColumnSpacing="16">
+                        <Grid x:Name="KPIGrid" ColumnSpacing="16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
@@ -87,30 +159,32 @@
                                 Grid.Column="0"
                                 Title="Total GMV This Month"
                                 Icon="&#xE7DB;"
-                                Value="{x:Bind ViewModel.TotalGmvThisMonth, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                Value="{x:Bind ViewModel.TotalGmvThisMonth, Mode=OneWay}"
+                                IsCurrency="True"
                                 Subtitle="Total sales across platform"
                                 ShowBadge="Visible"
                                 TrendIcon="&#xE74E;"
                                 TrendText="Revenue"
-                                IconBackgroundBrush="#DFF0FF"
-                                IconForegroundBrush="#3B82F6"
-                                BadgeBackgroundBrush="#DFF0FF"
-                                BadgeForegroundBrush="#3B82F6"/>
+                                IconBackgroundBrush="{ThemeResource InfoBlueLightBrush}"
+                                IconForegroundBrush="{ThemeResource PrimaryBrush}"
+                                BadgeBackgroundBrush="{ThemeResource InfoBlueLightBrush}"
+                                BadgeForegroundBrush="{ThemeResource PrimaryBrush}"/>
 
                             <!-- Admin Commission KPI -->
                             <cards:KPICard
                                 Grid.Column="1"
                                 Title="Admin Commission"
                                 Icon="&#xE8D0;"
-                                Value="{x:Bind ViewModel.AdminCommission, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                Value="{x:Bind ViewModel.AdminCommission, Mode=OneWay}"
+                                IsCurrency="True"
                                 Subtitle="5% of total GMV"
                                 ShowBadge="Visible"
                                 TrendIcon="&#xE8D0;"
                                 TrendText="Earnings"
-                                IconBackgroundBrush="#D1FAE5"
-                                IconForegroundBrush="#10B981"
-                                BadgeBackgroundBrush="#D1FAE5"
-                                BadgeForegroundBrush="#10B981"/>
+                                IconBackgroundBrush="{ThemeResource SuccessGreenLightBrush}"
+                                IconForegroundBrush="{ThemeResource SuccessGreenBrush}"
+                                BadgeBackgroundBrush="{ThemeResource SuccessGreenLightBrush}"
+                                BadgeForegroundBrush="{ThemeResource SuccessGreenBrush}"/>
 
                             <!-- Active SalesAgents KPI -->
                             <cards:KPICard
@@ -122,10 +196,10 @@
                                 ShowBadge="Visible"
                                 TrendIcon="&#xE716;"
                                 TrendText="Sellers"
-                                IconBackgroundBrush="#FEF3C7"
-                                IconForegroundBrush="#F59E0B"
-                                BadgeBackgroundBrush="#FEF3C7"
-                                BadgeForegroundBrush="#F59E0B"/>
+                                IconBackgroundBrush="{ThemeResource WarningAmberLightBrush}"
+                                IconForegroundBrush="{ThemeResource WarningAmberBrush}"
+                                BadgeBackgroundBrush="{ThemeResource WarningAmberLightBrush}"
+                                BadgeForegroundBrush="{ThemeResource WarningAmberBrush}"/>
 
                             <!-- Items To Review KPI -->
                             <cards:KPICard
@@ -137,10 +211,10 @@
                                 ShowBadge="Visible"
                                 TrendIcon="&#xE7BA;"
                                 TrendText="Moderate"
-                                IconBackgroundBrush="#FEE2E2"
-                                IconForegroundBrush="#DC2626"
-                                BadgeBackgroundBrush="#FEE2E2"
-                                BadgeForegroundBrush="#DC2626"/>
+                                IconBackgroundBrush="{ThemeResource ErrorRedLightBrush}"
+                                IconForegroundBrush="{ThemeResource ErrorRedBrush}"
+                                BadgeBackgroundBrush="{ThemeResource ErrorRedLightBrush}"
+                                BadgeForegroundBrush="{ThemeResource ErrorRedBrush}"/>
                         </Grid>
 
                         <!-- Charts Section -->
@@ -164,11 +238,11 @@
 
                             <!-- Sales by Category -->
                             <Border Grid.Column="1"
-                                    Background="#FFFFFF"
-                                    CornerRadius="16"
-                                    BorderBrush="#E5E7EB"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    CornerRadius="8"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
-                                    Padding="24">
+                                    Padding="{StaticResource Padding_XL}">
                                 <Border.Shadow>
                                     <ThemeShadow/>
                                 </Border.Shadow>
@@ -184,17 +258,17 @@
                                                    Text="Top Sales"
                                                    FontSize="18"
                                                    FontWeight="SemiBold"
-                                                   Foreground="#111827"
+                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                    VerticalAlignment="Center"/>
 
                                         <!-- Toggle Buttons -->
                                         <StackPanel Grid.Column="1"
                                                     Orientation="Horizontal"
-                                                    Spacing="8">
+                                                    Spacing="8"
+                                                    VerticalAlignment="Center">
                                             <!-- Category Button -->
                                             <Button Content="Category"
-                                                    Height="32"
-                                                    Padding="12,0"
+                                                    Padding="{StaticResource ButtonPadding_SM}"
                                                     CornerRadius="8"
                                                     FontSize="13"
                                                     FontWeight="SemiBold"
@@ -202,13 +276,12 @@
                                                     CommandParameter="category"
                                                     Background="{x:Bind ViewModel.IsCategoryView, Mode=OneWay, Converter={StaticResource BoolToButtonBackgroundConverter}}"
                                                     Foreground="{x:Bind ViewModel.IsCategoryView, Mode=OneWay, Converter={StaticResource BoolToButtonForegroundConverter}}"
-                                                    BorderBrush="#E5E7EB"
+                                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                                     BorderThickness="1"/>
 
                                             <!-- Agents Button -->
                                             <Button Content="Agents"
-                                                    Height="32"
-                                                    Padding="12,0"
+                                                    Padding="{StaticResource ButtonPadding_SM}"
                                                     CornerRadius="8"
                                                     FontSize="13"
                                                     FontWeight="SemiBold"
@@ -216,7 +289,7 @@
                                                     CommandParameter="agents"
                                                     Background="{x:Bind ViewModel.IsAgentsView, Mode=OneWay, Converter={StaticResource BoolToButtonBackgroundConverter}}"
                                                     Foreground="{x:Bind ViewModel.IsAgentsView, Mode=OneWay, Converter={StaticResource BoolToButtonForegroundConverter}}"
-                                                    BorderBrush="#E5E7EB"
+                                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                                     BorderThickness="1"/>
                                         </StackPanel>
                                     </Grid>
@@ -230,7 +303,7 @@
                                                   Visibility="{x:Bind ViewModel.CategoryData.Count, Mode=OneWay, Converter={StaticResource InverseCountToVisibilityConverter}}">
                                             <ListView.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:CategoryDataPoint">
-                                                    <Grid Padding="0,12"
+                                                    <Grid Padding="{StaticResource Padding_MD}"
                                                           ColumnSpacing="16">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*"/>
@@ -244,22 +317,22 @@
                                                             <TextBlock Text="{x:Bind Name}"
                                                                        FontSize="14"
                                                                        FontWeight="Medium"
-                                                                       Foreground="#111827"
+                                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                                        TextWrapping="NoWrap"
                                                                        TextTrimming="CharacterEllipsis"/>
                                                             <ProgressBar Value="{x:Bind Percentage}"
                                                                          Maximum="100"
                                                                          Height="8"
                                                                          CornerRadius="4"
-                                                                         Foreground="#3B82F6"
-                                                                         Background="#E5E7EB"/>
+                                                                         Foreground="{ThemeResource PrimaryBrush}"
+                                                                         Background="{ThemeResource CardStrokeColorDefaultBrush}"/>
                                                         </StackPanel>
 
                                                         <!-- Percentage -->
                                                         <TextBlock Grid.Column="1"
                                                                    FontSize="15"
                                                                    FontWeight="SemiBold"
-                                                                   Foreground="#3B82F6"
+                                                                   Foreground="{ThemeResource PrimaryBrush}"
                                                                    HorizontalAlignment="Right"
                                                                    VerticalAlignment="Center"
                                                                    TextAlignment="Right">
@@ -290,10 +363,10 @@
                                                     Padding="24">
                                             <FontIcon Glyph="&#xE9F9;"
                                                       FontSize="32"
-                                                      Foreground="#9CA3AF"/>
+                                                      Foreground="{ThemeResource Gray500Brush}"/>
                                             <TextBlock Text="No category data available"
                                                        FontSize="14"
-                                                       Foreground="#6B7280"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                        HorizontalAlignment="Center"/>
                                         </StackPanel>
                                     </Grid>
@@ -307,7 +380,7 @@
                                                   Visibility="{x:Bind ViewModel.TopSalesAgents.Count, Mode=OneWay, Converter={StaticResource InverseCountToVisibilityConverter}}">
                                             <ListView.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:TopSalesAgentItem">
-                                                    <Grid Padding="0,12"
+                                                    <Grid Padding="{StaticResource Padding_MD}"
                                                           ColumnSpacing="16">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*"/>
@@ -328,17 +401,17 @@
                                                                 <TextBlock Text="{x:Bind Name}"
                                                                            FontSize="14"
                                                                            FontWeight="Medium"
-                                                                           Foreground="#111827"
+                                                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                                            TextWrapping="NoWrap"
                                                                            TextTrimming="CharacterEllipsis"/>
                                                                 <StackPanel Orientation="Horizontal"
                                                                             Spacing="4">
                                                                     <FontIcon Glyph="&#xE735;"
                                                                               FontSize="10"
-                                                                              Foreground="#F59E0B"/>
+                                                                              Foreground="{ThemeResource WarningAmberBrush}"/>
                                                                     <TextBlock Text="{x:Bind Rating}"
                                                                                FontSize="11"
-                                                                               Foreground="#6B7280"/>
+                                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                                 </StackPanel>
                                                             </StackPanel>
                                                         </StackPanel>
@@ -347,7 +420,7 @@
                                                         <TextBlock Grid.Column="1"
                                                                    FontSize="14"
                                                                    FontWeight="SemiBold"
-                                                                   Foreground="#10B981"
+                                                                   Foreground="{ThemeResource SuccessGreenBrush}"
                                                                    HorizontalAlignment="Right"
                                                                    VerticalAlignment="Center"
                                                                    TextAlignment="Right">
@@ -375,13 +448,13 @@
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
                                                     Spacing="12"
-                                                    Padding="24">
+                                                    Padding="{StaticResource Padding_XL}">
                                             <FontIcon Glyph="&#xE716;"
                                                       FontSize="32"
-                                                      Foreground="#9CA3AF"/>
+                                                      Foreground="{ThemeResource Gray500Brush}"/>
                                             <TextBlock Text="No agent data available"
                                                        FontSize="14"
-                                                       Foreground="#6B7280"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                        HorizontalAlignment="Center"/>
                                         </StackPanel>
                                     </Grid>
@@ -406,7 +479,7 @@
                                     <StackPanel Spacing="0">
                                         <!-- Table Header -->
                                         <Grid Padding="0,0,0,12"
-                                              BorderBrush="#E5E7EB"
+                                              BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                               BorderThickness="0,0,0,1">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="2*"/>
@@ -420,27 +493,27 @@
                                                        Text="AGENT"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
-                                                       Foreground="#6B7280"/>
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                             <TextBlock Grid.Column="1"
                                                        Text="GMV"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
-                                                       Foreground="#6B7280"/>
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                             <TextBlock Grid.Column="2"
                                                        Text="COMMISSION"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
-                                                       Foreground="#6B7280"/>
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                             <TextBlock Grid.Column="3"
                                                        Text="RATING"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
-                                                       Foreground="#6B7280"/>
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                             <TextBlock Grid.Column="4"
                                                        Text="STATUS"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
-                                                       Foreground="#6B7280"/>
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         </Grid>
 
                                         <!-- Top SalesAgents List -->
@@ -448,8 +521,8 @@
                                                   SelectionMode="None">
                                             <ListView.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:TopSalesAgentItem">
-                                                    <Grid Padding="0,12"
-                                                          BorderBrush="#E5E7EB"
+                                                    <Grid Padding="{StaticResource Padding_MD}"
+                                                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                                           BorderThickness="0,0,0,1">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="2*"/>
@@ -471,10 +544,10 @@
                                                                 <TextBlock Text="{x:Bind Name}"
                                                                            FontSize="14"
                                                                            FontWeight="SemiBold"
-                                                                           Foreground="#111827"/>
+                                                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                                                 <TextBlock Text="{x:Bind Email}"
                                                                            FontSize="12"
-                                                                           Foreground="#6B7280"/>
+                                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                             </StackPanel>
                                                         </StackPanel>
 
@@ -482,7 +555,7 @@
                                                         <TextBlock Grid.Column="1"
                                                                    VerticalAlignment="Center"
                                                                    FontSize="14"
-                                                                   Foreground="#111827">
+                                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}">
                                                 <Run Text="{x:Bind GMV, Converter={StaticResource CurrencyConverter}}"/>
                                                         </TextBlock>
 
@@ -491,7 +564,7 @@
                                                                    VerticalAlignment="Center"
                                                                    FontSize="14"
                                                                    FontWeight="SemiBold"
-                                                                   Foreground="#10B981">
+                                                                   Foreground="{ThemeResource SuccessGreenBrush}">
                                                 <Run Text="{x:Bind Commission, Converter={StaticResource CurrencyConverter}}"/>
                                                         </TextBlock>
 
@@ -502,10 +575,10 @@
                                                                     VerticalAlignment="Center">
                                                             <FontIcon Glyph="&#xE735;"
                                                                       FontSize="14"
-                                                                      Foreground="#F59E0B"/>
+                                                                      Foreground="{ThemeResource WarningAmberBrush}"/>
                                                             <TextBlock Text="{x:Bind Rating}"
                                                                        FontSize="14"
-                                                                       Foreground="#111827"/>
+                                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                                         </StackPanel>
 
                                                         <!-- Status Badge -->
@@ -541,7 +614,7 @@
                                     <StackPanel Spacing="0">
                                         <!-- Table Header -->
                                         <Grid Padding="0,0,0,12"
-                                              BorderBrush="#E5E7EB"
+                                              BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                               BorderThickness="0,0,0,1">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="2*"/>
@@ -555,27 +628,27 @@
                                                        Text="PRODUCT"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
-                                                       Foreground="#6B7280"/>
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                             <TextBlock Grid.Column="1"
                                                        Text="AGENT"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
-                                                       Foreground="#6B7280"/>
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                             <TextBlock Grid.Column="2"
                                                        Text="CATEGORY"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
-                                                       Foreground="#6B7280"/>
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                             <TextBlock Grid.Column="3"
                                                        Text="STATE"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
-                                                       Foreground="#6B7280"/>
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                             <TextBlock Grid.Column="4"
                                                        Text="ACTION"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
-                                                       Foreground="#6B7280"/>
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         </Grid>
 
                                         <!-- Flagged Products List -->
@@ -583,8 +656,8 @@
                                                   SelectionMode="None">
                                             <ListView.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:FlaggedProductItem">
-                                                    <Grid Padding="0,12"
-                                                          BorderBrush="#E5E7EB"
+                                                    <Grid Padding="{StaticResource Padding_MD}"
+                                                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                                           BorderThickness="0,0,0,1">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="2*"/>
@@ -598,7 +671,7 @@
                                                         <TextBlock Grid.Column="0"
                                                                    Text="{x:Bind Name}"
                                                                    FontSize="14"
-                                                                   Foreground="#111827"
+                                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                                    VerticalAlignment="Center"
                                                                    TextWrapping="Wrap"/>
 
@@ -606,14 +679,14 @@
                                                         <TextBlock Grid.Column="1"
                                                                    Text="{x:Bind Agent}"
                                                                    FontSize="14"
-                                                                   Foreground="#6B7280"
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                                    VerticalAlignment="Center"/>
 
                                                         <!-- Category -->
                                                         <TextBlock Grid.Column="2"
                                                                    Text="{x:Bind Category}"
                                                                    FontSize="14"
-                                                                   Foreground="#111827"
+                                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                                    VerticalAlignment="Center"/>
 
                                                         <!-- State Badge -->
@@ -624,16 +697,13 @@
 
                                                         <!-- Action Button -->
                                                         <Button Grid.Column="4"
+                                                                Style="{StaticResource IconButtonStyle}"
                                                                 Width="32"
                                                                 Height="32"
-                                                                Padding="0"
-                                                                Background="Transparent"
-                                                                BorderThickness="0"
-                                                                CornerRadius="8"
                                                                 VerticalAlignment="Center">
                                                             <FontIcon Glyph="&#xE712;"
                                                                       FontSize="16"
-                                                                      Foreground="#6B7280"/>
+                                                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                         </Button>
                                                     </Grid>
                                                 </DataTemplate>
@@ -666,7 +736,7 @@
             <StackPanel HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Spacing="24"
-                        Padding="48">
+                        Padding="{StaticResource Padding_3XL}">
                 <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
                               Width="64"
                               Height="64"/>
@@ -683,3 +753,4 @@
         </Grid>
     </Grid>
 </Page>
+

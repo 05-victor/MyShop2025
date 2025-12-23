@@ -16,6 +16,7 @@ using MyShop.Core.Interfaces.Services;
 using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Plugins.API.Auth;
 using MyShop.Plugins.API.Dashboard;
+using MyShop.Plugins.API.Files;
 using MyShop.Plugins.API.Products;
 using MyShop.Plugins.API.Orders;
 using MyShop.Plugins.API.Categories;
@@ -51,33 +52,33 @@ namespace MyShop.Client.Config
                 .ConfigureAppConfiguration((context, config) =>
                 {
                     config.SetBasePath(AppContext.BaseDirectory);
-                    
+
                     // Hierarchical configuration with environment-specific overrides
                     var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production";
                     System.Diagnostics.Debug.WriteLine($"[Bootstrapper] Environment: {environment}");
-                    
+
                     // Load embedded appsettings.json from assembly resources
                     var assembly = typeof(App).Assembly;
                     using var resourceStream = assembly.GetManifestResourceStream("MyShop.Client.appsettings.json");
                     if (resourceStream == null)
                         throw new InvalidOperationException("Embedded resource 'appsettings.json' not found in assembly.");
-                    
+
                     // Copy to MemoryStream to keep data available after resourceStream is disposed
                     var memoryStream = new MemoryStream();
                     resourceStream.CopyTo(memoryStream);
                     memoryStream.Position = 0; // Reset to beginning for reading
                     config.AddJsonStream(memoryStream);
-                    
+
                     // Load environment-specific settings from file (optional, only in Debug mode)
                     config.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);
-                    
+
                     // Add user secrets in Development
                     if (environment == "Development")
                     {
                         // User secrets ID from csproj: <UserSecretsId>myshop-client-secrets</UserSecretsId>
                         config.AddUserSecrets<App>(optional: true);
                     }
-                    
+
                     // Environment variables override everything
                     config.AddEnvironmentVariables(prefix: "MYSHOP_");
                 })
@@ -85,7 +86,7 @@ namespace MyShop.Client.Config
                 {
                     // ===== OPTIONS PATTERN REGISTRATION =====
                     // Register all configuration options with validation
-                    
+
                     // API Options
                     services.AddOptions<Options.ApiOptions>()
                         .Bind(context.Configuration.GetSection("Api"))
@@ -126,7 +127,7 @@ namespace MyShop.Client.Config
                     // Check if using Mock Data
                     var useMockData = context.Configuration.GetValue<bool>("FeatureFlags:UseMockData");
                     var enableDeveloperOptions = context.Configuration.GetValue<bool>("FeatureFlags:EnableDeveloperOptions");
-                    
+
                     System.Diagnostics.Debug.WriteLine($"[Bootstrapper] UseMockData={useMockData}");
                     System.Diagnostics.Debug.WriteLine($"[Bootstrapper] EnableDeveloperOptions={enableDeveloperOptions}");
 
@@ -143,7 +144,7 @@ namespace MyShop.Client.Config
                     // This is more secure than FileCredentialStorage and more flexible than WindowsCredentialStorage
                     services.AddSingleton<ICredentialStorage, SecureCredentialStorage>();
                     services.AddSingleton<ISettingsStorage, FileSettingsStorage>();
-                    
+
                     System.Diagnostics.Debug.WriteLine("[Bootstrapper] Using SecureCredentialStorage (DPAPI encrypted)");
                     System.Diagnostics.Debug.WriteLine("[Bootstrapper] Using FileSettingsStorage (per-user preferences)");
 
@@ -151,7 +152,7 @@ namespace MyShop.Client.Config
                     {
                         // ===== Mock Mode - No HTTP Clients =====
                         System.Diagnostics.Debug.WriteLine("[Bootstrapper] Using MOCK DATA mode");
-                        
+
                         // ===== Repositories (Mock - from Plugins) =====
                         // Changed to Transient to allow XAML root provider resolution
                         services.AddTransient<IAuthRepository, MockAuthRepository>();
@@ -166,7 +167,8 @@ namespace MyShop.Client.Config
                         services.AddTransient<ICartRepository, MockCartRepository>();
                         services.AddTransient<IAgentRequestRepository, MockAgentRequestsRepository>();
                         services.AddTransient<ISystemActivationRepository, MockSystemActivationRepository>();
-                        
+                        services.AddTransient<IChatService, MockChatRepository>();
+
                         System.Diagnostics.Debug.WriteLine("[Bootstrapper] All Mock Repositories registered");
                     }
                     else
@@ -175,9 +177,9 @@ namespace MyShop.Client.Config
                         System.Diagnostics.Debug.WriteLine("[Bootstrapper] Using REAL API mode");
 
                         // Get API options for Refit client configuration
-                        var apiOptions = context.Configuration.GetSection("Api").Get<Options.ApiOptions>() 
+                        var apiOptions = context.Configuration.GetSection("Api").Get<Options.ApiOptions>()
                             ?? throw new InvalidOperationException("API configuration is missing");
-                        
+
                         System.Diagnostics.Debug.WriteLine($"[Bootstrapper] API BaseUrl: {apiOptions.BaseUrl}");
                         System.Diagnostics.Debug.WriteLine($"[Bootstrapper] API Timeout: {apiOptions.RequestTimeoutSeconds}s");
 
@@ -196,6 +198,10 @@ namespace MyShop.Client.Config
                             .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
 
                         services.AddRefitClient<IDashboardApi>()
+                            .ConfigureHttpClient(ConfigureApiClient)
+                            .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
+
+                        services.AddRefitClient<IFilesApi>()
                             .ConfigureHttpClient(ConfigureApiClient)
                             .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
 
@@ -231,7 +237,15 @@ namespace MyShop.Client.Config
                             .ConfigureHttpClient(ConfigureApiClient)
                             .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
 
-                        System.Diagnostics.Debug.WriteLine("[Bootstrapper] All 8 Refit API clients registered");
+                        services.AddRefitClient<MyShop.Plugins.API.Earnings.IEarningsApi>()
+                            .ConfigureHttpClient(ConfigureApiClient)
+                            .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
+
+                        services.AddRefitClient<MyShop.Plugins.API.Users.IAgentRequestsApi>()
+                            .ConfigureHttpClient(ConfigureApiClient)
+                            .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
+
+                        System.Diagnostics.Debug.WriteLine("[Bootstrapper] All 10 Refit API clients registered (including IEarningsApi and IAgentRequestsApi)");
 
                         // ===== Repositories (Real - from Plugins) =====
                         // Changed to Transient to allow XAML root provider resolution
@@ -245,10 +259,10 @@ namespace MyShop.Client.Config
                         services.AddTransient<ICartRepository, CartRepository>();
                         services.AddTransient<IReportRepository, ReportRepository>();
                         services.AddTransient<ICommissionRepository, CommissionRepository>();
-                        
-                        // TODO: Replace with real implementations when API is ready
-                        services.AddTransient<IAgentRequestRepository, MockAgentRequestsRepository>();
+                        services.AddTransient<MyShop.Core.Interfaces.Repositories.IEarningsRepository, MyShop.Plugins.Repositories.Api.EarningsRepository>();
+                        services.AddTransient<IAgentRequestRepository, MyShop.Plugins.Repositories.Api.AgentRequestRepository>();
                         services.AddTransient<ISystemActivationRepository, MockSystemActivationRepository>();
+                        services.AddTransient<IChatService, ChatRepository>();
                     }
 
                     // ===== Services (from Client.Services) =====
@@ -257,40 +271,60 @@ namespace MyShop.Client.Config
                     services.AddTransient<MyShop.Core.Interfaces.Services.IDialogService, Services.DialogService>();
                     services.AddSingleton<MyShop.Core.Interfaces.Services.IValidationService, Services.ValidationService>();
                     services.AddSingleton<MyShop.Core.Interfaces.Services.IExportService, Services.ExportService>();
-                    
+                    services.AddSingleton<ICurrentUserService, CurrentUserService>();
+                    services.AddSingleton<Services.IChartExportService, Services.ChartExportService>();
+                    services.AddSingleton<Services.IPdfExportService, Services.PdfExportService>();
+
+                    // ===== Performance & Caching Services =====
+                    services.AddSingleton<Services.ICacheService, Services.CacheService>();
+                    services.AddSingleton<Services.IImageCacheService, Services.ImageCacheService>();
+                    System.Diagnostics.Debug.WriteLine("[Bootstrapper] CacheService and ImageCacheService registered as Singletons");
+
+                    // ===== Advanced Features Services (T18) =====
+                    services.AddSingleton<Services.IActivityLogService, Services.ActivityLogService>();
+                    services.AddSingleton<Services.IBatchOperationService, Services.BatchOperationService>();
+                    services.AddSingleton<Services.IAppNotificationService, Services.AppNotificationService>();
+                    services.AddSingleton<Services.ISavedSearchService, Services.SavedSearchService>();
+                    System.Diagnostics.Debug.WriteLine("[Bootstrapper] Advanced Features services registered (ActivityLog, BatchOps, Notifications, SavedSearch)");
+
                     // ===== Configuration Service (Centralized Config Access) =====
                     services.AddSingleton<Services.Configuration.IConfigurationService, Services.Configuration.ConfigurationService>();
                     System.Diagnostics.Debug.WriteLine("[Bootstrapper] ConfigurationService registered as Singleton");
-                    
+
+                    // ===== Settings Service (User preferences) =====
+                    services.AddSingleton<Services.SettingsService>();
+                    System.Diagnostics.Debug.WriteLine("[Bootstrapper] SettingsService registered as Singleton");
+
                     // ===== Pagination Service (Global runtime settings) =====
                     services.AddSingleton<MyShop.Core.Interfaces.Services.IPaginationService, PaginationService>();
                     System.Diagnostics.Debug.WriteLine("[Bootstrapper] PaginationService registered as Singleton");
 
                     // ===== Facades (Application Core - aggregates multiple services) =====
                     // Changed from Scoped to Transient to allow resolution from root provider (XAML constructor injection)
-                    
+
                     // Authentication & User Management
                     services.AddTransient<MyShop.Core.Interfaces.Facades.IAuthFacade, Facades.AuthFacade>();
                     services.AddTransient<MyShop.Core.Interfaces.Facades.IProfileFacade, Facades.ProfileFacade>();
                     services.AddTransient<MyShop.Core.Interfaces.Facades.IUserFacade, Facades.Users.UserFacade>();
-                    
+
                     // Product & Catalog
                     services.AddTransient<MyShop.Core.Interfaces.Facades.IProductFacade, Facades.ProductFacade>();
                     services.AddTransient<MyShop.Core.Interfaces.Facades.ICategoryFacade, Facades.Products.CategoryFacade>();
-                    
+
                     // Shopping & Orders
                     services.AddTransient<MyShop.Core.Interfaces.Facades.ICartFacade, Facades.CartFacade>();
                     services.AddTransient<MyShop.Core.Interfaces.Facades.IOrderFacade, Facades.OrderFacade>();
-                    
+
                     // Dashboard & Reports
                     services.AddTransient<MyShop.Core.Interfaces.Facades.IDashboardFacade, Facades.DashboardFacade>();
                     services.AddTransient<MyShop.Core.Interfaces.Facades.IReportFacade, Facades.Reports.ReportFacade>();
-                    
+
                     // Sales Agent Management
                     services.AddTransient<MyShop.Core.Interfaces.Facades.ICommissionFacade, Facades.Reports.CommissionFacade>();
+                    services.AddTransient<MyShop.Core.Interfaces.Facades.IEarningsFacade, Facades.EarningsFacade>();
                     services.AddTransient<MyShop.Core.Interfaces.Facades.IAgentRequestFacade, Facades.Users.AgentRequestFacade>();
-                    
-                    System.Diagnostics.Debug.WriteLine("[Bootstrapper] All 11 Facades registered successfully");
+
+                    System.Diagnostics.Debug.WriteLine("[Bootstrapper] All 12 Facades registered successfully");
 
                     // ===== MediatR (CQRS) =====
                     services.AddMediatR(cfg =>
@@ -305,32 +339,32 @@ namespace MyShop.Client.Config
 
                     // ===== Strategies (from Client.Strategies) =====
                     services.AddSingleton<IRoleStrategy, AdminDashboardStrategy>();
-                    services.AddSingleton<IRoleStrategy, SalesmanDashboardStrategy>();
+                    services.AddSingleton<IRoleStrategy, SalesAgentDashboardStrategy>();
                     services.AddSingleton<IRoleStrategy, CustomerDashboardStrategy>();
                     services.AddSingleton<IRoleStrategyFactory, RoleStrategyFactory>();
 
                     // ===== ViewModels (Client) =====
                     services.AddTransient<ViewModels.Shared.LoginViewModel>();
                     services.AddTransient<ViewModels.Shared.RegisterViewModel>();
-                    
+
                     // Admin ViewModels
                     services.AddTransient<ViewModels.Admin.AdminDashboardViewModel>();
                     services.AddTransient<ViewModels.Admin.AdminProductsViewModel>();
                     services.AddTransient<ViewModels.Admin.AdminUsersViewModel>();
                     services.AddTransient<ViewModels.Admin.AdminReportsViewModel>();
                     services.AddTransient<ViewModels.Admin.AdminAgentRequestsViewModel>();
-                    
+
                     // Customer ViewModels
                     services.AddTransient<ViewModels.Customer.CustomerDashboardViewModel>();
                     services.AddTransient<ViewModels.Customer.BecomeAgentViewModel>();
-                    
+
                     // SalesAgent ViewModels
                     services.AddTransient<ViewModels.SalesAgent.SalesAgentDashboardViewModel>();
                     services.AddTransient<ViewModels.SalesAgent.SalesAgentEarningsViewModel>();
                     services.AddTransient<ViewModels.SalesAgent.SalesAgentProductsViewModel>();
                     services.AddTransient<ViewModels.SalesAgent.SalesAgentReportsViewModel>();
                     services.AddTransient<ViewModels.SalesAgent.SalesAgentOrdersViewModel>();
-                    
+
                     // Shared ViewModels
                     services.AddTransient<ViewModels.Shared.ProductBrowseViewModel>();
                     services.AddTransient<ViewModels.Shared.CartViewModel>();
@@ -338,7 +372,7 @@ namespace MyShop.Client.Config
                     services.AddTransient<ViewModels.Shared.PurchaseOrdersViewModel>();
                     services.AddTransient<ViewModels.Shared.ProfileViewModel>();
                     services.AddTransient<ViewModels.Shared.ChangePasswordViewModel>();
-                    
+
                     // Shell & Settings
                     services.AddTransient<ViewModels.Shell.DashboardShellViewModel>();
                     services.AddTransient<ViewModels.Settings.SettingsViewModel>();

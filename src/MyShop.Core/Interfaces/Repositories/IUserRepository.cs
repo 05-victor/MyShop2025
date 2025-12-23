@@ -12,11 +12,6 @@ namespace MyShop.Core.Interfaces.Repositories;
 public interface IUserRepository
 {
     /// <summary>
-    /// Check if any users exist in the system (for first-user setup flow)
-    /// </summary>
-    Task<Result<bool>> HasAnyUsersAsync();
-
-    /// <summary>
     /// Get all users (for admin management)
     /// </summary>
     Task<Result<IEnumerable<User>>> GetAllAsync();
@@ -67,4 +62,18 @@ public interface IUserRepository
     /// <param name="progress">Optional progress reporter</param>
     /// <returns>Updated user with new avatar URL</returns>
     Task<Result<User>> UploadAvatarAsync(byte[] imageBytes, string fileName, IProgress<double>? progress = null);
+
+    /// <summary>
+    /// Get user by ID
+    /// </summary>
+    /// <param name="userId">User ID to retrieve</param>
+    /// <returns>User object if found</returns>
+    Task<Result<User>> GetByIdAsync(Guid userId);
+
+    /// <summary>
+    /// Delete user by ID
+    /// </summary>
+    /// <param name="userId">User ID to delete</param>
+    /// <returns>Success/failure result</returns>
+    Task<Result<bool>> DeleteUserAsync(Guid userId);
 }

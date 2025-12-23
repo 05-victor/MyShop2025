@@ -6,13 +6,16 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
+    xmlns:converters="using:MyShop.Client.Common.Converters"
     mc:Ignorable="d"
     x:Name="RootControl">
 
-    <Border Background="#FFFFFF"
-            CornerRadius="16"
-            BorderBrush="#E5E7EB"
-            BorderThickness="1"
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+    </UserControl.Resources>
+
+    <Border Style="{StaticResource DefaultCardStyle}"
             Padding="24">
         <Border.Shadow>
             <ThemeShadow/>
@@ -36,10 +39,10 @@
                     <TextBlock Text="{Binding Title, ElementName=RootControl, Mode=OneWay}"
                                FontSize="18"
                                FontWeight="SemiBold"
-                               Foreground="#111827"/>
+                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                     <TextBlock Text="{Binding Subtitle, ElementName=RootControl, Mode=OneWay}"
                                FontSize="14"
-                               Foreground="#6B7280"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                Margin="0,4,0,0"
                                Visibility="{Binding ShowSubtitle, ElementName=RootControl, Mode=OneWay}"/>
                 </StackPanel>
@@ -66,14 +69,29 @@
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
                             <MenuFlyoutSeparator/>
-                            <MenuFlyoutItem Text="Export CSV" Click="ExportMenuItem_Click">
-                                <MenuFlyoutItem.Icon>
+                            <MenuFlyoutSubItem Text="Export">
+                                <MenuFlyoutSubItem.Icon>
                                     <FontIcon Glyph="&#xE896;"/>
-                                </MenuFlyoutItem.Icon>
-                            </MenuFlyoutItem>
+                                </MenuFlyoutSubItem.Icon>
+                                <MenuFlyoutItem Text="Export as PNG" Click="ExportPngMenuItem_Click">
+                                    <MenuFlyoutItem.Icon>
+                                        <FontIcon Glyph="&#xEB9F;"/>
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutItem Text="Export as PDF" Click="ExportPdfMenuItem_Click">
+                                    <MenuFlyoutItem.Icon>
+                                        <FontIcon Glyph="&#xEA90;"/>
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutItem Text="Export as CSV" Click="ExportCsvMenuItem_Click">
+                                    <MenuFlyoutItem.Icon>
+                                        <FontIcon Glyph="&#xF0E7;"/>
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                            </MenuFlyoutSubItem>
                         </MenuFlyout>
                     </Button.Flyout>
-                    <FontIcon Glyph="&#xE712;" FontSize="16" Foreground="#6B7280"/>
+                    <FontIcon Glyph="&#xE712;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 </Button>
             </Grid>
 
@@ -85,30 +103,78 @@
                        Visibility="{Binding ShowLegend, ElementName=RootControl, Mode=OneWay}">
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <Border Width="12" Height="12" 
-                           Background="#3B82F6" 
+                           Background="{ThemeResource PrimaryBrush}" 
                            CornerRadius="2"/>
                     <TextBlock Text="{Binding Legend1Text, ElementName=RootControl, Mode=OneWay}"
                               FontSize="13"
-                              Foreground="#6B7280"/>
+                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="8"
                            Visibility="{Binding ShowLegend2, ElementName=RootControl, Mode=OneWay}">
                     <Border Width="12" Height="12" 
-                           Background="#10B981" 
+                           Background="{ThemeResource SuccessGreenBrush}" 
                            CornerRadius="2"/>
                     <TextBlock Text="{Binding Legend2Text, ElementName=RootControl, Mode=OneWay}"
                               FontSize="13"
-                              Foreground="#6B7280"/>
+                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 </StackPanel>
             </StackPanel>
 
             <!-- Chart -->
             <lvc:CartesianChart Grid.Row="2"
+                               x:Name="ChartControl"
                                Series="{Binding Series, ElementName=RootControl, Mode=OneWay}"
                                XAxes="{Binding XAxes, ElementName=RootControl, Mode=OneWay}"
                                YAxes="{Binding YAxes, ElementName=RootControl, Mode=OneWay}"
                                Height="{Binding ChartHeight, ElementName=RootControl, Mode=OneWay}"
-                               MinHeight="280"/>
+                               MinHeight="280"
+                               Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                               Visibility="{x:Bind IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+
+            <!-- Loading State -->
+            <Grid Grid.Row="2"
+                  Visibility="{x:Bind IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+                    <ProgressRing IsActive="True" Width="40" Height="40"/>
+                    <TextBlock Text="Loading chart data..." 
+                              FontSize="14"
+                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                              AutomationProperties.LiveSetting="Assertive"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Empty State -->
+            <Grid Grid.Row="2"
+                  Visibility="{x:Bind IsEmpty, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+                    <FontIcon Glyph="&#xE7C3;" FontSize="48" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock Text="No data available" 
+                              FontSize="16" FontWeight="SemiBold"
+                              Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                    <TextBlock Text="Try adjusting your filters or date range" 
+                              FontSize="14"
+                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Error State -->
+            <Grid Grid.Row="2"
+                  Visibility="{x:Bind HasError, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+                    <FontIcon Glyph="&#xE783;" FontSize="48" Foreground="{ThemeResource ErrorRedBrush}"/>
+                    <TextBlock Text="Failed to load chart" 
+                              FontSize="16" FontWeight="SemiBold"
+                              Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                    <TextBlock Text="{x:Bind ErrorMessage, Mode=OneWay}" 
+                              FontSize="14"
+                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <Button Content="Retry" Click="RetryButton_Click" 
+                           AutomationProperties.Name="Retry loading chart"/>
+                </StackPanel>
+            </Grid>
         </Grid>
     </Border>
 </UserControl>

@@ -26,7 +26,7 @@ public partial class AddUserDialogViewModel : ObservableObject
     public ObservableCollection<string> AvailableRoles { get; } = new()
     {
         "Customer",
-        "Salesman",
+        "SalesAgent",
         "Admin"
     };
 
@@ -59,22 +59,22 @@ public partial class AddUserDialogViewModel : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(FullName))
             return "Full name is required";
-        
+
         if (string.IsNullOrWhiteSpace(Email))
             return "Email is required";
-        
+
         if (!Email.Contains("@") || !Email.Contains("."))
             return "Invalid email format";
-        
+
         if (string.IsNullOrWhiteSpace(Phone))
             return "Phone is required";
-        
+
         if (string.IsNullOrWhiteSpace(Password))
             return "Password is required";
-        
+
         if (Password.Length < 6)
             return "Password must be at least 6 characters";
-        
+
         if (Password != ConfirmPassword)
             return "Passwords do not match";
 

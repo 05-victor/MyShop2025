@@ -12,7 +12,7 @@ public interface IAgentRequestRepository
     /// Get all agent requests
     /// </summary>
     Task<Result<IEnumerable<AgentRequest>>> GetAllAsync();
-    
+
     /// <summary>
     /// Get agent request by ID
     /// </summary>
@@ -28,7 +28,7 @@ public interface IAgentRequestRepository
         string? searchQuery = null,
         string sortBy = "requestedAt",
         bool sortDescending = true);
-    
+
     /// <summary>
     /// Get user's own agent request
     /// </summary>
@@ -47,5 +47,5 @@ public interface IAgentRequestRepository
     /// <summary>
     /// Reject an agent request
     /// </summary>
-    Task<Result<bool>> RejectAsync(Guid id);
+    Task<Result<bool>> RejectAsync(Guid id, string reason = "");
 }

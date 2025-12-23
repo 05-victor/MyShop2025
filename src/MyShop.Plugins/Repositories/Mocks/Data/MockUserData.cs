@@ -94,11 +94,11 @@ public static class MockUserData
         // Filter by role (match against roleNames array)
         if (!string.IsNullOrWhiteSpace(role))
         {
-            // Map UI role names to JSON role names: Admin->ADMIN, Salesman->SALESAGENT, Customer->USER
+            // Map UI role names to JSON role names: Admin->ADMIN, SalesAgent->SALESAGENT, Customer->USER
             var jsonRoleName = role.ToUpper() switch
             {
                 "ADMIN" => "ADMIN",
-                "SALESMAN" => "SALESAGENT",
+                "SALESAGENT" => "SALESAGENT",
                 "CUSTOMER" => "USER",
                 _ => role.ToUpper()
             };
@@ -191,11 +191,11 @@ public static class MockUserData
         var jsonRoleName = primaryRole switch
         {
             UserRole.Admin => "ADMIN",
-            UserRole.Salesman => "SALESAGENT",
+            UserRole.SalesAgent => "SALESAGENT",
             UserRole.Customer => "USER",
             _ => "USER"
         };
-        
+
         var newUserData = new UserDataModel
         {
             Id = user.Id.ToString(),
@@ -273,11 +273,11 @@ public static class MockUserData
         var jsonRoleName = role.ToUpper() switch
         {
             "ADMIN" => "ADMIN",
-            "SALESMAN" => "SALESAGENT",
+            "SALESAGENT" => "SALESAGENT",
             "CUSTOMER" => "USER",
             _ => role.ToUpper()
         };
-        
+
         return _users!
             .Where(u => u.RoleNames != null && u.RoleNames.Any(r => r.Equals(jsonRoleName, StringComparison.OrdinalIgnoreCase)))
             .Select(MapToUser)
@@ -312,7 +312,7 @@ public static class MockUserData
         var role = primaryRoleName switch
         {
             "ADMIN" => UserRole.Admin,
-            "SALESAGENT" => UserRole.Salesman,
+            "SALESAGENT" => UserRole.SalesAgent,
             "USER" => UserRole.Customer,
             _ => UserRole.Customer
         };
@@ -378,7 +378,7 @@ public static class MockUserData
         public string? Avatar { get; set; }  // Changed from AvatarUrl to match JSON field name
         public DateTime CreatedAt { get; set; }
         public DateTime? LastLoginAt { get; set; }
-        
+
         // Helper property to get primary role from roleNames array
         public string PrimaryRole => RoleNames?.FirstOrDefault() ?? "USER";
     }

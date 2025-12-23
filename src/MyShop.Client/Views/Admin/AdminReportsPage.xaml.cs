@@ -134,17 +134,14 @@ public sealed partial class AdminReportsPage : Page
         await ViewModel.ExportReportCommand.ExecuteAsync(null);
     }
 
+    private async void ExportPdfButton_Click(object sender, RoutedEventArgs e)
+    {
+        await ViewModel.ExportReportCommand.ExecuteAsync(null);
+    }
+
     #endregion
 
     #region View Details Event Handlers
-
-    private void ViewProductDetails_Click(object sender, RoutedEventArgs e)
-    {
-        if (sender is Button button && button.Tag is ProductPerformance product)
-        {
-            ViewModel.ViewProductDetailsCommand.Execute(product);
-        }
-    }
 
     private void ViewSalespersonDetails_Click(object sender, RoutedEventArgs e)
     {

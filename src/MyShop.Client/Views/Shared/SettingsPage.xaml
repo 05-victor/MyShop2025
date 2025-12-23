@@ -2,6 +2,7 @@
     x:Class="MyShop.Client.Views.Shared.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:MyShop.Client.Views.Settings"
     xmlns:vm="using:MyShop.Client.ViewModels.Settings"
@@ -19,9 +20,65 @@
     </Page.Resources>
 
     <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="ResponsiveStates">
+                
+                <!-- Large Desktop: 1920px+ -->
+                <VisualState x:Name="LargeDesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1920"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="40,24,40,24"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Desktop: 1280-1919px -->
+                <VisualState x:Name="DesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1280"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="40,24,40,24"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet: 960-1279px -->
+                <VisualState x:Name="TabletState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="960"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="32,24,32,24"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet Portrait: 640-959px -->
+                <VisualState x:Name="TabletPortraitState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="640"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="24,24,24,24"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Mobile: 0-639px (Default) -->
+                <VisualState x:Name="MobileState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="16,24,16,24"/>
+                    </VisualState.Setters>
+                </VisualState>
+                
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
         <!--  Loading Overlay  -->
         <Border
-            Background="#80000000"
+            Background="{ThemeResource BlackSemiTransparent}"
             Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
             Canvas.ZIndex="999">
             <ProgressRing
@@ -33,8 +90,8 @@
 
         <!--  Main Content  -->
         <ScrollViewer>
-            <StackPanel MaxWidth="900"
-                    Padding="40"
+            <StackPanel x:Name="MainContent" MaxWidth="900"
+                    Padding="40,24,40,24"
                     Spacing="24">
                 <!--  Header  -->
                 <layout:PageHeader
@@ -59,10 +116,10 @@
                             <FontIconSource Glyph="&#xE713;"/>
                         </TabViewItem.IconSource>
                         <ScrollViewer>
-                            <StackPanel Padding="0,24"
+                            <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
                                     Spacing="24">
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -105,17 +162,12 @@
                                     </StackPanel>
                                 </Border>
 
-                                <Button HorizontalAlignment="Left"
-                                        Background="{ThemeResource AccentFillColorDefaultBrush}"
-                                        Command="{x:Bind ViewModel.SaveCommand}"
-                                        Foreground="White">
-                                    <StackPanel Orientation="Horizontal"
-                                            Spacing="8">
-                                        <FontIcon FontSize="14"
-                                                Glyph="&#xE74E;"/>
-                                        <TextBlock Text="Save Changes"/>
-                                    </StackPanel>
-                                </Button>
+                                <buttons:IconButton
+                                        HorizontalAlignment="Left"
+                                        Variant="Filled"
+                                        IconGlyph="&#xE74E;"
+                                        Text="Save Changes"
+                                        Command="{x:Bind ViewModel.SaveCommand}"/>
                             </StackPanel>
                         </ScrollViewer>
                     </TabViewItem>
@@ -127,10 +179,10 @@
                             <FontIconSource Glyph="&#xE8B8;"/>
                         </TabViewItem.IconSource>
                         <ScrollViewer>
-                            <StackPanel Padding="0,24"
+                            <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
                                     Spacing="24">
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -164,7 +216,7 @@
                                                     HorizontalAlignment="Stretch"/>
                                         </StackPanel>
 
-                                        <Border Padding="0,12"
+                                        <Border Padding="{StaticResource Spacing_3_Thickness}"
                                                 BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                 BorderThickness="0,1,0,0"
                                                 Margin="0,8,0,0">
@@ -190,17 +242,12 @@
                                     </StackPanel>
                                 </Border>
 
-                                <Button HorizontalAlignment="Left"
-                                        Background="{ThemeResource AccentFillColorDefaultBrush}"
-                                        Command="{x:Bind ViewModel.SaveCommand}"
-                                        Foreground="White">
-                                    <StackPanel Orientation="Horizontal"
-                                            Spacing="8">
-                                        <FontIcon FontSize="14"
-                                                Glyph="&#xE74E;"/>
-                                        <TextBlock Text="Save Changes"/>
-                                    </StackPanel>
-                                </Button>
+                                <buttons:IconButton
+                                        HorizontalAlignment="Left"
+                                        Variant="Filled"
+                                        IconGlyph="&#xE74E;"
+                                        Text="Save Changes"
+                                        Command="{x:Bind ViewModel.SaveCommand}"/>
                             </StackPanel>
                         </ScrollViewer>
                     </TabViewItem>
@@ -212,10 +259,10 @@
                             <FontIconSource Glyph="&#xE771;"/>
                         </TabViewItem.IconSource>
                         <ScrollViewer>
-                            <StackPanel Padding="0,24"
+                            <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
                                     Spacing="24">
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -224,9 +271,47 @@
                                         <TextBlock FontSize="16"
                                                 FontWeight="SemiBold"
                                                 Text="Appearance Settings"/>
+
+                                        <!-- Theme Selector -->
+                                        <Border Padding="{StaticResource Spacing_3_Thickness}"
+                                                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                                BorderThickness="0,0,0,1"
+                                                Margin="0,0,0,8">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="Theme"
+                                                            FontWeight="SemiBold"/>
+                                                    <TextBlock FontSize="12"
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                            Text="Choose between Light and Dark mode"
+                                                            TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                                <ToggleSwitch Grid.Column="1"
+                                                        x:Name="ThemeToggle"
+                                                        Toggled="ThemeToggle_Toggled"
+                                                        OnContent="Dark"
+                                                        OffContent="Light">
+                                                    <ToggleSwitch.HeaderTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                                <FontIcon x:Name="ThemeIcon" 
+                                                                        FontSize="20" 
+                                                                        Glyph="&#xE706;"
+                                                                        Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </ToggleSwitch.HeaderTemplate>
+                                                </ToggleSwitch>
+                                            </Grid>
+                                        </Border>
+                                        
                                         <TextBlock
                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                            Text="Theme and language settings will be available in a future update."
+                                            Text="Language settings will be available in a future update."
                                             TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Border>
@@ -241,10 +326,10 @@
                             <FontIconSource Glyph="&#xEA8F;"/>
                         </TabViewItem.IconSource>
                         <ScrollViewer>
-                            <StackPanel Padding="0,24"
+                            <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
                                     Spacing="24">
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -254,7 +339,7 @@
                                                 FontWeight="SemiBold"
                                                 Text="Notification Settings"/>
 
-                                        <Border Padding="0,12"
+                                        <Border Padding="{StaticResource Spacing_3_Thickness}"
                                                 BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                 BorderThickness="0,0,0,1">
                                             <Grid>
@@ -277,7 +362,7 @@
                                             </Grid>
                                         </Border>
 
-                                        <Border Padding="0,12"
+                                        <Border Padding="{StaticResource Spacing_3_Thickness}"
                                                 BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                 BorderThickness="0,0,0,1">
                                             <Grid>
@@ -300,7 +385,7 @@
                                             </Grid>
                                         </Border>
 
-                                        <Border Padding="0,12"
+                                        <Border Padding="{StaticResource Spacing_3_Thickness}"
                                                 BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                 BorderThickness="0,0,0,1">
                                             <Grid>
@@ -323,7 +408,7 @@
                                             </Grid>
                                         </Border>
 
-                                        <Border Padding="0,12">
+                                        <Border Padding="{StaticResource Spacing_3_Thickness}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
@@ -346,17 +431,12 @@
                                     </StackPanel>
                                 </Border>
 
-                                <Button HorizontalAlignment="Left"
-                                        Background="{ThemeResource AccentFillColorDefaultBrush}"
-                                        Command="{x:Bind ViewModel.SaveCommand}"
-                                        Foreground="White">
-                                    <StackPanel Orientation="Horizontal"
-                                            Spacing="8">
-                                        <FontIcon FontSize="14"
-                                                Glyph="&#xE74E;"/>
-                                        <TextBlock Text="Save Changes"/>
-                                    </StackPanel>
-                                </Button>
+                                <buttons:IconButton
+                                        HorizontalAlignment="Left"
+                                        Variant="Filled"
+                                        IconGlyph="&#xE74E;"
+                                        Text="Save Changes"
+                                        Command="{x:Bind ViewModel.SaveCommand}"/>
                             </StackPanel>
                         </ScrollViewer>
                     </TabViewItem>
@@ -368,10 +448,10 @@
                             <FontIconSource Glyph="&#xE946;"/>
                         </TabViewItem.IconSource>
                         <ScrollViewer>
-                            <StackPanel Padding="0,24"
+                            <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
                                     Spacing="24">
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -387,7 +467,7 @@
                                                         VerticalAlignment="Center"
                                                         FontSize="24"
                                                         FontWeight="Bold"
-                                                        Foreground="White"
+                                                        Foreground="{ThemeResource WhiteBrush}"
                                                         Text="MS"/>
                                             </Border>
                                             <StackPanel VerticalAlignment="Center">
@@ -400,7 +480,7 @@
                                         </StackPanel>
 
                                         <StackPanel Spacing="8">
-                                            <Grid Padding="0,8"
+                                            <Grid Padding="{StaticResource Spacing_2_Thickness}"
                                                     BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                     BorderThickness="0,0,0,1">
                                                 <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -409,7 +489,7 @@
                                                         FontWeight="SemiBold"
                                                         Text="{x:Bind ViewModel.AppVersion}"/>
                                             </Grid>
-                                            <Grid Padding="0,8"
+                                            <Grid Padding="{StaticResource Spacing_2_Thickness}"
                                                     BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                     BorderThickness="0,0,0,1">
                                                 <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -418,7 +498,7 @@
                                                         FontWeight="SemiBold"
                                                         Text="November 2025"/>
                                             </Grid>
-                                            <Grid Padding="0,8"
+                                            <Grid Padding="{StaticResource Spacing_2_Thickness}"
                                                     BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                     BorderThickness="0,0,0,1">
                                                 <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -427,7 +507,7 @@
                                                         FontWeight="SemiBold"
                                                         Text="Commercial"/>
                                             </Grid>
-                                            <Grid Padding="0,8">
+                                            <Grid Padding="{StaticResource Spacing_2_Thickness}">
                                                 <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                         Text="Support"/>
                                                 <TextBlock HorizontalAlignment="Right"
@@ -444,7 +524,7 @@
 
                                 <!--  Maintenance  -->
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -456,7 +536,8 @@
 
                                         <StackPanel Orientation="Horizontal"
                                                 Spacing="12">
-                                            <Button Command="{x:Bind ViewModel.CalculateCacheSizeCommand}">
+                                            <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                    Command="{x:Bind ViewModel.CalculateCacheSizeCommand}">
                                                 <StackPanel Orientation="Horizontal"
                                                         Spacing="8">
                                                     <FontIcon FontSize="14"
@@ -469,7 +550,8 @@
                                                     Text="{x:Bind ViewModel.CacheSize, Mode=OneWay}"/>
                                         </StackPanel>
 
-                                        <Button Command="{x:Bind ViewModel.ClearCacheCommand}">
+                                        <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                Command="{x:Bind ViewModel.ClearCacheCommand}">
                                             <StackPanel Orientation="Horizontal"
                                                     Spacing="8">
                                                 <FontIcon FontSize="14"
@@ -484,7 +566,8 @@
 
                                         <StackPanel Orientation="Horizontal"
                                                 Spacing="12">
-                                            <Button Command="{x:Bind ViewModel.ExportSettingsCommand}">
+                                            <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                    Command="{x:Bind ViewModel.ExportSettingsCommand}">
                                                 <StackPanel Orientation="Horizontal"
                                                         Spacing="8">
                                                     <FontIcon FontSize="14"
@@ -492,7 +575,8 @@
                                                     <TextBlock Text="Export Settings"/>
                                                 </StackPanel>
                                             </Button>
-                                            <Button Command="{x:Bind ViewModel.ImportSettingsCommand}">
+                                            <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                    Command="{x:Bind ViewModel.ImportSettingsCommand}">
                                                 <StackPanel Orientation="Horizontal"
                                                         Spacing="8">
                                                     <FontIcon FontSize="14"
@@ -508,17 +592,19 @@
                     </TabViewItem>
 
                     <!--  Developer Tab  -->
-                    <TabViewItem Header="Developer"
-                            IsClosable="False">
+                    <TabViewItem x:Name="DeveloperTab"
+                            Header="Developer"
+                            IsClosable="False"
+                            Visibility="Collapsed">
                         <TabViewItem.IconSource>
                             <FontIconSource Glyph="&#xE943;"/>
                         </TabViewItem.IconSource>
                         <ScrollViewer>
-                            <StackPanel Padding="0,24"
+                            <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
                                     Spacing="24">
                                 <!--  Data Source Card  -->
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -528,7 +614,7 @@
                                                 FontWeight="SemiBold"
                                                 Text="Data Source"/>
 
-                                        <Border Padding="0,12"
+                                        <Border Padding="{StaticResource Spacing_3_Thickness}"
                                                 BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                 BorderThickness="0,0,0,1">
                                             <Grid>
@@ -569,7 +655,8 @@
                                                      Text="{x:Bind ViewModel.ServerUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                         </StackPanel>
 
-                                        <Button Click="ConfigureServer_Click">
+                                        <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                Click="ConfigureServer_Click">
                                             <StackPanel Orientation="Horizontal"
                                                     Spacing="8">
                                                 <FontIcon FontSize="14"
@@ -582,7 +669,7 @@
 
                                 <!--  Debug Info Card  -->
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -593,7 +680,7 @@
                                                 Text="Debug Information"/>
 
                                         <StackPanel Spacing="8">
-                                            <Grid Padding="0,8"
+                                            <Grid Padding="{StaticResource Spacing_2_Thickness}"
                                                     BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                     BorderThickness="0,0,0,1">
                                                 <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -602,7 +689,7 @@
                                                         FontWeight="SemiBold"
                                                            Text="{x:Bind ViewModel.DataModeDisplay, Mode=OneWay}"/>
                                             </Grid>
-                                            <Grid Padding="0,8"
+                                            <Grid Padding="{StaticResource Spacing_2_Thickness}"
                                                     BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                     BorderThickness="0,0,0,1">
                                                 <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -611,7 +698,7 @@
                                                         FontWeight="SemiBold"
                                                            Text="{x:Bind ViewModel.CurrentUserEmail, Mode=OneWay}"/>
                                             </Grid>
-                                            <Grid Padding="0,8"
+                                            <Grid Padding="{StaticResource Spacing_2_Thickness}"
                                                     BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                     BorderThickness="0,0,0,1">
                                                 <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -620,7 +707,7 @@
                                                         FontWeight="SemiBold"
                                                            Text="{x:Bind ViewModel.CurrentUserRole, Mode=OneWay}"/>
                                             </Grid>
-                                            <Grid Padding="0,8">
+                                            <Grid Padding="{StaticResource Spacing_2_Thickness}">
                                                 <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                         Text="Build Configuration"/>
                                                 <TextBlock HorizontalAlignment="Right"
@@ -633,7 +720,7 @@
 
                                 <!--  Developer Actions  -->
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -645,7 +732,8 @@
 
                                         <StackPanel Orientation="Horizontal"
                                                 Spacing="12">
-                                            <Button Click="OpenLogsFolder_Click">
+                                            <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                    Click="OpenLogsFolder_Click">
                                                 <StackPanel Orientation="Horizontal"
                                                         Spacing="8">
                                                     <FontIcon FontSize="14"
@@ -653,7 +741,8 @@
                                                     <TextBlock Text="Open Logs Folder"/>
                                                 </StackPanel>
                                             </Button>
-                                            <Button Click="OpenExportsFolder_Click">
+                                            <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                    Click="OpenExportsFolder_Click">
                                                 <StackPanel Orientation="Horizontal"
                                                         Spacing="8">
                                                     <FontIcon FontSize="14"
@@ -663,7 +752,8 @@
                                             </Button>
                                         </StackPanel>
 
-                                        <Button Click="CopyDebugInfo_Click">
+                                        <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                Click="CopyDebugInfo_Click">
                                             <StackPanel Orientation="Horizontal"
                                                     Spacing="8">
                                                 <FontIcon FontSize="14"
@@ -685,15 +775,15 @@
                             <FontIconSource Glyph="&#xE8D7;"/>
                         </TabViewItem.IconSource>
                         <ScrollViewer>
-                            <StackPanel Padding="0,24"
+                            <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
                                     Spacing="24">
                                 <!--  Trial Status Card  -->
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
                                     BorderBrush="{ThemeResource SystemFillColorAttentionBrush}"
                                     BorderThickness="2"
-                                    CornerRadius="12">
+                                    CornerRadius="8">
                                     <StackPanel Spacing="16">
                                         <!--  Status Header  -->
                                         <Grid>
@@ -704,7 +794,7 @@
                                             <FontIcon
                                                 Grid.Column="0"
                                                 FontSize="32"
-                                                Foreground="#F59E0B"
+                                                Foreground="{ThemeResource WarningAmberBrush}"
                                                 Glyph="&#xE7BA;"/>
                                             <StackPanel Grid.Column="1"
                                                     Margin="16,0,0,0"
@@ -719,7 +809,7 @@
 
                                         <!--  Trial Info  -->
                                         <Border
-                                            Padding="16"
+                                            Padding="{StaticResource Padding_LG}"
                                             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                             CornerRadius="8">
                                             <Grid>
@@ -739,7 +829,7 @@
                                                     <TextBlock
                                                         FontSize="32"
                                                         FontWeight="Bold"
-                                                        Foreground="#F59E0B"
+                                                        Foreground="{ThemeResource WarningAmberBrush}"
                                                         Text="{x:Bind ViewModel.TrialDaysRemaining, Mode=OneWay}"/>
                                                     <TextBlock
                                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -751,9 +841,8 @@
                                         <!--  Actions  -->
                                         <StackPanel Spacing="12">
                                             <Button
+                                                Style="{StaticResource PrimaryButtonStyle}"
                                                 HorizontalAlignment="Stretch"
-                                                Background="#2563EB"
-                                                Foreground="White"
                                                 Command="{x:Bind ViewModel.OpenUpgradeProCommand}"
                                                 ToolTipService.ToolTip="Open upgrade page in browser">
                                                 <StackPanel Orientation="Horizontal"
@@ -792,7 +881,7 @@
 
                                 <!--  Trial Extension Card  -->
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -814,9 +903,9 @@
                                                 Text="{x:Bind ViewModel.TrialCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                 Style="{StaticResource BaseInputStyle}"/>
 
-                                            <Button HorizontalAlignment="Left"
-                                                    Background="{ThemeResource AccentFillColorDefaultBrush}"
-                                                    Foreground="White"
+                                            <Button
+                                                    Style="{StaticResource PrimaryButtonStyle}"
+                                                    HorizontalAlignment="Left"
                                                     Command="{x:Bind ViewModel.ActivateTrialCodeCommand}"
                                                     ToolTipService.ToolTip="Enter a valid code to activate your license">
                                                 <StackPanel Orientation="Horizontal"
@@ -838,7 +927,7 @@
 
                                 <!--  Additional Features  -->
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -848,7 +937,7 @@
                                                 FontWeight="SemiBold"
                                                 Text="What You Get with Pro"/>
 
-                                        <Border Padding="0,12"
+                                        <Border Padding="{StaticResource Spacing_3_Thickness}"
                                                 BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                 BorderThickness="0,0,0,1">
                                             <Grid>
@@ -860,7 +949,7 @@
                                                     Grid.Column="0"
                                                     Margin="0,0,12,0"
                                                     FontSize="20"
-                                                    Foreground="#10B981"
+                                                    Foreground="{ThemeResource SuccessGreenBrush}"
                                                     Glyph="&#xE73E;"/>
                                                 <StackPanel Grid.Column="1">
                                                     <TextBlock FontWeight="SemiBold"
@@ -873,7 +962,7 @@
                                             </Grid>
                                         </Border>
 
-                                        <Border Padding="0,12"
+                                        <Border Padding="{StaticResource Spacing_3_Thickness}"
                                                 BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                 BorderThickness="0,0,0,1">
                                             <Grid>
@@ -885,7 +974,7 @@
                                                     Grid.Column="0"
                                                     Margin="0,0,12,0"
                                                     FontSize="20"
-                                                    Foreground="#10B981"
+                                                    Foreground="{ThemeResource SuccessGreenBrush}"
                                                     Glyph="&#xE73E;"/>
                                                 <StackPanel Grid.Column="1">
                                                     <TextBlock FontWeight="SemiBold"
@@ -898,7 +987,7 @@
                                             </Grid>
                                         </Border>
 
-                                        <Border Padding="0,12"
+                                        <Border Padding="{StaticResource Spacing_3_Thickness}"
                                                 BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                 BorderThickness="0,0,0,1">
                                             <Grid>
@@ -910,7 +999,7 @@
                                                     Grid.Column="0"
                                                     Margin="0,0,12,0"
                                                     FontSize="20"
-                                                    Foreground="#10B981"
+                                                    Foreground="{ThemeResource SuccessGreenBrush}"
                                                     Glyph="&#xE73E;"/>
                                                 <StackPanel Grid.Column="1">
                                                     <TextBlock FontWeight="SemiBold"
@@ -923,7 +1012,7 @@
                                             </Grid>
                                         </Border>
 
-                                        <Border Padding="0,12">
+                                        <Border Padding="{StaticResource Spacing_3_Thickness}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
@@ -933,7 +1022,7 @@
                                                     Grid.Column="0"
                                                     Margin="0,0,12,0"
                                                     FontSize="20"
-                                                    Foreground="#10B981"
+                                                    Foreground="{ThemeResource SuccessGreenBrush}"
                                                     Glyph="&#xE73E;"/>
                                                 <StackPanel Grid.Column="1">
                                                     <TextBlock FontWeight="SemiBold"

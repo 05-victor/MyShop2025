@@ -11,9 +11,9 @@
     <StackPanel Spacing="8">
         <!-- Skeleton Row 1 -->
         <Border
-            Background="White"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
             CornerRadius="8"
-            BorderBrush="#E5E7EB"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="16">
             <Grid>
@@ -51,9 +51,9 @@
 
         <!-- Skeleton Row 2 -->
         <Border
-            Background="White"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
             CornerRadius="8"
-            BorderBrush="#E5E7EB"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="16">
             <Grid>
@@ -80,9 +80,9 @@
 
         <!-- Skeleton Row 3 -->
         <Border
-            Background="White"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
             CornerRadius="8"
-            BorderBrush="#E5E7EB"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="16">
             <Grid>
@@ -109,9 +109,9 @@
 
         <!-- Skeleton Row 4 -->
         <Border
-            Background="White"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
             CornerRadius="8"
-            BorderBrush="#E5E7EB"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="16">
             <Grid>
@@ -138,9 +138,9 @@
 
         <!-- Skeleton Row 5 -->
         <Border
-            Background="White"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
             CornerRadius="8"
-            BorderBrush="#E5E7EB"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="16">
             <Grid>

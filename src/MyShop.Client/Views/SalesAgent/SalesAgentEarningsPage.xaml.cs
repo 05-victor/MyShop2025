@@ -43,7 +43,7 @@ namespace MyShop.Client.Views.SalesAgent
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
                 var query = sender.Text?.ToLower() ?? string.Empty;
-                
+
                 if (string.IsNullOrWhiteSpace(query))
                 {
                     sender.ItemsSource = null;
@@ -88,30 +88,6 @@ namespace MyShop.Client.Views.SalesAgent
 
         #endregion
 
-        #region Filter Event Handlers
-
-        private void StatusComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (ViewModel == null) return;
-            
-            if (StatusComboBox.SelectedItem is ComboBoxItem item)
-            {
-                ViewModel.SelectedStatus = item.Tag?.ToString() ?? "All";
-            }
-        }
-
-        private void PeriodComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (ViewModel == null) return;
-            
-            if (PeriodComboBox.SelectedItem is ComboBoxItem item)
-            {
-                ViewModel.SelectedPeriod = item.Content?.ToString() ?? "All Time";
-            }
-        }
-
-        #endregion
-
         #region Pagination Event Handler
 
         private async void OnPageChanged(object sender, PageChangedEventArgs e)
@@ -120,7 +96,7 @@ namespace MyShop.Client.Views.SalesAgent
 
             ViewModel.CurrentPage = e.CurrentPage;
             ViewModel.PageSize = e.PageSize;
-            
+
             if (ViewModel.ApplyFiltersCommand?.CanExecute(null) == true)
             {
                 await ViewModel.ApplyFiltersCommand.ExecuteAsync(null);
@@ -143,6 +119,12 @@ namespace MyShop.Client.Views.SalesAgent
             {
                 LoggingService.Instance.Error("Failed to refresh earnings", ex);
             }
+        }
+
+        private void ExportPdfButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            // Export PDF functionality - placeholder for now
+            LoggingService.Instance.Information("Export PDF requested");
         }
     }
 }

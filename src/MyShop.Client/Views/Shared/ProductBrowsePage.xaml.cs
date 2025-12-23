@@ -67,7 +67,7 @@ namespace MyShop.Client.Views.Shared
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
                 var query = sender.Text?.ToLower() ?? string.Empty;
-                
+
                 if (string.IsNullOrWhiteSpace(query))
                 {
                     sender.ItemsSource = null;
@@ -117,11 +117,20 @@ namespace MyShop.Client.Views.Shared
         private async void CategoryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (ViewModel == null) return;
-            
-            if (CategoryComboBox.SelectedItem is ComboBoxItem item)
+
+            if (CategoryComboBox.SelectedItem is string category)
             {
-                var category = item.Tag?.ToString() ?? "All";
                 await ViewModel.FilterByCategoryCommand.ExecuteAsync(category);
+            }
+        }
+
+        private async void BrandComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ViewModel == null) return;
+
+            if (BrandComboBox.SelectedItem is string brand)
+            {
+                await ViewModel.FilterByBrandCommand.ExecuteAsync(brand);
             }
         }
 
@@ -129,7 +138,7 @@ namespace MyShop.Client.Views.Shared
         {
             // Guard: Prevent NullReferenceException during page initialization
             if (ViewModel == null) return;
-            
+
             if (sender is ComboBox comboBox && comboBox.SelectedItem is ComboBoxItem selectedItem)
             {
                 var sortOption = selectedItem.Tag?.ToString() ?? selectedItem.Content?.ToString();

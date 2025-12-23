@@ -147,7 +147,7 @@ public class AgentRequestFacade : IAgentRequestFacade
             };
 
             var result = await _agentRequestRepository.CreateAsync(newRequest);
-            
+
             if (result.IsSuccess && result.Data != null)
             {
                 System.Diagnostics.Debug.WriteLine($"[AgentRequestFacade] Agent request submitted: {newRequest.Id}");
@@ -195,7 +195,7 @@ public class AgentRequestFacade : IAgentRequestFacade
     {
         try
         {
-            var result = await _agentRequestRepository.RejectAsync(requestId);
+            var result = await _agentRequestRepository.RejectAsync(requestId, reason);
             if (result.IsSuccess && result.Data)
             {
                 await _toastService.ShowSuccess($"Agent request rejected");

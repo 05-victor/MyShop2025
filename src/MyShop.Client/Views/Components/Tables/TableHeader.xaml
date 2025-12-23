@@ -25,10 +25,12 @@
     -->
 
     <Border Padding="16,12"
-            Background="#F9FAFB"
+            Background="{ThemeResource LayerFillColorDefaultBrush}"
             CornerRadius="8,8,0,0"
-            BorderBrush="#E5E7EB"
-            BorderThickness="0,0,0,1">
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+            BorderThickness="0,0,0,1"
+            AutomationProperties.Name="Table header"
+            IsTabStop="False">
         
         <!-- Dynamic Header Grid -->
         <Grid x:Name="HeaderGrid" />

@@ -95,9 +95,9 @@ public partial class RegisterViewModel : ObservableObject
     public string EmailError => string.IsNullOrWhiteSpace(Email) ? "Email is required" : string.Empty;
     public string PhoneError => string.IsNullOrWhiteSpace(PhoneNumber) ? "Phone number is required" : string.Empty;
     public string PasswordError => string.IsNullOrWhiteSpace(Password) ? "Password is required" : string.Empty;
-    public string ConfirmPasswordError => 
-        string.IsNullOrWhiteSpace(ConfirmPassword) ? "Please confirm password" : 
-        Password != ConfirmPassword ? "Passwords do not match" : 
+    public string ConfirmPasswordError =>
+        string.IsNullOrWhiteSpace(ConfirmPassword) ? "Please confirm password" :
+        Password != ConfirmPassword ? "Passwords do not match" :
         string.Empty;
 
     // Simplified form validation - just check if fields are not empty
@@ -118,34 +118,6 @@ public partial class RegisterViewModel : ObservableObject
     {
         _authFacade = authFacade ?? throw new ArgumentNullException(nameof(authFacade));
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
-
-        // Check if first-user setup is required on initialization
-        _ = CheckFirstUserSetupAsync();
-    }
-
-    private async Task CheckFirstUserSetupAsync()
-    {
-        try
-        {
-            var result = await _authFacade.IsFirstUserSetupRequiredAsync();
-            if (result.IsSuccess && result.Data)
-            {
-                IsFirstUserSetup = true;
-                _selectedRole = "ADMIN"; // First user is always ADMIN
-                System.Diagnostics.Debug.WriteLine("[RegisterViewModel] First-user setup required - ADMIN role selected");
-            }
-            else
-            {
-                IsFirstUserSetup = false;
-                _selectedRole = "CUSTOMER"; // Regular users are CUSTOMER
-                System.Diagnostics.Debug.WriteLine("[RegisterViewModel] Regular registration - CUSTOMER role selected");
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[RegisterViewModel] CheckFirstUserSetupAsync error: {ex.Message}");
-            IsFirstUserSetup = false;
-        }
     }
 
     private bool CanAttemptRegister() => IsFormValid;
@@ -166,10 +138,10 @@ public partial class RegisterViewModel : ObservableObject
             var result = await _authFacade.RegisterAsync(
                 Username.Trim(),
                 Email.Trim(),
-                PhoneNumber.Trim(),
-                Password,
-                _selectedRole
-            );
+            PhoneNumber.Trim(),
+            Password,
+            _selectedRole
+        );
 
             _registerCancellationTokenSource.Token.ThrowIfCancellationRequested();
 
@@ -239,7 +211,7 @@ public partial class RegisterViewModel : ObservableObject
             }
 
             var result = await _authFacade.ValidateAdminCodeAsync(AdminCode.Trim());
-            
+
             if (result.IsSuccess && result.Data)
             {
                 IsAdminCodeValid = true;

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Application
     x:Class="MyShop.Client.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -9,12 +9,21 @@
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
                 
-                <!-- MyShop 2025 Design System -->
-                <ResourceDictionary Source="Themes/Generic.xaml"/>
+                <!-- Theme-independent resources -->
+                <ResourceDictionary Source="Themes/SharedResources.xaml"/>
+                
+                <!-- Dialog styles -->
+                <ResourceDictionary Source="Themes/DialogStyles.xaml"/>
                 
                 <!-- Fallback resources to prevent XAML crashes from missing StaticResource keys -->
                 <ResourceDictionary Source="Themes/FallbackResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            
+            <!-- Native WinUI ThemeDictionaries (automatic theme switching) -->
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light" Source="Themes/LightTheme.xaml"/>
+                <ResourceDictionary x:Key="Dark" Source="Themes/DarkTheme.xaml"/>
+            </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

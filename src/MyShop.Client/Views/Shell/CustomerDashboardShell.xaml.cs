@@ -104,6 +104,11 @@ namespace MyShop.Client.Views.Shell
                 return;
 
             var tag = item.Tag as string ?? string.Empty;
+            
+            // Prevent flash: if clicking already selected item, do nothing
+            if (item == _currentContentItem)
+                return;
+            
             _currentContentItem = item;
 
             switch (tag)
@@ -226,7 +231,7 @@ namespace MyShop.Client.Views.Shell
         {
             try
             {
-                // Show confirmation dialog
+                // Show confirmation dialog with theme support
                 var dialog = new ContentDialog
                 {
                     Title = "Logout",
@@ -234,7 +239,8 @@ namespace MyShop.Client.Views.Shell
                     PrimaryButtonText = "Logout",
                     CloseButtonText = "Cancel",
                     DefaultButton = ContentDialogButton.Close,
-                    XamlRoot = this.XamlRoot
+                    XamlRoot = this.XamlRoot,
+                    RequestedTheme = this.ActualTheme
                 };
 
                 var result = await dialog.ShowAsync();
@@ -290,7 +296,8 @@ namespace MyShop.Client.Views.Shell
                     PrimaryButtonText = "Activate",
                     CloseButtonText = "Cancel",
                     DefaultButton = ContentDialogButton.Primary,
-                    XamlRoot = this.XamlRoot
+                    XamlRoot = this.XamlRoot,
+                    RequestedTheme = this.ActualTheme
                 };
 
                 var result = await dialog.ShowAsync();
@@ -328,7 +335,8 @@ namespace MyShop.Client.Views.Shell
                         PrimaryButtonText = "Logout Now",
                         CloseButtonText = "Later",
                         DefaultButton = ContentDialogButton.Primary,
-                        XamlRoot = this.XamlRoot
+                        XamlRoot = this.XamlRoot,
+                        RequestedTheme = this.ActualTheme
                     };
 
                     var successResult = await successDialog.ShowAsync();
@@ -365,9 +373,30 @@ namespace MyShop.Client.Views.Shell
                 Title = "Error",
                 Content = message,
                 CloseButtonText = "OK",
-                XamlRoot = this.XamlRoot
+                XamlRoot = this.XamlRoot,
+                RequestedTheme = this.ActualTheme
             };
             await errorDialog.ShowAsync();
+        }
+
+        /// <summary>
+        /// Toggle AI Chat Panel visibility
+        /// </summary>
+        private void ChatButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Toggle chat panel visibility
+                bool isVisible = ChatPanel.Visibility == Visibility.Visible;
+                ChatPanel.Visibility = isVisible ? Visibility.Collapsed : Visibility.Visible;
+                ChatButton.IsOpen = !isVisible;
+                
+                System.Diagnostics.Debug.WriteLine($"[CustomerDashboardShell] Chat panel toggled: {!isVisible}");
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.Error("Failed to toggle chat panel", ex);
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using MyShop.Client.ViewModels.Shell;
@@ -93,6 +94,10 @@ namespace MyShop.Client.Views.Shell
                 return;
 
             var tag = item.Tag as string ?? string.Empty;
+            
+            // Prevent flash: if clicking already selected item, do nothing
+            if (item == _currentContentItem)
+                return;
 
             switch (tag)
             {
@@ -222,7 +227,7 @@ namespace MyShop.Client.Views.Shell
         {
             try
             {
-                // Show confirmation dialog
+                // Show confirmation dialog with theme support
                 var dialog = new ContentDialog
                 {
                     Title = "Logout",
@@ -230,7 +235,8 @@ namespace MyShop.Client.Views.Shell
                     PrimaryButtonText = "Logout",
                     CloseButtonText = "Cancel",
                     DefaultButton = ContentDialogButton.Close,
-                    XamlRoot = this.XamlRoot
+                    XamlRoot = this.XamlRoot,
+                    RequestedTheme = this.ActualTheme
                 };
 
                 var result = await dialog.ShowAsync();
@@ -248,6 +254,26 @@ namespace MyShop.Client.Views.Shell
             catch (Exception ex)
             {
                 LoggingService.Instance.Error("Failed to logout", ex);
+            }
+        }
+
+        /// <summary>
+        /// Toggle AI Chat Panel visibility
+        /// </summary>
+        private void ChatButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Toggle chat panel visibility
+                bool isVisible = ChatPanel.Visibility == Visibility.Visible;
+                ChatPanel.Visibility = isVisible ? Visibility.Collapsed : Visibility.Visible;
+                ChatButton.IsOpen = !isVisible;
+                
+                LoggingService.Instance.Debug($"Chat panel toggled: {!isVisible}");
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.Error("Failed to toggle chat panel", ex);
             }
         }
     }

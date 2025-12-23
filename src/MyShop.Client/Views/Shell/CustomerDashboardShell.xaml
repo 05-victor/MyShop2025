@@ -4,32 +4,53 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:avatars="using:MyShop.Client.Views.Components.Avatars"
+    xmlns:chat="using:MyShop.Client.Views.Components.Chat"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
     <Page.Resources>
-        <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="#FF1E293B" />
-        <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="#FF1E293B" />
-        <SolidColorBrush x:Key="NavigationViewItemForeground" Color="#FFD1D5DB" />
-        <SolidColorBrush x:Key="NavigationViewItemForegroundSelected" Color="White" />
-        <SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="White" />
-        <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPointerOver" Color="#FF00AEEF" />
-        <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected" Color="#FF00AEEF" />
-        <SolidColorBrush x:Key="NavigationViewItemBackgroundPointerOver" Color="#1A00AEEF" />
+        <!-- NavigationView HARDCODED colors - NO theme dependency -->
+        <!-- Sidebar background: Always navy, never changes -->
+        <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="#1E293B"/>
+        <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="#1E293B"/>
+        
+        <!-- Text colors: ALWAYS WHITE for visibility -->
+        <SolidColorBrush x:Key="NavigationViewItemForeground" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="NavigationViewItemForegroundSelected" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="NavigationViewItemForegroundSelectedPointerOver" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="NavigationViewItemForegroundPressed" Color="#FFFFFF"/>
+        
+        <!-- Toggle Button (Hamburger Menu) colors -->
+        <SolidColorBrush x:Key="NavigationViewItemForegroundCollapsed" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="NavigationViewButtonForeground" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="NavigationViewButtonForegroundPointerOver" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="NavigationViewButtonForegroundPressed" Color="#FFFFFF"/>
+        
+        <!-- Background colors for states (Cyan theme for Customer) -->
+        <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected" Color="#0EA5E9"/>
+        <!-- Cyan-500: Selected state -->
+        <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPointerOver" Color="#22D3EE"/>
+        <!-- Cyan-400: Selected + Hover -->
+        <SolidColorBrush x:Key="NavigationViewItemBackgroundPointerOver" Color="#0891B2"/>
+        <!-- Cyan-600: Hover only -->
+        <SolidColorBrush x:Key="NavigationViewItemBackgroundPressed" Color="#0E7490"/>
+        <!-- Cyan-700: Pressed -->
     </Page.Resources>
 
-    <NavigationView
-        x:Name="Nav"
-        CompactPaneLength="48"
-        IsBackButtonVisible="Collapsed"
-        IsPaneToggleButtonVisible="True"
-        IsSettingsVisible="False"
-        OpenPaneLength="260"
-        PaneDisplayMode="Auto"
-        SelectionChanged="Nav_SelectionChanged"
-        CompactModeThresholdWidth="641"
-        ExpandedModeThresholdWidth="1008">
+    <Grid>
+        <NavigationView
+            x:Name="Nav"
+            CompactPaneLength="48"
+            IsBackButtonVisible="Collapsed"
+            IsPaneToggleButtonVisible="True"
+            IsSettingsVisible="False"
+            OpenPaneLength="260"
+            PaneDisplayMode="Auto"
+            SelectionChanged="Nav_SelectionChanged"
+            CompactModeThresholdWidth="641"
+            ExpandedModeThresholdWidth="1008">
 
         <NavigationView.PaneHeader>
             <Grid Height="72" Padding="16,12">
@@ -38,12 +59,13 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 
-                <!-- Logo/Icon -->
-                <Border Grid.Column="0" Width="48" Height="48" 
-                        Background="#00AEEF" CornerRadius="12" 
-                        VerticalAlignment="Center">
-                    <FontIcon Glyph="&#xE719;" FontSize="24" Foreground="White"/>
-                </Border>
+                <!-- Logo -->
+                <Image Grid.Column="0" 
+                       Width="48" 
+                       Height="48" 
+                       Source="/Assets/Images/logo.png"
+                       Stretch="Uniform"
+                       VerticalAlignment="Center"/>
                 
                 <!-- Title - Only visible when pane is open -->
                 <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center"
@@ -51,11 +73,11 @@
                     <TextBlock
                         FontSize="18"
                         FontWeight="Bold"
-                        Foreground="White"
+                        Foreground="{ThemeResource AgentNavHeaderForeground}"
                         Text="MyShop2025" />
                     <TextBlock
                         FontSize="11"
-                        Foreground="#9CA3AF"
+                        Foreground="{ThemeResource Gray500Brush}"
                         Text="Welcome back!" />
                 </StackPanel>
             </Grid>
@@ -63,44 +85,44 @@
 
         <!-- CUSTOMER MENU ITEMS -->
         <NavigationView.MenuItems>
-            <NavigationViewItem Content="Home" Tag="home">
+            <NavigationViewItem Content="Home" Tag="home" Foreground="#FFFFFF">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE80F;" />
+                    <FontIcon Glyph="&#xE80F;" Foreground="#FFFFFF" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
 
-            <NavigationViewItem Content="Shopping" Tag="shopping">
+            <NavigationViewItem Content="Shopping" Tag="shopping" Foreground="#FFFFFF">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE719;" />
+                    <FontIcon Glyph="&#xE719;" Foreground="#FFFFFF" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
 
-            <NavigationViewItem Content="Cart" Tag="cart">
+            <NavigationViewItem Content="Cart" Tag="cart" Foreground="#FFFFFF">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE7BF;" />
+                    <FontIcon Glyph="&#xE7BF;" Foreground="#FFFFFF" />
                 </NavigationViewItem.Icon>
                 <NavigationViewItem.InfoBadge>
                     <InfoBadge Value="{x:Bind ViewModel.CartCount, Mode=OneWay}" />
                 </NavigationViewItem.InfoBadge>
             </NavigationViewItem>
 
-            <NavigationViewItem Content="Purchase Orders" Tag="purchaseOrders">
+            <NavigationViewItem Content="Purchase Orders" Tag="purchaseOrders" Foreground="#FFFFFF">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE7B8;" />
+                    <FontIcon Glyph="&#xE7B8;" Foreground="#FFFFFF" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
 
             <NavigationViewItemSeparator/>
 
-            <NavigationViewItem Content="Profile" Tag="profile">
+            <NavigationViewItem Content="Profile" Tag="profile" Foreground="#FFFFFF">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE77B;" />
+                    <FontIcon Glyph="&#xE77B;" Foreground="#FFFFFF" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
 
-            <NavigationViewItem Content="Settings" Tag="settings">
+            <NavigationViewItem Content="Settings" Tag="settings" Foreground="#FFFFFF">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE713;" />
+                    <FontIcon Glyph="&#xE713;" Foreground="#FFFFFF" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
 
@@ -111,21 +133,38 @@
                                 Content="Become Admin" 
                                 Tag="becomeAdmin"
                                 Visibility="Collapsed"
-                                Tapped="BecomeAdminItem_Tapped">
+                                Tapped="BecomeAdminItem_Tapped"
+                                Foreground="#FFFFFF">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE7EE;" Foreground="#F59E0B"/>
+                    <FontIcon Glyph="&#xE7EE;" Foreground="{ThemeResource WarningAmberBrush}"/>
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
         </NavigationView.MenuItems>
 
-        <NavigationView.PaneFooter>
-            <NavigationViewItem Content="Logout" Tag="logout" Tapped="LogoutItem_Tapped">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE7E8;" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-        </NavigationView.PaneFooter>
+            <NavigationView.PaneFooter>
+                <NavigationViewItem Content="Logout" Tag="logout" Tapped="LogoutItem_Tapped" Foreground="#FFFFFF">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE7E8;" Foreground="#FFFFFF"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.PaneFooter>
 
-        <Frame x:Name="ContentFrame" />
-    </NavigationView>
+            <Frame x:Name="ContentFrame" />
+        </NavigationView>
+        
+        <!-- AI Chat Assistant -->
+        <Grid HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,24,24">
+            <!-- Chat Panel (Hidden by default) -->
+            <chat:ChatPanel x:Name="ChatPanel" 
+                           Visibility="Collapsed"
+                           Margin="0,0,0,72"
+                           VerticalAlignment="Bottom"/>
+            
+            <!-- Floating Chat Button -->
+            <chat:ChatButton x:Name="ChatButton" 
+                            Click="ChatButton_Click"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom"/>
+        </Grid>
+    </Grid>
 </Page>

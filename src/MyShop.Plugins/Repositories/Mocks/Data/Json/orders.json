@@ -39622,6 +39622,184 @@
       ],
       "createdAt": "2025-04-22T12:08:03Z",
       "updatedAt": "2025-10-19T14:30:55Z"
+    },
+    {
+      "id": "30000100-0000-0000-0000-december001",
+      "orderNumber": "ORD-2025-10001",
+      "customerId": "00000000-0000-0000-0000-000000000005",
+      "customerName": "Nguyễn Văn A",
+      "customerEmail": "nguyenvana@example.com",
+      "salesAgentId": "00000000-0000-0000-0000-000000000002",
+      "salesAgentName": "Trần Thị Bích SalesAgent",
+      "finalPrice": 89970000,
+      "status": "PAID",
+      "paymentMethod": "CreditCard",
+      "shippingAddress": {
+        "street": "123 Nguyễn Huệ",
+        "district": "Quận 1",
+        "city": "Hồ Chí Minh",
+        "postalCode": "700000"
+      },
+      "tracking": "TRK-123456",
+      "orderItems": [
+        {
+          "id": "31000100-0000-0000-0000-item001",
+          "productId": "20000000-0000-0000-0000-000000000001",
+          "productName": "iPhone 15 Pro 256GB Titanium",
+          "quantity": 1,
+          "unitPrice": 89970000,
+          "totalPrice": 89970000,
+          "commissionRate": 0.07
+        }
+      ],
+      "createdAt": "2025-12-10T08:30:45Z",
+      "updatedAt": "2025-12-10T08:30:45Z"
+    },
+    {
+      "id": "30000101-0000-0000-0000-december002",
+      "orderNumber": "ORD-2025-10002",
+      "customerId": "00000000-0000-0000-0000-000000000006",
+      "customerName": "Lê Thị B",
+      "customerEmail": "lethib@example.com",
+      "salesAgentId": "00000000-0000-0000-0000-000000000003",
+      "salesAgentName": "Ngô Hoàng Hùng",
+      "finalPrice": 45960000,
+      "status": "PAID",
+      "paymentMethod": "CreditCard",
+      "shippingAddress": {
+        "street": "456 Lê Lợi",
+        "district": "Quận 5",
+        "city": "Hồ Chí Minh",
+        "postalCode": "700000"
+      },
+      "tracking": "TRK-123457",
+      "orderItems": [
+        {
+          "id": "31000101-0000-0000-0000-item001",
+          "productId": "20000000-0000-0000-0000-000000000006",
+          "productName": "Apple Watch Series 9 GPS 45mm",
+          "quantity": 1,
+          "unitPrice": 45960000,
+          "totalPrice": 45960000,
+          "commissionRate": 0.06
+        }
+      ],
+      "createdAt": "2025-12-12T14:15:30Z",
+      "updatedAt": "2025-12-12T14:15:30Z"
+    },
+    {
+      "id": "30000102-0000-0000-0000-december003",
+      "orderNumber": "ORD-2025-10003",
+      "customerId": "00000000-0000-0000-0000-000000000007",
+      "customerName": "Phạm Văn C",
+      "customerEmail": "phamvanc@example.com",
+      "salesAgentId": "00000000-0000-0000-0000-000000000002",
+      "salesAgentName": "Trần Thị Bích SalesAgent",
+      "finalPrice": 78490000,
+      "status": "PAID",
+      "paymentMethod": "CreditCard",
+      "shippingAddress": {
+        "street": "789 Đinh Tiên Hoàng",
+        "district": "Quận 3",
+        "city": "Hồ Chí Minh",
+        "postalCode": "700000"
+      },
+      "tracking": "TRK-123458",
+      "orderItems": [
+        {
+          "id": "31000102-0000-0000-0000-item001",
+          "productId": "20000000-0000-0000-0000-000000000008",
+          "productName": "Dell XPS 13 Intel Core i7 Gen 13",
+          "quantity": 1,
+          "unitPrice": 38990000,
+          "totalPrice": 38990000,
+          "commissionRate": 0.05
+        },
+        {
+          "id": "31000102-0000-0000-0000-item002",
+          "productId": "20000000-0000-0000-0000-000000000003",
+          "productName": "AirPods Pro (2nd Generation)",
+          "quantity": 2,
+          "unitPrice": 19500000,
+          "totalPrice": 39000000,
+          "commissionRate": 0.06
+        }
+      ],
+      "createdAt": "2025-12-15T10:45:20Z",
+      "updatedAt": "2025-12-15T10:45:20Z"
+    },
+    {
+      "id": "30000103-0000-0000-0000-december004",
+      "orderNumber": "ORD-2025-10004",
+      "customerId": "00000000-0000-0000-0000-000000000008",
+      "customerName": "Trương Thị D",
+      "customerEmail": "truongtid@example.com",
+      "salesAgentId": "00000000-0000-0000-0000-000000000003",
+      "salesAgentName": "Ngô Hoàng Hùng",
+      "finalPrice": 125940000,
+      "status": "PAID",
+      "paymentMethod": "BankTransfer",
+      "shippingAddress": {
+        "street": "321 Trần Hưng Đạo",
+        "district": "Quận 4",
+        "city": "Hồ Chí Minh",
+        "postalCode": "700000"
+      },
+      "tracking": "TRK-123459",
+      "orderItems": [
+        {
+          "id": "31000103-0000-0000-0000-item001",
+          "productId": "20000000-0000-0000-0000-000000000002",
+          "productName": "Samsung Galaxy S23 Ultra 512GB",
+          "quantity": 2,
+          "unitPrice": 31990000,
+          "totalPrice": 63980000,
+          "commissionRate": 0.07
+        },
+        {
+          "id": "31000103-0000-0000-0000-item002",
+          "productId": "20000000-0000-0000-0000-000000000009",
+          "productName": "Logitech MX Master 3S Wireless Mouse",
+          "quantity": 3,
+          "unitPrice": 20320000,
+          "totalPrice": 60960000,
+          "commissionRate": 0.05
+        }
+      ],
+      "createdAt": "2025-12-18T16:20:15Z",
+      "updatedAt": "2025-12-18T16:20:15Z"
+    },
+    {
+      "id": "30000104-0000-0000-0000-december005",
+      "orderNumber": "ORD-2025-10005",
+      "customerId": "00000000-0000-0000-0000-000000000009",
+      "customerName": "Võ Văn E",
+      "customerEmail": "vovane@example.com",
+      "salesAgentId": "00000000-0000-0000-0000-000000000004",
+      "salesAgentName": "Lý Quốc Nam",
+      "finalPrice": 64470000,
+      "status": "PAID",
+      "paymentMethod": "CreditCard",
+      "shippingAddress": {
+        "street": "654 Hai Bà Trưng",
+        "district": "Quận 2",
+        "city": "Hồ Chí Minh",
+        "postalCode": "700000"
+      },
+      "tracking": "TRK-123460",
+      "orderItems": [
+        {
+          "id": "31000104-0000-0000-0000-item001",
+          "productId": "20000000-0000-0000-0000-000000000003",
+          "productName": "AirPods Pro (2nd Generation)",
+          "quantity": 3,
+          "unitPrice": 21490000,
+          "totalPrice": 64470000,
+          "commissionRate": 0.06
+        }
+      ],
+      "createdAt": "2025-12-20T09:10:30Z",
+      "updatedAt": "2025-12-20T09:10:30Z"
     }
   ]
 }

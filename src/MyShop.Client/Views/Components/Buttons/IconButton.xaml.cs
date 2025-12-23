@@ -1,8 +1,9 @@
-using Microsoft.UI;
+﻿using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using System;
+using System.Linq;
 using System.Windows.Input;
 using Windows.UI;
 
@@ -14,16 +15,80 @@ namespace MyShop.Client.Views.Components.Buttons;
 /// </summary>
 public sealed partial class IconButton : UserControl
 {
+    // Template children - accessed after template is applied
+    private FontIcon? _leftIcon;
+    private FontIcon? _rightIcon;
+    private TextBlock? _buttonText;
+    private StackPanel? _contentPanel;
+    private bool _templateApplied = false;
+    
     public IconButton()
     {
         this.InitializeComponent();
-        this.Loaded += OnLoaded;
+        ActionButton.Loaded += ActionButton_Loaded;
+        ActionButton.LayoutUpdated += ActionButton_LayoutUpdated;
+        // ✅ NO ThemeChanged subscription - styles handle theme automatically
     }
 
-    private void OnLoaded(object sender, RoutedEventArgs e)
+    private void ActionButton_Loaded(object sender, RoutedEventArgs e)
     {
+        FindTemplateChildren();
         ApplyVariantStyle();
         ApplyLayout();
+        _templateApplied = true;
+    }
+
+    private void ActionButton_LayoutUpdated(object? sender, object e)
+    {
+        // When tab switching causes Visibility changes, buttons re-render
+        // but Loaded doesn't fire again. LayoutUpdated catches these cases.
+        if (!_templateApplied || _leftIcon == null)
+        {
+            FindTemplateChildren();
+            if (_leftIcon != null)
+            {
+                ApplyVariantStyle();
+                ApplyLayout();
+                _templateApplied = true;
+            }
+        }
+    }
+
+    private void FindTemplateChildren()
+    {
+        // Find template children using VisualTreeHelper
+        _contentPanel = FindChildByName<StackPanel>(ActionButton, "ContentPanel");
+        if (_contentPanel != null)
+        {
+            _leftIcon = FindChildByName<FontIcon>(_contentPanel, "LeftIcon");
+            _rightIcon = FindChildByName<FontIcon>(_contentPanel, "RightIcon");
+            _buttonText = FindChildByName<TextBlock>(_contentPanel, "ButtonText");
+        }
+    }
+
+    // Helper method to find child element by name in visual tree
+    private static T? FindChildByName<T>(DependencyObject parent, string name) where T : FrameworkElement
+    {
+        if (parent == null) return null;
+
+        int childCount = VisualTreeHelper.GetChildrenCount(parent);
+        for (int i = 0; i < childCount; i++)
+        {
+            var child = VisualTreeHelper.GetChild(parent, i);
+            
+            if (child is T typedChild && typedChild.Name == name)
+            {
+                return typedChild;
+            }
+
+            var result = FindChildByName<T>(child, name);
+            if (result != null)
+            {
+                return result;
+            }
+        }
+
+        return null;
     }
 
     #region IconGlyph Property
@@ -130,9 +195,9 @@ public sealed partial class IconButton : UserControl
 
     private static void OnTextColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is IconButton button && e.NewValue is Brush brush)
+        if (d is IconButton button && e.NewValue is Brush brush && button._buttonText != null)
         {
-            button.ButtonText.Foreground = brush;
+            button._buttonText.Foreground = brush;
         }
     }
 
@@ -327,26 +392,26 @@ public sealed partial class IconButton : UserControl
 
     private void ApplyLayout()
     {
-        if (ActionButton == null || LeftIcon == null || RightIcon == null || ButtonText == null) return;
+        if (ActionButton == null || _leftIcon == null || _rightIcon == null || _buttonText == null) return;
 
         bool hasText = !string.IsNullOrEmpty(Text);
         bool hasIcon = !string.IsNullOrEmpty(IconGlyph);
 
         // Show/hide text
-        ButtonText.Visibility = hasText ? Visibility.Visible : Visibility.Collapsed;
+        _buttonText.Visibility = hasText ? Visibility.Visible : Visibility.Collapsed;
 
         // Apply icon position
         if (hasIcon && hasText)
         {
             if (IconPosition == IconPosition.Right)
             {
-                LeftIcon.Visibility = Visibility.Collapsed;
-                RightIcon.Visibility = Visibility.Visible;
+                _leftIcon.Visibility = Visibility.Collapsed;
+                _rightIcon.Visibility = Visibility.Visible;
             }
             else
             {
-                LeftIcon.Visibility = Visibility.Visible;
-                RightIcon.Visibility = Visibility.Collapsed;
+                _leftIcon.Visibility = Visibility.Visible;
+                _rightIcon.Visibility = Visibility.Collapsed;
             }
             // Text + Icon: use standard padding
             ActionButton.Padding = new Thickness(16, 10, 16, 10);
@@ -356,8 +421,8 @@ public sealed partial class IconButton : UserControl
         else if (hasIcon && !hasText)
         {
             // Icon only: square button
-            LeftIcon.Visibility = Visibility.Visible;
-            RightIcon.Visibility = Visibility.Collapsed;
+            _leftIcon.Visibility = Visibility.Visible;
+            _rightIcon.Visibility = Visibility.Collapsed;
             ActionButton.Padding = new Thickness(8);
             if (!double.IsNaN(Size))
             {
@@ -373,8 +438,8 @@ public sealed partial class IconButton : UserControl
         else
         {
             // Text only
-            LeftIcon.Visibility = Visibility.Collapsed;
-            RightIcon.Visibility = Visibility.Collapsed;
+            _leftIcon.Visibility = Visibility.Collapsed;
+            _rightIcon.Visibility = Visibility.Collapsed;
             ActionButton.Padding = new Thickness(16, 10, 16, 10);
             ActionButton.Width = double.NaN;
             ActionButton.Height = double.NaN;
@@ -383,33 +448,31 @@ public sealed partial class IconButton : UserControl
 
     private void ApplyVariantStyle()
     {
-        if (ActionButton == null || ButtonText == null) return;
+        if (ActionButton == null) return;
 
-        switch (Variant)
+        // ✅ Microsoft pattern: Apply style based on variant
+        // Styles are defined in ButtonStyles.xaml with ThemeResource
+        var styleKey = Variant switch
         {
-            case IconButtonVariant.Ghost:
-                ActionButton.Background = new SolidColorBrush(Colors.Transparent);
-                ActionButton.BorderThickness = new Thickness(0);
-                break;
+            IconButtonVariant.Ghost => "IconButtonGhostStyle",
+            IconButtonVariant.Outline => "IconButtonOutlineStyle",
+            IconButtonVariant.Filled => "IconButtonFilledStyle",
+            _ => "IconButtonGhostStyle"
+        };
 
-            case IconButtonVariant.Outline:
-                ActionButton.Background = new SolidColorBrush(Colors.White);
-                ActionButton.BorderBrush = new SolidColorBrush(Color.FromArgb(255, 229, 231, 235)); // #E5E7EB
-                ActionButton.BorderThickness = new Thickness(1);
-                break;
-
-            case IconButtonVariant.Filled:
-                ActionButton.Background = new SolidColorBrush(Color.FromArgb(255, 37, 99, 235)); // #2563EB
-                ActionButton.BorderThickness = new Thickness(0);
-                ActionButton.Foreground = new SolidColorBrush(Colors.White);
-                ButtonText.Foreground = new SolidColorBrush(Colors.White);
-                // Override icon color for filled variant if not explicitly set
-                if (IconColor is SolidColorBrush brush && brush.Color == Color.FromArgb(255, 107, 114, 128))
-                {
-                    LeftIcon.Foreground = new SolidColorBrush(Colors.White);
-                    RightIcon.Foreground = new SolidColorBrush(Colors.White);
-                }
-                break;
+        if (Application.Current.Resources.TryGetValue(styleKey, out var style) 
+            && style is Style buttonStyle)
+        {
+            ActionButton.Style = buttonStyle;
+        }
+        
+        // For Filled variant, ensure white icons if not explicitly set
+        if (Variant == IconButtonVariant.Filled && 
+            IconColor is SolidColorBrush brush && 
+            brush.Color == Color.FromArgb(255, 107, 114, 128))
+        {
+            if (_leftIcon != null) _leftIcon.Foreground = new SolidColorBrush(Colors.White);
+            if (_rightIcon != null) _rightIcon.Foreground = new SolidColorBrush(Colors.White);
         }
     }
 }

@@ -7,6 +7,8 @@ using MyShop.Client.Views.Shared;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Client.Facades;
+using MyShop.Client.Services.Configuration;
+using MyShop.Client.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -25,6 +27,9 @@ namespace MyShop.Client.ViewModels.Admin;
 public partial class AdminDashboardViewModel : BaseViewModel
 {
     private readonly IDashboardFacade _dashboardFacade;
+    private readonly IConfigurationService _configService;
+    private readonly IActivityLogService? _activityLogService;
+    private readonly IAppNotificationService? _notificationService;
 
     [ObservableProperty]
     private User? _currentUser;
@@ -37,14 +42,15 @@ public partial class AdminDashboardViewModel : BaseViewModel
 
     // Period filter
     [ObservableProperty]
-    private string _selectedPeriod = "current";
+    private string _selectedPeriod = "month";
 
-    public List<string> AvailablePeriods { get; } = new List<string> { "current", "last", "last3" };
+    public List<string> AvailablePeriods { get; } = new List<string> { "day", "week", "month", "year" };
     public Dictionary<string, string> PeriodLabels { get; } = new Dictionary<string, string>
         {
-            { "current", "Current Month" },
-            { "last", "Last Month" },
-            { "last3", "Last 3 Months" }
+            { "day", "Today" },
+            { "week", "This Week" },
+            { "month", "This Month" },
+            { "year", "This Year" }
         };
 
     // New Platform-Owner KPIs
@@ -139,10 +145,21 @@ public partial class AdminDashboardViewModel : BaseViewModel
     [ObservableProperty]
     private Axis[] _yAxes;
 
-    public AdminDashboardViewModel(IDashboardFacade dashboardFacade, INavigationService navigationService)
+    public AdminDashboardViewModel(
+        IDashboardFacade dashboardFacade,
+        INavigationService navigationService,
+        IConfigurationService configService,
+        IActivityLogService? activityLogService = null,
+        IAppNotificationService? notificationService = null)
         : base(navigationService: navigationService)
     {
         _dashboardFacade = dashboardFacade;
+        _configService = configService;
+        _activityLogService = activityLogService;
+        _notificationService = notificationService;
+
+        // Initialize notification service if available
+        _notificationService?.Initialize();
     }
 
     public async Task InitializeAsync(User user)
@@ -159,7 +176,28 @@ public partial class AdminDashboardViewModel : BaseViewModel
             CurrentUser = user;
             System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] InitializeAsync called for user: {user.Username}");
 
+            // Log activity
+            if (_activityLogService != null)
+            {
+                await _activityLogService.LogActivityAsync(
+                    ActivityType.View,
+                    "Dashboard Accessed",
+                    $"Admin {user.Username} accessed dashboard",
+                    "Dashboard",
+                    "AdminDashboard"
+                );
+            }
+
             await LoadDashboardDataAsync();
+
+            // Send welcome notification
+            if (_notificationService != null)
+            {
+                _notificationService.ShowInfo(
+                    "Welcome Back!",
+                    $"Hello {user.Username}, your dashboard is ready."
+                );
+            }
 
             IsInitialized = true;
             System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] InitializeAsync completed successfully");
@@ -203,41 +241,63 @@ public partial class AdminDashboardViewModel : BaseViewModel
 
     private async Task LoadDashboardDataAsync()
     {
-        System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] LoadDashboardDataAsync started with period: {SelectedPeriod}");
+        System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] LoadDashboardDataAsync: Starting dashboard data load (Period={SelectedPeriod})");
         SetLoadingState(true);
 
         try
         {
+            System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] ⏳ START - Period: {SelectedPeriod}");
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+
+            // Call facade to fetch dashboard data
+            System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] Calling _dashboardFacade.LoadDashboardAsync...");
             var result = await _dashboardFacade.LoadDashboardAsync(SelectedPeriod);
+            sw.Stop();
+
+            System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] ✅ Facade returned - Success: {result.IsSuccess}, ElapsedMs: {sw.ElapsedMilliseconds}ms");
+
             if (!result.IsSuccess || result.Data == null)
             {
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] ❌ ERROR - {result.ErrorMessage}");
                 SetError(result.ErrorMessage ?? "Failed to load dashboard data");
                 return;
             }
 
             var data = result.Data;
-            System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] Dashboard loaded: MonthRevenue={data.MonthRevenue}, TotalProducts={data.TotalProducts}");
+            System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] 📊 DATA RECEIVED:");
+            System.Diagnostics.Debug.WriteLine($"  TotalProducts={data.TotalProducts}, TodayOrders={data.TodayOrders}");
+            System.Diagnostics.Debug.WriteLine($"  Revenue: Today={data.TodayRevenue}, Week={data.WeekRevenue}, Month={data.MonthRevenue}");
+            System.Diagnostics.Debug.WriteLine($"  LowStockProducts={data.LowStockProducts?.Count}, TopProducts={data.TopSellingProducts?.Count}");
 
             RunOnUIThread(() =>
             {
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] 🔄 UPDATING UI PROPERTIES");
+
                 TotalGmvThisMonth = data.MonthRevenue;
                 AdminCommission = Math.Round(data.MonthRevenue * 0.05m, 2);
-                ActiveSalesAgents = 127;
-                ItemsToReview = data.LowStockProducts.Count + 8;
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] ✅ KPI VALUES SET - GMV: {TotalGmvThisMonth}, Commission: {AdminCommission}");
+
+                // ActiveSalesAgents: Waiting for API endpoint to provide this count
+                ActiveSalesAgents = 0;
+                // ItemsToReview: Should include flagged products (loaded separately) + low stock count
+                ItemsToReview = data.LowStockProducts.Count;
 
                 TotalProducts = data.TotalProducts;
                 TodayOrders = data.TodayOrders;
                 TodayRevenue = data.TodayRevenue;
                 WeekRevenue = data.WeekRevenue;
                 MonthRevenue = data.MonthRevenue;
-                OrdersTrend = 12.5;
-                RevenueTrend = 8.2;
+                // OrdersTrend: Waiting for API endpoint to provide this metric
+                OrdersTrend = 0;
+                // RevenueTrend: Waiting for API endpoint to provide this metric
+                RevenueTrend = 0;
 
                 var topProduct = data.TopSellingProducts?.FirstOrDefault();
                 if (topProduct != null)
                 {
                     TopRatedProductName = topProduct.Name ?? "N/A";
-                    TopRatedProductRating = 4.5;
+                    // TopRatedProductRating: Waiting for API endpoint to provide rating data
+                    TopRatedProductRating = 0;
                 }
                 else
                 {
@@ -246,24 +306,46 @@ public partial class AdminDashboardViewModel : BaseViewModel
                 }
 
                 LowStockCount = data.LowStockProducts.Count;
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel] ✅ UI PROPERTIES UPDATED - Dashboard data loaded successfully");
             });
 
+            System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] Loading chart data...");
             var chartResult = await _dashboardFacade.GetRevenueChartDataAsync(GetChartPeriod(SelectedPeriod));
             if (chartResult.IsSuccess && chartResult.Data != null)
             {
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] Chart data received - DataPoints: {chartResult.Data.Labels.Count}");
                 RunOnUIThread(() =>
                 {
                     RevenueChartData = new ObservableCollection<RevenueDataPoint>();
+                    RevenueTrendData = new ObservableCollection<TrendDataPoint>();
+                    CommissionTrendData = new ObservableCollection<TrendDataPoint>();
+
                     for (int i = 0; i < chartResult.Data.Labels.Count; i++)
                     {
+                        var revenue = chartResult.Data.Data[i];
+                        var commission = revenue * 0.05m; // 5% commission
+
                         RevenueChartData.Add(new RevenueDataPoint
                         {
                             Day = chartResult.Data.Labels[i],
-                            Revenue = chartResult.Data.Data[i],
+                            Revenue = revenue,
                             Orders = 0
                         });
+
+                        // Add to trend data for chart
+                        RevenueTrendData.Add(new TrendDataPoint { Value = revenue });
+                        CommissionTrendData.Add(new TrendDataPoint { Value = commission });
                     }
+
+                    // Update chart series
+                    UpdateChartSeries();
+
+                    System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] Chart UI updated with {RevenueChartData.Count} points");
                 });
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] Chart data failed: {chartResult.ErrorMessage}");
             }
 
             RunOnUIThread(() =>
@@ -271,7 +353,7 @@ public partial class AdminDashboardViewModel : BaseViewModel
                 CategoryData = new ObservableCollection<CategoryDataPoint>();
                 if (data.SalesByCategory != null)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Loading {data.SalesByCategory.Count} categories");
+                    System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] Loading {data.SalesByCategory.Count} categories");
                     foreach (var categorySale in data.SalesByCategory)
                     {
                         if (categorySale != null)
@@ -281,14 +363,9 @@ public partial class AdminDashboardViewModel : BaseViewModel
                                 Name = categorySale.CategoryName ?? "Unknown",
                                 Percentage = (int)categorySale.Percentage
                             });
-                            System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Added category: {categorySale.CategoryName} - {categorySale.Percentage}%");
                         }
                     }
-                    System.Diagnostics.Debug.WriteLine($"[AdminDashboard] CategoryData final count: {CategoryData.Count}");
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine($"[AdminDashboard] WARNING: data.SalesByCategory is NULL!");
+                    System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] Categories loaded: {CategoryData.Count}");
                 }
             });
 
@@ -297,6 +374,7 @@ public partial class AdminDashboardViewModel : BaseViewModel
                 TopProducts = new ObservableCollection<TopProductItem>();
                 if (data.TopSellingProducts != null)
                 {
+                    System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] Loading {data.TopSellingProducts.Count} top products");
                     int rank = 1;
                     foreach (var product in data.TopSellingProducts)
                     {
@@ -312,6 +390,7 @@ public partial class AdminDashboardViewModel : BaseViewModel
                             });
                         }
                     }
+                    System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadDashboardDataAsync] Top products loaded: {TopProducts.Count}");
                 }
             });
 
@@ -377,65 +456,18 @@ public partial class AdminDashboardViewModel : BaseViewModel
                             Status = agent.Status
                         });
                     }
-                    System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Loaded {TopSalesAgents.Count} top sales agents");
+
+                    // Update ActiveSalesAgents count based on loaded data
+                    ActiveSalesAgents = topAgentsResult.Data.Count(a => a.Status == "Active");
+                    System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Loaded {TopSalesAgents.Count} top sales agents, {ActiveSalesAgents} active");
                 });
             }
 
-            // Mock Flagged Products data
-            FlaggedProducts = new ObservableCollection<FlaggedProductItem>
-                {
-                    new() {
-                        Name = "iPhone 14 Pro Max",
-                        Agent = "Michael Chen",
-                        Category = "Smartphones",
-                        State = "Pending Review"
-                    },
-                    new() {
-                        Name = "Samsung Galaxy S23 Ultra",
-                        Agent = "Sarah Johnson",
-                        Category = "Smartphones",
-                        State = "Flagged"
-                    },
-                    new() {
-                        Name = "MacBook Pro 16\"",
-                        Agent = "David Park",
-                        Category = "Laptops",
-                        State = "Pending Review"
-                    },
-                    new() {
-                        Name = "Sony WH-1000XM5",
-                        Agent = "Emma Wilson",
-                        Category = "Audio",
-                        State = "Under Review"
-                    },
-                    new() {
-                        Name = "iPad Pro 12.9\"",
-                        Agent = "James Lee",
-                        Category = "Tablets",
-                        State = "Pending Review"
-                    }
-                };
+            // Load Flagged Products - Use Mock or API depending on data mode
+            await LoadFlaggedProductsAsync();
 
-            // Mock Revenue & Commission Trend Data (Jun-Nov)
-            RevenueTrendData = new ObservableCollection<TrendDataPoint>
-                {
-                    new() { Label = "Jun", Value = 145000m },
-                    new() { Label = "Jul", Value = 168000m },
-                    new() { Label = "Aug", Value = 182000m },
-                    new() { Label = "Sep", Value = 195000m },
-                    new() { Label = "Oct", Value = 178000m },
-                    new() { Label = "Nov", Value = 198500m }
-                };
-
-            CommissionTrendData = new ObservableCollection<TrendDataPoint>
-                {
-                    new() { Label = "Jun", Value = 7250m },
-                    new() { Label = "Jul", Value = 8400m },
-                    new() { Label = "Aug", Value = 9100m },
-                    new() { Label = "Sep", Value = 9750m },
-                    new() { Label = "Oct", Value = 8900m },
-                    new() { Label = "Nov", Value = 9925m }
-                };
+            // Revenue & Commission Trend will be loaded from LoadChartDataAsync() 
+            // which calls GetRevenueChartDataAsync() using the revenue-chart endpoint
 
             // Create LiveCharts Series
             UpdateChartSeries();
@@ -506,16 +538,56 @@ public partial class AdminDashboardViewModel : BaseViewModel
         }
     }
 
+    private async Task LoadFlaggedProductsAsync()
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadFlaggedProductsAsync] Loading flagged products...");
+
+            // Only use mock data when UseMockData flag is enabled
+            if (_configService.FeatureFlags.UseMockData)
+            {
+                // Use mock data from MockDashboardData
+                var flaggedProducts = await MyShop.Plugins.Mocks.Data.MockDashboardData.GetFlaggedProductsAsync(SelectedPeriod);
+                RunOnUIThread(() =>
+                {
+                    FlaggedProducts = new ObservableCollection<FlaggedProductItem>(
+                        flaggedProducts.Select(f => new FlaggedProductItem
+                        {
+                            Name = f.Name,
+                            Agent = f.Agent,
+                            Category = f.Category,
+                            State = f.State
+                        }).ToList()
+                    );
+                    System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadFlaggedProductsAsync] Loaded {FlaggedProducts.Count} flagged products from MOCK DATA");
+                });
+            }
+            else
+            {
+                // Real API mode - TODO: implement when endpoint is ready
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadFlaggedProductsAsync] Real API mode - Waiting for GET /api/v1/dashboard/flagged-products endpoint");
+                RunOnUIThread(() =>
+                {
+                    FlaggedProducts.Clear();
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadFlaggedProductsAsync] Error: {ex.Message}");
+            FlaggedProducts.Clear();
+        }
+    }
+
     private string GetChartPeriod(string selectedPeriod)
     {
-        // Map summary period to chart period
-        return selectedPeriod switch
-        {
-            "current" => "daily",   // Current month -> show daily data
-            "last" => "daily",      // Last month -> show daily data
-            "last3" => "weekly",    // Last 3 months -> show weekly data
-            _ => "daily"
-        };
+        // Server API expects: "day", "week", "month", "year"
+        // Pass through directly since periods now align with API expectations
+        var validPeriods = new[] { "day", "week", "month", "year" };
+        return validPeriods.Contains(selectedPeriod?.ToLower() ?? "month")
+            ? selectedPeriod.ToLower()
+            : "month";
     }
 
     [RelayCommand]

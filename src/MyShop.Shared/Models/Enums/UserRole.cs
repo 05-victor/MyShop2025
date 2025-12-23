@@ -14,7 +14,7 @@ namespace MyShop.Shared.Models.Enums
         /// <summary>
         /// Sales agent - can manage own orders and earn commissions.
         /// </summary>
-        Salesman,
+        SalesAgent,
 
         /// <summary>
         /// Administrator - full access to all system features.

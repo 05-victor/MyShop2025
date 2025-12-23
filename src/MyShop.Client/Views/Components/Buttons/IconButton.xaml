@@ -19,7 +19,7 @@
         IconGlyph="&#xE74D;" 
         Tooltip="Delete item"
         Variant="Ghost"
-        IconColor="#DC2626"
+        IconColor="{ThemeResource ErrorRedBrush}"
         Command="{x:Bind ViewModel.DeleteCommand}"/>
     
     Usage (Icon + Text):
@@ -43,27 +43,67 @@
             Command="{Binding Command, ElementName=RootControl, Mode=OneWay}"
             CommandParameter="{Binding CommandParameter, ElementName=RootControl, Mode=OneWay}"
             ToolTipService.ToolTip="{Binding Tooltip, ElementName=RootControl, Mode=OneWay}"
+            AutomationProperties.Name="{Binding Tooltip, ElementName=RootControl, Mode=OneWay}"
+            UseSystemFocusVisuals="True"
             Click="ActionButton_Click">
-        <Button.Resources>
-            <!-- Ghost variant overrides -->
-            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#F3F4F6"/>
-            <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#E5E7EB"/>
-        </Button.Resources>
-        
-        <StackPanel x:Name="ContentPanel" Orientation="Horizontal" Spacing="8">
-            <FontIcon x:Name="LeftIcon"
-                      Glyph="{Binding IconGlyph, ElementName=RootControl, Mode=OneWay}"
-                      FontSize="{Binding IconSize, ElementName=RootControl, Mode=OneWay}"
-                      Foreground="{Binding IconColor, ElementName=RootControl, Mode=OneWay}"/>
-            <TextBlock x:Name="ButtonText"
-                       Text="{Binding Text, ElementName=RootControl, Mode=OneWay}"
-                       FontWeight="SemiBold"
-                       VerticalAlignment="Center"/>
-            <FontIcon x:Name="RightIcon"
-                      Visibility="Collapsed"
-                      Glyph="{Binding IconGlyph, ElementName=RootControl, Mode=OneWay}"
-                      FontSize="{Binding IconSize, ElementName=RootControl, Mode=OneWay}"
-                      Foreground="{Binding IconColor, ElementName=RootControl, Mode=OneWay}"/>
-        </StackPanel>
+        <Button.Template>
+            <ControlTemplate TargetType="Button">
+                <Grid>
+                    <Border x:Name="RootBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            Padding="{TemplateBinding Padding}">
+                        <StackPanel x:Name="ContentPanel" Orientation="Horizontal" Spacing="8">
+                            <FontIcon x:Name="LeftIcon"
+                                      Glyph="{Binding IconGlyph, ElementName=RootControl, Mode=OneWay}"
+                                      FontSize="{Binding IconSize, ElementName=RootControl, Mode=OneWay}"
+                                      Foreground="{Binding IconColor, ElementName=RootControl, Mode=OneWay}"
+                                      IsHitTestVisible="False"/>
+                            <TextBlock x:Name="ButtonText"
+                                       Text="{Binding Text, ElementName=RootControl, Mode=OneWay}"
+                                       FontWeight="SemiBold"
+                                       Foreground="{TemplateBinding Foreground}"
+                                       VerticalAlignment="Center"/>
+                            <FontIcon x:Name="RightIcon"
+                                      Visibility="Collapsed"
+                                      Glyph="{Binding IconGlyph, ElementName=RootControl, Mode=OneWay}"
+                                      FontSize="{Binding IconSize, ElementName=RootControl, Mode=OneWay}"
+                                      Foreground="{Binding IconColor, ElementName=RootControl, Mode=OneWay}"
+                                      IsHitTestVisible="False"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualStateGroup.Transitions>
+                                <VisualTransition GeneratedDuration="0:0:0.15"/>
+                            </VisualStateGroup.Transitions>
+                            
+                            <VisualState x:Name="Normal"/>
+                            
+                            <VisualState x:Name="PointerOver">
+                                <VisualState.Setters>
+                                    <Setter Target="RootBorder.Opacity" Value="0.85"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Target="RootBorder.Opacity" Value="0.7"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            
+                            <VisualState x:Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Target="RootBorder.Opacity" Value="0.5"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
+                </Grid>
+            </ControlTemplate>
+        </Button.Template>
     </Button>
 </UserControl>

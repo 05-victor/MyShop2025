@@ -1,5 +1,6 @@
 using MyShop.Shared.Models;
 using MyShop.Core.Common;
+using MyShop.Shared.DTOs.Requests;
 
 namespace MyShop.Core.Interfaces.Repositories;
 
@@ -27,4 +28,14 @@ public interface IProfileRepository
     /// Delete user profile
     /// </summary>
     Task<Result<bool>> DeleteAsync(Guid userId);
+
+    /// <summary>
+    /// PATCH Update My Profile - uses the new PATCH endpoint
+    /// </summary>
+    Task<Result<ProfileData>> PatchUpdateMyProfileAsync(UpdateProfileRequest request);
+
+    /// <summary>
+    /// Upload Avatar to backend - streams file to server
+    /// </summary>
+    Task<Result<string>> UploadAvatarAsync(Stream fileStream, string fileName);
 }

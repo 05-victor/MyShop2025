@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml.Controls;
+using MyShop.Client.Views.Components.Badges;
 
 namespace MyShop.Client.Views.Dialogs;
 
@@ -15,6 +16,29 @@ public sealed partial class ViewProfileDialog : ContentDialog
     public string Status { get; set; } = "Pending";
     public string Experience { get; set; } = string.Empty;
     public string Reason { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets the StatusBadge variant based on the current status
+    /// </summary>
+    public StatusBadgeVariant StatusVariant
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(Status))
+                return StatusBadgeVariant.Default;
+
+            // Normalize status: trim whitespace and convert to uppercase for consistent matching
+            var normalizedStatus = Status.Trim().ToUpperInvariant();
+
+            return normalizedStatus switch
+            {
+                "PENDING" => StatusBadgeVariant.Pending,
+                "APPROVED" => StatusBadgeVariant.Approved,
+                "REJECTED" => StatusBadgeVariant.Rejected,
+                _ => StatusBadgeVariant.Default
+            };
+        }
+    }
 
     public ViewProfileDialog()
     {

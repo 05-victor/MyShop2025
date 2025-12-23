@@ -3,6 +3,7 @@ using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
+using MyShop.Client.Services;
 using MyShop.Client.Views.Shared;
 using MyShop.Plugins.Infrastructure;
 using MyShop.Shared.Models;
@@ -29,6 +30,7 @@ public class AuthFacade : IAuthFacade
     private readonly IValidationService _validationService;
     private readonly INavigationService _navigationService;
     private readonly IToastService _toastService;
+    private readonly ICurrentUserService _currentUserService;
     private readonly ISystemActivationRepository _activationRepository;
 
     public AuthFacade(
@@ -39,6 +41,7 @@ public class AuthFacade : IAuthFacade
         IValidationService validationService,
         INavigationService navigationService,
         IToastService toastService,
+        ICurrentUserService currentUserService,
         ISystemActivationRepository activationRepository)
     {
         _authRepository = authRepository ?? throw new ArgumentNullException(nameof(authRepository));
@@ -48,6 +51,7 @@ public class AuthFacade : IAuthFacade
         _validationService = validationService ?? throw new ArgumentNullException(nameof(validationService));
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
         _toastService = toastService ?? throw new ArgumentNullException(nameof(toastService));
+        _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
         _activationRepository = activationRepository ?? throw new ArgumentNullException(nameof(activationRepository));
     }
 
@@ -56,11 +60,14 @@ public class AuthFacade : IAuthFacade
     {
         try
         {
+            System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] Started login for: {username}");
+
             // Step 1: Validate inputs
             var usernameValidation = await _validationService.ValidateUsername(username);
             if (!usernameValidation.IsSuccess || usernameValidation.Data == null || !usernameValidation.Data.IsValid)
             {
                 var error = usernameValidation.Data?.ErrorMessage ?? "Invalid username";
+                System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] Username validation failed: {error}");
                 return Result<User>.Failure(error);
             }
 
@@ -68,16 +75,20 @@ public class AuthFacade : IAuthFacade
             if (!passwordValidation.IsSuccess || passwordValidation.Data == null || !passwordValidation.Data.IsValid)
             {
                 var error = passwordValidation.Data?.ErrorMessage ?? "Invalid password";
+                System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] Password validation failed: {error}");
                 return Result<User>.Failure(error);
             }
 
             // Step 2: Call repository to login (DTO → Domain Model via Adapter)
+            System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] Calling _authRepository.LoginAsync()...");
             var loginResult = await _authRepository.LoginAsync(username.Trim(), password);
             if (!loginResult.IsSuccess || loginResult.Data == null)
             {
+                System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] ✗ Login failed: {loginResult.ErrorMessage}");
                 return Result<User>.Failure(loginResult.ErrorMessage ?? "Login failed");
             }
 
+            System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] ✓ Login successful for {loginResult.Data.Username}");
             var user = loginResult.Data;
 
             // Step 3: Set current user for per-user storage
@@ -87,16 +98,35 @@ public class AuthFacade : IAuthFacade
             if (rememberMe && !string.IsNullOrEmpty(user.Token))
             {
                 await _credentialStorage.SaveToken(user.Token);
+                System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] Token saved (rememberMe=true)");
             }
 
-            // Step 5: Show success notification
+            // Step 5: Fetch complete user profile from GetMe endpoint
+            System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] Calling GetCurrentUserAsync()...");
+            var meResult = await _authRepository.GetCurrentUserAsync();
+
+            if (meResult.IsSuccess && meResult.Data != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] ✓ GetMe successful, using complete profile");
+                user = meResult.Data;
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] ✗ GetMe failed: {meResult.ErrorMessage}, using basic login data");
+            }
+
+            // Step 6: Cache user globally
+            _currentUserService.SetCurrentUser(user);
+            System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] User cached via ICurrentUserService");
+
+            // Step 7: Show success notification
             await _toastService.ShowSuccess($"Welcome back, {user.Username}!");
 
             return Result<User>.Success(user);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[AuthFacade] LoginAsync failed: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] ✗ Exception: {ex.Message}");
             return Result<User>.Failure("An unexpected error occurred during login", ex);
         }
     }
@@ -140,14 +170,14 @@ public class AuthFacade : IAuthFacade
 
             // Validate token by fetching current user
             var result = await _authRepository.GetCurrentUserAsync();
-            
+
             if (result.IsSuccess && result.Data != null)
             {
                 // Ensure storage services know the current user
                 SetCurrentUserForStorage(result.Data.Id.ToString());
                 return true;
             }
-            
+
             return false;
         }
         catch
@@ -412,36 +442,13 @@ public class AuthFacade : IAuthFacade
     }
 
     /// <inheritdoc/>
-    public async Task<Result<bool>> IsFirstUserSetupRequiredAsync()
-    {
-        try
-        {
-            var hasUsersResult = await _userRepository.HasAnyUsersAsync();
-            if (!hasUsersResult.IsSuccess)
-            {
-                return Result<bool>.Failure(hasUsersResult.ErrorMessage ?? "Failed to check users");
-            }
-
-            // First-user setup required if no users exist
-            var isRequired = !hasUsersResult.Data;
-            System.Diagnostics.Debug.WriteLine($"[AuthFacade] IsFirstUserSetupRequiredAsync: {isRequired}");
-            return Result<bool>.Success(isRequired);
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[AuthFacade] IsFirstUserSetupRequiredAsync failed: {ex.Message}");
-            return Result<bool>.Failure("Failed to check first-user setup", ex);
-        }
-    }
-
-    /// <inheritdoc/>
     public async Task<Result<bool>> ValidateAdminCodeAsync(string adminCode)
     {
         try
         {
             // Use unified ISystemActivationRepository
             var result = await _activationRepository.ValidateCodeAsync(adminCode);
-            
+
             if (!result.IsSuccess || result.Data == null)
             {
                 System.Diagnostics.Debug.WriteLine($"[AuthFacade] Admin code validation failed: {result.ErrorMessage}");
@@ -449,7 +456,7 @@ public class AuthFacade : IAuthFacade
             }
 
             var codeInfo = result.Data;
-            
+
             if (!codeInfo.IsValid)
             {
                 System.Diagnostics.Debug.WriteLine($"[AuthFacade] Admin code not valid: {adminCode}");

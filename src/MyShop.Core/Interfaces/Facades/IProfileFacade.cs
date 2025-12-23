@@ -5,7 +5,7 @@ namespace MyShop.Core.Interfaces.Facades;
 
 /// <summary>
 /// Facade pattern for profile management operations
-/// Aggregates: IAuthRepository, IUserRepository, IValidationService, IToastService
+/// Aggregates: IAuthRepository, IUserRepository, IProfileRepository, IValidationService, IToastService
 /// </summary>
 public interface IProfileFacade
 {
@@ -40,6 +40,13 @@ public interface IProfileFacade
     /// <param name="fileName">File name with extension</param>
     /// <param name="fileStream">File content stream</param>
     Task<Result<string>> SaveAvatarLocallyAsync(string fileName, Stream fileStream);
+
+    /// <summary>
+    /// Upload avatar file to backend server
+    /// Validates file size (max 5MB) and type (jpg, jpeg, png)
+    /// Fetches fresh user data via GetMe after successful upload to sync avatar across app
+    /// </summary>
+    Task<Result<User>> UploadAvatarToBackendAsync(Stream fileStream, string fileName);
 
     /// <summary>
     /// Send email verification OTP

@@ -1,11 +1,13 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using MyShop.Client.Services;
 using System.Collections.ObjectModel;
 
 namespace MyShop.Client.Views.Components.Pagination;
 
 /// <summary>
 /// Pagination control with page numbers and page size selector.
+/// Automatically loads and saves user's preferred page size.
 /// Usage:
 /// <pagination:PaginationControl CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
 ///                               TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
@@ -14,9 +16,22 @@ namespace MyShop.Client.Views.Components.Pagination;
 /// </summary>
 public sealed partial class PaginationControl : UserControl
 {
+    private readonly SettingsService _settingsService;
+    private bool _isInitialized;
+
     public PaginationControl()
     {
         InitializeComponent();
+        
+        // Get SettingsService from DI
+        _settingsService = App.Current.Services.GetService(typeof(SettingsService)) as SettingsService 
+            ?? new SettingsService();
+        
+        // Load saved page size
+        var savedPageSize = _settingsService.GetDefaultPageSize();
+        PageSize = savedPageSize;
+        
+        _isInitialized = true;
         UpdatePagination();
     }
 
@@ -165,9 +180,14 @@ public sealed partial class PaginationControl : UserControl
 
     private void OnPageSizeChanged(object sender, SelectionChangedEventArgs e)
     {
+        if (!_isInitialized) return;
+        
         if (PageSizeComboBox.SelectedItem is ComboBoxItem item &&
             int.TryParse(item.Content?.ToString(), out int newPageSize))
         {
+            // Save to settings
+            _settingsService.SetDefaultPageSize(newPageSize);
+            
             PageSize = newPageSize;
             CurrentPage = 1; // Reset to first page
             RaisePageChanged();

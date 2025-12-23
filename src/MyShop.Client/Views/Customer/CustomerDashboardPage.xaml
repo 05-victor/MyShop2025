@@ -3,13 +3,14 @@
     x:Class="MyShop.Client.Views.Customer.CustomerDashboardPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Customer"
     xmlns:components="using:MyShop.Client.Views.Components"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     mc:Ignorable="d"
-    Background="#F5F7FA">
+    Background="{ThemeResource LayerFillColorDefaultBrush}">
 
     <Page.Transitions>
         <TransitionCollection>
@@ -24,8 +25,65 @@
         <converters:CurrencyConverter x:Key="CurrencyConverter"/>
     </Page.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid Padding="24"
+    <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="ResponsiveStates">
+                
+                <!-- Large Desktop: 1920px+ -->
+                <VisualState x:Name="LargeDesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1920"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="40"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Desktop: 1280-1919px -->
+                <VisualState x:Name="DesktopState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1280"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="32"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet: 960-1279px -->
+                <VisualState x:Name="TabletState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="960"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="24"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Tablet Portrait: 640-959px -->
+                <VisualState x:Name="TabletPortraitState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="640"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="20"/>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- Mobile: 0-639px (Default) -->
+                <VisualState x:Name="MobileState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MainContent.Padding" Value="16"/>
+                    </VisualState.Setters>
+                </VisualState>
+                
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <Grid x:Name="MainContent" Padding="24"
                 RowSpacing="16">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -49,8 +107,9 @@
                     IsOpen="{x:Bind ViewModel.IsVerified, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
                     IsClosable="False">
                     <InfoBar.ActionButton>
-                        <Button Content="Resend Email"
-                                Style="{StaticResource AccentButtonStyle}"/>
+                        <Button
+                            Content="Resend Email"
+                            Style="{StaticResource AccentButtonStyle}"/>
                     </InfoBar.ActionButton>
                 </InfoBar>
 
@@ -69,42 +128,39 @@
                                        FontSize="28"
                                        FontWeight="Bold"
                                        TextWrapping="Wrap"
-                                       Foreground="#1B1D1F"/>
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                             <TextBlock Text="Discover amazing products and great deals"
                                        FontSize="14"
-                                       Foreground="#4A5568"/>
+                                       Foreground="{ThemeResource Gray400Brush}"/>
                         </StackPanel>
 
                         <StackPanel Grid.Column="1"
                                     Orientation="Horizontal"
                                     Spacing="12"
                                     VerticalAlignment="Center">
-                            <Button Click="OnBecomeAgentClick"
-                                    BorderBrush="#E5E7EB"
-                                    Background="White"
-                                    MinWidth="160">
+                            <Button Style="{StaticResource SecondaryButtonStyle}"
+                                    Click="OnBecomeAgentClick"
+                                    MinWidth="160"
+                                    AutomationProperties.Name="Become sales agent"
+                                    AutomationProperties.HelpText="Apply to become a sales agent"
+                                    UseSystemFocusVisuals="True">
                                 <StackPanel Orientation="Horizontal"
                                         Spacing="8">
                                     <FontIcon Glyph="&#xE735;"
                                             FontSize="16"
-                                            Foreground="#00AEEF"/>
+                                            Foreground="{ThemeResource AccentBlueBrush}"/>
                                     <TextBlock Text="Become Agent"
-                                            FontSize="14"
-                                            FontWeight="SemiBold"
-                                            Foreground="#1B1D1F"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Style="{StaticResource PrimaryButtonStyle}"
-                                    MinWidth="120">
-                                <StackPanel Orientation="Horizontal"
-                                        Spacing="8">
-                                    <FontIcon Glyph="&#xE719;"
-                                            FontSize="16"/>
-                                    <TextBlock Text="Shop Now"
                                             FontSize="14"
                                             FontWeight="SemiBold"/>
                                 </StackPanel>
                             </Button>
+                            <buttons:IconButton
+                                    MinWidth="120"
+                                    Variant="Filled"
+                                    IconGlyph="&#xE719;"
+                                    Text="Shop Now"
+                                    AutomationProperties.Name="Shop now"
+                                    AccessKey="N"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -127,12 +183,13 @@
                                    Text="Featured Products"
                                    FontSize="24"
                                    FontWeight="Bold"
-                                   Foreground="#111827"/>
+                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                   AutomationProperties.HeadingLevel="Level2"/>
 
                         <HyperlinkButton Grid.Column="1"
                                          Content="View All →"
                                          FontSize="14"
-                                         Foreground="#00AEEF"/>
+                                         Foreground="{ThemeResource AccentBlueBrush}"/>
                     </Grid>
 
                     <!-- Changed to {Binding} for async loaded API data -->
@@ -155,7 +212,7 @@
 
                                         <!-- Product Image -->
                                         <Border Grid.Row="0"
-                                                Background="#F9FAFB"
+                                                Background="{ThemeResource LayerFillColorDefaultBrush}"
                                                 CornerRadius="8"
                                                 Margin="0,0,0,12">
                                             <Image Source="{x:Bind Image}"
@@ -167,13 +224,13 @@
                                                 Spacing="8">
                                             <TextBlock Text="{x:Bind Category}"
                                                        FontSize="12"
-                                                       Foreground="#6B7280"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                        TextTrimming="CharacterEllipsis"/>
 
                                             <TextBlock Text="{x:Bind Name}"
                                                        FontSize="16"
                                                        FontWeight="SemiBold"
-                                                       Foreground="#111827"
+                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                        TextWrapping="Wrap"
                                                        MaxLines="2"/>
 
@@ -189,13 +246,13 @@
                                                             Spacing="4">
                                                     <FontIcon Glyph="&#xE735;"
                                                               FontSize="14"
-                                                              Foreground="#F59E0B"/>
+                                                              Foreground="{ThemeResource WarningAmberBrush}"/>
                                                     <TextBlock Text="{x:Bind Rating}"
                                                                FontSize="13"
-                                                               Foreground="#111827"/>
+                                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                                     <TextBlock Text="{x:Bind Reviews, Mode=OneTime}"
                                                                FontSize="12"
-                                                               Foreground="#6B7280"/>
+                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                 </StackPanel>
                                             </Grid>
 
@@ -203,20 +260,20 @@
                                             <TextBlock Text="{x:Bind Price, Converter={StaticResource CurrencyConverter}}"
                                                        FontSize="20"
                                                        FontWeight="Bold"
-                                                       Foreground="#1A4D8F"/>
+                                                       Foreground="{ThemeResource PrimaryBrush}"/>
 
                                             <!-- Add to Cart Button -->
                                             <Button HorizontalAlignment="Stretch"
-                                                    Background="#00AEEF"
-                                                    Foreground="White"
+                                                    Background="{ThemeResource AccentBlueBrush}"
+                                                    Foreground="{ThemeResource WhiteBrush}"
                                                     BorderThickness="0"
                                                     CornerRadius="8"
                                                     Padding="0,10">
                                                 <Button.Resources>
                                                     <SolidColorBrush x:Key="ButtonBackgroundPointerOver"
-                                                            Color="#0096D1"/>
+                                                            Color="{ThemeResource AccentBlueBrush}"/>
                                                     <SolidColorBrush x:Key="ButtonBackgroundPressed"
-                                                            Color="#007DAF"/>
+                                                            Color="{ThemeResource AccentBlueBrush}"/>
                                                 </Button.Resources>
                                                 <StackPanel Orientation="Horizontal"
                                                             Spacing="8"
@@ -248,12 +305,12 @@
                                    Text="Recommended for You"
                                    FontSize="24"
                                    FontWeight="Bold"
-                                   Foreground="#111827"/>
+                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
 
                         <HyperlinkButton Grid.Column="1"
                                          Content="View All →"
                                          FontSize="14"
-                                         Foreground="#00AEEF"/>
+                                         Foreground="{ThemeResource AccentBlueBrush}"/>
                     </Grid>
 
                     <!-- Changed to {Binding} for async loaded API data -->
@@ -276,7 +333,7 @@
 
                                         <!-- Product Image -->
                                         <Border Grid.Row="0"
-                                                Background="#F9FAFB"
+                                                Background="{ThemeResource LayerFillColorDefaultBrush}"
                                                 CornerRadius="8"
                                                 Margin="0,0,0,12">
                                             <Image Source="{x:Bind Image}"
@@ -288,13 +345,13 @@
                                                 Spacing="8">
                                             <TextBlock Text="{x:Bind Category}"
                                                        FontSize="12"
-                                                       Foreground="#6B7280"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                        TextTrimming="CharacterEllipsis"/>
 
                                             <TextBlock Text="{x:Bind Name}"
                                                        FontSize="16"
                                                        FontWeight="SemiBold"
-                                                       Foreground="#111827"
+                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                        TextWrapping="Wrap"
                                                        MaxLines="2"/>
 
@@ -310,13 +367,13 @@
                                                             Spacing="4">
                                                     <FontIcon Glyph="&#xE735;"
                                                               FontSize="14"
-                                                              Foreground="#F59E0B"/>
+                                                              Foreground="{ThemeResource WarningAmberBrush}"/>
                                                     <TextBlock Text="{x:Bind Rating}"
                                                                FontSize="13"
-                                                               Foreground="#111827"/>
+                                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                                     <TextBlock Text="{x:Bind Reviews, Mode=OneTime}"
                                                                FontSize="12"
-                                                               Foreground="#6B7280"/>
+                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                 </StackPanel>
                                             </Grid>
 
@@ -324,20 +381,20 @@
                                             <TextBlock Text="{x:Bind Price, Converter={StaticResource CurrencyConverter}}"
                                                        FontSize="20"
                                                        FontWeight="Bold"
-                                                       Foreground="#1A4D8F"/>
+                                                       Foreground="{ThemeResource PrimaryBrush}"/>
 
                                             <!-- Add to Cart Button -->
                                             <Button HorizontalAlignment="Stretch"
-                                                    Background="#00AEEF"
-                                                    Foreground="White"
+                                                    Background="{ThemeResource AccentBlueBrush}"
+                                                    Foreground="{ThemeResource WhiteBrush}"
                                                     BorderThickness="0"
                                                     CornerRadius="8"
                                                     Padding="0,10">
                                                 <Button.Resources>
                                                     <SolidColorBrush x:Key="ButtonBackgroundPointerOver"
-                                                            Color="#0096D1"/>
+                                                            Color="{ThemeResource AccentBlueBrush}"/>
                                                     <SolidColorBrush x:Key="ButtonBackgroundPressed"
-                                                            Color="#007DAF"/>
+                                                            Color="{ThemeResource AccentBlueBrush}"/>
                                                 </Button.Resources>
                                                 <StackPanel Orientation="Horizontal"
                                                             Spacing="8"
@@ -360,4 +417,5 @@
             </StackPanel>
         </Grid>
     </ScrollViewer>
+</Grid>
 </Page>

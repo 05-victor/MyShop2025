@@ -132,8 +132,6 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
                     ProductDescription = productDesc,
                     OrderDate = o.OrderDate,
                     Status = o.Status,
-                    StatusColor = GetStatusColor(o.Status),
-                    StatusBgColor = GetStatusBgColor(o.Status),
                     TotalAmount = o.FinalPrice,
                     CommissionAmount = o.FinalPrice * 0.10m
                 });
@@ -157,22 +155,6 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
             SetLoadingState(false);
         }
     }
-
-    private string GetStatusColor(string status) => status switch
-    {
-        "Completed" or "Delivered" => "#10B981",
-        "Pending" => "#F59E0B",
-        "Cancelled" => "#DC2626",
-        _ => "#6B7280"
-    };
-
-    private string GetStatusBgColor(string status) => status switch
-    {
-        "Completed" or "Delivered" => "#D1FAE5",
-        "Pending" => "#FEF3C7",
-        "Cancelled" => "#FEE2E2",
-        _ => "#F3F4F6"
-    };
 
     private void UpdateStats()
     {
@@ -237,12 +219,6 @@ public partial class OrderViewModel : ObservableObject
 
     [ObservableProperty]
     private string _status = string.Empty;
-
-    [ObservableProperty]
-    private string _statusColor = string.Empty;
-
-    [ObservableProperty]
-    private string _statusBgColor = string.Empty;
 
     [ObservableProperty]
     private decimal _totalAmount;

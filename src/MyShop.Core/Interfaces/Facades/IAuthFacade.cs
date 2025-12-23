@@ -70,11 +70,6 @@ public interface IAuthFacade
     Task<Result<string>> GetPrimaryRoleAsync();
 
     /// <summary>
-    /// Check if first-user setup is required (no users exist).
-    /// </summary>
-    Task<Result<bool>> IsFirstUserSetupRequiredAsync();
-
-    /// <summary>
     /// Validate admin code for first-user setup.
     /// Checks: code exists, status Active, not expired, usage limit not reached.
     /// </summary>

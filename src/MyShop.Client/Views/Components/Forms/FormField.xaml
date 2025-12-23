@@ -27,13 +27,13 @@
             <TextBlock Text="{Binding Label, ElementName=RootControl, Mode=OneWay}"
                        FontSize="14"
                        FontWeight="SemiBold"
-                       Foreground="#111827"/>
+                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
             
             <!-- Required Indicator -->
             <TextBlock Text="*"
                        FontSize="14"
                        FontWeight="SemiBold"
-                       Foreground="#DC2626"
+                       Foreground="{ThemeResource ErrorRedBrush}"
                        Visibility="{Binding IsRequired, ElementName=RootControl, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
         </StackPanel>
 
@@ -44,7 +44,7 @@
         <!-- Help Text -->
         <TextBlock Text="{Binding HelpText, ElementName=RootControl, Mode=OneWay}"
                    FontSize="12"
-                   Foreground="#6B7280"
+                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                    TextWrapping="Wrap"
                    Visibility="{Binding HelpText, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
 
@@ -54,10 +54,10 @@
                    Visibility="{Binding ErrorMessage, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}">
             <FontIcon Glyph="&#xE7BA;"
                      FontSize="12"
-                     Foreground="#DC2626"/>
+                     Foreground="{ThemeResource ErrorRedBrush}"/>
             <TextBlock Text="{Binding ErrorMessage, ElementName=RootControl, Mode=OneWay}"
                        FontSize="12"
-                       Foreground="#DC2626"
+                       Foreground="{ThemeResource ErrorRedBrush}"
                        TextWrapping="Wrap"/>
         </StackPanel>
     </StackPanel>
