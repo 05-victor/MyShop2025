@@ -178,7 +178,8 @@ public class ProfileFacade : IProfileFacade
             var request = new MyShop.Shared.DTOs.Requests.ChangePasswordRequest
             {
                 CurrentPassword = currentPassword,
-                NewPassword = newPassword
+                NewPassword = newPassword,
+                ConfirmPassword = confirmPassword
             };
 
             var changeResult = await _userRepository.ChangePasswordAsync(request);

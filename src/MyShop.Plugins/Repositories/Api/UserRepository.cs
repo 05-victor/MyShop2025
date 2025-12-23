@@ -117,11 +117,16 @@ public class UserRepository : IUserRepository
     {
         try
         {
+            System.Diagnostics.Debug.WriteLine($"[UserRepository] Calling ChangePasswordAsync with request");
+
+            // Use IUsersApi endpoint: POST /api/v1/users/change-password
             var response = await _api.ChangePasswordAsync(request);
 
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
+                System.Diagnostics.Debug.WriteLine($"[UserRepository] ChangePasswordAsync response: Success={apiResponse.Success}, Result={apiResponse.Result}");
+
                 if (apiResponse.Success && apiResponse.Result)
                 {
                     return Result<bool>.Success(true);
@@ -134,10 +139,12 @@ public class UserRepository : IUserRepository
                 }
             }
 
+            System.Diagnostics.Debug.WriteLine($"[UserRepository] ChangePasswordAsync failed: StatusCode={response.StatusCode}");
             return Result<bool>.Failure("Failed to change password");
         }
         catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[UserRepository] ChangePasswordAsync exception: {ex.Message}");
             return Result<bool>.Failure($"Error changing password: {ex.Message}");
         }
     }

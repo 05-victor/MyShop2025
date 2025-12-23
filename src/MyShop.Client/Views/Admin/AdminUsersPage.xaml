@@ -309,7 +309,8 @@
                                 </tables:TableHeader>
 
                                 <!--  Users List  -->
-                                <ItemsRepeater Grid.Row="1" ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}">
+                                <ItemsRepeater Grid.Row="1"
+                                        ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}">
                                     <ItemsRepeater.ItemTemplate>
                                         <DataTemplate x:DataType="viewmodels:UserViewModel">
                                             <Grid
