@@ -17,6 +17,12 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
 
+    <Page.Transitions>
+        <TransitionCollection>
+            <EntranceThemeTransition FromVerticalOffset="50"/>
+        </TransitionCollection>
+    </Page.Transitions>
+
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
@@ -376,6 +382,7 @@
                             <controls:DataGrid
                             x:Name="ProductSummaryDataGrid"
                             AutoGenerateColumns="False"
+                            CanUserReorderColumns="False"
                             GridLinesVisibility="Horizontal"
                             HeadersVisibility="Column"
                             IsReadOnly="True"
@@ -404,15 +411,14 @@
                                             <DataTemplate>
                                                 <Border
                                                 Padding="8,4"
-                                                HorizontalAlignment="Center"
+                                                HorizontalAlignment="Left"
                                                 VerticalAlignment="Center"
                                                 BorderBrush="{ThemeResource TextFillColorDisabledBrush}"
                                                 BorderThickness="1"
                                                 CornerRadius="4">
                                                     <TextBlock
                                                     FontSize="12"
-                                                    Text="{Binding Category}"
-                                                    TextAlignment="Center"/>
+                                                    Text="{Binding Category}"/>
                                                 </Border>
                                             </DataTemplate>
                                         </controls:DataGridTemplateColumn.CellTemplate>
@@ -490,24 +496,6 @@
                                                     Text="{Binding Stock, Converter={StaticResource StockToStatusConverter}, FallbackValue='In Stock'}"
                                                     TextAlignment="Center"/>
                                                 </Border>
-                                            </DataTemplate>
-                                        </controls:DataGridTemplateColumn.CellTemplate>
-                                    </controls:DataGridTemplateColumn>
-
-                                    <!--  Actions Column (Fixed Width)  -->
-                                    <controls:DataGridTemplateColumn Width="80"
-                                                                 Header="Actions">
-                                        <controls:DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <buttons:IconButton
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"
-                                                Click="ViewProductDetails_Click"
-                                                IconColor="{ThemeResource TextFillColorSecondaryBrush}"
-                                                IconGlyph="&#xE8A7;"
-                                                Tag="{Binding}"
-                                                ToolTipService.ToolTip="View details"
-                                                Variant="Ghost"/>
                                             </DataTemplate>
                                         </controls:DataGridTemplateColumn.CellTemplate>
                                     </controls:DataGridTemplateColumn>
