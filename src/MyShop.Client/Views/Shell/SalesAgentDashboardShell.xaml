@@ -10,16 +10,33 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-        <!-- NavigationView theme overrides - Reference centralized theme colors -->
-        <!-- Use StaticResource for sidebar to keep it fixed dark navy (never theme-switch) -->
-        <StaticResource x:Key="NavigationViewExpandedPaneBackground" ResourceKey="SidebarFixedBackgroundBrush" />
-        <StaticResource x:Key="NavigationViewDefaultPaneBackground" ResourceKey="SidebarFixedBackgroundBrush" />
-        <ThemeResource x:Key="NavigationViewItemForeground" ResourceKey="AgentNavItemForeground" />
-        <ThemeResource x:Key="NavigationViewItemForegroundSelected" ResourceKey="AgentNavItemForegroundSelected" />
-        <ThemeResource x:Key="NavigationViewItemForegroundPointerOver" ResourceKey="AgentNavItemForegroundPointerOver" />
-        <ThemeResource x:Key="NavigationViewItemBackgroundSelectedPointerOver" ResourceKey="AgentNavItemBackgroundSelectedPointerOver" />
-        <ThemeResource x:Key="NavigationViewItemBackgroundSelected" ResourceKey="AgentNavItemBackgroundSelected" />
-        <ThemeResource x:Key="NavigationViewItemBackgroundPointerOver" ResourceKey="AgentNavItemBackgroundPointerOver" />
+        <!-- NavigationView HARDCODED colors - NO theme dependency -->
+        <!-- Sidebar background: Always navy, never changes -->
+        <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="#1E293B"/>
+        <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="#1E293B"/>
+        
+        <!-- Text colors: ALWAYS WHITE for visibility -->
+        <SolidColorBrush x:Key="NavigationViewItemForeground" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="NavigationViewItemForegroundSelected" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="NavigationViewItemForegroundSelectedPointerOver" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="NavigationViewItemForegroundPressed" Color="#FFFFFF"/>
+        
+        <!-- Toggle Button (Hamburger Menu) colors -->
+        <SolidColorBrush x:Key="NavigationViewItemForegroundCollapsed" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="NavigationViewButtonForeground" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="NavigationViewButtonForegroundPointerOver" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="NavigationViewButtonForegroundPressed" Color="#FFFFFF"/>
+        
+        <!-- Background colors for states (Cyan theme for Agent) -->
+        <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected" Color="#0EA5E9"/>
+        <!-- Cyan-500: Selected state -->
+        <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPointerOver" Color="#22D3EE"/>
+        <!-- Cyan-400: Selected + Hover -->
+        <SolidColorBrush x:Key="NavigationViewItemBackgroundPointerOver" Color="#0891B2"/>
+        <!-- Cyan-600: Hover only -->
+        <SolidColorBrush x:Key="NavigationViewItemBackgroundPressed" Color="#0E7490"/>
+        <!-- Cyan-700: Pressed -->
     </Page.Resources>
 
     <Grid>
@@ -68,73 +85,73 @@
 
         <!-- SALESAGENT MENU ITEMS -->
         <NavigationView.MenuItems>
-            <NavigationViewItem Content="Dashboard" Tag="dashboard">
+            <NavigationViewItem Content="Dashboard" Tag="dashboard" Foreground="#FFFFFF">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE80F;" />
+                    <FontIcon Glyph="&#xE80F;" Foreground="#FFFFFF" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
 
-            <NavigationViewItem Content="My Products" Tag="myProducts">
+            <NavigationViewItem Content="My Products" Tag="myProducts" Foreground="#FFFFFF">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE7B8;" />
+                    <FontIcon Glyph="&#xE7B8;" Foreground="#FFFFFF" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
 
-            <NavigationViewItem Content="Sales Orders" Tag="salesOrders">
+            <NavigationViewItem Content="Sales Orders" Tag="salesOrders" Foreground="#FFFFFF">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE7BF;" />
+                    <FontIcon Glyph="&#xE7BF;" Foreground="#FFFFFF" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
 
-            <NavigationViewItem Content="Earnings" Tag="earnings">
+            <NavigationViewItem Content="Earnings" Tag="earnings" Foreground="#FFFFFF">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE7DB;" />
+                    <FontIcon Glyph="&#xE7DB;" Foreground="#FFFFFF" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
 
-            <NavigationViewItem Content="Reports" Tag="reports">
+            <NavigationViewItem Content="Reports" Tag="reports" Foreground="#FFFFFF">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE9D9;" />
+                    <FontIcon Glyph="&#xE9D9;" Foreground="#FFFFFF" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
 
-            <NavigationViewItem Content="Shopping" Tag="shopping">
+            <NavigationViewItem Content="Shopping" Tag="shopping" Foreground="#FFFFFF">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE719;" />
+                    <FontIcon Glyph="&#xE719;" Foreground="#FFFFFF" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
 
-            <NavigationViewItem Content="Cart" Tag="cart">
+            <NavigationViewItem Content="Cart" Tag="cart" Foreground="#FFFFFF">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE7BF;" />
+                    <FontIcon Glyph="&#xE7BF;" Foreground="#FFFFFF" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
 
-            <NavigationViewItem Content="Purchase Orders" Tag="purchaseOrders">
+            <NavigationViewItem Content="Purchase Orders" Tag="purchaseOrders" Foreground="#FFFFFF">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE8F1;" />
+                    <FontIcon Glyph="&#xE8F1;" Foreground="#FFFFFF" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
 
             <NavigationViewItemSeparator/>
 
-            <NavigationViewItem Content="Profile" Tag="profile">
+            <NavigationViewItem Content="Profile" Tag="profile" Foreground="#FFFFFF">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE77B;" />
+                    <FontIcon Glyph="&#xE77B;" Foreground="#FFFFFF" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
 
-            <NavigationViewItem Content="Settings" Tag="settings">
+            <NavigationViewItem Content="Settings" Tag="settings" Foreground="#FFFFFF">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE713;" />
+                    <FontIcon Glyph="&#xE713;" Foreground="#FFFFFF" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
         </NavigationView.MenuItems>
 
             <NavigationView.PaneFooter>
-                <NavigationViewItem Content="Logout" Tag="logout" Tapped="LogoutItem_Tapped">
+                <NavigationViewItem Content="Logout" Tag="logout" Tapped="LogoutItem_Tapped" Foreground="#FFFFFF">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE7E8;"/>
+                        <FontIcon Glyph="&#xE7E8;" Foreground="#FFFFFF"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
             </NavigationView.PaneFooter>

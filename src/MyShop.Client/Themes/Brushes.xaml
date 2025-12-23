@@ -197,22 +197,30 @@
     
     <!-- Admin Shell -->
     <SolidColorBrush x:Key="AdminNavPaneBackground" Color="#1F2937"/>
-    <SolidColorBrush x:Key="AdminNavItemForeground" Color="#9CA3AF"/>
-    <SolidColorBrush x:Key="AdminNavItemForegroundSelected" Color="White"/>
-    <SolidColorBrush x:Key="AdminNavItemForegroundPointerOver" Color="White"/>
+    <SolidColorBrush x:Key="AdminNavItemForeground" Color="#FFFFFF"/>
+    <!-- Always white for visibility -->
+    <SolidColorBrush x:Key="AdminNavItemForegroundSelected" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="AdminNavItemForegroundPointerOver" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="AdminNavItemBackgroundSelected" Color="#3B82F6"/>
-    <SolidColorBrush x:Key="AdminNavItemBackgroundSelectedPointerOver" Color="#3B82F6"/>
-    <SolidColorBrush x:Key="AdminNavItemBackgroundPointerOver" Color="#374151"/>
+    <!-- Blue-500 for selected -->
+    <SolidColorBrush x:Key="AdminNavItemBackgroundSelectedPointerOver" Color="#60A5FA"/>
+    <!-- Blue-400 for selected+hover -->
+    <SolidColorBrush x:Key="AdminNavItemBackgroundPointerOver" Color="#2563EB"/>
+    <!-- Blue-600 for hover only -->
     <SolidColorBrush x:Key="AdminNavHeaderForeground" Color="White"/>
     
     <!-- Agent/Customer Shell -->
     <SolidColorBrush x:Key="AgentNavPaneBackground" Color="#1E293B"/>
-    <SolidColorBrush x:Key="AgentNavItemForeground" Color="#D1D5DB"/>
-    <SolidColorBrush x:Key="AgentNavItemForegroundSelected" Color="White"/>
-    <SolidColorBrush x:Key="AgentNavItemForegroundPointerOver" Color="White"/>
-    <SolidColorBrush x:Key="AgentNavItemBackgroundSelected" Color="#00AEEF"/>
-    <SolidColorBrush x:Key="AgentNavItemBackgroundSelectedPointerOver" Color="#00AEEF"/>
-    <SolidColorBrush x:Key="AgentNavItemBackgroundPointerOver" Color="#1A00AEEF"/>
+    <SolidColorBrush x:Key="AgentNavItemForeground" Color="#FFFFFF"/>
+    <!-- Always white for visibility -->
+    <SolidColorBrush x:Key="AgentNavItemForegroundSelected" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="AgentNavItemForegroundPointerOver" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="AgentNavItemBackgroundSelected" Color="#0EA5E9"/>
+    <!-- Cyan-500 for selected -->
+    <SolidColorBrush x:Key="AgentNavItemBackgroundSelectedPointerOver" Color="#22D3EE"/>
+    <!-- Cyan-400 for selected+hover -->
+    <SolidColorBrush x:Key="AgentNavItemBackgroundPointerOver" Color="#0891B2"/>
+    <!-- Cyan-600 for hover only -->
     <SolidColorBrush x:Key="AgentNavHeaderForeground" Color="White"/>
     
     <!-- Fixed Sidebar Color - Always dark navy, never changes with theme -->
