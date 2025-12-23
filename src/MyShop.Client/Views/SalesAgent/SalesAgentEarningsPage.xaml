@@ -123,8 +123,8 @@
             <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel x:Name="ContentStackPanel"
-                            Padding="32"
-                            Spacing="24">
+                                Padding="32"
+                                Spacing="24">
 
                         <!-- PAGE HEADER -->
                         <layout:PageHeader
@@ -132,7 +132,7 @@
                             Subtitle="Track your income and platform fees">
                             <layout:PageHeader.ActionContent>
                                 <StackPanel Orientation="Horizontal"
-                                        Spacing="12">
+                                            Spacing="12">
                                     <ComboBox x:Name="PeriodComboBox"
                                               Width="180"
                                               SelectedIndex="0"
@@ -140,13 +140,13 @@
                                               CornerRadius="8"
                                               SelectionChanged="PeriodComboBox_SelectionChanged">
                                         <ComboBoxItem Content="All Time"
-                                                Tag="all"/>
+                                                      Tag="all"/>
                                         <ComboBoxItem Content="This Month"
-                                                Tag="month"/>
+                                                      Tag="month"/>
                                         <ComboBoxItem Content="Last Month"
-                                                Tag="last-month"/>
+                                                      Tag="last-month"/>
                                         <ComboBoxItem Content="Last 3 Months"
-                                                Tag="3months"/>
+                                                      Tag="3months"/>
                                     </ComboBox>
                                     <buttons:IconButton
                                         Variant="Outline"
@@ -203,15 +203,12 @@
                                 Grid.Column="0"
                                 Title="Total Earnings"
                                 Icon="&#xE7DB;"
-                                Value="{x:Bind ViewModel.TotalEarnings, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                Value="{x:Bind ViewModel.TotalEarnings, Mode=OneWay}"
+                                IsCurrency="True"
                                 Subtitle="Gross revenue"
-                                ShowBadge="Visible"
-                                TrendIcon="&#xE74E;"
-                                TrendText="+12.5%"
+                                ShowBadge="Collapsed"
                                 IconBackgroundBrush="{ThemeResource SuccessGreenLightBrush}"
-                                IconForegroundBrush="{ThemeResource SuccessGreenBrush}"
-                                BadgeBackgroundBrush="{ThemeResource SuccessGreenLightBrush}"
-                                BadgeForegroundBrush="{ThemeResource SuccessGreenBrush}"/>
+                                IconForegroundBrush="{ThemeResource SuccessGreenBrush}"/>
 
                             <!-- Platform Fees -->
                             <cards:KPICard
@@ -219,7 +216,8 @@
                                 Grid.Column="1"
                                 Title="Platform Fees"
                                 Icon="&#xE946;"
-                                Value="{x:Bind ViewModel.TotalPlatformFees, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                Value="{x:Bind ViewModel.TotalPlatformFees, Mode=OneWay}"
+                                IsCurrency="True"
                                 Subtitle="10% commission"
                                 ShowBadge="Collapsed"
                                 IconBackgroundBrush="{ThemeResource ErrorRedLightBrush}"
@@ -231,15 +229,12 @@
                                 Grid.Column="2"
                                 Title="Net Earnings"
                                 Icon="&#xE8EC;"
-                                Value="{x:Bind ViewModel.NetEarnings, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                Value="{x:Bind ViewModel.NetEarnings, Mode=OneWay}"
+                                IsCurrency="True"
                                 Subtitle="After fees"
-                                ShowBadge="Visible"
-                                TrendIcon="&#xE74E;"
-                                TrendText="+8.2%"
+                                ShowBadge="Collapsed"
                                 IconBackgroundBrush="{ThemeResource InfoBlueLightBrush}"
-                                IconForegroundBrush="{ThemeResource PrimaryBrush}"
-                                BadgeBackgroundBrush="{ThemeResource InfoBlueLightBrush}"
-                                BadgeForegroundBrush="{ThemeResource PrimaryBrush}"/>
+                                IconForegroundBrush="{ThemeResource PrimaryBrush}"/>
 
                             <!-- Row 1 -->
                             <!-- Paid Earnings -->
@@ -248,7 +243,8 @@
                                 Grid.Column="0"
                                 Title="Paid Out"
                                 Icon="&#xE8AB;"
-                                Value="{x:Bind ViewModel.PaidEarnings, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                Value="{x:Bind ViewModel.PaidEarnings, Mode=OneWay}"
+                                IsCurrency="True"
                                 Subtitle="Settled payments"
                                 ShowBadge="Collapsed"
                                 IconBackgroundBrush="{ThemeResource PurpleLightBrush}"
@@ -260,7 +256,8 @@
                                 Grid.Column="1"
                                 Title="Pending Earnings"
                                 Icon="&#xE716;"
-                                Value="{x:Bind ViewModel.PendingEarnings, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                Value="{x:Bind ViewModel.PendingEarnings, Mode=OneWay}"
+                                IsCurrency="True"
                                 Subtitle="Awaiting payment"
                                 ShowBadge="Collapsed"
                                 IconBackgroundBrush="{ThemeResource WarningAmberLightBrush}"
@@ -285,7 +282,8 @@
                                 Grid.Column="0"
                                 Title="Avg per Order"
                                 Icon="&#xE7DB;"
-                                Value="{x:Bind ViewModel.AverageEarningsPerOrder, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                Value="{x:Bind ViewModel.AverageEarningsPerOrder, Mode=OneWay}"
+                                IsCurrency="True"
                                 Subtitle="Average earnings"
                                 ShowBadge="Collapsed"
                                 IconBackgroundBrush="{ThemeResource InfoBlueLightBrush}"
@@ -297,11 +295,12 @@
                                 Grid.Column="1"
                                 Title="This Month"
                                 Icon="&#xE74E;"
-                                Value="{x:Bind ViewModel.ThisMonthEarnings, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                Value="{x:Bind ViewModel.ThisMonthEarnings, Mode=OneWay}"
+                                IsCurrency="True"
                                 Subtitle="Current month"
                                 ShowBadge="Visible"
                                 TrendIcon="&#xE74E;"
-                                TrendText="+6.8%"
+                                TrendText="{x:Bind ViewModel.ThisMonthTrendText, Mode=OneWay}"
                                 IconBackgroundBrush="{ThemeResource SuccessGreenLightBrush}"
                                 IconForegroundBrush="{ThemeResource SuccessGreenBrush}"
                                 BadgeBackgroundBrush="{ThemeResource SuccessGreenLightBrush}"
@@ -313,7 +312,8 @@
                                 Grid.Column="2"
                                 Title="Last Month"
                                 Icon="&#xE74E;"
-                                Value="{x:Bind ViewModel.LastMonthEarnings, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                Value="{x:Bind ViewModel.LastMonthEarnings, Mode=OneWay}"
+                                IsCurrency="True"
                                 Subtitle="Previous month"
                                 ShowBadge="Collapsed"
                                 IconBackgroundBrush="{ThemeResource InfoBlueLightBrush}"
@@ -339,22 +339,22 @@
                             <forms:FilterCard.FilterContent>
                                 <StackPanel>
                                     <TextBlock Text="Status"
-                                            FontSize="12"
-                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                            Margin="0,0,0,4"/>
+                                               FontSize="12"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                               Margin="0,0,0,4"/>
                                     <ComboBox x:Name="StatusComboBox"
                                               HorizontalAlignment="Stretch"
                                               SelectedIndex="0"
                                               CornerRadius="8"
                                               SelectionChanged="StatusComboBox_SelectionChanged">
                                         <ComboBoxItem Content="All Status"
-                                                Tag="All"/>
+                                                      Tag="All"/>
                                         <ComboBoxItem Content="Paid"
-                                                Tag="Paid"/>
+                                                      Tag="Paid"/>
                                         <ComboBoxItem Content="Approved"
-                                                Tag="Approved"/>
+                                                      Tag="Approved"/>
                                         <ComboBoxItem Content="Pending"
-                                                Tag="Pending"/>
+                                                      Tag="Pending"/>
                                     </ComboBox>
                                 </StackPanel>
                             </forms:FilterCard.FilterContent>
@@ -386,45 +386,45 @@
                                         </Grid.ColumnDefinitions>
 
                                         <TextBlock Grid.Column="0"
-                                                Text="ORDER ID"
+                                                   Text="ORDER ID"
                                                    FontSize="11"
-                                                FontWeight="SemiBold"
+                                                   FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         <TextBlock Grid.Column="1"
-                                                Text="PRODUCT"
+                                                   Text="PRODUCT"
                                                    FontSize="11"
-                                                FontWeight="SemiBold"
+                                                   FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         <TextBlock Grid.Column="2"
-                                                Text="CUSTOMER"
+                                                   Text="CUSTOMER"
                                                    FontSize="11"
-                                                FontWeight="SemiBold"
+                                                   FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         <TextBlock Grid.Column="3"
-                                                Text="TOTAL"
+                                                   Text="TOTAL"
                                                    FontSize="11"
-                                                FontWeight="SemiBold"
+                                                   FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         <TextBlock Grid.Column="4"
-                                                Text="FEE (10%)"
+                                                   Text="FEE (10%)"
                                                    FontSize="11"
-                                                FontWeight="SemiBold"
+                                                   FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         <TextBlock Grid.Column="5"
-                                                Text="NET"
+                                                   Text="NET"
                                                    FontSize="11"
-                                                FontWeight="SemiBold"
+                                                   FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         <TextBlock Grid.Column="6"
-                                                Text="STATUS"
+                                                   Text="STATUS"
                                                    FontSize="11"
-                                                FontWeight="SemiBold"
+                                                   FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                     </Grid>
 
                                     <!-- Table Body -->
                                     <ScrollViewer Grid.Row="1"
-                                            MaxHeight="400">
+                                                  MaxHeight="400">
                                         <ItemsRepeater ItemsSource="{x:Bind ViewModel.Commissions, Mode=OneWay}">
                                             <ItemsRepeater.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:CommissionViewModel">

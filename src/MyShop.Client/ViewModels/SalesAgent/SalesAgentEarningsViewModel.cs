@@ -4,6 +4,7 @@ using MyShop.Client.ViewModels.Base;
 using MyShop.Client.Facades;
 using MyShop.Client.Services;
 using MyShop.Core.Interfaces.Facades;
+using MyShop.Shared.DTOs.Responses;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -42,6 +43,10 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
 
     [ObservableProperty]
     private decimal _lastMonthEarnings;
+
+    // Trend properties (calculated)
+    [ObservableProperty]
+    private string _thisMonthTrendText = "0%";
 
     // Legacy properties (kept for compatibility)
     [ObservableProperty]
@@ -137,6 +142,9 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
                 TotalSales = summary.TotalOrders;
                 PaidCommission = summary.PaidEarnings;
                 PendingCommission = summary.PendingEarnings;
+
+                // Calculate trends
+                CalculateTrends(summary);
 
                 Debug.WriteLine($"[SalesAgentEarningsViewModel] Summary loaded: Total={TotalEarnings}, Orders={TotalOrders}");
             }
@@ -272,6 +280,20 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
         finally
         {
             SetLoadingState(false);
+        }
+    }
+
+    private void CalculateTrends(EarningsSummaryResponse summary)
+    {
+        // Calculate This Month trend: compare with Last Month
+        if (summary.LastMonthEarnings > 0)
+        {
+            var trendValue = (summary.ThisMonthEarnings - summary.LastMonthEarnings) / summary.LastMonthEarnings;
+            ThisMonthTrendText = $"{trendValue:+0.0%;-0.0%;0.0%}";
+        }
+        else
+        {
+            ThisMonthTrendText = "0%";
         }
     }
 }
