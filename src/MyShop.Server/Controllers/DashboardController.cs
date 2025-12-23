@@ -134,4 +134,118 @@ public class DashboardController : ControllerBase
                 ApiResponse<object>.ServerErrorResponse("An error occurred while retrieving revenue chart"));
         }
     }
+
+    /// <summary>
+    /// Get admin dashboard summary - Platform-wide metrics
+    /// Admin only - shows aggregated data from all sales agents
+    /// </summary>
+    /// <param name="period">Optional period for orders/revenue calculation:
+    /// - "day": Today (from 00:00:00 to now)
+    /// - "week": This week (from Monday to now)
+    /// - "month": This month (from 1st to now)
+    /// - "year": This year (from Jan 1 to now)
+    /// - Not specified: All-time data
+    /// </param>
+    /// <returns>Admin dashboard summary data</returns>
+    /// <response code="200">Returns admin dashboard summary</response>
+    /// <response code="400">Invalid period parameter</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="403">User is not an admin</response>
+    [HttpGet("admin-summary")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ApiResponse<AdminDashboardSummaryResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetAdminSummary([FromQuery] string? period = null)
+    {
+        try
+        {
+            _logger.LogInformation("GET /api/v1/dashboard/admin-summary - Period: {Period}", period ?? "all-time");
+
+            // Validate period parameter if provided
+            if (!string.IsNullOrWhiteSpace(period))
+            {
+                var validPeriods = new[] { "day", "week", "month", "year" };
+                if (!validPeriods.Contains(period.ToLower()))
+                {
+                    _logger.LogWarning("Invalid period parameter: {Period}", period);
+                    return BadRequest(ApiResponse<object>.ErrorResponse(
+                        $"Invalid period. Valid values are: {string.Join(", ", validPeriods)}"));
+                }
+            }
+
+            var summary = await _dashboardService.GetAdminSummaryAsync(period);
+
+            return Ok(ApiResponse<AdminDashboardSummaryResponse>.SuccessResponse(
+                summary,
+                "Admin dashboard summary retrieved successfully"));
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning("Unauthorized access to admin dashboard summary: {Message}", ex.Message);
+            return Unauthorized(ApiResponse<object>.UnauthorizedResponse("User not authenticated"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving admin dashboard summary");
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                ApiResponse<object>.ServerErrorResponse("An error occurred while retrieving admin dashboard summary"));
+        }
+    }
+
+    /// <summary>
+    /// Get admin revenue & commission chart data - Platform-wide
+    /// Admin only - shows platform-wide revenue and commission trends
+    /// </summary>
+    /// <param name="period">Chart period:
+    /// - "day": Hourly data for today (24 hours)
+    /// - "week": Daily data for this week (Mon-Sun)
+    /// - "month": Daily data for this month (1st to today)
+    /// - "year": Monthly data for this year (Jan to current month)
+    /// </param>
+    /// <returns>Revenue & commission chart data with labels and values</returns>
+    /// <response code="200">Returns admin revenue chart data</response>
+    /// <response code="400">Invalid period parameter</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="403">User is not an admin</response>
+    [HttpGet("admin-revenue-chart")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ApiResponse<AdminRevenueChartResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetAdminRevenueChart([FromQuery] string period = "week")
+    {
+        try
+        {
+            _logger.LogInformation("GET /api/v1/dashboard/admin-revenue-chart - Period: {Period}", period);
+
+            // Validate period parameter
+            var validPeriods = new[] { "day", "week", "month", "year" };
+            if (!validPeriods.Contains(period.ToLower()))
+            {
+                _logger.LogWarning("Invalid period parameter: {Period}", period);
+                return BadRequest(ApiResponse<object>.ErrorResponse(
+                    $"Invalid period. Valid values are: {string.Join(", ", validPeriods)}"));
+            }
+
+            var chartData = await _dashboardService.GetAdminRevenueChartAsync(period);
+
+            return Ok(ApiResponse<AdminRevenueChartResponse>.SuccessResponse(
+                chartData,
+                "Admin revenue chart data retrieved successfully"));
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning("Unauthorized access to admin revenue chart: {Message}", ex.Message);
+            return Unauthorized(ApiResponse<object>.UnauthorizedResponse("User not authenticated"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving admin revenue chart");
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                ApiResponse<object>.ServerErrorResponse("An error occurred while retrieving admin revenue chart"));
+        }
+    }
 }
