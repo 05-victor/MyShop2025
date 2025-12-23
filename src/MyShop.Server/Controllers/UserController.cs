@@ -147,4 +147,40 @@ public class UserController : ControllerBase
                 ApiResponse.ServerErrorResponse("An error occurred while changing password"));
         }
     }
+
+    [HttpGet("{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ApiResponse<UserInfoResponse>>> GetByIdAsync([FromRoute] Guid id)
+    {
+        var user = await _userService.GetByIdAsync(id);
+
+        return Ok(ApiResponse<UserInfoResponse>.SuccessResponse(user));
+    }
+
+    [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ApiResponse>> DeleteUserAsync([FromRoute] Guid id)
+    {
+        try
+        {
+            var result = await _userService.DeleteUserAsync(id);
+            if (!result)
+            {
+                return NotFound(ApiResponse.NotFoundResponse("User not found"));
+            }
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting user with ID {UserId}", id);
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                ApiResponse.ServerErrorResponse("An error occurred while deleting the user"));
+        }
+    }
 }

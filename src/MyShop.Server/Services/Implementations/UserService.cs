@@ -1,4 +1,5 @@
 ﻿using MyShop.Data.Repositories.Interfaces;
+using MyShop.Server.Exceptions;
 using MyShop.Server.Services.Interfaces;
 using MyShop.Shared.DTOs.Commons;
 using MyShop.Shared.DTOs.Requests;
@@ -225,4 +226,31 @@ public class UserService : IUserService
             user.Username, userId);
         return true;
     }
+
+    public async Task<UserInfoResponse> GetByIdAsync(Guid id)
+    {
+        var user = await _userRepository.GetByIdAsync(id);
+        if (user == null)
+        {
+            _logger.LogWarning("User with ID {UserId} not found", id);
+            throw NotFoundException.ForEntity("User", id);
+        }
+        return MapToUserInfoResponse(user);
+    }
+
+    public async Task<bool> DeleteUserAsync(Guid id)
+    {
+        var user = await _userRepository.GetByIdAsync(id);
+        if (user == null)
+        {
+            _logger.LogWarning("User with ID {UserId} not found for deletion", id);
+            return false;
+        }
+        await _userRepository.DeleteAsync(id);
+        _logger.LogInformation("User with ID {UserId} deleted successfully", id);
+        return true;
+
+    }
+
+
 }

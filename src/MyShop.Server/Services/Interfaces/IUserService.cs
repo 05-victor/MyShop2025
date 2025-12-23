@@ -16,4 +16,6 @@ public interface IUserService
     /// <param name="request">Change password request containing current password, new password, and confirmation</param>
     /// <returns>True if password was changed successfully, false if current password is incorrect, null if user not found</returns>
     Task<bool?> ChangePasswordAsync(ChangePasswordRequest request);
+    Task<UserInfoResponse> GetByIdAsync(Guid id);
+    Task<bool> DeleteUserAsync(Guid id);
 }
