@@ -1,4 +1,5 @@
 namespace MyShop.Core.Interfaces.Services;
+
 using MyShop.Core.Common;
 
 /// <summary>
@@ -56,4 +57,9 @@ public interface INavigationService
     /// Get current page type name
     /// </summary>
     string? CurrentPageTypeName { get; }
+
+    /// <summary>
+    /// Show user details dialog (for Admin Users page)
+    /// </summary>
+    Task ShowUserDetailsDialogAsync(MyShop.Shared.Models.User userDetails);
 }
