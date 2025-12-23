@@ -408,7 +408,6 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="100"/>
                                             <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="130"/>
                                             <ColumnDefinition Width="110"/>
                                             <ColumnDefinition Width="100"/>
@@ -423,41 +422,36 @@
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         <TextBlock Grid.Column="1"
-                                                   Text="PRODUCT"
-                                                   FontSize="11"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                        <TextBlock Grid.Column="2"
                                                    Text="CUSTOMER"
                                                    FontSize="11"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                        <TextBlock Grid.Column="3"
+                                        <TextBlock Grid.Column="2"
                                                    Text="ORDER DATE"
                                                    FontSize="11"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                        <TextBlock Grid.Column="4"
+                                        <TextBlock Grid.Column="3"
                                                    Text="ORDER STATUS"
                                                    FontSize="11"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                        <TextBlock Grid.Column="5"
+                                        <TextBlock Grid.Column="4"
                                                    Text="TOTAL"
                                                    FontSize="11"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                        <TextBlock Grid.Column="6"
+                                        <TextBlock Grid.Column="5"
                                                    Text="FEE (10%)"
                                                    FontSize="11"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                        <TextBlock Grid.Column="7"
+                                        <TextBlock Grid.Column="6"
                                                    Text="NET"
                                                    FontSize="11"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                        <TextBlock Grid.Column="8"
+                                        <TextBlock Grid.Column="7"
                                                    Text="PAYMENT STATUS"
                                                    FontSize="11"
                                                    FontWeight="SemiBold"
@@ -476,7 +470,6 @@
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="100"/>
                                                             <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="130"/>
                                                             <ColumnDefinition Width="110"/>
                                                             <ColumnDefinition Width="100"/>
@@ -492,17 +485,11 @@
                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                                                         <TextBlock Grid.Column="1"
-                                                                   Text="{x:Bind OrderCode, Mode=OneWay}"
-                                                                   FontSize="14"
-                                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                                                   TextTrimming="CharacterEllipsis"/>
-
-                                                        <TextBlock Grid.Column="2"
                                                                    Text="{x:Bind CustomerName, Mode=OneWay}"
                                                                    FontSize="14"
                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
-                                                        <TextBlock Grid.Column="3"
+                                                        <TextBlock Grid.Column="2"
                                                                    Text="{x:Bind OrderDate, Mode=OneWay, Converter={StaticResource DateTimeToStringConverter}}"
                                                                    FontSize="13"
                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
@@ -518,27 +505,33 @@
                                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                         </Border>
 
-                                                        <TextBlock Grid.Column="5"
+                                                        <TextBlock Grid.Column="4"
                                                                    Text="{x:Bind OrderAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                                    FontSize="14"
                                                                    FontWeight="SemiBold"
                                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
 
-                                                        <TextBlock Grid.Column="6"
+                                                        <TextBlock Grid.Column="5"
                                                                    Text="{x:Bind PlatformFee, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                                    FontSize="14"
                                                                    Foreground="{ThemeResource ErrorRedBrush}"/>
 
-                                                        <TextBlock Grid.Column="7"
+                                                        <TextBlock Grid.Column="6"
                                                                    Text="{x:Bind NetEarnings, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                                    FontSize="14"
                                                                    FontWeight="Bold"
                                                                    Foreground="{ThemeResource SuccessGreenBrush}"/>
 
-                                                        <badges:StatusBadge Grid.Column="8"
-                                                            Text="{x:Bind PaymentStatus, Mode=OneWay}"
-                                                            Variant="{x:Bind PaymentStatus, Mode=OneWay, Converter={StaticResource StatusToVariantConverter}}"
-                                                            HorizontalAlignment="Left"/>
+                                                        <Border Grid.Column="7"
+                                                                Background="{x:Bind StatusBgColor, Mode=OneWay, Converter={StaticResource StringToBrushConverter}}"
+                                                                CornerRadius="999"
+                                                                Padding="8,4"
+                                                                HorizontalAlignment="Left">
+                                                            <TextBlock Text="{x:Bind PaymentStatus, Mode=OneWay}"
+                                                                       FontSize="12"
+                                                                       FontWeight="SemiBold"
+                                                                       Foreground="{x:Bind StatusColor, Mode=OneWay, Converter={StaticResource StringToBrushConverter}}"/>
+                                                        </Border>
                                                     </Grid>
                                                 </DataTemplate>
                                             </ItemsRepeater.ItemTemplate>

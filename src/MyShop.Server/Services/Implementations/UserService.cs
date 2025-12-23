@@ -1,4 +1,5 @@
 ﻿using MyShop.Data.Repositories.Interfaces;
+using MyShop.Server.Exceptions;
 using MyShop.Server.Services.Interfaces;
 using MyShop.Shared.DTOs.Commons;
 using MyShop.Shared.DTOs.Requests;
@@ -13,6 +14,7 @@ public class UserService : IUserService
     private readonly ICurrentUserService _currentUser;
     private readonly HttpClient _httpClient;
     private readonly ILogger<UserService> _logger;
+    
     public UserService(IUserRepository userRepository, IRoleRepository roleRepository, ICurrentUserService currentUserService, HttpClient httpClient, ILogger<UserService> logger)
     {
         _userRepository = userRepository;
@@ -189,4 +191,66 @@ public class UserService : IUserService
             throw;
         }
     }
+
+    public async Task<bool?> ChangePasswordAsync(ChangePasswordRequest request)
+    {
+        var userId = _currentUser.UserId;
+        if (!userId.HasValue)
+        {
+            _logger.LogWarning("[ChangePassword] Invalid JWT: userId claim is missing");
+            return null;
+        }
+
+        var user = await _userRepository.GetByIdAsync(userId.Value);
+        if (user == null)
+        {
+            _logger.LogWarning("[ChangePassword] User with ID {UserId} not found", userId);
+            return null;
+        }
+
+        // Verify current password using BCrypt
+        if (!BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.Password))
+        {
+            _logger.LogWarning("[ChangePassword] Current password verification failed for user {Username} (ID: {UserId})", 
+                user.Username, userId);
+            return false;
+        }
+
+        // Hash new password using BCrypt
+        user.Password = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+        user.UpdatedAt = DateTime.UtcNow;
+
+        await _userRepository.UpdateAsync(user);
+
+        _logger.LogInformation("[ChangePassword] Password changed successfully for user {Username} (ID: {UserId})", 
+            user.Username, userId);
+        return true;
+    }
+
+    public async Task<UserInfoResponse> GetByIdAsync(Guid id)
+    {
+        var user = await _userRepository.GetByIdAsync(id);
+        if (user == null)
+        {
+            _logger.LogWarning("User with ID {UserId} not found", id);
+            throw NotFoundException.ForEntity("User", id);
+        }
+        return MapToUserInfoResponse(user);
+    }
+
+    public async Task<bool> DeleteUserAsync(Guid id)
+    {
+        var user = await _userRepository.GetByIdAsync(id);
+        if (user == null)
+        {
+            _logger.LogWarning("User with ID {UserId} not found for deletion", id);
+            return false;
+        }
+        await _userRepository.DeleteAsync(id);
+        _logger.LogInformation("User with ID {UserId} deleted successfully", id);
+        return true;
+
+    }
+
+
 }
