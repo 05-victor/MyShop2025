@@ -250,6 +250,92 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
             SetLoadingState(false);
         }
     }
+
+    /// <summary>
+    /// Show user details (using data from current list, API endpoint not yet available on server)
+    /// </summary>
+    [RelayCommand]
+    private async Task ViewUserDetailsAsync(UserViewModel user)
+    {
+        try
+        {
+            if (user == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] ViewUserDetailsAsync - user is null");
+                await _toastHelper?.ShowError("User not found");
+                return;
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] ViewUserDetailsAsync called for user: {user.Name} (ID: {user.Id})");
+
+            // Show user info from current UserViewModel (API GET /api/v1/users/{id} not yet implemented on server)
+            var userInfo = $"User: {user.Username}\n" +
+                           $"Full Name: {user.FullName}\n" +
+                           $"Email: {user.Email}\n" +
+                           $"Phone: {user.Phone}\n" +
+                           $"Role: {user.Role}\n" +
+                           $"Status: {user.Status}";
+
+            await _toastHelper?.ShowSuccess($"User Details:\n{userInfo}");
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] User details displayed: {user.Username}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Error viewing user details: {ex.Message}\n{ex.StackTrace}");
+            await _toastHelper?.ShowError($"Error: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Delete user (called after confirmation from View)
+    /// Note: API DELETE /api/v1/users/{id} not yet implemented on server, showing warning
+    /// </summary>
+    [RelayCommand]
+    private async Task DeleteUserAsync(UserViewModel user)
+    {
+        try
+        {
+            if (user == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] DeleteUserAsync - user is null");
+                await _toastHelper?.ShowError("User not found");
+                return;
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] DeleteUserAsync called for user: {user.Name} (ID: {user.Id})");
+
+            // Show warning that API is not yet available
+            await _toastHelper?.ShowWarning("Delete user API endpoint (DELETE /api/v1/users/{id}) is not yet implemented on the server. Please ask your backend developer to add this endpoint.");
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Delete user API not available on server");
+
+            // TODO: Uncomment when API is ready
+            /*
+            SetLoadingState(true);
+            var deleteResult = await _userFacade.DeleteUserAsync(user.Id);
+
+            if (deleteResult.IsSuccess)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] User deleted successfully: {user.Name}");
+                await _toastHelper?.ShowSuccess($"User '{user.Name}' deleted successfully");
+
+                // Reload the page to refresh the list
+                CurrentPage = 1;
+                await LoadPageAsync();
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Delete failed: {deleteResult.ErrorMessage}");
+                await _toastHelper?.ShowError(deleteResult.ErrorMessage ?? "Failed to delete user");
+            }
+            SetLoadingState(false);
+            */
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Error deleting user: {ex.Message}\n{ex.StackTrace}");
+            await _toastHelper?.ShowError($"Error: {ex.Message}");
+        }
+    }
 }
 
 public partial class UserViewModel : ObservableObject

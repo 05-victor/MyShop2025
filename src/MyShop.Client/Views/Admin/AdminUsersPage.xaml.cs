@@ -51,7 +51,7 @@ public sealed partial class AdminUsersPage : Page
         {
             base.OnNavigatedTo(e);
             Services.NavigationLogger.LogNavigatedTo(nameof(AdminUsersPage), e.Parameter);
-            
+
             try
             {
                 await ViewModel.InitializeAsync();
@@ -75,7 +75,7 @@ public sealed partial class AdminUsersPage : Page
         if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
         {
             var query = sender.Text?.ToLower() ?? string.Empty;
-            
+
             if (string.IsNullOrWhiteSpace(query))
             {
                 sender.ItemsSource = null;
@@ -126,7 +126,7 @@ public sealed partial class AdminUsersPage : Page
     {
         // Guard: ViewModel may be null during page initialization
         if (ViewModel == null) return;
-        
+
         if (RoleComboBox.SelectedItem is ComboBoxItem item)
         {
             var role = item.Tag?.ToString() ?? "All Roles";
@@ -138,7 +138,7 @@ public sealed partial class AdminUsersPage : Page
     {
         // Guard: ViewModel may be null during page initialization
         if (ViewModel == null) return;
-        
+
         if (StatusComboBox.SelectedItem is ComboBoxItem item)
         {
             var status = item.Tag?.ToString() ?? "All Status";
@@ -160,5 +160,120 @@ public sealed partial class AdminUsersPage : Page
     {
         using var deferral = args.GetDeferral();
         await ViewModel.RefreshCommand.ExecuteAsync(null);
+    }
+
+    /// <summary>
+    /// View user details button click handler
+    /// </summary>
+    private async void ViewDetailsButton_Click(object sender, RoutedEventArgs e)
+    {
+        System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] ViewDetailsButton_Click - Event fired!");
+        try
+        {
+            if (sender is Button button)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Button sender confirmed");
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] CommandParameter type: {button.CommandParameter?.GetType().Name ?? "null"}");
+
+                // Get UserViewModel from CommandParameter (passed via {x:Bind} in XAML)
+                var user = button.CommandParameter as UserViewModel;
+                if (user != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] ViewDetailsButton_Click - User: {user.Name}, ID: {user.Id}");
+                    System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Command exists: {ViewModel.ViewUserDetailsCommand != null}");
+
+                    if (ViewModel.ViewUserDetailsCommand != null)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] CanExecute: {ViewModel.ViewUserDetailsCommand.CanExecute(user)}");
+                        await ViewModel.ViewUserDetailsCommand.ExecuteAsync(user);
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] ViewUserDetailsCommand is NULL!");
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] User is null - CommandParameter is not UserViewModel");
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Sender is not a Button!");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] ViewDetailsButton_Click error: {ex.Message}\n{ex.StackTrace}");
+        }
+    }
+
+    /// <summary>
+    /// Delete user button click handler
+    /// </summary>
+    private async void DeleteButton_Click(object sender, RoutedEventArgs e)
+    {
+        System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] DeleteButton_Click - Event fired!");
+        try
+        {
+            if (sender is Button button)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Button sender confirmed");
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] CommandParameter type: {button.CommandParameter?.GetType().Name ?? "null"}");
+
+                // Get UserViewModel from CommandParameter (passed via {x:Bind} in XAML)
+                var user = button.CommandParameter as UserViewModel;
+                if (user != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] DeleteButton_Click - User: {user.Name}, ID: {user.Id}");
+
+                    // Show confirmation dialog using ContentDialog (WinUI 3 compatible)
+                    var confirmDialog = new ContentDialog
+                    {
+                        Title = "Confirm Delete User",
+                        Content = $"Are you sure you want to delete user '{user.Name}'?\n\nThis action cannot be undone.",
+                        PrimaryButtonText = "Delete",
+                        CloseButtonText = "Cancel",
+                        DefaultButton = ContentDialogButton.Close,
+                        XamlRoot = this.XamlRoot
+                    };
+
+                    var result = await confirmDialog.ShowAsync();
+                    System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Confirmation result: {result}");
+
+                    if (result == ContentDialogResult.Primary)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] User confirmed deletion, executing command...");
+                        System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Command exists: {ViewModel.DeleteUserCommand != null}");
+
+                        if (ViewModel.DeleteUserCommand != null)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] CanExecute: {ViewModel.DeleteUserCommand.CanExecute(user)}");
+                            await ViewModel.DeleteUserCommand.ExecuteAsync(user);
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] DeleteUserCommand is NULL!");
+                        }
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] User cancelled deletion");
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] User is null - CommandParameter is not UserViewModel");
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Sender is not a Button!");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] DeleteButton_Click error: {ex.Message}\n{ex.StackTrace}");
+        }
     }
 }

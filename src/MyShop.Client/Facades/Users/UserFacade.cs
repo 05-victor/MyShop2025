@@ -101,19 +101,18 @@ public class UserFacade : IUserFacade
     {
         try
         {
-            var allUsersResult = await _userRepository.GetAllAsync();
-            if (!allUsersResult.IsSuccess || allUsersResult.Data == null)
-            {
-                return Result<User>.Failure("Failed to get user");
-            }
+            var result = await _userRepository.GetByIdAsync(userId);
 
-            var user = allUsersResult.Data.FirstOrDefault(u => u.Id == userId);
-            if (user == null)
+            if (result.IsSuccess && result.Data != null)
             {
-                return Result<User>.Failure("User not found");
+                return result;
             }
-
-            return Result<User>.Success(user);
+            else
+            {
+                var errorMsg = result.ErrorMessage ?? "User not found";
+                await _toastService.ShowError(errorMsg);
+                return Result<User>.Failure(errorMsg);
+            }
         }
         catch (Exception ex)
         {
@@ -223,8 +222,19 @@ public class UserFacade : IUserFacade
     {
         try
         {
-            await _toastService.ShowSuccess("User deleted successfully");
-            return Result<Unit>.Failure("DeleteUser not implemented in repository");
+            var result = await _userRepository.DeleteUserAsync(userId);
+
+            if (result.IsSuccess && result.Data)
+            {
+                await _toastService.ShowSuccess("User deleted successfully");
+                return Result<Unit>.Success(Unit.Value);
+            }
+            else
+            {
+                var errorMsg = result.ErrorMessage ?? "Failed to delete user";
+                await _toastService.ShowError(errorMsg);
+                return Result<Unit>.Failure(errorMsg);
+            }
         }
         catch (Exception ex)
         {

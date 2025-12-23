@@ -62,4 +62,18 @@ public interface IUserRepository
     /// <param name="progress">Optional progress reporter</param>
     /// <returns>Updated user with new avatar URL</returns>
     Task<Result<User>> UploadAvatarAsync(byte[] imageBytes, string fileName, IProgress<double>? progress = null);
+
+    /// <summary>
+    /// Get user by ID
+    /// </summary>
+    /// <param name="userId">User ID to retrieve</param>
+    /// <returns>User object if found</returns>
+    Task<Result<User>> GetByIdAsync(Guid userId);
+
+    /// <summary>
+    /// Delete user by ID
+    /// </summary>
+    /// <param name="userId">User ID to delete</param>
+    /// <returns>Success/failure result</returns>
+    Task<Result<bool>> DeleteUserAsync(Guid userId);
 }
