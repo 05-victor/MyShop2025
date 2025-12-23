@@ -71,10 +71,11 @@ public class UserFacade : IUserFacade
                 users = users.Where(u => u.GetPrimaryRole().ToString().Equals(role, StringComparison.OrdinalIgnoreCase));
             }
 
-            // Note: IsActive filtering not available in current User model
+            // Note: Status filtering not implemented - User model doesn't have a proper Status field
+            // IsEmailVerified is not the correct indicator for Active/Inactive status
             // if (isActive.HasValue)
             // {
-            //     users = users.Where(u => u.IsActive == isActive.Value);
+            //     users = users.Where(u => u.IsEmailVerified == isActive.Value);
             // }
 
             // Order by created date

@@ -51,7 +51,7 @@ public sealed partial class AdminUsersPage : Page
         {
             base.OnNavigatedTo(e);
             Services.NavigationLogger.LogNavigatedTo(nameof(AdminUsersPage), e.Parameter);
-            
+
             try
             {
                 await ViewModel.InitializeAsync();
@@ -75,7 +75,7 @@ public sealed partial class AdminUsersPage : Page
         if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
         {
             var query = sender.Text?.ToLower() ?? string.Empty;
-            
+
             if (string.IsNullOrWhiteSpace(query))
             {
                 sender.ItemsSource = null;
@@ -126,23 +126,11 @@ public sealed partial class AdminUsersPage : Page
     {
         // Guard: ViewModel may be null during page initialization
         if (ViewModel == null) return;
-        
+
         if (RoleComboBox.SelectedItem is ComboBoxItem item)
         {
             var role = item.Tag?.ToString() ?? "All Roles";
             ViewModel.PendingRole = role;
-        }
-    }
-
-    private void StatusComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        // Guard: ViewModel may be null during page initialization
-        if (ViewModel == null) return;
-        
-        if (StatusComboBox.SelectedItem is ComboBoxItem item)
-        {
-            var status = item.Tag?.ToString() ?? "All Status";
-            ViewModel.PendingStatus = status;
         }
     }
 

@@ -38,14 +38,15 @@
     <Grid>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="ResponsiveStates">
-                
+
                 <!-- Large Desktop: 1920px+ -->
                 <VisualState x:Name="LargeDesktopState">
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="1920"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="40"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="40"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -55,7 +56,8 @@
                         <AdaptiveTrigger MinWindowWidth="1280"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="32"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="32"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -65,7 +67,8 @@
                         <AdaptiveTrigger MinWindowWidth="960"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="24"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="24"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -75,7 +78,8 @@
                         <AdaptiveTrigger MinWindowWidth="640"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="20"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="20"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -85,16 +89,18 @@
                         <AdaptiveTrigger MinWindowWidth="0"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="16"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="16"/>
                     </VisualState.Setters>
                 </VisualState>
-                
+
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
         <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <Grid x:Name="MainContent" Padding="24"
+                <Grid x:Name="MainContent"
+                        Padding="24"
                       RowSpacing="16">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -108,14 +114,14 @@
                         Subtitle="Manage all users in the system">
                         <layout:PageHeader.ActionContent>
                             <buttons:IconButton
-                                    MinWidth="140"
-                                    Variant="Filled"
-                                    IconGlyph="&#xE710;"
-                                    Text="Add New User"
-                                    Command="{x:Bind ViewModel.AddNewUserCommand}"
-                                    Tooltip="Create a new user account"
-                                    AutomationProperties.Name="Add new user, press Alt+N"
-                                    AccessKey="N"/>
+                                MinWidth="140"
+                                Variant="Filled"
+                                IconGlyph="&#xE710;"
+                                Text="Add New User"
+                                Command="{x:Bind ViewModel.AddNewUserCommand}"
+                                Tooltip="Create a new user account"
+                                AutomationProperties.Name="Add new user, press Alt+N"
+                                AccessKey="N"/>
                         </layout:PageHeader.ActionContent>
                     </layout:PageHeader>
 
@@ -197,32 +203,6 @@
                                                       Tag="SalesAgent"/>
                                         <ComboBoxItem Content="Customer"
                                                       Tag="Customer"/>
-                                    </ComboBox>
-                                </StackPanel>
-
-                                <!--  Status Filter  -->
-                                <StackPanel Grid.Column="1"
-                                            Margin="16,0,0,0"
-                                            Spacing="4">
-                                    <TextBlock
-                                        FontSize="12"
-                                        FontWeight="SemiBold"
-                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                        Text="Status"/>
-                                    <ComboBox
-                                        x:Name="StatusComboBox"
-                                        Width="150"
-                                        Padding="12"
-                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                        PlaceholderText="All Status"
-                                        SelectionChanged="StatusComboBox_SelectionChanged">
-                                        <ComboBoxItem Content="All Status"
-                                                      Tag="All Status"
-                                                      IsSelected="True"/>
-                                        <ComboBoxItem Content="Active"
-                                                      Tag="Active"/>
-                                        <ComboBoxItem Content="Inactive"
-                                                      Tag="Inactive"/>
                                     </ComboBox>
                                 </StackPanel>
 
