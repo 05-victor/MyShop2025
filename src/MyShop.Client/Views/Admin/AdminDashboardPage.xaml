@@ -15,6 +15,12 @@
     Background="{ThemeResource LayerFillColorDefaultBrush}"
     x:Name="MyPage">
 
+    <Page.Transitions>
+        <TransitionCollection>
+            <EntranceThemeTransition FromVerticalOffset="50"/>
+        </TransitionCollection>
+    </Page.Transitions>
+
     <!-- Note: Converters are already merged in App.xaml -> Generic.xaml -->
     <!-- No need to merge them again here to avoid circular dependency -->
 

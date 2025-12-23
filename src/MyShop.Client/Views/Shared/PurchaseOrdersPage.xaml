@@ -16,6 +16,12 @@
     mc:Ignorable="d"
     Background="{ThemeResource LayerFillColorAltBrush}">
 
+    <Page.Transitions>
+        <TransitionCollection>
+            <EntranceThemeTransition FromVerticalOffset="50"/>
+        </TransitionCollection>
+    </Page.Transitions>
+
     <Page.Resources>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>

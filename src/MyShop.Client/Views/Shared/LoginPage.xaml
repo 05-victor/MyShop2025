@@ -11,6 +11,12 @@
     Background="{ThemeResource LayerFillColorDefaultBrush}"
     mc:Ignorable="d">
 
+    <Page.Transitions>
+        <TransitionCollection>
+            <EntranceThemeTransition FromVerticalOffset="50"/>
+        </TransitionCollection>
+    </Page.Transitions>
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>

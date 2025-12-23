@@ -15,6 +15,12 @@
     Background="{ThemeResource SubtleFillColorSecondaryBrush}"
     mc:Ignorable="d">
 
+    <Page.Transitions>
+        <TransitionCollection>
+            <EntranceThemeTransition FromVerticalOffset="50"/>
+        </TransitionCollection>
+    </Page.Transitions>
+
     <Page.Resources>
         <!-- No custom styles needed - TabView uses built-in WinUI 3 styles -->
     </Page.Resources>
