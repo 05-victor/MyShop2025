@@ -227,20 +227,20 @@ public class UserFacade : IUserFacade
 
             if (result.IsSuccess && result.Data)
             {
-                await _toastService.ShowSuccess("User deleted successfully");
+                // Don't show toast here - let the caller (ViewModel) handle it with more context
+                // await _toastService.ShowSuccess("User deleted successfully");
                 return Result<Unit>.Success(Unit.Value);
             }
             else
             {
                 var errorMsg = result.ErrorMessage ?? "Failed to delete user";
-                await _toastService.ShowError(errorMsg);
+                // Toast error is shown by ViewModel
                 return Result<Unit>.Failure(errorMsg);
             }
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[UserFacade] Error deleting user: {ex.Message}");
-            await _toastService.ShowError($"Error: {ex.Message}");
             return Result<Unit>.Failure($"Error: {ex.Message}");
         }
     }

@@ -151,6 +151,40 @@ public sealed partial class AdminUsersPage : Page
     }
 
     /// <summary>
+    /// Get initials from full name for avatar
+    /// </summary>
+    private string GetInitials(string fullName)
+    {
+        if (string.IsNullOrWhiteSpace(fullName))
+            return "U";
+
+        var parts = fullName.Trim().Split(' ');
+        if (parts.Length == 1)
+            return parts[0][0].ToString().ToUpper();
+
+        return $"{parts[0][0]}{parts[parts.Length - 1][0]}".ToUpper();
+    }
+
+    /// <summary>
+    /// Get primary role from roleNames list (Admin > SalesAgent > Customer)
+    /// </summary>
+    private string GetPrimaryRole(List<string> roleNames)
+    {
+        if (roleNames == null || roleNames.Count == 0)
+            return "Customer";
+
+        foreach (var role in roleNames)
+        {
+            if (role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
+                return "Admin";
+            if (role.Equals("SalesAgent", StringComparison.OrdinalIgnoreCase))
+                return "SalesAgent";
+        }
+
+        return "Customer";
+    }
+
+    /// <summary>
     /// View user details button click handler
     /// </summary>
     private async void ViewDetailsButton_Click(object sender, RoutedEventArgs e)
@@ -161,19 +195,20 @@ public sealed partial class AdminUsersPage : Page
             if (sender is Button button)
             {
                 System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Button sender confirmed");
-                System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] CommandParameter type: {button.CommandParameter?.GetType().Name ?? "null"}");
 
                 // Get UserViewModel from CommandParameter (passed via {x:Bind} in XAML)
                 var user = button.CommandParameter as UserViewModel;
                 if (user != null)
                 {
                     System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] ViewDetailsButton_Click - User: {user.Name}, ID: {user.Id}");
-                    System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Command exists: {ViewModel.ViewUserDetailsCommand != null}");
 
+                    // Call ViewModel to fetch user details from API
                     if (ViewModel.ViewUserDetailsCommand != null)
                     {
-                        System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] CanExecute: {ViewModel.ViewUserDetailsCommand.CanExecute(user)}");
+                        System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Executing ViewUserDetailsCommand for user: {user.Id}");
                         await ViewModel.ViewUserDetailsCommand.ExecuteAsync(user);
+
+                        // Dialog will be shown by ViewModel with API data
                     }
                     else
                     {
@@ -193,6 +228,100 @@ public sealed partial class AdminUsersPage : Page
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] ViewDetailsButton_Click error: {ex.Message}\n{ex.StackTrace}");
+        }
+    }
+
+    /// <summary>
+    /// Show user details dialog with API data
+    /// </summary>
+    public async Task ShowUserDetailsDialog(MyShop.Shared.Models.User userDetails)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] ShowUserDetailsDialog - START");
+
+            if (userDetails == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] ShowUserDetailsDialog - userDetails is null");
+                return;
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] ShowUserDetailsDialog - Displaying user: {userDetails.Username}");
+
+            // Verify dialog exists
+            if (UserDetailsDialog == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] ERROR: UserDetailsDialog is null!");
+                return;
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Dialog reference found, proceeding...");
+
+            // Populate dialog fields with API response data
+            // Handle avatar: use image if available, otherwise show initials
+            if (!string.IsNullOrEmpty(userDetails.Avatar))
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] User has avatar image: {userDetails.Avatar}");
+
+                // Show avatar image - hide initials
+                try
+                {
+                    var imageBrush = new Microsoft.UI.Xaml.Media.ImageBrush();
+                    imageBrush.ImageSource = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(new Uri(userDetails.Avatar));
+                    UserAvatarEllipse.Fill = imageBrush;
+                    UserAvatarText.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+                    System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Avatar image loaded successfully");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Failed to load avatar image: {ex.Message}, falling back to initials");
+                    // Fall back to initials
+                    UserAvatarText.Text = GetInitials(userDetails.FullName ?? userDetails.Username);
+                    UserAvatarText.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+                    UserAvatarEllipse.Fill = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.CornflowerBlue);
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] User has no avatar, showing initials");
+
+                // Show initials fallback
+                UserAvatarText.Text = GetInitials(userDetails.FullName ?? userDetails.Username);
+                UserAvatarText.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+                UserAvatarEllipse.Fill = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.CornflowerBlue);
+            }
+
+            UserFullNameText.Text = userDetails.FullName ?? userDetails.Username;
+            UserUsernameText.Text = userDetails.Username;
+            UserEmailText.Text = userDetails.Email;
+            UserPhoneText.Text = userDetails.PhoneNumber ?? "N/A";
+            UserAddressText.Text = userDetails.Address ?? "N/A";
+
+            // Get primary role from Roles list (Admin > SalesAgent > Customer)
+            var roleNames = userDetails.Roles?.Select(r => r.ToString()).ToList() ?? new List<string>();
+            var primaryRole = GetPrimaryRole(roleNames);
+            UserRoleText.Text = primaryRole;
+
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Dialog fields populated - Username: {userDetails.Username}, Email: {userDetails.Email}, Phone: {userDetails.PhoneNumber}, Address: {userDetails.Address}, Role: {primaryRole}");
+
+            // Set XamlRoot directly (same pattern as SalesAgentProductsPage)
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Setting XamlRoot...");
+            UserDetailsDialog.XamlRoot = this.XamlRoot;
+
+            if (UserDetailsDialog.XamlRoot == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] WARNING: XamlRoot is null!");
+                return;
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] XamlRoot set successfully, calling ShowAsync()...");
+            await UserDetailsDialog.ShowAsync();
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] ShowAsync() completed successfully, dialog closed");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] ShowUserDetailsDialog EXCEPTION: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] Stack trace: {ex.StackTrace}");
         }
     }
 

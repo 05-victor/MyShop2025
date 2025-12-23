@@ -126,7 +126,7 @@ public class UserRepository : IUserRepository
                 {
                     return Result<bool>.Success(true);
                 }
-                
+
                 // If Result is false, it means current password was incorrect
                 if (apiResponse.Success && !apiResponse.Result)
                 {
@@ -316,17 +316,17 @@ public class UserRepository : IUserRepository
         {
             var response = await _api.DeleteAsync(userId);
 
-            if (response.IsSuccessStatusCode && response.Content != null)
+            // DELETE returns 204 NoContent on success (no response body)
+            if (response.IsSuccessStatusCode)
             {
-                var apiResponse = response.Content;
-                if (apiResponse.Success && apiResponse.Result == true)
-                {
-                    System.Diagnostics.Debug.WriteLine($"[UserRepository] User {userId} deleted successfully");
-                    return Result<bool>.Success(true);
-                }
+                System.Diagnostics.Debug.WriteLine($"[UserRepository] User {userId} deleted successfully - Status: {response.StatusCode}");
+                return Result<bool>.Success(true);
             }
 
-            return Result<bool>.Failure("Failed to delete user");
+            // If not successful, try to get error message from response
+            var errorMessage = response.Error?.Content ?? "Failed to delete user";
+            System.Diagnostics.Debug.WriteLine($"[UserRepository] Delete failed - Status: {response.StatusCode}, Error: {errorMessage}");
+            return Result<bool>.Failure(errorMessage);
         }
         catch (Exception ex)
         {

@@ -131,7 +131,7 @@ public class NavigationService : MyShop.Core.Interfaces.Services.INavigationServ
 
             // Use NavigationLogger.SafeNavigate instead of direct Frame.Navigate
             var success = NavigationLogger.SafeNavigate(_rootFrame, pageType, parameter, "Root");
-            
+
             if (success)
             {
                 return Result<Unit>.Success(Unit.Value);
@@ -181,7 +181,7 @@ public class NavigationService : MyShop.Core.Interfaces.Services.INavigationServ
 
             // Use NavigationLogger.SafeNavigate instead of direct Frame.Navigate
             var success = NavigationLogger.SafeNavigate(_shellFrame, pageType, parameter, "Shell");
-            
+
             if (success)
             {
                 return Result<Unit>.Success(Unit.Value);
@@ -278,4 +278,81 @@ public class NavigationService : MyShop.Core.Interfaces.Services.INavigationServ
     /// Get current page type name
     /// </summary>
     public string? CurrentPageTypeName => _rootFrame?.CurrentSourcePageType?.FullName;
+
+    /// <summary>
+    /// Show user details dialog on Admin Users Page
+    /// </summary>
+    public async Task ShowUserDetailsDialogAsync(MyShop.Shared.Models.User userDetails)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[NavigationService] ShowUserDetailsDialogAsync START for user: {userDetails?.Username}");
+            LoggingService.Instance.Debug($"[NavigationService] ShowUserDetailsDialogAsync called for user: {userDetails?.Username}");
+
+            // Get current page from root frame
+            if (_rootFrame?.Content is not Microsoft.UI.Xaml.Controls.Page currentPage)
+            {
+                System.Diagnostics.Debug.WriteLine("[NavigationService] ERROR: Current page is not a Page type or frame content is null");
+                LoggingService.Instance.Warning("Current page is not a Page type or frame content is null");
+                return;
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[NavigationService] Root frame content type: {currentPage.GetType().Name}");
+
+            // Try to find AdminUsersPage directly (if it's the direct root content)
+            var adminUsersPage = currentPage as MyShop.Client.Views.Admin.AdminUsersPage;
+            if (adminUsersPage != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[NavigationService] Found AdminUsersPage as root content");
+                await adminUsersPage.ShowUserDetailsDialog(userDetails);
+                System.Diagnostics.Debug.WriteLine($"[NavigationService] Dialog method called on AdminUsersPage");
+                return;
+            }
+
+            // If not found, check if it's AdminDashboardShell with ContentFrame
+            System.Diagnostics.Debug.WriteLine($"[NavigationService] AdminUsersPage not found as root content, checking for AdminDashboardShell...");
+            var shell = currentPage as MyShop.Client.Views.Shell.AdminDashboardShell;
+            if (shell != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[NavigationService] Found AdminDashboardShell");
+
+                // Try to get ContentFrame from shell
+                var contentFrame = shell.FindName("ContentFrame") as Microsoft.UI.Xaml.Controls.Frame;
+                if (contentFrame != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[NavigationService] Found ContentFrame in shell");
+
+                    // Get the content of the frame
+                    if (contentFrame.Content is MyShop.Client.Views.Admin.AdminUsersPage frameAdminUsersPage)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[NavigationService] Found AdminUsersPage in ContentFrame, calling ShowUserDetailsDialog");
+                        await frameAdminUsersPage.ShowUserDetailsDialog(userDetails);
+                        System.Diagnostics.Debug.WriteLine($"[NavigationService] Dialog method called on AdminUsersPage from ContentFrame");
+                        return;
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[NavigationService] ContentFrame.Content type: {contentFrame.Content?.GetType().Name ?? "null"}");
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[NavigationService] ContentFrame not found in shell");
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[NavigationService] Not AdminDashboardShell, shell type: {currentPage.GetType().Name}");
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[NavigationService] ERROR: Could not find AdminUsersPage in shell hierarchy");
+            LoggingService.Instance.Warning($"Could not find AdminUsersPage in shell hierarchy");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[NavigationService] ShowUserDetailsDialogAsync EXCEPTION: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[NavigationService] Stack trace: {ex.StackTrace}");
+            LoggingService.Instance.Error($"[NavigationService] ShowUserDetailsDialogAsync error: {ex.Message}", ex);
+        }
+    }
 }

@@ -35,6 +35,10 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
     [ObservableProperty]
     private string _pendingSearchQuery = string.Empty;
 
+    // State for fetching user details (separate from list loading)
+    [ObservableProperty]
+    private bool _isDetailsLoading = false;
+
     public AdminUsersViewModel(
         IUserFacade userFacade,
         IToastService toastService,
@@ -86,6 +90,7 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
     {
         try
         {
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] LoadPageAsync START - CurrentPage: {CurrentPage}");
             SetLoadingState(true);
 
             // Get filter parameters
@@ -102,11 +107,14 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
 
             if (!result.IsSuccess || result.Data == null)
             {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] LoadPageAsync FAILED: {result.ErrorMessage}");
                 await _toastHelper?.ShowError(result.ErrorMessage ?? "Failed to load users");
                 Items.Clear();
                 UpdatePagingInfo(0);
                 return;
             }
+
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] LoadPageAsync SUCCESS: {result.Data.Items.Count} items loaded");
 
             // Map DTOs to ViewModels
             var users = result.Data.Items.Select(u =>
@@ -141,14 +149,16 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
 
             UpdatePagingInfo(result.Data.TotalCount);
 
-            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Loaded page {CurrentPage}/{TotalPages} ({Items.Count} items, {TotalItems} total)");
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] LoadPageAsync END - Loaded page {CurrentPage}/{TotalPages} ({Items.Count} items, {TotalItems} total)");
+            SetLoadingState(false);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Error loading users: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] LoadPageAsync EXCEPTION: {ex.Message}");
             await _toastHelper?.ShowError($"Error loading users: {ex.Message}");
             Items.Clear();
             UpdatePagingInfo(0);
+            SetLoadingState(false);
         }
         finally
         {
@@ -252,7 +262,8 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
     }
 
     /// <summary>
-    /// Show user details (using data from current list, API endpoint not yet available on server)
+    /// Show user details (fetches from API: GET /api/v1/users/{id})
+    /// Uses IsDetailsLoading instead of IsLoading to avoid layout jumps from UserListSkeleton
     /// </summary>
     [RelayCommand]
     private async Task ViewUserDetailsAsync(UserViewModel user)
@@ -267,28 +278,50 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
             }
 
             System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] ViewUserDetailsAsync called for user: {user.Name} (ID: {user.Id})");
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Items count before API call: {Items.Count}");
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Calling API: GET /api/v1/users/{user.Id}");
 
-            // Show user info from current UserViewModel (API GET /api/v1/users/{id} not yet implemented on server)
-            var userInfo = $"User: {user.Username}\n" +
-                           $"Full Name: {user.FullName}\n" +
-                           $"Email: {user.Email}\n" +
-                           $"Phone: {user.Phone}\n" +
-                           $"Role: {user.Role}\n" +
-                           $"Status: {user.Status}";
+            // Use IsDetailsLoading instead of IsLoading to avoid showing UserListSkeleton
+            IsDetailsLoading = true;
 
-            await _toastHelper?.ShowSuccess($"User Details:\n{userInfo}");
-            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] User details displayed: {user.Username}");
+            // Call API to get user details
+            var result = await _userFacade.GetUserByIdAsync(user.Id);
+
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] API response received, Items count after API: {Items.Count}");
+
+            if (result.IsSuccess && result.Data != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] API response received - User: {result.Data.Username}");
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Response data: Full Name={result.Data.FullName}, Email={result.Data.Email}, Phone={result.Data.PhoneNumber}");
+
+                // Stop loading indicator before showing dialog
+                // (ShowUserDetailsDialogAsync will await until dialog is closed)
+                IsDetailsLoading = false;
+
+                // Show user details dialog with API response data
+                await _navigationService.ShowUserDetailsDialogAsync(result.Data);
+
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] User details dialog displayed successfully: {result.Data.Username}");
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Items count after dialog display: {Items.Count}");
+            }
+            else
+            {
+                var errorMsg = result.ErrorMessage ?? "Failed to retrieve user details";
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] API call failed: {errorMsg}");
+                IsDetailsLoading = false;
+                await _toastHelper?.ShowError(errorMsg);
+            }
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Error viewing user details: {ex.Message}\n{ex.StackTrace}");
+            IsDetailsLoading = false;
             await _toastHelper?.ShowError($"Error: {ex.Message}");
         }
     }
 
     /// <summary>
-    /// Delete user (called after confirmation from View)
-    /// Note: API DELETE /api/v1/users/{id} not yet implemented on server, showing warning
+    /// Delete user (calls API: DELETE /api/v1/users/{id})
     /// </summary>
     [RelayCommand]
     private async Task DeleteUserAsync(UserViewModel user)
@@ -303,32 +336,40 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
             }
 
             System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] DeleteUserAsync called for user: {user.Name} (ID: {user.Id})");
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Calling API: DELETE /api/v1/users/{user.Id}");
 
-            // Show warning that API is not yet available
-            await _toastHelper?.ShowWarning("Delete user API endpoint (DELETE /api/v1/users/{id}) is not yet implemented on the server. Please ask your backend developer to add this endpoint.");
-            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Delete user API not available on server");
-
-            // TODO: Uncomment when API is ready
-            /*
             SetLoadingState(true);
+
+            // Call API to delete user
             var deleteResult = await _userFacade.DeleteUserAsync(user.Id);
+
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] DeleteUserAsync - Delete result received: IsSuccess={deleteResult.IsSuccess}");
 
             if (deleteResult.IsSuccess)
             {
                 System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] User deleted successfully: {user.Name}");
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] API response: Status=Success, Message={deleteResult.ErrorMessage}");
+
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] About to show success toast");
                 await _toastHelper?.ShowSuccess($"User '{user.Name}' deleted successfully");
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Success toast shown");
 
                 // Reload the page to refresh the list
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Reloading user list...");
                 CurrentPage = 1;
                 await LoadPageAsync();
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] User list reloaded");
             }
             else
             {
                 System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] Delete failed: {deleteResult.ErrorMessage}");
+                System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] API response: Status=Failed, Message={deleteResult.ErrorMessage}");
                 await _toastHelper?.ShowError(deleteResult.ErrorMessage ?? "Failed to delete user");
             }
+
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] DeleteUserAsync - About to call SetLoadingState(false)");
             SetLoadingState(false);
-            */
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersViewModel] DeleteUserAsync - SetLoadingState(false) called");
         }
         catch (Exception ex)
         {
