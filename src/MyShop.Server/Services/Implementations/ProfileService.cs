@@ -11,6 +11,7 @@ public class ProfileService : IProfileService
     private readonly IProfileRepository _profileRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<ProfileService> _logger;
+    
     public ProfileService(
         IProfileRepository profileRepository,
         ICurrentUserService currentUserService,
@@ -20,6 +21,7 @@ public class ProfileService : IProfileService
         _currentUserService = currentUserService;
         _logger = logger;
     }
+    
     public async Task<UpdateProfileResponse?> UpdateMyProfileAsync(UpdateProfileRequest request)
     {
         var userId = _currentUserService.UserId;
