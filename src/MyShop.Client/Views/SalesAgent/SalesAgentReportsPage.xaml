@@ -15,6 +15,12 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
 
+    <Page.Transitions>
+        <TransitionCollection>
+            <EntranceThemeTransition FromVerticalOffset="50"/>
+        </TransitionCollection>
+    </Page.Transitions>
+
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
@@ -320,6 +326,7 @@
                                     Text="Product Summary"/>
                                 <!-- Changed to {x:Bind} to prevent DataGrid crash -->
                                 <controls:DataGrid AutoGenerateColumns="False"
+                                                   CanUserReorderColumns="False"
                                                    ItemsSource="{x:Bind ViewModel.FilteredProducts, Mode=OneWay}">
                                     <controls:DataGrid.Columns>
                                         <controls:DataGridTextColumn

@@ -93,7 +93,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,SalesAgent")]
     [ProducesResponseType(typeof(ApiResponse), 204)]
     [ProducesResponseType(typeof(ApiResponse<object>), 404)]
     [ProducesResponseType(typeof(ApiResponse<object>), 500)]

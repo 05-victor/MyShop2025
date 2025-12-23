@@ -115,6 +115,10 @@
     <SolidColorBrush x:Key="BackgroundLightBrush" Color="#F5F7FA"/>
     <SolidColorBrush x:Key="BackgroundMediumBrush" Color="#F9FAFB"/>
     <SolidColorBrush x:Key="CardBackgroundBrush" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+    
+    <!-- Card/Button Borders (Missing resource) -->
+    <SolidColorBrush x:Key="CardStrokeColorDefaultBrush" Color="#33000000"/><!-- Black 20% opacity for visible borders -->
+    <SolidColorBrush x:Key="ControlStrokeColorDefaultBrush" Color="#D1D5DB"/><!-- Gray 400 for controls -->
 
 
     <!-- ============================================= -->

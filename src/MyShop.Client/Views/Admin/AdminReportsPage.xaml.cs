@@ -143,14 +143,6 @@ public sealed partial class AdminReportsPage : Page
 
     #region View Details Event Handlers
 
-    private void ViewProductDetails_Click(object sender, RoutedEventArgs e)
-    {
-        if (sender is Button button && button.Tag is ProductPerformance product)
-        {
-            ViewModel.ViewProductDetailsCommand.Execute(product);
-        }
-    }
-
     private void ViewSalespersonDetails_Click(object sender, RoutedEventArgs e)
     {
         if (sender is Button button && button.Tag is Salesperson salesperson)

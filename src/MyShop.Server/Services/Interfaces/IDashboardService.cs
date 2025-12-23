@@ -20,4 +20,20 @@ public interface IDashboardService
     /// <param name="period">Chart period: "day" (hourly), "week" (daily), "month" (daily), "year" (monthly)</param>
     /// <returns>Chart data with labels and revenue values</returns>
     Task<RevenueChartResponse> GetRevenueChartAsync(string period = "week");
+
+    /// <summary>
+    /// Get admin dashboard summary with platform-wide metrics
+    /// Admin only - shows aggregated data from all sales agents
+    /// </summary>
+    /// <param name="period">Optional period filter: "day", "week", "month", "year". If null/empty, returns all-time data.</param>
+    /// <returns>Admin dashboard summary with platform metrics</returns>
+    Task<AdminDashboardSummaryResponse> GetAdminSummaryAsync(string? period = null);
+
+    /// <summary>
+    /// Get admin revenue & commission chart data
+    /// Admin only - shows platform-wide revenue and commission trends
+    /// </summary>
+    /// <param name="period">Chart period: "day" (hourly), "week" (daily), "month" (daily), "year" (monthly)</param>
+    /// <returns>Chart data with labels, revenue data, and commission data</returns>
+    Task<AdminRevenueChartResponse> GetAdminRevenueChartAsync(string period = "week");
 }

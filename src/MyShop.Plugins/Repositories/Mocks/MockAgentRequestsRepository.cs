@@ -20,7 +20,7 @@ public class MockAgentRequestsRepository : IAgentRequestRepository
 
         // Load all users once (no network delay per item)
         var allUsers = await MyShop.Plugins.Mocks.Data.MockUserData.GetAllAsync();
-        
+
         foreach (var user in allUsers)
         {
             if (userIds.Contains(user.Id))
@@ -28,7 +28,7 @@ public class MockAgentRequestsRepository : IAgentRequestRepository
                 result[user.Id] = user;
             }
         }
-        
+
         return result;
     }
 
@@ -37,11 +37,11 @@ public class MockAgentRequestsRepository : IAgentRequestRepository
         try
         {
             var mockData = await MockAgentRequestsData.GetAllAsync();
-            
+
             // Batch load all users to avoid N+1 query problem
             var userIds = mockData.Select(m => Guid.Parse(m.UserId)).Distinct().ToList();
             var usersDict = await GetUsersByIdsAsync(userIds);
-            
+
             var requests = new List<AgentRequest>();
             foreach (var m in mockData)
             {
@@ -79,7 +79,7 @@ public class MockAgentRequestsRepository : IAgentRequestRepository
             return Result<IEnumerable<AgentRequest>>.Failure($"Failed to get agent requests: {ex.Message}");
         }
     }
-    
+
     public async Task<Result<AgentRequest>> GetByIdAsync(Guid id)
     {
         try
@@ -105,7 +105,7 @@ public class MockAgentRequestsRepository : IAgentRequestRepository
             return Result<AgentRequest>.Failure($"Failed to get agent request: {ex.Message}");
         }
     }
-    
+
     public async Task<Result<AgentRequest>> GetByUserIdAsync(Guid userId)
     {
         try
@@ -120,7 +120,7 @@ public class MockAgentRequestsRepository : IAgentRequestRepository
                 .Where(r => r.UserId == userId)
                 .OrderByDescending(r => r.RequestedAt)
                 .FirstOrDefault();
-                
+
             if (request == null)
             {
                 return Result<AgentRequest>.Failure($"No agent request found for user {userId}");
@@ -238,11 +238,11 @@ public class MockAgentRequestsRepository : IAgentRequestRepository
         }
     }
 
-    public async Task<Result<bool>> RejectAsync(Guid id)
+    public async Task<Result<bool>> RejectAsync(Guid id, string reason = "")
     {
         try
         {
-            var result = await MockAgentRequestsData.RejectAsync(id, Guid.Empty, "Rejected by admin");
+            var result = await MockAgentRequestsData.RejectAsync(id, Guid.Empty, reason ?? "Rejected by admin");
             System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] RejectAsync result: {result}");
             return result
                 ? Result<bool>.Success(true)

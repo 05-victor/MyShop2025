@@ -20,7 +20,6 @@
     <Button x:Name="FloatingButton"
             Width="56" Height="56"
             CornerRadius="28"
-            Background="{ThemeResource PrimaryBrush}"
             BorderThickness="0"
             Padding="0"
             ToolTipService.ToolTip="Chat with AI Assistant"
@@ -80,13 +79,13 @@
             <FontIcon x:Name="ChatIcon" 
                      Glyph="&#xE8BD;" 
                      FontSize="24" 
-                     Foreground="{ThemeResource WhiteBrush}"/>
+                     Foreground="White"/>
             
             <!-- Close Icon (when open) -->
             <FontIcon x:Name="CloseIcon" 
                      Glyph="&#xE711;" 
                      FontSize="20" 
-                     Foreground="{ThemeResource WhiteBrush}"
+                     Foreground="White"
                      Visibility="Collapsed"/>
             
             <!-- Notification Badge -->
@@ -101,7 +100,7 @@
                 <TextBlock Text="1" 
                           FontSize="10" 
                           FontWeight="Bold"
-                          Foreground="{ThemeResource WhiteBrush}"
+                          Foreground="White"
                           HorizontalAlignment="Center"
                           VerticalAlignment="Center"/>
             </Border>

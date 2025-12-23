@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="MyShop.Client.Views.Dialogs.RejectReasonDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Reject Agent Request"
+    IsPrimaryButtonEnabled="False"
+    PrimaryButtonText="Reject">
+
+    <StackPanel Spacing="16">
+        <TextBlock
+            FontSize="14"
+            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+            Text="Please provide a reason for rejecting this agent request. This reason will be shown to the applicant."
+            TextWrapping="Wrap"/>
+
+        <TextBox
+            x:Name="ReasonTextBox"
+            AcceptsReturn="True"
+            MinHeight="120"
+            PlaceholderText="Enter rejection reason..."
+            TextWrapping="Wrap"
+            TextChanged="ReasonTextBox_TextChanged"/>
+
+        <TextBlock
+            FontSize="12"
+            Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+            Text="The rejection reason is required and cannot be empty."
+            TextWrapping="Wrap"/>
+    </StackPanel>
+</ContentDialog>

@@ -1,5 +1,8 @@
+using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using Windows.UI;
 
 namespace MyShop.Client.Views.Components.Chat;
 
@@ -13,6 +16,50 @@ public sealed partial class ChatButton : UserControl
     public ChatButton()
     {
         this.InitializeComponent();
+        this.Loaded += OnLoaded;
+        this.Unloaded += OnUnloaded;
+        
+        // Subscribe to theme changes
+        Services.ThemeManager.ThemeChanged += OnThemeChanged;
+    }
+    
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        ApplyThemeAwareBackground();
+    }
+    
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        // Unsubscribe to prevent memory leaks
+        Services.ThemeManager.ThemeChanged -= OnThemeChanged;
+    }
+    
+    private void OnThemeChanged(Services.ThemeManager.ThemeType newTheme)
+    {
+        // Reapply background when theme changes
+        DispatcherQueue?.TryEnqueue(() =>
+        {
+            ApplyThemeAwareBackground();
+        });
+    }
+    
+    private void ApplyThemeAwareBackground()
+    {
+        // Try to get theme resource first
+        if (Application.Current.Resources.TryGetValue("PrimaryBrush", out var primaryBrush)
+            && primaryBrush is Brush brush)
+        {
+            FloatingButton.Background = brush;
+        }
+        else
+        {
+            // Theme-aware fallback colors
+            var currentTheme = Services.ThemeManager.CurrentTheme;
+            var fallbackColor = currentTheme == Services.ThemeManager.ThemeType.Dark
+                ? Color.FromArgb(255, 59, 130, 246)   // #3B82F6 (brighter blue for dark)
+                : Color.FromArgb(255, 26, 77, 143);   // #1A4D8F (darker blue for light)
+            FloatingButton.Background = new SolidColorBrush(fallbackColor);
+        }
     }
 
     /// <summary>

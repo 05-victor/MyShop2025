@@ -17,25 +17,37 @@
     mc:Ignorable="d"
     Background="{ThemeResource SubtleFillColorSecondaryBrush}">
 
+    <Page.Transitions>
+        <TransitionCollection>
+            <EntranceThemeTransition FromVerticalOffset="50"/>
+        </TransitionCollection>
+    </Page.Transitions>
+
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
         <converters:CurrencyConverter x:Key="CurrencyConverter"/>
         <converters:StringToBrushConverter x:Key="StringToBrushConverter"/>
+        <converters:NullableDateTimeToDateTimeOffsetConverter x:Key="NullableDateTimeToDateTimeOffsetConverter"/>
+        <converters:DateTimeToStringConverter x:Key="DateTimeToStringConverter"/>
     </Page.Resources>
 
     <Grid>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="ResponsiveStates">
-                
+
                 <!-- Large Desktop: 1920px+ -->
                 <VisualState x:Name="LargeDesktopState">
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="1920"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="40"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="24"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="40"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="24"/>
+                        <Setter Target="KPIGrid.RowSpacing"
+                                Value="24"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -45,8 +57,12 @@
                         <AdaptiveTrigger MinWindowWidth="1280"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="32"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="20"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="32"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="20"/>
+                        <Setter Target="KPIGrid.RowSpacing"
+                                Value="20"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -56,8 +72,12 @@
                         <AdaptiveTrigger MinWindowWidth="960"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="24"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="16"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="24"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="16"/>
+                        <Setter Target="KPIGrid.RowSpacing"
+                                Value="16"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -67,8 +87,12 @@
                         <AdaptiveTrigger MinWindowWidth="640"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="20"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="12"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="20"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="12"/>
+                        <Setter Target="KPIGrid.RowSpacing"
+                                Value="12"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -78,11 +102,15 @@
                         <AdaptiveTrigger MinWindowWidth="0"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="16"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="8"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="16"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="8"/>
+                        <Setter Target="KPIGrid.RowSpacing"
+                                Value="8"/>
                     </VisualState.Setters>
                 </VisualState>
-                
+
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
@@ -94,292 +122,440 @@
                     <EntranceThemeTransition FromVerticalOffset="50"/>
                 </TransitionCollection>
             </Grid.Transitions>
-        <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel x:Name="ContentStackPanel" Padding="32" Spacing="24">
+            <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel x:Name="ContentStackPanel"
+                                Padding="32"
+                                Spacing="24">
 
-                <!-- PAGE HEADER -->
-                <layout:PageHeader
-                    Title="My Earnings"
-                    Subtitle="Track your income and platform fees">
-                    <layout:PageHeader.ActionContent>
-                        <StackPanel Orientation="Horizontal" Spacing="12">
-                            <ComboBox x:Name="PeriodComboBox"
-                                     Width="180"
-                                     SelectedIndex="0"
-                                     VerticalAlignment="Center"
-                                     CornerRadius="8"
-                                     SelectionChanged="PeriodComboBox_SelectionChanged">
-                                <ComboBoxItem Content="All Time" Tag="all"/>
-                                <ComboBoxItem Content="This Month" Tag="month"/>
-                                <ComboBoxItem Content="Last Month" Tag="last-month"/>
-                                <ComboBoxItem Content="Last 3 Months" Tag="3months"/>
-                            </ComboBox>
-                            <buttons:IconButton
-                                Variant="Outline"
-                                IconGlyph="&#xE72C;"
-                                Text="Refresh"
-                                Command="{x:Bind ViewModel.RefreshCommand}"
-                                ToolTipService.ToolTip="Reload earnings data" />
-                            <buttons:IconButton
-                                Variant="Outline"
-                                IconGlyph="&#xE74E;"
-                                Text="Export CSV"
-                                Command="{x:Bind ViewModel.ExportCommissionsCommand}"
-                                ToolTipService.ToolTip="Export earnings to CSV" />
-                            <buttons:IconButton
-                                Variant="Filled"
-                                IconGlyph="&#xEA90;"
-                                Text="Export PDF"
-                                Click="ExportPdfButton_Click"
-                                ToolTipService.ToolTip="Export commission report as PDF" />
-                        </StackPanel>
-                    </layout:PageHeader.ActionContent>
-                </layout:PageHeader>
+                        <!-- PAGE HEADER -->
+                        <layout:PageHeader
+                            Title="My Earnings"
+                            Subtitle="Track your income and platform fees">
+                            <layout:PageHeader.ActionContent>
+                                <StackPanel Orientation="Horizontal"
+                                            Spacing="12">
+                                    <buttons:IconButton
+                                        Variant="Outline"
+                                        IconGlyph="&#xE72C;"
+                                        Text="Refresh"
+                                        Command="{x:Bind ViewModel.RefreshCommand}"
+                                        ToolTipService.ToolTip="Reload earnings data"/>
+                                    <buttons:IconButton
+                                        Variant="Outline"
+                                        IconGlyph="&#xE74E;"
+                                        Text="Export CSV"
+                                        Command="{x:Bind ViewModel.ExportCommissionsCommand}"
+                                        ToolTipService.ToolTip="Export earnings to CSV"/>
+                                    <buttons:IconButton
+                                        Variant="Filled"
+                                        IconGlyph="&#xEA90;"
+                                        Text="Export PDF"
+                                        Click="ExportPdfButton_Click"
+                                        ToolTipService.ToolTip="Export commission report as PDF"/>
+                                </StackPanel>
+                            </layout:PageHeader.ActionContent>
+                        </layout:PageHeader>
 
-            <!-- Platform Fee Info Banner -->
-            <InfoBar Severity="Informational"
-                    Title="Platform Fee Rate"
-                    Message="Platform fee is 10% of order total. Your net earnings = Order Total - (10% platform fee)"
-                    IsOpen="True"
-                    IsClosable="False">
-                <InfoBar.IconSource>
-                    <FontIconSource Glyph="&#xE946;"/>
-                </InfoBar.IconSource>
-            </InfoBar>
+                        <!-- Platform Fee Info Banner -->
+                        <InfoBar Severity="Informational"
+                                 Title="Platform Fee Rate"
+                                 Message="Platform fee is 10% of order total. Your net earnings = Order Total - (10% platform fee)"
+                                 IsOpen="True"
+                                 IsClosable="False">
+                            <InfoBar.IconSource>
+                                <FontIconSource Glyph="&#xE946;"/>
+                            </InfoBar.IconSource>
+                        </InfoBar>
 
-            <!-- KPI Cards -->
-            <Grid x:Name="KPIGrid">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.ColumnSpacing>20</Grid.ColumnSpacing>
-
-                <!-- Total Earnings -->
-                <cards:KPICard 
-                    Grid.Column="0"
-                    Title="Total Earnings"
-                    Icon="&#xE7DB;"
-                    Value="$4,850.00"
-                    Subtitle="Gross revenue"
-                    ShowBadge="Visible"
-                    TrendIcon="&#xE74E;"
-                    TrendText="+12.5%"
-                    IconBackgroundBrush="{ThemeResource SuccessGreenLightBrush}"
-                    IconForegroundBrush="{ThemeResource SuccessGreenBrush}"
-                    BadgeBackgroundBrush="{ThemeResource SuccessGreenLightBrush}"
-                    BadgeForegroundBrush="{ThemeResource SuccessGreenBrush}"/>
-
-                <!-- Platform Fees -->
-                <cards:KPICard 
-                    Grid.Column="1"
-                    Title="Platform Fees"
-                    Icon="&#xE946;"
-                    Value="$485.00"
-                    Subtitle="10% commission"
-                    ShowBadge="Collapsed"
-                    IconBackgroundBrush="{ThemeResource ErrorRedLightBrush}"
-                    IconForegroundBrush="{ThemeResource ErrorRedBrush}"/>
-
-                <!-- Net Earnings -->
-                <cards:KPICard 
-                    Grid.Column="2"
-                    Title="Net Earnings"
-                    Icon="&#xE8EC;"
-                    Value="$4,365.00"
-                    Subtitle="After fees"
-                    ShowBadge="Visible"
-                    TrendIcon="&#xE74E;"
-                    TrendText="+8.2%"
-                    IconBackgroundBrush="{ThemeResource InfoBlueLightBrush}"
-                    IconForegroundBrush="{ThemeResource PrimaryBrush}"
-                    BadgeBackgroundBrush="{ThemeResource InfoBlueLightBrush}"
-                    BadgeForegroundBrush="{ThemeResource PrimaryBrush}"/>
-
-                <!-- Paid Out -->
-                <cards:KPICard 
-                    Grid.Column="3"
-                    Title="Paid Out"
-                    Icon="&#xE8AB;"
-                    Value="$3,200.00"
-                    Subtitle="This month"
-                    ShowBadge="Collapsed"
-                    IconBackgroundBrush="{ThemeResource PurpleLightBrush}"
-                    IconForegroundBrush="{ThemeResource PurpleBrush}"/>
-            </Grid>
-
-            <!-- SEARCH CARD with Auto-Complete -->
-            <forms:SearchCard
-                x:Name="EarningsSearchCard"
-                PlaceholderText="Search by order, product, or customer..."
-                SearchText="{x:Bind ViewModel.SearchQuery, Mode=TwoWay}"
-                ShowSearchButton="Collapsed"
-                TextChanged="SearchCard_TextChanged"
-                SuggestionChosen="SearchCard_SuggestionChosen"
-                QuerySubmitted="SearchCard_QuerySubmitted" />
-
-            <!-- FILTER CARD with Apply Button -->
-            <forms:FilterCard Title="Filters"
-                              ApplyCommand="{x:Bind ViewModel.ApplyFiltersCommand}"
-                              ResetCommand="{x:Bind ViewModel.ResetFiltersCommand}"
-                              ShowActions="True"
-                              ShowResetButton="True">
-                <forms:FilterCard.FilterContent>
-                    <StackPanel>
-                        <TextBlock Text="Status" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
-                        <ComboBox x:Name="StatusComboBox"
-                                 HorizontalAlignment="Stretch"
-                                 SelectedIndex="0"
-                                 CornerRadius="8"
-                                 SelectionChanged="StatusComboBox_SelectionChanged">
-                            <ComboBoxItem Content="All Status" Tag="All"/>
-                            <ComboBoxItem Content="Paid" Tag="Paid"/>
-                            <ComboBoxItem Content="Approved" Tag="Approved"/>
-                            <ComboBoxItem Content="Pending" Tag="Pending"/>
-                        </ComboBox>
-                    </StackPanel>
-                </forms:FilterCard.FilterContent>
-            </forms:FilterCard>
-
-            <!-- Transactions Table -->
-            <cards:DataTableCard Title="Earning Transactions">
-                <cards:DataTableCard.TableContent>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <!-- Table Header -->
-                        <Grid Grid.Row="0" 
-                             Padding="0,12"
-                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                             BorderThickness="0,0,0,1">
+                        <!-- KPI Cards -->
+                        <Grid x:Name="KPIGrid">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="100"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="100"/>
-                                <ColumnDefinition Width="100"/>
-                                <ColumnDefinition Width="100"/>
-                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnSpacing>20</Grid.ColumnSpacing>
+                            <Grid.RowSpacing>20</Grid.RowSpacing>
 
-                            <TextBlock Grid.Column="0" Text="ORDER ID" 
-                                      FontSize="11" FontWeight="SemiBold" 
-                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            <TextBlock Grid.Column="1" Text="PRODUCT" 
-                                      FontSize="11" FontWeight="SemiBold" 
-                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            <TextBlock Grid.Column="2" Text="CUSTOMER" 
-                                      FontSize="11" FontWeight="SemiBold" 
-                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            <TextBlock Grid.Column="3" Text="TOTAL" 
-                                      FontSize="11" FontWeight="SemiBold" 
-                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            <TextBlock Grid.Column="4" Text="FEE (10%)" 
-                                      FontSize="11" FontWeight="SemiBold" 
-                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            <TextBlock Grid.Column="5" Text="NET" 
-                                      FontSize="11" FontWeight="SemiBold" 
-                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            <TextBlock Grid.Column="6" Text="STATUS" 
-                                      FontSize="11" FontWeight="SemiBold" 
-                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <!-- Row 0 -->
+                            <!-- Total Earnings -->
+                            <cards:KPICard
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Title="Total Earnings"
+                                Icon="&#xE7DB;"
+                                Value="{x:Bind ViewModel.TotalEarnings, Mode=OneWay}"
+                                IsCurrency="True"
+                                Subtitle="Gross revenue"
+                                ShowBadge="Collapsed"
+                                IconBackgroundBrush="{ThemeResource SuccessGreenLightBrush}"
+                                IconForegroundBrush="{ThemeResource SuccessGreenBrush}"/>
+
+                            <!-- Platform Fees -->
+                            <cards:KPICard
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Title="Platform Fees"
+                                Icon="&#xE946;"
+                                Value="{x:Bind ViewModel.TotalPlatformFees, Mode=OneWay}"
+                                IsCurrency="True"
+                                Subtitle="10% commission"
+                                ShowBadge="Collapsed"
+                                IconBackgroundBrush="{ThemeResource ErrorRedLightBrush}"
+                                IconForegroundBrush="{ThemeResource ErrorRedBrush}"/>
+
+                            <!-- Net Earnings -->
+                            <cards:KPICard
+                                Grid.Row="0"
+                                Grid.Column="2"
+                                Title="Net Earnings"
+                                Icon="&#xE8EC;"
+                                Value="{x:Bind ViewModel.NetEarnings, Mode=OneWay}"
+                                IsCurrency="True"
+                                Subtitle="After fees"
+                                ShowBadge="Collapsed"
+                                IconBackgroundBrush="{ThemeResource InfoBlueLightBrush}"
+                                IconForegroundBrush="{ThemeResource PrimaryBrush}"/>
+
+                            <!-- Row 1 -->
+                            <!-- Paid Earnings -->
+                            <cards:KPICard
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                Title="Paid Out"
+                                Icon="&#xE8AB;"
+                                Value="{x:Bind ViewModel.PaidEarnings, Mode=OneWay}"
+                                IsCurrency="True"
+                                Subtitle="Settled payments"
+                                ShowBadge="Collapsed"
+                                IconBackgroundBrush="{ThemeResource PurpleLightBrush}"
+                                IconForegroundBrush="{ThemeResource PurpleBrush}"/>
+
+                            <!-- Pending Earnings -->
+                            <cards:KPICard
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Title="Pending Earnings"
+                                Icon="&#xE716;"
+                                Value="{x:Bind ViewModel.PendingEarnings, Mode=OneWay}"
+                                IsCurrency="True"
+                                Subtitle="Awaiting payment"
+                                ShowBadge="Collapsed"
+                                IconBackgroundBrush="{ThemeResource WarningAmberLightBrush}"
+                                IconForegroundBrush="{ThemeResource WarningAmberBrush}"/>
+
+                            <!-- Total Orders -->
+                            <cards:KPICard
+                                Grid.Row="1"
+                                Grid.Column="2"
+                                Title="Total Orders"
+                                Icon="&#xE7BF;"
+                                Value="{x:Bind ViewModel.TotalOrders, Mode=OneWay}"
+                                Subtitle="Orders completed"
+                                ShowBadge="Collapsed"
+                                IconBackgroundBrush="{ThemeResource InfoBlueLightBrush}"
+                                IconForegroundBrush="{ThemeResource PrimaryBrush}"/>
+
+                            <!-- Row 2 -->
+                            <!-- Average Earnings Per Order -->
+                            <cards:KPICard
+                                Grid.Row="2"
+                                Grid.Column="0"
+                                Title="Avg per Order"
+                                Icon="&#xE7DB;"
+                                Value="{x:Bind ViewModel.AverageEarningsPerOrder, Mode=OneWay}"
+                                IsCurrency="True"
+                                Subtitle="Average earnings"
+                                ShowBadge="Collapsed"
+                                IconBackgroundBrush="{ThemeResource InfoBlueLightBrush}"
+                                IconForegroundBrush="{ThemeResource PrimaryBrush}"/>
+
+                            <!-- This Month Earnings -->
+                            <cards:KPICard
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                Title="This Month"
+                                Icon="&#xE74E;"
+                                Value="{x:Bind ViewModel.ThisMonthEarnings, Mode=OneWay}"
+                                IsCurrency="True"
+                                Subtitle="Current month"
+                                ShowBadge="Visible"
+                                TrendIcon="&#xE74E;"
+                                TrendText="{x:Bind ViewModel.ThisMonthTrendText, Mode=OneWay}"
+                                IconBackgroundBrush="{ThemeResource SuccessGreenLightBrush}"
+                                IconForegroundBrush="{ThemeResource SuccessGreenBrush}"
+                                BadgeBackgroundBrush="{ThemeResource SuccessGreenLightBrush}"
+                                BadgeForegroundBrush="{ThemeResource SuccessGreenBrush}"/>
+
+                            <!-- Last Month Earnings -->
+                            <cards:KPICard
+                                Grid.Row="2"
+                                Grid.Column="2"
+                                Title="Last Month"
+                                Icon="&#xE74E;"
+                                Value="{x:Bind ViewModel.LastMonthEarnings, Mode=OneWay}"
+                                IsCurrency="True"
+                                Subtitle="Previous month"
+                                ShowBadge="Collapsed"
+                                IconBackgroundBrush="{ThemeResource InfoBlueLightBrush}"
+                                IconForegroundBrush="{ThemeResource PrimaryBrush}"/>
                         </Grid>
 
-                        <!-- Table Body -->
-                        <ScrollViewer Grid.Row="1" MaxHeight="400">
-                            <ItemsRepeater ItemsSource="{x:Bind ViewModel.Commissions, Mode=OneWay}">
-                                <ItemsRepeater.ItemTemplate>
-                                    <DataTemplate x:DataType="viewmodels:CommissionViewModel">
-                                        <Grid Padding="0,12" 
-                                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                             BorderThickness="0,0,0,1">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="100"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="100"/>
-                                                <ColumnDefinition Width="100"/>
-                                                <ColumnDefinition Width="100"/>
-                                                <ColumnDefinition Width="100"/>
-                                            </Grid.ColumnDefinitions>
+                        <!-- SEARCH CARD with Auto-Complete -->
+                        <forms:SearchCard
+                            x:Name="EarningsSearchCard"
+                            PlaceholderText="Search by order, product, or customer..."
+                            SearchText="{x:Bind ViewModel.SearchQuery, Mode=TwoWay}"
+                            ShowSearchButton="Collapsed"
+                            TextChanged="SearchCard_TextChanged"
+                            SuggestionChosen="SearchCard_SuggestionChosen"
+                            QuerySubmitted="SearchCard_QuerySubmitted"/>
 
-                                            <TextBlock Grid.Column="0" 
-                                                      Text="{x:Bind OrderId, Mode=OneWay}" 
-                                                      FontSize="13" 
-                                                      FontFamily="Consolas"
-                                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                            
-                                            <TextBlock Grid.Column="1" 
-                                                      Text="{x:Bind ProductName, Mode=OneWay}" 
-                                                      FontSize="14" 
-                                                      Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                                      TextTrimming="CharacterEllipsis"/>
-                                            
-                                            <TextBlock Grid.Column="2" 
-                                                      Text="{x:Bind CustomerName, Mode=OneWay}" 
-                                                      FontSize="14" 
-                                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                            
-                                            <TextBlock Grid.Column="3" 
-                                                      Text="{x:Bind SaleAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" 
-                                                      FontSize="14" 
-                                                      FontWeight="SemiBold"
-                                                      Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                            
-                                            <TextBlock Grid.Column="4" 
-                                                      Text="{x:Bind CommissionAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" 
-                                                      FontSize="14" 
-                                                      Foreground="{ThemeResource ErrorRedBrush}"/>
-                                            
-                                            <TextBlock Grid.Column="5" 
-                                                      Text="{x:Bind NetIncome, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" 
-                                                      FontSize="14" 
-                                                      FontWeight="Bold"
-                                                      Foreground="{ThemeResource SuccessGreenBrush}"/>
-                                            
-                                            <Border Grid.Column="6"
-                                                   Background="{x:Bind StatusBgColor, Mode=OneWay, Converter={StaticResource StringToBrushConverter}}"
-                                                   CornerRadius="999"
-                                                   Padding="8,4"
-                                                   HorizontalAlignment="Left">
-                                                <TextBlock Text="{x:Bind Status, Mode=OneWay}"
-                                                          FontSize="12"
-                                                          FontWeight="SemiBold"
-                                                          Foreground="{x:Bind StatusColor, Mode=OneWay, Converter={StaticResource StringToBrushConverter}}"/>
-                                            </Border>
-                                        </Grid>
-                                    </DataTemplate>
-                                </ItemsRepeater.ItemTemplate>
-                            </ItemsRepeater>
-                        </ScrollViewer>
+                        <!-- FILTER CARD with Advanced Filters -->
+                        <forms:FilterCard Title="Filters"
+                                          ApplyCommand="{x:Bind ViewModel.ApplyFiltersCommand}"
+                                          ResetCommand="{x:Bind ViewModel.ResetFiltersCommand}"
+                                          ShowActions="True"
+                                          ShowResetButton="True">
+                            <forms:FilterCard.FilterContent>
+                                <StackPanel Spacing="16">
+                                    <!-- Date Range -->
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="Date Range"
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                        <StackPanel Orientation="Horizontal"
+                                                    Spacing="12">
+                                            <DatePicker x:Name="StartDatePicker"
+                                                        Date="{x:Bind ViewModel.StartDate, Mode=TwoWay, Converter={StaticResource NullableDateTimeToDateTimeOffsetConverter}}"
+                                                        Width="150"/>
+                                            <TextBlock Text="to"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                            <DatePicker x:Name="EndDatePicker"
+                                                        Date="{x:Bind ViewModel.EndDate, Mode=TwoWay, Converter={StaticResource NullableDateTimeToDateTimeOffsetConverter}}"
+                                                        Width="150"/>
+                                        </StackPanel>
+                                    </StackPanel>
 
-                        <!-- Pagination Control -->
-                        <Border Grid.Row="2" 
-                               Margin="0,16,0,0"
-                               Padding="16,12"
-                               Background="Transparent"
-                               BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                               BorderThickness="0,1,0,0">
-                            <pagination:PaginationControl
-                                CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
-                                TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
-                                PageSize="{x:Bind ViewModel.PageSize, Mode=TwoWay}"
-                                PageChanged="OnPageChanged" />
-                        </Border>
-                    </Grid>
-                </cards:DataTableCard.TableContent>
-            </cards:DataTableCard>
+                                    <!-- Order Status -->
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="Order Status"
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                        <ComboBox SelectedValuePath="Tag"
+                                                  SelectedValue="{x:Bind ViewModel.SelectedOrderStatus, Mode=TwoWay}"
+                                                  Width="250">
+                                            <ComboBoxItem Content="All Status"
+                                                          Tag="All"/>
+                                            <ComboBoxItem Content="Pending"
+                                                          Tag="PENDING"/>
+                                            <ComboBoxItem Content="Confirmed"
+                                                          Tag="CONFIRMED"/>
+                                            <ComboBoxItem Content="Delivered"
+                                                          Tag="DELIVERED"/>
+                                            <ComboBoxItem Content="Cancelled"
+                                                          Tag="CANCELLED"/>
+                                        </ComboBox>
+                                    </StackPanel>
 
-            </StackPanel>
-        </ScrollViewer>
-        </RefreshContainer>
+                                    <!-- Payment Status -->
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="Payment Status"
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                        <ComboBox SelectedValuePath="Tag"
+                                                  SelectedValue="{x:Bind ViewModel.SelectedPaymentStatus, Mode=TwoWay}"
+                                                  Width="250">
+                                            <ComboBoxItem Content="All"
+                                                          Tag="All"/>
+                                            <ComboBoxItem Content="Paid"
+                                                          Tag="Paid"/>
+                                            <ComboBoxItem Content="Unpaid"
+                                                          Tag="Unpaid"/>
+                                        </ComboBox>
+                                    </StackPanel>
+                                </StackPanel>
+                            </forms:FilterCard.FilterContent>
+                        </forms:FilterCard>
+
+                        <!-- Transactions Table -->
+                        <cards:DataTableCard Title="Earning Transactions">
+                            <cards:DataTableCard.TableContent>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Table Header -->
+                                    <Grid Grid.Row="0"
+                                          Padding="0,12"
+                                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                          BorderThickness="0,0,0,1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="130"/>
+                                            <ColumnDefinition Width="110"/>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="110"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0"
+                                                   Text="ORDER ID"
+                                                   FontSize="11"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Grid.Column="1"
+                                                   Text="CUSTOMER"
+                                                   FontSize="11"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Grid.Column="2"
+                                                   Text="ORDER DATE"
+                                                   FontSize="11"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Grid.Column="3"
+                                                   Text="ORDER STATUS"
+                                                   FontSize="11"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Grid.Column="4"
+                                                   Text="TOTAL"
+                                                   FontSize="11"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Grid.Column="5"
+                                                   Text="FEE (10%)"
+                                                   FontSize="11"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Grid.Column="6"
+                                                   Text="NET"
+                                                   FontSize="11"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Grid.Column="7"
+                                                   Text="PAYMENT STATUS"
+                                                   FontSize="11"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    </Grid>
+
+                                    <!-- Table Body -->
+                                    <ScrollViewer Grid.Row="1"
+                                                  MaxHeight="400">
+                                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.EarningTransactions, Mode=OneWay}">
+                                            <ItemsRepeater.ItemTemplate>
+                                                <DataTemplate x:DataType="viewmodels:EarningTransactionViewModel">
+                                                    <Grid Padding="0,12"
+                                                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                          BorderThickness="0,0,0,1">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="100"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="130"/>
+                                                            <ColumnDefinition Width="110"/>
+                                                            <ColumnDefinition Width="100"/>
+                                                            <ColumnDefinition Width="100"/>
+                                                            <ColumnDefinition Width="100"/>
+                                                            <ColumnDefinition Width="110"/>
+                                                        </Grid.ColumnDefinitions>
+
+                                                        <TextBlock Grid.Column="0"
+                                                                   Text="{x:Bind OrderCode, Mode=OneWay}"
+                                                                   FontSize="13"
+                                                                   FontFamily="Consolas"
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="{x:Bind CustomerName, Mode=OneWay}"
+                                                                   FontSize="14"
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+
+                                                        <TextBlock Grid.Column="2"
+                                                                   Text="{x:Bind OrderDate, Mode=OneWay, Converter={StaticResource DateTimeToStringConverter}}"
+                                                                   FontSize="13"
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+
+                                                        <Border Grid.Column="3"
+                                                                Background="#F5F5F5"
+                                                                CornerRadius="4"
+                                                                Padding="8,4"
+                                                                HorizontalAlignment="Left">
+                                                            <TextBlock Text="{x:Bind OrderStatus, Mode=OneWay}"
+                                                                       FontSize="12"
+                                                                       FontWeight="SemiBold"
+                                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                        </Border>
+
+                                                        <TextBlock Grid.Column="4"
+                                                                   Text="{x:Bind OrderAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                                                   FontSize="14"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+
+                                                        <TextBlock Grid.Column="5"
+                                                                   Text="{x:Bind PlatformFee, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                                                   FontSize="14"
+                                                                   Foreground="{ThemeResource ErrorRedBrush}"/>
+
+                                                        <TextBlock Grid.Column="6"
+                                                                   Text="{x:Bind NetEarnings, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                                                   FontSize="14"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="{ThemeResource SuccessGreenBrush}"/>
+
+                                                        <Border Grid.Column="7"
+                                                                Background="{x:Bind StatusBgColor, Mode=OneWay, Converter={StaticResource StringToBrushConverter}}"
+                                                                CornerRadius="999"
+                                                                Padding="8,4"
+                                                                HorizontalAlignment="Left">
+                                                            <TextBlock Text="{x:Bind PaymentStatus, Mode=OneWay}"
+                                                                       FontSize="12"
+                                                                       FontWeight="SemiBold"
+                                                                       Foreground="{x:Bind StatusColor, Mode=OneWay, Converter={StaticResource StringToBrushConverter}}"/>
+                                                        </Border>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsRepeater.ItemTemplate>
+                                        </ItemsRepeater>
+                                    </ScrollViewer>
+
+                                    <!-- Pagination Control -->
+                                    <Border Grid.Row="2"
+                                            Margin="0,16,0,0"
+                                            Padding="16,12"
+                                            Background="Transparent"
+                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                            BorderThickness="0,1,0,0">
+                                        <pagination:PaginationControl
+                                            CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
+                                            TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
+                                            PageSize="{x:Bind ViewModel.PageSize, Mode=TwoWay}"
+                                            PageChanged="OnPageChanged"/>
+                                    </Border>
+                                </Grid>
+                            </cards:DataTableCard.TableContent>
+                        </cards:DataTableCard>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </RefreshContainer>
         </Grid>
 
         <!-- Layer 1: Loading Overlay (Shown during loading) -->
@@ -392,16 +568,16 @@
                         Padding="48">
                 <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
                               Width="64"
-                              Height="64" />
+                              Height="64"/>
                 <TextBlock Text="Loading earnings data..."
                            FontSize="18"
                            FontWeight="SemiBold"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           HorizontalAlignment="Center" />
+                           HorizontalAlignment="Center"/>
                 <TextBlock Text="Please wait while we fetch your commission details"
                            FontSize="14"
                            Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                           HorizontalAlignment="Center" />
+                           HorizontalAlignment="Center"/>
             </StackPanel>
         </Grid>
     </Grid>

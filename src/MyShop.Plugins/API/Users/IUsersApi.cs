@@ -1,4 +1,5 @@
 using MyShop.Shared.DTOs.Commons;
+using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
 using Refit;
 
@@ -26,4 +27,7 @@ public interface IUsersApi
 
     [Delete("/api/v1/users/{id}")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<bool>>> DeleteAsync(Guid id);
+
+    [Post("/api/v1/users/change-password")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<bool>>> ChangePasswordAsync([Body] ChangePasswordRequest request);
 }

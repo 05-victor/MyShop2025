@@ -32,9 +32,28 @@ public sealed partial class ChatPanel : UserControl
                 FontSize = 12,
                 Padding = new Thickness(12, 6, 12, 6),
                 CornerRadius = new CornerRadius(16),
-                Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 243, 244, 246)),
-                BorderThickness = new Thickness(0)
+                BorderThickness = new Thickness(1)
             };
+            
+            // Use theme-aware resources
+            if (Application.Current.Resources.TryGetValue("SubtleFillColorSecondaryBrush", out var bgBrush) 
+                && bgBrush is Microsoft.UI.Xaml.Media.Brush background)
+            {
+                button.Background = background;
+            }
+            
+            if (Application.Current.Resources.TryGetValue("CardStrokeColorDefaultBrush", out var borderBrush) 
+                && borderBrush is Microsoft.UI.Xaml.Media.Brush border)
+            {
+                button.BorderBrush = border;
+            }
+            
+            if (Application.Current.Resources.TryGetValue("TextPrimaryBrush", out var textBrush) 
+                && textBrush is Microsoft.UI.Xaml.Media.Brush foreground)
+            {
+                button.Foreground = foreground;
+            }
+            
             button.Click += SuggestionButton_Click;
             SuggestionsPanel.Children.Add(button);
         }

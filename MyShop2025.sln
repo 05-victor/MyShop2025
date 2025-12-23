@@ -8,6 +8,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{48809741-BA64-4C76-9221-8BACB4DC21FB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{352F106E-388D-42EE-A01F-047C10FB81E7}"
+	ProjectSection(SolutionItems) = preProject
+		ADMIN_DASHBOARD.md = ADMIN_DASHBOARD.md
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "database", "database", "{B7364C7C-FB14-44E4-B733-53563ECA82F2}"
 	ProjectSection(SolutionItems) = preProject

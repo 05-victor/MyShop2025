@@ -237,7 +237,15 @@ namespace MyShop.Client.Config
                             .ConfigureHttpClient(ConfigureApiClient)
                             .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
 
-                        System.Diagnostics.Debug.WriteLine("[Bootstrapper] All 8 Refit API clients registered");
+                        services.AddRefitClient<MyShop.Plugins.API.Earnings.IEarningsApi>()
+                            .ConfigureHttpClient(ConfigureApiClient)
+                            .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
+
+                        services.AddRefitClient<MyShop.Plugins.API.Users.IAgentRequestsApi>()
+                            .ConfigureHttpClient(ConfigureApiClient)
+                            .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
+
+                        System.Diagnostics.Debug.WriteLine("[Bootstrapper] All 10 Refit API clients registered (including IEarningsApi and IAgentRequestsApi)");
 
                         // ===== Repositories (Real - from Plugins) =====
                         // Changed to Transient to allow XAML root provider resolution
@@ -251,9 +259,8 @@ namespace MyShop.Client.Config
                         services.AddTransient<ICartRepository, CartRepository>();
                         services.AddTransient<IReportRepository, ReportRepository>();
                         services.AddTransient<ICommissionRepository, CommissionRepository>();
-
-                        // TODO: Replace with real implementations when API is ready
-                        services.AddTransient<IAgentRequestRepository, MockAgentRequestsRepository>();
+                        services.AddTransient<MyShop.Core.Interfaces.Repositories.IEarningsRepository, MyShop.Plugins.Repositories.Api.EarningsRepository>();
+                        services.AddTransient<IAgentRequestRepository, MyShop.Plugins.Repositories.Api.AgentRequestRepository>();
                         services.AddTransient<ISystemActivationRepository, MockSystemActivationRepository>();
                         services.AddTransient<IChatService, ChatRepository>();
                     }
@@ -310,9 +317,10 @@ namespace MyShop.Client.Config
 
                     // Sales Agent Management
                     services.AddTransient<MyShop.Core.Interfaces.Facades.ICommissionFacade, Facades.Reports.CommissionFacade>();
+                    services.AddTransient<MyShop.Core.Interfaces.Facades.IEarningsFacade, Facades.EarningsFacade>();
                     services.AddTransient<MyShop.Core.Interfaces.Facades.IAgentRequestFacade, Facades.Users.AgentRequestFacade>();
 
-                    System.Diagnostics.Debug.WriteLine("[Bootstrapper] All 11 Facades registered successfully");
+                    System.Diagnostics.Debug.WriteLine("[Bootstrapper] All 12 Facades registered successfully");
 
                     // ===== MediatR (CQRS) =====
                     services.AddMediatR(cfg =>

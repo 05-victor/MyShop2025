@@ -134,18 +134,6 @@ public sealed partial class AdminUsersPage : Page
         }
     }
 
-    private void StatusComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        // Guard: ViewModel may be null during page initialization
-        if (ViewModel == null) return;
-
-        if (StatusComboBox.SelectedItem is ComboBoxItem item)
-        {
-            var status = item.Tag?.ToString() ?? "All Status";
-            ViewModel.PendingStatus = status;
-        }
-    }
-
     private async void ExportButton_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel.ExportUsersCommand.CanExecute(null))
