@@ -2,8 +2,10 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyShop.Client.ViewModels.Base;
 using MyShop.Client.Facades;
+using MyShop.Client.Services;
 using MyShop.Core.Interfaces.Facades;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace MyShop.Client.ViewModels.SalesAgent;
@@ -11,10 +13,37 @@ namespace MyShop.Client.ViewModels.SalesAgent;
 public partial class SalesAgentEarningsViewModel : BaseViewModel
 {
     private readonly ICommissionFacade _commissionFacade;
+    private readonly IEarningsFacade _earningsFacade;
 
+    // Summary KPI Properties
     [ObservableProperty]
     private decimal _totalEarnings;
 
+    [ObservableProperty]
+    private decimal _totalPlatformFees;
+
+    [ObservableProperty]
+    private decimal _netEarnings;
+
+    [ObservableProperty]
+    private decimal _paidEarnings;
+
+    [ObservableProperty]
+    private decimal _pendingEarnings;
+
+    [ObservableProperty]
+    private int _totalOrders;
+
+    [ObservableProperty]
+    private decimal _averageEarningsPerOrder;
+
+    [ObservableProperty]
+    private decimal _thisMonthEarnings;
+
+    [ObservableProperty]
+    private decimal _lastMonthEarnings;
+
+    // Legacy properties (kept for compatibility)
     [ObservableProperty]
     private decimal _pendingCommission;
 
@@ -45,9 +74,10 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
     [ObservableProperty]
     private int _totalItems;
 
-    public SalesAgentEarningsViewModel(ICommissionFacade commissionFacade)
+    public SalesAgentEarningsViewModel(ICommissionFacade commissionFacade, IEarningsFacade earningsFacade)
     {
         _commissionFacade = commissionFacade;
+        _earningsFacade = earningsFacade;
     }
 
     [RelayCommand]
@@ -86,6 +116,36 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
 
         try
         {
+            // Load earnings summary first
+            Debug.WriteLine("[SalesAgentEarningsViewModel] Loading earnings summary");
+            var summaryResult = await _earningsFacade.GetSummaryAsync();
+
+            if (summaryResult.IsSuccess && summaryResult.Data != null)
+            {
+                var summary = summaryResult.Data;
+                TotalEarnings = summary.TotalEarnings;
+                TotalPlatformFees = summary.TotalPlatformFees;
+                NetEarnings = summary.NetEarnings;
+                PaidEarnings = summary.PaidEarnings;
+                PendingEarnings = summary.PendingEarnings;
+                TotalOrders = summary.TotalOrders;
+                AverageEarningsPerOrder = summary.AverageEarningsPerOrder;
+                ThisMonthEarnings = summary.ThisMonthEarnings;
+                LastMonthEarnings = summary.LastMonthEarnings;
+
+                // Also update legacy properties
+                TotalSales = summary.TotalOrders;
+                PaidCommission = summary.PaidEarnings;
+                PendingCommission = summary.PendingEarnings;
+
+                Debug.WriteLine($"[SalesAgentEarningsViewModel] Summary loaded: Total={TotalEarnings}, Orders={TotalOrders}");
+            }
+            else
+            {
+                Debug.WriteLine($"[SalesAgentEarningsViewModel] Failed to load summary: {summaryResult.ErrorMessage}");
+            }
+
+            // Load commissions table
             var result = await _commissionFacade.LoadCommissionsAsync();
             if (!result.IsSuccess || result.Data == null)
             {
@@ -94,15 +154,14 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
 
             var pagedList = result.Data;
             TotalItems = pagedList.TotalCount;
-            TotalSales = pagedList.TotalCount;
 
             // Filter by search query and status
             var items = pagedList.Items.AsEnumerable();
-            
+
             if (!string.IsNullOrWhiteSpace(SearchQuery))
             {
                 var query = SearchQuery.ToLower();
-                items = items.Where(c => 
+                items = items.Where(c =>
                     c.OrderNumber.ToLower().Contains(query));
             }
 
@@ -115,7 +174,7 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
             foreach (var commission in items.Skip((CurrentPage - 1) * PageSize).Take(PageSize))
             {
                 var customerName = $"Customer #{commission.OrderNumber.Split('-').Last()}";
-                
+
                 Commissions.Add(new CommissionViewModel
                 {
                     OrderId = commission.OrderNumber,
