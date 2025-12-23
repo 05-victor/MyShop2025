@@ -237,7 +237,11 @@ namespace MyShop.Client.Config
                             .ConfigureHttpClient(ConfigureApiClient)
                             .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
 
-                        System.Diagnostics.Debug.WriteLine("[Bootstrapper] All 8 Refit API clients registered");
+                        services.AddRefitClient<MyShop.Plugins.API.Users.IAgentRequestsApi>()
+                            .ConfigureHttpClient(ConfigureApiClient)
+                            .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
+
+                        System.Diagnostics.Debug.WriteLine("[Bootstrapper] All 9 Refit API clients registered (including IAgentRequestsApi)");
 
                         // ===== Repositories (Real - from Plugins) =====
                         // Changed to Transient to allow XAML root provider resolution
@@ -251,9 +255,7 @@ namespace MyShop.Client.Config
                         services.AddTransient<ICartRepository, CartRepository>();
                         services.AddTransient<IReportRepository, ReportRepository>();
                         services.AddTransient<ICommissionRepository, CommissionRepository>();
-
-                        // TODO: Replace with real implementations when API is ready
-                        services.AddTransient<IAgentRequestRepository, MockAgentRequestsRepository>();
+                        services.AddTransient<IAgentRequestRepository, MyShop.Plugins.Repositories.Api.AgentRequestRepository>();
                         services.AddTransient<ISystemActivationRepository, MockSystemActivationRepository>();
                         services.AddTransient<IChatService, ChatRepository>();
                     }
