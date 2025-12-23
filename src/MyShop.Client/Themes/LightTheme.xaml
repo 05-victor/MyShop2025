@@ -120,6 +120,10 @@
     <SolidColorBrush x:Key="CardStrokeColorDefaultBrush" Color="#33000000"/><!-- Black 20% opacity for visible borders -->
     <SolidColorBrush x:Key="ControlStrokeColorDefaultBrush" Color="#D1D5DB"/><!-- Gray 400 for controls -->
 
+    <!-- Dialog-specific Brushes (Light Theme) -->
+    <SolidColorBrush x:Key="DialogBackgroundBrush" Color="#FFFFFF"/><!-- Pure white for dialog background -->
+    <SolidColorBrush x:Key="DialogForegroundBrush" Color="#111827"/><!-- Dark text for readability -->
+
 
     <!-- ============================================= -->
     <!-- SEMANTIC BRUSHES                             -->
