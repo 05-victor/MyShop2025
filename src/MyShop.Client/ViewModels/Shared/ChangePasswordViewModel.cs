@@ -13,15 +13,15 @@ public partial class ChangePasswordViewModel : ObservableObject
     private readonly IProfileFacade _profileFacade;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsFormValid), nameof(CurrentPasswordError))]
+    [NotifyPropertyChangedFor(nameof(IsFormValid), nameof(CurrentPasswordError), nameof(CanSubmit))]
     private string _currentPassword = string.Empty;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsFormValid), nameof(NewPasswordError), nameof(PasswordStrength), nameof(ConfirmPasswordError))]
+    [NotifyPropertyChangedFor(nameof(IsFormValid), nameof(NewPasswordError), nameof(PasswordStrength), nameof(ConfirmPasswordError), nameof(CanSubmit))]
     private string _newPassword = string.Empty;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsFormValid), nameof(ConfirmPasswordError))]
+    [NotifyPropertyChangedFor(nameof(IsFormValid), nameof(ConfirmPasswordError), nameof(CanSubmit))]
     private string _confirmPassword = string.Empty;
 
     [ObservableProperty]
@@ -45,25 +45,16 @@ public partial class ChangePasswordViewModel : ObservableObject
         {
             if (string.IsNullOrWhiteSpace(NewPassword))
                 return "New password is required";
-            
-            if (NewPassword.Length < 8)
-                return "Password must be at least 8 characters";
-            
-            if (!Regex.IsMatch(NewPassword, @"[A-Z]"))
-                return "Password must contain at least one uppercase letter";
-            
-            if (!Regex.IsMatch(NewPassword, @"[a-z]"))
-                return "Password must contain at least one lowercase letter";
-            
-            if (!Regex.IsMatch(NewPassword, @"[0-9]"))
-                return "Password must contain at least one number";
-            
-            if (!Regex.IsMatch(NewPassword, @"[!@#$%^&*(),.?""':{}|<>]"))
-                return "Password must contain at least one special character";
-            
+
+            if (NewPassword.Length < 6)
+                return "Password must be at least 6 characters";
+
+            if (NewPassword.Length > 100)
+                return "Password must not exceed 100 characters";
+
             if (NewPassword == CurrentPassword)
                 return "New password must be different from current password";
-            
+
             return string.Empty;
         }
     }
@@ -74,10 +65,10 @@ public partial class ChangePasswordViewModel : ObservableObject
         {
             if (string.IsNullOrWhiteSpace(ConfirmPassword))
                 return "Please confirm your password";
-            
+
             if (NewPassword != ConfirmPassword)
                 return "Passwords do not match";
-            
+
             return string.Empty;
         }
     }
@@ -88,15 +79,17 @@ public partial class ChangePasswordViewModel : ObservableObject
         get
         {
             if (string.IsNullOrWhiteSpace(NewPassword)) return "None";
-            
+
+            // Strength based on length and diversity
             int strength = 0;
-            if (NewPassword.Length >= 8) strength++;
+            if (NewPassword.Length >= 6) strength++;
             if (NewPassword.Length >= 12) strength++;
+            if (NewPassword.Length >= 16) strength++;
             if (Regex.IsMatch(NewPassword, @"[A-Z]")) strength++;
             if (Regex.IsMatch(NewPassword, @"[a-z]")) strength++;
             if (Regex.IsMatch(NewPassword, @"[0-9]")) strength++;
             if (Regex.IsMatch(NewPassword, @"[!@#$%^&*(),.?""':{}|<>]")) strength++;
-            
+
             return strength switch
             {
                 <= 2 => "Weak",
@@ -162,7 +155,7 @@ public partial class ChangePasswordViewModel : ObservableObject
 
         IsLoading = true;
         ErrorMessage = string.Empty;
-        
+
         try
         {
             var result = await _profileFacade.ChangePasswordAsync(CurrentPassword, NewPassword, ConfirmPassword);
@@ -174,7 +167,7 @@ public partial class ChangePasswordViewModel : ObservableObject
                 NewPassword = string.Empty;
                 ConfirmPassword = string.Empty;
                 ErrorMessage = string.Empty;
-                
+
                 System.Diagnostics.Debug.WriteLine("[ChangePasswordViewModel] Password changed successfully");
             }
             else
