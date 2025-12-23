@@ -165,8 +165,12 @@
     <SolidColorBrush x:Key="BorderLightBrush" Color="#475569"/>
     <SolidColorBrush x:Key="BorderFocusBrush" Color="#3B82F6"/>    
     <!-- Card/Button Borders (Missing resource) -->
-    <SolidColorBrush x:Key="CardStrokeColorDefaultBrush\" Color="#4D475569"/><!-- Gray 400 with opacity for subtle borders -->
-    <SolidColorBrush x:Key="ControlStrokeColorDefaultBrush\" Color="#475569"/><!-- Gray 400 for controls -->
+    <SolidColorBrush x:Key="CardStrokeColorDefaultBrush" Color="#4D475569"/><!-- Gray 400 with opacity for subtle borders -->
+    <SolidColorBrush x:Key="ControlStrokeColorDefaultBrush" Color="#475569"/><!-- Gray 400 for controls -->
+
+    <!-- Dialog-specific Brushes (Dark Theme) -->
+    <SolidColorBrush x:Key="DialogBackgroundBrush" Color="#1E293B"/><!-- Dark slate for dialog background -->
+    <SolidColorBrush x:Key="DialogForegroundBrush" Color="#F1F5F9"/><!-- Light text for readability -->
 
     <!-- ============================================= -->
     <!-- SEMANTIC BRUSHES                             -->

@@ -73,7 +73,9 @@
     <Style x:Key="DefaultContentDialogStyle"
             TargetType="ContentDialog">
         <Setter Property="Background"
-                Value="{ThemeResource LayerFillColorDefaultBrush}"/>
+                Value="{ThemeResource DialogBackgroundBrush}"/>
+        <Setter Property="Foreground"
+                Value="{ThemeResource DialogForegroundBrush}"/>
         <Setter Property="BorderBrush"
                 Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
         <Setter Property="BorderThickness"
