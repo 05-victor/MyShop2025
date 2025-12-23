@@ -3,6 +3,7 @@ using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Users;
 using MyShop.Shared.Models;
 using MyShop.Shared.DTOs.Responses;
+using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Commons;
 using MyShop.Shared.DTOs.Common;
 using Refit;
@@ -237,13 +238,19 @@ public class AgentRequestRepository : IAgentRequestRepository
         }
     }
 
-    public async Task<Result<bool>> RejectAsync(Guid id)
+    public async Task<Result<bool>> RejectAsync(Guid id, string reason = "")
     {
         try
         {
             System.Diagnostics.Debug.WriteLine($"[AgentRequestRepository.RejectAsync] Rejecting request {id}");
+            System.Diagnostics.Debug.WriteLine($"[AgentRequestRepository.RejectAsync] Reason received: '{reason}'");
+            System.Diagnostics.Debug.WriteLine($"[AgentRequestRepository.RejectAsync] Reason is null: {reason == null}");
+            System.Diagnostics.Debug.WriteLine($"[AgentRequestRepository.RejectAsync] Reason is empty: {string.IsNullOrWhiteSpace(reason)}");
 
-            var rejectRequest = new { reason = "Rejected" };
+            // Use proper DTO that matches server's RejectAgentRequest
+            var rejectRequest = new RejectAgentRequest { Reason = reason };
+            System.Diagnostics.Debug.WriteLine($"[AgentRequestRepository.RejectAsync] Sending to API: {System.Text.Json.JsonSerializer.Serialize(rejectRequest)}");
+
             var response = await _api.RejectAsync(id, rejectRequest);
             System.Diagnostics.Debug.WriteLine($"[AgentRequestRepository.RejectAsync] API Response Status: {response.StatusCode}");
 

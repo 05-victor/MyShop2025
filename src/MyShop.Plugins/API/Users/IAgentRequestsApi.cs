@@ -48,5 +48,5 @@ public interface IAgentRequestsApi
     /// Reject an agent request (Admin only)
     /// </summary>
     [Patch("/api/v1/agent-requests/{id}/reject")]
-    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<object>>> RejectAsync(Guid id, [Body] object rejectRequest);
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<object>>> RejectAsync(Guid id, [Body] RejectAgentRequest rejectRequest);
 }
