@@ -48,6 +48,22 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
     [ObservableProperty]
     private string _thisMonthTrendText = "0%";
 
+    // Filter properties
+    [ObservableProperty]
+    private DateTime? _startDate = null;
+
+    [ObservableProperty]
+    private DateTime? _endDate = null;
+
+    [ObservableProperty]
+    private string _selectedPaymentStatus = "All";
+
+    [ObservableProperty]
+    private string _selectedOrderStatus = "All";
+
+    // Transaction collection
+    [ObservableProperty]
+    private ObservableCollection<EarningTransactionViewModel> _earningTransactions = new();
     // Legacy properties (kept for compatibility)
     [ObservableProperty]
     private decimal _pendingCommission;
@@ -153,56 +169,54 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
                 Debug.WriteLine($"[SalesAgentEarningsViewModel] Failed to load summary: {summaryResult.ErrorMessage}");
             }
 
-            // Load commissions table
-            var result = await _commissionFacade.LoadCommissionsAsync();
-            if (!result.IsSuccess || result.Data == null)
+            // Load earnings history with filters
+            var historyStatus = SelectedOrderStatus != "All" ? SelectedOrderStatus : null;
+            var historyPaymentStatus = SelectedPaymentStatus != "All" ? SelectedPaymentStatus.ToUpper() : null;
+
+            var historyResult = await _earningsFacade.GetHistoryAsync(
+                CurrentPage,
+                PageSize,
+                StartDate,
+                EndDate,
+                historyStatus,
+                historyPaymentStatus);
+
+            if (historyResult.IsSuccess && historyResult.Data != null)
             {
-                return;
-            }
+                var pagedList = historyResult.Data;
+                TotalItems = pagedList.TotalCount;
 
-            var pagedList = result.Data;
-            TotalItems = pagedList.TotalCount;
-
-            // Filter by search query and status
-            var items = pagedList.Items.AsEnumerable();
-
-            if (!string.IsNullOrWhiteSpace(SearchQuery))
-            {
-                var query = SearchQuery.ToLower();
-                items = items.Where(c =>
-                    c.OrderNumber.ToLower().Contains(query));
-            }
-
-            if (SelectedStatus != "All")
-            {
-                items = items.Where(c => c.Status == SelectedStatus);
-            }
-
-            Commissions.Clear();
-            foreach (var commission in items.Skip((CurrentPage - 1) * PageSize).Take(PageSize))
-            {
-                var customerName = $"Customer #{commission.OrderNumber.Split('-').Last()}";
-
-                Commissions.Add(new CommissionViewModel
+                EarningTransactions.Clear();
+                foreach (var item in pagedList.Items)
                 {
-                    OrderId = commission.OrderNumber,
-                    ProductName = $"Order {commission.OrderNumber}",
-                    CustomerName = customerName,
-                    SaleAmount = commission.OrderAmount,
-                    CommissionAmount = commission.CommissionAmount,
-                    CommissionRate = (int)(commission.CommissionRate * 100),
-                    NetIncome = commission.OrderAmount - commission.CommissionAmount,
-                    Status = commission.Status,
-                    StatusColor = GetStatusColor(commission.Status),
-                    StatusBgColor = GetStatusBgColor(commission.Status),
-                    OrderDate = commission.CreatedDate
-                });
+                    EarningTransactions.Add(new EarningTransactionViewModel
+                    {
+                        OrderId = item.OrderId,
+                        OrderCode = item.OrderCode,
+                        CustomerName = item.CustomerName,
+                        OrderDate = item.OrderDate,
+                        OrderStatus = item.OrderStatus,
+                        PaymentStatus = item.PaymentStatus,
+                        OrderAmount = item.OrderAmount,
+                        PlatformFee = item.PlatformFee,
+                        NetEarnings = item.NetEarnings,
+                        StatusColor = EarningTransactionViewModel.GetStatusColor(item.PaymentStatus),
+                        StatusBgColor = EarningTransactionViewModel.GetStatusBgColor(item.PaymentStatus)
+                    });
+                }
+
+                Debug.WriteLine($"[SalesAgentEarningsViewModel] Earnings history loaded: {EarningTransactions.Count} items");
+            }
+            else
+            {
+                Debug.WriteLine($"[SalesAgentEarningsViewModel] Failed to load history: {historyResult?.ErrorMessage}");
+                EarningTransactions.Clear();
             }
         }
         catch (System.Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[EarningsViewModel] Error loading commissions: {ex.Message}");
-            Commissions.Clear();
+            System.Diagnostics.Debug.WriteLine($"[EarningsViewModel] Error loading data: {ex.Message}");
+            EarningTransactions.Clear();
         }
         finally
         {
@@ -334,4 +348,54 @@ public partial class CommissionViewModel : ObservableObject
     private System.DateTime _orderDate;
 
     public string FormattedDate => OrderDate.ToString("MMM dd, yyyy");
+}
+
+public partial class EarningTransactionViewModel : ObservableObject
+{
+    [ObservableProperty]
+    private Guid _orderId;
+
+    [ObservableProperty]
+    private string _orderCode = string.Empty;
+
+    [ObservableProperty]
+    private string _customerName = string.Empty;
+
+    [ObservableProperty]
+    private DateTime _orderDate;
+
+    [ObservableProperty]
+    private string _orderStatus = string.Empty;
+
+    [ObservableProperty]
+    private string _paymentStatus = string.Empty;
+
+    [ObservableProperty]
+    private decimal _orderAmount;
+
+    [ObservableProperty]
+    private decimal _platformFee;
+
+    [ObservableProperty]
+    private decimal _netEarnings;
+
+    [ObservableProperty]
+    private string _statusColor = string.Empty;
+
+    [ObservableProperty]
+    private string _statusBgColor = string.Empty;
+
+    public static string GetStatusColor(string status) => status switch
+    {
+        "PAID" => "#2E7D32",      // Green
+        "UNPAID" => "#F57C00",    // Orange
+        _ => "#666666"            // Gray
+    };
+
+    public static string GetStatusBgColor(string status) => status switch
+    {
+        "PAID" => "#E8F5E9",      // Light Green
+        "UNPAID" => "#FFE0B2",    // Light Orange
+        _ => "#F5F5F5"            // Light Gray
+    };
 }

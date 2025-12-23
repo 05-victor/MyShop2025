@@ -28,6 +28,8 @@
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
         <converters:CurrencyConverter x:Key="CurrencyConverter"/>
         <converters:StringToBrushConverter x:Key="StringToBrushConverter"/>
+        <converters:NullableDateTimeToDateTimeOffsetConverter x:Key="NullableDateTimeToDateTimeOffsetConverter"/>
+        <converters:DateTimeToStringConverter x:Key="DateTimeToStringConverter"/>
     </Page.Resources>
 
     <Grid>
@@ -133,21 +135,6 @@
                             <layout:PageHeader.ActionContent>
                                 <StackPanel Orientation="Horizontal"
                                             Spacing="12">
-                                    <ComboBox x:Name="PeriodComboBox"
-                                              Width="180"
-                                              SelectedIndex="0"
-                                              VerticalAlignment="Center"
-                                              CornerRadius="8"
-                                              SelectionChanged="PeriodComboBox_SelectionChanged">
-                                        <ComboBoxItem Content="All Time"
-                                                      Tag="all"/>
-                                        <ComboBoxItem Content="This Month"
-                                                      Tag="month"/>
-                                        <ComboBoxItem Content="Last Month"
-                                                      Tag="last-month"/>
-                                        <ComboBoxItem Content="Last 3 Months"
-                                                      Tag="3months"/>
-                                    </ComboBox>
                                     <buttons:IconButton
                                         Variant="Outline"
                                         IconGlyph="&#xE72C;"
@@ -330,32 +317,73 @@
                             SuggestionChosen="SearchCard_SuggestionChosen"
                             QuerySubmitted="SearchCard_QuerySubmitted"/>
 
-                        <!-- FILTER CARD with Apply Button -->
+                        <!-- FILTER CARD with Advanced Filters -->
                         <forms:FilterCard Title="Filters"
                                           ApplyCommand="{x:Bind ViewModel.ApplyFiltersCommand}"
                                           ResetCommand="{x:Bind ViewModel.ResetFiltersCommand}"
                                           ShowActions="True"
                                           ShowResetButton="True">
                             <forms:FilterCard.FilterContent>
-                                <StackPanel>
-                                    <TextBlock Text="Status"
-                                               FontSize="12"
-                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                               Margin="0,0,0,4"/>
-                                    <ComboBox x:Name="StatusComboBox"
-                                              HorizontalAlignment="Stretch"
-                                              SelectedIndex="0"
-                                              CornerRadius="8"
-                                              SelectionChanged="StatusComboBox_SelectionChanged">
-                                        <ComboBoxItem Content="All Status"
-                                                      Tag="All"/>
-                                        <ComboBoxItem Content="Paid"
-                                                      Tag="Paid"/>
-                                        <ComboBoxItem Content="Approved"
-                                                      Tag="Approved"/>
-                                        <ComboBoxItem Content="Pending"
-                                                      Tag="Pending"/>
-                                    </ComboBox>
+                                <StackPanel Spacing="16">
+                                    <!-- Date Range -->
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="Date Range"
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                        <StackPanel Orientation="Horizontal"
+                                                    Spacing="12">
+                                            <DatePicker x:Name="StartDatePicker"
+                                                        Date="{x:Bind ViewModel.StartDate, Mode=TwoWay, Converter={StaticResource NullableDateTimeToDateTimeOffsetConverter}}"
+                                                        Width="150"/>
+                                            <TextBlock Text="to"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                            <DatePicker x:Name="EndDatePicker"
+                                                        Date="{x:Bind ViewModel.EndDate, Mode=TwoWay, Converter={StaticResource NullableDateTimeToDateTimeOffsetConverter}}"
+                                                        Width="150"/>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- Order Status -->
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="Order Status"
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                        <ComboBox SelectedValuePath="Tag"
+                                                  SelectedValue="{x:Bind ViewModel.SelectedOrderStatus, Mode=TwoWay}"
+                                                  Width="250">
+                                            <ComboBoxItem Content="All Status"
+                                                          Tag="All"/>
+                                            <ComboBoxItem Content="Pending"
+                                                          Tag="PENDING"/>
+                                            <ComboBoxItem Content="Confirmed"
+                                                          Tag="CONFIRMED"/>
+                                            <ComboBoxItem Content="Delivered"
+                                                          Tag="DELIVERED"/>
+                                            <ComboBoxItem Content="Cancelled"
+                                                          Tag="CANCELLED"/>
+                                        </ComboBox>
+                                    </StackPanel>
+
+                                    <!-- Payment Status -->
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="Payment Status"
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                        <ComboBox SelectedValuePath="Tag"
+                                                  SelectedValue="{x:Bind ViewModel.SelectedPaymentStatus, Mode=TwoWay}"
+                                                  Width="250">
+                                            <ComboBoxItem Content="All"
+                                                          Tag="All"/>
+                                            <ComboBoxItem Content="Paid"
+                                                          Tag="Paid"/>
+                                            <ComboBoxItem Content="Unpaid"
+                                                          Tag="Unpaid"/>
+                                        </ComboBox>
+                                    </StackPanel>
                                 </StackPanel>
                             </forms:FilterCard.FilterContent>
                         </forms:FilterCard>
@@ -379,10 +407,12 @@
                                             <ColumnDefinition Width="100"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="130"/>
+                                            <ColumnDefinition Width="110"/>
                                             <ColumnDefinition Width="100"/>
                                             <ColumnDefinition Width="100"/>
                                             <ColumnDefinition Width="100"/>
-                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="110"/>
                                         </Grid.ColumnDefinitions>
 
                                         <TextBlock Grid.Column="0"
@@ -401,22 +431,32 @@
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         <TextBlock Grid.Column="3"
-                                                   Text="TOTAL"
+                                                   Text="ORDER DATE"
                                                    FontSize="11"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         <TextBlock Grid.Column="4"
-                                                   Text="FEE (10%)"
+                                                   Text="ORDER STATUS"
                                                    FontSize="11"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         <TextBlock Grid.Column="5"
-                                                   Text="NET"
+                                                   Text="TOTAL"
                                                    FontSize="11"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         <TextBlock Grid.Column="6"
-                                                   Text="STATUS"
+                                                   Text="FEE (10%)"
+                                                   FontSize="11"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Grid.Column="7"
+                                                   Text="NET"
+                                                   FontSize="11"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Grid.Column="8"
+                                                   Text="PAYMENT STATUS"
                                                    FontSize="11"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
@@ -425,9 +465,9 @@
                                     <!-- Table Body -->
                                     <ScrollViewer Grid.Row="1"
                                                   MaxHeight="400">
-                                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.Commissions, Mode=OneWay}">
+                                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.EarningTransactions, Mode=OneWay}">
                                             <ItemsRepeater.ItemTemplate>
-                                                <DataTemplate x:DataType="viewmodels:CommissionViewModel">
+                                                <DataTemplate x:DataType="viewmodels:EarningTransactionViewModel">
                                                     <Grid Padding="0,12"
                                                           BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                                           BorderThickness="0,0,0,1">
@@ -435,20 +475,22 @@
                                                             <ColumnDefinition Width="100"/>
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="130"/>
+                                                            <ColumnDefinition Width="110"/>
                                                             <ColumnDefinition Width="100"/>
                                                             <ColumnDefinition Width="100"/>
                                                             <ColumnDefinition Width="100"/>
-                                                            <ColumnDefinition Width="100"/>
+                                                            <ColumnDefinition Width="110"/>
                                                         </Grid.ColumnDefinitions>
 
                                                         <TextBlock Grid.Column="0"
-                                                                   Text="{x:Bind OrderId, Mode=OneWay}"
+                                                                   Text="{x:Bind OrderCode, Mode=OneWay}"
                                                                    FontSize="13"
                                                                    FontFamily="Consolas"
                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                                                         <TextBlock Grid.Column="1"
-                                                                   Text="{x:Bind ProductName, Mode=OneWay}"
+                                                                   Text="{x:Bind OrderCode, Mode=OneWay}"
                                                                    FontSize="14"
                                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                                    TextTrimming="CharacterEllipsis"/>
@@ -459,28 +501,44 @@
                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                                                         <TextBlock Grid.Column="3"
-                                                                   Text="{x:Bind SaleAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                                                   Text="{x:Bind OrderDate, Mode=OneWay, Converter={StaticResource DateTimeToStringConverter}}"
+                                                                   FontSize="13"
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+
+                                                        <Border Grid.Column="4"
+                                                                Background="#F5F5F5"
+                                                                CornerRadius="4"
+                                                                Padding="8,4"
+                                                                HorizontalAlignment="Left">
+                                                            <TextBlock Text="{x:Bind OrderStatus, Mode=OneWay}"
+                                                                       FontSize="12"
+                                                                       FontWeight="SemiBold"
+                                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                        </Border>
+
+                                                        <TextBlock Grid.Column="5"
+                                                                   Text="{x:Bind OrderAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                                    FontSize="14"
                                                                    FontWeight="SemiBold"
                                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
 
-                                                        <TextBlock Grid.Column="4"
-                                                                   Text="{x:Bind CommissionAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                                        <TextBlock Grid.Column="6"
+                                                                   Text="{x:Bind PlatformFee, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                                    FontSize="14"
                                                                    Foreground="{ThemeResource ErrorRedBrush}"/>
 
-                                                        <TextBlock Grid.Column="5"
-                                                                   Text="{x:Bind NetIncome, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                                        <TextBlock Grid.Column="7"
+                                                                   Text="{x:Bind NetEarnings, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                                    FontSize="14"
                                                                    FontWeight="Bold"
                                                                    Foreground="{ThemeResource SuccessGreenBrush}"/>
 
-                                                        <Border Grid.Column="6"
+                                                        <Border Grid.Column="8"
                                                                 Background="{x:Bind StatusBgColor, Mode=OneWay, Converter={StaticResource StringToBrushConverter}}"
                                                                 CornerRadius="999"
                                                                 Padding="8,4"
                                                                 HorizontalAlignment="Left">
-                                                            <TextBlock Text="{x:Bind Status, Mode=OneWay}"
+                                                            <TextBlock Text="{x:Bind PaymentStatus, Mode=OneWay}"
                                                                        FontSize="12"
                                                                        FontWeight="SemiBold"
                                                                        Foreground="{x:Bind StatusColor, Mode=OneWay, Converter={StaticResource StringToBrushConverter}}"/>
