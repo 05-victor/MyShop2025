@@ -161,18 +161,9 @@
 
                         <!--  Filters Card  -->
                         <Border Style="{StaticResource CardWithShadowStyle}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <!--  Role Filter  -->
-                                <StackPanel Spacing="4">
+                            <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto">
+                                <!--  Column 0: Role Filter (Left)  -->
+                                <StackPanel Grid.Column="0" Spacing="4">
                                     <TextBlock
                                         FontSize="12"
                                         FontWeight="SemiBold"
@@ -200,9 +191,12 @@
                                     </ComboBox>
                                 </StackPanel>
 
-                                <!--  Apply Filters Button  -->
+                                <!--  Column 1: Spacer (fills remaining space)  -->
+                                <!--  Implicit, handled by Grid column definition  -->
+
+                                <!--  Column 2: Apply Filters Button (Right)  -->
                                 <buttons:IconButton
-                                    Grid.Column="3"
+                                    Grid.Column="2"
                                     VerticalAlignment="Bottom"
                                     Variant="Filled"
                                     IconGlyph="&#xE71C;"
@@ -210,9 +204,9 @@
                                     Command="{x:Bind ViewModel.ApplyFiltersCommand}"
                                     ToolTipService.ToolTip="Apply filters"/>
 
-                                <!--  Reset Filters Button  -->
+                                <!--  Column 3: Reset Filters Button (Right)  -->
                                 <buttons:IconButton
-                                    Grid.Column="4"
+                                    Grid.Column="3"
                                     Margin="8,0,0,0"
                                     VerticalAlignment="Bottom"
                                     Variant="Outline"
@@ -221,9 +215,9 @@
                                     Command="{x:Bind ViewModel.ResetFiltersCommand}"
                                     ToolTipService.ToolTip="Reset all filters"/>
 
-                                <!--  Export Button  -->
+                                <!--  Column 4: Export Button (Right)  -->
                                 <buttons:IconButton
-                                    Grid.Column="5"
+                                    Grid.Column="4"
                                     Margin="8,0,0,0"
                                     VerticalAlignment="Bottom"
                                     Variant="Outline"
@@ -483,6 +477,7 @@
         <!-- USER DETAILS DIALOG -->
         <ContentDialog
             x:Name="UserDetailsDialog"
+            Style="{StaticResource InfoDialogStyle}"
             Title="User Details"
             DefaultButton="Close"
             CloseButtonText="Close">

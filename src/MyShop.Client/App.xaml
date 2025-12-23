@@ -12,6 +12,9 @@
                 <!-- Theme-independent resources -->
                 <ResourceDictionary Source="Themes/SharedResources.xaml"/>
                 
+                <!-- Dialog styles -->
+                <ResourceDictionary Source="Themes/DialogStyles.xaml"/>
+                
                 <!-- Fallback resources to prevent XAML crashes from missing StaticResource keys -->
                 <ResourceDictionary Source="Themes/FallbackResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>

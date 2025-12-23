@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        ═══════════════════════════════════════════════════════════════
+        DIALOG STYLES
+        ═══════════════════════════════════════════════════════════════
+        
+        Standardized ContentDialog styles for consistent appearance
+        across all dialog instances in the application.
+        
+        Features:
+        - SOLID backgrounds (White in Light theme, Dark gray in Dark theme)
+        - Backdrop dimming is AUTOMATIC in WinUI 3 (smoke layer behind dialog)
+        - Consistent border and corner radius
+        - Elevated shadow for visual hierarchy
+        - Proper padding and spacing
+        
+        NOTE: WinUI 3 ContentDialog automatically provides a dimmed backdrop
+        (semi-transparent gray overlay) without needing custom configuration.
+    -->
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         STANDARD DIALOG STYLE
+         ═══════════════════════════════════════════════════════════════
+         
+         Default style for all ContentDialogs.
+         - Light theme: Solid white background (#FFFFFF)
+         - Dark theme: Solid dark gray background (via ThemeResource)
+         - Backdrop: Automatically dimmed by WinUI 3 (smoke layer)
+         
+         Usage: Style="{StaticResource StandardDialogStyle}"
+    -->
+    <Style x:Key="StandardDialogStyle" TargetType="ContentDialog">
+        <!-- 
+            CRITICAL: Use SOLID background, NOT semi-transparent!
+            - CardBackgroundFillColorDefaultBrush adapts to theme
+            - Light theme = solid white (#FFFFFF)
+            - Dark theme = solid dark gray
+        -->
+        <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+        
+        <!-- Subtle border for definition -->
+        <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        
+        <!-- Rounded corners for modern look -->
+        <Setter Property="CornerRadius" Value="8"/>
+        
+        <!-- Elevation shadow to lift dialog above content -->
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <ThemeShadow/>
+            </Setter.Value>
+        </Setter>
+        
+        <!-- Content padding -->
+        <Setter Property="Padding" Value="24"/>
+        
+        <!-- Title styling -->
+        <Setter Property="TitleTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <TextBlock 
+                        Text="{Binding}" 
+                        FontSize="20" 
+                        FontWeight="SemiBold"
+                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         CONFIRMATION DIALOG STYLE
+         ═══════════════════════════════════════════════════════════════
+         
+         Style for confirmation dialogs (Yes/No, OK/Cancel).
+         Has accent-colored primary button.
+         Usage: Style="{StaticResource ConfirmationDialogStyle}"
+    -->
+    <Style x:Key="ConfirmationDialogStyle" TargetType="ContentDialog" BasedOn="{StaticResource StandardDialogStyle}">
+        <Setter Property="PrimaryButtonStyle" Value="{StaticResource AccentButtonStyle}"/>
+        <Setter Property="DefaultButton" Value="Primary"/>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         DESTRUCTIVE DIALOG STYLE
+         ═══════════════════════════════════════════════════════════════
+         
+         Style for destructive actions (Delete, Remove).
+         Primary button styled in error red.
+         Usage: Style="{StaticResource DestructiveDialogStyle}"
+    -->
+    <Style x:Key="DestructiveDialogStyle" TargetType="ContentDialog" BasedOn="{StaticResource StandardDialogStyle}">
+        <Setter Property="DefaultButton" Value="Secondary"/>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         INFO DIALOG STYLE
+         ═══════════════════════════════════════════════════════════════
+         
+         Style for informational dialogs (View Details, Profile).
+         Single close button, no primary/secondary actions.
+         Usage: Style="{StaticResource InfoDialogStyle}"
+    -->
+    <Style x:Key="InfoDialogStyle" TargetType="ContentDialog" BasedOn="{StaticResource StandardDialogStyle}">
+        <Setter Property="CloseButtonText" Value="Close"/>
+        <Setter Property="DefaultButton" Value="Close"/>
+    </Style>
+
+</ResourceDictionary>
