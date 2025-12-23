@@ -34,13 +34,7 @@
          Usage: Style="{StaticResource StandardDialogStyle}"
     -->
     <Style x:Key="StandardDialogStyle" TargetType="ContentDialog">
-        <!-- 
-            CRITICAL: Use SOLID background, NOT semi-transparent!
-            - CardBackgroundFillColorDefaultBrush adapts to theme
-            - Light theme = solid white (#FFFFFF)
-            - Dark theme = solid dark gray
-        -->
-        <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+        <Setter Property="Background" Value="{ThemeResource DialogBackgroundBrush}"/>
         
         <!-- Subtle border for definition -->
         <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
