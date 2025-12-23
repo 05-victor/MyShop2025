@@ -126,6 +126,7 @@ public sealed partial class StatusBadge : UserControl
     {
         if (d is StatusBadge badge)
         {
+            System.Diagnostics.Debug.WriteLine($"[StatusBadge] Variant changed: {e.OldValue} → {e.NewValue}");
             badge.UpdateBadgeStyle();
         }
     }
@@ -144,8 +145,11 @@ public sealed partial class StatusBadge : UserControl
         // Safety check: ensure all named elements are initialized
         if (BadgeContainer == null || BadgeText == null || BadgeIcon == null)
         {
+            System.Diagnostics.Debug.WriteLine($"[StatusBadge] UpdateBadgeStyle skipped - elements not initialized");
             return;
         }
+
+        System.Diagnostics.Debug.WriteLine($"[StatusBadge] UpdateBadgeStyle called for Variant: {Variant}");
 
         // Map variants to resource keys and icons
         var (bgKey, fgKey, iconGlyph) = Variant switch
@@ -168,19 +172,49 @@ public sealed partial class StatusBadge : UserControl
             _ => ("CardBackgroundFillColorDefaultBrush", "TextFillColorPrimaryBrush", "\uE734")
         };
 
-        // Set DynamicResource to theme-aware brushes in UserControl.Resources
-        // This way, when theme changes, brushes automatically update
-        var resources = Resources;
-        
-        // Try to get colors from Application.Current.Resources and set them as DynamicResource
-        if (Application.Current.Resources.TryGetValue(bgKey, out var bgBrush))
+        System.Diagnostics.Debug.WriteLine($"[StatusBadge] Resource keys: BG={bgKey}, FG={fgKey}");
+
+        // CRITICAL FIX: Directly set Background and Foreground on UI elements
+        // Do NOT use UserControl.Resources because XAML uses ThemeResource which won't pick up local resources
+        if (Application.Current.Resources.TryGetValue(bgKey, out var bgBrush) && bgBrush is Brush brush)
         {
-            resources["DynamicBadgeBgBrush"] = bgBrush;
+            BadgeContainer.Background = brush;
+            
+            // Log actual color value
+            if (brush is SolidColorBrush solidBg)
+            {
+                var color = solidBg.Color;
+                System.Diagnostics.Debug.WriteLine($"[StatusBadge] ✅ Background APPLIED: #{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[StatusBadge] ✅ Background APPLIED: {brush.GetType().Name}");
+            }
+        }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine($"[StatusBadge] ❌ Background brush NOT FOUND for key: {bgKey}");
         }
 
-        if (Application.Current.Resources.TryGetValue(fgKey, out var fgBrush))
+        if (Application.Current.Resources.TryGetValue(fgKey, out var fgBrush) && fgBrush is Brush fgBrushCast)
         {
-            resources["DynamicBadgeFgBrush"] = fgBrush;
+            BadgeText.Foreground = fgBrushCast;
+            BadgeIcon.Foreground = fgBrushCast;
+            
+            // Log actual color value
+            if (fgBrushCast is SolidColorBrush solidFg)
+            {
+                var color = solidFg.Color;
+                System.Diagnostics.Debug.WriteLine($"[StatusBadge] ✅ Foreground APPLIED: #{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[StatusBadge] ✅ Foreground APPLIED: {fgBrushCast.GetType().Name}");
+            }
+        }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine($"[StatusBadge] ❌ Foreground brush NOT FOUND for key: {fgKey}");
         }
 
         // Set icon
@@ -188,5 +222,7 @@ public sealed partial class StatusBadge : UserControl
         {
             BadgeIcon.Glyph = iconGlyph;
         }
+        
+        System.Diagnostics.Debug.WriteLine($"[StatusBadge] UpdateBadgeStyle complete");
     }
 }

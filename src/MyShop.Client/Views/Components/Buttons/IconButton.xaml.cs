@@ -20,16 +20,41 @@ public sealed partial class IconButton : UserControl
     private FontIcon? _rightIcon;
     private TextBlock? _buttonText;
     private StackPanel? _contentPanel;
+    private bool _templateApplied = false;
     
     public IconButton()
     {
         this.InitializeComponent();
-        this.Loaded += OnLoaded;
         ActionButton.Loaded += ActionButton_Loaded;
+        ActionButton.LayoutUpdated += ActionButton_LayoutUpdated;
         // ✅ NO ThemeChanged subscription - styles handle theme automatically
     }
 
     private void ActionButton_Loaded(object sender, RoutedEventArgs e)
+    {
+        FindTemplateChildren();
+        ApplyVariantStyle();
+        ApplyLayout();
+        _templateApplied = true;
+    }
+
+    private void ActionButton_LayoutUpdated(object? sender, object e)
+    {
+        // When tab switching causes Visibility changes, buttons re-render
+        // but Loaded doesn't fire again. LayoutUpdated catches these cases.
+        if (!_templateApplied || _leftIcon == null)
+        {
+            FindTemplateChildren();
+            if (_leftIcon != null)
+            {
+                ApplyVariantStyle();
+                ApplyLayout();
+                _templateApplied = true;
+            }
+        }
+    }
+
+    private void FindTemplateChildren()
     {
         // Find template children using VisualTreeHelper
         _contentPanel = FindChildByName<StackPanel>(ActionButton, "ContentPanel");
@@ -39,17 +64,8 @@ public sealed partial class IconButton : UserControl
             _rightIcon = FindChildByName<FontIcon>(_contentPanel, "RightIcon");
             _buttonText = FindChildByName<TextBlock>(_contentPanel, "ButtonText");
         }
-        
-        ApplyVariantStyle();
-        ApplyLayout();
     }
 
-    private void OnLoaded(object sender, RoutedEventArgs e)
-    {
-        ApplyVariantStyle();
-        ApplyLayout();
-    }
-    
     // Helper method to find child element by name in visual tree
     private static T? FindChildByName<T>(DependencyObject parent, string name) where T : FrameworkElement
     {

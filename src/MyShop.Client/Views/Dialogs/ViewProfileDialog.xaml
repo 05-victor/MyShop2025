@@ -7,6 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
+    xmlns:badges="using:MyShop.Client.Views.Components.Badges"
     mc:Ignorable="d"
     Title="Agent Profile"
     CloseButtonText="Close"
@@ -107,14 +108,9 @@
                                   FontSize="14"
                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                   VerticalAlignment="Center"/>
-                        <Border Padding="8,4"
-                               Background="{ThemeResource WarningAmberLightBrush}"
-                               CornerRadius="6">
-                            <TextBlock Text="{x:Bind Status, Mode=OneWay}"
-                                      FontSize="12"
-                                      FontWeight="SemiBold"
-                                      Foreground="{ThemeResource WarningAmberBrush}"/>
-                        </Border>
+                        <badges:StatusBadge 
+                            Text="{x:Bind Status, Mode=OneWay}"
+                            Variant="{x:Bind StatusVariant, Mode=OneWay}"/>
                     </StackPanel>
                 </Grid>
             </StackPanel>

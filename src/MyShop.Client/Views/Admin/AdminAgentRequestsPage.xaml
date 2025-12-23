@@ -249,7 +249,9 @@
                                                                 Spacing="8">
                                                         <StackPanel Orientation="Horizontal"
                                                                     Spacing="12">
-                                                            <badges:StatusBadge Text="{x:Bind Status}"/>
+                                                            <badges:StatusBadge 
+                                                                Text="{x:Bind Status}"
+                                                                Variant="{x:Bind StatusVariant}"/>
                                                             <StackPanel Orientation="Horizontal"
                                                                         Spacing="6">
                                                                 <FontIcon

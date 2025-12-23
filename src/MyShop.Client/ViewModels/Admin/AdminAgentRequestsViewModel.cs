@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using MyShop.Client.Views.Components.Badges;
 
 namespace MyShop.Client.ViewModels.Admin;
 
@@ -299,4 +300,35 @@ public partial class AgentRequestItem : ObservableObject
 
     [ObservableProperty]
     private Visibility _hasRejectionReason = Visibility.Collapsed;
+
+    /// <summary>
+    /// Gets the StatusBadge variant based on the current status
+    /// </summary>
+    public StatusBadgeVariant StatusVariant
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(Status))
+            {
+                System.Diagnostics.Debug.WriteLine($"[AgentRequestItem] Status is null or empty");
+                return StatusBadgeVariant.Default;
+            }
+
+            // Normalize status: trim whitespace and convert to uppercase for consistent matching
+            var normalizedStatus = Status.Trim().ToUpperInvariant();
+            
+            System.Diagnostics.Debug.WriteLine($"[AgentRequestItem] Original Status: '{Status}' → Normalized: '{normalizedStatus}'");
+
+            var variant = normalizedStatus switch
+            {
+                "PENDING" => StatusBadgeVariant.Pending,
+                "APPROVED" => StatusBadgeVariant.Approved,
+                "REJECTED" => StatusBadgeVariant.Rejected,
+                _ => StatusBadgeVariant.Default
+            };
+            
+            System.Diagnostics.Debug.WriteLine($"[AgentRequestItem] Status '{normalizedStatus}' → Variant: {variant}");
+            return variant;
+        }
+    }
 }
