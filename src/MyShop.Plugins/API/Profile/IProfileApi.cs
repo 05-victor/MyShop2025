@@ -15,7 +15,4 @@ public interface IProfileApi
 
     [Put("/api/v1/profile/me")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<ProfileResponse>>> UpdateMyProfileAsync([Body] UpdateProfileRequest request);
-
-    [Post("/api/v1/profile/change-password")]
-    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<bool>>> ChangePasswordAsync([Body] ChangePasswordRequest request);
 }

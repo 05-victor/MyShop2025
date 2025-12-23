@@ -13,6 +13,7 @@ public class UserService : IUserService
     private readonly ICurrentUserService _currentUser;
     private readonly HttpClient _httpClient;
     private readonly ILogger<UserService> _logger;
+    
     public UserService(IUserRepository userRepository, IRoleRepository roleRepository, ICurrentUserService currentUserService, HttpClient httpClient, ILogger<UserService> logger)
     {
         _userRepository = userRepository;
@@ -188,5 +189,40 @@ public class UserService : IUserService
             _logger.LogError(ex, "Error occurred while activating user with code {ActivateCode}", activateCode);
             throw;
         }
+    }
+
+    public async Task<bool?> ChangePasswordAsync(ChangePasswordRequest request)
+    {
+        var userId = _currentUser.UserId;
+        if (!userId.HasValue)
+        {
+            _logger.LogWarning("[ChangePassword] Invalid JWT: userId claim is missing");
+            return null;
+        }
+
+        var user = await _userRepository.GetByIdAsync(userId.Value);
+        if (user == null)
+        {
+            _logger.LogWarning("[ChangePassword] User with ID {UserId} not found", userId);
+            return null;
+        }
+
+        // Verify current password using BCrypt
+        if (!BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.Password))
+        {
+            _logger.LogWarning("[ChangePassword] Current password verification failed for user {Username} (ID: {UserId})", 
+                user.Username, userId);
+            return false;
+        }
+
+        // Hash new password using BCrypt
+        user.Password = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+        user.UpdatedAt = DateTime.UtcNow;
+
+        await _userRepository.UpdateAsync(user);
+
+        _logger.LogInformation("[ChangePassword] Password changed successfully for user {Username} (ID: {UserId})", 
+            user.Username, userId);
+        return true;
     }
 }

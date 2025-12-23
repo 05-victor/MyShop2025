@@ -97,4 +97,54 @@ public class UserController : ControllerBase
                 ApiResponse.ServerErrorResponse("An error occurred while retrieving users"));
         }
     }
+
+    [HttpPost("change-password")]
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ApiResponse<bool>>> ChangePassword([FromBody] ChangePasswordRequest request)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+                return BadRequest(ApiResponse<bool>.ErrorResponse(
+                    $"Validation failed: {string.Join(", ", errors)}",
+                    400));
+            }
+
+            var result = await _userService.ChangePasswordAsync(request);
+
+            if (result == null)
+            {
+                return Unauthorized(ApiResponse<bool>.ErrorResponse(
+                    "User not authenticated or not found",
+                    401));
+            }
+
+            if (result == false)
+            {
+                return BadRequest(ApiResponse<bool>.ErrorResponse(
+                    "Current password is incorrect",
+                    400));
+            }
+
+            return Ok(ApiResponse<bool>.SuccessResponse(
+                true,
+                "Password changed successfully",
+                200));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error changing password");
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                ApiResponse.ServerErrorResponse("An error occurred while changing password"));
+        }
+    }
 }

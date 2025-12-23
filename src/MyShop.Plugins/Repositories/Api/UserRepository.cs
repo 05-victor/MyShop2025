@@ -136,11 +136,21 @@ public class UserRepository : IUserRepository
     {
         try
         {
-            var response = await _profileApi.ChangePasswordAsync(request);
+            var response = await _api.ChangePasswordAsync(request);
 
-            if (response.IsSuccessStatusCode && response.Content?.Result == true)
+            if (response.IsSuccessStatusCode && response.Content != null)
             {
-                return Result<bool>.Success(true);
+                var apiResponse = response.Content;
+                if (apiResponse.Success && apiResponse.Result)
+                {
+                    return Result<bool>.Success(true);
+                }
+                
+                // If Result is false, it means current password was incorrect
+                if (apiResponse.Success && !apiResponse.Result)
+                {
+                    return Result<bool>.Failure("Current password is incorrect");
+                }
             }
 
             return Result<bool>.Failure("Failed to change password");
