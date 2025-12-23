@@ -88,7 +88,7 @@
         </VisualStateManager.VisualStateGroups>
 
         <Grid x:Name="MainContent"
-                Padding="32">
+                Padding="{StaticResource Padding_2XL}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -115,6 +115,7 @@
                 Grid.Row="1"
                 Margin="0,0,0,16"
                 IsAddTabButtonVisible="False"
+                CanReorderTabs="False"
                 SelectedIndex="{x:Bind ViewModel.SelectedTabIndex, Mode=TwoWay}"
                 TabWidthMode="SizeToContent">
 
@@ -161,7 +162,7 @@
                         Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                         BorderThickness="1"
-                        CornerRadius="16"
+                        CornerRadius="8"
                         Padding="64,48"
                         Visibility="{x:Bind ViewModel.HasNoRequests, Mode=OneWay}">
                         <Border.Shadow>
@@ -210,8 +211,8 @@
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="16"
-                                    Padding="24">
+                                    CornerRadius="8"
+                                    Padding="{StaticResource Padding_XL}">
                                     <Border.Shadow>
                                         <ThemeShadow/>
                                     </Border.Shadow>
@@ -309,7 +310,7 @@
                                                 <Border
                                                     Background="{ThemeResource LayerFillColorDefaultBrush}"
                                                     CornerRadius="8"
-                                                    Padding="12">
+                                                    Padding="{StaticResource Padding_MD}">
                                                     <TextBlock
                                                         FontSize="13"
                                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -333,7 +334,7 @@
                                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                             BorderThickness="0,1,0,0"
                                             Orientation="Horizontal"
-                                            Padding="0,16,0,0"
+                                            Padding="{StaticResource Padding_LG}"
                                             Spacing="12"
                                             Visibility="{x:Bind IsPending}">
                                             <buttons:IconButton
@@ -368,8 +369,8 @@
                         Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                         BorderThickness="1"
-                        CornerRadius="16"
-                        Padding="20">
+                        CornerRadius="8"
+                        Padding="{ThemeResource Spacing_5}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>

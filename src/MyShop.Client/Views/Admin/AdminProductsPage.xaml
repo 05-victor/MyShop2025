@@ -127,7 +127,7 @@
         <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel x:Name="MainContent"
-                        Padding="32"
+                        Padding="{StaticResource Padding_2XL}"
                             Spacing="24">
 
                     <!--  PAGE TITLE  -->
@@ -544,31 +544,22 @@
                                 Grid.Row="1"
                                 Margin="0,16,0,0"
                                 Padding="16,12"
-                                Background="Transparent"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                BorderThickness="0,1,0,0">
+                                BorderThickness="1"
+                                CornerRadius="8">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!--  Previous Button  -->
+                                <!--  Previous Button (TASK-08 Standardized)  -->
                                 <Button
+                                    Style="{StaticResource SecondaryButtonStyle}"
                                     Grid.Column="0"
-                                    Padding="12,8"
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                    BorderThickness="1"
-                                    Command="{x:Bind ViewModel.PreviousPageCommand}"
-                                    CornerRadius="8">
-                                    <StackPanel Orientation="Horizontal"
-                                                Spacing="8">
-                                        <FontIcon FontSize="14"
-                                                  Glyph="&#xE76B;"/>
-                                        <TextBlock Text="Previous"/>
-                                    </StackPanel>
-                                </Button>
+                                    Content="Previous"
+                                    Command="{x:Bind ViewModel.PreviousPageCommand}"/>
 
                                 <!--  Page Info  -->
                                 <StackPanel
@@ -591,20 +582,10 @@
 
                                 <!--  Next Button  -->
                                 <Button
+                                    Style="{StaticResource SecondaryButtonStyle}"
                                     Grid.Column="2"
-                                    Padding="12,8"
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                    BorderThickness="1"
-                                    Command="{x:Bind ViewModel.NextPageCommand}"
-                                    CornerRadius="8">
-                                    <StackPanel Orientation="Horizontal"
-                                                Spacing="8">
-                                        <TextBlock Text="Next"/>
-                                        <FontIcon FontSize="14"
-                                                  Glyph="&#xE76C;"/>
-                                    </StackPanel>
-                                </Button>
+                                    Content="Next"
+                                    Command="{x:Bind ViewModel.NextPageCommand}"/>
                             </Grid>
 
                         </Grid>
@@ -860,7 +841,7 @@
                         Width="200"
                         Height="200"
                         Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                        CornerRadius="12"
+                        CornerRadius="8"
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                         BorderThickness="1">
                         <Grid>
@@ -937,7 +918,7 @@
                     <Border
                         Background="{ThemeResource SuccessGreen50Brush}"
                         CornerRadius="8"
-                        Padding="16">
+                        Padding="{StaticResource Padding_LG}">
                         <Grid ColumnSpacing="24">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -1051,7 +1032,7 @@
                     <Border
                         Background="{ThemeResource SubtleFillColorSecondaryBrush}"
                         CornerRadius="8"
-                        Padding="12">
+                        Padding="{StaticResource Padding_MD}">
                         <StackPanel Spacing="4">
                             <TextBlock
                                 FontSize="11"
@@ -1071,3 +1052,4 @@
         </ContentDialog>
     </Grid>
 </Page>
+

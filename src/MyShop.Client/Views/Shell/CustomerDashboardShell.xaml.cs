@@ -104,6 +104,11 @@ namespace MyShop.Client.Views.Shell
                 return;
 
             var tag = item.Tag as string ?? string.Empty;
+            
+            // Prevent flash: if clicking already selected item, do nothing
+            if (item == _currentContentItem)
+                return;
+            
             _currentContentItem = item;
 
             switch (tag)

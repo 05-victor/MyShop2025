@@ -108,7 +108,7 @@
                 <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
                         BorderThickness="1" 
-                        CornerRadius="20" 
+                        CornerRadius="8" 
                         HorizontalAlignment="Center" 
                         Padding="12,6" 
                         Margin="0,0,0,16">
@@ -356,10 +356,8 @@
                             Command="{x:Bind ViewModel.CancelCommand}"/>
                     
                     <Button Grid.Column="1" 
-                            HorizontalAlignment="Stretch" 
-                            Height="44" 
-                            CornerRadius="8" 
-                            BorderThickness="0"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            HorizontalAlignment="Stretch"
                             Command="{x:Bind ViewModel.SubmitCommand}"
                             IsEnabled="{x:Bind ViewModel.CanSubmit, Mode=OneWay}">
                         <Button.Background>

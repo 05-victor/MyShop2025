@@ -291,6 +291,10 @@ namespace MyShop.Client.Config
                     services.AddSingleton<Services.Configuration.IConfigurationService, Services.Configuration.ConfigurationService>();
                     System.Diagnostics.Debug.WriteLine("[Bootstrapper] ConfigurationService registered as Singleton");
 
+                    // ===== Settings Service (User preferences) =====
+                    services.AddSingleton<Services.SettingsService>();
+                    System.Diagnostics.Debug.WriteLine("[Bootstrapper] SettingsService registered as Singleton");
+
                     // ===== Pagination Service (Global runtime settings) =====
                     services.AddSingleton<MyShop.Core.Interfaces.Services.IPaginationService, PaginationService>();
                     System.Diagnostics.Debug.WriteLine("[Bootstrapper] PaginationService registered as Singleton");

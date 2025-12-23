@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <UserControl
     x:Class="MyShop.Client.Views.Components.Chat.ChatPanel"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -17,7 +17,7 @@
     -->
 
     <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-            CornerRadius="16"
+            CornerRadius="8"
             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1">
         <Border.Shadow>
@@ -35,7 +35,7 @@
             <!-- Header -->
             <Border Grid.Row="0" 
                    Background="{ThemeResource PrimaryBrush}"
-                   CornerRadius="16,16,0,0"
+                   CornerRadius="8,8,0,0"
                    Padding="16,12">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -98,7 +98,7 @@
                    Margin="12,0,0,8"
                    Padding="12,8"
                    Background="{ThemeResource LayerFillColorDefaultBrush}"
-                   CornerRadius="12"
+                   CornerRadius="8"
                    Visibility="Collapsed">
                 <StackPanel Orientation="Horizontal" Spacing="4">
                     <Ellipse Width="8" Height="8" Fill="{ThemeResource TextFillColorSecondaryBrush}" Opacity="0.5"/>
@@ -130,7 +130,7 @@
                     <TextBox x:Name="InputTextBox"
                             Grid.Column="0"
                             PlaceholderText="Type a message..."
-                            CornerRadius="20"
+                            CornerRadius="8"
                             Padding="16,10"
                             BorderThickness="1"
                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"

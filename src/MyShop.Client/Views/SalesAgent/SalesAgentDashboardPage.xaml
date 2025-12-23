@@ -112,7 +112,7 @@
             <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <Grid x:Name="MainContent"
-                          Padding="24"
+                          Padding="{StaticResource Padding_XL}"
                           RowSpacing="16">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -146,7 +146,7 @@
                                                 Spacing="12">
                                         <ComboBox Width="180"
                                                   Height="40"
-                                                  CornerRadius="10"
+                                                  CornerRadius="8"
                                                   BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
                                                   ItemsSource="{x:Bind ViewModel.DateRangeOptions}"
                                                   SelectedIndex="{x:Bind ViewModel.SelectedDateRangeIndex, Mode=TwoWay}"
@@ -270,7 +270,7 @@
                                                   SelectionMode="None">
                                             <ListView.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:TopAffiliateLink">
-                                                    <Border Padding="0,12"
+                                                    <Border Padding="{StaticResource Spacing_3_Thickness}"
                                                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                                             BorderThickness="0,0,0,1">
                                                         <Grid>
@@ -299,7 +299,7 @@
                                                                         Width="70"
                                                                         Height="70"
                                                                         CornerRadius="6"
-                                                                        Background="#F3F4F6">
+                                                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
                                                                     <Image Source="{x:Bind ImageUrl, Converter={StaticResource StringToImageSourceConverter}}"
                                                                            Stretch="UniformToFill"/>
                                                                 </Border>
@@ -311,16 +311,16 @@
                                                                     <TextBlock Text="{x:Bind Product}"
                                                                                FontSize="13"
                                                                                FontWeight="SemiBold"
-                                                                               Foreground="#111827"
+                                                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                                                TextTrimming="CharacterEllipsis"/>
                                                                     <TextBlock Text="{x:Bind CategoryName}"
                                                                                FontSize="11"
-                                                                               Foreground="#6B7280"/>
+                                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                                     <TextBlock FontSize="11"
-                                                                               Foreground="#6B7280">
+                                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                                                     <Run Text="Sold: "/>
                                                                     <Run Text="{x:Bind SoldCount}"
-                                                                         Foreground="#111827"
+                                                                         Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                                          FontWeight="SemiBold"/>
                                                                     </TextBlock>
                                                                 </StackPanel>
@@ -378,7 +378,7 @@
                                             <!-- Badge showing count -->
                                             <Border Grid.Column="1"
                                                     Background="{ThemeResource ErrorRedLightBrush}"
-                                                    CornerRadius="12"
+                                                    CornerRadius="8"
                                                     Padding="8,4">
                                                 <TextBlock Text="{Binding LowStockProducts.Count, Mode=OneWay}"
                                                            FontSize="12"
@@ -393,7 +393,7 @@
                                                   Visibility="{Binding LowStockProducts.Count, Mode=OneWay, Converter={StaticResource CountToVisibilityConverter}}">
                                             <ListView.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:LowStockProduct">
-                                                    <Border Padding="0,12"
+                                                    <Border Padding="{StaticResource Spacing_3_Thickness}"
                                                             BorderBrush="{ThemeResource Gray300Brush}"
                                                             BorderThickness="0,0,0,1">
                                                         <StackPanel Spacing="8">
@@ -466,7 +466,7 @@
                                                   SelectionMode="None"
                                                   MaxHeight="400">
                                             <ListView.Header>
-                                                <Grid Padding="0,0,0,12"
+                                                <Grid Padding="{StaticResource Spacing_3_Thickness}"
                                                       BorderBrush="{ThemeResource Gray300Brush}"
                                                       BorderThickness="0,0,0,1">
                                                     <Grid.ColumnDefinitions>
@@ -513,7 +513,7 @@
 
                                             <ListView.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:RecentSalesOrder">
-                                                    <Grid Padding="0,12"
+                                                    <Grid Padding="{StaticResource Spacing_3_Thickness}"
                                                           BorderBrush="{ThemeResource Gray300Brush}"
                                                           BorderThickness="0,0,0,1">
                                                         <Grid.ColumnDefinitions>
@@ -596,7 +596,7 @@
             <StackPanel HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Spacing="24"
-                        Padding="48">
+                        Padding="{StaticResource Padding_3XL}">
                 <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
                               Width="64"
                               Height="64"/>
@@ -613,3 +613,4 @@
         </Grid>
     </Grid>
 </Page>
+

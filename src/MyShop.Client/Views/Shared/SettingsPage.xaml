@@ -29,7 +29,7 @@
                         <AdaptiveTrigger MinWindowWidth="1920"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="40"/>
+                        <Setter Target="MainContent.Padding" Value="40,24,40,24"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -39,7 +39,7 @@
                         <AdaptiveTrigger MinWindowWidth="1280"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="40"/>
+                        <Setter Target="MainContent.Padding" Value="40,24,40,24"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -49,7 +49,7 @@
                         <AdaptiveTrigger MinWindowWidth="960"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="32"/>
+                        <Setter Target="MainContent.Padding" Value="32,24,32,24"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -59,7 +59,7 @@
                         <AdaptiveTrigger MinWindowWidth="640"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="24"/>
+                        <Setter Target="MainContent.Padding" Value="24,24,24,24"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -69,7 +69,7 @@
                         <AdaptiveTrigger MinWindowWidth="0"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="20"/>
+                        <Setter Target="MainContent.Padding" Value="16,24,16,24"/>
                     </VisualState.Setters>
                 </VisualState>
                 
@@ -91,7 +91,7 @@
         <!--  Main Content  -->
         <ScrollViewer>
             <StackPanel x:Name="MainContent" MaxWidth="900"
-                    Padding="40"
+                    Padding="40,24,40,24"
                     Spacing="24">
                 <!--  Header  -->
                 <layout:PageHeader
@@ -116,10 +116,10 @@
                             <FontIconSource Glyph="&#xE713;"/>
                         </TabViewItem.IconSource>
                         <ScrollViewer>
-                            <StackPanel Padding="0,24"
+                            <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
                                     Spacing="24">
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -179,10 +179,10 @@
                             <FontIconSource Glyph="&#xE8B8;"/>
                         </TabViewItem.IconSource>
                         <ScrollViewer>
-                            <StackPanel Padding="0,24"
+                            <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
                                     Spacing="24">
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -216,7 +216,7 @@
                                                     HorizontalAlignment="Stretch"/>
                                         </StackPanel>
 
-                                        <Border Padding="0,12"
+                                        <Border Padding="{StaticResource Spacing_3_Thickness}"
                                                 BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                 BorderThickness="0,1,0,0"
                                                 Margin="0,8,0,0">
@@ -259,10 +259,10 @@
                             <FontIconSource Glyph="&#xE771;"/>
                         </TabViewItem.IconSource>
                         <ScrollViewer>
-                            <StackPanel Padding="0,24"
+                            <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
                                     Spacing="24">
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -273,7 +273,7 @@
                                                 Text="Appearance Settings"/>
 
                                         <!-- Theme Selector -->
-                                        <Border Padding="0,12"
+                                        <Border Padding="{StaticResource Spacing_3_Thickness}"
                                                 BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                 BorderThickness="0,0,0,1"
                                                 Margin="0,0,0,8">
@@ -326,10 +326,10 @@
                             <FontIconSource Glyph="&#xEA8F;"/>
                         </TabViewItem.IconSource>
                         <ScrollViewer>
-                            <StackPanel Padding="0,24"
+                            <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
                                     Spacing="24">
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -339,7 +339,7 @@
                                                 FontWeight="SemiBold"
                                                 Text="Notification Settings"/>
 
-                                        <Border Padding="0,12"
+                                        <Border Padding="{StaticResource Spacing_3_Thickness}"
                                                 BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                 BorderThickness="0,0,0,1">
                                             <Grid>
@@ -362,7 +362,7 @@
                                             </Grid>
                                         </Border>
 
-                                        <Border Padding="0,12"
+                                        <Border Padding="{StaticResource Spacing_3_Thickness}"
                                                 BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                 BorderThickness="0,0,0,1">
                                             <Grid>
@@ -385,7 +385,7 @@
                                             </Grid>
                                         </Border>
 
-                                        <Border Padding="0,12"
+                                        <Border Padding="{StaticResource Spacing_3_Thickness}"
                                                 BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                 BorderThickness="0,0,0,1">
                                             <Grid>
@@ -408,7 +408,7 @@
                                             </Grid>
                                         </Border>
 
-                                        <Border Padding="0,12">
+                                        <Border Padding="{StaticResource Spacing_3_Thickness}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
@@ -448,10 +448,10 @@
                             <FontIconSource Glyph="&#xE946;"/>
                         </TabViewItem.IconSource>
                         <ScrollViewer>
-                            <StackPanel Padding="0,24"
+                            <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
                                     Spacing="24">
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -480,7 +480,7 @@
                                         </StackPanel>
 
                                         <StackPanel Spacing="8">
-                                            <Grid Padding="0,8"
+                                            <Grid Padding="{StaticResource Spacing_2_Thickness}"
                                                     BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                     BorderThickness="0,0,0,1">
                                                 <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -489,7 +489,7 @@
                                                         FontWeight="SemiBold"
                                                         Text="{x:Bind ViewModel.AppVersion}"/>
                                             </Grid>
-                                            <Grid Padding="0,8"
+                                            <Grid Padding="{StaticResource Spacing_2_Thickness}"
                                                     BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                     BorderThickness="0,0,0,1">
                                                 <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -498,7 +498,7 @@
                                                         FontWeight="SemiBold"
                                                         Text="November 2025"/>
                                             </Grid>
-                                            <Grid Padding="0,8"
+                                            <Grid Padding="{StaticResource Spacing_2_Thickness}"
                                                     BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                     BorderThickness="0,0,0,1">
                                                 <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -507,7 +507,7 @@
                                                         FontWeight="SemiBold"
                                                         Text="Commercial"/>
                                             </Grid>
-                                            <Grid Padding="0,8">
+                                            <Grid Padding="{StaticResource Spacing_2_Thickness}">
                                                 <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                         Text="Support"/>
                                                 <TextBlock HorizontalAlignment="Right"
@@ -524,7 +524,7 @@
 
                                 <!--  Maintenance  -->
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -600,11 +600,11 @@
                             <FontIconSource Glyph="&#xE943;"/>
                         </TabViewItem.IconSource>
                         <ScrollViewer>
-                            <StackPanel Padding="0,24"
+                            <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
                                     Spacing="24">
                                 <!--  Data Source Card  -->
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -614,7 +614,7 @@
                                                 FontWeight="SemiBold"
                                                 Text="Data Source"/>
 
-                                        <Border Padding="0,12"
+                                        <Border Padding="{StaticResource Spacing_3_Thickness}"
                                                 BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                 BorderThickness="0,0,0,1">
                                             <Grid>
@@ -669,7 +669,7 @@
 
                                 <!--  Debug Info Card  -->
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -680,7 +680,7 @@
                                                 Text="Debug Information"/>
 
                                         <StackPanel Spacing="8">
-                                            <Grid Padding="0,8"
+                                            <Grid Padding="{StaticResource Spacing_2_Thickness}"
                                                     BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                     BorderThickness="0,0,0,1">
                                                 <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -689,7 +689,7 @@
                                                         FontWeight="SemiBold"
                                                            Text="{x:Bind ViewModel.DataModeDisplay, Mode=OneWay}"/>
                                             </Grid>
-                                            <Grid Padding="0,8"
+                                            <Grid Padding="{StaticResource Spacing_2_Thickness}"
                                                     BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                     BorderThickness="0,0,0,1">
                                                 <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -698,7 +698,7 @@
                                                         FontWeight="SemiBold"
                                                            Text="{x:Bind ViewModel.CurrentUserEmail, Mode=OneWay}"/>
                                             </Grid>
-                                            <Grid Padding="0,8"
+                                            <Grid Padding="{StaticResource Spacing_2_Thickness}"
                                                     BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                     BorderThickness="0,0,0,1">
                                                 <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -707,7 +707,7 @@
                                                         FontWeight="SemiBold"
                                                            Text="{x:Bind ViewModel.CurrentUserRole, Mode=OneWay}"/>
                                             </Grid>
-                                            <Grid Padding="0,8">
+                                            <Grid Padding="{StaticResource Spacing_2_Thickness}">
                                                 <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                         Text="Build Configuration"/>
                                                 <TextBlock HorizontalAlignment="Right"
@@ -720,7 +720,7 @@
 
                                 <!--  Developer Actions  -->
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -775,15 +775,15 @@
                             <FontIconSource Glyph="&#xE8D7;"/>
                         </TabViewItem.IconSource>
                         <ScrollViewer>
-                            <StackPanel Padding="0,24"
+                            <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
                                     Spacing="24">
                                 <!--  Trial Status Card  -->
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
                                     BorderBrush="{ThemeResource SystemFillColorAttentionBrush}"
                                     BorderThickness="2"
-                                    CornerRadius="12">
+                                    CornerRadius="8">
                                     <StackPanel Spacing="16">
                                         <!--  Status Header  -->
                                         <Grid>
@@ -809,7 +809,7 @@
 
                                         <!--  Trial Info  -->
                                         <Border
-                                            Padding="16"
+                                            Padding="{StaticResource Padding_LG}"
                                             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                             CornerRadius="8">
                                             <Grid>
@@ -841,9 +841,8 @@
                                         <!--  Actions  -->
                                         <StackPanel Spacing="12">
                                             <Button
+                                                Style="{StaticResource PrimaryButtonStyle}"
                                                 HorizontalAlignment="Stretch"
-                                                Background="{ThemeResource SecondaryBlueBrush}"
-                                                Foreground="{ThemeResource WhiteBrush}"
                                                 Command="{x:Bind ViewModel.OpenUpgradeProCommand}"
                                                 ToolTipService.ToolTip="Open upgrade page in browser">
                                                 <StackPanel Orientation="Horizontal"
@@ -882,7 +881,7 @@
 
                                 <!--  Trial Extension Card  -->
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -904,9 +903,9 @@
                                                 Text="{x:Bind ViewModel.TrialCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                 Style="{StaticResource BaseInputStyle}"/>
 
-                                            <Button HorizontalAlignment="Left"
-                                                    Background="{ThemeResource AccentFillColorDefaultBrush}"
-                                                    Foreground="{ThemeResource WhiteBrush}"
+                                            <Button
+                                                    Style="{StaticResource PrimaryButtonStyle}"
+                                                    HorizontalAlignment="Left"
                                                     Command="{x:Bind ViewModel.ActivateTrialCodeCommand}"
                                                     ToolTipService.ToolTip="Enter a valid code to activate your license">
                                                 <StackPanel Orientation="Horizontal"
@@ -928,7 +927,7 @@
 
                                 <!--  Additional Features  -->
                                 <Border
-                                    Padding="24"
+                                    Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -938,7 +937,7 @@
                                                 FontWeight="SemiBold"
                                                 Text="What You Get with Pro"/>
 
-                                        <Border Padding="0,12"
+                                        <Border Padding="{StaticResource Spacing_3_Thickness}"
                                                 BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                 BorderThickness="0,0,0,1">
                                             <Grid>
@@ -963,7 +962,7 @@
                                             </Grid>
                                         </Border>
 
-                                        <Border Padding="0,12"
+                                        <Border Padding="{StaticResource Spacing_3_Thickness}"
                                                 BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                 BorderThickness="0,0,0,1">
                                             <Grid>
@@ -988,7 +987,7 @@
                                             </Grid>
                                         </Border>
 
-                                        <Border Padding="0,12"
+                                        <Border Padding="{StaticResource Spacing_3_Thickness}"
                                                 BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                                                 BorderThickness="0,0,0,1">
                                             <Grid>
@@ -1013,7 +1012,7 @@
                                             </Grid>
                                         </Border>
 
-                                        <Border Padding="0,12">
+                                        <Border Padding="{StaticResource Spacing_3_Thickness}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>

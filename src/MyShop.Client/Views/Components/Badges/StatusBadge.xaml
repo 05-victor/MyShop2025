@@ -6,11 +6,21 @@
              mc:Ignorable="d"
              x:Name="RootControl">
 
+    <!-- Dynamic ResourceDictionary to hold theme-aware brushes -->
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <!-- Default brushes - overridden by VariantChanged -->
+            <SolidColorBrush x:Key="DynamicBadgeBgBrush" Color="#F0F0F0"/>
+            <SolidColorBrush x:Key="DynamicBadgeFgBrush" Color="#333333"/>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
     <Border x:Name="BadgeContainer"
             CornerRadius="4"
             Padding="8,4"
             HorizontalAlignment="Left"
             VerticalAlignment="Center"
+            Background="{ThemeResource DynamicBadgeBgBrush}"
             AutomationProperties.Name="{Binding Text, ElementName=RootControl, Mode=OneWay}"
             AutomationProperties.HelpText="Status badge"
             IsTabStop="False">
@@ -20,6 +30,7 @@
             <FontIcon x:Name="BadgeIcon"
                       FontFamily="{StaticResource SymbolThemeFontFamily}"
                       FontSize="12"
+                      Foreground="{ThemeResource DynamicBadgeFgBrush}"
                       Visibility="Collapsed"/>
             
             <!-- Text -->
@@ -27,6 +38,7 @@
                        Text="{Binding Text, ElementName=RootControl, Mode=OneWay}"
                        FontSize="12"
                        FontWeight="SemiBold"
+                       Foreground="{ThemeResource DynamicBadgeFgBrush}"
                        VerticalAlignment="Center"/>
         </StackPanel>
     </Border>

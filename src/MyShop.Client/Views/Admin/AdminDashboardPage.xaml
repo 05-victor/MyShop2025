@@ -96,7 +96,7 @@
             </Grid.Transitions>
             <ScrollViewer VerticalScrollBarVisibility="Auto"
                           Background="{ThemeResource LayerFillColorDefaultBrush}">
-                <Grid x:Name="MainContent" Padding="24"
+                <Grid x:Name="MainContent" Padding="{StaticResource Padding_XL}"
                       RowSpacing="20">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -115,7 +115,7 @@
                                           Width="180"
                                           Height="40"
                                           SelectedIndex="2"
-                                          CornerRadius="12"
+                                          CornerRadius="8"
                                           AutomationProperties.Name="Select time period"
                                           AutomationProperties.HelpText="Choose the reporting period for dashboard data"
                                           UseSystemFocusVisuals="True"
@@ -239,10 +239,10 @@
                             <!-- Sales by Category -->
                             <Border Grid.Column="1"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    CornerRadius="16"
+                                    CornerRadius="8"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
-                                    Padding="24">
+                                    Padding="{StaticResource Padding_XL}">
                                 <Border.Shadow>
                                     <ThemeShadow/>
                                 </Border.Shadow>
@@ -264,11 +264,11 @@
                                         <!-- Toggle Buttons -->
                                         <StackPanel Grid.Column="1"
                                                     Orientation="Horizontal"
-                                                    Spacing="8">
+                                                    Spacing="8"
+                                                    VerticalAlignment="Center">
                                             <!-- Category Button -->
                                             <Button Content="Category"
-                                                    Height="32"
-                                                    Padding="12,0"
+                                                    Padding="{StaticResource ButtonPadding_SM}"
                                                     CornerRadius="8"
                                                     FontSize="13"
                                                     FontWeight="SemiBold"
@@ -281,8 +281,7 @@
 
                                             <!-- Agents Button -->
                                             <Button Content="Agents"
-                                                    Height="32"
-                                                    Padding="12,0"
+                                                    Padding="{StaticResource ButtonPadding_SM}"
                                                     CornerRadius="8"
                                                     FontSize="13"
                                                     FontWeight="SemiBold"
@@ -304,7 +303,7 @@
                                                   Visibility="{x:Bind ViewModel.CategoryData.Count, Mode=OneWay, Converter={StaticResource InverseCountToVisibilityConverter}}">
                                             <ListView.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:CategoryDataPoint">
-                                                    <Grid Padding="0,12"
+                                                    <Grid Padding="{StaticResource Padding_MD}"
                                                           ColumnSpacing="16">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*"/>
@@ -381,7 +380,7 @@
                                                   Visibility="{x:Bind ViewModel.TopSalesAgents.Count, Mode=OneWay, Converter={StaticResource InverseCountToVisibilityConverter}}">
                                             <ListView.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:TopSalesAgentItem">
-                                                    <Grid Padding="0,12"
+                                                    <Grid Padding="{StaticResource Padding_MD}"
                                                           ColumnSpacing="16">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*"/>
@@ -449,7 +448,7 @@
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
                                                     Spacing="12"
-                                                    Padding="24">
+                                                    Padding="{StaticResource Padding_XL}">
                                             <FontIcon Glyph="&#xE716;"
                                                       FontSize="32"
                                                       Foreground="{ThemeResource Gray500Brush}"/>
@@ -522,7 +521,7 @@
                                                   SelectionMode="None">
                                             <ListView.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:TopSalesAgentItem">
-                                                    <Grid Padding="0,12"
+                                                    <Grid Padding="{StaticResource Padding_MD}"
                                                           BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                                           BorderThickness="0,0,0,1">
                                                         <Grid.ColumnDefinitions>
@@ -657,7 +656,7 @@
                                                   SelectionMode="None">
                                             <ListView.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:FlaggedProductItem">
-                                                    <Grid Padding="0,12"
+                                                    <Grid Padding="{StaticResource Padding_MD}"
                                                           BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                                           BorderThickness="0,0,0,1">
                                                         <Grid.ColumnDefinitions>
@@ -698,12 +697,9 @@
 
                                                         <!-- Action Button -->
                                                         <Button Grid.Column="4"
+                                                                Style="{StaticResource IconButtonStyle}"
                                                                 Width="32"
                                                                 Height="32"
-                                                                Padding="0"
-                                                                Background="Transparent"
-                                                                BorderThickness="0"
-                                                                CornerRadius="8"
                                                                 VerticalAlignment="Center">
                                                             <FontIcon Glyph="&#xE712;"
                                                                       FontSize="16"
@@ -740,7 +736,7 @@
             <StackPanel HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Spacing="24"
-                        Padding="48">
+                        Padding="{StaticResource Padding_3XL}">
                 <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
                               Width="64"
                               Height="64"/>
@@ -757,3 +753,4 @@
         </Grid>
     </Grid>
 </Page>
+

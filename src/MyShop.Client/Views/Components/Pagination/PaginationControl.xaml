@@ -45,39 +45,21 @@
             
             <!-- First Page Button -->
             <Button x:Name="FirstButton"
+                    Style="{StaticResource PaginationButtonStyle}"
                     Content="&#xE892;"
-                    FontFamily="{StaticResource SymbolThemeFontFamily}"
-                    Width="36"
-                    Height="36"
                     Click="OnFirstClick"
                     ToolTipService.ToolTip="First Page"
                     AutomationProperties.Name="First page"
-                    UseSystemFocusVisuals="True">
-                <Button.Style>
-                    <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
-                        <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="BorderBrush" Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
-                    </Style>
-                </Button.Style>
-            </Button>
+                    UseSystemFocusVisuals="True"/>
             
             <!-- Previous Button -->
             <Button x:Name="PrevButton"
+                    Style="{StaticResource PaginationButtonStyle}"
                     Content="&#xE76B;"
-                    FontFamily="{StaticResource SymbolThemeFontFamily}"
-                    Width="36"
-                    Height="36"
                     Click="OnPreviousClick"
                     ToolTipService.ToolTip="Previous Page"
                     AutomationProperties.Name="Previous page"
-                    UseSystemFocusVisuals="True">
-                <Button.Style>
-                    <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
-                        <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="BorderBrush" Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
-                    </Style>
-                </Button.Style>
-            </Button>
+                    UseSystemFocusVisuals="True"/>
 
             <!-- Page Numbers Container -->
             <ItemsControl x:Name="PageNumbersContainer">
@@ -90,55 +72,29 @@
                     <DataTemplate>
                         <Button Content="{Binding PageNumber}"
                                 Tag="{Binding PageNumber}"
-                                Width="36"
-                                Height="36"
-                                Click="OnPageNumberClick">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
-                                    <Setter Property="Background" Value="Transparent"/>
-                                    <Setter Property="BorderBrush" Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
-                                </Style>
-                            </Button.Style>
-                        </Button>
+                                Style="{StaticResource PaginationButtonStyle}"
+                                Click="OnPageNumberClick"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
             <!-- Next Button -->
             <Button x:Name="NextButton"
+                    Style="{StaticResource PaginationButtonStyle}"
                     Content="&#xE76C;"
-                    FontFamily="{StaticResource SymbolThemeFontFamily}"
-                    Width="36"
-                    Height="36"
                     Click="OnNextClick"
                     ToolTipService.ToolTip="Next Page"
                     AutomationProperties.Name="Next page"
-                    UseSystemFocusVisuals="True">
-                <Button.Style>
-                    <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
-                        <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="BorderBrush" Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
-                    </Style>
-                </Button.Style>
-            </Button>
+                    UseSystemFocusVisuals="True"/>
             
             <!-- Last Page Button -->
             <Button x:Name="LastButton"
+                    Style="{StaticResource PaginationButtonStyle}"
                     Content="&#xE893;"
-                    FontFamily="{StaticResource SymbolThemeFontFamily}"
-                    Width="36"
-                    Height="36"
                     Click="OnLastClick"
                     ToolTipService.ToolTip="Last Page"
                     AutomationProperties.Name="Last page"
-                    UseSystemFocusVisuals="True">
-                <Button.Style>
-                    <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
-                        <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="BorderBrush" Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
-                    </Style>
-                </Button.Style>
-            </Button>
+                    UseSystemFocusVisuals="True"/>
         </StackPanel>
 
         <!-- Right: Info Text -->

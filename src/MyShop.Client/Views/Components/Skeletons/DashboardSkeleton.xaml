@@ -22,7 +22,7 @@
             <Border
                 Grid.Column="0"
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                CornerRadius="12"
+                CornerRadius="8"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1"
                 Padding="20">
@@ -37,7 +37,7 @@
             <Border
                 Grid.Column="1"
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                CornerRadius="12"
+                CornerRadius="8"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1"
                 Padding="20">
@@ -52,7 +52,7 @@
             <Border
                 Grid.Column="2"
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                CornerRadius="12"
+                CornerRadius="8"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1"
                 Padding="20">
@@ -67,7 +67,7 @@
             <Border
                 Grid.Column="3"
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                CornerRadius="12"
+                CornerRadius="8"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1"
                 Padding="20">
@@ -90,7 +90,7 @@
             <Border
                 Grid.Column="0"
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                CornerRadius="12"
+                CornerRadius="8"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1"
                 Padding="20"
@@ -105,7 +105,7 @@
             <Border
                 Grid.Column="1"
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                CornerRadius="12"
+                CornerRadius="8"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1"
                 Padding="20"
@@ -120,7 +120,7 @@
         <!-- Recent Activity / Table -->
         <Border
             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-            CornerRadius="12"
+            CornerRadius="8"
             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="20">

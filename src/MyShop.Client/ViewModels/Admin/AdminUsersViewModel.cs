@@ -125,8 +125,6 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
                     RoleColor = GetRoleColor(roleString),
                     RoleBgColor = GetRoleBgColor(roleString),
                     Status = isActiveUser ? "Active" : "Inactive",
-                    StatusColor = isActiveUser ? "#10B981" : "#6B7280",
-                    StatusBgColor = isActiveUser ? "#D1FAE5" : "#F3F4F6",
                     IsActive = isActiveUser,
                     FullName = u.FullName ?? u.Username,
                     Avatar = u.Avatar ?? string.Empty
@@ -283,12 +281,6 @@ public partial class UserViewModel : ObservableObject
 
     [ObservableProperty]
     private string _status = string.Empty;
-
-    [ObservableProperty]
-    private string _statusColor = string.Empty;
-
-    [ObservableProperty]
-    private string _statusBgColor = string.Empty;
 
     [ObservableProperty]
     private bool _isActive = true;

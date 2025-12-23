@@ -11,15 +11,15 @@
 
     <Page.Resources>
         <!-- NavigationView theme overrides - Reference centralized theme colors -->
-        <!-- Use StaticResource to reference theme-defined brushes -->
-        <StaticResource x:Key="NavigationViewExpandedPaneBackground" ResourceKey="AgentNavPaneBackground" />
-        <StaticResource x:Key="NavigationViewDefaultPaneBackground" ResourceKey="AgentNavPaneBackground" />
-        <StaticResource x:Key="NavigationViewItemForeground" ResourceKey="AgentNavItemForeground" />
-        <StaticResource x:Key="NavigationViewItemForegroundSelected" ResourceKey="AgentNavItemForegroundSelected" />
-        <StaticResource x:Key="NavigationViewItemForegroundPointerOver" ResourceKey="AgentNavItemForegroundPointerOver" />
-        <StaticResource x:Key="NavigationViewItemBackgroundSelectedPointerOver" ResourceKey="AgentNavItemBackgroundSelectedPointerOver" />
-        <StaticResource x:Key="NavigationViewItemBackgroundSelected" ResourceKey="AgentNavItemBackgroundSelected" />
-        <StaticResource x:Key="NavigationViewItemBackgroundPointerOver" ResourceKey="AgentNavItemBackgroundPointerOver" />
+        <!-- Use StaticResource for sidebar to keep it fixed dark navy (never theme-switch) -->
+        <StaticResource x:Key="NavigationViewExpandedPaneBackground" ResourceKey="SidebarFixedBackgroundBrush" />
+        <StaticResource x:Key="NavigationViewDefaultPaneBackground" ResourceKey="SidebarFixedBackgroundBrush" />
+        <ThemeResource x:Key="NavigationViewItemForeground" ResourceKey="AgentNavItemForeground" />
+        <ThemeResource x:Key="NavigationViewItemForegroundSelected" ResourceKey="AgentNavItemForegroundSelected" />
+        <ThemeResource x:Key="NavigationViewItemForegroundPointerOver" ResourceKey="AgentNavItemForegroundPointerOver" />
+        <ThemeResource x:Key="NavigationViewItemBackgroundSelectedPointerOver" ResourceKey="AgentNavItemBackgroundSelectedPointerOver" />
+        <ThemeResource x:Key="NavigationViewItemBackgroundSelected" ResourceKey="AgentNavItemBackgroundSelected" />
+        <ThemeResource x:Key="NavigationViewItemBackgroundPointerOver" ResourceKey="AgentNavItemBackgroundPointerOver" />
     </Page.Resources>
 
     <Grid>

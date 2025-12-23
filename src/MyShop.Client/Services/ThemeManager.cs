@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Media;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.UI.Composition.SystemBackdrops;
 
 namespace MyShop.Client.Services;
 
@@ -53,6 +54,7 @@ public static class ThemeManager
     /// <summary>
     /// Applies the specified theme using WinUI's native RequestedTheme API.
     /// This automatically resolves ThemeResource references in XAML.
+    /// Also updates the SystemBackdrop based on theme (Acrylic for Light, Mica for Dark).
     /// </summary>
     /// <param name="theme">The theme to apply.</param>
     public static void ApplyTheme(ThemeType theme)
@@ -76,6 +78,11 @@ public static class ThemeManager
                 System.Diagnostics.Debug.WriteLine($"ThemeManager: MainWindow.Content not available yet");
             }
 
+            // Update SystemBackdrop based on theme
+            // Light theme: DesktopAcrylicBackdrop for better readability
+            // Dark theme: MicaBackdrop for modern look
+            UpdateBackdrop(theme);
+
             // Save preference
             SaveThemePreference(theme);
 
@@ -85,6 +92,30 @@ public static class ThemeManager
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"ThemeManager: Failed to apply theme {theme}: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Updates the window's system backdrop based on the current theme.
+    /// Light theme: DesktopAcrylicBackdrop (translucent)
+    /// Dark theme: MicaBackdrop (opaque)
+    /// </summary>
+    private static void UpdateBackdrop(ThemeType theme)
+    {
+        try
+        {
+            if (App.MainWindow == null) return;
+
+            SystemBackdrop backdrop = theme == ThemeType.Light 
+                ? new DesktopAcrylicBackdrop() 
+                : new MicaBackdrop();
+
+            App.MainWindow.SystemBackdrop = backdrop;
+            System.Diagnostics.Debug.WriteLine($"ThemeManager: Set {(theme == ThemeType.Light ? "DesktopAcrylicBackdrop" : "MicaBackdrop")}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"ThemeManager: Failed to update backdrop: {ex.Message}");
         }
     }
 

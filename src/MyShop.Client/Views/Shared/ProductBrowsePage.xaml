@@ -106,7 +106,7 @@
         <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <Grid x:Name="MainContent"
-                      Padding="24"
+                      Padding="{StaticResource Padding_XL}"
                       RowSpacing="16">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -173,7 +173,7 @@
                                         <ComboBox x:Name="CategoryComboBox"
                                                   HorizontalAlignment="Stretch"
                                                   Height="40"
-                                                  CornerRadius="10"
+                                                  CornerRadius="8"
                                                   BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                   ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
                                                   SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"
@@ -190,7 +190,7 @@
                                         <ComboBox x:Name="BrandComboBox"
                                                   HorizontalAlignment="Stretch"
                                                   Height="40"
-                                                  CornerRadius="10"
+                                                  CornerRadius="8"
                                                   BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                   ItemsSource="{x:Bind ViewModel.Brands, Mode=OneWay}"
                                                   SelectedItem="{x:Bind ViewModel.SelectedBrand, Mode=TwoWay}"
@@ -207,7 +207,7 @@
                                         <ComboBox x:Name="SortComboBox"
                                                   HorizontalAlignment="Stretch"
                                                   Height="40"
-                                                  CornerRadius="10"
+                                                  CornerRadius="8"
                                                   BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
                                                   SelectedIndex="0"
                                                   SelectionChanged="SortComboBox_SelectionChanged">
@@ -245,7 +245,7 @@
                                     <Grid>
                                         <Ellipse Width="120"
                                                  Height="120"
-                                                 Fill="#F3F4F6"/>
+                                                 Fill="{ThemeResource Gray100Brush}"/>
                                         <FontIcon
                                             FontSize="64"
                                             Foreground="{ThemeResource Gray500Brush}"
@@ -266,12 +266,8 @@
                                     MaxWidth="300"
                                     TextWrapping="Wrap"/>
                                 <Button
+                                    Style="{StaticResource SecondaryButtonStyle}"
                                     Margin="0,12,0,0"
-                                    Padding="16,10"
-                                    Background="Transparent"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="8"
                                     ToolTipService.ToolTip="Clear all filters">
                                     <StackPanel Orientation="Horizontal"
                                                 Spacing="8">
@@ -415,7 +411,7 @@
                                                     <Button Style="{StaticResource SecondaryButtonStyle}"
                                                             Height="44"
                                                             Width="44"
-                                                            Padding="0"
+                                                            Padding="{StaticResource Padding_None}"
                                                             Tag="{x:Bind}"
                                                             Click="ViewProductButton_Click"
                                                             ToolTipService.ToolTip="View detailed product information">
@@ -432,23 +428,57 @@
                             </GridView.ItemTemplate>
                         </GridView>
 
-                        <!--  Pagination Control  -->
+                        <!--  Pagination Control (TASK-08 Standardized - Customer)  -->
                         <Border Style="{StaticResource CardWithShadowStyle}"
                                 Margin="0,24,0,0"
-                                Visibility="{x:Bind ViewModel.ShowPagination, Mode=OneWay}">
-                            <StackPanel Spacing="16"
-                                        Padding="16">
-                                <pagination:PaginationControl
-                                    CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
-                                    TotalItems="{x:Bind ViewModel.TotalProducts, Mode=OneWay}"
-                                    PageSize="12"
-                                    PageChanged="OnPageChanged"/>
+                                Visibility="{x:Bind ViewModel.ShowPagination, Mode=OneWay}"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                Padding="16,12"
+                                CornerRadius="8">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
 
-                                <TextBlock FontSize="12"
-                                           Foreground="{ThemeResource Gray600Brush}"
-                                           HorizontalAlignment="Center"
-                                           Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}"/>
-                            </StackPanel>
+                                <!--  Previous Button  -->
+                                <Button
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Grid.Column="0"
+                                    Content="Previous"
+                                    IsEnabled="{x:Bind ViewModel.HasPreviousPage, Mode=OneWay}"
+                                    Command="{x:Bind ViewModel.PreviousPageCommand}"/>
+
+                                <!--  Page Info  -->
+                                <StackPanel
+                                    Grid.Column="1"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Spacing="4">
+                                    <TextBlock
+                                        FontSize="14"
+                                        FontWeight="SemiBold"
+                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                        HorizontalAlignment="Center"
+                                        Text="{x:Bind ViewModel.PageInfoText, Mode=OneWay}"/>
+                                    <TextBlock
+                                        FontSize="12"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        HorizontalAlignment="Center"
+                                        Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}"/>
+                                </StackPanel>
+
+                                <!--  Next Button  -->
+                                <Button
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Grid.Column="2"
+                                    Content="Next"
+                                    IsEnabled="{x:Bind ViewModel.HasNextPage, Mode=OneWay}"
+                                    Command="{x:Bind ViewModel.NextPageCommand}"/>
+                            </Grid>
                         </Border>
 
                         <!--  Pagination (Legacy - can be hidden when using infinite scroll)  -->
@@ -459,44 +489,25 @@
                             Spacing="8"
                             Visibility="Collapsed">
                             <Button
-                                Padding="12,8"
-                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                Content="Previous"
-                                CornerRadius="8"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Content="Previous"/>
 
                             <Button
+                                Style="{StaticResource PrimaryButtonStyle}"
                                 Width="40"
-                                Padding="12,8"
-                                Background="{ThemeResource AccentBlueBrush}"
-                                Content="1"
-                                CornerRadius="8"
-                                Foreground="{ThemeResource WhiteBrush}"/>
+                                Content="1"/>
                             <Button
+                                Style="{StaticResource SecondaryButtonStyle}"
                                 Width="40"
-                                Padding="12,8"
-                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                Content="2"
-                                CornerRadius="8"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                Content="2"/>
                             <Button
+                                Style="{StaticResource SecondaryButtonStyle}"
                                 Width="40"
-                                Padding="12,8"
-                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                Content="3"
-                                CornerRadius="8"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                Content="3"/>
 
                             <Button
-                                Padding="12,8"
-                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                Content="Next"
-                                CornerRadius="8"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Content="Next"/>
                         </StackPanel>
 
                     </StackPanel>
@@ -514,14 +525,14 @@
                           VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="16"
                             MinWidth="450"
-                            Padding="0,8">
+                            Padding="{StaticResource Spacing_2_Thickness}">
                     <!--  Product Image  -->
                     <Border
                         HorizontalAlignment="Center"
                         Width="200"
                         Height="200"
                         Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                        CornerRadius="12"
+                        CornerRadius="8"
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                         BorderThickness="1">
                         <Grid>
@@ -598,7 +609,7 @@
                     <Border
                         Background="{ThemeResource SuccessGreen50Brush}"
                         CornerRadius="8"
-                        Padding="16">
+                        Padding="{StaticResource Padding_LG}">
                         <StackPanel Spacing="4"
                                     HorizontalAlignment="Center">
                             <TextBlock

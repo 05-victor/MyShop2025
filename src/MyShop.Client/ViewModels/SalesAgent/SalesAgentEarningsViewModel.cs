@@ -4,6 +4,7 @@ using MyShop.Client.ViewModels.Base;
 using MyShop.Client.Facades;
 using MyShop.Client.Services;
 using MyShop.Core.Interfaces.Facades;
+using MyShop.Core.Interfaces.Services;
 using MyShop.Shared.DTOs.Responses;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MyShop.Client.ViewModels.SalesAgent;
 
-public partial class SalesAgentEarningsViewModel : BaseViewModel
+public partial class SalesAgentEarningsViewModel : PagedViewModelBase<EarningTransactionViewModel>
 {
     private readonly ICommissionFacade _commissionFacade;
     private readonly IEarningsFacade _earningsFacade;
@@ -61,9 +62,9 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
     [ObservableProperty]
     private string _selectedOrderStatus = "All";
 
-    // Transaction collection
-    [ObservableProperty]
-    private ObservableCollection<EarningTransactionViewModel> _earningTransactions = new();
+    // Alias for backward compatibility with XAML
+    public ObservableCollection<EarningTransactionViewModel> EarningTransactions => Items;
+
     // Legacy properties (kept for compatibility)
     [ObservableProperty]
     private decimal _pendingCommission;
@@ -83,42 +84,27 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
     [ObservableProperty]
     private string _selectedStatus = "All";
 
-    [ObservableProperty]
-    private string _searchQuery = string.Empty;
-
-    [ObservableProperty]
-    private int _currentPage = 1;
-
-    [ObservableProperty]
-    private int _pageSize = 20;
-
-    [ObservableProperty]
-    private int _totalItems;
-
-    public SalesAgentEarningsViewModel(ICommissionFacade commissionFacade, IEarningsFacade earningsFacade)
+    public SalesAgentEarningsViewModel(
+        ICommissionFacade commissionFacade, 
+        IEarningsFacade earningsFacade,
+        IToastService? toastService = null)
+        : base(toastService, null)
     {
         _commissionFacade = commissionFacade;
         _earningsFacade = earningsFacade;
+        PageSize = 20;
     }
 
     [RelayCommand]
     private async Task InitializeAsync()
     {
-        await LoadCommissionsAsync();
-    }
-
-    [RelayCommand]
-    private async Task RefreshAsync()
-    {
-        CurrentPage = 1;
-        await LoadCommissionsAsync();
+        await LoadDataAsync(); // Use base class method
     }
 
     [RelayCommand]
     private async Task ApplyFiltersAsync()
     {
-        CurrentPage = 1;
-        await LoadCommissionsAsync();
+        await LoadDataAsync(); // Use base class method to reset to page 1
     }
 
     [RelayCommand]
@@ -127,14 +113,16 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
         SelectedStatus = "All";
         SearchQuery = string.Empty;
         SelectedPeriod = "All Time";
-        CurrentPage = 1;
-        await LoadCommissionsAsync();
+        await LoadDataAsync(); // Use base class method to reset to page 1
     }
 
-    private async Task LoadCommissionsAsync()
-    {
-        IsLoading = true;
+    // NOTE: NextPageAsync, PreviousPageAsync, RefreshAsync are provided by PagedViewModelBase
 
+    /// <summary>
+    /// Override LoadPageAsync - required by PagedViewModelBase
+    /// </summary>
+    protected override async Task LoadPageAsync()
+    {
         try
         {
             // Load earnings summary first
@@ -184,12 +172,11 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
             if (historyResult.IsSuccess && historyResult.Data != null)
             {
                 var pagedList = historyResult.Data;
-                TotalItems = pagedList.TotalCount;
 
-                EarningTransactions.Clear();
+                Items.Clear();
                 foreach (var item in pagedList.Items)
                 {
-                    EarningTransactions.Add(new EarningTransactionViewModel
+                    Items.Add(new EarningTransactionViewModel
                     {
                         OrderId = item.OrderId,
                         OrderCode = item.OrderCode,
@@ -199,52 +186,34 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
                         PaymentStatus = item.PaymentStatus,
                         OrderAmount = item.OrderAmount,
                         PlatformFee = item.PlatformFee,
-                        NetEarnings = item.NetEarnings,
-                        StatusColor = EarningTransactionViewModel.GetStatusColor(item.PaymentStatus),
-                        StatusBgColor = EarningTransactionViewModel.GetStatusBgColor(item.PaymentStatus)
+                        NetEarnings = item.NetEarnings
                     });
                 }
 
-                Debug.WriteLine($"[SalesAgentEarningsViewModel] Earnings history loaded: {EarningTransactions.Count} items");
+                UpdatePagingInfo(pagedList.TotalCount);
+
+                Debug.WriteLine($"[SalesAgentEarningsViewModel] Earnings history loaded: {Items.Count} items");
             }
             else
             {
                 Debug.WriteLine($"[SalesAgentEarningsViewModel] Failed to load history: {historyResult?.ErrorMessage}");
-                EarningTransactions.Clear();
+                Items.Clear();
+                UpdatePagingInfo(0);
             }
         }
         catch (System.Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[EarningsViewModel] Error loading data: {ex.Message}");
-            EarningTransactions.Clear();
-        }
-        finally
-        {
-            IsLoading = false;
+            Items.Clear();
+            UpdatePagingInfo(0);
         }
     }
-
-    private string GetStatusColor(string status) => status switch
-    {
-        "Paid" => "#10B981",
-        "Pending" => "#F59E0B",
-        "Approved" => "#3B82F6",
-        _ => "#6B7280"
-    };
-
-    private string GetStatusBgColor(string status) => status switch
-    {
-        "Paid" => "#D1FAE5",
-        "Pending" => "#FEF3C7",
-        "Approved" => "#DBEAFE",
-        _ => "#F3F4F6"
-    };
 
     [RelayCommand]
     private async Task FilterByPeriodAsync(string period)
     {
         SelectedPeriod = period;
-        await LoadCommissionsAsync();
+        await LoadDataAsync(); // Use base method to reset to page 1
     }
 
     [RelayCommand]
@@ -262,7 +231,7 @@ public partial class SalesAgentEarningsViewModel : BaseViewModel
             // if (result.IsSuccess)
             {
                 PendingCommission = 0;
-                await LoadCommissionsAsync();
+                await LoadPageAsync();
             }
         }
         finally
@@ -339,12 +308,6 @@ public partial class CommissionViewModel : ObservableObject
     private string _status = string.Empty;
 
     [ObservableProperty]
-    private string _statusColor = string.Empty;
-
-    [ObservableProperty]
-    private string _statusBgColor = string.Empty;
-
-    [ObservableProperty]
     private System.DateTime _orderDate;
 
     public string FormattedDate => OrderDate.ToString("MMM dd, yyyy");
@@ -378,24 +341,4 @@ public partial class EarningTransactionViewModel : ObservableObject
 
     [ObservableProperty]
     private decimal _netEarnings;
-
-    [ObservableProperty]
-    private string _statusColor = string.Empty;
-
-    [ObservableProperty]
-    private string _statusBgColor = string.Empty;
-
-    public static string GetStatusColor(string status) => status switch
-    {
-        "PAID" => "#2E7D32",      // Green
-        "UNPAID" => "#F57C00",    // Orange
-        _ => "#666666"            // Gray
-    };
-
-    public static string GetStatusBgColor(string status) => status switch
-    {
-        "PAID" => "#E8F5E9",      // Light Green
-        "UNPAID" => "#FFE0B2",    // Light Orange
-        _ => "#F5F5F5"            // Light Gray
-    };
 }

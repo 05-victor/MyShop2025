@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyShop.Client.Facades;
+using MyShop.Client.ViewModels.Base;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Core.Common;
@@ -11,17 +12,10 @@ using System.Threading.Tasks;
 
 namespace MyShop.Client.ViewModels.SalesAgent;
 
-public partial class SalesAgentProductsViewModel : ObservableObject
+public partial class SalesAgentProductsViewModel : PagedViewModelBase<ProductViewModel>
 {
     private readonly IProductFacade _productFacade;
-    private readonly IToastService? _toastService;
     private List<MyShop.Shared.Models.Product> _allProducts = new();
-
-    [ObservableProperty]
-    private ObservableCollection<ProductViewModel> _products;
-
-    [ObservableProperty]
-    private string _searchQuery = string.Empty;
 
     [ObservableProperty]
     private ObservableCollection<MyShop.Shared.Models.Category> _categories = new();
@@ -45,35 +39,22 @@ public partial class SalesAgentProductsViewModel : ObservableObject
     private bool _sortDescending = false;
 
     [ObservableProperty]
-    private int _currentPage = 1;
-
-    [ObservableProperty]
-    private int _pageSize = PaginationConstants.DefaultPageSize;
-
-    [ObservableProperty]
-    private int _totalPages = 1;
-
-    [ObservableProperty]
-    private int _totalItems = 0;
-
-    [ObservableProperty]
-    private bool _isLoading;
-
-    [ObservableProperty]
     private MyShop.Shared.Models.Product? _editingProduct;
 
+    // Alias for backward compatibility with XAML bindings
+    public ObservableCollection<ProductViewModel> Products => Items;
+
     public SalesAgentProductsViewModel(IProductFacade productFacade, IToastService? toastService = null)
+        : base(toastService, null)
     {
         _productFacade = productFacade;
-        _toastService = toastService;
-        Products = new ObservableCollection<ProductViewModel>();
     }
 
     public async Task InitializeAsync()
     {
         await LoadCategoriesAsync();
         await LoadBrandsAsync();
-        await LoadProductsAsync();
+        await LoadDataAsync(); // Use base class method
     }
 
     /// <summary>
@@ -152,19 +133,13 @@ public partial class SalesAgentProductsViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
-    private async Task RefreshAsync()
-    {
-        CurrentPage = 1;
-        await LoadProductsAsync();
-    }
+    // NOTE: RefreshAsync is provided by PagedViewModelBase
 
     [RelayCommand]
     private async Task ApplyFiltersAsync()
     {
-        CurrentPage = 1;
         System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.ApplyFiltersAsync] Applying filters - Search: '{SearchQuery}', Category: '{SelectedCategory}', Stock: '{SelectedStockStatus}', Sort: '{SortBy}' {(SortDescending ? "DESC" : "ASC")}");
-        await LoadProductsAsync();
+        await LoadDataAsync(); // Use base class method to reset to page 1
     }
 
     [RelayCommand]
@@ -177,14 +152,13 @@ public partial class SalesAgentProductsViewModel : ObservableObject
         SelectedStockStatus = string.Empty;
         SortBy = "name";
         SortDescending = false;
-        CurrentPage = 1;
-        await LoadProductsAsync();
+        await LoadDataAsync(); // Use base class method
     }
 
     [RelayCommand]
     private async Task ExportAsync()
     {
-        IsLoading = true;
+        SetLoadingState(true);
         try
         {
             await _productFacade.ExportProductsToCsvAsync(
@@ -195,27 +169,24 @@ public partial class SalesAgentProductsViewModel : ObservableObject
         }
         catch (System.Exception ex)
         {
-            if (_toastService != null)
-                await _toastService.ShowError($"Export failed: {ex.Message}");
+            await ShowErrorToast($"Export failed: {ex.Message}");
             System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel] Export error: {ex.Message}");
         }
         finally
         {
-            IsLoading = false;
+            SetLoadingState(false);
         }
     }
 
-    public async Task LoadPageAsync()
-    {
-        await LoadProductsAsync();
-    }
-
-    private async Task LoadProductsAsync()
+    /// <summary>
+    /// Override LoadPageAsync - required by PagedViewModelBase
+    /// </summary>
+    protected override async Task LoadPageAsync()
     {
         try
         {
-            IsLoading = true;
-            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.LoadProductsAsync] START - Page: {CurrentPage}, PageSize: {PageSize}, Search: '{SearchQuery}', Category: '{SelectedCategory?.Name}', Brand: '{SelectedBrand}', StockStatus: '{SelectedStockStatus}'");
+            SetLoadingState(true);
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.LoadPageAsync] START - Page: {CurrentPage}, PageSize: {PageSize}, Search: '{SearchQuery}', Category: '{SelectedCategory?.Name}', Brand: '{SelectedBrand}', StockStatus: '{SelectedStockStatus}'");
 
             // Call facade with pagination parameters and filters
             var result = await _productFacade.LoadProductsAsync(
@@ -233,44 +204,45 @@ public partial class SalesAgentProductsViewModel : ObservableObject
 
             if (!result.IsSuccess || result.Data == null)
             {
-                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.LoadProductsAsync] ❌ Failed to load products - {result.ErrorMessage}");
-                Products = new ObservableCollection<ProductViewModel>();
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.LoadPageAsync] ❌ Failed to load products - {result.ErrorMessage}");
+                Items.Clear();
                 _allProducts = new List<MyShop.Shared.Models.Product>();
-                TotalItems = 0;
-                TotalPages = 1;
+                UpdatePagingInfo(0);
                 return;
             }
 
             // Store the current page items (already paged by server)
             var pagedResult = result.Data;
             _allProducts = pagedResult.Items.ToList();
-            TotalItems = pagedResult.TotalCount;
-            TotalPages = pagedResult.TotalPages;
 
-            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.LoadProductsAsync] API Response:");
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.LoadPageAsync] API Response:");
             System.Diagnostics.Debug.WriteLine($"  - Items Count: {_allProducts.Count}");
-            System.Diagnostics.Debug.WriteLine($"  - TotalItems: {TotalItems}");
-            System.Diagnostics.Debug.WriteLine($"  - TotalPages: {TotalPages}");
+            System.Diagnostics.Debug.WriteLine($"  - TotalItems: {pagedResult.TotalCount}");
+            System.Diagnostics.Debug.WriteLine($"  - TotalPages: {pagedResult.TotalPages}");
             System.Diagnostics.Debug.WriteLine($"  - CurrentPage: {CurrentPage}");
             System.Diagnostics.Debug.WriteLine($"  - PageSize: {PageSize}");
             System.Diagnostics.Debug.WriteLine($"  - HasNext: {pagedResult.HasNext}");
             System.Diagnostics.Debug.WriteLine($"  - HasPrevious: {pagedResult.HasPrevious}");
-            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.LoadProductsAsync] ✅ SUCCESS - Loaded {_allProducts.Count} products, TotalItems: {TotalItems}, TotalPages: {TotalPages}");
+
+            // Update paging info (this handles TotalItems, TotalPages, and property notifications)
+            UpdatePagingInfo(pagedResult.TotalCount);
+
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.LoadPageAsync] ✅ SUCCESS - Loaded {_allProducts.Count} products, TotalItems: {TotalItems}, TotalPages: {TotalPages}");
 
             // Display the products from this page
             DisplayProducts(_allProducts);
         }
         catch (System.Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.LoadProductsAsync] ❌ Exception: {ex.GetType().Name}");
-            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.LoadProductsAsync] Message: {ex.Message}");
-            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.LoadProductsAsync] Stack Trace: {ex.StackTrace}");
-            Products = new ObservableCollection<ProductViewModel>();
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.LoadPageAsync] ❌ Exception: {ex.GetType().Name}");
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.LoadPageAsync] Message: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.LoadPageAsync] Stack Trace: {ex.StackTrace}");
+            Items.Clear();
             _allProducts = new List<MyShop.Shared.Models.Product>();
         }
         finally
         {
-            IsLoading = false;
+            SetLoadingState(false);
         }
     }
 
@@ -295,13 +267,13 @@ public partial class SalesAgentProductsViewModel : ObservableObject
             })
             .ToList();
 
-        Products.Clear();
+        Items.Clear();
         foreach (var product in viewModels)
         {
-            Products.Add(product);
+            Items.Add(product);
         }
 
-        System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel] Displayed page {CurrentPage}/{TotalPages} ({Products.Count} items, {TotalItems} total)");
+        System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel] Displayed page {CurrentPage}/{TotalPages} ({Items.Count} items, {TotalItems} total)");
     }
     private void ApplyFiltersAndSort()
     {
@@ -310,12 +282,11 @@ public partial class SalesAgentProductsViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task SearchAsync(string query)
+    private async Task PerformSearchAsync(string query)
     {
         SearchQuery = query;
-        CurrentPage = 1;
-        await LoadProductsAsync();
-        System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.SearchAsync] Searched for: '{query}'");
+        await LoadDataAsync(); // Use base class method to reset to page 1
+        System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.PerformSearchAsync] Searched for: '{query}'");
     }
 
     [RelayCommand]
@@ -324,8 +295,7 @@ public partial class SalesAgentProductsViewModel : ObservableObject
         // Find the category by name
         var selectedCat = Categories.FirstOrDefault(c => c.Name == categoryName);
         SelectedCategory = selectedCat;
-        CurrentPage = 1;
-        await LoadProductsAsync();
+        await LoadDataAsync(); // Use base class method to reset to page 1
         System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.FilterCategoryAsync] Filtered by category: '{categoryName}'");
     }
 
@@ -336,31 +306,8 @@ public partial class SalesAgentProductsViewModel : ObservableObject
     {
         if (CurrentPage != 1)
         {
-            CurrentPage = 1;
-            await LoadProductsAsync();
+            await LoadDataAsync(); // Use base class method to reset to page 1
             System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.GoToFirstPageAsync] Navigated to page 1");
-        }
-    }
-
-    [RelayCommand]
-    private async Task GoToPreviousPageAsync()
-    {
-        if (CurrentPage > 1)
-        {
-            CurrentPage--;
-            await LoadProductsAsync();
-            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.GoToPreviousPageAsync] Navigated to page {CurrentPage}");
-        }
-    }
-
-    [RelayCommand]
-    private async Task GoToNextPageAsync()
-    {
-        if (CurrentPage < TotalPages)
-        {
-            CurrentPage++;
-            await LoadProductsAsync();
-            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.GoToNextPageAsync] Navigated to page {CurrentPage}");
         }
     }
 
@@ -370,21 +317,12 @@ public partial class SalesAgentProductsViewModel : ObservableObject
         if (CurrentPage != TotalPages && TotalPages > 0)
         {
             CurrentPage = TotalPages;
-            await LoadProductsAsync();
+            await LoadPageAsync();
             System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.GoToLastPageAsync] Navigated to page {TotalPages}");
         }
     }
 
-    [RelayCommand]
-    private async Task GoToPageAsync(int pageNumber)
-    {
-        if (pageNumber >= 1 && pageNumber <= TotalPages && pageNumber != CurrentPage)
-        {
-            CurrentPage = pageNumber;
-            await LoadProductsAsync();
-            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.GoToPageAsync] Navigated to page {CurrentPage}");
-        }
-    }
+    // NOTE: GoToPageAsync is provided by PagedViewModelBase
 
     [RelayCommand]
     private async Task ChangePageSizeAsync(int newPageSize)
@@ -392,8 +330,7 @@ public partial class SalesAgentProductsViewModel : ObservableObject
         if (newPageSize > 0 && newPageSize != PageSize)
         {
             PageSize = newPageSize;
-            CurrentPage = 1; // Reset to first page when changing page size
-            await LoadProductsAsync();
+            await LoadDataAsync(); // Use base class method to reset to page 1
             System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.ChangePageSizeAsync] Page size changed to {PageSize}");
         }
     }
@@ -423,7 +360,7 @@ public partial class SalesAgentProductsViewModel : ObservableObject
 
     public async Task ConfirmDeleteProductAsync(Guid productId)
     {
-        IsLoading = true;
+        SetLoadingState(true);
         try
         {
             var result = await _productFacade.DeleteProductAsync(productId);
@@ -487,7 +424,7 @@ public partial class SalesAgentProductsViewModel : ObservableObject
                 System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.SaveNewProductAsync] ✅ SUCCESS - Product created, refreshing product list");
 
                 // Refresh the product list
-                await LoadProductsAsync();
+                await LoadPageAsync();
 
                 // Re-apply filters if any are active
                 ApplyFiltersAndSort();
@@ -578,7 +515,7 @@ public partial class SalesAgentProductsViewModel : ObservableObject
                 System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.SaveEditProductAsync] ✅ SUCCESS - Product updated, refreshing product list");
 
                 // Refresh the product list
-                await LoadProductsAsync();
+                await LoadPageAsync();
 
                 // Re-apply filters if any are active
                 ApplyFiltersAndSort();
@@ -711,7 +648,7 @@ public partial class SalesAgentProductsViewModel : ObservableObject
                 System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.UploadProductImageAsync] ✅ SUCCESS - Image uploaded");
 
                 // Refresh product to get updated image URL
-                await LoadProductsAsync();
+                await LoadPageAsync();
                 ApplyFiltersAndSort();
 
                 System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.UploadProductImageAsync] ✅ Product list refreshed with new image");

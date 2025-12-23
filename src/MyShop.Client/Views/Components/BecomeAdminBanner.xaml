@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <UserControl
     x:Class="MyShop.Client.Views.Components.BecomeAdminBanner"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -7,7 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Border CornerRadius="12"
+    <Border CornerRadius="8"
             BorderBrush="{ThemeResource AccentBlueBrush}"
             BorderThickness="2"
             Margin="0,0,0,24">
@@ -96,11 +96,10 @@
 
                     <!-- Become Admin Button -->
                     <Button x:Name="BecomeAdminButton"
+                            Style="{StaticResource AccentButtonStyle}"
                             Click="BecomeAdminButton_Click"
                             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                             Foreground="{ThemeResource PrimaryBrush}"
-                            CornerRadius="6"
-                            Padding="16,10"
                             HorizontalAlignment="Stretch"
                             IsEnabled="False">
                         <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">

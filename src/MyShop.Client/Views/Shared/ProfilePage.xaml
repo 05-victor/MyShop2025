@@ -162,7 +162,7 @@
                             Margin="48,-80,48,48">
                     <!-- Profile Card with Avatar -->
                     <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            CornerRadius="16"
+                            CornerRadius="8"
                             Padding="32,24,32,24"
                             Margin="0,0,0,24">
                         <Border.Shadow>
@@ -177,7 +177,7 @@
 
                             <!-- Avatar and Profile Info Section -->
                             <Grid Grid.Row="0"
-                                  Padding="0,0,0,24">
+                                  Padding="{StaticResource Spacing_6_Thickness}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
@@ -208,10 +208,6 @@
                                     <Button VerticalAlignment="Bottom"
                                             HorizontalAlignment="Right"
                                             Style="{StaticResource IconButtonStyle}"
-                                            Width="36"
-                                            Height="36"
-                                            CornerRadius="18"
-                                            Padding="0"
                                             Command="{x:Bind ViewModel.PickAvatarCommand}"
                                             ToolTipService.ToolTip="Change avatar">
                                         <FontIcon FontFamily="Segoe Fluent Icons"
@@ -235,7 +231,7 @@
                                                    FontWeight="Bold"
                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                         <Border Background="{ThemeResource InfoBlueLightBrush}"
-                                                CornerRadius="12"
+                                                CornerRadius="8"
                                                 Padding="10,4"
                                                 VerticalAlignment="Center">
                                             <TextBlock Text="{x:Bind ViewModel.RoleDisplay, Mode=OneWay, FallbackValue='User'}"
@@ -316,7 +312,7 @@
                                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                 BorderThickness="1"
                                 CornerRadius="8"
-                                Padding="12">
+                                Padding="{StaticResource Padding_MD}">
                             <StackPanel Spacing="8">
                                 <StackPanel Spacing="4"
                                             HorizontalAlignment="Center">
@@ -463,7 +459,7 @@
                                             <TextBlock Text="Email"/>
                                             <Border BorderBrush="{ThemeResource SystemFillColorSuccessBrush}"
                                                     BorderThickness="1"
-                                                    CornerRadius="12"
+                                                    CornerRadius="8"
                                                     Padding="8,2"
                                                     Visibility="{x:Bind ViewModel.IsEmailVerified, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
                                                 <StackPanel Orientation="Horizontal"
@@ -479,7 +475,7 @@
                                             </Border>
                                             <Border BorderBrush="{ThemeResource SystemFillColorCautionBrush}"
                                                     BorderThickness="1"
-                                                    CornerRadius="12"
+                                                    CornerRadius="8"
                                                     Padding="8,2"
                                                     Visibility="{x:Bind ViewModel.IsEmailVerified, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                                 <StackPanel Orientation="Horizontal"
@@ -529,8 +525,8 @@
                                 </StackPanel>
 
                                 <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
-                                        CornerRadius="6"
-                                        Padding="16">
+                                        CornerRadius="4"
+                                        Padding="{StaticResource Padding_LG}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -553,8 +549,8 @@
                                 </Border>
 
                                 <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
-                                        CornerRadius="6"
-                                        Padding="16">
+                                        CornerRadius="4"
+                                        Padding="{StaticResource Padding_LG}">
                                     <Grid>
                                         <StackPanel VerticalAlignment="Center">
                                             <TextBlock Text="Two-Factor Authentication"
@@ -574,8 +570,8 @@
                                 </Border>
 
                                 <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
-                                        CornerRadius="6"
-                                        Padding="16">
+                                        CornerRadius="4"
+                                        Padding="{StaticResource Padding_LG}">
                                     <Grid>
                                         <StackPanel VerticalAlignment="Center">
                                             <TextBlock Text="Active Sessions"

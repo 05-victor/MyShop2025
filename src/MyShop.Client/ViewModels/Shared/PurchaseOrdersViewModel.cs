@@ -224,8 +224,6 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
                     OrderDate = o.OrderDate,
                     TrackingNumber = $"TRK{o.Id.ToString().Substring(0, 9)}",
                     Status = o.Status,
-                    StatusColor = GetStatusColor(o.Status),
-                    StatusBgColor = GetStatusBgColor(o.Status),
                     DeliveredDate = o.Status == "Delivered" || o.Status == "DELIVERED" ? o.OrderDate.AddDays(3) : null,
                     Items = itemViewModels,
                     Subtotal = o.Subtotal > 0 ? o.Subtotal : o.FinalPrice * 0.9m,
@@ -253,24 +251,6 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
             SetLoadingState(false);
         }
     }
-
-    private string GetStatusColor(string status) => status switch
-    {
-        "Delivered" => "#10B981",
-        "Shipped" or "Processing" => "#00AEEF",
-        "Pending" => "#F59E0B",
-        "Cancelled" => "#DC2626",
-        _ => "#6B7280"
-    };
-
-    private string GetStatusBgColor(string status) => status switch
-    {
-        "Delivered" => "#D1FAE5",
-        "Shipped" or "Processing" => "#DBEAFE",
-        "Pending" => "#FEF3C7",
-        "Cancelled" => "#FEE2E2",
-        _ => "#F3F4F6"
-    };
 
     private void UpdateStats()
     {
@@ -397,12 +377,6 @@ public partial class OrderViewModel : ObservableObject
 
     [ObservableProperty]
     private string _status = string.Empty;
-
-    [ObservableProperty]
-    private string _statusColor = string.Empty;
-
-    [ObservableProperty]
-    private string _statusBgColor = string.Empty;
 
     [ObservableProperty]
     private DateTime? _deliveredDate;

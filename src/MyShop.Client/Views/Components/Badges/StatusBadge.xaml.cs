@@ -5,11 +5,27 @@ using Microsoft.UI.Xaml.Media;
 
 namespace MyShop.Client.Views.Components.Badges;
 
+public enum StatusBadgeVariant
+{
+    Default,
+    Pending,
+    Approved,
+    Rejected,
+    Processing,
+    Completed,
+    Info,
+    // Keep old variants for compatibility
+    Success,
+    Warning,
+    Error,
+    Primary
+}
+
 /// <summary>
 /// Status badge component with color variants.
 /// Usage:
 /// <badges:StatusBadge Text="Success" Variant="Success"/>
-/// <badges:StatusBadge Text="Pending" Variant="Warning" ShowIcon="True"/>
+/// <badges:StatusBadge Text="Pending" Variant="Pending" ShowIcon="True"/>
 /// </summary>
 public sealed partial class StatusBadge : UserControl
 {
@@ -36,54 +52,60 @@ public sealed partial class StatusBadge : UserControl
 
     private static void OnTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is StatusBadge badge && e.NewValue is string text)
-        {
-            // Auto-detect variant from text if variant is Default
-            if (badge.Variant == BadgeVariant.Default)
-            {
-                badge.Variant = badge.DetectVariantFromText(text);
-            }
-        }
+        // Don't auto-detect variant from text anymore
     }
 
-    private BadgeVariant DetectVariantFromText(string text)
+    private StatusBadgeVariant DetectVariantFromText(string text)
     {
-        if (string.IsNullOrEmpty(text)) return BadgeVariant.Default;
+        if (string.IsNullOrEmpty(text)) return StatusBadgeVariant.Default;
 
         var lowerText = text.ToLower();
         
-        // Success patterns
-        if (lowerText.Contains("approved") || lowerText.Contains("success") || 
-            lowerText.Contains("active") || lowerText.Contains("completed"))
-            return BadgeVariant.Success;
+        // Pending patterns
+        if (lowerText.Contains("pending") || lowerText.Contains("chờ") || 
+            lowerText.Contains("chờ xử lý") || lowerText.Contains("chờ duyệt"))
+            return StatusBadgeVariant.Pending;
         
-        // Warning patterns  
-        if (lowerText.Contains("pending") || lowerText.Contains("warning") ||
-            lowerText.Contains("in progress"))
-            return BadgeVariant.Warning;
+        // Approved patterns
+        if (lowerText.Contains("approved") || lowerText.Contains("đã duyệt") ||
+            lowerText.Contains("active") || lowerText.Contains("success"))
+            return StatusBadgeVariant.Approved;
         
-        // Error patterns
-        if (lowerText.Contains("rejected") || lowerText.Contains("error") ||
-            lowerText.Contains("failed") || lowerText.Contains("inactive"))
-            return BadgeVariant.Error;
+        // Rejected patterns
+        if (lowerText.Contains("rejected") || lowerText.Contains("từ chối") ||
+            lowerText.Contains("error") || lowerText.Contains("failed") || 
+            lowerText.Contains("inactive"))
+            return StatusBadgeVariant.Rejected;
+        
+        // Processing patterns
+        if (lowerText.Contains("processing") || lowerText.Contains("đang xử lý") ||
+            lowerText.Contains("confirmed") || lowerText.Contains("đã xác nhận") ||
+            lowerText.Contains("shipped") || lowerText.Contains("đang giao") ||
+            lowerText.Contains("in progress") || lowerText.Contains("warning"))
+            return StatusBadgeVariant.Processing;
+        
+        // Completed patterns
+        if (lowerText.Contains("completed") || lowerText.Contains("hoàn thành") ||
+            lowerText.Contains("delivered") || lowerText.Contains("đã giao"))
+            return StatusBadgeVariant.Completed;
         
         // Info patterns
-        if (lowerText.Contains("info") || lowerText.Contains("processing"))
-            return BadgeVariant.Info;
+        if (lowerText.Contains("info") || lowerText.Contains("thông tin"))
+            return StatusBadgeVariant.Info;
 
-        return BadgeVariant.Default;
+        return StatusBadgeVariant.Default;
     }
 
     public static readonly DependencyProperty VariantProperty =
         DependencyProperty.Register(
             nameof(Variant),
-            typeof(BadgeVariant),
+            typeof(StatusBadgeVariant),
             typeof(StatusBadge),
-            new PropertyMetadata(BadgeVariant.Default, OnVariantChanged));
+            new PropertyMetadata(StatusBadgeVariant.Default, OnVariantChanged));
 
-    public BadgeVariant Variant
+    public StatusBadgeVariant Variant
     {
-        get => (BadgeVariant)GetValue(VariantProperty);
+        get => (StatusBadgeVariant)GetValue(VariantProperty);
         set => SetValue(VariantProperty, value);
     }
 
@@ -125,38 +147,46 @@ public sealed partial class StatusBadge : UserControl
             return;
         }
 
-        var (background, foreground, icon) = Variant switch
+        // Map variants to resource keys and icons
+        var (bgKey, fgKey, iconGlyph) = Variant switch
         {
-            BadgeVariant.Success => ("#DCFCE7", "#15803D", "\uE73E"), // Green + Checkmark
-            BadgeVariant.Warning => ("#FEF3C7", "#B45309", "\uE7BA"), // Yellow + Warning
-            BadgeVariant.Error => ("#FEE2E2", "#B91C1C", "\uE783"),   // Red + Error
-            BadgeVariant.Info => ("#DBEAFE", "#1E40AF", "\uE946"),    // Blue + Info
-            BadgeVariant.Primary => ("#E0E7FF", "#4F46E5", "\uE735"), // Indigo + Star
-            _ => ("#F3F4F6", "#6B7280", "\uE734")                      // Gray + Circle
+            // New semantic variants (use ThemeResource)
+            StatusBadgeVariant.Pending => ("PendingBackgroundBrush", "PendingForegroundBrush", "\uE9F5"),
+            StatusBadgeVariant.Approved => ("ApprovedBackgroundBrush", "ApprovedForegroundBrush", "\uE73E"),
+            StatusBadgeVariant.Rejected => ("RejectedBackgroundBrush", "RejectedForegroundBrush", "\uE711"),
+            StatusBadgeVariant.Processing => ("ProcessingBackgroundBrush", "ProcessingForegroundBrush", "\uE916"),
+            StatusBadgeVariant.Completed => ("CompletedBackgroundBrush", "CompletedForegroundBrush", "\uE73E"),
+            StatusBadgeVariant.Info => ("InfoBackgroundBrush", "InfoForegroundBrush", "\uE946"),
+            
+            // Old variants for backward compatibility (map to new variants)
+            StatusBadgeVariant.Success => ("ApprovedBackgroundBrush", "ApprovedForegroundBrush", "\uE73E"),
+            StatusBadgeVariant.Warning => ("PendingBackgroundBrush", "PendingForegroundBrush", "\uE7BA"),
+            StatusBadgeVariant.Error => ("RejectedBackgroundBrush", "RejectedForegroundBrush", "\uE783"),
+            StatusBadgeVariant.Primary => ("ProcessingBackgroundBrush", "ProcessingForegroundBrush", "\uE735"),
+            
+            // Default
+            _ => ("CardBackgroundFillColorDefaultBrush", "TextFillColorPrimaryBrush", "\uE734")
         };
 
-        BadgeContainer.Background = new SolidColorBrush(ColorHelper(background));
-        BadgeText.Foreground = new SolidColorBrush(ColorHelper(foreground));
-        BadgeIcon.Foreground = new SolidColorBrush(ColorHelper(foreground));
-        BadgeIcon.Glyph = icon;
-    }
+        // Set DynamicResource to theme-aware brushes in UserControl.Resources
+        // This way, when theme changes, brushes automatically update
+        var resources = Resources;
+        
+        // Try to get colors from Application.Current.Resources and set them as DynamicResource
+        if (Application.Current.Resources.TryGetValue(bgKey, out var bgBrush))
+        {
+            resources["DynamicBadgeBgBrush"] = bgBrush;
+        }
 
-    private Windows.UI.Color ColorHelper(string hex)
-    {
-        hex = hex.Replace("#", "");
-        byte r = Convert.ToByte(hex.Substring(0, 2), 16);
-        byte g = Convert.ToByte(hex.Substring(2, 2), 16);
-        byte b = Convert.ToByte(hex.Substring(4, 2), 16);
-        return Windows.UI.Color.FromArgb(255, r, g, b);
-    }
-}
+        if (Application.Current.Resources.TryGetValue(fgKey, out var fgBrush))
+        {
+            resources["DynamicBadgeFgBrush"] = fgBrush;
+        }
 
-public enum BadgeVariant
-{
-    Default,
-    Success,
-    Warning,
-    Error,
-    Info,
-    Primary
+        // Set icon
+        if (!string.IsNullOrEmpty(iconGlyph))
+        {
+            BadgeIcon.Glyph = iconGlyph;
+        }
+    }
 }

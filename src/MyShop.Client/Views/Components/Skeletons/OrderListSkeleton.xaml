@@ -12,7 +12,7 @@
         <!-- Order Card 1 -->
         <Border
             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-            CornerRadius="12"
+            CornerRadius="8"
             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="20">
@@ -58,7 +58,7 @@
         <!-- Order Card 2 -->
         <Border
             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-            CornerRadius="12"
+            CornerRadius="8"
             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="20">
@@ -97,7 +97,7 @@
         <!-- Order Card 3 -->
         <Border
             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-            CornerRadius="12"
+            CornerRadius="8"
             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="20">
@@ -136,7 +136,7 @@
         <!-- Order Card 4 -->
         <Border
             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-            CornerRadius="12"
+            CornerRadius="8"
             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="20">
@@ -175,7 +175,7 @@
         <!-- Order Card 5 -->
         <Border
             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-            CornerRadius="12"
+            CornerRadius="8"
             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="20">

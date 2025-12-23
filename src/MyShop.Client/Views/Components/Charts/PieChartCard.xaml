@@ -15,10 +15,7 @@
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
     </UserControl.Resources>
 
-    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-            CornerRadius="16"
-            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-            BorderThickness="1"
+    <Border Style="{StaticResource DefaultCardStyle}"
             Padding="24">
         <Border.Shadow>
             <ThemeShadow/>

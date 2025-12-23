@@ -105,7 +105,7 @@
                 <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <Grid x:Name="MainGrid"
-                              Padding="24"
+                              Padding="{StaticResource Padding_XL}"
                               RowSpacing="16">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -180,7 +180,7 @@
                                                            Margin="0,0,0,4"/>
                                                 <ComboBox x:Name="CategoryComboBox"
                                                           Height="40"
-                                                          CornerRadius="10"
+                                                          CornerRadius="8"
                                                           BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
                                                           HorizontalAlignment="Stretch"
                                                           ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
@@ -198,7 +198,7 @@
                                                            Margin="0,0,0,4"/>
                                                 <ComboBox x:Name="BrandComboBox"
                                                           Height="40"
-                                                          CornerRadius="10"
+                                                          CornerRadius="8"
                                                           BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
                                                           HorizontalAlignment="Stretch"
                                                           ItemsSource="{x:Bind ViewModel.Brands, Mode=OneWay}"
@@ -215,7 +215,7 @@
                                                            Margin="0,0,0,4"/>
                                                 <ComboBox x:Name="StockStatusComboBox"
                                                           Height="40"
-                                                          CornerRadius="10"
+                                                          CornerRadius="8"
                                                           BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
                                                           SelectedIndex="0"
                                                           HorizontalAlignment="Stretch"
@@ -239,7 +239,7 @@
                                                            Margin="0,0,0,4"/>
                                                 <ComboBox x:Name="SortByComboBox"
                                                           Height="40"
-                                                          CornerRadius="10"
+                                                          CornerRadius="8"
                                                           BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
                                                           SelectedIndex="0"
                                                           HorizontalAlignment="Stretch"
@@ -264,7 +264,7 @@
 
                                 <!-- PRODUCTS TABLE -->
                                 <Border Style="{StaticResource CardWithShadowStyle}"
-                                        Padding="0">
+                                        Padding="{StaticResource Padding_None}">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
@@ -474,37 +474,55 @@
                 </RefreshContainer>
             </Grid>
 
-            <!-- Bottom Pagination - Fixed at bottom -->
+            <!-- Bottom Pagination - Fixed at bottom (TASK-08 Standardized - Agent) -->
             <Border Grid.Row="1"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="0,1,0,0"
-                    Padding="24,12">
+                    BorderThickness="1"
+                    Padding="16,12"
+                    Margin="0,16,0,0"
+                    CornerRadius="8">
                 <Grid>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0"
-                               VerticalAlignment="Center"
-                               FontSize="14"
-                               Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                    <Run Text="Showing"/>
-                    <Run Text="{x:Bind ViewModel.Products.Count, Mode=OneWay}"
-                         FontWeight="SemiBold"/>
-                    <Run Text="of"/>
-                    <Run Text="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
-                         FontWeight="SemiBold"/>
-                    <Run Text="products"/>
-                    </TextBlock>
+                    <!--  Previous Button  -->
+                    <Button
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Grid.Column="0"
+                        Content="Previous"
+                        IsEnabled="{x:Bind ViewModel.HasPreviousPage, Mode=OneWay}"
+                        Command="{x:Bind ViewModel.PreviousPageCommand}"/>
 
-                    <pagination:PaginationControl Grid.Column="1"
-                                                  CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
-                                                  TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
-                                                  PageSize="{x:Bind ViewModel.PageSize, Mode=OneWay}"
-                                                  PageChanged="OnPageChanged"
-                                                  VerticalAlignment="Center"/>
+                    <!--  Page Info  -->
+                    <StackPanel
+                        Grid.Column="1"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Spacing="4">
+                        <TextBlock
+                            FontSize="14"
+                            FontWeight="SemiBold"
+                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                            HorizontalAlignment="Center"
+                            Text="{x:Bind ViewModel.PageInfoText, Mode=OneWay}"/>
+                        <TextBlock
+                            FontSize="12"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            HorizontalAlignment="Center"
+                            Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}"/>
+                    </StackPanel>
+
+                    <!--  Next Button  -->
+                    <Button
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Grid.Column="2"
+                        Content="Next"
+                        IsEnabled="{x:Bind ViewModel.HasNextPage, Mode=OneWay}"
+                        Command="{x:Bind ViewModel.NextPageCommand}"/>
                 </Grid>
             </Border>
 
@@ -515,7 +533,7 @@
                 <StackPanel HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             Spacing="24"
-                            Padding="48">
+                            Padding="{StaticResource Padding_3XL}">
                     <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
                                   Width="64"
                                   Height="64"/>
@@ -727,9 +745,9 @@
 
                             <Button
                                 x:Name="NewImagePickButton"
+                                Style="{StaticResource SecondaryButtonStyle}"
                                 Grid.Column="1"
                                 Content="Choose Image"
-                                CornerRadius="8"
                                 Click="NewImagePickButton_Click"
                                 MinWidth="100"/>
                         </Grid>
@@ -954,9 +972,9 @@
 
                             <Button
                                 x:Name="EditImagePickButton"
+                                Style="{StaticResource SecondaryButtonStyle}"
                                 Grid.Column="1"
                                 Content="Choose Image"
-                                CornerRadius="8"
                                 Click="EditImagePickButton_Click"
                                 MinWidth="100"/>
                         </Grid>
@@ -983,3 +1001,4 @@
         </Grid>
     </Grid>
 </Page>
+

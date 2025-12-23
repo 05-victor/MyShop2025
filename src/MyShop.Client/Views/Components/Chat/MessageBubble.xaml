@@ -18,7 +18,7 @@
         <Border x:Name="BubbleBorder"
                MaxWidth="320"
                Padding="12,8"
-               CornerRadius="12"
+               CornerRadius="8"
                HorizontalAlignment="Left">
             <StackPanel Spacing="4">
                 <!-- Message Text -->

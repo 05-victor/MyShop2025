@@ -58,6 +58,48 @@
 
 
     <!-- ============================================= -->
+    <!-- SEMANTIC STATUS BRUSHES - DARK THEME         -->
+    <!-- For StatusBadge component variants           -->
+    <!-- ============================================= -->
+
+    <!-- Pending (Yellow/Orange tones) -->
+    <SolidColorBrush x:Key="PendingForegroundBrush" Color="#FCD34D"/>
+    <!-- Lighter yellow-300 -->
+    <SolidColorBrush x:Key="PendingBackgroundBrush" Color="#78350F"/>
+    <!-- Dark yellow-900 -->
+
+    <!-- Approved/Success (Green tones) -->
+    <SolidColorBrush x:Key="ApprovedForegroundBrush" Color="#34D399"/>
+    <!-- Lighter green-400 -->
+    <SolidColorBrush x:Key="ApprovedBackgroundBrush" Color="#064E3B"/>
+    <!-- Dark green-900 -->
+
+    <!-- Rejected/Error (Red tones) -->
+    <SolidColorBrush x:Key="RejectedForegroundBrush" Color="#F87171"/>
+    <!-- Lighter red-400 -->
+    <SolidColorBrush x:Key="RejectedBackgroundBrush" Color="#7F1D1D"/>
+    <!-- Dark red-900 -->
+
+    <!-- Processing (Blue tones) -->
+    <SolidColorBrush x:Key="ProcessingForegroundBrush" Color="#60A5FA"/>
+    <!-- Lighter blue-400 -->
+    <SolidColorBrush x:Key="ProcessingBackgroundBrush" Color="#1E3A8A"/>
+    <!-- Dark blue-900 -->
+
+    <!-- Completed (Purple tones) -->
+    <SolidColorBrush x:Key="CompletedForegroundBrush" Color="#A78BFA"/>
+    <!-- Lighter purple-400 -->
+    <SolidColorBrush x:Key="CompletedBackgroundBrush" Color="#4C1D95"/>
+    <!-- Dark purple-900 -->
+
+    <!-- Info (Cyan tones) -->
+    <SolidColorBrush x:Key="InfoForegroundBrush" Color="#22D3EE"/>
+    <!-- Lighter cyan-400 -->
+    <SolidColorBrush x:Key="InfoBackgroundBrush" Color="#164E63"/>
+    <!-- Dark cyan-900 -->
+
+
+    <!-- ============================================= -->
     <!-- SEMANTIC COLOR ALIASES (DARK THEME)          -->
     <!-- Generic names pointing to specific colors    -->
     <!-- ============================================= -->
@@ -80,7 +122,6 @@
     
     <!-- Info Semantic (Dark) -->
     <SolidColorBrush x:Key="InfoBrush" Color="#3B82F6"/>
-    <SolidColorBrush x:Key="InfoBackgroundBrush" Color="#172554"/>
     <SolidColorBrush x:Key="InfoTextBrush" Color="#3B82F6"/>
     
     <!-- Neutral Semantic (Dark) -->

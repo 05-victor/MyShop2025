@@ -111,7 +111,7 @@
             </Grid.Transitions>
             <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
                 <ScrollViewer>
-                    <StackPanel x:Name="MainContent" Padding="24"
+                    <StackPanel x:Name="MainContent" Padding="{StaticResource Padding_XL}"
                                 Spacing="24">
 
                         <layout:PageHeader
@@ -264,7 +264,7 @@
                                             <DataTemplate>
                                                 <Grid
                                                     Margin="0,0,0,8"
-                                                    Padding="12"
+                                                    Padding="{StaticResource Padding_MD}"
                                                     Background="{ThemeResource LayerFillColorDefaultBrush}"
                                                     CornerRadius="6">
                                                     <Grid.ColumnDefinitions>
@@ -277,7 +277,7 @@
                                                         Height="40"
                                                         Margin="0,0,12,0"
                                                         Background="{ThemeResource PrimaryBrush}"
-                                                        CornerRadius="20">
+                                                        CornerRadius="8">
                                                         <TextBlock
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Center"
@@ -437,3 +437,4 @@
         </Grid>
     </Grid>
 </Page>
+

@@ -163,4 +163,54 @@
         <Setter Property="TextDecorations" Value="Underline"/>
     </Style>
 
+
+    <!-- ============================================= -->
+    <!-- WINUI-GALLERY STANDARD ALIASES               -->
+    <!-- For gradual migration to Microsoft standard  -->
+    <!-- Added: December 23, 2025                     -->
+    <!-- ============================================= -->
+
+    <!-- Display Text (48px, Bold) - Hero text, landing pages -->
+    <Style x:Key="DisplayTextBlockStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="48"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{ThemeResource TextPrimaryBrush}"/>
+        <Setter Property="LineHeight" Value="56"/>
+    </Style>
+
+    <!-- Title Large (28px, SemiBold) - Page titles, major sections -->
+    <Style x:Key="TitleLargeTextBlockStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="28"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{ThemeResource TextPrimaryBrush}"/>
+        <Setter Property="LineHeight" Value="34"/>
+    </Style>
+
+    <!-- Subtitle (18px, SemiBold) - Subsection headers, card titles -->
+    <Style x:Key="SubtitleTextBlockStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{ThemeResource TextPrimaryBrush}"/>
+        <Setter Property="LineHeight" Value="26"/>
+    </Style>
+
+    <!-- Body Text (14px, Normal) - Standard body text, descriptions -->
+    <!-- Alias to existing BodyTextStyle for compatibility -->
+    <Style x:Key="BodyTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextStyle}"/>
+
+    <!-- Body Strong (14px, SemiBold) - Emphasized body text, labels -->
+    <Style x:Key="BodyStrongTextBlockStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{ThemeResource TextPrimaryBrush}"/>
+        <Setter Property="LineHeight" Value="21"/>
+    </Style>
+
+    <!-- Caption (12px, Normal) - Secondary info, timestamps, metadata -->
+    <Style x:Key="CaptionTextBlockStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Foreground" Value="{ThemeResource TextMutedBrush}"/>
+    </Style>
+
 </ResourceDictionary>

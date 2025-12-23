@@ -42,17 +42,25 @@
             <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
         
-        <Button Grid.Row="0" Background="Transparent" Content="" 
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+        <Button Grid.Row="0" 
+                Style="{StaticResource IconButtonStyle}"
+                Background="Transparent"
+                Content="" 
+                HorizontalAlignment="Stretch" 
+                VerticalAlignment="Stretch"
                 Click="CloseOverlay_Click"/>
-        <Button Grid.Row="2" Background="Transparent" Content="" 
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+        <Button Grid.Row="2" 
+                Style="{StaticResource IconButtonStyle}"
+                Background="Transparent"
+                Content="" 
+                HorizontalAlignment="Stretch" 
+                VerticalAlignment="Stretch"
                 Click="CloseOverlay_Click"/>
         
         <!-- Menu Card -->
         <Border Grid.Row="1"
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                CornerRadius="12"
+                CornerRadius="8"
                 MaxWidth="600"
                 MinWidth="400"
                 Padding="8"

@@ -45,11 +45,7 @@
                        Visibility="{Binding ShowActions, ElementName=RootControl, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                 
                 <!-- Reset Button -->
-                <Button Padding="16,10"
-                       Background="Transparent"
-                       BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                       BorderThickness="1"
-                       CornerRadius="8"
+                <Button Style="{StaticResource SecondaryButtonStyle}"
                        Command="{Binding ResetCommand, ElementName=RootControl, Mode=OneWay}"
                        AutomationProperties.Name="Reset filters"
                        AutomationProperties.HelpText="Clear all filter selections"
@@ -63,11 +59,7 @@
                 </Button>
 
                 <!-- Apply Button -->
-                <Button Padding="16,10"
-                       Background="{ThemeResource PrimaryBrush}"
-                       Foreground="{ThemeResource WhiteBrush}"
-                       BorderThickness="0"
-                       CornerRadius="8"
+                <Button Style="{StaticResource PrimaryButtonStyle}"
                        Command="{Binding ApplyCommand, ElementName=RootControl, Mode=OneWay}"
                        AutomationProperties.Name="Apply filters"
                        AutomationProperties.HelpText="Apply selected filters to results"

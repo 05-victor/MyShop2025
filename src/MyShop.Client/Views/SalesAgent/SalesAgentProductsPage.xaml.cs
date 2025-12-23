@@ -206,8 +206,7 @@ namespace MyShop.Client.Views.SalesAgent
 
         private async void OnPageChanged(object sender, PageChangedEventArgs e)
         {
-            ViewModel.CurrentPage = e.CurrentPage;
-            await ViewModel.LoadPageAsync();
+            await ViewModel.GoToPageAsync(e.CurrentPage);
         }
 
         #endregion

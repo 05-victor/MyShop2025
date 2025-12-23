@@ -84,7 +84,7 @@
         </VisualStateManager.VisualStateGroups>
 
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <Grid x:Name="MainContent" Padding="24"
+            <Grid x:Name="MainContent" Padding="{StaticResource Padding_XL}"
                   RowSpacing="16">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -229,14 +229,12 @@
                                                     Orientation="Horizontal"
                                                     Spacing="12">
                                                     <Button
+                                                        Style="{StaticResource SecondaryButtonStyle}"
                                                         Width="32"
                                                         Height="32"
-                                                        Padding="0"
-                                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                        Padding="{StaticResource Padding_None}"
                                                         Command="{Binding ElementName=CartItemsListView, Path=DataContext.DecreaseQuantityCommand}"
-                                                        CommandParameter="{x:Bind}"
-                                                        CornerRadius="6">
+                                                        CommandParameter="{x:Bind}">
                                                         <FontIcon FontSize="12"
                                                                   Glyph="&#xE738;"/>
                                                     </Button>
@@ -251,23 +249,19 @@
                                                             Text="{x:Bind Quantity, Mode=OneWay}"
                                                             TextAlignment="Center"/>
                                                     </Border>
-                                                    <Button Width="32"
-                                                            Height="32"
-                                                            Padding="0"
-                                                            Background="{ThemeResource PrimaryBrush}"
-                                                            BorderThickness="0"
-                                                            Command="{Binding ElementName=CartItemsListView, Path=DataContext.IncreaseQuantityCommand}"
-                                                            CommandParameter="{x:Bind}"
-                                                            CornerRadius="8"
-                                                            Foreground="{ThemeResource WhiteBrush}">
+                                                    <Button
+                                                        Style="{StaticResource PrimaryButtonStyle}"
+                                                        Width="32"
+                                                        Height="32"
+                                                        Padding="{StaticResource Padding_None}"
+                                                        Command="{Binding ElementName=CartItemsListView, Path=DataContext.IncreaseQuantityCommand}"
+                                                        CommandParameter="{x:Bind}">
                                                         <FontIcon FontSize="12"
                                                                   Glyph="&#xE710;"/>
                                                     </Button>
                                                     <Button
+                                                        Style="{StaticResource IconButtonStyle}"
                                                         Margin="12,0,0,0"
-                                                        Padding="8"
-                                                        Background="Transparent"
-                                                        BorderBrush="Transparent"
                                                         Command="{Binding ElementName=CartItemsListView, Path=DataContext.RemoveItemCommand}"
                                                         CommandParameter="{x:Bind}">
                                                         <FontIcon

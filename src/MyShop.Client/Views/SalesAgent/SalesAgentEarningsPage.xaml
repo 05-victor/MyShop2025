@@ -402,7 +402,7 @@
 
                                     <!-- Table Header -->
                                     <Grid Grid.Row="0"
-                                          Padding="0,{StaticResource Spacing_3}"
+                                          Padding="{StaticResource Spacing_3_Thickness}"
                                           BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                           BorderThickness="0,0,0,1">
                                         <Grid.ColumnDefinitions>
@@ -464,7 +464,7 @@
                                         <ItemsRepeater ItemsSource="{x:Bind ViewModel.EarningTransactions, Mode=OneWay}">
                                             <ItemsRepeater.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:EarningTransactionViewModel">
-                                                    <Grid Padding="0,{StaticResource Spacing_3}"
+                                                    <Grid Padding="{StaticResource Spacing_3_Thickness}"
                                                           BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                                           BorderThickness="0,0,0,1">
                                                         <Grid.ColumnDefinitions>
@@ -523,14 +523,15 @@
                                                                    Foreground="{ThemeResource SuccessGreenBrush}"/>
 
                                                         <Border Grid.Column="7"
-                                                                Background="{x:Bind StatusBgColor, Mode=OneWay, Converter={StaticResource StringToBrushConverter}}"
+                                                                Background="{x:Bind PaymentStatus, Mode=OneWay, Converter={StaticResource StringToBrushConverter}}"
                                                                 CornerRadius="999"
                                                                 Padding="8,4"
                                                                 HorizontalAlignment="Left">
                                                             <TextBlock Text="{x:Bind PaymentStatus, Mode=OneWay}"
                                                                        FontSize="12"
                                                                        FontWeight="SemiBold"
-                                                                       Foreground="{x:Bind StatusColor, Mode=OneWay, Converter={StaticResource StringToBrushConverter}}"/>
+                                                                       Foreground="{x:Bind PaymentStatus, Mode=OneWay, Converter={StaticResource StringToBrushConverter}}"/>
+                                                        
                                                         </Border>
                                                     </Grid>
                                                 </DataTemplate>
@@ -538,19 +539,55 @@
                                         </ItemsRepeater>
                                     </ScrollViewer>
 
-                                    <!-- Pagination Control -->
-                                    <Border Grid.Row="2"
-                                            Margin="0,16,0,0"
-                                            Padding="16,12"
-                                            Background="Transparent"
-                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                            BorderThickness="0,1,0,0">
-                                        <pagination:PaginationControl
-                                            CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
-                                            TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
-                                            PageSize="{x:Bind ViewModel.PageSize, Mode=TwoWay}"
-                                            PageChanged="OnPageChanged"/>
-                                    </Border>
+                                    <!-- Pagination Control (TASK-08 Standardized - Agent) -->
+                                    <Grid Grid.Row="2"
+                                          Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                          BorderThickness="1"
+                                          Padding="16,12"
+                                          Margin="0,16,0,0"
+                                          CornerRadius="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!--  Previous Button  -->
+                                        <Button
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            Grid.Column="0"
+                                            Content="Previous"
+                                            IsEnabled="{x:Bind ViewModel.HasPreviousPage, Mode=OneWay}"
+                                            Command="{x:Bind ViewModel.PreviousPageCommand}"/>
+
+                                        <!--  Page Info  -->
+                                        <StackPanel
+                                            Grid.Column="1"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Spacing="4">
+                                            <TextBlock
+                                                FontSize="14"
+                                                FontWeight="SemiBold"
+                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                HorizontalAlignment="Center"
+                                                Text="{x:Bind ViewModel.PageInfoText, Mode=OneWay}"/>
+                                            <TextBlock
+                                                FontSize="12"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                HorizontalAlignment="Center"
+                                                Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}"/>
+                                        </StackPanel>
+
+                                        <!--  Next Button  -->
+                                        <Button
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            Grid.Column="2"
+                                            Content="Next"
+                                            IsEnabled="{x:Bind ViewModel.HasNextPage, Mode=OneWay}"
+                                            Command="{x:Bind ViewModel.NextPageCommand}"/>
+                                    </Grid>
                                 </Grid>
                             </cards:DataTableCard.TableContent>
                         </cards:DataTableCard>

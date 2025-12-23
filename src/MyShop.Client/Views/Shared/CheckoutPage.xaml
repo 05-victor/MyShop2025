@@ -64,7 +64,7 @@
 
         <DataTemplate x:Key="CheckoutItemTemplate"
                 x:DataType="vm:CheckoutItem">
-            <Grid Padding="0,8">
+            <Grid Padding="{StaticResource Spacing_2_Thickness}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
@@ -168,7 +168,7 @@
 
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                 HorizontalScrollBarVisibility="Disabled">
-            <Grid x:Name="MainContent" Padding="24"
+            <Grid x:Name="MainContent" Padding="{StaticResource Padding_XL}"
                     MaxWidth="1200"
                     HorizontalAlignment="Center">
                 <Grid.RowDefinitions>
@@ -417,8 +417,8 @@
 
                                 <!-- QR Code Image Only -->
                                 <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                        CornerRadius="12"
-                                        Padding="12"
+                                        CornerRadius="8"
+                                        Padding="{StaticResource Padding_MD}"
                                         HorizontalAlignment="Center"
                                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         BorderThickness="1">
@@ -434,8 +434,8 @@
                                 <Border x:Name="QrPlaceholder"
                                         Visibility="Collapsed"
                                         Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                                        CornerRadius="12"
-                                        Padding="24"
+                                        CornerRadius="8"
+                                        Padding="{StaticResource Padding_XL}"
                                         HorizontalAlignment="Center">
                                     <StackPanel HorizontalAlignment="Center"
                                             Spacing="8">

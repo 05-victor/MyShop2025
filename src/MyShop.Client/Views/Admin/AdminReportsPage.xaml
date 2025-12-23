@@ -324,7 +324,7 @@
                                             Height="40"
                                             Margin="0,0,12,0"
                                             Background="CornflowerBlue"
-                                            CornerRadius="20">
+                                            CornerRadius="8">
                                                 <TextBlock
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
@@ -695,3 +695,4 @@
         </ContentDialog>
     </Grid>
 </Page>
+

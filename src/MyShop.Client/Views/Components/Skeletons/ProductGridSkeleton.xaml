@@ -20,7 +20,7 @@
             Height="380"
             Margin="8"
             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-            CornerRadius="12"
+            CornerRadius="8"
             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="16">
@@ -51,7 +51,7 @@
             Height="380"
             Margin="8"
             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-            CornerRadius="12"
+            CornerRadius="8"
             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="16">
@@ -71,7 +71,7 @@
             Height="380"
             Margin="8"
             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-            CornerRadius="12"
+            CornerRadius="8"
             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="16">
@@ -91,7 +91,7 @@
             Height="380"
             Margin="8"
             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-            CornerRadius="12"
+            CornerRadius="8"
             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="16">
@@ -111,7 +111,7 @@
             Height="380"
             Margin="8"
             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-            CornerRadius="12"
+            CornerRadius="8"
             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="16">
@@ -131,7 +131,7 @@
             Height="380"
             Margin="8"
             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-            CornerRadius="12"
+            CornerRadius="8"
             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="16">
@@ -151,7 +151,7 @@
             Height="380"
             Margin="8"
             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-            CornerRadius="12"
+            CornerRadius="8"
             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="16">
@@ -171,7 +171,7 @@
             Height="380"
             Margin="8"
             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-            CornerRadius="12"
+            CornerRadius="8"
             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             Padding="16">
