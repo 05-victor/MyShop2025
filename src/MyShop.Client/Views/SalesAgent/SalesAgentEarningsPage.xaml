@@ -7,6 +7,7 @@
     xmlns:components="using:MyShop.Client.Views.Components"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:badges="using:MyShop.Client.Views.Components.Badges"
     xmlns:cards="using:MyShop.Client.Views.Components.Cards"
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
@@ -24,6 +25,7 @@
     </Page.Transitions>
 
     <Page.Resources>
+        <converters:StatusToVariantConverter x:Key="StatusToVariantConverter"/>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
         <converters:CurrencyConverter x:Key="CurrencyConverter"/>
@@ -125,7 +127,7 @@
             <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel x:Name="ContentStackPanel"
-                                Padding="32"
+                                Padding="{StaticResource Padding_2XL}"
                                 Spacing="24">
 
                         <!-- PAGE HEADER -->
@@ -400,7 +402,7 @@
 
                                     <!-- Table Header -->
                                     <Grid Grid.Row="0"
-                                          Padding="0,12"
+                                          Padding="0,{StaticResource Spacing_3}"
                                           BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                           BorderThickness="0,0,0,1">
                                         <Grid.ColumnDefinitions>
@@ -468,7 +470,7 @@
                                         <ItemsRepeater ItemsSource="{x:Bind ViewModel.EarningTransactions, Mode=OneWay}">
                                             <ItemsRepeater.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:EarningTransactionViewModel">
-                                                    <Grid Padding="0,12"
+                                                    <Grid Padding="0,{StaticResource Spacing_3}"
                                                           BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                                           BorderThickness="0,0,0,1">
                                                         <Grid.ColumnDefinitions>
@@ -506,7 +508,7 @@
                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                                                         <Border Grid.Column="4"
-                                                                Background="#F5F5F5"
+                                                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                                                 CornerRadius="4"
                                                                 Padding="8,4"
                                                                 HorizontalAlignment="Left">
@@ -533,16 +535,10 @@
                                                                    FontWeight="Bold"
                                                                    Foreground="{ThemeResource SuccessGreenBrush}"/>
 
-                                                        <Border Grid.Column="8"
-                                                                Background="{x:Bind StatusBgColor, Mode=OneWay, Converter={StaticResource StringToBrushConverter}}"
-                                                                CornerRadius="999"
-                                                                Padding="8,4"
-                                                                HorizontalAlignment="Left">
-                                                            <TextBlock Text="{x:Bind PaymentStatus, Mode=OneWay}"
-                                                                       FontSize="12"
-                                                                       FontWeight="SemiBold"
-                                                                       Foreground="{x:Bind StatusColor, Mode=OneWay, Converter={StaticResource StringToBrushConverter}}"/>
-                                                        </Border>
+                                                        <badges:StatusBadge Grid.Column="8"
+                                                            Text="{x:Bind PaymentStatus, Mode=OneWay}"
+                                                            Variant="{x:Bind PaymentStatus, Mode=OneWay, Converter={StaticResource StatusToVariantConverter}}"
+                                                            HorizontalAlignment="Left"/>
                                                     </Grid>
                                                 </DataTemplate>
                                             </ItemsRepeater.ItemTemplate>
@@ -578,7 +574,7 @@
             <StackPanel HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Spacing="24"
-                        Padding="48">
+                        Padding="{StaticResource Padding_3XL}">
                 <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
                               Width="64"
                               Height="64"/>
@@ -595,3 +591,4 @@
         </Grid>
     </Grid>
 </Page>
+
