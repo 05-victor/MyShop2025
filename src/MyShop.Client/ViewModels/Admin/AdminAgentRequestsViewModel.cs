@@ -112,7 +112,7 @@ public partial class AdminAgentRequestsViewModel : PagedViewModelBase<AgentReque
                         Experience = "5+ years in retail and e-commerce",
                         Reason = string.IsNullOrEmpty(r.Notes) ? "I would like to become a sales agent to expand my professional opportunities." : r.Notes,
                         Status = r.Status,
-                        IsPending = r.Status == "Pending" ? Visibility.Visible : Visibility.Collapsed,
+                        IsPending = r.Status.Equals("PENDING", StringComparison.OrdinalIgnoreCase) ? Visibility.Visible : Visibility.Collapsed,
                         RejectionReason = string.Empty,
                         HasRejectionReason = Visibility.Collapsed
                     });
