@@ -47,10 +47,10 @@ public partial class AdminDashboardViewModel : BaseViewModel
     public List<string> AvailablePeriods { get; } = new List<string> { "day", "week", "month", "year" };
     public Dictionary<string, string> PeriodLabels { get; } = new Dictionary<string, string>
         {
-            { "day", "Today" },
-            { "week", "This Week" },
-            { "month", "This Month" },
-            { "year", "This Year" }
+            { "day", "Day" },
+            { "week", "Week" },
+            { "month", "Month" },
+            { "year", "Year" }
         };
 
     // New Platform-Owner KPIs
@@ -383,10 +383,11 @@ public partial class AdminDashboardViewModel : BaseViewModel
                             TopProducts.Add(new TopProductItem
                             {
                                 Rank = rank++,
+                                ImageUrl = product.ImageUrl ?? string.Empty,
                                 Name = product.Name ?? "Unknown",
                                 Category = product.CategoryName ?? "Unknown",
-                                Price = product.Revenue / Math.Max(product.SoldCount, 1),
-                                Stock = 0
+                                SoldCount = product.SoldCount,
+                                Revenue = product.Revenue
                             });
                         }
                     }
@@ -466,6 +467,9 @@ public partial class AdminDashboardViewModel : BaseViewModel
             // Load Flagged Products - Use Mock or API depending on data mode
             await LoadFlaggedProductsAsync();
 
+            // Load Admin-specific Dashboard Data (Admin Summary & Revenue Chart)
+            await LoadAdminDataAsync();
+
             // Revenue & Commission Trend will be loaded from LoadChartDataAsync() 
             // which calls GetRevenueChartDataAsync() using the revenue-chart endpoint
 
@@ -538,6 +542,125 @@ public partial class AdminDashboardViewModel : BaseViewModel
         }
     }
 
+    private async Task LoadAdminDataAsync()
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadAdminDataAsync] ⏳ START - Period: {SelectedPeriod}");
+
+            // Load Admin Summary
+            var summaryResult = await _dashboardFacade.GetAdminSummaryAsync(SelectedPeriod);
+            if (summaryResult.IsSuccess && summaryResult.Data != null)
+            {
+                var summary = summaryResult.Data;
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadAdminDataAsync] ✅ Summary - ActiveAgents: {summary.ActiveSalesAgents}, GMV: {summary.TotalGmv}, Commission: {summary.AdminCommission}");
+
+                RunOnUIThread(() =>
+                {
+                    ActiveSalesAgents = summary.ActiveSalesAgents;
+                    TotalGmvThisMonth = summary.TotalGmv;
+                    AdminCommission = summary.AdminCommission;
+                    TotalProducts = summary.TotalProducts;
+                    TodayOrders = summary.TotalOrders;
+                    TodayRevenue = summary.TotalRevenue;
+
+                    // Load Top Selling Products from summary
+                    TopProducts = new ObservableCollection<TopProductItem>();
+                    if (summary.TopSellingProducts != null)
+                    {
+                        int rank = 1;
+                        foreach (var product in summary.TopSellingProducts)
+                        {
+                            TopProducts.Add(new TopProductItem
+                            {
+                                Rank = rank++,
+                                ImageUrl = product.ImageUrl ?? string.Empty,
+                                Name = product.Name ?? "Unknown",
+                                Category = product.CategoryName ?? "Unknown",
+                                SoldCount = product.SoldCount,
+                                Revenue = product.Revenue
+                            });
+                        }
+                        System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadAdminDataAsync] Top products loaded: {TopProducts.Count}");
+                    }
+
+                    // Load Top Sales Agents from summary
+                    TopSalesAgents = new ObservableCollection<TopSalesAgentItem>();
+                    if (summary.TopSalesAgents != null)
+                    {
+                        int rank = 1;
+                        foreach (var agent in summary.TopSalesAgents)
+                        {
+                            TopSalesAgents.Add(new TopSalesAgentItem
+                            {
+                                Rank = rank++,
+                                Name = agent.Name ?? "Unknown",
+                                Gmv = agent.TotalGmv,
+                                OrderCount = agent.OrderCount,
+                                Commission = agent.Commission
+                            });
+                        }
+                        System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadAdminDataAsync] Top agents loaded: {TopSalesAgents.Count}");
+                    }
+
+                    System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadAdminDataAsync] ✅ UI updated with summary data");
+                });
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadAdminDataAsync] ❌ Summary failed - {summaryResult.ErrorMessage}");
+            }
+
+            // Load Admin Revenue Chart
+            var chartResult = await _dashboardFacade.GetAdminRevenueChartAsync(GetChartPeriod(SelectedPeriod));
+            if (chartResult.IsSuccess && chartResult.Data != null)
+            {
+                var chartData = chartResult.Data;
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadAdminDataAsync] ✅ Chart - Labels: {chartData.Labels?.Count}, Revenue: {chartData.RevenueData?.Count}, Commission: {chartData.CommissionData?.Count}");
+
+                RunOnUIThread(() =>
+                {
+                    RevenueChartData = new ObservableCollection<RevenueDataPoint>();
+                    RevenueTrendData = new ObservableCollection<TrendDataPoint>();
+                    CommissionTrendData = new ObservableCollection<TrendDataPoint>();
+
+                    if (chartData.Labels != null && chartData.RevenueData != null && chartData.CommissionData != null)
+                    {
+                        for (int i = 0; i < chartData.Labels.Count; i++)
+                        {
+                            var revenue = chartData.RevenueData[i];
+                            var commission = chartData.CommissionData[i];
+
+                            RevenueChartData.Add(new RevenueDataPoint
+                            {
+                                Day = chartData.Labels[i],
+                                Revenue = revenue,
+                                Orders = 0
+                            });
+
+                            RevenueTrendData.Add(new TrendDataPoint { Value = revenue });
+                            CommissionTrendData.Add(new TrendDataPoint { Value = commission });
+                        }
+
+                        UpdateChartSeries();
+                        System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadAdminDataAsync] ✅ Chart UI updated with {RevenueChartData.Count} points");
+                    }
+                });
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadAdminDataAsync] ❌ Chart failed - {chartResult.ErrorMessage}");
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadAdminDataAsync] ✅ COMPLETED");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadAdminDataAsync] ❌ Exception - {ex.Message}");
+            SetError($"Error loading admin data: {ex.Message}");
+        }
+    }
+
     private async Task LoadFlaggedProductsAsync()
     {
         try
@@ -583,7 +706,6 @@ public partial class AdminDashboardViewModel : BaseViewModel
     private string GetChartPeriod(string selectedPeriod)
     {
         // Server API expects: "day", "week", "month", "year"
-        // Pass through directly since periods now align with API expectations
         var validPeriods = new[] { "day", "week", "month", "year" };
         return validPeriods.Contains(selectedPeriod?.ToLower() ?? "month")
             ? selectedPeriod.ToLower()
@@ -761,10 +883,11 @@ public class CategoryDataPoint
 public class TopProductItem
 {
     public int Rank { get; set; }
+    public string ImageUrl { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string Category { get; set; } = string.Empty;
-    public decimal Price { get; set; }
-    public int Stock { get; set; }
+    public int SoldCount { get; set; }
+    public decimal Revenue { get; set; }
 }
 
 public class LowStockItem
@@ -785,11 +908,14 @@ public class RecentOrderItem
 
 public class TopSalesAgentItem
 {
+    public int Rank { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string Avatar { get; set; } = string.Empty;
+    public decimal Gmv { get; set; }
     public decimal GMV { get; set; }
     public decimal Commission { get; set; }
+    public int OrderCount { get; set; }
     public double Rating { get; set; }
     public string Status { get; set; } = string.Empty;
 }

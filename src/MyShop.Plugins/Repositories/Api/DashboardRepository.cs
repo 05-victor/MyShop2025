@@ -239,6 +239,114 @@ public class DashboardRepository : IDashboardRepository
 
     #endregion
 
+    #region Admin Dashboard
+
+    public async Task<Result<MyShop.Shared.DTOs.Responses.AdminDashboardSummaryResponse>> GetAdminSummaryAsync(string? period = null)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetAdminSummaryAsync] ⏳ START - Period: {period}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetAdminSummaryAsync] Calling API: GET /api/v1/dashboard/admin-summary?period={period}");
+
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var refitResponse = await _apiClient.GetAdminSummaryAsync(period);
+            sw.Stop();
+
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetAdminSummaryAsync] ✅ HTTP {refitResponse.StatusCode} - ElapsedMs: {sw.ElapsedMilliseconds}");
+
+            if (refitResponse.IsSuccessStatusCode && refitResponse.Content != null)
+            {
+                var apiResponse = refitResponse.Content;
+                System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetAdminSummaryAsync] ApiResponse.Success: {apiResponse.Success}");
+
+                if (apiResponse.Success && apiResponse.Result != null)
+                {
+                    var response = apiResponse.Result;
+                    System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetAdminSummaryAsync] ✅ Data - ActiveAgents: {response.ActiveSalesAgents}, TotalGMV: {response.TotalGmv}, Commission: {response.AdminCommission}");
+                    return Result<MyShop.Shared.DTOs.Responses.AdminDashboardSummaryResponse>.Success(response);
+                }
+
+                var errorMsg = apiResponse.Message ?? "Failed to load admin summary";
+                System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetAdminSummaryAsync] ❌ ERROR - {errorMsg}");
+                return Result<MyShop.Shared.DTOs.Responses.AdminDashboardSummaryResponse>.Failure(errorMsg);
+            }
+
+            var httpError = $"HTTP Error: {refitResponse.StatusCode}";
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetAdminSummaryAsync] ❌ HTTP ERROR - {httpError}");
+            return Result<MyShop.Shared.DTOs.Responses.AdminDashboardSummaryResponse>.Failure(httpError);
+        }
+        catch (ApiException apiEx)
+        {
+            var errorMessage = MapApiError(apiEx);
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetAdminSummaryAsync] ❌ ApiException - {errorMessage}");
+            return Result<MyShop.Shared.DTOs.Responses.AdminDashboardSummaryResponse>.Failure(errorMessage, apiEx);
+        }
+        catch (HttpRequestException httpEx)
+        {
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetAdminSummaryAsync] ❌ HttpRequestException - {httpEx.Message}");
+            return Result<MyShop.Shared.DTOs.Responses.AdminDashboardSummaryResponse>.Failure("Cannot connect to server.", httpEx);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetAdminSummaryAsync] ❌ Exception - {ex.Message}");
+            return Result<MyShop.Shared.DTOs.Responses.AdminDashboardSummaryResponse>.Failure($"Error: {ex.Message}", ex);
+        }
+    }
+
+    public async Task<Result<MyShop.Shared.DTOs.Responses.AdminRevenueChartResponse>> GetAdminRevenueChartAsync(string period)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetAdminRevenueChartAsync] ⏳ START - Period: {period}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetAdminRevenueChartAsync] Calling API: GET /api/v1/dashboard/admin-revenue-chart?period={period}");
+
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var refitResponse = await _apiClient.GetAdminRevenueChartAsync(period);
+            sw.Stop();
+
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetAdminRevenueChartAsync] ✅ HTTP {refitResponse.StatusCode} - ElapsedMs: {sw.ElapsedMilliseconds}");
+
+            if (refitResponse.IsSuccessStatusCode && refitResponse.Content != null)
+            {
+                var apiResponse = refitResponse.Content;
+                System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetAdminRevenueChartAsync] ApiResponse.Success: {apiResponse.Success}");
+
+                if (apiResponse.Success && apiResponse.Result != null)
+                {
+                    var response = apiResponse.Result;
+                    System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetAdminRevenueChartAsync] ✅ Data - Labels: {response.Labels?.Count}, Revenue: {response.RevenueData?.Count}, Commission: {response.CommissionData?.Count}");
+                    return Result<MyShop.Shared.DTOs.Responses.AdminRevenueChartResponse>.Success(response);
+                }
+
+                var errorMsg = apiResponse.Message ?? "Failed to load admin revenue chart";
+                System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetAdminRevenueChartAsync] ❌ ERROR - {errorMsg}");
+                return Result<MyShop.Shared.DTOs.Responses.AdminRevenueChartResponse>.Failure(errorMsg);
+            }
+
+            var httpError = $"HTTP Error: {refitResponse.StatusCode}";
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetAdminRevenueChartAsync] ❌ HTTP ERROR - {httpError}");
+            return Result<MyShop.Shared.DTOs.Responses.AdminRevenueChartResponse>.Failure(httpError);
+        }
+        catch (ApiException apiEx)
+        {
+            var errorMessage = MapApiError(apiEx);
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetAdminRevenueChartAsync] ❌ ApiException - {errorMessage}");
+            return Result<MyShop.Shared.DTOs.Responses.AdminRevenueChartResponse>.Failure(errorMessage, apiEx);
+        }
+        catch (HttpRequestException httpEx)
+        {
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetAdminRevenueChartAsync] ❌ HttpRequestException - {httpEx.Message}");
+            return Result<MyShop.Shared.DTOs.Responses.AdminRevenueChartResponse>.Failure("Cannot connect to server.", httpEx);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[DashboardRepository.GetAdminRevenueChartAsync] ❌ Exception - {ex.Message}");
+            return Result<MyShop.Shared.DTOs.Responses.AdminRevenueChartResponse>.Failure($"Error: {ex.Message}", ex);
+        }
+    }
+
+    #endregion
+
     #region Error Handling
 
     /// <summary>

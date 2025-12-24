@@ -494,7 +494,7 @@
                                                                    FontSize="13"
                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
-                                                        <Border Grid.Column="4"
+                                                        <Border Grid.Column="3"
                                                                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                                                 CornerRadius="4"
                                                                 Padding="8,4"
