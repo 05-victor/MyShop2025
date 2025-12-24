@@ -325,7 +325,7 @@ public class DashboardService : IDashboardService
 
         for (int day = 1; day <= currentDay; day++)
         {
-            var dayStart = new DateTime(now.Year, now.Month, day);
+            var dayStart = new DateTime(now.Year, now.Month, day, 0, 0, 0, DateTimeKind.Utc);
             var dayEnd = dayStart.AddDays(1);
 
             // Format: "1", "2", "3", ... "31"
@@ -357,7 +357,7 @@ public class DashboardService : IDashboardService
         // Generate labels for each month up to current month
         for (int month = 1; month <= now.Month; month++)
         {
-            var monthStart = new DateTime(now.Year, month, 1);
+            var monthStart = new DateTime(now.Year, month, 1, 0, 0, 0, DateTimeKind.Utc);
             var monthEnd = monthStart.AddMonths(1);
 
             chartResponse.Labels.Add(monthNames[month - 1]);
@@ -393,7 +393,7 @@ public class DashboardService : IDashboardService
             "day" => (now.Date, now),                                    // Today: 00:00:00 to now
             "week" => (GetStartOfWeek(now), now),                        // This week: Monday to now
             "month" => (now.StartOfMonth(), now),                        // This month: 1st to now
-            "year" => (new DateTime(now.Year, 1, 1), now),               // This year: Jan 1 to now
+            "year" => (new DateTime(now.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc), now),  // This year: Jan 1 to now (UTC)
             _ => (null, null)                                            // Invalid period = all time
         };
     }
@@ -702,7 +702,7 @@ public class DashboardService : IDashboardService
 
         for (int day = 1; day <= currentDay; day++)
         {
-            var dayStart = new DateTime(now.Year, now.Month, day);
+            var dayStart = new DateTime(now.Year, now.Month, day, 0, 0, 0, DateTimeKind.Utc);
             var dayEnd = dayStart.AddDays(1);
 
             // Format: "1", "2", "3", ... "31"
@@ -740,7 +740,7 @@ public class DashboardService : IDashboardService
         // Generate labels for each month up to current month
         for (int month = 1; month <= now.Month; month++)
         {
-            var monthStart = new DateTime(now.Year, month, 1);
+            var monthStart = new DateTime(now.Year, month, 1, 0, 0, 0, DateTimeKind.Utc);
             var monthEnd = monthStart.AddMonths(1);
 
             chartResponse.Labels.Add(monthNames[month - 1]);
