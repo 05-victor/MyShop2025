@@ -114,6 +114,14 @@
 
             <NavigationViewItemSeparator/>
 
+            <NavigationViewItem Content="Become Agent" Tag="becomeAgent" Foreground="#FFFFFF">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE735;" Foreground="#FFFFFF" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+
+            <NavigationViewItemSeparator/>
+
             <NavigationViewItem Content="Profile" Tag="profile" Foreground="#FFFFFF">
                 <NavigationViewItem.Icon>
                     <FontIcon Glyph="&#xE77B;" Foreground="#FFFFFF" />

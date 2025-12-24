@@ -45,20 +45,12 @@ public sealed partial class ChatButton : UserControl
     
     private void ApplyThemeAwareBackground()
     {
-        // Try to get theme resource first
-        if (Application.Current.Resources.TryGetValue("PrimaryBrush", out var primaryBrush)
-            && primaryBrush is Brush brush)
+        // Retrieve dedicated ChatButtonBackgroundBrush from theme resources
+        // Light: #1A4D8F (Navy), Dark: #60A5FA (Blue-400, 5.2:1 contrast)
+        if (Application.Current.Resources.TryGetValue("ChatButtonBackgroundBrush", out var chatButtonBrush)
+            && chatButtonBrush is Brush brush)
         {
             FloatingButton.Background = brush;
-        }
-        else
-        {
-            // Theme-aware fallback colors
-            var currentTheme = Services.ThemeManager.CurrentTheme;
-            var fallbackColor = currentTheme == Services.ThemeManager.ThemeType.Dark
-                ? Color.FromArgb(255, 59, 130, 246)   // #3B82F6 (brighter blue for dark)
-                : Color.FromArgb(255, 26, 77, 143);   // #1A4D8F (darker blue for light)
-            FloatingButton.Background = new SolidColorBrush(fallbackColor);
         }
     }
 

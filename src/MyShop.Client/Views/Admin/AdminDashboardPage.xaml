@@ -117,7 +117,7 @@
                     <!-- Page Header -->
                     <layout:PageHeader
                         Title="Admin Dashboard"
-                        Subtitle="Platform-wide overview and analytics">
+                        Breadcrumb="Admin">
                         <layout:PageHeader.ActionContent>
                             <StackPanel Orientation="Horizontal"
                                         Spacing="12">

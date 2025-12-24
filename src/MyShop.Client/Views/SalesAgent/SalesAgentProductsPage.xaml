@@ -119,7 +119,7 @@
                                 <!-- PAGE HEADER -->
                                 <layout:PageHeader
                                     Title="My Products"
-                                    Subtitle="Manage your product listings and inventory">
+                                    Breadcrumb="Sales Agent > Products">
                                     <layout:PageHeader.ActionContent>
                                         <StackPanel Orientation="Horizontal"
                                                     Spacing="12">

@@ -32,6 +32,8 @@
     <SolidColorBrush x:Key="NavyPrimaryBrush" Color="#1A4D8F"/>
     <SolidColorBrush x:Key="PrimaryBrush" Color="#1A4D8F"/>
     <SolidColorBrush x:Key="PrimaryHoverBrush" Color="#245FAE"/>
+    <!-- ChatButton dedicated background (theme-aware for dark mode contrast) -->
+    <SolidColorBrush x:Key="ChatButtonBackgroundBrush" Color="#1A4D8F"/>
     <SolidColorBrush x:Key="AccentBlueBrush" Color="#00AEEF"/>
     <SolidColorBrush x:Key="AccentBlueSubtleBrush" Color="#1000AEEF"/>
     <SolidColorBrush x:Key="AccentBlueLightBrush" Color="#1A00AEEF"/>
@@ -134,6 +136,7 @@
     
     <!-- Error/Danger Semantic -->
     <SolidColorBrush x:Key="ErrorBrush" Color="#DC2626"/>
+    <SolidColorBrush x:Key="ErrorHoverBrush" Color="#B91C1C"/>
     <SolidColorBrush x:Key="DangerBrush" Color="#DC2626"/>
     <SolidColorBrush x:Key="ErrorBackgroundBrush" Color="#FEF2F2"/>
     <SolidColorBrush x:Key="ErrorTextBrush" Color="#B91C1C"/>

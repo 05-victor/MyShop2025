@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentDialog
+    x:Class="MyShop.Client.Views.Admin.Dialogs.AddEditUserDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Style="{StaticResource StandardDialogStyle}"
+    Title="Add User"
+    PrimaryButtonText="Save"
+    CloseButtonText="Cancel"
+    DefaultButton="Primary"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    mc:Ignorable="d">
+
+    <ContentDialog.Resources>
+        <Style x:Key="FormLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="Foreground" Value="{ThemeResource TextFillColorPrimaryBrush}"/>
+        </Style>
+
+        <Style x:Key="ErrorTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{ThemeResource SystemFillColorCriticalBrush}"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
+        </Style>
+    </ContentDialog.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  MaxHeight="600">
+        <StackPanel Spacing="20"
+                    Padding="4">
+
+            <!-- Full Name -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="Full Name *"
+                           Style="{StaticResource FormLabelStyle}"
+                           AutomationProperties.HeadingLevel="Level3"/>
+                <TextBox x:Name="FullNameTextBox"
+                         PlaceholderText="Enter full name"
+                         TextChanged="ValidationField_Changed"
+                         AutomationProperties.Name="Full Name"
+                         AutomationProperties.HelpText="Enter the user's full name"/>
+                <TextBlock x:Name="FullNameError"
+                           Style="{StaticResource ErrorTextStyle}"
+                           Visibility="Collapsed"/>
+            </StackPanel>
+
+            <!-- Username -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="Username *"
+                           Style="{StaticResource FormLabelStyle}"
+                           AutomationProperties.HeadingLevel="Level3"/>
+                <TextBox x:Name="UsernameTextBox"
+                         PlaceholderText="Enter username"
+                         TextChanged="ValidationField_Changed"
+                         AutomationProperties.Name="Username"
+                         AutomationProperties.HelpText="Enter a unique username"/>
+                <TextBlock x:Name="UsernameError"
+                           Style="{StaticResource ErrorTextStyle}"
+                           Visibility="Collapsed"/>
+            </StackPanel>
+
+            <!-- Email -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="Email *"
+                           Style="{StaticResource FormLabelStyle}"
+                           AutomationProperties.HeadingLevel="Level3"/>
+                <TextBox x:Name="EmailTextBox"
+                         PlaceholderText="user@example.com"
+                         InputScope="EmailSmtpAddress"
+                         TextChanged="ValidationField_Changed"
+                         AutomationProperties.Name="Email"
+                         AutomationProperties.HelpText="Enter a valid email address"/>
+                <TextBlock x:Name="EmailError"
+                           Style="{StaticResource ErrorTextStyle}"
+                           Visibility="Collapsed"/>
+            </StackPanel>
+
+            <!-- Phone -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="Phone"
+                           Style="{StaticResource FormLabelStyle}"
+                           AutomationProperties.HeadingLevel="Level3"/>
+                <TextBox x:Name="PhoneTextBox"
+                         PlaceholderText="(555) 123-4567"
+                         InputScope="TelephoneNumber"
+                         AutomationProperties.Name="Phone"
+                         AutomationProperties.HelpText="Enter phone number (optional)"/>
+            </StackPanel>
+
+            <!-- Role -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="Role *"
+                           Style="{StaticResource FormLabelStyle}"
+                           AutomationProperties.HeadingLevel="Level3"/>
+                <ComboBox x:Name="RoleComboBox"
+                          HorizontalAlignment="Stretch"
+                          PlaceholderText="Select role"
+                          SelectionChanged="ValidationField_Changed"
+                          AutomationProperties.Name="Role"
+                          AutomationProperties.HelpText="Select user role">
+                    <ComboBoxItem Content="Customer" Tag="Customer"/>
+                    <ComboBoxItem Content="Sales Agent" Tag="SalesAgent"/>
+                    <ComboBoxItem Content="Admin" Tag="Admin"/>
+                </ComboBox>
+                <TextBlock x:Name="RoleError"
+                           Style="{StaticResource ErrorTextStyle}"
+                           Visibility="Collapsed"/>
+            </StackPanel>
+
+            <!-- Password (only for Add mode) -->
+            <StackPanel x:Name="PasswordSection"
+                        Spacing="4">
+                <TextBlock Text="Password *"
+                           Style="{StaticResource FormLabelStyle}"
+                           AutomationProperties.HeadingLevel="Level3"/>
+                <PasswordBox x:Name="PasswordBox"
+                             PlaceholderText="Enter password"
+                             PasswordChanged="ValidationField_Changed"
+                             AutomationProperties.Name="Password"
+                             AutomationProperties.HelpText="Enter a secure password (min 6 characters)"/>
+                <TextBlock x:Name="PasswordError"
+                           Style="{StaticResource ErrorTextStyle}"
+                           Visibility="Collapsed"/>
+            </StackPanel>
+
+            <!-- Address (Optional) -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="Address"
+                           Style="{StaticResource FormLabelStyle}"
+                           AutomationProperties.HeadingLevel="Level3"/>
+                <TextBox x:Name="AddressTextBox"
+                         PlaceholderText="Enter address"
+                         TextWrapping="Wrap"
+                         AcceptsReturn="True"
+                         Height="80"
+                         AutomationProperties.Name="Address"
+                         AutomationProperties.HelpText="Enter full address (optional)"/>
+            </StackPanel>
+
+            <!-- Edit Mode: Change Password Checkbox -->
+            <CheckBox x:Name="ChangePasswordCheckBox"
+                      Content="Change password"
+                      Visibility="Collapsed"
+                      Checked="ChangePasswordCheckBox_Checked"
+                      Unchecked="ChangePasswordCheckBox_Unchecked"/>
+
+        </StackPanel>
+    </ScrollViewer>
+
+</ContentDialog>

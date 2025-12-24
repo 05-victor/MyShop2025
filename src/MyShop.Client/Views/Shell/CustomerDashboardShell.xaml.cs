@@ -128,6 +128,9 @@ namespace MyShop.Client.Views.Shell
                 case "purchaseOrders":
                     NavigateToPage(typeof(PurchaseOrdersPage), ViewModel.CurrentUser);
                     break;
+                case "becomeAgent":
+                    NavigateToPage(typeof(BecomeAgentPage), ViewModel.CurrentUser);
+                    break;
                 case "profile":
                     NavigateToPage(typeof(ProfilePage), ViewModel.CurrentUser);
                     break;

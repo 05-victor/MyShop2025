@@ -14,12 +14,15 @@
     <SolidColorBrush x:Key="NavyPrimaryBrush" Color="#3B82F6"/>
     <SolidColorBrush x:Key="PrimaryBrush" Color="#3B82F6"/>
     <SolidColorBrush x:Key="PrimaryHoverBrush" Color="#60A5FA"/>
+    <SolidColorBrush x:Key="PrimaryActiveBrush" Color="#2563EB"/>
     <SolidColorBrush x:Key="AccentBlueBrush" Color="#0EA5E9"/>
     <SolidColorBrush x:Key="AccentBlueSubtleBrush" Color="#100EA5E9"/>
     <SolidColorBrush x:Key="AccentBlueLightBrush" Color="#1A0EA5E9"/>
     <SolidColorBrush x:Key="AccentBlueBorderBrush" Color="#4D0EA5E9"/>
     <SolidColorBrush x:Key="SecondaryBlueBrush" Color="#3B82F6"/>
     <SolidColorBrush x:Key="DarkBlueBrush" Color="#2563EB"/>
+    <!-- ChatButton background - Lighter Blue-400 for dark mode visibility (5.2:1 contrast) -->
+    <SolidColorBrush x:Key="ChatButtonBackgroundBrush" Color="#60A5FA"/>
 
 
     <!-- ============================================= -->
@@ -328,5 +331,54 @@
     <SolidColorBrush x:Key="CalendarDatePickerTextForegroundFocused" Color="#F1F5F9"/>
     <SolidColorBrush x:Key="CalendarDatePickerTextForegroundDisabled" Color="#64748B"/>
     <SolidColorBrush x:Key="CalendarDatePickerHeaderForeground" Color="#F1F5F9"/>
+
+    <!-- ============================================= -->
+    <!-- WINUI SEMANTIC COLOR OVERRIDES (DARK THEME)  -->
+    <!-- Standard WinUI color tokens for dark mode    -->
+    <!-- ============================================= -->
+    
+    <!-- Text Colors -->
+    <SolidColorBrush x:Key="TextFillColorPrimaryBrush" Color="#F1F5F9"/>
+    <SolidColorBrush x:Key="TextFillColorSecondaryBrush" Color="#CBD5E1"/>
+    <SolidColorBrush x:Key="TextFillColorTertiaryBrush" Color="#94A3B8"/>
+    <SolidColorBrush x:Key="TextFillColorDisabledBrush" Color="#64748B"/>
+    
+    <!-- Text on Accent -->
+    <SolidColorBrush x:Key="TextOnAccentFillColorPrimaryBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="TextOnAccentFillColorSecondaryBrush" Color="#E2E8F0"/>
+    
+    <!-- Accent Text (for text/link buttons) -->
+    <SolidColorBrush x:Key="AccentTextFillColorPrimaryBrush" Color="#60A5FA"/>
+    
+    <!-- Accent Fill -->
+    <SolidColorBrush x:Key="AccentFillColorDefaultBrush" Color="#3B82F6"/>
+    <SolidColorBrush x:Key="AccentFillColorSecondaryBrush" Color="#60A5FA"/>
+    <SolidColorBrush x:Key="AccentFillColorTertiaryBrush" Color="#2563EB"/>
+    
+    <!-- Subtle Fill -->
+    <SolidColorBrush x:Key="SubtleFillColorTransparent" Color="Transparent"/>
+    <SolidColorBrush x:Key="SubtleFillColorSecondaryBrush" Color="#1A334155"/>
+    <SolidColorBrush x:Key="SubtleFillColorTertiaryBrush" Color="#33334155"/>
+    <SolidColorBrush x:Key="SubtleFillColorDisabledBrush" Color="#0A334155"/>
+    
+    <!-- Control Fill -->
+    <SolidColorBrush x:Key="ControlFillColorDefaultBrush" Color="#1E293B"/>
+    <SolidColorBrush x:Key="ControlFillColorSecondaryBrush" Color="#334155"/>
+    <SolidColorBrush x:Key="ControlFillColorTertiaryBrush" Color="#475569"/>
+    <SolidColorBrush x:Key="ControlFillColorDisabledBrush" Color="#1A1E293B"/>
+    <SolidColorBrush x:Key="ControlFillColorTransparentBrush" Color="Transparent"/>
+    <SolidColorBrush x:Key="ControlFillColorInputActiveBrush" Color="#1E293B"/>
+    
+    <!-- Card Fill -->
+    <SolidColorBrush x:Key="CardBackgroundFillColorDefaultBrush" Color="#1E293B"/>
+    <SolidColorBrush x:Key="CardBackgroundFillColorSecondaryBrush" Color="#0F172A"/>
+    
+    <!-- Layer Fill -->
+    <SolidColorBrush x:Key="LayerFillColorDefaultBrush" Color="#0F172A"/>
+    <SolidColorBrush x:Key="LayerOnMicaBaseAltFillColorDefaultBrush" Color="#1E293B"/>
+    
+    <!-- System Fill -->
+    <SolidColorBrush x:Key="SystemFillColorSolidNeutralBrush" Color="#334155"/>
+    <SolidColorBrush x:Key="SystemFillColorSolidAttentionBackgroundBrush" Color="#1E293B"/>
 
 </ResourceDictionary>

@@ -326,15 +326,25 @@ public sealed partial class IconButton : UserControl
             nameof(IconColor),
             typeof(Brush),
             typeof(IconButton),
-            new PropertyMetadata(new SolidColorBrush(Color.FromArgb(255, 107, 114, 128)))); // #6B7280
+            new PropertyMetadata(null, OnIconColorChanged));
 
     /// <summary>
-    /// Gets or sets the icon foreground color.
+    /// Gets or sets the icon foreground color. If null, inherits from button Foreground.
     /// </summary>
     public Brush IconColor
     {
         get => (Brush)GetValue(IconColorProperty);
         set => SetValue(IconColorProperty, value);
+    }
+
+    private static void OnIconColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is IconButton button && e.NewValue is Brush brush)
+        {
+            // Only override icon color if explicitly set
+            if (button._leftIcon != null) button._leftIcon.Foreground = brush;
+            if (button._rightIcon != null) button._rightIcon.Foreground = brush;
+        }
     }
 
     #endregion
@@ -466,13 +476,11 @@ public sealed partial class IconButton : UserControl
             ActionButton.Style = buttonStyle;
         }
         
-        // For Filled variant, ensure white icons if not explicitly set
-        if (Variant == IconButtonVariant.Filled && 
-            IconColor is SolidColorBrush brush && 
-            brush.Color == Color.FromArgb(255, 107, 114, 128))
+        // Apply custom IconColor if set
+        if (IconColor != null)
         {
-            if (_leftIcon != null) _leftIcon.Foreground = new SolidColorBrush(Colors.White);
-            if (_rightIcon != null) _rightIcon.Foreground = new SolidColorBrush(Colors.White);
+            if (_leftIcon != null) _leftIcon.Foreground = IconColor;
+            if (_rightIcon != null) _rightIcon.Foreground = IconColor;
         }
     }
 }

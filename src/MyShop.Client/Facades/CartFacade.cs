@@ -100,6 +100,53 @@ public class CartFacade : ICartFacade
     }
 
     /// <inheritdoc/>
+    public async Task<Result<GroupedCart>> LoadGroupedCartAsync()
+    {
+        try
+        {
+            var cartResult = await LoadCartAsync();
+            if (!cartResult.IsSuccess || cartResult.Data == null)
+            {
+                return Result<GroupedCart>.Failure("Failed to load cart");
+            }
+
+            var items = cartResult.Data;
+
+            // Group items by SalesAgentId
+            var grouped = items
+                .GroupBy(item => item.SalesAgentId ?? Guid.Empty)
+                .Select(group => new SalesAgentGroup
+                {
+                    SalesAgentId = group.Key,
+                    SalesAgentUsername = group.First().SalesAgentName ?? "Unknown",
+                    SalesAgentFullName = group.First().SalesAgentName ?? "Unknown Agent",
+                    Items = group.ToList(),
+                    ItemCount = group.Sum(i => i.Quantity),
+                    Subtotal = group.Sum(i => i.Price * i.Quantity),
+                    Total = group.Sum(i => i.Price * i.Quantity) // Simplified, can add tax/shipping per group
+                })
+                .OrderBy(g => g.SalesAgentFullName)
+                .ToList();
+
+            var result = new GroupedCart
+            {
+                SalesAgentGroups = grouped,
+                TotalItemCount = items.Sum(i => i.Quantity),
+                GrandTotal = items.Sum(i => i.Price * i.Quantity)
+            };
+
+            System.Diagnostics.Debug.WriteLine($"[CartFacade] Grouped cart: {grouped.Count} agents, {result.TotalItemCount} items");
+
+            return Result<GroupedCart>.Success(result);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[CartFacade] LoadGroupedCartAsync failed: {ex.Message}");
+            return Result<GroupedCart>.Failure("Failed to load grouped cart", ex);
+        }
+    }
+
+    /// <inheritdoc/>
     public async Task<Result<Unit>> AddToCartAsync(Guid productId, int quantity = 1)
     {
         try

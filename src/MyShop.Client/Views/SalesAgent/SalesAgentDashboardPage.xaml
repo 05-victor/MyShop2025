@@ -142,7 +142,7 @@
                             <!-- Page Header -->
                             <layout:PageHeader
                                 Title="Sales Agent Dashboard"
-                                Subtitle="Track your sales performance and commissions">
+                                Breadcrumb="Sales Agent">
                                 <layout:PageHeader.ActionContent>
                                     <StackPanel Orientation="Horizontal"
                                                 Spacing="12">

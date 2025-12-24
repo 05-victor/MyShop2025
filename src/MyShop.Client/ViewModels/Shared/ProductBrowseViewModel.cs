@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
 using MyShop.Client.Facades;
+using MyShop.Client.Services;
 using MyShop.Client.ViewModels.Base;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Services;
@@ -20,6 +21,7 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
 {
     private readonly IProductFacade _productFacade;
     private readonly ICartFacade _cartFacade;
+    private readonly ICurrentUserService _currentUserService;
 
     // Alias for backward compatibility with XAML
     public ObservableCollection<ProductCardViewModel> Products => Items;
@@ -51,11 +53,13 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
     public ProductBrowseViewModel(
         IProductFacade productFacade,
         ICartFacade cartFacade,
+        ICurrentUserService currentUserService,
         INavigationService? navigationService = null)
         : base(null, navigationService)
     {
         _productFacade = productFacade;
         _cartFacade = cartFacade;
+        _currentUserService = currentUserService;
         PageSize = 12; // Show 12 products per page for grid layout
     }
 
@@ -279,6 +283,22 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
     [RelayCommand]
     private async Task AddToCartAsync(ProductCardViewModel product)
     {
+        // 🔒 AUTH CHECK: Must be logged in and email verified
+        var currentUser = _currentUserService.CurrentUser;
+        if (currentUser == null)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] AddToCart blocked: User not logged in");
+            // TODO: Show login dialog or navigate to login
+            return;
+        }
+
+        if (!currentUser.IsEmailVerified)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] AddToCart blocked: Email not verified");
+            // TODO: Show email verification dialog
+            return;
+        }
+
         var result = await _cartFacade.AddToCartAsync(product.Id, 1);
         if (result.IsSuccess)
         {
