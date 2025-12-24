@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="MyShop.Client.Views.Admin.AdminAgentRequestsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -12,7 +12,7 @@
     xmlns:tables="using:MyShop.Client.Views.Components.Tables"
     xmlns:feedback="using:MyShop.Client.Views.Components.Feedback"
     x:Name="MyPage"
-    Background="{ThemeResource LayerFillColorDefaultBrush}"
+    Background="{ThemeResource SubtleFillColorSecondaryBrush}"
     mc:Ignorable="d">
 
     <Page.Transitions>
@@ -100,7 +100,7 @@
                 Grid.Row="0"
                 Margin="0,0,0,24"
                 Title="Agent Requests"
-                Breadcrumb="Admin > Agent Requests">
+                Subtitle="Manage sales agent registration requests">
                 <layout:PageHeader.ActionContent>
                     <buttons:IconButton
                         Variant="Filled"
@@ -152,11 +152,10 @@
                 </TabViewItem>
             </TabView>
 
-            <!--  Requests Cards with Pull-to-Refresh  -->
-            <RefreshContainer Grid.Row="2"
-                              RefreshRequested="RefreshContainer_RefreshRequested">
-                <ScrollViewer x:Name="PageScrollViewer"
-                              VerticalScrollBarVisibility="Auto">
+            <!--  Requests Cards  -->
+            <ScrollViewer x:Name="PageScrollViewer"
+                          Grid.Row="2"
+                          VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="16">
                     <!--  Empty State  -->
                     <Border
@@ -172,22 +171,22 @@
                         <StackPanel
                             HorizontalAlignment="Center"
                             Spacing="20">
-                            <Viewbox Width="120"
-                                     Height="120">
+                            <Viewbox Width="100"
+                                     Height="100">
                                 <Grid>
-                                    <Ellipse Width="120"
-                                             Height="120"
+                                    <Ellipse Width="100"
+                                             Height="100"
                                              Fill="{ThemeResource SubtleFillColorSecondaryBrush}"/>
                                     <FontIcon
-                                        FontSize="64"
-                                        Foreground="{ThemeResource Gray400Brush}"
+                                        FontSize="48"
+                                        Foreground="{ThemeResource Gray500Brush}"
                                         Glyph="&#xE823;"/>
                                 </Grid>
                             </Viewbox>
                             <TextBlock
                                 FontSize="18"
                                 FontWeight="SemiBold"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Foreground="{ThemeResource TextTertiaryBrush}"
                                 Text="No agent requests"
                                 HorizontalAlignment="Center"/>
                             <TextBlock
@@ -223,73 +222,65 @@
                                             <RowDefinition Height="Auto"/>
                                             <!--  Header  -->
                                             <RowDefinition Height="Auto"/>
-                                            <!--  Content: Reason & Experience  -->
+                                            <!--  Reason & Experience  -->
                                             <RowDefinition Height="Auto"/>
                                             <!--  Rejection (conditional)  -->
                                             <RowDefinition Height="Auto"/>
                                             <!--  Actions  -->
                                         </Grid.RowDefinitions>
 
-                                        <!--  1. Header: [Avatar] Name Email [Status] [Date] [Phone]  -->
+                                        <!--  Header Section: Avatar + Name + Badge + Email + Date  -->
                                         <Grid Grid.Row="0">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <!--  Avatar + Name + Email  -->
+                                            <!--  User Info with Avatar  -->
                                             <tables:UserAvatarInfo
                                                 Grid.Column="0"
+                                                Grid.ColumnSpan="2"
                                                 AvatarSize="48"
                                                 DisplayName="{x:Bind FullName}"
                                                 SecondaryText="{x:Bind Email}"
-                                                AvatarUrl="{x:Bind Avatar}"/>
-
-                                            <!--  Meta Info: Status + Date + Phone  -->
-                                            <StackPanel
-                                                Grid.Column="1"
-                                                Orientation="Horizontal"
-                                                Spacing="12"
-                                                VerticalAlignment="Center"
-                                                Margin="16,0,0,0">
-
-                                                <!--  Submitted Date  -->
-                                                <StackPanel
-                                                    Orientation="Horizontal"
-                                                    Spacing="6">
-                                                    <FontIcon
-                                                        FontSize="14"
-                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                        Glyph="&#xE787;"/>
-                                                    <TextBlock
-                                                        FontSize="13"
-                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                        Text="{x:Bind SubmittedDate}"/>
-                                                </StackPanel>
-
-                                                <!--  Phone Number  -->
-                                                <StackPanel
-                                                    Orientation="Horizontal"
-                                                    Spacing="6">
-                                                    <FontIcon
-                                                        FontSize="14"
-                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                        Glyph="&#xE717;"/>
-                                                    <TextBlock
-                                                        FontSize="13"
-                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                        Text="{x:Bind Phone}"/>
-                                                </StackPanel>
-                                                
-                                                <!--  Status Badge  -->
-                                                <badges:StatusBadge
-                                                    Text="{x:Bind Status}"
-                                                    Variant="{x:Bind StatusVariant}"/>
-
-                                            </StackPanel>
+                                                AvatarUrl="{x:Bind Avatar}">
+                                                <tables:UserAvatarInfo.ExtraContent>
+                                                    <StackPanel Orientation="Vertical"
+                                                                Spacing="8">
+                                                        <StackPanel Orientation="Horizontal"
+                                                                    Spacing="12">
+                                                            <badges:StatusBadge 
+                                                                Text="{x:Bind Status}"
+                                                                Variant="{x:Bind StatusVariant}"/>
+                                                            <StackPanel Orientation="Horizontal"
+                                                                        Spacing="6">
+                                                                <FontIcon
+                                                                    FontSize="14"
+                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                    Glyph="&#xE787;"/>
+                                                                <TextBlock
+                                                                    FontSize="13"
+                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                    Text="{x:Bind SubmittedDate}"/>
+                                                            </StackPanel>
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal"
+                                                                    Spacing="6">
+                                                            <FontIcon
+                                                                FontSize="14"
+                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                Glyph="&#xE717;"/>
+                                                            <TextBlock
+                                                                FontSize="13"
+                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                Text="{x:Bind Phone}"/>
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </tables:UserAvatarInfo.ExtraContent>
+                                            </tables:UserAvatarInfo>
                                         </Grid>
 
-                                        <!--  2. Content: Reason & Experience  -->
+                                        <!--  Reason & Experience Section  -->
                                         <StackPanel Grid.Row="1"
                                                     Spacing="12">
                                             <!--  Reason  -->
@@ -331,7 +322,7 @@
                                             </StackPanel>
                                         </StackPanel>
 
-                                        <!--  3. Rejection Reason (only if rejected) - Using AlertBox  -->
+                                        <!--  Rejection Reason (only if rejected) - Using AlertBox  -->
                                         <feedback:AlertBox
                                             Grid.Row="2"
                                             Variant="Error"
@@ -339,7 +330,7 @@
                                             Message="{x:Bind RejectionReason}"
                                             Visibility="{x:Bind HasRejectionReason}"/>
 
-                                        <!--  4. Action Buttons (only for pending)  -->
+                                        <!--  Action Buttons (only for pending)  -->
                                         <StackPanel
                                             Grid.Row="3"
                                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
@@ -428,7 +419,6 @@
                     </Border>
                 </StackPanel>
             </ScrollViewer>
-            </RefreshContainer>
         </Grid>
     </Grid>
 </Page>

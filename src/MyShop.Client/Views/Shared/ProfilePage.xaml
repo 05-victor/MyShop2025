@@ -8,7 +8,7 @@
     xmlns:winuic="using:Microsoft.UI.Xaml.Controls"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     mc:Ignorable="d"
-    Background="{ThemeResource LayerFillColorDefaultBrush}">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.Transitions>
         <TransitionCollection>

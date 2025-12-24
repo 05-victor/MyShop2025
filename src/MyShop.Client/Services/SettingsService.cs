@@ -31,13 +31,13 @@ public class SettingsService
     /// <summary>
     /// Sets the default page size for pagination controls
     /// </summary>
-    /// <param name="pageSize">The page size to save (must be 10, 15, 20, or 50)</param>
+    /// <param name="pageSize">The page size to save (must be 10, 25, 50, or 100)</param>
     public void SetDefaultPageSize(int pageSize)
     {
-        // Validate input - must match PaginationControl options
-        if (pageSize is not (10 or 15 or 20 or 50))
+        // Validate input
+        if (pageSize is not (10 or 25 or 50 or 100))
         {
-            throw new ArgumentException("Page size must be 10, 15, 20, or 50", nameof(pageSize));
+            throw new ArgumentException("Page size must be 10, 25, 50, or 100", nameof(pageSize));
         }
 
         var settings = ApplicationData.Current.LocalSettings;

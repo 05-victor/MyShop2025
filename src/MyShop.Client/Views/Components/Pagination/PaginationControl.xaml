@@ -5,24 +5,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d">
 
-    <!--
-    PaginationControl v2.0 - RELEASE-GRADE ENTERPRISE PAGINATION
-    =============================================================
-    FEATURES:
-    • Page navigation: First, Prev, Page Numbers, Next, Last (disabled at edges)
-    • Jump to page: TextBox input (numeric validation, clamp 1 to TotalPages) + Go button
-    • PageSize selector: ComboBox (10/15/20/50), default 10, reset to page 1 on change
-    • UI-only: Emits PageChangedEventArgs(int Page, int PageSize), no API calls
-    • Info text: "Showing X-Y of Z"
-    
-    USAGE:
-    <pagination:PaginationControl 
-        CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
-        TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
-        PageSize="{x:Bind ViewModel.PageSize, Mode=TwoWay}"
-        PageChanged="OnPageChanged"/>
-    -->
-
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -46,101 +28,73 @@
                       UseSystemFocusVisuals="True"
                       SelectionChanged="OnPageSizeChanged">
                 <ComboBoxItem Content="10"/>
-                <ComboBoxItem Content="15"/>
-                <ComboBoxItem Content="20"/>
+                <ComboBoxItem Content="25"/>
                 <ComboBoxItem Content="50"/>
+                <ComboBoxItem Content="100"/>
             </ComboBox>
             <TextBlock Text="entries"
                        VerticalAlignment="Center"
                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
         </StackPanel>
 
-        <!-- Center: Page Numbers + Jump to Page -->
+        <!-- Center: Page Numbers -->
         <StackPanel Grid.Column="1"
                     Orientation="Horizontal"
                     HorizontalAlignment="Center"
-                    Spacing="12">
+                    Spacing="4">
             
-            <!-- Page Navigation -->
-            <StackPanel Orientation="Horizontal" Spacing="4">
-                <!-- First Page Button -->
-                <Button x:Name="FirstButton"
-                        Style="{StaticResource PaginationButtonStyle}"
-                        Content="&#xE892;"
-                        Click="OnFirstClick"
-                        ToolTipService.ToolTip="First Page"
-                        AutomationProperties.Name="First page"
-                        UseSystemFocusVisuals="True"/>
-                
-                <!-- Previous Button -->
-                <Button x:Name="PrevButton"
-                        Style="{StaticResource PaginationButtonStyle}"
-                        Content="&#xE76B;"
-                        Click="OnPreviousClick"
-                        ToolTipService.ToolTip="Previous Page"
-                        AutomationProperties.Name="Previous page"
-                        UseSystemFocusVisuals="True"/>
+            <!-- First Page Button -->
+            <Button x:Name="FirstButton"
+                    Style="{StaticResource PaginationButtonStyle}"
+                    Content="&#xE892;"
+                    Click="OnFirstClick"
+                    ToolTipService.ToolTip="First Page"
+                    AutomationProperties.Name="First page"
+                    UseSystemFocusVisuals="True"/>
+            
+            <!-- Previous Button -->
+            <Button x:Name="PrevButton"
+                    Style="{StaticResource PaginationButtonStyle}"
+                    Content="&#xE76B;"
+                    Click="OnPreviousClick"
+                    ToolTipService.ToolTip="Previous Page"
+                    AutomationProperties.Name="Previous page"
+                    UseSystemFocusVisuals="True"/>
 
-                <!-- Page Numbers Container -->
-                <ItemsControl x:Name="PageNumbersContainer">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" Spacing="4"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Button Content="{Binding PageNumber}"
-                                    Tag="{Binding PageNumber}"
-                                    Style="{StaticResource PaginationButtonStyle}"
-                                    Click="OnPageNumberClick"/>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+            <!-- Page Numbers Container -->
+            <ItemsControl x:Name="PageNumbersContainer">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" Spacing="4"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Content="{Binding PageNumber}"
+                                Tag="{Binding PageNumber}"
+                                Style="{StaticResource PaginationButtonStyle}"
+                                Click="OnPageNumberClick"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
-                <!-- Next Button -->
-                <Button x:Name="NextButton"
-                        Style="{StaticResource PaginationButtonStyle}"
-                        Content="&#xE76C;"
-                        Click="OnNextClick"
-                        ToolTipService.ToolTip="Next Page"
-                        AutomationProperties.Name="Next page"
-                        UseSystemFocusVisuals="True"/>
-                
-                <!-- Last Page Button -->
-                <Button x:Name="LastButton"
-                        Style="{StaticResource PaginationButtonStyle}"
-                        Content="&#xE893;"
-                        Click="OnLastClick"
-                        ToolTipService.ToolTip="Last Page"
-                        AutomationProperties.Name="Last page"
-                        UseSystemFocusVisuals="True"/>
-            </StackPanel>
-
-            <!-- Jump to Page -->
-            <StackPanel Orientation="Horizontal" 
-                        Spacing="8"
-                        VerticalAlignment="Center">
-                <TextBlock Text="Page:"
-                           VerticalAlignment="Center"
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                <TextBox x:Name="JumpToPageInput"
-                         Width="60"
-                         PlaceholderText="1"
-                         TextAlignment="Center"
-                         InputScope="Number"
-                         MaxLength="5"
-                         VerticalAlignment="Center"
-                         AutomationProperties.Name="Jump to page number"
-                         KeyDown="OnJumpToPageKeyDown"/>
-                <Button Content="Go"
-                        Style="{StaticResource SecondaryButtonStyle}"
-                        Height="32"
-                        Padding="12,0"
-                        Click="OnJumpToPageClick"
-                        ToolTipService.ToolTip="Jump to page"
-                        AutomationProperties.Name="Jump to page"/>
-            </StackPanel>
+            <!-- Next Button -->
+            <Button x:Name="NextButton"
+                    Style="{StaticResource PaginationButtonStyle}"
+                    Content="&#xE76C;"
+                    Click="OnNextClick"
+                    ToolTipService.ToolTip="Next Page"
+                    AutomationProperties.Name="Next page"
+                    UseSystemFocusVisuals="True"/>
+            
+            <!-- Last Page Button -->
+            <Button x:Name="LastButton"
+                    Style="{StaticResource PaginationButtonStyle}"
+                    Content="&#xE893;"
+                    Click="OnLastClick"
+                    ToolTipService.ToolTip="Last Page"
+                    AutomationProperties.Name="Last page"
+                    UseSystemFocusVisuals="True"/>
         </StackPanel>
 
         <!-- Right: Info Text -->

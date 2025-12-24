@@ -57,10 +57,10 @@
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="AI Assistant" 
                                   FontSize="16" FontWeight="SemiBold" 
-                                  Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
+                                  Foreground="White"/>
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <Ellipse Width="8" Height="8" Fill="{ThemeResource SuccessGreenBrush}"/>
-                            <TextBlock Text="Online" FontSize="12" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" Opacity="0.8"/>
+                            <TextBlock Text="Online" FontSize="12" Foreground="White" Opacity="0.8"/>
                         </StackPanel>
                     </StackPanel>
                     
@@ -72,7 +72,7 @@
                            ToolTipService.ToolTip="Clear chat"
                            AutomationProperties.Name="Clear chat history"
                            Click="ClearButton_Click">
-                        <FontIcon Glyph="&#xE74D;" FontSize="16" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
+                        <FontIcon Glyph="&#xE74D;" FontSize="16" Foreground="White"/>
                     </Button>
                 </Grid>
             </Border>
@@ -146,7 +146,7 @@
                            Padding="0"
                            AutomationProperties.Name="Send message"
                            Click="SendButton_Click">
-                        <FontIcon Glyph="&#xE724;" FontSize="16" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
+                        <FontIcon Glyph="&#xE724;" FontSize="16" Foreground="White"/>
                     </Button>
                 </Grid>
             </Border>

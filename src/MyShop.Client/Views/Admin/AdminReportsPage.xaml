@@ -14,7 +14,7 @@
     xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Admin"
-    Background="{ThemeResource LayerFillColorDefaultBrush}"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
 
     <Page.Transitions>
@@ -144,7 +144,7 @@
                         Spacing="24">
 
                 <layout:PageHeader Title="My Reports"
-                                   Breadcrumb="Admin > Reports"/>
+                                   Subtitle="View performance insights and revenue trends"/>
 
                 <!--  Header với Filters  -->
                 <Border Style="{StaticResource CardStyle}">

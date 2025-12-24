@@ -12,7 +12,7 @@
     xmlns:forms="using:MyShop.Client.Views.Components.Forms"
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.SalesAgent"
-    Background="{ThemeResource LayerFillColorDefaultBrush}"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
 
     <Page.Transitions>
@@ -116,7 +116,7 @@
 
                         <layout:PageHeader
                             Title="My Reports"
-                            Breadcrumb="Sales Agent > Reports"/>
+                            Subtitle="View performance insights and revenue trends"/>
 
                         <!--  FILTERS CARD with Apply Button  -->
                         <forms:FilterCard Title="Report Filters"

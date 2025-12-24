@@ -1,22 +1,14 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
 using MyShop.Client.Services;
 using System.Collections.ObjectModel;
 
 namespace MyShop.Client.Views.Components.Pagination;
 
 /// <summary>
-/// Pagination control with page numbers, jump to page, and page size selector.
-/// v2.0 - RELEASE-GRADE ENTERPRISE PAGINATION
-/// 
-/// FEATURES:
-/// • Page navigation: First, Prev, Page Numbers, Next, Last (disabled at edges)
-/// • Jump to page: TextBox input (numeric validation, clamp 1 to TotalPages) + Go button, Enter to submit
-/// • PageSize selector: ComboBox (10/15/20/50), default 10, reset to page 1 on change
-/// • UI-only: Emits PageChangedEventArgs(int Page, int PageSize), no API calls
-/// 
-/// USAGE:
+/// Pagination control with page numbers and page size selector.
+/// Automatically loads and saves user's preferred page size.
+/// Usage:
 /// <pagination:PaginationControl CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
 ///                               TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
 ///                               PageSize="{x:Bind ViewModel.PageSize, Mode=TwoWay}"
@@ -97,7 +89,7 @@ public sealed partial class PaginationControl : UserControl
         // Guard clause: ensure all UI elements are loaded
         if (PageNumbersContainer == null || PrevButton == null || NextButton == null ||
             FirstButton == null || LastButton == null ||
-            InfoText == null || PageSizeComboBox == null || JumpToPageInput == null)
+            InfoText == null || PageSizeComboBox == null)
         {
             return;
         }
@@ -137,9 +129,6 @@ public sealed partial class PaginationControl : UserControl
         int startItem = (CurrentPage - 1) * PageSize + 1;
         int endItem = Math.Min(CurrentPage * PageSize, TotalItems);
         InfoText.Text = $"Showing {startItem}-{endItem} of {TotalItems}";
-
-        // Update Jump to Page placeholder
-        JumpToPageInput.PlaceholderText = CurrentPage.ToString();
     }
 
     private void OnFirstClick(object sender, RoutedEventArgs e)
@@ -202,57 +191,6 @@ public sealed partial class PaginationControl : UserControl
             PageSize = newPageSize;
             CurrentPage = 1; // Reset to first page
             RaisePageChanged();
-        }
-    }
-
-    /// <summary>
-    /// Jump to page when Enter key is pressed in TextBox
-    /// </summary>
-    private void OnJumpToPageKeyDown(object sender, KeyRoutedEventArgs e)
-    {
-        if (e.Key == Windows.System.VirtualKey.Enter)
-        {
-            JumpToPage();
-            e.Handled = true;
-        }
-    }
-
-    /// <summary>
-    /// Jump to page when Go button is clicked
-    /// </summary>
-    private void OnJumpToPageClick(object sender, RoutedEventArgs e)
-    {
-        JumpToPage();
-    }
-
-    /// <summary>
-    /// Validates and jumps to the specified page number.
-    /// Numeric validation: Must be integer.
-    /// Clamps to range [1, TotalPages].
-    /// </summary>
-    private void JumpToPage()
-    {
-        int totalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
-        
-        if (int.TryParse(JumpToPageInput.Text, out int targetPage))
-        {
-            // Clamp to valid range [1, totalPages]
-            int clampedPage = Math.Max(1, Math.Min(targetPage, totalPages));
-            
-            if (clampedPage != CurrentPage)
-            {
-                CurrentPage = clampedPage;
-                RaisePageChanged();
-            }
-            
-            // Clear input after jump
-            JumpToPageInput.Text = string.Empty;
-        }
-        else if (!string.IsNullOrWhiteSpace(JumpToPageInput.Text))
-        {
-            // Invalid input: Flash red border (optional UX enhancement)
-            // For now, just clear invalid input
-            JumpToPageInput.Text = string.Empty;
         }
     }
 

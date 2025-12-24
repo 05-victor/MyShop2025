@@ -141,7 +141,8 @@
 
                 <!-- Page Header -->
                 <layout:PageHeader
-                    Title="My Orders"/>
+                    Title="My Orders"
+                    Subtitle="Track and manage your orders"/>
 
                 <!-- Order Stats -->
                 <Grid>

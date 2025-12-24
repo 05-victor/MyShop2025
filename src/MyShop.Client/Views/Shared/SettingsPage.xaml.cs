@@ -31,11 +31,21 @@ public sealed partial class SettingsPage : Page
             this.DataContext = ViewModel;
             LoggingService.Instance.Debug("ViewModel retrieved from DI and DataContext set");
             
-            // Theme toggle binding handled via ThemeManager.CurrentTheme property
-            // No manual initialization needed - binding will sync automatically
+            // Initialize theme toggle based on current theme
+            ThemeToggle.IsOn = ThemeManager.CurrentTheme == ThemeManager.ThemeType.Dark;
             
-            // Developer tab removed in Settings Page refactor
-            // (Preferences, Notifications, Developer tabs removed - kept only General, Appearance, About, Trial)
+            // Show/hide Developer tab based on EnableDeveloperOptions setting
+            var configService = App.Current.Services?.GetService<MyShop.Client.Services.Configuration.IConfigurationService>();
+            if (configService != null && configService.FeatureFlags.EnableDeveloperOptions)
+            {
+                DeveloperTab.Visibility = Visibility.Visible;
+                LoggingService.Instance.Debug("Developer tab enabled via FeatureFlags.EnableDeveloperOptions");
+            }
+            else
+            {
+                DeveloperTab.Visibility = Visibility.Collapsed;
+                LoggingService.Instance.Debug("Developer tab hidden - EnableDeveloperOptions is false");
+            }
             
             SetupKeyboardShortcuts();
         }
@@ -219,12 +229,6 @@ public sealed partial class SettingsPage : Page
                 var newTheme = toggle.IsOn ? ThemeManager.ThemeType.Dark : ThemeManager.ThemeType.Light;
                 ThemeManager.ApplyTheme(newTheme);
                 LoggingService.Instance.Information($"Theme changed to: {newTheme}");
-                
-                // Force visual state update to prevent stuck "Pressed" appearance
-                DispatcherQueue.TryEnqueue(() => 
-                {
-                    toggle.UpdateLayout();
-                });
             }
             catch (Exception ex)
             {

@@ -3,7 +3,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using MyShop.Client.ViewModels.Admin;
-using MyShop.Client.Views.Components.Pagination;
 using System.Linq;
 
 namespace MyShop.Client.Views.Admin;
@@ -140,106 +139,6 @@ public sealed partial class AdminUsersPage : Page
         if (ViewModel.ExportUsersCommand.CanExecute(null))
         {
             await ViewModel.ExportUsersCommand.ExecuteAsync(null);
-        }
-    }
-
-    #endregion
-
-    #region User Actions
-
-    /// <summary>
-    /// Add user button click handler (from PageHeader ActionContent)
-    /// </summary>
-    private async void AddUserButton_Click(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            var dialog = new Dialogs.AddEditUserDialog
-            {
-                XamlRoot = this.XamlRoot
-            };
-
-            var result = await dialog.ShowAsync();
-
-            if (result == ContentDialogResult.Primary && dialog.ResultUser != null)
-            {
-                // TODO: Call ViewModel.AddUserCommand when implemented
-                // For now, just refresh the list
-                if (ViewModel.RefreshCommand?.CanExecute(null) == true)
-                {
-                    await ViewModel.RefreshCommand.ExecuteAsync(null);
-                }
-                
-                Services.LoggingService.Instance.Debug($"[AdminUsersPage] User added: {dialog.ResultUser.Name}");
-            }
-        }
-        catch (Exception ex)
-        {
-            Services.LoggingService.Instance.Error($"[AdminUsersPage] AddUserButton_Click error", ex);
-        }
-    }
-
-    /// <summary>
-    /// Edit user button click handler
-    /// </summary>
-    private async void EditButton_Click(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            if (sender is Button button && button.CommandParameter is UserViewModel user)
-            {
-                var dialog = new Dialogs.AddEditUserDialog(user)
-                {
-                    XamlRoot = this.XamlRoot
-                };
-
-                var result = await dialog.ShowAsync();
-
-                if (result == ContentDialogResult.Primary && dialog.ResultUser != null)
-                {
-                    // TODO: Call ViewModel.UpdateUserCommand when implemented
-                    // For now, just refresh the list
-                    if (ViewModel.RefreshCommand?.CanExecute(null) == true)
-                    {
-                        await ViewModel.RefreshCommand.ExecuteAsync(null);
-                    }
-                    
-                    Services.LoggingService.Instance.Debug($"[AdminUsersPage] User updated: {dialog.ResultUser.Name}");
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Services.LoggingService.Instance.Error($"[AdminUsersPage] EditButton_Click error", ex);
-        }
-    }
-
-    #endregion
-
-    #region Pagination Event Handlers
-
-    /// <summary>
-    /// Handle pagination control page change (from PaginationControl v2)
-    /// </summary>
-    private async void OnPageChanged(object sender, PageChangedEventArgs e)
-    {
-        try
-        {
-            System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] OnPageChanged - Page: {e.CurrentPage}, PageSize: {e.PageSize}");
-            
-            // Update ViewModel properties
-            ViewModel.CurrentPage = e.CurrentPage;
-            ViewModel.PageSize = e.PageSize;
-            
-            // Reload data with new pagination using RefreshCommand
-            if (ViewModel.RefreshCommand?.CanExecute(null) == true)
-            {
-                await ViewModel.RefreshCommand.ExecuteAsync(null);
-            }
-        }
-        catch (Exception ex)
-        {
-            Services.LoggingService.Instance.Error($"[AdminUsersPage] OnPageChanged error", ex);
         }
     }
 
@@ -487,12 +386,11 @@ public sealed partial class AdminUsersPage : Page
                 {
                     System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] DeleteButton_Click - User: {user.Name}, ID: {user.Id}");
 
-                    // Show confirmation dialog using DestructiveDialogStyle
+                    // Show confirmation dialog using ContentDialog (WinUI 3 compatible)
                     var confirmDialog = new ContentDialog
                     {
-                        Style = Application.Current.Resources["DestructiveDialogStyle"] as Style,
-                        Title = "Delete User",
-                        Content = $"Are you sure you want to delete '{user.Name}'?\n\nThis action cannot be undone.",
+                        Title = "Confirm Delete User",
+                        Content = $"Are you sure you want to delete user '{user.Name}'?\n\nThis action cannot be undone.",
                         PrimaryButtonText = "Delete",
                         CloseButtonText = "Cancel",
                         DefaultButton = ContentDialogButton.Close,

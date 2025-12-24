@@ -4,8 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 namespace MyShop.Client.Views.Components.Layout;
 
 /// <summary>
-/// A reusable page header component with title, breadcrumb, and action buttons.
-/// v2.0 - RELEASE-GRADE: 64px fixed height, 24px SemiBold title, optional breadcrumb.
+/// A reusable page header component with title, subtitle, and action buttons.
 /// </summary>
 public sealed partial class PageHeader : UserControl
 {
@@ -24,7 +23,7 @@ public sealed partial class PageHeader : UserControl
             new PropertyMetadata(string.Empty));
 
     /// <summary>
-    /// Gets or sets the page title (24px SemiBold).
+    /// Gets or sets the page title.
     /// </summary>
     public string Title
     {
@@ -34,22 +33,22 @@ public sealed partial class PageHeader : UserControl
 
     #endregion
 
-    #region Breadcrumb Property
+    #region Subtitle Property
 
-    public static readonly DependencyProperty BreadcrumbProperty =
+    public static readonly DependencyProperty SubtitleProperty =
         DependencyProperty.Register(
-            nameof(Breadcrumb),
+            nameof(Subtitle),
             typeof(string),
             typeof(PageHeader),
             new PropertyMetadata(string.Empty));
 
     /// <summary>
-    /// Gets or sets the breadcrumb navigation text (optional, e.g., "Home > Admin").
+    /// Gets or sets the page subtitle/description.
     /// </summary>
-    public string Breadcrumb
+    public string Subtitle
     {
-        get => (string)GetValue(BreadcrumbProperty);
-        set => SetValue(BreadcrumbProperty, value);
+        get => (string)GetValue(SubtitleProperty);
+        set => SetValue(SubtitleProperty, value);
     }
 
     #endregion

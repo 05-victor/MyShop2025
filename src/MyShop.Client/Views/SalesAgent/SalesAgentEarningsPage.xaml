@@ -133,7 +133,7 @@
                         <!-- PAGE HEADER -->
                         <layout:PageHeader
                             Title="My Earnings"
-                            Breadcrumb="Sales Agent > Earnings">
+                            Subtitle="Track your income and platform fees">
                             <layout:PageHeader.ActionContent>
                                 <StackPanel Orientation="Horizontal"
                                             Spacing="12">

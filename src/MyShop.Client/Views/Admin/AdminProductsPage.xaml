@@ -18,7 +18,7 @@
     xmlns:forms="using:MyShop.Client.Views.Components.Forms"
     xmlns:cards="using:MyShop.Client.Views.Components.Cards"
     x:Name="MyPage"
-    Background="{ThemeResource LayerFillColorDefaultBrush}"
+    Background="{ThemeResource SubtleFillColorSecondaryBrush}"
     mc:Ignorable="d">
 
     <Page.Transitions>
@@ -133,7 +133,7 @@
                     <!--  PAGE TITLE  -->
                     <layout:PageHeader
                         Title="Products Management"
-                        Breadcrumb="Admin > Products">
+                        Subtitle="View and manage all products in the system">
                         <layout:PageHeader.ActionContent>
                             <StackPanel Orientation="Horizontal"
                                         Spacing="8">

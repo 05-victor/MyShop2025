@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Services;
@@ -19,10 +19,19 @@ public partial class CartViewModel : ObservableObject
     private readonly IToastService _toastService;
 
     [ObservableProperty]
-    private ObservableCollection<SalesAgentGroupViewModel> _agentGroups = new();
+    private ObservableCollection<CartItemViewModel> _items = new();
 
     [ObservableProperty]
-    private decimal _grandTotal = 0m;
+    private decimal _subtotal = 0m;
+
+    [ObservableProperty]
+    private decimal _shippingFee = 50000m;
+
+    [ObservableProperty]
+    private decimal _tax = 0m;
+
+    [ObservableProperty]
+    private decimal _total = 0m;
 
     [ObservableProperty]
     private int _itemCount = 0;
@@ -56,50 +65,46 @@ public partial class CartViewModel : ObservableObject
 
         try
         {
-            var result = await _cartFacade.LoadGroupedCartAsync();
+            var result = await _cartFacade.LoadCartAsync();
             
             if (!result.IsSuccess || result.Data == null)
             {
-                AgentGroups.Clear();
+                Items.Clear();
                 IsEmpty = true;
-                GrandTotal = 0m;
-                ItemCount = 0;
                 return;
             }
 
-            var groupedCart = result.Data;
+            var cartItems = result.Data;
 
-            // Map to ViewModels
-            AgentGroups.Clear();
-            foreach (var group in groupedCart.SalesAgentGroups)
+            Items.Clear();
+            foreach (var item in cartItems)
             {
-                var groupVM = new SalesAgentGroupViewModel
+                Items.Add(new CartItemViewModel
                 {
-                    SalesAgentId = group.SalesAgentId,
-                    SalesAgentFullName = group.SalesAgentFullName,
-                    Subtotal = group.Subtotal,
-                    Total = group.Total,
-                    Items = new ObservableCollection<CartItemViewModel>(
-                        group.Items.Select(item => new CartItemViewModel
-                        {
-                            ProductId = item.ProductId,
-                            Name = item.ProductName,
-                            Category = item.CategoryName ?? "",
-                            Price = item.Price,
-                            Quantity = item.Quantity,
-                            ImageUrl = item.ProductImage ?? "ms-appx:///Assets/Images/products/product-placeholder.png",
-                            Stock = item.StockAvailable
-                        })
-                    )
-                };
-                AgentGroups.Add(groupVM);
+                    ProductId = item.ProductId,
+                    Name = item.ProductName,
+                    Category = item.CategoryName ?? "",
+                    Price = item.Price,
+                    Quantity = item.Quantity,
+                    ImageUrl = item.ProductImage ?? "ms-appx:///Assets/Images/products/product-placeholder.png",
+                    Stock = item.StockAvailable
+                });
             }
 
-            GrandTotal = groupedCart.GrandTotal;
-            ItemCount = groupedCart.TotalItemCount;
-            IsEmpty = AgentGroups.Count == 0;
+            // Get cart summary for totals
+            var summaryResult = await _cartFacade.GetCartSummaryAsync();
+            if (summaryResult.IsSuccess && summaryResult.Data != null)
+            {
+                Subtotal = summaryResult.Data.Subtotal;
+                Tax = summaryResult.Data.Tax;
+                ShippingFee = summaryResult.Data.ShippingFee;
+                Total = summaryResult.Data.Total;
+                ItemCount = summaryResult.Data.TotalItems;
+            }
 
-            System.Diagnostics.Debug.WriteLine($"[CartViewModel] Loaded {AgentGroups.Count} agent groups, {ItemCount} items, Total: {GrandTotal:N0} VND");
+            IsEmpty = Items.Count == 0;
+
+            System.Diagnostics.Debug.WriteLine($"[CartViewModel] Loaded {Items.Count} items, Total: {Total:N0} VND");
         }
         catch (Exception ex)
         {
@@ -118,7 +123,8 @@ public partial class CartViewModel : ObservableObject
         
         if (result.IsSuccess)
         {
-            await LoadCartAsync(); // Reload grouped cart
+            item.Quantity++;
+            await RefreshTotalsAsync();
         }
     }
 
@@ -135,7 +141,8 @@ public partial class CartViewModel : ObservableObject
         
         if (result.IsSuccess)
         {
-            await LoadCartAsync(); // Reload grouped cart
+            item.Quantity--;
+            await RefreshTotalsAsync();
         }
     }
 
@@ -152,7 +159,9 @@ public partial class CartViewModel : ObservableObject
         
         if (result.IsSuccess)
         {
-            await LoadCartAsync(); // Reload grouped cart
+            Items.Remove(item);
+            await RefreshTotalsAsync();
+            IsEmpty = Items.Count == 0;
         }
     }
 
@@ -161,7 +170,7 @@ public partial class CartViewModel : ObservableObject
     {
         var confirmed = await _dialogService.ShowConfirmationAsync(
             "Clear Cart",
-            $"Are you sure you want to remove all {ItemCount} items from your cart? This action cannot be undone.");
+            $"Are you sure you want to remove all {Items.Count} items from your cart? This action cannot be undone.");
 
         if (!confirmed.IsSuccess || !confirmed.Data) return;
 
@@ -169,8 +178,11 @@ public partial class CartViewModel : ObservableObject
         
         if (result.IsSuccess)
         {
-            AgentGroups.Clear();
-            GrandTotal = 0;
+            Items.Clear();
+            Subtotal = 0;
+            Tax = 0;
+            ShippingFee = 0;
+            Total = 0;
             ItemCount = 0;
             IsEmpty = true;
         }
@@ -186,7 +198,7 @@ public partial class CartViewModel : ObservableObject
     private async Task ProceedToCheckoutAsync()
     {
         // Check if cart is empty
-        if (IsEmpty || ItemCount == 0)
+        if (IsEmpty || Items.Count == 0)
         {
             await _toastService.ShowInfo("Please add items to your cart before checkout");
             return;
@@ -194,33 +206,20 @@ public partial class CartViewModel : ObservableObject
 
         await _navigationService.NavigateInShell(typeof(CheckoutPage).FullName!);
     }
-}
 
-/// <summary>
-/// ViewModel for grouped cart items by sales agent
-/// </summary>
-public partial class SalesAgentGroupViewModel : ObservableObject
-{
-    [ObservableProperty]
-    private Guid _salesAgentId;
+    private async Task RefreshTotalsAsync()
+    {
+        var result = await _cartFacade.GetCartSummaryAsync();
 
-    [ObservableProperty]
-    private string _salesAgentUsername = string.Empty;
-
-    [ObservableProperty]
-    private string _salesAgentFullName = string.Empty;
-
-    [ObservableProperty]
-    private ObservableCollection<CartItemViewModel> _items = new();
-
-    [ObservableProperty]
-    private decimal _subtotal;
-
-    [ObservableProperty]
-    private decimal _total;
-
-    [ObservableProperty]
-    private int _itemCount;
+        if (result.IsSuccess && result.Data != null)
+        {
+            Subtotal = result.Data.Subtotal;
+            Tax = result.Data.Tax;
+            ShippingFee = result.Data.ShippingFee;
+            Total = result.Data.Total;
+            ItemCount = result.Data.TotalItems;
+        }
+    }
 }
 
 public partial class CartItemViewModel : ObservableObject

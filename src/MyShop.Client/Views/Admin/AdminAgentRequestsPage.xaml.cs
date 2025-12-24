@@ -2,7 +2,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using MyShop.Client.ViewModels.Admin;
-using System;
 
 namespace MyShop.Client.Views.Admin
 {
@@ -27,12 +26,6 @@ namespace MyShop.Client.Views.Admin
             {
                 PageScrollViewer?.ChangeView(null, 0, null, disableAnimation: false);
             }
-        }
-
-        private async void RefreshContainer_RefreshRequested(RefreshContainer sender, RefreshRequestedEventArgs args)
-        {
-            using var deferral = args.GetDeferral();
-            await ViewModel.RefreshCommand.ExecuteAsync(null);
         }
     }
 }

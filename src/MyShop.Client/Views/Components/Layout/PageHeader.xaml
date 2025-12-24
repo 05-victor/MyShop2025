@@ -9,59 +9,43 @@
     x:Name="RootControl">
 
     <!--
-    PageHeader Component v2.0 - RELEASE-GRADE
-    ==========================================
-    Standardized page header with fixed height, title, breadcrumb, and action buttons.
+    PageHeader Component
+    ====================
+    A reusable page header with title, subtitle, and action buttons slot.
     
-    SPECIFICATIONS:
-    • Height: 64px fixed
-    • Left: Title (24px SemiBold) + Breadcrumb (optional)
-    • Right: Action buttons (12px spacing enforced)
-    • Bottom border: BorderDefaultBrush (1px separator)
-    • Composition: Uses Button System (no custom button styles)
-    
-    USAGE:
+    Usage:
     <layout:PageHeader 
         Title="Users Management"
-        Breadcrumb="Home > Admin">
-        <layout:PageHeader.ActionContent>
+        Subtitle="Manage all users in the system">
+        <layout:PageHeader.Actions>
             <Button Content="Add User" Style="{StaticResource PrimaryButtonStyle}"/>
-        </layout:PageHeader.ActionContent>
+        </layout:PageHeader.Actions>
     </layout:PageHeader>
     -->
 
-    <Grid Height="64"
-          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-          BorderThickness="0,0,0,1">
+    <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
         <!-- Title Section -->
-        <StackPanel Grid.Column="0" 
-                    VerticalAlignment="Center"
-                    Spacing="4">
-            <!-- Breadcrumb (Optional) -->
-            <TextBlock Text="{Binding Breadcrumb, ElementName=RootControl, Mode=OneWay}"
-                       FontSize="12"
-                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                       Visibility="{Binding Breadcrumb, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
-            
-            <!-- Title (24px SemiBold - Heading2Style) -->
+        <StackPanel Grid.Column="0" VerticalAlignment="Center">
             <TextBlock Text="{Binding Title, ElementName=RootControl, Mode=OneWay}"
-                       FontSize="24"
-                       FontWeight="SemiBold"
+                       Style="{StaticResource DisplayHeadingStyle}"
                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                        AutomationProperties.HeadingLevel="Level1"/>
+            
+            <TextBlock Text="{Binding Subtitle, ElementName=RootControl, Mode=OneWay}"
+                       FontSize="14"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       Margin="0,4,0,0"
+                       Visibility="{Binding Subtitle, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
         </StackPanel>
 
-        <!-- Actions Slot (12px spacing enforced) -->
-        <StackPanel Grid.Column="1"
-                    Orientation="Horizontal"
-                    VerticalAlignment="Center"
-                    Spacing="12">
-            <ContentPresenter Content="{Binding ActionContent, ElementName=RootControl, Mode=OneWay}"/>
-        </StackPanel>
+        <!-- Actions Slot -->
+        <ContentPresenter Grid.Column="1"
+                         Content="{Binding ActionContent, ElementName=RootControl, Mode=OneWay}"
+                         VerticalAlignment="Center"/>
     </Grid>
 </UserControl>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <UserControl
     x:Class="MyShop.Client.Views.Components.Chat.ChatButton"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -41,18 +41,21 @@
                     
                     <VisualStateManager.VisualStateGroups>
                         <VisualStateGroup x:Name="CommonStates">
+                            <VisualStateGroup.Transitions>
+                                <VisualTransition GeneratedDuration="0:0:0.15"/>
+                            </VisualStateGroup.Transitions>
                             
                             <VisualState x:Name="Normal"/>
                             
                             <VisualState x:Name="PointerOver">
                                 <VisualState.Setters>
-                                    <Setter Target="RootEllipse.Fill" Value="{ThemeResource PrimaryHoverBrush}"/>
+                                    <Setter Target="RootEllipse.Opacity" Value="0.85"/>
                                 </VisualState.Setters>
                             </VisualState>
                             
                             <VisualState x:Name="Pressed">
                                 <VisualState.Setters>
-                                    <Setter Target="RootEllipse.Fill" Value="{ThemeResource PrimaryActiveBrush}"/>
+                                    <Setter Target="RootEllipse.Opacity" Value="0.7"/>
                                 </VisualState.Setters>
                             </VisualState>
                             
@@ -76,13 +79,13 @@
             <FontIcon x:Name="ChatIcon" 
                      Glyph="&#xE8BD;" 
                      FontSize="24" 
-                     Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
+                     Foreground="White"/>
             
             <!-- Close Icon (when open) -->
             <FontIcon x:Name="CloseIcon" 
                      Glyph="&#xE711;" 
                      FontSize="20" 
-                     Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                     Foreground="White"
                      Visibility="Collapsed"/>
             
             <!-- Notification Badge -->
@@ -97,7 +100,7 @@
                 <TextBlock Text="1" 
                           FontSize="10" 
                           FontWeight="Bold"
-                          Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                          Foreground="White"
                           HorizontalAlignment="Center"
                           VerticalAlignment="Center"/>
             </Border>
