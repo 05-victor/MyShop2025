@@ -16,7 +16,7 @@
     xmlns:converters="using:MyShop.Client.Common.Converters"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.SalesAgent"
     mc:Ignorable="d"
-    Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+    Background="{ThemeResource LayerFillColorDefaultBrush}">
 
     <Page.Transitions>
         <TransitionCollection>
