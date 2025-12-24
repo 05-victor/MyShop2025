@@ -374,7 +374,7 @@ public class SavedSearchService : ISavedSearchService
     /// <summary>
     /// Converts a history item to a saved search
     /// </summary>
-    public async Task<SavedSearch> SaveFromHistoryAsync(string historyId, string name)
+    public async Task<SavedSearch?> SaveFromHistoryAsync(string historyId, string name)
     {
         var historyItem = _searchHistory.FirstOrDefault(h => h.Id == historyId);
         if (historyItem == null) return null;

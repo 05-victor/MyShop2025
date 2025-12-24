@@ -136,6 +136,7 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
                     ProductDescription = productDesc,
                     OrderDate = o.OrderDate,
                     Status = o.Status,
+                    PaymentStatus = o.PaymentStatus,
                     TotalAmount = o.FinalPrice,
                     CommissionAmount = o.FinalPrice * 0.10m
                 });
@@ -223,6 +224,9 @@ public partial class OrderViewModel : ObservableObject
 
     [ObservableProperty]
     private string _status = string.Empty;
+
+    [ObservableProperty]
+    private string _paymentStatus = string.Empty;
 
     [ObservableProperty]
     private decimal _totalAmount;

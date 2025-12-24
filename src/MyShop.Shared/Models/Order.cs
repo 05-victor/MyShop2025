@@ -17,6 +17,7 @@ public class Order
     public decimal Discount { get; set; }
     public decimal FinalPrice { get; set; }
     public string Status { get; set; } = "CREATED";
+    public string? PaymentStatus { get; set; }
     public string? CancelReason { get; set; }
     public string? Notes { get; set; }
     public DateTime OrderDate { get; set; }

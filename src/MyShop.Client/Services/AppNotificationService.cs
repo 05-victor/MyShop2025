@@ -340,7 +340,7 @@ public partial class AppNotificationService : ObservableObject, IAppNotification
     /// <summary>
     /// Shows a Windows notification with progress bar
     /// </summary>
-    public async Task<string> ShowWindowsProgressNotificationAsync(string title, string status)
+    public async Task<string?> ShowWindowsProgressNotificationAsync(string title, string status)
     {
         if (!_isInitialized) return null;
 

@@ -115,8 +115,8 @@
                 <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <Grid x:Name="MainGrid"
-                                Padding="{StaticResource Padding_XL}"
-                                RowSpacing="16">
+                              Padding="{StaticResource Padding_XL}"
+                              RowSpacing="16">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
@@ -124,7 +124,7 @@
 
                             <!-- Page Header Section -->
                             <StackPanel Grid.Row="0"
-                                    Spacing="16">
+                                        Spacing="16">
 
                                 <!-- PAGE HEADER -->
                                 <layout:PageHeader
@@ -132,7 +132,7 @@
                                     Subtitle="Track and manage orders for your products">
                                     <layout:PageHeader.ActionContent>
                                         <StackPanel Orientation="Horizontal"
-                                                Spacing="12">
+                                                    Spacing="12">
                                             <buttons:IconButton
                                                 Variant="Outline"
                                                 IconGlyph="&#xE72C;"
@@ -153,11 +153,11 @@
 
                             <!-- Main Content -->
                             <StackPanel Grid.Row="1"
-                                    Spacing="20">
+                                        Spacing="20">
 
                                 <!-- SUMMARY CARDS -->
                                 <Grid x:Name="KPIGrid"
-                                        ColumnSpacing="16">
+                                      ColumnSpacing="16">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
@@ -214,45 +214,45 @@
 
                                             <StackPanel Grid.Column="0">
                                                 <TextBlock Text="Order Status"
-                                                        FontSize="12"
-                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                        Margin="0,0,0,4"/>
+                                                           FontSize="12"
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                           Margin="0,0,0,4"/>
                                                 <ComboBox x:Name="StatusComboBox"
                                                           HorizontalAlignment="Stretch"
                                                           CornerRadius="8"
                                                           SelectedIndex="0"
                                                           SelectionChanged="StatusComboBox_SelectionChanged">
                                                     <ComboBoxItem Content="All Status"
-                                                            Tag="All"/>
+                                                                  Tag="All"/>
                                                     <ComboBoxItem Content="Pending"
-                                                            Tag="Pending"/>
+                                                                  Tag="Pending"/>
                                                     <ComboBoxItem Content="Processing"
-                                                            Tag="Processing"/>
+                                                                  Tag="Processing"/>
                                                     <ComboBoxItem Content="Shipped"
-                                                            Tag="Shipped"/>
+                                                                  Tag="Shipped"/>
                                                     <ComboBoxItem Content="Delivered"
-                                                            Tag="Delivered"/>
+                                                                  Tag="Delivered"/>
                                                 </ComboBox>
                                             </StackPanel>
 
                                             <StackPanel Grid.Column="1">
                                                 <TextBlock Text="Payment Status"
-                                                        FontSize="12"
-                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                        Margin="0,0,0,4"/>
+                                                           FontSize="12"
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                           Margin="0,0,0,4"/>
                                                 <ComboBox x:Name="PaymentStatusComboBox"
                                                           HorizontalAlignment="Stretch"
                                                           CornerRadius="8"
                                                           SelectedIndex="0"
                                                           SelectionChanged="PaymentStatusComboBox_SelectionChanged">
                                                     <ComboBoxItem Content="All Payment Status"
-                                                            Tag="All"/>
+                                                                  Tag="All"/>
                                                     <ComboBoxItem Content="Unpaid"
-                                                            Tag="UNPAID"/>
+                                                                  Tag="UNPAID"/>
                                                     <ComboBoxItem Content="Paid"
-                                                            Tag="PAID"/>
+                                                                  Tag="PAID"/>
                                                     <ComboBoxItem Content="Refunded"
-                                                            Tag="REFUNDED"/>
+                                                                  Tag="REFUNDED"/>
                                                 </ComboBox>
                                             </StackPanel>
                                         </Grid>
@@ -269,21 +269,59 @@
                                         </Grid.RowDefinitions>
 
                                         <!-- Table Header -->
-                                        <tables:TableHeader Grid.Row="0">
-                                            <tables:TableHeader.Columns>
-                                                <x:String>120|ORDER ID</x:String>
-                                                <x:String>*|CUSTOMER</x:String>
-                                                <x:String>*|PRODUCT</x:String>
-                                                <x:String>100|DATE</x:String>
-                                                <x:String>120|AMOUNT</x:String>
-                                                <x:String>100|STATUS</x:String>
-                                                <x:String>80|ACTION</x:String>
-                                            </tables:TableHeader.Columns>
-                                        </tables:TableHeader>
+                                        <Grid Grid.Row="0"
+                                              Padding="24,16"
+                                              Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                              BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                              BorderThickness="0,0,0,1">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="120"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="120"/>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="110"/>
+                                                <ColumnDefinition Width="80"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Grid.Column="0"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="ORDER ID"/>
+                                            <TextBlock Grid.Column="1"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="CUSTOMER"/>
+                                            <TextBlock Grid.Column="2"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="ITEMS"/>
+                                            <TextBlock Grid.Column="3"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="DATE"/>
+                                            <TextBlock Grid.Column="4"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="TOTAL"/>
+                                            <TextBlock Grid.Column="5"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="STATUS"/>
+                                            <TextBlock Grid.Column="6"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="PAYMENT"/>
+                                            <TextBlock Grid.Column="7"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="ACTIONS"/>
+                                        </Grid>
 
                                         <!-- Table Body -->
                                         <ItemsRepeater Grid.Row="1"
-                                                ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}">
+                                                       ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}">
                                             <ItemsRepeater.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:OrderViewModel">
                                                     <Grid Padding="24,16"
@@ -302,6 +340,7 @@
                                                             <ColumnDefinition Width="100"/>
                                                             <ColumnDefinition Width="120"/>
                                                             <ColumnDefinition Width="100"/>
+                                                            <ColumnDefinition Width="110"/>
                                                             <ColumnDefinition Width="80"/>
                                                         </Grid.ColumnDefinitions>
 
@@ -344,14 +383,20 @@
                                                                             HorizontalAlignment="Left"
                                                                             VerticalAlignment="Center"/>
 
-                                                        <Button Grid.Column="6"
+                                                        <TextBlock Grid.Column="6"
+                                                                   Text="{x:Bind PaymentStatus, Mode=OneWay}"
+                                                                   FontSize="13"
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                   VerticalAlignment="Center"/>
+
+                                                        <Button Grid.Column="7"
                                                                 Style="{StaticResource IconButtonStyle}"
                                                                 Command="{Binding ElementName=RootPage, Path=ViewModel.ViewOrderDetailsCommand}"
                                                                 CommandParameter="{x:Bind}"
                                                                 VerticalAlignment="Center">
                                                             <FontIcon Glyph="&#xE7A6;"
-                                                                    FontSize="16"
-                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                                      FontSize="16"
+                                                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                         </Button>
                                                     </Grid>
                                                 </DataTemplate>
