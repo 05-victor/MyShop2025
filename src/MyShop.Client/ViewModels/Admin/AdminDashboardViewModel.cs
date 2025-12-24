@@ -595,9 +595,13 @@ public partial class AdminDashboardViewModel : BaseViewModel
                             {
                                 Rank = rank++,
                                 Name = agent.Name ?? "Unknown",
+                                Email = agent.Email ?? string.Empty,
+                                Avatar = agent.Name ?? "Unknown",  // Will use initials
                                 Gmv = agent.TotalGmv,
-                                OrderCount = agent.OrderCount,
-                                Commission = agent.Commission
+                                GMV = agent.TotalGmv,
+                                Commission = agent.Commission,
+                                ProductCount = agent.ProductCount,
+                                OrderCount = agent.OrderCount
                             });
                         }
                         System.Diagnostics.Debug.WriteLine($"[AdminDashboardViewModel.LoadAdminDataAsync] Top agents loaded: {TopSalesAgents.Count}");
@@ -915,6 +919,7 @@ public class TopSalesAgentItem
     public decimal Gmv { get; set; }
     public decimal GMV { get; set; }
     public decimal Commission { get; set; }
+    public int ProductCount { get; set; }
     public int OrderCount { get; set; }
     public double Rating { get; set; }
     public string Status { get; set; } = string.Empty;
