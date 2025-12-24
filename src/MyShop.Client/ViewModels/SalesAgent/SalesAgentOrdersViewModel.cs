@@ -208,7 +208,24 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
             {
                 dialog.XamlRoot = xamlRoot;
             }
-            dialog.Initialize(order.OrderItems);
+
+            // Set up callbacks for action buttons
+            dialog.OnMarkAsProcessingAsync = async () =>
+            {
+                await MarkAsProcessingAsync(order);
+            };
+
+            dialog.OnMarkAsShippedAsync = async () =>
+            {
+                await MarkAsShippedAsync(order);
+            };
+
+            dialog.OnMarkAsDeliveredAsync = async () =>
+            {
+                await MarkAsDeliveredAsync(order);
+            };
+
+            dialog.Initialize(order.OrderItems, order.Status, order.OrderId);
             await dialog.ShowAsync();
         }
         catch (Exception ex)

@@ -12,6 +12,13 @@ public sealed partial class OrderItemsDialog : ContentDialog
 {
     public List<OrderItemRow> Items { get; set; }
 
+    // Properties for order status and related callbacks
+    public string? OrderStatus { get; set; }
+    public string? OrderId { get; set; }
+    public System.Func<System.Threading.Tasks.Task>? OnMarkAsProcessingAsync { get; set; }
+    public System.Func<System.Threading.Tasks.Task>? OnMarkAsShippedAsync { get; set; }
+    public System.Func<System.Threading.Tasks.Task>? OnMarkAsDeliveredAsync { get; set; }
+
     public OrderItemsDialog()
     {
         this.InitializeComponent();
@@ -19,9 +26,9 @@ public sealed partial class OrderItemsDialog : ContentDialog
     }
 
     /// <summary>
-    /// Initialize dialog with order items
+    /// Initialize dialog with order items and status
     /// </summary>
-    public void Initialize(List<OrderItem> orderItems)
+    public void Initialize(List<OrderItem> orderItems, string? status = null, string? orderId = null)
     {
         Items = orderItems?
             .Select(item => new OrderItemRow
@@ -34,8 +41,31 @@ public sealed partial class OrderItemsDialog : ContentDialog
             })
             .ToList() ?? new List<OrderItemRow>();
 
+        OrderStatus = status;
+        OrderId = orderId;
+
         // Populate the UI with items
         PopulateItemsUI();
+        UpdateActionButtons();
+    }
+
+    private void UpdateActionButtons()
+    {
+        // Clear any existing secondary/tertiary buttons
+        SecondaryButtonText = null;
+
+        if (OrderStatus?.Equals("Confirmed", System.StringComparison.OrdinalIgnoreCase) == true)
+        {
+            SecondaryButtonText = "Mark as Processing";
+        }
+        else if (OrderStatus?.Equals("Processing", System.StringComparison.OrdinalIgnoreCase) == true)
+        {
+            SecondaryButtonText = "Mark as shipped";
+        }
+        else if (OrderStatus?.Equals("Shipped", System.StringComparison.OrdinalIgnoreCase) == true)
+        {
+            SecondaryButtonText = "Mark as Delivered";
+        }
     }
 
     private void PopulateItemsUI()
@@ -172,6 +202,44 @@ public sealed partial class OrderItemsDialog : ContentDialog
 
         border.Child = grid;
         return border;
+    }
+
+    private void OnCloseClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    {
+        // Just close the dialog
+    }
+
+    private async void OnActionButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    {
+        // Close dialog FIRST before showing confirmation dialog
+        // This prevents "Only a single ContentDialog can be open at any time" error
+        this.Hide();
+
+        // Wait a moment for the dialog to close
+        await Task.Delay(100);
+
+        // Handle action button click based on current status
+        if (OrderStatus?.Equals("Confirmed", System.StringComparison.OrdinalIgnoreCase) == true)
+        {
+            if (OnMarkAsProcessingAsync != null)
+            {
+                await OnMarkAsProcessingAsync();
+            }
+        }
+        else if (OrderStatus?.Equals("Processing", System.StringComparison.OrdinalIgnoreCase) == true)
+        {
+            if (OnMarkAsShippedAsync != null)
+            {
+                await OnMarkAsShippedAsync();
+            }
+        }
+        else if (OrderStatus?.Equals("Shipped", System.StringComparison.OrdinalIgnoreCase) == true)
+        {
+            if (OnMarkAsDeliveredAsync != null)
+            {
+                await OnMarkAsDeliveredAsync();
+            }
+        }
     }
 }
 
