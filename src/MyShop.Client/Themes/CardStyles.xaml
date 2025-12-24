@@ -2,14 +2,24 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- ============================================= -->
-    <!-- CARD SYSTEM v3.0 - WinUI-Gallery Aligned     -->
-    <!-- CornerRadius: 8px (WinUI Standard)           -->
-    <!-- Padding Tiers: 12/16/20/24                   -->
+    <!-- CARD SYSTEM v4.0 - RELEASE-GRADE            -->
+    <!-- CornerRadius: 8px (Standard), 12px (Large)   -->
+    <!-- Padding Tiers: 16px (Compact), 20px (Default), 24px (Large) -->
+    <!-- Shadow: Light theme = subtle, Dark theme = border-first -->
+    <!-- ============================================= -->
+    
+    <!-- ============================================= -->
+    <!-- 🎯 CORE CARD TYPES                          -->
+    <!-- 1. Default    - Standard content (20px pad) -->
+    <!-- 2. Compact    - Dense UI, lists (16px pad)  -->
+    <!-- 3. Large      - Hero sections (24px pad)    -->
+    <!-- 4. Outlined   - Minimal emphasis (no fill)  -->
     <!-- ============================================= -->
 
     <!-- ============================================= -->
-    <!-- 1. DEFAULT CARD                              -->
-    <!-- Standard content container                   -->
+    <!-- 1. DEFAULT CARD (Medium padding - 20px)     -->
+    <!-- Standard content container, no shadow        -->
+    <!-- Use for: Most content sections               -->
     <!-- ============================================= -->
     
     <Style x:Key="DefaultCardStyle" TargetType="Border">
@@ -40,8 +50,9 @@
     <Style x:Key="CardWithShadowStyle" TargetType="Border" BasedOn="{StaticResource ElevatedCardStyle}"/>
 
     <!-- ============================================= -->
-    <!-- 3. COMPACT CARD                              -->
-    <!-- Smaller cards for list items, compact UI     -->
+    <!-- 2. COMPACT CARD (Small padding - 16px)      -->
+    <!-- Dense UI, list items, compact layouts        -->
+    <!-- Use for: Table cards, list items             -->
     <!-- ============================================= -->
     
     <Style x:Key="CompactCardStyle" TargetType="Border">
@@ -49,36 +60,34 @@
         <Setter Property="CornerRadius" Value="8"/>
         <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="12"/>
+        <Setter Property="Padding" Value="16"/>
     </Style>
 
     <!-- Alias: CardCompactStyle points to CompactCardStyle -->
     <Style x:Key="CardCompactStyle" TargetType="Border" BasedOn="{StaticResource CompactCardStyle}"/>
 
     <!-- ============================================= -->
-    <!-- 4. LARGE CARD                                -->
-    <!-- Hero cards, feature sections                 -->
+    <!-- 3. LARGE CARD (Spacious padding - 24px)     -->
+    <!-- Hero cards, feature sections, dashboards     -->
+    <!-- Use for: Dashboard KPIs, featured content    -->
+    <!-- Corner radius: 12px (larger for prominence)  -->
     <!-- ============================================= -->
     
     <Style x:Key="LargeCardStyle" TargetType="Border">
         <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
-        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="CornerRadius" Value="12"/>
         <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="24"/>
-        <Setter Property="Shadow">
-            <Setter.Value>
-                <ThemeShadow/>
-            </Setter.Value>
-        </Setter>
     </Style>
 
     <!-- Alias: CardLargeStyle points to LargeCardStyle -->
     <Style x:Key="CardLargeStyle" TargetType="Border" BasedOn="{StaticResource LargeCardStyle}"/>
 
     <!-- ============================================= -->
-    <!-- 5. OUTLINED CARD                             -->
-    <!-- Minimal emphasis, border only                -->
+    <!-- 4. OUTLINED CARD (Transparent background)    -->
+    <!-- Minimal emphasis, border only, no fill       -->
+    <!-- Use for: Secondary content, subtle sections  -->
     <!-- ============================================= -->
     
     <Style x:Key="OutlinedCardStyle" TargetType="Border">
@@ -90,8 +99,9 @@
     </Style>
 
     <!-- ============================================= -->
-    <!-- 6. PRODUCT CARD                              -->
-    <!-- Product display in grids                     -->
+    <!-- ⚙️ SPECIALIZED: PRODUCT CARD                -->
+    <!-- Product display in grids, no padding         -->
+    <!-- Use for: E-commerce product listings         -->
     <!-- ============================================= -->
     
     <Style x:Key="ProductCardStyle" TargetType="Border">
@@ -100,16 +110,12 @@
         <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="0"/>
-        <Setter Property="Shadow">
-            <Setter.Value>
-                <ThemeShadow/>
-            </Setter.Value>
-        </Setter>
     </Style>
 
     <!-- ============================================= -->
-    <!-- 7. DATA TABLE CARD                           -->
-    <!-- Container for tables/DataGrids               -->
+    <!-- ⚙️ SPECIALIZED: DATA TABLE CARD             -->
+    <!-- Container for tables/DataGrids, no padding   -->
+    <!-- Use for: Tables that need full-width layout  -->
     <!-- ============================================= -->
     
     <Style x:Key="DataTableCardStyle" TargetType="Border">
@@ -121,73 +127,31 @@
     </Style>
 
     <!-- ============================================= -->
-    <!-- 8. INTERACTIVE CARD (Button-based)           -->
-    <!-- Clickable cards with hover effects           -->
+    <!-- ⚙️ SPECIALIZED: INTERACTIVE CARD (Clickable)-->
+    <!-- TEMPORARILY DISABLED: WinUI runtime error    -->
+    <!-- Error: ContentPresenter cannot be resolved   -->
+    <!-- TODO: Fix in future when needed              -->
     <!-- ============================================= -->
     
-    <Style x:Key="InteractiveCardStyle" TargetType="Button">
-        <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
-        <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="16"/>
-        <Setter Property="Padding" Value="20"/>
-        <Setter Property="HorizontalAlignment" Value="Stretch"/>
-        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Grid>
-                        <Border x:Name="CardBorder"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="{TemplateBinding CornerRadius}"
-                                Padding="{TemplateBinding Padding}">
-                            <Border.Shadow>
-                                <ThemeShadow/>
-                            </Border.Shadow>
-                            <ContentPresenter Content="{TemplateBinding Content}"
-                                            Foreground="{TemplateBinding Foreground}"
-                                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
-                        </Border>
-                        <VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup x:Name="CommonStates">
-                                
-                                <VisualState x:Name="Normal">
-                                    <VisualState.Setters>
-                                        <Setter Target="CardBorder.Translation" Value="0,0,8"/>
-                                    </VisualState.Setters>
-                                </VisualState>
-                                <VisualState x:Name="PointerOver">
-                                    <VisualState.Setters>
-                                        <Setter Target="CardBorder.Background" Value="{ThemeResource SubtleFillColorSecondaryBrush}"/>
-                                        <Setter Target="CardBorder.Translation" Value="0,0,16"/>
-                                    </VisualState.Setters>
-                                </VisualState>
-                                <VisualState x:Name="Pressed">
-                                    <VisualState.Setters>
-                                        <Setter Target="CardBorder.Background" Value="{ThemeResource SubtleFillColorTertiaryBrush}"/>
-                                        <Setter Target="CardBorder.Translation" Value="0,0,4"/>
-                                    </VisualState.Setters>
-                                </VisualState>
-                            </VisualStateGroup>
-                        </VisualStateManager.VisualStateGroups>
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+    <!-- <Style x:Key="InteractiveCardStyle" TargetType="Button">
+        ... commented out due to runtime error ...
+    </Style> -->
 
-    <!-- Legacy Alias: HoverCardStyle points to ElevatedCardStyle -->
+    <!-- ============================================= -->
+    <!-- ⚠️ DEPRECATED: Legacy Aliases                -->
+    <!-- Kept for backward compatibility              -->
+    <!-- ============================================= -->
+    
+    <!-- DEPRECATED: Use ElevatedCardStyle instead -->
     <Style x:Key="HoverCardStyle" TargetType="Border" BasedOn="{StaticResource ElevatedCardStyle}"/>
 
     <!-- ============================================= -->
     <!-- CARD PADDING RESOURCES                       -->
     <!-- Use in custom card implementations           -->
+    <!-- Standardized to 3 tiers: 16/20/24px          -->
     <!-- ============================================= -->
     
-    <Thickness x:Key="CardPaddingCompact">12</Thickness>
-    <Thickness x:Key="CardPaddingMedium">16</Thickness>
+    <Thickness x:Key="CardPaddingCompact">16</Thickness>
     <Thickness x:Key="CardPaddingDefault">20</Thickness>
     <Thickness x:Key="CardPaddingSpacious">24</Thickness>
 

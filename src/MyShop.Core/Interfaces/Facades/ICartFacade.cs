@@ -16,6 +16,12 @@ public interface ICartFacade
     Task<Result<List<CartItem>>> LoadCartAsync();
 
     /// <summary>
+    /// Load current user's cart grouped by sales agents.
+    /// Used for displaying cart with commission breakdown.
+    /// </summary>
+    Task<Result<GroupedCart>> LoadGroupedCartAsync();
+
+    /// <summary>
     /// Get cart summary (total items, subtotal, etc.).
     /// </summary>
     Task<Result<CartSummary>> GetCartSummaryAsync();
@@ -60,4 +66,28 @@ public class CartSummary
     public decimal Tax { get; set; }
     public decimal ShippingFee { get; set; }
     public decimal Total { get; set; }
+}
+
+/// <summary>
+/// Grouped cart by sales agents for commission tracking.
+/// </summary>
+public class GroupedCart
+{
+    public List<SalesAgentGroup> SalesAgentGroups { get; set; } = new();
+    public decimal GrandTotal { get; set; }
+    public int TotalItemCount { get; set; }
+}
+
+/// <summary>
+/// Cart items grouped by a single sales agent.
+/// </summary>
+public class SalesAgentGroup
+{
+    public Guid SalesAgentId { get; set; }
+    public string SalesAgentUsername { get; set; } = string.Empty;
+    public string SalesAgentFullName { get; set; } = string.Empty;
+    public List<CartItem> Items { get; set; } = new();
+    public decimal Subtotal { get; set; }
+    public decimal Total { get; set; }
+    public int ItemCount { get; set; }
 }

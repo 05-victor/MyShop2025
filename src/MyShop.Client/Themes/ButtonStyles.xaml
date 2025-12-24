@@ -5,10 +5,52 @@
     <!-- No need to merge them again here to avoid circular dependency issues -->
 
     <!-- ============================================= -->
-    <!-- BUTTON SYSTEM v2.0 - STANDARDIZED            -->
+    <!-- BUTTON SYSTEM v3.0 - RELEASE-GRADE          -->
     <!-- CornerRadius: 8px (Standard)                 -->
     <!-- Heights: 32px (Small), 40px (Medium), 48px (Large) -->
+    <!-- States: Normal, Hover, Pressed, Disabled, Loading-ready -->
     <!-- ============================================= -->
+    
+    <!-- ============================================= -->
+    <!-- 🎯 CORE BUTTONS (Use these 90% of the time) -->
+    <!-- 1. Primary   - Main CTAs (Save, Submit)     -->
+    <!-- 2. Secondary - Cancel, Back actions         -->
+    <!-- 3. Outline   - Filters, toggles, chips      -->
+    <!-- 4. Danger    - Delete, destructive actions  -->
+    <!-- 5. Text      - Tertiary actions, links      -->
+    <!-- ============================================= -->
+    
+    <!-- ============================================= -->
+    <!-- 📐 USAGE RULES (Context-based selection)    -->
+    <!-- ============================================= -->
+    <!-- 
+    A. Page-level CTA (Save, Submit, Create):
+       → PrimaryButtonStyle (Medium/Large)
+       → Max 1-2 per screen
+    
+    B. Secondary actions (Cancel, Back):
+       → SecondaryButtonStyle
+       → Always pairs with Primary
+    
+    C. Table row actions (Edit, Approve, Delete):
+       → Compact* styles (28px height)
+       → Keeps table density
+       → NO Primary in table rows
+    
+    D. Icon-only / Quick actions (Refresh, Filter):
+       → IconButton (Ghost/Outline)
+       → Good for mobile headers
+    
+    E. Empty states / Call-to-start:
+       → PrimaryButtonStyle (Large)
+       → Clear first action
+    
+    🔒 GOLDEN RULES:
+    1. NO PrimaryButtonStyle in table rows
+    2. Compact buttons = table/list only
+    3. Max 1 Primary CTA per screen
+    4. IconButton in table = no text
+    -->
 
     <!-- ============================================= -->
     <!-- 1. PRIMARY BUTTON                            -->
@@ -21,8 +63,8 @@
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="CornerRadius" Value="8"/>
-        <Setter Property="Background" Value="{ThemeResource PrimaryBrush}"/>
-        <Setter Property="Foreground" Value="{ThemeResource WhiteBrush}"/>
+        <Setter Property="Background" Value="{ThemeResource AccentFillColorDefaultBrush}"/>
+        <Setter Property="Foreground" Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
@@ -43,27 +85,34 @@
                                             VerticalAlignment="Center"/>
                         </Border>
                         <VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup x:Name="CommonStates">                                <VisualStateGroup.Transitions>
-                                    <VisualTransition GeneratedDuration="0:0:0.2"/>
-                                </VisualStateGroup.Transitions>
+                            <VisualStateGroup x:Name="CommonStates">
                                 
                                 <VisualState x:Name="Normal"/>
                                 <VisualState x:Name="PointerOver">
                                     <VisualState.Setters>
-                                        <Setter Target="ButtonBorder.Background" Value="{ThemeResource PrimaryHoverBrush}"/>
-                                        <Setter Target="ButtonBorder.Opacity" Value="0.9"/>
+                                        <Setter Target="ButtonBorder.Background" Value="{ThemeResource AccentFillColorSecondaryBrush}"/>
                                     </VisualState.Setters>
                                 </VisualState>
                                 <VisualState x:Name="Pressed">
                                     <VisualState.Setters>
-                                        <Setter Target="ButtonBorder.Background" Value="{ThemeResource PrimaryHoverBrush}"/>
-                                        <Setter Target="ButtonBorder.Opacity" Value="0.8"/>
+                                        <Setter Target="ButtonBorder.Background" Value="{ThemeResource AccentFillColorTertiaryBrush}"/>
                                     </VisualState.Setters>
                                 </VisualState>
                                 <VisualState x:Name="Disabled">
                                     <VisualState.Setters>
-                                        <Setter Target="ButtonBorder.Background" Value="{ThemeResource Gray300Brush}"/>
-                                        <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource Gray500Brush}"/>
+                                        <Setter Target="ButtonBorder.Background" Value="{ThemeResource ControlFillColorDisabledBrush}"/>
+                                        <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                            
+                            <!-- Loading-ready state (visual only, no logic) -->
+                            <VisualStateGroup x:Name="LoadingStates">
+                                <VisualState x:Name="NotLoading"/>
+                                <VisualState x:Name="Loading">
+                                    <VisualState.Setters>
+                                        <Setter Target="ButtonBorder.Opacity" Value="0.7"/>
+                                        <Setter Target="ContentPresenter.Opacity" Value="0.7"/>
                                     </VisualState.Setters>
                                 </VisualState>
                             </VisualStateGroup>
@@ -100,7 +149,7 @@
         <Setter Property="FontWeight" Value="Medium"/>
         <Setter Property="CornerRadius" Value="8"/>
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{ThemeResource TextPrimaryBrush}"/>
+        <Setter Property="Foreground" Value="{ThemeResource TextFillColorPrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -123,9 +172,6 @@
                         </Border>
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="CommonStates">
-                                <VisualStateGroup.Transitions>
-                                    <VisualTransition GeneratedDuration="0:0:0.2"/>
-                                </VisualStateGroup.Transitions>
                                 
                                 <VisualState x:Name="Normal"/>
                                 <VisualState x:Name="PointerOver">
@@ -143,6 +189,17 @@
                                         <Setter Target="ButtonBorder.Background" Value="{ThemeResource ControlFillColorDisabledBrush}"/>
                                         <Setter Target="ButtonBorder.BorderBrush" Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
                                         <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                            
+                            <!-- Loading-ready state -->
+                            <VisualStateGroup x:Name="LoadingStates">
+                                <VisualState x:Name="NotLoading"/>
+                                <VisualState x:Name="Loading">
+                                    <VisualState.Setters>
+                                        <Setter Target="ButtonBorder.Opacity" Value="0.7"/>
+                                        <Setter Target="ContentPresenter.Opacity" Value="0.7"/>
                                     </VisualState.Setters>
                                 </VisualState>
                             </VisualStateGroup>
@@ -168,7 +225,96 @@
     </Style>
 
     <!-- ============================================= -->
-    <!-- 3. DANGER BUTTON                             -->
+    <!-- 3. OUTLINE BUTTON (NEW - Core Button #3)    -->
+    <!-- Use for: Filters, chips, toggles, emphasis  -->
+    <!-- ============================================= -->
+    
+    <Style x:Key="OutlineButtonStyle" TargetType="Button">
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Padding" Value="16,0"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{ThemeResource AccentFillColorDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Border x:Name="ButtonBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter x:Name="ContentPresenter"
+                                            Content="{TemplateBinding Content}"
+                                            Foreground="{TemplateBinding Foreground}"
+                                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                
+                                <VisualState x:Name="Normal"/>
+                                <VisualState x:Name="PointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="ButtonBorder.Background" Value="{ThemeResource AccentFillColorDefaultBrush}"/>
+                                        <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <VisualState.Setters>
+                                        <Setter Target="ButtonBorder.Background" Value="{ThemeResource AccentFillColorSecondaryBrush}"/>
+                                        <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Target="ButtonBorder.Background" Value="{ThemeResource ControlFillColorDisabledBrush}"/>
+                                        <Setter Target="ButtonBorder.BorderBrush" Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
+                                        <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                            
+                            <!-- Loading-ready state -->
+                            <VisualStateGroup x:Name="LoadingStates">
+                                <VisualState x:Name="NotLoading"/>
+                                <VisualState x:Name="Loading">
+                                    <VisualState.Setters>
+                                        <Setter Target="ButtonBorder.Opacity" Value="0.7"/>
+                                        <Setter Target="ContentPresenter.Opacity" Value="0.7"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Outline Button - Small -->
+    <Style x:Key="OutlineButtonSmallStyle" TargetType="Button" BasedOn="{StaticResource OutlineButtonStyle}">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="12,0"/>
+        <Setter Property="FontSize" Value="13"/>
+    </Style>
+
+    <!-- Outline Button - Large -->
+    <Style x:Key="OutlineButtonLargeStyle" TargetType="Button" BasedOn="{StaticResource OutlineButtonStyle}">
+        <Setter Property="Height" Value="48"/>
+        <Setter Property="Padding" Value="24,0"/>
+        <Setter Property="FontSize" Value="15"/>
+    </Style>
+
+    <!-- ============================================= -->
+    <!-- 4. DANGER BUTTON                             -->
     <!-- Use for: Destructive actions (Delete, Remove)-->
     <!-- ============================================= -->
     
@@ -209,13 +355,23 @@
                                 <VisualState x:Name="Pressed">
                                     <VisualState.Setters>
                                         <Setter Target="ButtonBorder.Background" Value="{ThemeResource ErrorRedDarkBrush}"/>
-                                        <Setter Target="ButtonBorder.Opacity" Value="0.8"/>
                                     </VisualState.Setters>
                                 </VisualState>
                                 <VisualState x:Name="Disabled">
                                     <VisualState.Setters>
                                         <Setter Target="ButtonBorder.Background" Value="{ThemeResource ControlFillColorDisabledBrush}"/>
                                         <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                            
+                            <!-- Loading-ready state -->
+                            <VisualStateGroup x:Name="LoadingStates">
+                                <VisualState x:Name="NotLoading"/>
+                                <VisualState x:Name="Loading">
+                                    <VisualState.Setters>
+                                        <Setter Target="ButtonBorder.Opacity" Value="0.7"/>
+                                        <Setter Target="ContentPresenter.Opacity" Value="0.7"/>
                                     </VisualState.Setters>
                                 </VisualState>
                             </VisualStateGroup>
@@ -241,8 +397,9 @@
     </Style>
 
     <!-- ============================================= -->
-    <!-- 4. SUCCESS BUTTON                            -->
-    <!-- Use for: Positive actions (Approve, Accept)  -->
+    <!-- ⚙️ SPECIALIZED: SUCCESS BUTTON               -->
+    <!-- Use for: Approve, Accept (not in Core 5)    -->
+    <!-- Context: Admin approval workflows only      -->
     <!-- ============================================= -->
     
     <Style x:Key="SuccessButtonStyle" TargetType="Button">
@@ -282,7 +439,6 @@
                                 <VisualState x:Name="Pressed">
                                     <VisualState.Setters>
                                         <Setter Target="ButtonBorder.Background" Value="{ThemeResource SuccessGreenDarkBrush}"/>
-                                        <Setter Target="ButtonBorder.Opacity" Value="0.8"/>
                                     </VisualState.Setters>
                                 </VisualState>
                                 <VisualState x:Name="Disabled">
@@ -380,13 +536,13 @@
     </Style>
 
     <!-- ============================================= -->
-    <!-- 6. TEXT BUTTON                               -->
+    <!-- 5. TEXT BUTTON                               -->
     <!-- Use for: Tertiary actions (Learn More, Skip) -->
     <!-- ============================================= -->
     
     <Style x:Key="TextButtonStyle" TargetType="Button">
-        <Setter Property="Height" Value="36"/>
-        <Setter Property="Padding" Value="8,0"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Padding" Value="12,0"/>
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="FontWeight" Value="Medium"/>
         <Setter Property="Background" Value="Transparent"/>
@@ -426,6 +582,16 @@
                                     </VisualState.Setters>
                                 </VisualState>
                             </VisualStateGroup>
+                            
+                            <!-- Loading-ready state -->
+                            <VisualStateGroup x:Name="LoadingStates">
+                                <VisualState x:Name="NotLoading"/>
+                                <VisualState x:Name="Loading">
+                                    <VisualState.Setters>
+                                        <Setter Target="ContentPresenter.Opacity" Value="0.7"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
                     </Grid>
                 </ControlTemplate>
@@ -434,7 +600,7 @@
     </Style>
 
     <!-- ============================================= -->
-    <!-- 7. LINK BUTTON                               -->
+    <!-- ⚙️ SPECIALIZED: LINK BUTTON                  -->
     <!-- Use for: Hyperlink-style actions             -->
     <!-- ============================================= -->
     
@@ -498,7 +664,7 @@
     <!-- IconButton Ghost: Transparent, no border -->
     <Style x:Key="IconButtonGhostStyle" TargetType="Button">
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{ThemeResource TextSecondaryBrush}"/>
+        <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding" Value="8"/>
         <Setter Property="CornerRadius" Value="8"/>
@@ -511,15 +677,14 @@
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="{TemplateBinding CornerRadius}"
                                 Padding="{TemplateBinding Padding}">
-                            <ContentPresenter Foreground="{TemplateBinding Foreground}"
+                            <ContentPresenter x:Name="ContentPresenter"
+                                            Foreground="{TemplateBinding Foreground}"
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Center"/>
                         </Border>
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="CommonStates">
-                                <VisualStateGroup.Transitions>
-                                    <VisualTransition GeneratedDuration="0:0:0.15"/>
-                                </VisualStateGroup.Transitions>
+                                
                                 <VisualState x:Name="Normal"/>
                                 <VisualState x:Name="PointerOver">
                                     <VisualState.Setters>
@@ -533,7 +698,8 @@
                                 </VisualState>
                                 <VisualState x:Name="Disabled">
                                     <VisualState.Setters>
-                                        <Setter Target="RootBorder.Opacity" Value="0.5"/>
+                                        <Setter Target="RootBorder.Background" Value="{ThemeResource ControlFillColorDisabledBrush}"/>
+                                        <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}"/>
                                     </VisualState.Setters>
                                 </VisualState>
                             </VisualStateGroup>
@@ -547,7 +713,7 @@
     <!-- IconButton Outline: Border with transparent background -->
     <Style x:Key="IconButtonOutlineStyle" TargetType="Button">
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{ThemeResource TextPrimaryBrush}"/>
+        <Setter Property="Foreground" Value="{ThemeResource TextFillColorPrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="8"/>
@@ -562,15 +728,14 @@
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="{TemplateBinding CornerRadius}"
                                 Padding="{TemplateBinding Padding}">
-                            <ContentPresenter Foreground="{TemplateBinding Foreground}"
+                            <ContentPresenter x:Name="ContentPresenter"
+                                            Foreground="{TemplateBinding Foreground}"
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Center"/>
                         </Border>
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="CommonStates">
-                                <VisualStateGroup.Transitions>
-                                    <VisualTransition GeneratedDuration="0:0:0.15"/>
-                                </VisualStateGroup.Transitions>
+                                
                                 <VisualState x:Name="Normal"/>
                                 <VisualState x:Name="PointerOver">
                                     <VisualState.Setters>
@@ -584,7 +749,9 @@
                                 </VisualState>
                                 <VisualState x:Name="Disabled">
                                     <VisualState.Setters>
-                                        <Setter Target="RootBorder.Opacity" Value="0.5"/>
+                                        <Setter Target="RootBorder.Background" Value="{ThemeResource ControlFillColorDisabledBrush}"/>
+                                        <Setter Target="RootBorder.BorderBrush" Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
+                                        <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}"/>
                                     </VisualState.Setters>
                                 </VisualState>
                             </VisualStateGroup>
@@ -597,8 +764,8 @@
 
     <!-- IconButton Filled: Colored background -->
     <Style x:Key="IconButtonFilledStyle" TargetType="Button">
-        <Setter Property="Background" Value="{ThemeResource PrimaryBrush}"/>
-        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Background" Value="{ThemeResource AccentFillColorDefaultBrush}"/>
+        <Setter Property="Foreground" Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding" Value="8"/>
         <Setter Property="CornerRadius" Value="8"/>
@@ -611,29 +778,29 @@
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="{TemplateBinding CornerRadius}"
                                 Padding="{TemplateBinding Padding}">
-                            <ContentPresenter Foreground="{TemplateBinding Foreground}"
+                            <ContentPresenter x:Name="ContentPresenter"
+                                            Foreground="{TemplateBinding Foreground}"
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Center"/>
                         </Border>
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="CommonStates">
-                                <VisualStateGroup.Transitions>
-                                    <VisualTransition GeneratedDuration="0:0:0.15"/>
-                                </VisualStateGroup.Transitions>
+                                
                                 <VisualState x:Name="Normal"/>
                                 <VisualState x:Name="PointerOver">
                                     <VisualState.Setters>
-                                        <Setter Target="RootBorder.Opacity" Value="0.9"/>
+                                        <Setter Target="RootBorder.Background" Value="{ThemeResource AccentFillColorSecondaryBrush}"/>
                                     </VisualState.Setters>
                                 </VisualState>
                                 <VisualState x:Name="Pressed">
                                     <VisualState.Setters>
-                                        <Setter Target="RootBorder.Opacity" Value="0.8"/>
+                                        <Setter Target="RootBorder.Background" Value="{ThemeResource AccentFillColorTertiaryBrush}"/>
                                     </VisualState.Setters>
                                 </VisualState>
                                 <VisualState x:Name="Disabled">
                                     <VisualState.Setters>
-                                        <Setter Target="RootBorder.Opacity" Value="0.5"/>
+                                        <Setter Target="RootBorder.Background" Value="{ThemeResource ControlFillColorDisabledBrush}"/>
+                                        <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}"/>
                                     </VisualState.Setters>
                                 </VisualState>
                             </VisualStateGroup>
@@ -677,13 +844,6 @@
                         </Border>
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="CommonStates">
-                                <VisualStateGroup.Transitions>
-                                    <VisualTransition GeneratedDuration="0:0:0.2">
-                                        <VisualTransition.GeneratedEasingFunction>
-                                            <CubicEase EasingMode="EaseOut"/>
-                                        </VisualTransition.GeneratedEasingFunction>
-                                    </VisualTransition>
-                                </VisualStateGroup.Transitions>
                                 
                                 <VisualState x:Name="Normal"/>
                                 
@@ -748,9 +908,6 @@
                         </Border>
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="CommonStates">
-                                <VisualStateGroup.Transitions>
-                                    <VisualTransition GeneratedDuration="0:0:0.15"/>
-                                </VisualStateGroup.Transitions>
                                 
                                 <VisualState x:Name="Normal"/>
                                 
@@ -783,21 +940,185 @@
     </Style>
 
     <!-- ============================================= -->
-    <!-- ACCENT BUTTON (Alias for compatibility)      -->
+    <!-- ⚠️ DEPRECATED ALIASES (DO NOT USE)           -->
+    <!-- Kept for backward compatibility only         -->
+    <!-- Will be removed in future release            -->
     <!-- ============================================= -->
     
+    <!-- DEPRECATED: Use PrimaryButtonStyle instead -->
     <Style x:Key="AccentButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}"/>
 
-    <!-- ============================================= -->
-    <!-- LEGACY ALIASES (For backward compatibility)  -->
-    <!-- These point to new standardized styles       -->
-    <!-- ============================================= -->
-    
-    <!-- SmallSuccessButtonStyle → SuccessButtonSmallStyle -->
+    <!-- DEPRECATED: Use SuccessButtonSmallStyle instead -->
     <Style x:Key="SmallSuccessButtonStyle" TargetType="Button" BasedOn="{StaticResource SuccessButtonSmallStyle}"/>
     
-    <!-- SmallDangerButtonStyle → DangerButtonSmallStyle -->
+    <!-- DEPRECATED: Use DangerButtonSmallStyle instead -->
     <Style x:Key="SmallDangerButtonStyle" TargetType="Button" BasedOn="{StaticResource DangerButtonSmallStyle}"/>
+
+    <!-- ============================================= -->
+    <!-- ⚙️ SPECIALIZED: COMPACT BUTTONS FOR TABLES   -->
+    <!-- Use for: Action buttons in table rows        -->
+    <!-- Height: 32px (Small), compact padding        -->
+    <!-- Note: Consolidated from legacy 28px Compact -->
+    <!-- ============================================= -->
+    
+    <!-- Compact Primary Button (for table actions like "View Details") -->
+    <Style x:Key="CompactPrimaryButtonStyle" TargetType="Button">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="Background" Value="{ThemeResource AccentFillColorDefaultBrush}"/>
+        <Setter Property="Foreground" Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Border x:Name="ButtonBorder"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter x:Name="ContentPresenter"
+                                            Content="{TemplateBinding Content}"
+                                            Foreground="{TemplateBinding Foreground}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                
+                                <VisualState x:Name="Normal"/>
+                                <VisualState x:Name="PointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="ButtonBorder.Background" Value="{ThemeResource AccentFillColorSecondaryBrush}"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <VisualState.Setters>
+                                        <Setter Target="ButtonBorder.Background" Value="{ThemeResource AccentFillColorTertiaryBrush}"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Target="ButtonBorder.Background" Value="{ThemeResource ControlFillColorDisabledBrush}"/>
+                                        <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Compact Danger Button (for table actions like "Delete") -->
+    <Style x:Key="CompactDangerButtonStyle" TargetType="Button">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="Background" Value="{ThemeResource ErrorRedBrush}"/>
+        <Setter Property="Foreground" Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Border x:Name="ButtonBorder"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter x:Name="ContentPresenter"
+                                            Content="{TemplateBinding Content}"
+                                            Foreground="{TemplateBinding Foreground}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                
+                                <VisualState x:Name="Normal"/>
+                                <VisualState x:Name="PointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="ButtonBorder.Background" Value="{ThemeResource ErrorRedDarkBrush}"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <VisualState.Setters>
+                                        <Setter Target="ButtonBorder.Background" Value="{ThemeResource ErrorRedDarkBrush}"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Target="ButtonBorder.Background" Value="{ThemeResource ControlFillColorDisabledBrush}"/>
+                                        <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Compact Success Button (for table actions like "Approve") -->
+    <Style x:Key="CompactSuccessButtonStyle" TargetType="Button">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="Background" Value="{ThemeResource SuccessGreenBrush}"/>
+        <Setter Property="Foreground" Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Border x:Name="ButtonBorder"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter x:Name="ContentPresenter"
+                                            Content="{TemplateBinding Content}"
+                                            Foreground="{TemplateBinding Foreground}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                
+                                <VisualState x:Name="Normal"/>
+                                <VisualState x:Name="PointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="ButtonBorder.Background" Value="{ThemeResource SuccessGreenDarkBrush}"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <VisualState.Setters>
+                                        <Setter Target="ButtonBorder.Background" Value="{ThemeResource SuccessGreenDarkBrush}"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Target="ButtonBorder.Background" Value="{ThemeResource ControlFillColorDisabledBrush}"/>
+                                        <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
     <!-- ============================================= -->
     <!-- PAGINATION BUTTON STYLES                     -->
@@ -806,12 +1127,12 @@
 
     <Style x:Key="PaginationButtonStyle" TargetType="Button">
         <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{ThemeResource TextFillColorPrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Width" Value="36"/>
         <Setter Property="Height" Value="36"/>
         <Setter Property="CornerRadius" Value="4"/>
-        <Setter Property="FontFamily" Value="{StaticResource SymbolThemeFontFamily}"/>
         <Setter Property="UseSystemFocusVisuals" Value="True"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -823,9 +1144,6 @@
                           CornerRadius="{TemplateBinding CornerRadius}">
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="CommonStates">
-                                <VisualStateGroup.Transitions>
-                                    <VisualTransition GeneratedDuration="0:0:0.1"/>
-                                </VisualStateGroup.Transitions>
 
                                 <VisualState x:Name="Normal"/>
 
@@ -843,13 +1161,16 @@
 
                                 <VisualState x:Name="Disabled">
                                     <VisualState.Setters>
-                                        <Setter Target="RootGrid.Opacity" Value="0.5"/>
+                                        <Setter Target="RootGrid.Background" Value="{ThemeResource ControlFillColorDisabledBrush}"/>
+                                        <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}"/>
                                     </VisualState.Setters>
                                 </VisualState>
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
 
-                        <ContentPresenter Content="{TemplateBinding Content}"
+                        <ContentPresenter x:Name="ContentPresenter"
+                                          Content="{TemplateBinding Content}"
+                                          Foreground="{TemplateBinding Foreground}"
                                           HorizontalAlignment="Center"
                                           VerticalAlignment="Center"/>
                     </Grid>

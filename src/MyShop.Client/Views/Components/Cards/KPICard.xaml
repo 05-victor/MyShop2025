@@ -1,4 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+═══════════════════════════════════════════════════════════════
+KPI CARD COMPONENT
+═══════════════════════════════════════════════════════════════
+
+🎨 COLOR SEMANTIC GUIDELINES (PENDING REVIEW):
+
+Current usage patterns observed:
+1. Revenue/GMV/Sales    → InfoBlueLightBrush + PrimaryBrush (Blue)
+2. Earnings/Commission  → SuccessGreenLightBrush + SuccessGreenBrush (Green)
+3. Agents/Sellers/Users → WarningAmberLightBrush + WarningAmberBrush (Amber/Orange)
+4. Pending/Review       → ErrorRedLightBrush + ErrorRedBrush (Red)
+
+📋 PROPOSED SEMANTIC MAPPING (Needs Stakeholder Approval):
+- Blue (Primary): Money IN (Revenue, GMV, Sales)
+- Green (Success): Money OUT to user (Earnings, Commission, Payouts)
+- Amber (Warning): Counts/Metrics (Users, Products, Orders, Agents)
+- Red (Error): Action Required (Pending reviews, Flagged items, Alerts)
+- Purple (Accent): Special metrics (Growth rate, Conversion rate)
+
+🚨 ISSUE: Current implementation mixes semantic meaning
+   - Some pages use Green for Revenue (should be Blue)
+   - Some pages use Blue for Counts (should be Amber)
+
+⚠️ RECOMMENDATION: 
+   Create enum KPICardVariant { Revenue, Earnings, Metric, Alert, Growth }
+   Map variants to color pairs automatically
+   Enforce consistency across Admin/Agent dashboards
+
+Requires design review before implementation.
+-->
 <UserControl
     x:Class="MyShop.Client.Views.Components.Cards.KPICard"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"

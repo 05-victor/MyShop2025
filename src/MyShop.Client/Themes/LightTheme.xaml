@@ -14,7 +14,21 @@
     <SolidColorBrush x:Key="NavyPrimaryBrush" Color="#1A4D8F"/>
     <SolidColorBrush x:Key="PrimaryBrush" Color="#1A4D8F"/>
     <SolidColorBrush x:Key="PrimaryHoverBrush" Color="#245FAE"/>
+    <SolidColorBrush x:Key="PrimaryActiveBrush" Color="#123A6E"/>
     <SolidColorBrush x:Key="AccentBlueBrush" Color="#00AEEF"/>
+    
+    <!-- WinUI Accent Fill System -->
+    <SolidColorBrush x:Key="AccentFillColorDefaultBrush" Color="#1A4D8F"/>
+    <SolidColorBrush x:Key="AccentFillColorSecondaryBrush" Color="#245FAE"/>
+    <SolidColorBrush x:Key="AccentFillColorTertiaryBrush" Color="#123A6E"/>
+    
+    <!-- WinUI Text on Accent -->
+    <SolidColorBrush x:Key="TextOnAccentFillColorPrimaryBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="TextOnAccentFillColorSecondaryBrush" Color="#F1F5F9"/>
+    
+    <!-- Accent Text (for text/link buttons) -->
+    <SolidColorBrush x:Key="AccentTextFillColorPrimaryBrush" Color="#1A4D8F"/>
+    
     <SolidColorBrush x:Key="SecondaryBlueBrush" Color="#2563EB"/>
     <SolidColorBrush x:Key="DarkBlueBrush" Color="#1E40AF"/>
 

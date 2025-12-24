@@ -111,55 +111,60 @@ public sealed partial class AlertBox : UserControl
 
     private void ApplyVariantStyle()
     {
-        // Define colors for each variant
-        Color backgroundColor;
-        Color borderColor;
-        Color iconColor;
-        Color textColor;
-        string iconGlyph;
+        // Map variant to ThemeResource keys
+        string bgKey, borderKey, iconKey, textKey, iconGlyph;
 
         switch (Variant)
         {
             case AlertVariant.Info:
-                backgroundColor = Color.FromArgb(255, 238, 242, 255); // #EEF2FF
-                borderColor = Color.FromArgb(255, 199, 210, 254);     // #C7D2FE
-                iconColor = Color.FromArgb(255, 99, 102, 241);        // #6366F1
-                textColor = Color.FromArgb(255, 79, 70, 229);         // #4F46E5
+                bgKey = "InfoBackgroundBrush";
+                borderKey = "InfoBrush";
+                iconKey = "InfoBrush";
+                textKey = "InfoTextBrush";
                 iconGlyph = "\uE946"; // Info icon
                 break;
 
             case AlertVariant.Warning:
-                backgroundColor = Color.FromArgb(255, 254, 243, 199); // #FEF3C7
-                borderColor = Color.FromArgb(255, 253, 230, 138);     // #FDE68A
-                iconColor = Color.FromArgb(255, 245, 158, 11);        // #F59E0B
-                textColor = Color.FromArgb(255, 146, 64, 14);         // #92400E
+                bgKey = "WarningBackgroundBrush";
+                borderKey = "WarningBrush";
+                iconKey = "WarningBrush";
+                textKey = "WarningTextBrush";
                 iconGlyph = "\uE7BA"; // Warning icon
                 break;
 
             case AlertVariant.Error:
-                backgroundColor = Color.FromArgb(255, 254, 226, 226); // #FEE2E2
-                borderColor = Color.FromArgb(255, 252, 165, 165);     // #FCA5A5
-                iconColor = Color.FromArgb(255, 220, 38, 38);         // #DC2626
-                textColor = Color.FromArgb(255, 185, 28, 28);         // #B91C1C
+                bgKey = "ErrorBackgroundBrush";
+                borderKey = "ErrorBrush";
+                iconKey = "ErrorBrush";
+                textKey = "ErrorTextBrush";
                 iconGlyph = "\uE783"; // Error icon
                 break;
 
             case AlertVariant.Success:
             default:
-                backgroundColor = Color.FromArgb(255, 209, 250, 229); // #D1FAE5
-                borderColor = Color.FromArgb(255, 167, 243, 208);     // #A7F3D0
-                iconColor = Color.FromArgb(255, 16, 185, 129);        // #10B981
-                textColor = Color.FromArgb(255, 5, 150, 105);         // #059669
+                bgKey = "SuccessBackgroundBrush";
+                borderKey = "SuccessBrush";
+                iconKey = "SuccessBrush";
+                textKey = "SuccessTextBrush";
                 iconGlyph = "\uE73E"; // Checkmark icon
                 break;
         }
 
-        // Apply styles
-        AlertContainer.Background = new SolidColorBrush(backgroundColor);
-        AlertContainer.BorderBrush = new SolidColorBrush(borderColor);
-        AlertIcon.Foreground = new SolidColorBrush(iconColor);
-        AlertTitle.Foreground = new SolidColorBrush(textColor);
-        AlertMessage.Foreground = new SolidColorBrush(textColor);
+        // Apply ThemeResource brushes
+        if (Application.Current.Resources.TryGetValue(bgKey, out var bgBrush) && bgBrush is Brush bg)
+            AlertContainer.Background = bg;
+        
+        if (Application.Current.Resources.TryGetValue(borderKey, out var borderBrush) && borderBrush is Brush border)
+            AlertContainer.BorderBrush = border;
+        
+        if (Application.Current.Resources.TryGetValue(iconKey, out var iconBrush) && iconBrush is Brush icon)
+            AlertIcon.Foreground = icon;
+        
+        if (Application.Current.Resources.TryGetValue(textKey, out var textBrush) && textBrush is Brush text)
+        {
+            AlertTitle.Foreground = text;
+            AlertMessage.Foreground = text;
+        }
 
         // Use custom icon if provided, otherwise use default
         AlertIcon.Glyph = string.IsNullOrEmpty(Icon) ? iconGlyph : Icon;

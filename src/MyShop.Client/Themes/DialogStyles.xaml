@@ -105,4 +105,13 @@
         <Setter Property="DefaultButton" Value="Close"/>
     </Style>
 
+    <!-- ═══════════════════════════════════════════════════════════════
+         ALIAS: DefaultContentDialogStyle
+         ═══════════════════════════════════════════════════════════════
+         
+         Backward compatibility alias for existing code.
+         Points to StandardDialogStyle.
+    -->
+    <Style x:Key="DefaultContentDialogStyle" TargetType="ContentDialog" BasedOn="{StaticResource StandardDialogStyle}"/>
+
 </ResourceDictionary>

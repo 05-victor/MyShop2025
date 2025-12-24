@@ -159,7 +159,8 @@ public partial class AdminDashboardViewModel : BaseViewModel
         _notificationService = notificationService;
 
         // Initialize notification service if available
-        _notificationService?.Initialize();
+        // _notificationService?.Initialize();
+        // PACKAGE: OPENT CMT
     }
 
     public async Task InitializeAsync(User user)

@@ -59,7 +59,7 @@
                             <FontIcon x:Name="LeftIcon"
                                       Glyph="{Binding IconGlyph, ElementName=RootControl, Mode=OneWay}"
                                       FontSize="{Binding IconSize, ElementName=RootControl, Mode=OneWay}"
-                                      Foreground="{Binding IconColor, ElementName=RootControl, Mode=OneWay}"
+                                      Foreground="{TemplateBinding Foreground}"
                                       IsHitTestVisible="False"/>
                             <TextBlock x:Name="ButtonText"
                                        Text="{Binding Text, ElementName=RootControl, Mode=OneWay}"
@@ -70,34 +70,34 @@
                                       Visibility="Collapsed"
                                       Glyph="{Binding IconGlyph, ElementName=RootControl, Mode=OneWay}"
                                       FontSize="{Binding IconSize, ElementName=RootControl, Mode=OneWay}"
-                                      Foreground="{Binding IconColor, ElementName=RootControl, Mode=OneWay}"
+                                      Foreground="{TemplateBinding Foreground}"
                                       IsHitTestVisible="False"/>
                         </StackPanel>
                     </Border>
                     
                     <VisualStateManager.VisualStateGroups>
                         <VisualStateGroup x:Name="CommonStates">
-                            <VisualStateGroup.Transitions>
-                                <VisualTransition GeneratedDuration="0:0:0.15"/>
-                            </VisualStateGroup.Transitions>
                             
                             <VisualState x:Name="Normal"/>
                             
                             <VisualState x:Name="PointerOver">
                                 <VisualState.Setters>
-                                    <Setter Target="RootBorder.Opacity" Value="0.85"/>
+                                    <Setter Target="RootBorder.Background" Value="{ThemeResource SubtleFillColorSecondaryBrush}"/>
                                 </VisualState.Setters>
                             </VisualState>
                             
                             <VisualState x:Name="Pressed">
                                 <VisualState.Setters>
-                                    <Setter Target="RootBorder.Opacity" Value="0.7"/>
+                                    <Setter Target="RootBorder.Background" Value="{ThemeResource SubtleFillColorTertiaryBrush}"/>
                                 </VisualState.Setters>
                             </VisualState>
                             
                             <VisualState x:Name="Disabled">
                                 <VisualState.Setters>
-                                    <Setter Target="RootBorder.Opacity" Value="0.5"/>
+                                    <Setter Target="RootBorder.Background" Value="{ThemeResource ControlFillColorDisabledBrush}"/>
+                                    <Setter Target="LeftIcon.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}"/>
+                                    <Setter Target="RightIcon.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}"/>
+                                    <Setter Target="ButtonText.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}"/>
                                 </VisualState.Setters>
                             </VisualState>
                         </VisualStateGroup>

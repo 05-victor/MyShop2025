@@ -46,8 +46,8 @@
                         <AdaptiveTrigger MinWindowWidth="1920"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding"
-                                Value="40"/>
+                        <Setter Target="MainContent.Padding" Value="40"/>
+                        <Setter Target="ProductGrid.MaximumRowsOrColumns" Value="5"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -57,8 +57,8 @@
                         <AdaptiveTrigger MinWindowWidth="1280"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding"
-                                Value="32"/>
+                        <Setter Target="MainContent.Padding" Value="32"/>
+                        <Setter Target="ProductGrid.MaximumRowsOrColumns" Value="4"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -68,8 +68,8 @@
                         <AdaptiveTrigger MinWindowWidth="960"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding"
-                                Value="24"/>
+                        <Setter Target="MainContent.Padding" Value="24"/>
+                        <Setter Target="ProductGrid.MaximumRowsOrColumns" Value="3"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -79,8 +79,8 @@
                         <AdaptiveTrigger MinWindowWidth="640"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding"
-                                Value="20"/>
+                        <Setter Target="MainContent.Padding" Value="20"/>
+                        <Setter Target="ProductGrid.MaximumRowsOrColumns" Value="2"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -90,8 +90,8 @@
                         <AdaptiveTrigger MinWindowWidth="0"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding"
-                                Value="16"/>
+                        <Setter Target="MainContent.Padding" Value="16"/>
+                        <Setter Target="ProductGrid.MaximumRowsOrColumns" Value="1"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -115,8 +115,7 @@
 
                     <!-- Page Header -->
                     <layout:PageHeader
-                        Title="Shopping"
-                        Subtitle="Explore our complete product collection">
+                        Title="Shopping">
                         <layout:PageHeader.ActionContent>
                             <StackPanel Orientation="Horizontal"
                                         Spacing="12">
@@ -245,7 +244,7 @@
                                     <Grid>
                                         <Ellipse Width="120"
                                                  Height="120"
-                                                 Fill="{ThemeResource Gray100Brush}"/>
+                                                 Fill="{ThemeResource SubtleFillColorSecondaryBrush}"/>
                                         <FontIcon
                                             FontSize="64"
                                             Foreground="{ThemeResource Gray500Brush}"
@@ -298,6 +297,7 @@
                             <GridView.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <ItemsWrapGrid
+                                        x:Name="ProductGrid"
                                         ItemHeight="400"
                                         ItemWidth="280"
                                         MaximumRowsOrColumns="4"
@@ -308,9 +308,8 @@
                             <!--  Product Card Template  -->
                             <GridView.ItemTemplate>
                                 <DataTemplate x:DataType="vm:ProductCardViewModel">
-                                    <Border Width="260"
-                                            Height="380"
-                                            Style="{StaticResource ProductCardStyle}">
+                                    <!-- Card inherits size from ItemsWrapGrid (280x400) -->
+                                    <Border Style="{StaticResource ProductCardStyle}">
                                         <StackPanel Spacing="12">
                                             <!--  Product Image with DecodePixelWidth optimization  -->
                                             <Border
