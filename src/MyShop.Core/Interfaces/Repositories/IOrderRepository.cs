@@ -26,7 +26,7 @@ public interface IOrderRepository
     Task<Result<bool>> DeleteAsync(Guid id);
     Task<decimal> GetTodayRevenueAsync();
     Task<decimal> GetRevenueByDateRangeAsync(DateTime fromDate, DateTime toDate);
-    
+
     /// <summary>
     /// Get paginated orders with filtering and sorting
     /// </summary>
@@ -34,6 +34,7 @@ public interface IOrderRepository
         int page = 1,
         int pageSize = Common.PaginationConstants.OrdersPageSize,
         string? status = null,
+        string? paymentStatus = null,
         Guid? customerId = null,
         Guid? salesAgentId = null,
         DateTime? startDate = null,

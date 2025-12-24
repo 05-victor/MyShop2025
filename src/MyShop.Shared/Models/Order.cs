@@ -17,6 +17,7 @@ public class Order
     public decimal Discount { get; set; }
     public decimal FinalPrice { get; set; }
     public string Status { get; set; } = "CREATED";
+    public string? PaymentStatus { get; set; }
     public string? CancelReason { get; set; }
     public string? Notes { get; set; }
     public DateTime OrderDate { get; set; }
@@ -36,6 +37,7 @@ public class OrderItem
     public Guid OrderId { get; set; }
     public Guid ProductId { get; set; }
     public string ProductName { get; set; } = string.Empty;
+    public string? ProductSKU { get; set; }
     public int Quantity { get; set; }
     public decimal UnitPrice { get; set; }
     public decimal Total { get; set; }

@@ -6,9 +6,11 @@ using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.UI.Xaml;
 
 namespace MyShop.Client.ViewModels.SalesAgent;
 
@@ -17,9 +19,13 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
     private readonly IOrderFacade _orderFacade;
     private readonly IAuthRepository _authRepository;
     private Guid? _currentSalesAgentId;
+    private Func<XamlRoot?>? _xamlRootProvider;
 
     [ObservableProperty]
     private string _selectedStatus = "All";
+
+    [ObservableProperty]
+    private string _selectedPaymentStatus = "All";
 
     [ObservableProperty]
     private string _sortBy = "date";
@@ -67,7 +73,7 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
         {
             System.Diagnostics.Debug.WriteLine($"[SalesAgentOrdersViewModel] Failed to get current user ID");
         }
-        
+
         await LoadDataAsync();
     }
 
@@ -96,20 +102,21 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
             SetLoadingState(true);
 
             var statusFilter = SelectedStatus == "All" ? null : SelectedStatus;
+            var paymentStatusFilter = SelectedPaymentStatus == "All" ? null : SelectedPaymentStatus;
 
             var result = await _orderFacade.LoadOrdersPagedAsync(
                 page: CurrentPage,
                 pageSize: PageSize,
                 status: statusFilter,
+                paymentStatus: paymentStatusFilter,
                 searchQuery: SearchQuery,
-                salesAgentId: _currentSalesAgentId);  // Filter by current sales agent
+                salesAgentId: _currentSalesAgentId);  // API uses JWT to identify current sales agent
 
             if (!result.IsSuccess || result.Data == null)
             {
                 await _toastHelper?.ShowError(result.ErrorMessage ?? "Failed to load orders");
                 Items.Clear();
                 UpdatePagingInfo(0);
-                UpdateStats();
                 return;
             }
 
@@ -120,20 +127,22 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
                 var orderItems = o.OrderItems?.Count > 0 ? o.OrderItems : o.Items;
                 var firstProduct = orderItems?.FirstOrDefault()?.ProductName ?? "No products";
                 var additionalCount = (orderItems?.Count ?? 0) - 1;
-                var productDesc = additionalCount > 0 
-                    ? $"{firstProduct} +{additionalCount} more" 
+                var productDesc = additionalCount > 0
+                    ? $"{firstProduct} +{additionalCount} more"
                     : firstProduct;
 
                 Items.Add(new OrderViewModel
                 {
-                    OrderId = $"ORD-{o.Id.ToString().Substring(0, 8)}",
+                    OrderId = FormatOrderId(o.Id),
                     CustomerName = o.CustomerName,
                     CustomerEmail = $"{o.CustomerName.ToLower().Replace(" ", ".")}@example.com",
                     ProductDescription = productDesc,
                     OrderDate = o.OrderDate,
                     Status = o.Status,
+                    PaymentStatus = o.PaymentStatus,
                     TotalAmount = o.FinalPrice,
-                    CommissionAmount = o.FinalPrice * 0.10m
+                    CommissionAmount = o.FinalPrice * 0.10m,
+                    OrderItems = orderItems ?? new()
                 });
             }
 
@@ -170,12 +179,39 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
         SelectedStatus = status;
     }
 
-    [RelayCommand]
-    private void ViewOrderDetails(OrderViewModel order)
+    public void SetXamlRootProvider(Func<XamlRoot?> provider)
     {
-        System.Diagnostics.Debug.WriteLine($"[SalesOrdersViewModel] View order details: {order.OrderId}");
-        // Navigation will be implemented when OrderDetailsPage is created
-        // _navigationService.Navigate(typeof(OrderDetailsPage), order.OrderId);
+        _xamlRootProvider = provider;
+    }
+
+    [RelayCommand]
+    private async Task ViewOrderDetailsAsync(OrderViewModel order)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentOrdersViewModel] View order details: {order.OrderId}");
+
+            if (order?.OrderItems == null || order.OrderItems.Count == 0)
+            {
+                await _toastHelper?.ShowWarning("No items in this order");
+                return;
+            }
+
+            // Create and show dialog
+            var dialog = new MyShop.Client.Views.Dialogs.OrderItemsDialog();
+            var xamlRoot = _xamlRootProvider?.Invoke();
+            if (xamlRoot != null)
+            {
+                dialog.XamlRoot = xamlRoot;
+            }
+            dialog.Initialize(order.OrderItems);
+            await dialog.ShowAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentOrdersViewModel] Error viewing order details: {ex.Message}");
+            await _toastHelper?.ShowError($"Error: {ex.Message}");
+        }
     }
 
     [RelayCommand]
@@ -197,6 +233,18 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
         {
             SetLoadingState(false);
         }
+    }
+
+    /// <summary>
+    /// Format Order ID to show first character + last 4 characters for uniqueness
+    /// Example: 9a68d343-08ca-4665-9161-7df1902c3035 → ORD-93035
+    /// </summary>
+    private string FormatOrderId(Guid id)
+    {
+        var idString = id.ToString().Replace("-", "");
+        var firstChar = idString[0];
+        var lastFourChars = idString.Substring(idString.Length - 8);
+        return $"ORD-{firstChar}{lastFourChars}";
     }
 }
 
@@ -221,10 +269,16 @@ public partial class OrderViewModel : ObservableObject
     private string _status = string.Empty;
 
     [ObservableProperty]
+    private string _paymentStatus = string.Empty;
+
+    [ObservableProperty]
     private decimal _totalAmount;
 
     [ObservableProperty]
     private decimal _commissionAmount;
+
+    [ObservableProperty]
+    private List<MyShop.Shared.Models.OrderItem> _orderItems = new();
 
     public string FormattedDate => OrderDate.ToString("MMM dd, yyyy");
 }

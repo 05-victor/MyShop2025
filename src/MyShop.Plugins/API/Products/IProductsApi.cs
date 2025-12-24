@@ -29,4 +29,10 @@ public interface IProductsApi
 
     [Delete("/api/v1/products/{id}")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<bool>>> DeleteAsync(Guid id);
+
+    [Multipart]
+    [Post("/api/v1/products/{id}/uploadImage")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<string>>> UploadImageAsync(
+        Guid id,
+        [AliasAs("file")] StreamPart file);
 }

@@ -24,6 +24,7 @@ public static class OrderAdapter
             CustomerName = dto.CustomerFullName ?? dto.CustomerUsername ?? dto.CustomerEmail ?? "Unknown",
             CustomerAddress = dto.CustomerEmail, // Use email as fallback since ShippingAddress is not in DTO
             Status = dto.Status ?? "PENDING",
+            PaymentStatus = dto.PaymentStatus,
             FinalPrice = dto.GrandTotal,
             Subtotal = dto.TotalAmount,
             Discount = dto.DiscountAmount,
@@ -46,6 +47,7 @@ public static class OrderAdapter
             Id = dto.Id,
             ProductId = dto.ProductId,
             ProductName = dto.ProductName ?? "Unknown Product",
+            ProductSKU = dto.ProductSKU,
             Quantity = dto.Quantity,
             UnitPrice = dto.UnitSalePrice,
             Total = dto.TotalPrice,

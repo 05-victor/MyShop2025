@@ -155,7 +155,8 @@
                                     SearchText="{x:Bind ViewModel.SearchQuery, Mode=TwoWay}"
                                     TextChanged="SearchCard_TextChanged"
                                     SuggestionChosen="SearchCard_SuggestionChosen"
-                                    QuerySubmitted="SearchCard_QuerySubmitted"/>
+                                    QuerySubmitted="SearchCard_QuerySubmitted"
+                                    SearchRequested="SearchCard_SearchRequested"/>
 
                                 <!-- FILTERS CARD with Apply Button -->
                                 <forms:FilterCard Title="Filters"
@@ -558,218 +559,221 @@
                 PrimaryButtonText="Save Product"
                 SecondaryButtonClick="AddProductDialog_SecondaryButtonClick"
                 SecondaryButtonText="Cancel">
-                <StackPanel Spacing="12"
-                            MinWidth="400">
-                    <!-- Name -->
-                    <StackPanel>
-                        <TextBlock Margin="0,0,0,4"
-                                   Text="Product Name *"
-                                   FontSize="12"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <TextBox
-                            x:Name="NewNameTextBox"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            PlaceholderText="Enter product name"/>
-                    </StackPanel>
-
-                    <!-- SKU + Manufacturer -->
-                    <Grid ColumnSpacing="12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- SKU -->
-                        <StackPanel Grid.Column="0">
+                <ScrollViewer MinWidth="400"
+                              MaxHeight="600">
+                    <StackPanel Spacing="12"
+                                Padding="0,0,12,0">
+                        <!-- Name -->
+                        <StackPanel>
                             <TextBlock Margin="0,0,0,4"
-                                       Text="SKU *"
+                                       Text="Product Name *"
                                        FontSize="12"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             <TextBox
-                                x:Name="NewSkuTextBox"
+                                x:Name="NewNameTextBox"
                                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                 BorderThickness="1"
                                 CornerRadius="8"
-                                PlaceholderText="e.g., PRD-001"/>
+                                PlaceholderText="Enter product name"/>
                         </StackPanel>
 
-                        <!-- Manufacturer/Brand -->
-                        <StackPanel Grid.Column="1">
+                        <!-- SKU + Manufacturer -->
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- SKU -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Margin="0,0,0,4"
+                                           Text="SKU *"
+                                           FontSize="12"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBox
+                                    x:Name="NewSkuTextBox"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    PlaceholderText="e.g., PRD-001"/>
+                            </StackPanel>
+
+                            <!-- Manufacturer/Brand -->
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Margin="0,0,0,4"
+                                           Text="Manufacturer/Brand *"
+                                           FontSize="12"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <ComboBox
+                                    x:Name="NewManufacturerComboBox"
+                                    HorizontalAlignment="Stretch"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    ItemsSource="{x:Bind ViewModel.Brands, Mode=OneWay}"
+                                    PlaceholderText="Select manufacturer"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Category -->
+                        <StackPanel>
                             <TextBlock Margin="0,0,0,4"
-                                       Text="Manufacturer/Brand *"
+                                       Text="Category (Device Type) *"
                                        FontSize="12"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             <ComboBox
-                                x:Name="NewManufacturerComboBox"
+                                x:Name="NewCategoryComboBox"
                                 HorizontalAlignment="Stretch"
                                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                 BorderThickness="1"
                                 CornerRadius="8"
-                                ItemsSource="{x:Bind ViewModel.Brands, Mode=OneWay}"
-                                PlaceholderText="Select manufacturer"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <!-- Category -->
-                    <StackPanel>
-                        <TextBlock Margin="0,0,0,4"
-                                   Text="Category (Device Type) *"
-                                   FontSize="12"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <ComboBox
-                            x:Name="NewCategoryComboBox"
-                            HorizontalAlignment="Stretch"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
-                            DisplayMemberPath="Name"
-                            PlaceholderText="Select category"/>
-                    </StackPanel>
-
-                    <!-- Stock + Commission Rate -->
-                    <Grid ColumnSpacing="12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Stock -->
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Margin="0,0,0,4"
-                                       Text="Stock *"
-                                       FontSize="12"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            <TextBox
-                                x:Name="NewStockTextBox"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                InputScope="Number"
-                                PlaceholderText="0"/>
+                                ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
+                                DisplayMemberPath="Name"
+                                PlaceholderText="Select category"/>
                         </StackPanel>
 
-                        <!-- Commission Rate -->
-                        <StackPanel Grid.Column="1">
-                            <TextBlock Margin="0,0,0,4"
-                                       Text="Commission Rate"
-                                       FontSize="12"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            <TextBox
-                                x:Name="NewCommissionRateTextBox"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                InputScope="Number"
-                                PlaceholderText="0.05"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <!-- Sale Price + Import Price -->
-                    <Grid ColumnSpacing="12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Margin="0,0,0,4"
-                                       Text="Sale Price *"
-                                       FontSize="12"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            <TextBox
-                                x:Name="NewPriceTextBox"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                InputScope="Number"
-                                PlaceholderText="0"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="1">
-                            <TextBlock Margin="0,0,0,4"
-                                       Text="Import Price *"
-                                       FontSize="12"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            <TextBox
-                                x:Name="NewImportPriceTextBox"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                InputScope="Number"
-                                PlaceholderText="0"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <!-- Status -->
-                    <StackPanel>
-                        <TextBlock Margin="0,0,0,4"
-                                   Text="Status"
-                                   FontSize="12"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <ComboBox
-                            x:Name="NewStatusComboBox"
-                            HorizontalAlignment="Stretch"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            SelectedIndex="0">
-                            <ComboBoxItem>AVAILABLE</ComboBoxItem>
-                            <ComboBoxItem>DISCONTINUED</ComboBoxItem>
-                            <ComboBoxItem>OUT_OF_STOCK</ComboBoxItem>
-                        </ComboBox>
-                    </StackPanel>
-
-                    <!-- Image Upload -->
-                    <StackPanel>
-                        <TextBlock Margin="0,0,0,4"
-                                   Text="Product Image"
-                                   FontSize="12"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <Grid ColumnSpacing="8">
+                        <!-- Stock + Commission Rate -->
+                        <Grid ColumnSpacing="12">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <TextBox
-                                x:Name="NewImageUrlTextBox"
-                                Grid.Column="0"
-                                IsReadOnly="True"
+                            <!-- Stock -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Margin="0,0,0,4"
+                                           Text="Stock *"
+                                           FontSize="12"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBox
+                                    x:Name="NewStockTextBox"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    InputScope="Number"
+                                    PlaceholderText="0"/>
+                            </StackPanel>
+
+                            <!-- Commission Rate -->
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Margin="0,0,0,4"
+                                           Text="Commission Rate (%)"
+                                           FontSize="12"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBox
+                                    x:Name="NewCommissionRateTextBox"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    InputScope="Number"
+                                    PlaceholderText="5"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Sale Price + Import Price -->
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Margin="0,0,0,4"
+                                           Text="Sale Price *"
+                                           FontSize="12"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBox
+                                    x:Name="NewPriceTextBox"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    InputScope="Number"
+                                    PlaceholderText="0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Margin="0,0,0,4"
+                                           Text="Import Price *"
+                                           FontSize="12"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBox
+                                    x:Name="NewImportPriceTextBox"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    InputScope="Number"
+                                    PlaceholderText="0"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Status -->
+                        <StackPanel>
+                            <TextBlock Margin="0,0,0,4"
+                                       Text="Status"
+                                       FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <ComboBox
+                                x:Name="NewStatusComboBox"
+                                HorizontalAlignment="Stretch"
                                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                 BorderThickness="1"
                                 CornerRadius="8"
-                                PlaceholderText="No image selected"/>
+                                SelectedIndex="0">
+                                <ComboBoxItem>AVAILABLE</ComboBoxItem>
+                                <ComboBoxItem>DISCONTINUED</ComboBoxItem>
+                                <ComboBoxItem>OUT_OF_STOCK</ComboBoxItem>
+                            </ComboBox>
+                        </StackPanel>
 
-                            <Button
-                                x:Name="NewImagePickButton"
-                                Style="{StaticResource SecondaryButtonStyle}"
-                                Grid.Column="1"
-                                Content="Choose Image"
-                                Click="NewImagePickButton_Click"
-                                MinWidth="100"/>
-                        </Grid>
-                    </StackPanel>
+                        <!-- Image Upload -->
+                        <StackPanel>
+                            <TextBlock Margin="0,0,0,4"
+                                       Text="Product Image"
+                                       FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
 
-                    <!-- Description -->
-                    <StackPanel>
-                        <TextBlock Margin="0,0,0,4"
-                                   Text="Description"
-                                   FontSize="12"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <TextBox
-                            x:Name="NewDescriptionTextBox"
-                            MinHeight="80"
-                            AcceptsReturn="True"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            TextWrapping="Wrap"
-                            PlaceholderText="Enter product description..."/>
+                                <TextBox
+                                    x:Name="NewImageUrlTextBox"
+                                    Grid.Column="0"
+                                    IsReadOnly="True"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    PlaceholderText="No image selected"/>
+
+                                <Button
+                                    x:Name="NewImagePickButton"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Grid.Column="1"
+                                    Content="Choose Image"
+                                    Click="NewImagePickButton_Click"
+                                    MinWidth="100"/>
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- Description -->
+                        <StackPanel>
+                            <TextBlock Margin="0,0,0,4"
+                                       Text="Description"
+                                       FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBox
+                                x:Name="NewDescriptionTextBox"
+                                MinHeight="80"
+                                AcceptsReturn="True"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                TextWrapping="Wrap"
+                                PlaceholderText="Enter product description..."/>
+                        </StackPanel>
                     </StackPanel>
-                </StackPanel>
+                </ScrollViewer>
             </ContentDialog>
 
             <!-- EDIT PRODUCT DIALOG -->
@@ -781,222 +785,225 @@
                 PrimaryButtonText="Save Changes"
                 SecondaryButtonClick="EditProductDialog_SecondaryButtonClick"
                 SecondaryButtonText="Cancel">
-                <StackPanel Spacing="12"
-                            MinWidth="400">
-                    <!-- Hidden ID -->
-                    <TextBox x:Name="EditProductIdTextBox"
-                             Visibility="Collapsed"/>
+                <ScrollViewer MinWidth="400"
+                              MaxHeight="600">
+                    <StackPanel Spacing="12"
+                                Padding="0,0,12,0">
+                        <!-- Hidden ID -->
+                        <TextBox x:Name="EditProductIdTextBox"
+                                 Visibility="Collapsed"/>
 
-                    <!-- Name -->
-                    <StackPanel>
-                        <TextBlock Margin="0,0,0,4"
-                                   Text="Product Name *"
-                                   FontSize="12"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <TextBox
-                            x:Name="EditNameTextBox"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            PlaceholderText="Enter product name"/>
-                    </StackPanel>
-
-                    <!-- SKU + Manufacturer -->
-                    <Grid ColumnSpacing="12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- SKU -->
-                        <StackPanel Grid.Column="0">
+                        <!-- Name -->
+                        <StackPanel>
                             <TextBlock Margin="0,0,0,4"
-                                       Text="SKU *"
+                                       Text="Product Name *"
                                        FontSize="12"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             <TextBox
-                                x:Name="EditSkuTextBox"
+                                x:Name="EditNameTextBox"
                                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                 BorderThickness="1"
                                 CornerRadius="8"
-                                PlaceholderText="e.g., PRD-001"/>
+                                PlaceholderText="Enter product name"/>
                         </StackPanel>
 
-                        <!-- Manufacturer/Brand -->
-                        <StackPanel Grid.Column="1">
+                        <!-- SKU + Manufacturer -->
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- SKU -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Margin="0,0,0,4"
+                                           Text="SKU *"
+                                           FontSize="12"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBox
+                                    x:Name="EditSkuTextBox"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    PlaceholderText="e.g., PRD-001"/>
+                            </StackPanel>
+
+                            <!-- Manufacturer/Brand -->
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Margin="0,0,0,4"
+                                           Text="Manufacturer/Brand *"
+                                           FontSize="12"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <ComboBox
+                                    x:Name="EditManufacturerComboBox"
+                                    HorizontalAlignment="Stretch"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    ItemsSource="{x:Bind ViewModel.Brands, Mode=OneWay}"
+                                    PlaceholderText="Select manufacturer"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Category -->
+                        <StackPanel>
                             <TextBlock Margin="0,0,0,4"
-                                       Text="Manufacturer/Brand *"
+                                       Text="Category (Device Type) *"
                                        FontSize="12"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             <ComboBox
-                                x:Name="EditManufacturerComboBox"
+                                x:Name="EditCategoryComboBox"
                                 HorizontalAlignment="Stretch"
                                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                 BorderThickness="1"
                                 CornerRadius="8"
-                                ItemsSource="{x:Bind ViewModel.Brands, Mode=OneWay}"
-                                PlaceholderText="Select manufacturer"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <!-- Category -->
-                    <StackPanel>
-                        <TextBlock Margin="0,0,0,4"
-                                   Text="Category (Device Type) *"
-                                   FontSize="12"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <ComboBox
-                            x:Name="EditCategoryComboBox"
-                            HorizontalAlignment="Stretch"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
-                            DisplayMemberPath="Name"
-                            PlaceholderText="Select category"/>
-                    </StackPanel>
-
-                    <!-- Stock + Commission Rate -->
-                    <Grid ColumnSpacing="12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Stock -->
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Margin="0,0,0,4"
-                                       Text="Stock *"
-                                       FontSize="12"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            <TextBox
-                                x:Name="EditStockTextBox"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                InputScope="Number"
-                                PlaceholderText="0"/>
+                                ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
+                                DisplayMemberPath="Name"
+                                PlaceholderText="Select category"/>
                         </StackPanel>
 
-                        <!-- Commission Rate -->
-                        <StackPanel Grid.Column="1">
-                            <TextBlock Margin="0,0,0,4"
-                                       Text="Commission Rate"
-                                       FontSize="12"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            <TextBox
-                                x:Name="EditCommissionRateTextBox"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                InputScope="Number"
-                                PlaceholderText="0.05"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <!-- Sale Price + Import Price -->
-                    <Grid ColumnSpacing="12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Margin="0,0,0,4"
-                                       Text="Sale Price *"
-                                       FontSize="12"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            <TextBox
-                                x:Name="EditPriceTextBox"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                InputScope="Number"
-                                PlaceholderText="0"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="1">
-                            <TextBlock Margin="0,0,0,4"
-                                       Text="Import Price"
-                                       FontSize="12"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            <TextBox
-                                x:Name="EditImportPriceTextBox"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                InputScope="Number"
-                                PlaceholderText="0"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <!-- Status -->
-                    <StackPanel>
-                        <TextBlock Margin="0,0,0,4"
-                                   Text="Status"
-                                   FontSize="12"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <ComboBox
-                            x:Name="EditStatusComboBox"
-                            HorizontalAlignment="Stretch"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            SelectedIndex="0">
-                            <ComboBoxItem>AVAILABLE</ComboBoxItem>
-                            <ComboBoxItem>DISCONTINUED</ComboBoxItem>
-                            <ComboBoxItem>OUT_OF_STOCK</ComboBoxItem>
-                        </ComboBox>
-                    </StackPanel>
-
-                    <!-- Image Upload -->
-                    <StackPanel>
-                        <TextBlock Margin="0,0,0,4"
-                                   Text="Product Image"
-                                   FontSize="12"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <Grid ColumnSpacing="8">
+                        <!-- Stock + Commission Rate -->
+                        <Grid ColumnSpacing="12">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <TextBox
-                                x:Name="EditImageUrlTextBox"
-                                Grid.Column="0"
-                                IsReadOnly="True"
+                            <!-- Stock -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Margin="0,0,0,4"
+                                           Text="Stock *"
+                                           FontSize="12"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBox
+                                    x:Name="EditStockTextBox"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    InputScope="Number"
+                                    PlaceholderText="0"/>
+                            </StackPanel>
+
+                            <!-- Commission Rate -->
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Margin="0,0,0,4"
+                                           Text="Commission Rate (%)"
+                                           FontSize="12"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBox
+                                    x:Name="EditCommissionRateTextBox"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    InputScope="Number"
+                                    PlaceholderText="5"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Sale Price + Import Price -->
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Margin="0,0,0,4"
+                                           Text="Sale Price *"
+                                           FontSize="12"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBox
+                                    x:Name="EditPriceTextBox"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    InputScope="Number"
+                                    PlaceholderText="0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Margin="0,0,0,4"
+                                           Text="Import Price"
+                                           FontSize="12"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBox
+                                    x:Name="EditImportPriceTextBox"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    InputScope="Number"
+                                    PlaceholderText="0"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Status -->
+                        <StackPanel>
+                            <TextBlock Margin="0,0,0,4"
+                                       Text="Status"
+                                       FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <ComboBox
+                                x:Name="EditStatusComboBox"
+                                HorizontalAlignment="Stretch"
                                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                 BorderThickness="1"
                                 CornerRadius="8"
-                                PlaceholderText="No image selected"/>
+                                SelectedIndex="0">
+                                <ComboBoxItem>AVAILABLE</ComboBoxItem>
+                                <ComboBoxItem>DISCONTINUED</ComboBoxItem>
+                                <ComboBoxItem>OUT_OF_STOCK</ComboBoxItem>
+                            </ComboBox>
+                        </StackPanel>
 
-                            <Button
-                                x:Name="EditImagePickButton"
-                                Style="{StaticResource SecondaryButtonStyle}"
-                                Grid.Column="1"
-                                Content="Choose Image"
-                                Click="EditImagePickButton_Click"
-                                MinWidth="100"/>
-                        </Grid>
-                    </StackPanel>
+                        <!-- Image Upload -->
+                        <StackPanel>
+                            <TextBlock Margin="0,0,0,4"
+                                       Text="Product Image"
+                                       FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
 
-                    <!-- Description -->
-                    <StackPanel>
-                        <TextBlock Margin="0,0,0,4"
-                                   Text="Description"
-                                   FontSize="12"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <TextBox
-                            x:Name="EditDescriptionTextBox"
-                            MinHeight="80"
-                            AcceptsReturn="True"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            TextWrapping="Wrap"
-                            PlaceholderText="Enter product description..."/>
+                                <TextBox
+                                    x:Name="EditImageUrlTextBox"
+                                    Grid.Column="0"
+                                    IsReadOnly="True"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    PlaceholderText="No image selected"/>
+
+                                <Button
+                                    x:Name="EditImagePickButton"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Grid.Column="1"
+                                    Content="Choose Image"
+                                    Click="EditImagePickButton_Click"
+                                    MinWidth="100"/>
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- Description -->
+                        <StackPanel>
+                            <TextBlock Margin="0,0,0,4"
+                                       Text="Description"
+                                       FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBox
+                                x:Name="EditDescriptionTextBox"
+                                MinHeight="80"
+                                AcceptsReturn="True"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                TextWrapping="Wrap"
+                                PlaceholderText="Enter product description..."/>
+                        </StackPanel>
                     </StackPanel>
-                </StackPanel>
+                </ScrollViewer>
             </ContentDialog>
         </Grid>
     </Grid>
