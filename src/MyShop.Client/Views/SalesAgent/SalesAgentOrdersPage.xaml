@@ -116,7 +116,7 @@
                 <!-- PAGE HEADER -->
                 <layout:PageHeader
                     Title="Sales Orders"
-                    Subtitle="Track and manage orders for your products">
+                    Breadcrumb="Sales Agent > Orders">
                     <layout:PageHeader.ActionContent>
                         <StackPanel Orientation="Horizontal" Spacing="12">
                             <buttons:IconButton
