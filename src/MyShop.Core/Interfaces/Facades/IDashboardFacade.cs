@@ -46,6 +46,18 @@ public interface IDashboardFacade
     Task<Result<List<TopSalesAgent>>> GetTopSalesAgentsAsync(string period = "current", int topCount = 5);
 
     /// <summary>
+    /// Get admin dashboard summary (admin-only)
+    /// </summary>
+    /// <param name="period">Optional period: "day", "week", "month", "year". If null, returns all-time data.</param>
+    Task<Result<MyShop.Shared.DTOs.Responses.AdminDashboardSummaryResponse>> GetAdminSummaryAsync(string? period = null);
+
+    /// <summary>
+    /// Get admin revenue chart with commission data (admin-only)
+    /// </summary>
+    /// <param name="period">Period type: "day", "week", "month", "year"</param>
+    Task<Result<MyShop.Shared.DTOs.Responses.AdminRevenueChartResponse>> GetAdminRevenueChartAsync(string period = "week");
+
+    /// <summary>
     /// Export dashboard data to CSV
     /// </summary>
     Task<Result<string>> ExportDashboardDataAsync(string period = "current");

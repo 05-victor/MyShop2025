@@ -25,4 +25,20 @@ public interface IDashboardApi
     /// <param name="period">Period type: "day", "week", "month", "year"</param>
     [Get("/api/v1/dashboard/revenue-chart")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<RevenueChartResponse>>> GetRevenueChartAsync([Query] string period);
+
+    /// <summary>
+    /// GET /api/v1/dashboard/admin-summary
+    /// Get dashboard summary statistics for admin (requires Admin role)
+    /// </summary>
+    /// <param name="period">Optional period for orders/revenue calculation: "day", "week", "month", "year". If null/empty, returns all-time data.</param>
+    [Get("/api/v1/dashboard/admin-summary")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<AdminDashboardSummaryResponse>>> GetAdminSummaryAsync([Query] string? period = null);
+
+    /// <summary>
+    /// GET /api/v1/dashboard/admin-revenue-chart?period={period}
+    /// Get admin revenue chart with commission data (requires Admin role)
+    /// </summary>
+    /// <param name="period">Period type: "day", "week", "month", "year"</param>
+    [Get("/api/v1/dashboard/admin-revenue-chart")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<AdminRevenueChartResponse>>> GetAdminRevenueChartAsync([Query] string period);
 }

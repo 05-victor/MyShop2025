@@ -146,6 +146,20 @@ namespace MyShop.Client.Views.SalesAgent
             }
         }
 
+        private async void SearchCard_SearchRequested(object sender, RoutedEventArgs e)
+        {
+            _searchDebounceTimer?.Dispose();
+
+            var query = ProductSearchCard.SearchText?.ToLower() ?? string.Empty;
+            ViewModel.SearchQuery = query;
+
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.SearchCard_SearchRequested] Search button clicked, query: '{ViewModel.SearchQuery}'");
+            if (ViewModel.ApplyFiltersCommand?.CanExecute(null) == true)
+            {
+                await ViewModel.ApplyFiltersCommand.ExecuteAsync(null);
+            }
+        }
+
         #endregion
 
         #region Filter Event Handlers
@@ -526,7 +540,10 @@ namespace MyShop.Client.Views.SalesAgent
                 int.TryParse(EditStockTextBox.Text, out var stock);
                 decimal.TryParse(EditPriceTextBox.Text, out var price);
                 decimal.TryParse(EditImportPriceTextBox.Text, out var importPrice);
-                double.TryParse(EditCommissionRateTextBox.Text, out var commissionRate);
+                double.TryParse(EditCommissionRateTextBox.Text, out var commissionRatePercent);
+
+                // Convert commission rate from percentage (e.g., 4) to decimal (e.g., 0.04)
+                var commissionRate = commissionRatePercent / 100.0;
 
                 var status = EditStatusComboBox.SelectedItem as string ?? "AVAILABLE";
                 var imageUrl = EditImageUrlTextBox.Text.Trim();
@@ -584,6 +601,14 @@ namespace MyShop.Client.Views.SalesAgent
         {
             System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditImagePickButton_Click] Image picker button clicked");
 
+            // Validate that we have an editing product with ID
+            if (_editingProduct == null || _editingProduct.Id == Guid.Empty)
+            {
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditImagePickButton_Click] ❌ ERROR - _editingProduct is null or has empty ID");
+                LoggingService.Instance.Error("[SalesAgentProductsPage.EditImagePickButton_Click] No product ID available for image upload", new Exception("_editingProduct is null or ID is empty"));
+                return;
+            }
+
             try
             {
                 var picker = new Windows.Storage.Pickers.FileOpenPicker();
@@ -610,8 +635,10 @@ namespace MyShop.Client.Views.SalesAgent
 
                     try
                     {
-                        // Upload image and get URL
-                        var result = await ViewModel.UploadProductImageAsync(file);
+                        // Upload image with product ID using new API endpoint: /api/v1/products/{id}/uploadImage
+                        System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditImagePickButton_Click] Uploading image for product ID: {_editingProduct.Id}");
+                        var result = await ViewModel.UploadProductImageAsync(_editingProduct.Id, file.Path);
+
                         if (result.IsSuccess)
                         {
                             System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage.EditImagePickButton_Click] ✅ Image uploaded successfully: {result.Data}");

@@ -27,15 +27,17 @@
     <Grid>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="ResponsiveStates">
-                
+
                 <!-- Large Desktop: 1920px+ -->
                 <VisualState x:Name="LargeDesktopState">
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="1920"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="40"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="24"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="40"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="24"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -45,8 +47,10 @@
                         <AdaptiveTrigger MinWindowWidth="1280"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="32"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="20"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="32"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="20"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -56,8 +60,10 @@
                         <AdaptiveTrigger MinWindowWidth="960"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="24"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="16"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="24"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="16"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -67,8 +73,10 @@
                         <AdaptiveTrigger MinWindowWidth="640"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="20"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="12"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="20"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="12"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -78,11 +86,13 @@
                         <AdaptiveTrigger MinWindowWidth="0"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="16"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="8"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="16"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="8"/>
                     </VisualState.Setters>
                 </VisualState>
-                
+
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
@@ -96,7 +106,8 @@
             </Grid.Transitions>
             <ScrollViewer VerticalScrollBarVisibility="Auto"
                           Background="{ThemeResource LayerFillColorDefaultBrush}">
-                <Grid x:Name="MainContent" Padding="{StaticResource Padding_XL}"
+                <Grid x:Name="MainContent"
+                      Padding="{StaticResource Padding_XL}"
                       RowSpacing="20">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -120,14 +131,14 @@
                                           AutomationProperties.HelpText="Choose the reporting period for dashboard data"
                                           UseSystemFocusVisuals="True"
                                           SelectionChanged="PeriodComboBox_SelectionChanged">
-                                    <ComboBoxItem Content="Today"
+                                    <ComboBoxItem Content="Day"
                                                   Tag="day"/>
-                                    <ComboBoxItem Content="This Week"
+                                    <ComboBoxItem Content="Week"
                                                   Tag="week"/>
-                                    <ComboBoxItem Content="This Month"
+                                    <ComboBoxItem Content="Month"
                                                   Tag="month"
                                                   IsSelected="True"/>
-                                    <ComboBoxItem Content="This Year"
+                                    <ComboBoxItem Content="Year"
                                                   Tag="year"/>
                                 </ComboBox>
 
@@ -146,7 +157,8 @@
                                 Spacing="20"
                                 Margin="0,4,0,0">
                         <!-- Statistics Cards (KPICard Components) -->
-                        <Grid x:Name="KPIGrid" ColumnSpacing="16">
+                        <Grid x:Name="KPIGrid"
+                              ColumnSpacing="16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
@@ -276,19 +288,6 @@
                                                     CommandParameter="category"
                                                     Background="{x:Bind ViewModel.IsCategoryView, Mode=OneWay, Converter={StaticResource BoolToButtonBackgroundConverter}}"
                                                     Foreground="{x:Bind ViewModel.IsCategoryView, Mode=OneWay, Converter={StaticResource BoolToButtonForegroundConverter}}"
-                                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                                    BorderThickness="1"/>
-
-                                            <!-- Agents Button -->
-                                            <Button Content="Agents"
-                                                    Padding="{StaticResource ButtonPadding_SM}"
-                                                    CornerRadius="8"
-                                                    FontSize="13"
-                                                    FontWeight="SemiBold"
-                                                    Command="{x:Bind ViewModel.SwitchSalesViewCommand}"
-                                                    CommandParameter="agents"
-                                                    Background="{x:Bind ViewModel.IsAgentsView, Mode=OneWay, Converter={StaticResource BoolToButtonBackgroundConverter}}"
-                                                    Foreground="{x:Bind ViewModel.IsAgentsView, Mode=OneWay, Converter={StaticResource BoolToButtonForegroundConverter}}"
                                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                                     BorderThickness="1"/>
                                         </StackPanel>
@@ -477,40 +476,29 @@
                                                  ViewAllClicked="ViewAllAgents_Click">
                                 <cards:DataTableCard.TableContent>
                                     <StackPanel Spacing="0">
-                                        <!-- Table Header -->
+                                        <!-- Top SalesAgents Table Header -->
                                         <Grid Padding="0,0,0,12"
                                               BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                               BorderThickness="0,0,0,1">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="2*"/>
+                                                <ColumnDefinition Width="40"/>
+                                                <ColumnDefinition Width="1.5*"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="80"/>
-                                                <ColumnDefinition Width="90"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <TextBlock Grid.Column="0"
-                                                       Text="AGENT"
-                                                       FontSize="12"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                             <TextBlock Grid.Column="1"
-                                                       Text="GMV"
+                                                       Text="EMAIL"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                             <TextBlock Grid.Column="2"
-                                                       Text="COMMISSION"
+                                                       Text="GMV"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                             <TextBlock Grid.Column="3"
-                                                       Text="RATING"
-                                                       FontSize="12"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                            <TextBlock Grid.Column="4"
-                                                       Text="STATUS"
+                                                       Text="COMMISSION"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
@@ -525,67 +513,40 @@
                                                           BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                                           BorderThickness="0,0,0,1">
                                                         <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="2*"/>
+                                                            <ColumnDefinition Width="40"/>
+                                                            <ColumnDefinition Width="1.5*"/>
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="80"/>
-                                                            <ColumnDefinition Width="90"/>
                                                         </Grid.ColumnDefinitions>
 
-                                                        <!-- Agent Info with Avatar -->
-                                                        <StackPanel Grid.Column="0"
-                                                                    Orientation="Horizontal"
-                                                                    Spacing="12">
-                                                            <PersonPicture ProfilePicture="{x:Bind Avatar, Converter={StaticResource StringToImageSourceConverter}}"
-                                                                           DisplayName="{x:Bind Name}"
-                                                                           Width="40"
-                                                                           Height="40"/>
-                                                            <StackPanel VerticalAlignment="Center">
-                                                                <TextBlock Text="{x:Bind Name}"
-                                                                           FontSize="14"
-                                                                           FontWeight="SemiBold"
-                                                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                                                <TextBlock Text="{x:Bind Email}"
-                                                                           FontSize="12"
-                                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                            </StackPanel>
-                                                        </StackPanel>
+                                                        <!-- Avatar -->
+                                                        <PersonPicture Grid.Column="0"
+                                                                       ProfilePicture="{x:Bind Avatar, Converter={StaticResource StringToImageSourceConverter}}"
+                                                                       DisplayName="{x:Bind Name}"
+                                                                       Width="32"
+                                                                       Height="32"/>
+
+                                                        <!-- Email -->
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="{x:Bind Email}"
+                                                                   FontSize="14"
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                   VerticalAlignment="Center"/>
 
                                                         <!-- GMV -->
-                                                        <TextBlock Grid.Column="1"
-                                                                   VerticalAlignment="Center"
+                                                        <TextBlock Grid.Column="2"
+                                                                   Text="{x:Bind GMV, Converter={StaticResource CurrencyConverter}}"
                                                                    FontSize="14"
-                                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}">
-                                                <Run Text="{x:Bind GMV, Converter={StaticResource CurrencyConverter}}"/>
-                                                        </TextBlock>
+                                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                                   VerticalAlignment="Center"/>
 
                                                         <!-- Commission -->
-                                                        <TextBlock Grid.Column="2"
-                                                                   VerticalAlignment="Center"
+                                                        <TextBlock Grid.Column="3"
+                                                                   Text="{x:Bind Commission, Converter={StaticResource CurrencyConverter}}"
                                                                    FontSize="14"
                                                                    FontWeight="SemiBold"
-                                                                   Foreground="{ThemeResource SuccessGreenBrush}">
-                                                <Run Text="{x:Bind Commission, Converter={StaticResource CurrencyConverter}}"/>
-                                                        </TextBlock>
-
-                                                        <!-- Rating -->
-                                                        <StackPanel Grid.Column="3"
-                                                                    Orientation="Horizontal"
-                                                                    Spacing="4"
-                                                                    VerticalAlignment="Center">
-                                                            <FontIcon Glyph="&#xE735;"
-                                                                      FontSize="14"
-                                                                      Foreground="{ThemeResource WarningAmberBrush}"/>
-                                                            <TextBlock Text="{x:Bind Rating}"
-                                                                       FontSize="14"
-                                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                                        </StackPanel>
-
-                                                        <!-- Status Badge -->
-                                                        <badges:StatusBadge Grid.Column="4"
-                                                                            Text="{x:Bind Status}"
-                                                                            Variant="Success"
-                                                                            VerticalAlignment="Center"/>
+                                                                   Foreground="{ThemeResource SuccessGreenBrush}"
+                                                                   VerticalAlignment="Center"/>
                                                     </Grid>
                                                 </DataTemplate>
                                             </ListView.ItemTemplate>
@@ -606,7 +567,7 @@
 
                             <!-- Flagged Products Table -->
                             <cards:DataTableCard Grid.Column="1"
-                                                 Title="Newest / Flagged Products"
+                                                 Title="Top Selling Products"
                                                  ShowViewAll="Visible"
                                                  ViewAllText="View All"
                                                  ViewAllClicked="ViewAllProducts_Click">
@@ -617,94 +578,75 @@
                                               BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                               BorderThickness="0,0,0,1">
                                             <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="1*"/>
                                                 <ColumnDefinition Width="2*"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="90"/>
-                                                <ColumnDefinition Width="80"/>
+                                                <ColumnDefinition Width="1*"/>
                                             </Grid.ColumnDefinitions>
 
                                             <TextBlock Grid.Column="0"
-                                                       Text="PRODUCT"
+                                                       Text="IMAGE"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                             <TextBlock Grid.Column="1"
-                                                       Text="AGENT"
+                                                       Text="NAME"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                             <TextBlock Grid.Column="2"
-                                                       Text="CATEGORY"
-                                                       FontSize="12"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                            <TextBlock Grid.Column="3"
-                                                       Text="STATE"
-                                                       FontSize="12"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                            <TextBlock Grid.Column="4"
-                                                       Text="ACTION"
+                                                       Text="SOLD"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         </Grid>
 
-                                        <!-- Flagged Products List -->
-                                        <ListView ItemsSource="{x:Bind ViewModel.FlaggedProducts, Mode=OneWay}"
+                                        <!-- Top Selling Products List -->
+                                        <ListView ItemsSource="{x:Bind ViewModel.TopProducts, Mode=OneWay}"
                                                   SelectionMode="None">
                                             <ListView.ItemTemplate>
-                                                <DataTemplate x:DataType="viewmodels:FlaggedProductItem">
+                                                <DataTemplate x:DataType="viewmodels:TopProductItem">
                                                     <Grid Padding="{StaticResource Padding_MD}"
                                                           BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                                           BorderThickness="0,0,0,1">
                                                         <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="1*"/>
                                                             <ColumnDefinition Width="2*"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="40"/>
+                                                            <ColumnDefinition Width="1*"/>
                                                         </Grid.ColumnDefinitions>
 
+                                                        <!-- Product Image -->
+                                                        <Border
+                                                            Grid.Column="0"
+                                                            Width="48"
+                                                            Height="48"
+                                                            HorizontalAlignment="Left"
+                                                            Background="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                            CornerRadius="8">
+                                                            <Image Stretch="UniformToFill">
+                                                                <Image.Source>
+                                                                    <BitmapImage UriSource="{x:Bind ImageUrl}"
+                                                                                 DecodePixelWidth="96"
+                                                                                 DecodePixelType="Logical"/>
+                                                                </Image.Source>
+                                                            </Image>
+                                                        </Border>
+
                                                         <!-- Product Name -->
-                                                        <TextBlock Grid.Column="0"
+                                                        <TextBlock Grid.Column="1"
                                                                    Text="{x:Bind Name}"
                                                                    FontSize="14"
                                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                                    VerticalAlignment="Center"
-                                                                   TextWrapping="Wrap"/>
+                                                                   TextWrapping="Wrap"
+                                                                   Margin="4,0,0,0"/>
 
-                                                        <!-- Agent -->
-                                                        <TextBlock Grid.Column="1"
-                                                                   Text="{x:Bind Agent}"
-                                                                   FontSize="14"
-                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                                   VerticalAlignment="Center"/>
-
-                                                        <!-- Category -->
+                                                        <!-- Number Sold -->
                                                         <TextBlock Grid.Column="2"
-                                                                   Text="{x:Bind Category}"
+                                                                   Text="{x:Bind SoldCount}"
                                                                    FontSize="14"
                                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                                                   VerticalAlignment="Center"/>
-
-                                                        <!-- State Badge -->
-                                                        <badges:StatusBadge Grid.Column="3"
-                                                                            Text="{x:Bind State}"
-                                                                            Variant="Warning"
-                                                                            VerticalAlignment="Center"/>
-
-                                                        <!-- Action Button -->
-                                                        <Button Grid.Column="4"
-                                                                Style="{StaticResource IconButtonStyle}"
-                                                                Width="32"
-                                                                Height="32"
-                                                                VerticalAlignment="Center">
-                                                            <FontIcon Glyph="&#xE712;"
-                                                                      FontSize="16"
-                                                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                        </Button>
+                                                                   VerticalAlignment="Center"
+                                                                   HorizontalAlignment="Center"/>
                                                     </Grid>
                                                 </DataTemplate>
                                             </ListView.ItemTemplate>

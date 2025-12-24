@@ -26,12 +26,12 @@ public sealed partial class ServerErrorPage : Page
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        
+
         if (e.Parameter is ServerErrorParameters parameters)
         {
             _errorDetails = parameters.ErrorDetails;
             _retryAction = parameters.RetryAction;
-            
+
             if (!string.IsNullOrEmpty(_errorDetails))
             {
                 ErrorDetailsText.Text = _errorDetails;
@@ -61,7 +61,7 @@ public sealed partial class ServerErrorPage : Page
             // No retry action, just go back
             if (_navigationService?.CanGoBack == true)
             {
-                _navigationService.GoBack();
+                await _navigationService.GoBack();
             }
         }
     }

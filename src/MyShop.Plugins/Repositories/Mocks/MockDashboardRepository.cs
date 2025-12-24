@@ -55,4 +55,66 @@ public class MockDashboardRepository : IDashboardRepository
             return Result<List<TopSalesAgent>>.Failure($"Failed to load top sales agents: {ex.Message}", ex);
         }
     }
+
+    public async Task<Result<MyShop.Shared.DTOs.Responses.AdminDashboardSummaryResponse>> GetAdminSummaryAsync(string? period = null)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockDashboardRepository] GetAdminSummaryAsync({period}) - Using mock data");
+            var mockData = new MyShop.Shared.DTOs.Responses.AdminDashboardSummaryResponse
+            {
+                ActiveSalesAgents = 42,
+                TotalProducts = 1250,
+                TotalGmv = 125000.50m,
+                AdminCommission = 6250.25m,
+                TotalOrders = 3500,
+                TotalRevenue = 125000.50m,
+                TopSellingProducts = new List<MyShop.Shared.DTOs.Responses.TopSellingProductDto>
+                {
+                    new MyShop.Shared.DTOs.Responses.TopSellingProductDto { Id = Guid.NewGuid(), Name = "Laptop Pro", CategoryName = "Electronics", SoldCount = 150, Revenue = 45000.00m },
+                    new MyShop.Shared.DTOs.Responses.TopSellingProductDto { Id = Guid.NewGuid(), Name = "Wireless Mouse", CategoryName = "Accessories", SoldCount = 800, Revenue = 12000.00m }
+                },
+                TopSalesAgents = new List<MyShop.Shared.DTOs.Responses.TopSalesAgentDto>
+                {
+                    new MyShop.Shared.DTOs.Responses.TopSalesAgentDto { Id = Guid.NewGuid(), Name = "John Seller", TotalGmv = 25000.00m, OrderCount = 800, Commission = 1250.00m },
+                    new MyShop.Shared.DTOs.Responses.TopSalesAgentDto { Id = Guid.NewGuid(), Name = "Jane Merchant", TotalGmv = 18000.00m, OrderCount = 600, Commission = 900.00m }
+                }
+            };
+            return Result<MyShop.Shared.DTOs.Responses.AdminDashboardSummaryResponse>.Success(mockData);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockDashboardRepository] GetAdminSummaryAsync error: {ex.Message}");
+            return Result<MyShop.Shared.DTOs.Responses.AdminDashboardSummaryResponse>.Failure($"Failed to load admin summary: {ex.Message}", ex);
+        }
+    }
+
+    public async Task<Result<MyShop.Shared.DTOs.Responses.AdminRevenueChartResponse>> GetAdminRevenueChartAsync(string period)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockDashboardRepository] GetAdminRevenueChartAsync({period}) - Using mock data");
+            var labels = period switch
+            {
+                "day" => Enumerable.Range(0, 24).Select(h => h.ToString()).ToList(),
+                "month" => Enumerable.Range(1, 31).Select(d => d.ToString()).ToList(),
+                "year" => new List<string> { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" },
+                _ => new List<string> { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" }
+            };
+            var revenueData = labels.Select(_ => (decimal)(new Random().NextDouble() * 50000)).ToList();
+            var commissionData = revenueData.Select(r => Math.Round(r * 0.05m, 2)).ToList();
+            var mockData = new MyShop.Shared.DTOs.Responses.AdminRevenueChartResponse
+            {
+                Labels = labels,
+                RevenueData = revenueData,
+                CommissionData = commissionData
+            };
+            return Result<MyShop.Shared.DTOs.Responses.AdminRevenueChartResponse>.Success(mockData);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockDashboardRepository] GetAdminRevenueChartAsync error: {ex.Message}");
+            return Result<MyShop.Shared.DTOs.Responses.AdminRevenueChartResponse>.Failure($"Failed to load admin revenue chart: {ex.Message}", ex);
+        }
+    }
 }

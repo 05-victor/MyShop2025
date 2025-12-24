@@ -26,6 +26,8 @@
         <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
         <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+        <converters:CountToVisibilityConverter x:Key="InverseCountToVisibilityConverter"
+                                               IsInverted="True"/>
         <converters:CurrencyConverter x:Key="CurrencyConverter"/>
     </Page.Resources>
 
@@ -195,9 +197,7 @@
                                     Icon="&#xE7BF;"
                                     Value="{x:Bind ViewModel.TotalSales, Mode=OneWay}"
                                     Subtitle="Orders completed"
-                                    ShowBadge="Visible"
-                                    TrendIcon="&#xE74E;"
-                                    TrendText="+8.5%"
+                                    ShowBadge="Collapsed"
                                     IconBackgroundBrush="{ThemeResource InfoBlueLightBrush}"
                                     IconForegroundBrush="{ThemeResource PrimaryBrush}"
                                     BadgeBackgroundBrush="{ThemeResource InfoBlueLightBrush}"
@@ -209,11 +209,8 @@
                                     Title="Commission Earned"
                                     Icon="&#xE7DB;"
                                     Value="{x:Bind ViewModel.TotalCommission, Mode=OneWay}"
-                                    Subtitle="This month"
                                     IsCurrency="True"
-                                    ShowBadge="Visible"
-                                    TrendIcon="&#xE74E;"
-                                    TrendText="{x:Bind ViewModel.ThisWeekCommission, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                    ShowBadge="Collapsed"
                                     IconBackgroundBrush="{ThemeResource SuccessGreenLightBrush}"
                                     IconForegroundBrush="{ThemeResource SuccessGreenBrush}"
                                     BadgeBackgroundBrush="{ThemeResource SuccessGreenLightBrush}"
@@ -227,9 +224,7 @@
                                     Value="{x:Bind ViewModel.TotalRevenue, Mode=OneWay}"
                                     Subtitle="Sales generated"
                                     IsCurrency="True"
-                                    ShowBadge="Visible"
-                                    TrendIcon="&#xE74E;"
-                                    TrendText="+15.2%"
+                                    ShowBadge="Collapsed"
                                     IconBackgroundBrush="{ThemeResource PurpleLightBrush}"
                                     IconForegroundBrush="{ThemeResource PurpleBrush}"
                                     BadgeBackgroundBrush="{ThemeResource PurpleLightBrush}"
@@ -380,56 +375,95 @@
                                                     Background="{ThemeResource ErrorRedLightBrush}"
                                                     CornerRadius="8"
                                                     Padding="8,4">
-                                                <TextBlock Text="{Binding LowStockProducts.Count, Mode=OneWay}"
+                                                <TextBlock Text="{x:Bind ViewModel.LowStockProducts.Count, Mode=OneWay}"
                                                            FontSize="12"
                                                            FontWeight="SemiBold"
                                                            Foreground="{ThemeResource ErrorRedBrush}"/>
                                             </Border>
                                         </Grid>
 
-                                        <!-- Low Stock Products List (Visibility based on count) -->
-                                        <ListView ItemsSource="{Binding LowStockProducts, Mode=OneWay}"
+                                        <!-- Low Stock Products List (Visibility based on collection) -->
+                                        <ListView x:Name="LowStockProductsListView"
+                                                  ItemsSource="{x:Bind ViewModel.LowStockProducts, Mode=OneWay}"
                                                   SelectionMode="None"
-                                                  Visibility="{Binding LowStockProducts.Count, Mode=OneWay, Converter={StaticResource CountToVisibilityConverter}}">
+                                                  Visibility="{x:Bind ViewModel.LowStockProducts, Mode=OneWay, Converter={StaticResource CountToVisibilityConverter}}">
                                             <ListView.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:LowStockProduct">
                                                     <Border Padding="{StaticResource Spacing_3_Thickness}"
                                                             BorderBrush="{ThemeResource Gray300Brush}"
                                                             BorderThickness="0,0,0,1">
-                                                        <StackPanel Spacing="8">
-                                                            <TextBlock Text="{x:Bind Name}"
-                                                                       FontSize="13"
-                                                                       FontWeight="SemiBold"
-                                                                       Foreground="{ThemeResource Gray900Brush}"
-                                                                       TextTrimming="CharacterEllipsis"/>
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                            </Grid.ColumnDefinitions>
 
-                                                            <Grid>
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="*"/>
-                                                                    <ColumnDefinition Width="Auto"/>
-                                                                </Grid.ColumnDefinitions>
+                                                            <!-- Product Image -->
+                                                            <Border Grid.Column="0"
+                                                                    Width="70"
+                                                                    Height="70"
+                                                                    CornerRadius="6"
+                                                                    Margin="0,0,12,0"
+                                                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                                                                <Image Source="{x:Bind ImageUrl, Converter={StaticResource StringToImageSourceConverter}}"
+                                                                       Stretch="UniformToFill"/>
+                                                            </Border>
 
-                                                                <StackPanel Grid.Column="0"
-                                                                            Orientation="Horizontal"
-                                                                            Spacing="8">
-                                                                    <TextBlock FontSize="12"
-                                                                               Foreground="{ThemeResource Gray600Brush}">
-                                                        <Run Text="{x:Bind CategoryName}"/>
-                                                                    </TextBlock>
+                                                            <!-- Product Details -->
+                                                            <StackPanel Grid.Column="1"
+                                                                        Spacing="8">
+                                                                <TextBlock Text="{x:Bind Name}"
+                                                                           FontSize="13"
+                                                                           FontWeight="SemiBold"
+                                                                           Foreground="{ThemeResource Gray900Brush}"
+                                                                           TextTrimming="CharacterEllipsis"/>
+
+                                                                <!-- Desktop Layout: Horizontal Category + Quantity -->
+                                                                <Grid x:Name="DesktopLayout">
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                    </Grid.ColumnDefinitions>
+
+                                                                    <TextBlock Grid.Column="0"
+                                                                               Text="{x:Bind CategoryName}"
+                                                                               FontSize="12"
+                                                                               Foreground="{ThemeResource Gray600Brush}"
+                                                                               VerticalAlignment="Center"/>
+
+                                                                    <Border Grid.Column="1"
+                                                                            Background="{ThemeResource ErrorRedLightBrush}"
+                                                                            CornerRadius="8"
+                                                                            Padding="6,2">
+                                                                        <TextBlock FontSize="11"
+                                                                                   FontWeight="SemiBold"
+                                                                                   Foreground="{ThemeResource ErrorRedBrush}">
+                                                            <Run Text="Quantity: "/><Run Text="{x:Bind Quantity}"/>
+                                                                        </TextBlock>
+                                                                    </Border>
+                                                                </Grid>
+
+                                                                <!-- Tablet Layout: Vertical Category + Quantity -->
+                                                                <StackPanel x:Name="TabletLayout"
+                                                                            Spacing="6"
+                                                                            Visibility="Collapsed">
+                                                                    <TextBlock Text="{x:Bind CategoryName}"
+                                                                               FontSize="12"
+                                                                               Foreground="{ThemeResource Gray600Brush}"/>
+
+                                                                    <Border Background="{ThemeResource ErrorRedLightBrush}"
+                                                                            CornerRadius="8"
+                                                                            Padding="6,2"
+                                                                            HorizontalAlignment="Left">
+                                                                        <TextBlock FontSize="11"
+                                                                                   FontWeight="SemiBold"
+                                                                                   Foreground="{ThemeResource ErrorRedBrush}">
+                                                            <Run Text="Quantity: "/><Run Text="{x:Bind Quantity}"/>
+                                                                        </TextBlock>
+                                                                    </Border>
                                                                 </StackPanel>
-
-                                                                <Border Grid.Column="1"
-                                                                        Background="{ThemeResource ErrorRedLightBrush}"
-                                                                        CornerRadius="8"
-                                                                        Padding="6,2">
-                                                                    <TextBlock FontSize="11"
-                                                                               FontWeight="SemiBold"
-                                                                               Foreground="{ThemeResource ErrorRedBrush}">
-                                                        <Run Text="Qty: "/><Run Text="{x:Bind Quantity}"/>
-                                                                    </TextBlock>
-                                                                </Border>
-                                                            </Grid>
-                                                        </StackPanel>
+                                                            </StackPanel>
+                                                        </Grid>
                                                     </Border>
                                                 </DataTemplate>
                                             </ListView.ItemTemplate>
@@ -450,7 +484,7 @@
                                                    FontSize="13"
                                                    Foreground="{ThemeResource Gray500Brush}"
                                                    TextAlignment="Center"
-                                                   Visibility="{Binding LowStockProducts.Count, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                                                   Visibility="{x:Bind ViewModel.LowStockProducts, Mode=OneWay, Converter={StaticResource InverseCountToVisibilityConverter}}"/>
                                     </StackPanel>
                                 </Border>
 

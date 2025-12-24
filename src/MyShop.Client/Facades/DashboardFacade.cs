@@ -34,15 +34,15 @@ public class DashboardFacade : IDashboardFacade
         _toastService = toastService ?? throw new ArgumentNullException(nameof(toastService));
     }
 
-    public async Task<Result<DashboardSummary>> LoadDashboardAsync(string period = "current")
+    public async Task<Result<DashboardSummary>> LoadDashboardAsync(string period = "month")
     {
         try
         {
-            // Validate period
-            var validPeriods = new[] { "current", "last", "last3" };
-            if (!validPeriods.Contains(period.ToLower()))
+            // Validate period - API format: "day", "week", "month", "year"
+            var validPeriods = new[] { "day", "week", "month", "year" };
+            if (!validPeriods.Contains(period?.ToLower() ?? "month"))
             {
-                period = "current"; // Default to current if invalid
+                period = "month"; // Default to month if invalid
             }
 
             System.Diagnostics.Debug.WriteLine($"[DashboardFacade.LoadDashboardAsync] ⏳ START - Period: {period}");
@@ -84,10 +84,20 @@ public class DashboardFacade : IDashboardFacade
         try
         {
             System.Diagnostics.Debug.WriteLine($"[DashboardFacade.GetRevenueChartDataAsync] START - Period: {period}");
-            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.GetRevenueChartDataAsync] Calling repository.GetRevenueChartAsync({period})");
+
+            // Handle "all-time" for chart (convert to day since regular charts need granular data)
+            var apiPeriod = period switch
+            {
+                "all-time" => "day",  // Default to day for all-time since charts need granular data
+                "day" or "week" or "month" or "year" => period,
+                _ => "day"
+            };
+
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.GetRevenueChartDataAsync] Using period: {apiPeriod}");
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.GetRevenueChartDataAsync] Calling repository.GetRevenueChartAsync({apiPeriod})");
 
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            var result = await _dashboardRepository.GetRevenueChartAsync(period);
+            var result = await _dashboardRepository.GetRevenueChartAsync(apiPeriod);
             sw.Stop();
 
             System.Diagnostics.Debug.WriteLine($"[DashboardFacade.GetRevenueChartDataAsync] Repository returned - Success: {result.IsSuccess}, ElapsedMs: {sw.ElapsedMilliseconds}");
@@ -377,6 +387,59 @@ public class DashboardFacade : IDashboardFacade
         {
             System.Diagnostics.Debug.WriteLine($"[DashboardFacade] Navigation error: {ex.Message}");
             _ = _toastService.ShowError($"Navigation failed: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<MyShop.Shared.DTOs.Responses.AdminDashboardSummaryResponse>> GetAdminSummaryAsync(string? period = null)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.GetAdminSummaryAsync] ⏳ START - Period: {period}");
+
+            var result = await _dashboardRepository.GetAdminSummaryAsync(period);
+
+            if (!result.IsSuccess)
+            {
+                System.Diagnostics.Debug.WriteLine($"[DashboardFacade.GetAdminSummaryAsync] ❌ Failed - {result.ErrorMessage}");
+                _ = _toastService.ShowError(result.ErrorMessage ?? "Failed to load admin summary");
+                return result;
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.GetAdminSummaryAsync] ✅ SUCCESS - ActiveAgents: {result.Data?.ActiveSalesAgents}, TotalGMV: {result.Data?.TotalGmv}");
+            return result;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.GetAdminSummaryAsync] ❌ Exception - {ex.Message}");
+            _ = _toastService.ShowError($"Error loading admin summary: {ex.Message}");
+            return Result<MyShop.Shared.DTOs.Responses.AdminDashboardSummaryResponse>.Failure($"Error: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<MyShop.Shared.DTOs.Responses.AdminRevenueChartResponse>> GetAdminRevenueChartAsync(string period = "week")
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.GetAdminRevenueChartAsync] ⏳ START - Period: {period}");
+
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.GetAdminRevenueChartAsync] Using period: {period}");
+            var result = await _dashboardRepository.GetAdminRevenueChartAsync(period);
+
+            if (!result.IsSuccess)
+            {
+                System.Diagnostics.Debug.WriteLine($"[DashboardFacade.GetAdminRevenueChartAsync] ❌ Failed - {result.ErrorMessage}");
+                _ = _toastService.ShowError(result.ErrorMessage ?? "Failed to load admin revenue chart");
+                return result;
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.GetAdminRevenueChartAsync] ✅ SUCCESS - DataPoints: {result.Data?.Labels?.Count}");
+            return result;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade.GetAdminRevenueChartAsync] ❌ Exception - {ex.Message}");
+            _ = _toastService.ShowError($"Error loading admin revenue chart: {ex.Message}");
+            return Result<MyShop.Shared.DTOs.Responses.AdminRevenueChartResponse>.Failure($"Error: {ex.Message}");
         }
     }
 }

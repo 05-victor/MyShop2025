@@ -16,7 +16,7 @@
     xmlns:converters="using:MyShop.Client.Common.Converters"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.SalesAgent"
     mc:Ignorable="d"
-    Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+    Background="{ThemeResource LayerFillColorDefaultBrush}">
 
     <Page.Transitions>
         <TransitionCollection>
@@ -494,7 +494,7 @@
                                                                    FontSize="13"
                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
-                                                        <Border Grid.Column="4"
+                                                        <Border Grid.Column="3"
                                                                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                                                 CornerRadius="4"
                                                                 Padding="8,4"

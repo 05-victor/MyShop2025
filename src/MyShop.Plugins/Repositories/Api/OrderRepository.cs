@@ -443,6 +443,7 @@ public class OrderRepository : IOrderRepository
         int page = 1,
         int pageSize = 20,
         string? status = null,
+        string? paymentStatus = null,
         Guid? customerId = null,
         Guid? salesAgentId = null,
         DateTime? startDate = null,
@@ -452,64 +453,122 @@ public class OrderRepository : IOrderRepository
     {
         try
         {
-            // Note: Backend API doesn't support server-side paging yet
-            // Fallback: fetch all orders and apply client-side paging/filtering
+            // Route to correct API endpoint based on filters
+            if (salesAgentId.HasValue)
+            {
+                // Sales Agent viewing their own orders → use my-sales endpoint
+                var mySalesResult = await GetMySalesOrdersPagedAsync(
+                    page: page,
+                    pageSize: pageSize,
+                    status: status,
+                    paymentStatus: paymentStatus);
+
+                if (!mySalesResult.IsSuccess)
+                    return mySalesResult;
+
+                // Apply additional client-side filters if needed
+                var query = mySalesResult.Data!.Items.AsEnumerable();
+
+                if (startDate.HasValue)
+                    query = query.Where(o => o.OrderDate >= startDate.Value);
+                if (endDate.HasValue)
+                    query = query.Where(o => o.OrderDate <= endDate.Value);
+
+                // Apply sorting
+                query = sortBy.ToLower() switch
+                {
+                    "orderdate" => sortDescending ? query.OrderByDescending(o => o.OrderDate) : query.OrderBy(o => o.OrderDate),
+                    "finalprice" or "amount" => sortDescending ? query.OrderByDescending(o => o.FinalPrice) : query.OrderBy(o => o.FinalPrice),
+                    "status" => sortDescending ? query.OrderByDescending(o => o.Status) : query.OrderBy(o => o.Status),
+                    _ => sortDescending ? query.OrderByDescending(o => o.OrderDate) : query.OrderBy(o => o.OrderDate)
+                };
+
+                var items = query.ToList();
+                var pagedList = new PagedList<Order>(items, items.Count, page, pageSize);
+                return Result<PagedList<Order>>.Success(pagedList);
+            }
+
+            if (customerId.HasValue)
+            {
+                // Customer viewing their own orders → use my-orders endpoint
+                var myOrdersResult = await GetMyCustomerOrdersPagedAsync(
+                    page: page,
+                    pageSize: pageSize,
+                    status: status,
+                    paymentStatus: paymentStatus);
+
+                if (!myOrdersResult.IsSuccess)
+                    return myOrdersResult;
+
+                // Apply additional client-side filters if needed
+                var query = myOrdersResult.Data!.Items.AsEnumerable();
+
+                if (startDate.HasValue)
+                    query = query.Where(o => o.OrderDate >= startDate.Value);
+                if (endDate.HasValue)
+                    query = query.Where(o => o.OrderDate <= endDate.Value);
+
+                // Apply sorting
+                query = sortBy.ToLower() switch
+                {
+                    "orderdate" => sortDescending ? query.OrderByDescending(o => o.OrderDate) : query.OrderBy(o => o.OrderDate),
+                    "finalprice" or "amount" => sortDescending ? query.OrderByDescending(o => o.FinalPrice) : query.OrderBy(o => o.FinalPrice),
+                    "status" => sortDescending ? query.OrderByDescending(o => o.Status) : query.OrderBy(o => o.Status),
+                    _ => sortDescending ? query.OrderByDescending(o => o.OrderDate) : query.OrderBy(o => o.OrderDate)
+                };
+
+                var items = query.ToList();
+                var pagedList = new PagedList<Order>(items, items.Count, page, pageSize);
+                return Result<PagedList<Order>>.Success(pagedList);
+            }
+
+            // Admin viewing all orders → use general endpoint
             var allOrdersResult = await GetAllAsync();
             if (!allOrdersResult.IsSuccess || allOrdersResult.Data == null)
             {
                 return Result<PagedList<Order>>.Failure(allOrdersResult.ErrorMessage ?? "Failed to retrieve orders");
             }
 
-            var query = allOrdersResult.Data.AsEnumerable();
+            var allQuery = allOrdersResult.Data.AsEnumerable();
 
             // Apply filters
             if (!string.IsNullOrWhiteSpace(status))
             {
-                query = query.Where(o => o.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
-            }
-
-            if (customerId.HasValue)
-            {
-                query = query.Where(o => o.CustomerId == customerId.Value);
-            }
-
-            if (salesAgentId.HasValue)
-            {
-                query = query.Where(o => o.SalesAgentId == salesAgentId.Value);
+                allQuery = allQuery.Where(o => o.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
             }
 
             if (startDate.HasValue)
             {
-                query = query.Where(o => o.OrderDate >= startDate.Value);
+                allQuery = allQuery.Where(o => o.OrderDate >= startDate.Value);
             }
 
             if (endDate.HasValue)
             {
-                query = query.Where(o => o.OrderDate <= endDate.Value);
+                allQuery = allQuery.Where(o => o.OrderDate <= endDate.Value);
             }
 
             // Apply sorting
-            query = sortBy.ToLower() switch
+            allQuery = sortBy.ToLower() switch
             {
                 "orderdate" => sortDescending
-                    ? query.OrderByDescending(o => o.OrderDate)
-                    : query.OrderBy(o => o.OrderDate),
+                    ? allQuery.OrderByDescending(o => o.OrderDate)
+                    : allQuery.OrderBy(o => o.OrderDate),
                 "finalprice" or "amount" => sortDescending
-                    ? query.OrderByDescending(o => o.FinalPrice)
-                    : query.OrderBy(o => o.FinalPrice),
+                    ? allQuery.OrderByDescending(o => o.FinalPrice)
+                    : allQuery.OrderBy(o => o.FinalPrice),
                 "status" => sortDescending
-                    ? query.OrderByDescending(o => o.Status)
-                    : query.OrderBy(o => o.Status),
+                    ? allQuery.OrderByDescending(o => o.Status)
+                    : allQuery.OrderBy(o => o.Status),
                 _ => sortDescending
-                    ? query.OrderByDescending(o => o.OrderDate)
-                    : query.OrderBy(o => o.OrderDate)
+                    ? allQuery.OrderByDescending(o => o.OrderDate)
+                    : allQuery.OrderBy(o => o.OrderDate)
             };
 
-            var totalCount = query.Count();
-            var items = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            var totalCount = allQuery.Count();
+            var allItems = allQuery.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
-            var pagedList = new PagedList<Order>(items, totalCount, page, pageSize);
-            return Result<PagedList<Order>>.Success(pagedList);
+            var pagedList2 = new PagedList<Order>(allItems, totalCount, page, pageSize);
+            return Result<PagedList<Order>>.Success(pagedList2);
         }
         catch (Exception ex)
         {

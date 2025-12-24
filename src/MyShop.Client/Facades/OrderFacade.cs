@@ -103,7 +103,7 @@ public class OrderFacade : IOrderFacade
                     (o.OrderItems?.Any(item => item.ProductName?.ToLower().Contains(query) ?? false) ?? false) ||
                     (o.Items?.Any(item => item.ProductName?.ToLower().Contains(query) ?? false) ?? false)
                 ).ToList();
-                
+
                 // Update count to match filtered items for current page view
                 pagedResult = new PagedList<Order>(filteredItems, filteredItems.Count, page, pageSize);
             }
@@ -123,6 +123,7 @@ public class OrderFacade : IOrderFacade
         int page = 1,
         int pageSize = Core.Common.PaginationConstants.OrdersPageSize,
         string? status = null,
+        string? paymentStatus = null,
         string? searchQuery = null,
         string sortBy = "orderDate",
         bool sortDescending = true,
@@ -136,6 +137,7 @@ public class OrderFacade : IOrderFacade
                 page: page,
                 pageSize: pageSize,
                 status: status,
+                paymentStatus: paymentStatus,
                 customerId: customerId,
                 salesAgentId: salesAgentId,
                 startDate: null,
@@ -399,10 +401,10 @@ public class OrderFacade : IOrderFacade
         try
         {
             System.Diagnostics.Debug.WriteLine($"[OrderFacade.Export] Starting export with customerId: {customerId}, salesAgentId: {salesAgentId}");
-            
+
             // Load orders efficiently - filter at repository level
             IEnumerable<Order> orders;
-            
+
             if (salesAgentId.HasValue)
             {
                 // Sales Agent view - load orders for this agent
@@ -468,16 +470,16 @@ public class OrderFacade : IOrderFacade
             // Build CSV content
             var csv = new System.Text.StringBuilder();
             csv.AppendLine("Order Code,Order Date,Customer Name,Customer Phone,Status,Total Amount,Products,Items Count");
-            
+
             foreach (var order in ordersList)
             {
                 // Use OrderItems (from JSON) or Items as fallback
                 var orderItems = order.OrderItems?.Count > 0 ? order.OrderItems : order.Items;
                 var itemsCount = orderItems?.Count ?? 0;
-                var productNames = itemsCount > 0 
+                var productNames = itemsCount > 0
                     ? string.Join("; ", orderItems!.Select(i => $"{i.ProductName} x{i.Quantity}"))
                     : "No products";
-                
+
                 csv.AppendLine($"\"{order.OrderCode ?? string.Empty}\"," +
                     $"\"{order.OrderDate:yyyy-MM-dd HH:mm}\"," +
                     $"\"{order.CustomerName ?? string.Empty}\"," +
