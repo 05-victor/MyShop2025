@@ -275,13 +275,13 @@
                                               BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                               BorderThickness="0,0,0,1">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="120"/>
+                                                <ColumnDefinition Width="100"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="100"/>
                                                 <ColumnDefinition Width="120"/>
-                                                <ColumnDefinition Width="100"/>
-                                                <ColumnDefinition Width="110"/>
+                                                <ColumnDefinition Width="80"/>
+                                                <ColumnDefinition Width="80"/>
                                                 <ColumnDefinition Width="80"/>
                                             </Grid.ColumnDefinitions>
 
@@ -334,13 +334,13 @@
                                                             </TransitionCollection>
                                                         </Grid.ChildrenTransitions>
                                                         <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="120"/>
+                                                            <ColumnDefinition Width="100"/>
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="100"/>
                                                             <ColumnDefinition Width="120"/>
-                                                            <ColumnDefinition Width="100"/>
-                                                            <ColumnDefinition Width="110"/>
+                                                            <ColumnDefinition Width="80"/>
+                                                            <ColumnDefinition Width="80"/>
                                                             <ColumnDefinition Width="80"/>
                                                         </Grid.ColumnDefinitions>
 

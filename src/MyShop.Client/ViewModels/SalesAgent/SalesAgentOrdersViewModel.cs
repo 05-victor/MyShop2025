@@ -130,7 +130,7 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
 
                 Items.Add(new OrderViewModel
                 {
-                    OrderId = $"ORD-{o.Id.ToString().Substring(0, 8)}",
+                    OrderId = FormatOrderId(o.Id),
                     CustomerName = o.CustomerName,
                     CustomerEmail = $"{o.CustomerName.ToLower().Replace(" ", ".")}@example.com",
                     ProductDescription = productDesc,
@@ -202,6 +202,18 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
         {
             SetLoadingState(false);
         }
+    }
+
+    /// <summary>
+    /// Format Order ID to show first character + last 4 characters for uniqueness
+    /// Example: 9a68d343-08ca-4665-9161-7df1902c3035 → ORD-93035
+    /// </summary>
+    private string FormatOrderId(Guid id)
+    {
+        var idString = id.ToString().Replace("-", "");
+        var firstChar = idString[0];
+        var lastFourChars = idString.Substring(idString.Length - 8);
+        return $"ORD-{firstChar}{lastFourChars}";
     }
 }
 
