@@ -34,6 +34,7 @@ public interface IOrderFacade
         int page = 1,
         int pageSize = Common.PaginationConstants.OrdersPageSize,
         string? status = null,
+        string? paymentStatus = null,
         string? searchQuery = null,
         string sortBy = "orderDate",
         bool sortDescending = true,

@@ -40,7 +40,7 @@ namespace MyShop.Client.Views.SalesAgent
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
                 var query = sender.Text?.ToLower() ?? string.Empty;
-                
+
                 if (string.IsNullOrWhiteSpace(query))
                 {
                     sender.ItemsSource = null;
@@ -91,7 +91,7 @@ namespace MyShop.Client.Views.SalesAgent
         {
             // Guard: ViewModel may be null during page initialization
             if (ViewModel == null) return;
-            
+
             if (StatusComboBox.SelectedItem is ComboBoxItem item)
             {
                 var status = item.Tag?.ToString() ?? "All";
@@ -99,19 +99,15 @@ namespace MyShop.Client.Views.SalesAgent
             }
         }
 
-        private void SortComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void PaymentStatusComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            // Guard: ViewModel may be null during page initialization
             if (ViewModel == null) return;
-            
-            if (SortComboBox.SelectedItem is ComboBoxItem item)
+
+            if (PaymentStatusComboBox.SelectedItem is ComboBoxItem item)
             {
-                var tag = item.Tag?.ToString() ?? "date-desc";
-                var parts = tag.Split('-');
-                if (parts.Length == 2)
-                {
-                    ViewModel.SortBy = parts[0];
-                    ViewModel.SortDescending = parts[1] == "desc";
-                }
+                var paymentStatus = item.Tag?.ToString() ?? "All";
+                ViewModel.SelectedPaymentStatus = paymentStatus;
             }
         }
 
@@ -125,7 +121,7 @@ namespace MyShop.Client.Views.SalesAgent
 
             ViewModel.CurrentPage = e.CurrentPage;
             ViewModel.PageSize = e.PageSize;
-            
+
             await ViewModel.GoToPageAsync(e.CurrentPage);
         }
 

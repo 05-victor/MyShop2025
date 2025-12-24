@@ -25,7 +25,7 @@ public sealed partial class NoConnectionPage : Page
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        
+
         if (e.Parameter is NoConnectionParameters parameters)
         {
             _retryAction = parameters.RetryAction;
@@ -46,11 +46,11 @@ public sealed partial class NoConnectionPage : Page
             {
                 // Default: simulate connection check
                 await Task.Delay(1500);
-                
+
                 // If we get here, go back
                 if (_navigationService?.CanGoBack == true)
                 {
-                    _navigationService.GoBack();
+                    await _navigationService.GoBack();
                 }
             }
         }

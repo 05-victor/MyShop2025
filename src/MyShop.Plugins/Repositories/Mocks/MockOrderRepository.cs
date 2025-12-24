@@ -117,13 +117,13 @@ public class MockOrderRepository : IOrderRepository
             order.Id = Guid.NewGuid();
             order.OrderDate = DateTime.UtcNow;
             order.Status = "CREATED";
-            
+
             foreach (var item in order.OrderItems)
             {
                 item.Id = Guid.NewGuid();
                 item.OrderId = order.Id;
             }
-            
+
             var created = await MockOrderData.CreateAsync(order);
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Created order: {created.Id}");
             return Result<Order>.Success(created);
@@ -221,7 +221,7 @@ public class MockOrderRepository : IOrderRepository
             var revenue = allOrders
                 .Where(o => o.OrderDate.Date == today && o.Status == "PAID")
                 .Sum(o => o.FinalPrice);
-            
+
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Today's revenue: {revenue:C}");
             return revenue;
         }
@@ -240,7 +240,7 @@ public class MockOrderRepository : IOrderRepository
             var revenue = allOrders
                 .Where(o => o.OrderDate >= fromDate && o.OrderDate <= toDate && o.Status == "PAID")
                 .Sum(o => o.FinalPrice);
-            
+
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] Revenue in date range: {revenue:C}");
             return revenue;
         }
@@ -255,6 +255,7 @@ public class MockOrderRepository : IOrderRepository
         int page = 1,
         int pageSize = 20,
         string? status = null,
+        string? paymentStatus = null,
         Guid? customerId = null,
         Guid? salesAgentId = null,
         DateTime? startDate = null,
@@ -296,17 +297,17 @@ public class MockOrderRepository : IOrderRepository
             // Apply sorting
             query = sortBy.ToLower() switch
             {
-                "orderdate" => sortDescending 
-                    ? query.OrderByDescending(o => o.OrderDate) 
+                "orderdate" => sortDescending
+                    ? query.OrderByDescending(o => o.OrderDate)
                     : query.OrderBy(o => o.OrderDate),
-                "finalprice" or "amount" => sortDescending 
-                    ? query.OrderByDescending(o => o.FinalPrice) 
+                "finalprice" or "amount" => sortDescending
+                    ? query.OrderByDescending(o => o.FinalPrice)
                     : query.OrderBy(o => o.FinalPrice),
-                "status" => sortDescending 
-                    ? query.OrderByDescending(o => o.Status) 
+                "status" => sortDescending
+                    ? query.OrderByDescending(o => o.Status)
                     : query.OrderBy(o => o.Status),
-                _ => sortDescending 
-                    ? query.OrderByDescending(o => o.OrderDate) 
+                _ => sortDescending
+                    ? query.OrderByDescending(o => o.OrderDate)
                     : query.OrderBy(o => o.OrderDate)
             };
 

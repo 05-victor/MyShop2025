@@ -34,15 +34,17 @@
     <Grid>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="ResponsiveStates">
-                
+
                 <!-- Large Desktop: 1920px+ -->
                 <VisualState x:Name="LargeDesktopState">
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="1920"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainGrid.Padding" Value="40"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="24"/>
+                        <Setter Target="MainGrid.Padding"
+                                Value="40"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="24"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -52,8 +54,10 @@
                         <AdaptiveTrigger MinWindowWidth="1280"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainGrid.Padding" Value="32"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="20"/>
+                        <Setter Target="MainGrid.Padding"
+                                Value="32"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="20"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -63,8 +67,10 @@
                         <AdaptiveTrigger MinWindowWidth="960"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainGrid.Padding" Value="24"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="16"/>
+                        <Setter Target="MainGrid.Padding"
+                                Value="24"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="16"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -74,8 +80,10 @@
                         <AdaptiveTrigger MinWindowWidth="640"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainGrid.Padding" Value="20"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="12"/>
+                        <Setter Target="MainGrid.Padding"
+                                Value="20"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="12"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -85,340 +93,368 @@
                         <AdaptiveTrigger MinWindowWidth="0"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainGrid.Padding" Value="16"/>
-                        <Setter Target="KPIGrid.ColumnSpacing" Value="8"/>
+                        <Setter Target="MainGrid.Padding"
+                                Value="16"/>
+                        <Setter Target="KPIGrid.ColumnSpacing"
+                                Value="8"/>
                     </VisualState.Setters>
                 </VisualState>
-                
+
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
         <Grid RowDefinitions="*,Auto">
             <!-- Layer 0: Main Content (Hidden during loading) -->
             <Grid x:Name="MainContent"
-                Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                  Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                 <Grid.Transitions>
                     <TransitionCollection>
                         <EntranceThemeTransition FromVerticalOffset="50"/>
                     </TransitionCollection>
                 </Grid.Transitions>
-            <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <Grid x:Name="MainGrid" Padding="{StaticResource Padding_XL}" RowSpacing="16">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                
-                <!-- Page Header Section -->
-                <StackPanel Grid.Row="0" Spacing="16">
+                <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <Grid x:Name="MainGrid"
+                                Padding="{StaticResource Padding_XL}"
+                                RowSpacing="16">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
 
-                <!-- PAGE HEADER -->
-                <layout:PageHeader
-                    Title="Sales Orders"
-                    Subtitle="Track and manage orders for your products">
-                    <layout:PageHeader.ActionContent>
-                        <StackPanel Orientation="Horizontal" Spacing="12">
-                            <buttons:IconButton
-                                Variant="Outline"
-                                IconGlyph="&#xE72C;"
-                                Text="Refresh"
-                                Command="{x:Bind ViewModel.RefreshCommand}"
-                                ToolTipService.ToolTip="Reload orders from server" />
-                            <buttons:IconButton
-                                Variant="Outline"
-                                IconGlyph="&#xE896;"
-                                Text="Export"
-                                Command="{x:Bind ViewModel.ExportOrdersCommand}"
-                                ToolTipService.ToolTip="Export orders to CSV file" />
-                        </StackPanel>
-                    </layout:PageHeader.ActionContent>
-                </layout:PageHeader>
+                            <!-- Page Header Section -->
+                            <StackPanel Grid.Row="0"
+                                    Spacing="16">
 
-                </StackPanel>
-                
-                <!-- Main Content -->
-                <StackPanel Grid.Row="1" Spacing="20">
-                
-                <!-- SUMMARY CARDS -->
-                <Grid x:Name="KPIGrid" ColumnSpacing="16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+                                <!-- PAGE HEADER -->
+                                <layout:PageHeader
+                                    Title="Sales Orders"
+                                    Subtitle="Track and manage orders for your products">
+                                    <layout:PageHeader.ActionContent>
+                                        <StackPanel Orientation="Horizontal"
+                                                Spacing="12">
+                                            <buttons:IconButton
+                                                Variant="Outline"
+                                                IconGlyph="&#xE72C;"
+                                                Text="Refresh"
+                                                Command="{x:Bind ViewModel.RefreshCommand}"
+                                                ToolTipService.ToolTip="Reload orders from server"/>
+                                            <buttons:IconButton
+                                                Variant="Outline"
+                                                IconGlyph="&#xE896;"
+                                                Text="Export"
+                                                Command="{x:Bind ViewModel.ExportOrdersCommand}"
+                                                ToolTipService.ToolTip="Export orders to CSV file"/>
+                                        </StackPanel>
+                                    </layout:PageHeader.ActionContent>
+                                </layout:PageHeader>
 
-                    <cards:SimpleStatCard
-                        Grid.Column="0"
-                        Label="Total Orders"
-                        Value="{x:Bind ViewModel.TotalOrders, Mode=OneWay}" />
-
-                    <cards:SimpleStatCard
-                        Grid.Column="1"
-                        Label="Pending"
-                        Value="{x:Bind ViewModel.PendingOrders, Mode=OneWay}"
-                        ValueColor="{ThemeResource WarningAmberBrush}" />
-
-                    <cards:SimpleStatCard
-                        Grid.Column="2"
-                        Label="Processing"
-                        Value="0"
-                        ValueColor="{ThemeResource PrimaryBrush}" />
-
-                    <cards:SimpleStatCard
-                        Grid.Column="3"
-                        Label="Completed"
-                        Value="{x:Bind ViewModel.CompletedOrders, Mode=OneWay}"
-                        ValueColor="{ThemeResource SuccessGreenBrush}" />
-                </Grid>
-
-                <!-- SEARCH CARD with Auto-Complete -->
-                <forms:SearchCard
-                    x:Name="OrderSearchCard"
-                    PlaceholderText="Search by order ID, customer, or product..."
-                    SearchText="{x:Bind ViewModel.SearchQuery, Mode=TwoWay}"
-                    ShowSearchButton="Collapsed"
-                    TextChanged="SearchCard_TextChanged"
-                    SuggestionChosen="SearchCard_SuggestionChosen"
-                    QuerySubmitted="SearchCard_QuerySubmitted" />
-
-                <!-- FILTERS CARD with Apply Button -->
-                <forms:FilterCard Title="Filters"
-                                ApplyCommand="{x:Bind ViewModel.ApplyFiltersCommand}"
-                                ResetCommand="{x:Bind ViewModel.ResetFiltersCommand}"
-                                ShowActions="True"
-                                ShowResetButton="True">
-                    <forms:FilterCard.FilterContent>
-                        <Grid ColumnSpacing="16">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="Status" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
-                                <ComboBox x:Name="StatusComboBox"
-                                        HorizontalAlignment="Stretch"
-                                        CornerRadius="8"
-                                        SelectedIndex="0"
-                                        SelectionChanged="StatusComboBox_SelectionChanged">
-                                    <ComboBoxItem Content="All Status" Tag="All"/>
-                                    <ComboBoxItem Content="Pending" Tag="Pending"/>
-                                    <ComboBoxItem Content="Processing" Tag="Processing"/>
-                                    <ComboBoxItem Content="Shipped" Tag="Shipped"/>
-                                    <ComboBoxItem Content="Delivered" Tag="Delivered"/>
-                                </ComboBox>
                             </StackPanel>
 
-                            <StackPanel Grid.Column="1">
-                                <TextBlock Text="Sort By" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
-                                <ComboBox x:Name="SortComboBox"
-                                        HorizontalAlignment="Stretch"
-                                        CornerRadius="8"
-                                        SelectedIndex="0"
-                                        SelectionChanged="SortComboBox_SelectionChanged">
-                                    <ComboBoxItem Content="Date: Newest First" Tag="date-desc"/>
-                                    <ComboBoxItem Content="Date: Oldest First" Tag="date-asc"/>
-                                    <ComboBoxItem Content="Amount: High to Low" Tag="amount-desc"/>
-                                    <ComboBoxItem Content="Amount: Low to High" Tag="amount-asc"/>
-                                </ComboBox>
-                            </StackPanel>
-                        </Grid>
-                    </forms:FilterCard.FilterContent>
-                </forms:FilterCard>
+                            <!-- Main Content -->
+                            <StackPanel Grid.Row="1"
+                                    Spacing="20">
 
-                <!-- ORDERS TABLE -->
-                <Border Style="{StaticResource CardWithShadowStyle}" Padding="{StaticResource Padding_None}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+                                <!-- SUMMARY CARDS -->
+                                <Grid x:Name="KPIGrid"
+                                        ColumnSpacing="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
 
-                        <!-- Table Header -->
-                        <tables:TableHeader Grid.Row="0">
-                            <tables:TableHeader.Columns>
-                                <x:String>120|ORDER ID</x:String>
-                                <x:String>*|CUSTOMER</x:String>
-                                <x:String>*|PRODUCT</x:String>
-                                <x:String>100|DATE</x:String>
-                                <x:String>120|AMOUNT</x:String>
-                                <x:String>100|STATUS</x:String>
-                                <x:String>80|ACTION</x:String>
-                            </tables:TableHeader.Columns>
-                        </tables:TableHeader>
+                                    <cards:SimpleStatCard
+                                        Grid.Column="0"
+                                        Label="Total Orders"
+                                        Value="{x:Bind ViewModel.TotalOrders, Mode=OneWay}"/>
 
-                        <!-- Table Body -->
-                        <ItemsRepeater Grid.Row="1" ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}">
-                                <ItemsRepeater.ItemTemplate>
-                                    <DataTemplate x:DataType="viewmodels:OrderViewModel">
-                                        <Grid Padding="24,16" 
-                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                            BorderThickness="0,0,0,1">
-                                            <Grid.ChildrenTransitions>
-                                                <TransitionCollection>
-                                                    <EntranceThemeTransition />
-                                                    <RepositionThemeTransition />
-                                                </TransitionCollection>
-                                            </Grid.ChildrenTransitions>
+                                    <cards:SimpleStatCard
+                                        Grid.Column="1"
+                                        Label="Pending"
+                                        Value="{x:Bind ViewModel.PendingOrders, Mode=OneWay}"
+                                        ValueColor="{ThemeResource WarningAmberBrush}"/>
+
+                                    <cards:SimpleStatCard
+                                        Grid.Column="2"
+                                        Label="Processing"
+                                        Value="0"
+                                        ValueColor="{ThemeResource PrimaryBrush}"/>
+
+                                    <cards:SimpleStatCard
+                                        Grid.Column="3"
+                                        Label="Completed"
+                                        Value="{x:Bind ViewModel.CompletedOrders, Mode=OneWay}"
+                                        ValueColor="{ThemeResource SuccessGreenBrush}"/>
+                                </Grid>
+
+                                <!-- SEARCH CARD with Auto-Complete -->
+                                <forms:SearchCard
+                                    x:Name="OrderSearchCard"
+                                    PlaceholderText="Search by order ID, customer, or product..."
+                                    SearchText="{x:Bind ViewModel.SearchQuery, Mode=TwoWay}"
+                                    ShowSearchButton="Collapsed"
+                                    TextChanged="SearchCard_TextChanged"
+                                    SuggestionChosen="SearchCard_SuggestionChosen"
+                                    QuerySubmitted="SearchCard_QuerySubmitted"/>
+
+                                <!-- FILTERS CARD with Apply Button -->
+                                <forms:FilterCard Title="Filters"
+                                                  ApplyCommand="{x:Bind ViewModel.ApplyFiltersCommand}"
+                                                  ResetCommand="{x:Bind ViewModel.ResetFiltersCommand}"
+                                                  ShowActions="True"
+                                                  ShowResetButton="True">
+                                    <forms:FilterCard.FilterContent>
+                                        <Grid ColumnSpacing="16">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="120"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="100"/>
-                                                <ColumnDefinition Width="120"/>
-                                                <ColumnDefinition Width="100"/>
-                                                <ColumnDefinition Width="80"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <TextBlock Grid.Column="0" 
-                                                    Text="{x:Bind OrderId, Mode=OneWay}" 
-                                                    FontSize="13" 
-                                                    FontFamily="Consolas"
-                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                    VerticalAlignment="Center"/>
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="Order Status"
+                                                        FontSize="12"
+                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                        Margin="0,0,0,4"/>
+                                                <ComboBox x:Name="StatusComboBox"
+                                                          HorizontalAlignment="Stretch"
+                                                          CornerRadius="8"
+                                                          SelectedIndex="0"
+                                                          SelectionChanged="StatusComboBox_SelectionChanged">
+                                                    <ComboBoxItem Content="All Status"
+                                                            Tag="All"/>
+                                                    <ComboBoxItem Content="Pending"
+                                                            Tag="Pending"/>
+                                                    <ComboBoxItem Content="Processing"
+                                                            Tag="Processing"/>
+                                                    <ComboBoxItem Content="Shipped"
+                                                            Tag="Shipped"/>
+                                                    <ComboBoxItem Content="Delivered"
+                                                            Tag="Delivered"/>
+                                                </ComboBox>
+                                            </StackPanel>
 
-                                            <TextBlock Grid.Column="1" 
-                                                    Text="{x:Bind CustomerName, Mode=OneWay}" 
-                                                    FontSize="14" 
-                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                                    VerticalAlignment="Center"/>
-
-                                            <TextBlock Grid.Column="2" 
-                                                    Text="{x:Bind ProductDescription, Mode=OneWay}" 
-                                                    FontSize="14" 
-                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                    TextTrimming="CharacterEllipsis"
-                                                    VerticalAlignment="Center"/>
-
-                                            <TextBlock Grid.Column="3" 
-                                                    Text="{x:Bind FormattedDate, Mode=OneWay}" 
-                                                    FontSize="13" 
-                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                    VerticalAlignment="Center"/>
-
-                                            <TextBlock Grid.Column="4" 
-                                                    Text="{x:Bind TotalAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" 
-                                                    FontSize="14" 
-                                                    FontWeight="SemiBold"
-                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                                    VerticalAlignment="Center"/>
-
-                                            <badges:StatusBadge Grid.Column="5"
-                                                Text="{x:Bind Status, Mode=OneWay}"
-                                                Variant="{x:Bind Status, Mode=OneWay, Converter={StaticResource StatusToVariantConverter}}"
-                                                HorizontalAlignment="Left"
-                                                VerticalAlignment="Center"/>
-
-                                            <Button Grid.Column="6"
-                                                Style="{StaticResource IconButtonStyle}"
-                                                Command="{Binding ElementName=RootPage, Path=ViewModel.ViewOrderDetailsCommand}"
-                                                CommandParameter="{x:Bind}"
-                                                VerticalAlignment="Center">
-                                                <FontIcon Glyph="&#xE7A6;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                            </Button>
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Text="Payment Status"
+                                                        FontSize="12"
+                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                        Margin="0,0,0,4"/>
+                                                <ComboBox x:Name="PaymentStatusComboBox"
+                                                          HorizontalAlignment="Stretch"
+                                                          CornerRadius="8"
+                                                          SelectedIndex="0"
+                                                          SelectionChanged="PaymentStatusComboBox_SelectionChanged">
+                                                    <ComboBoxItem Content="All Payment Status"
+                                                            Tag="All"/>
+                                                    <ComboBoxItem Content="Unpaid"
+                                                            Tag="UNPAID"/>
+                                                    <ComboBoxItem Content="Paid"
+                                                            Tag="PAID"/>
+                                                    <ComboBoxItem Content="Refunded"
+                                                            Tag="REFUNDED"/>
+                                                </ComboBox>
+                                            </StackPanel>
                                         </Grid>
-                                    </DataTemplate>
-                                </ItemsRepeater.ItemTemplate>
-                            </ItemsRepeater>
-                    </Grid>
-                </Border>
+                                    </forms:FilterCard.FilterContent>
+                                </forms:FilterCard>
 
-            </StackPanel>
-        </Grid>
-        </ScrollViewer>
-        </RefreshContainer>
-        </Grid>
+                                <!-- ORDERS TABLE -->
+                                <Border Style="{StaticResource CardWithShadowStyle}"
+                                        Padding="{StaticResource Padding_None}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
 
-        <!-- Bottom Pagination - Fixed at bottom -->
-        <Border Grid.Row="1" 
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                BorderThickness="0,1,0,0"
-                Padding="24,12">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+                                        <!-- Table Header -->
+                                        <tables:TableHeader Grid.Row="0">
+                                            <tables:TableHeader.Columns>
+                                                <x:String>120|ORDER ID</x:String>
+                                                <x:String>*|CUSTOMER</x:String>
+                                                <x:String>*|PRODUCT</x:String>
+                                                <x:String>100|DATE</x:String>
+                                                <x:String>120|AMOUNT</x:String>
+                                                <x:String>100|STATUS</x:String>
+                                                <x:String>80|ACTION</x:String>
+                                            </tables:TableHeader.Columns>
+                                        </tables:TableHeader>
 
-                <!--  Pagination (TASK-08 Standardized - Agent)  -->
-                <Border Grid.Column="0" Grid.ColumnSpan="2"
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="1"
-                        CornerRadius="8"
-                        Padding="16,12"
-                        Margin="0,16,0,0">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
+                                        <!-- Table Body -->
+                                        <ItemsRepeater Grid.Row="1"
+                                                ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}">
+                                            <ItemsRepeater.ItemTemplate>
+                                                <DataTemplate x:DataType="viewmodels:OrderViewModel">
+                                                    <Grid Padding="24,16"
+                                                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                          BorderThickness="0,0,0,1">
+                                                        <Grid.ChildrenTransitions>
+                                                            <TransitionCollection>
+                                                                <EntranceThemeTransition/>
+                                                                <RepositionThemeTransition/>
+                                                            </TransitionCollection>
+                                                        </Grid.ChildrenTransitions>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="120"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="100"/>
+                                                            <ColumnDefinition Width="120"/>
+                                                            <ColumnDefinition Width="100"/>
+                                                            <ColumnDefinition Width="80"/>
+                                                        </Grid.ColumnDefinitions>
 
-                        <!--  Previous Button  -->
-                        <Button
-                            Style="{StaticResource SecondaryButtonStyle}"
-                            Grid.Column="0"
-                            Content="Previous"
-                            IsEnabled="{x:Bind ViewModel.HasPreviousPage, Mode=OneWay}"
-                            Command="{x:Bind ViewModel.PreviousPageCommand}"/>
+                                                        <TextBlock Grid.Column="0"
+                                                                   Text="{x:Bind OrderId, Mode=OneWay}"
+                                                                   FontSize="13"
+                                                                   FontFamily="Consolas"
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                   VerticalAlignment="Center"/>
 
-                        <!--  Page Info  -->
-                        <StackPanel
-                            Grid.Column="1"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Spacing="4">
-                            <TextBlock
-                                FontSize="14"
-                                FontWeight="SemiBold"
-                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                HorizontalAlignment="Center"
-                                Text="{x:Bind ViewModel.PageInfoText, Mode=OneWay}"/>
-                            <TextBlock
-                                FontSize="12"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                HorizontalAlignment="Center"
-                                Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}"/>
-                        </StackPanel>
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="{x:Bind CustomerName, Mode=OneWay}"
+                                                                   FontSize="14"
+                                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                                   VerticalAlignment="Center"/>
 
-                        <!--  Next Button  -->
-                        <Button
-                            Style="{StaticResource SecondaryButtonStyle}"
-                            Grid.Column="2"
-                            Content="Next"
-                            IsEnabled="{x:Bind ViewModel.HasNextPage, Mode=OneWay}"
-                            Command="{x:Bind ViewModel.NextPageCommand}"/>
-                    </Grid>
-                </Border>
+                                                        <TextBlock Grid.Column="2"
+                                                                   Text="{x:Bind ProductDescription, Mode=OneWay}"
+                                                                   FontSize="14"
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   VerticalAlignment="Center"/>
+
+                                                        <TextBlock Grid.Column="3"
+                                                                   Text="{x:Bind FormattedDate, Mode=OneWay}"
+                                                                   FontSize="13"
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                   VerticalAlignment="Center"/>
+
+                                                        <TextBlock Grid.Column="4"
+                                                                   Text="{x:Bind TotalAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                                                   FontSize="14"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                                   VerticalAlignment="Center"/>
+
+                                                        <badges:StatusBadge Grid.Column="5"
+                                                                            Text="{x:Bind Status, Mode=OneWay}"
+                                                                            Variant="{x:Bind Status, Mode=OneWay, Converter={StaticResource StatusToVariantConverter}}"
+                                                                            HorizontalAlignment="Left"
+                                                                            VerticalAlignment="Center"/>
+
+                                                        <Button Grid.Column="6"
+                                                                Style="{StaticResource IconButtonStyle}"
+                                                                Command="{Binding ElementName=RootPage, Path=ViewModel.ViewOrderDetailsCommand}"
+                                                                CommandParameter="{x:Bind}"
+                                                                VerticalAlignment="Center">
+                                                            <FontIcon Glyph="&#xE7A6;"
+                                                                    FontSize="16"
+                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                        </Button>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsRepeater.ItemTemplate>
+                                        </ItemsRepeater>
+                                    </Grid>
+                                </Border>
+
+                            </StackPanel>
+                        </Grid>
+                    </ScrollViewer>
+                </RefreshContainer>
             </Grid>
-        </Border>
 
-        <!-- Layer 2: Loading Overlay (Shown during loading) -->
-        <Grid x:Name="LoadingOverlay"
-              Background="{ThemeResource LayerFillColorDefaultBrush}"
-              Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-            <StackPanel HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Spacing="24"
-                        Padding="{StaticResource Padding_3XL}">
-                <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
-                              Width="64"
-                              Height="64" />
-                <TextBlock Text="Loading orders..."
-                           FontSize="18"
-                           FontWeight="SemiBold"
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           HorizontalAlignment="Center" />
-                <TextBlock Text="Please wait while we fetch your sales orders"
-                           FontSize="14"
-                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                           HorizontalAlignment="Center" />
-            </StackPanel>
+            <!-- Bottom Pagination - Fixed at bottom -->
+            <Border Grid.Row="1"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="0,1,0,0"
+                    Padding="24,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!--  Pagination (TASK-08 Standardized - Agent)  -->
+                    <Border Grid.Column="0"
+                            Grid.ColumnSpan="2"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="16,12"
+                            Margin="0,16,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!--  Previous Button  -->
+                            <Button
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Grid.Column="0"
+                                Content="Previous"
+                                IsEnabled="{x:Bind ViewModel.HasPreviousPage, Mode=OneWay}"
+                                Command="{x:Bind ViewModel.PreviousPageCommand}"/>
+
+                            <!--  Page Info  -->
+                            <StackPanel
+                                Grid.Column="1"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Spacing="4">
+                                <TextBlock
+                                    FontSize="14"
+                                    FontWeight="SemiBold"
+                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                    HorizontalAlignment="Center"
+                                    Text="{x:Bind ViewModel.PageInfoText, Mode=OneWay}"/>
+                                <TextBlock
+                                    FontSize="12"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    HorizontalAlignment="Center"
+                                    Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}"/>
+                            </StackPanel>
+
+                            <!--  Next Button  -->
+                            <Button
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Grid.Column="2"
+                                Content="Next"
+                                IsEnabled="{x:Bind ViewModel.HasNextPage, Mode=OneWay}"
+                                Command="{x:Bind ViewModel.NextPageCommand}"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Layer 2: Loading Overlay (Shown during loading) -->
+            <Grid x:Name="LoadingOverlay"
+                  Background="{ThemeResource LayerFillColorDefaultBrush}"
+                  Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Spacing="24"
+                            Padding="{StaticResource Padding_3XL}">
+                    <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                                  Width="64"
+                                  Height="64"/>
+                    <TextBlock Text="Loading orders..."
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="Please wait while we fetch your sales orders"
+                               FontSize="14"
+                               Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
         </Grid>
     </Grid>
-</Grid>
 </Page>

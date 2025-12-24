@@ -18,11 +18,11 @@ public sealed partial class NotFoundPage : Page
         _navigationService = App.Current.Services?.GetService<NavigationService>();
     }
 
-    private void GoBackButton_Click(object sender, RoutedEventArgs e)
+    private async void GoBackButton_Click(object sender, RoutedEventArgs e)
     {
         if (_navigationService?.CanGoBack == true)
         {
-            _navigationService.GoBack();
+            await _navigationService.GoBack();
         }
         else
         {
@@ -31,8 +31,8 @@ public sealed partial class NotFoundPage : Page
         }
     }
 
-    private void GoHomeButton_Click(object sender, RoutedEventArgs e)
+    private async void GoHomeButton_Click(object sender, RoutedEventArgs e)
     {
-        _navigationService?.NavigateTo("DashboardPage");
+        await _navigationService?.NavigateTo("DashboardPage");
     }
 }
