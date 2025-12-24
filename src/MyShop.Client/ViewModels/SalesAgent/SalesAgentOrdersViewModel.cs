@@ -6,9 +6,11 @@ using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.UI.Xaml;
 
 namespace MyShop.Client.ViewModels.SalesAgent;
 
@@ -17,6 +19,7 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
     private readonly IOrderFacade _orderFacade;
     private readonly IAuthRepository _authRepository;
     private Guid? _currentSalesAgentId;
+    private Func<XamlRoot?>? _xamlRootProvider;
 
     [ObservableProperty]
     private string _selectedStatus = "All";
@@ -138,7 +141,8 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
                     Status = o.Status,
                     PaymentStatus = o.PaymentStatus,
                     TotalAmount = o.FinalPrice,
-                    CommissionAmount = o.FinalPrice * 0.10m
+                    CommissionAmount = o.FinalPrice * 0.10m,
+                    OrderItems = orderItems ?? new()
                 });
             }
 
@@ -175,12 +179,39 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
         SelectedStatus = status;
     }
 
-    [RelayCommand]
-    private void ViewOrderDetails(OrderViewModel order)
+    public void SetXamlRootProvider(Func<XamlRoot?> provider)
     {
-        System.Diagnostics.Debug.WriteLine($"[SalesOrdersViewModel] View order details: {order.OrderId}");
-        // Navigation will be implemented when OrderDetailsPage is created
-        // _navigationService.Navigate(typeof(OrderDetailsPage), order.OrderId);
+        _xamlRootProvider = provider;
+    }
+
+    [RelayCommand]
+    private async Task ViewOrderDetailsAsync(OrderViewModel order)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentOrdersViewModel] View order details: {order.OrderId}");
+
+            if (order?.OrderItems == null || order.OrderItems.Count == 0)
+            {
+                await _toastHelper?.ShowWarning("No items in this order");
+                return;
+            }
+
+            // Create and show dialog
+            var dialog = new MyShop.Client.Views.Dialogs.OrderItemsDialog();
+            var xamlRoot = _xamlRootProvider?.Invoke();
+            if (xamlRoot != null)
+            {
+                dialog.XamlRoot = xamlRoot;
+            }
+            dialog.Initialize(order.OrderItems);
+            await dialog.ShowAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentOrdersViewModel] Error viewing order details: {ex.Message}");
+            await _toastHelper?.ShowError($"Error: {ex.Message}");
+        }
     }
 
     [RelayCommand]
@@ -245,6 +276,9 @@ public partial class OrderViewModel : ObservableObject
 
     [ObservableProperty]
     private decimal _commissionAmount;
+
+    [ObservableProperty]
+    private List<MyShop.Shared.Models.OrderItem> _orderItems = new();
 
     public string FormattedDate => OrderDate.ToString("MMM dd, yyyy");
 }

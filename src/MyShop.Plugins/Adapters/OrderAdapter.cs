@@ -47,6 +47,7 @@ public static class OrderAdapter
             Id = dto.Id,
             ProductId = dto.ProductId,
             ProductName = dto.ProductName ?? "Unknown Product",
+            ProductSKU = dto.ProductSKU,
             Quantity = dto.Quantity,
             UnitPrice = dto.UnitSalePrice,
             Total = dto.TotalPrice,

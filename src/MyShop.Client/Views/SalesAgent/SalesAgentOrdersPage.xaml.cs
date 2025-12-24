@@ -17,6 +17,7 @@ namespace MyShop.Client.Views.SalesAgent
         {
             this.InitializeComponent();
             ViewModel = App.Current.Services.GetRequiredService<SalesAgentOrdersViewModel>();
+            ViewModel.SetXamlRootProvider(() => this.XamlRoot);
             this.DataContext = ViewModel;
         }
 

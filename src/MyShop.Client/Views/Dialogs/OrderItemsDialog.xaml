@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="MyShop.Client.Views.Dialogs.OrderItemsDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Order Items"
+    PrimaryButtonText="Close"
+    DefaultButton="Primary"
+    Style="{StaticResource DefaultContentDialogStyle}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+            MaxHeight="600">
+        <StackPanel Spacing="16"
+                Padding="8">
+            <!-- Items Header -->
+            <TextBlock Text="Order Items"
+                       FontSize="18"
+                       FontWeight="SemiBold"
+                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+
+            <!-- Items Container - Populated by code-behind -->
+            <StackPanel x:Name="ItemsStackPanel"
+                    Spacing="12"/>
+        </StackPanel>
+    </ScrollViewer>
+</ContentDialog>
