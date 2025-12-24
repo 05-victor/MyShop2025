@@ -34,15 +34,15 @@ public class DashboardFacade : IDashboardFacade
         _toastService = toastService ?? throw new ArgumentNullException(nameof(toastService));
     }
 
-    public async Task<Result<DashboardSummary>> LoadDashboardAsync(string period = "current")
+    public async Task<Result<DashboardSummary>> LoadDashboardAsync(string period = "month")
     {
         try
         {
-            // Validate period
-            var validPeriods = new[] { "current", "last", "last3" };
-            if (!validPeriods.Contains(period.ToLower()))
+            // Validate period - API format: "day", "week", "month", "year"
+            var validPeriods = new[] { "day", "week", "month", "year" };
+            if (!validPeriods.Contains(period?.ToLower() ?? "month"))
             {
-                period = "current"; // Default to current if invalid
+                period = "month"; // Default to month if invalid
             }
 
             System.Diagnostics.Debug.WriteLine($"[DashboardFacade.LoadDashboardAsync] ⏳ START - Period: {period}");

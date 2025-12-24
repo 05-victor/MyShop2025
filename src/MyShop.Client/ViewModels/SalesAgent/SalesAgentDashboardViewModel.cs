@@ -49,9 +49,6 @@ public partial class SalesAgentDashboardViewModel : BaseViewModel
     [ObservableProperty]
     private decimal _totalRevenue = 0m;
 
-    [ObservableProperty]
-    private string _thisWeekCommission = "0%";
-
     // Date Range Filter (same pattern as Admin)
     [ObservableProperty]
     private int _selectedDateRangeIndex = 0;
@@ -173,70 +170,72 @@ public partial class SalesAgentDashboardViewModel : BaseViewModel
 
             System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadDashboardDataAsync] Data: Products={data.TotalProducts}, Sales={orders}, Revenue={revenue}, TopProducts={data.TopSellingProducts?.Count}, RecentOrders={data.RecentOrders?.Count}");
 
-            TotalProducts = data.TotalProducts;
-            TotalSales = orders;
-            TotalCommission = Math.Round(revenue * 0.05m, 2);
-            TotalRevenue = revenue;
-            ThisWeekCommission = "+8.2%";
-
-            TopLinks.Clear();
-            if (data.TopSellingProducts != null)
+            RunOnUIThread(() =>
             {
-                System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadDashboardDataAsync] Loading {data.TopSellingProducts.Count} top products");
-                foreach (var product in data.TopSellingProducts.Take(3))
-                {
-                    TopLinks.Add(new TopAffiliateLink
-                    {
-                        Id = product.Id.ToString(),
-                        Product = product.Name ?? "Unknown",
-                        CategoryName = product.CategoryName ?? "Uncategorized",
-                        SoldCount = product.SoldCount,
-                        Revenue = product.Revenue,
-                        ImageUrl = product.ImageUrl ?? string.Empty,
-                        Status = "Active"
-                    });
-                }
-                System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadDashboardDataAsync] Top links loaded: {TopLinks.Count}");
-            }
+                TotalProducts = data.TotalProducts;
+                TotalSales = orders;
+                TotalCommission = Math.Round(revenue * 0.05m, 2);
+                TotalRevenue = revenue;
 
-            LowStockProducts.Clear();
-            if (data.LowStockProducts != null && data.LowStockProducts.Count > 0)
-            {
-                System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadDashboardDataAsync] Loading {data.LowStockProducts.Count} low stock products");
-                foreach (var product in data.LowStockProducts)
+                TopLinks.Clear();
+                if (data.TopSellingProducts != null)
                 {
-                    LowStockProducts.Add(new LowStockProduct
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadDashboardDataAsync] Loading {data.TopSellingProducts.Count} top products");
+                    foreach (var product in data.TopSellingProducts.Take(3))
                     {
-                        Id = product.Id,
-                        Name = product.Name ?? "Unknown",
-                        CategoryName = product.CategoryName ?? "Uncategorized",
-                        Quantity = product.Quantity,
-                        ImageUrl = product.ImageUrl ?? "",
-                        Status = product.Status ?? "0"
-                    });
+                        TopLinks.Add(new TopAffiliateLink
+                        {
+                            Id = product.Id.ToString(),
+                            Product = product.Name ?? "Unknown",
+                            CategoryName = product.CategoryName ?? "Uncategorized",
+                            SoldCount = product.SoldCount,
+                            Revenue = product.Revenue,
+                            ImageUrl = product.ImageUrl ?? string.Empty,
+                            Status = "Active"
+                        });
+                    }
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadDashboardDataAsync] Top links loaded: {TopLinks.Count}");
                 }
-                System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadDashboardDataAsync] Low stock products loaded: {LowStockProducts.Count}");
-            }
 
-            RecentOrders.Clear();
-            if (data.RecentOrders != null)
-            {
-                System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadDashboardDataAsync] Loading {data.RecentOrders.Count} recent orders");
-                foreach (var order in data.RecentOrders.Take(5))
+                LowStockProducts.Clear();
+                if (data.LowStockProducts != null && data.LowStockProducts.Count > 0)
                 {
-                    RecentOrders.Add(new RecentSalesOrder
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadDashboardDataAsync] Loading {data.LowStockProducts.Count} low stock products");
+                    foreach (var product in data.LowStockProducts)
                     {
-                        OrderId = $"ORD-{order.Id.ToString()[..8]}",
-                        Customer = order.CustomerName ?? "Unknown",
-                        Product = "Product",
-                        OrderDate = order.OrderDate.ToString("yyyy-MM-dd"),
-                        Amount = order.TotalAmount,
-                        Commission = Math.Round(order.TotalAmount * 0.05m, 2),
-                        Status = order.Status ?? "Pending"
-                    });
+                        LowStockProducts.Add(new LowStockProduct
+                        {
+                            Id = product.Id,
+                            Name = product.Name ?? "Unknown",
+                            CategoryName = product.CategoryName ?? "Uncategorized",
+                            Quantity = product.Quantity,
+                            ImageUrl = product.ImageUrl ?? "",
+                            Status = product.Status ?? "0"
+                        });
+                    }
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadDashboardDataAsync] Low stock products loaded: {LowStockProducts.Count}");
                 }
-                System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadDashboardDataAsync] Recent orders loaded: {RecentOrders.Count}");
-            }
+
+                RecentOrders.Clear();
+                if (data.RecentOrders != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadDashboardDataAsync] Loading {data.RecentOrders.Count} recent orders");
+                    foreach (var order in data.RecentOrders.Take(5))
+                    {
+                        RecentOrders.Add(new RecentSalesOrder
+                        {
+                            OrderId = $"ORD-{order.Id.ToString()[..8]}",
+                            Customer = order.CustomerName ?? "Unknown",
+                            Product = "Product",
+                            OrderDate = order.OrderDate.ToString("yyyy-MM-dd"),
+                            Amount = order.TotalAmount,
+                            Commission = Math.Round(order.TotalAmount * 0.05m, 2),
+                            Status = order.Status ?? "Pending"
+                        });
+                    }
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadDashboardDataAsync] Recent orders loaded: {RecentOrders.Count}");
+                }
+            });
 
             System.Diagnostics.Debug.WriteLine($"[SalesAgentDashboardViewModel.LoadDashboardDataAsync] Loading chart data...");
             await LoadChartDataAsync();
