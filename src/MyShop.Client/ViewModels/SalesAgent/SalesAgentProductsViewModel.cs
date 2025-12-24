@@ -450,7 +450,7 @@ public partial class SalesAgentProductsViewModel : PagedViewModelBase<ProductVie
     }
 
     /// <summary>
-    /// Upload product image to server
+    /// Upload product image to server (for new products without ID)
     /// </summary>
     public async Task<Core.Common.Result<string>> UploadProductImageAsync(Windows.Storage.StorageFile imageFile)
     {
@@ -459,6 +459,36 @@ public partial class SalesAgentProductsViewModel : PagedViewModelBase<ProductVie
             System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.UploadProductImageAsync] START - File: {imageFile.Name}");
 
             var result = await _productFacade.UploadProductImageForNewProductAsync(imageFile.Path);
+
+            if (result.IsSuccess)
+            {
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.UploadProductImageAsync] ✅ Image uploaded successfully: {result.Data}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.UploadProductImageAsync] ❌ Upload failed: {result.ErrorMessage}");
+            }
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.UploadProductImageAsync] ❌ EXCEPTION: {ex.Message}");
+            return Core.Common.Result<string>.Failure("Failed to upload image", ex);
+        }
+    }
+
+    /// <summary>
+    /// Upload product image to server (for existing products with ID)
+    /// Uses the new endpoint: POST /api/v1/products/{id}/uploadImage
+    /// </summary>
+    public async Task<Core.Common.Result<string>> UploadProductImageAsync(Guid productId, string imageFilePath)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel.UploadProductImageAsync] START - ProductId: {productId}, File: {imageFilePath}");
+
+            var result = await _productFacade.UploadProductImageAsync(productId, imageFilePath);
 
             if (result.IsSuccess)
             {

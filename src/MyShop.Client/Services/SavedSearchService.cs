@@ -163,7 +163,7 @@ public class SavedSearchService : ISavedSearchService
         if (sortBy != null) search.SortBy = sortBy;
         if (sortDescending.HasValue) search.SortDescending = sortDescending.Value;
         if (isPinned.HasValue) search.IsPinned = isPinned.Value;
-        
+
         search.UpdatedAt = DateTime.Now;
 
         await SaveAllSearchesAsync();
@@ -257,7 +257,7 @@ public class SavedSearchService : ISavedSearchService
         if (string.IsNullOrWhiteSpace(searchTerm))
             return _savedSearches;
 
-        return _savedSearches.Where(s => 
+        return _savedSearches.Where(s =>
             s.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
             (s.Query?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false));
     }
@@ -283,9 +283,9 @@ public class SavedSearchService : ISavedSearchService
         var existingIndex = _searchHistory
             .Take(10)
             .ToList()
-            .FindIndex(h => 
-                h.Context == context && 
-                h.Query == query && 
+            .FindIndex(h =>
+                h.Context == context &&
+                h.Query == query &&
                 AreSameFilters(h.Filters, filters));
 
         if (existingIndex >= 0)
@@ -374,7 +374,7 @@ public class SavedSearchService : ISavedSearchService
     /// <summary>
     /// Converts a history item to a saved search
     /// </summary>
-    public async Task<SavedSearch> SaveFromHistoryAsync(string historyId, string name)
+    public async Task<SavedSearch?> SaveFromHistoryAsync(string historyId, string name)
     {
         var historyItem = _searchHistory.FirstOrDefault(h => h.Id == historyId);
         if (historyItem == null) return null;
@@ -590,7 +590,7 @@ public class SavedSearchService : ISavedSearchService
             {
                 var json = await File.ReadAllTextAsync(_savedSearchesPath);
                 var searches = JsonSerializer.Deserialize<List<SavedSearch>>(json);
-                
+
                 _savedSearches.Clear();
                 if (searches != null)
                 {
@@ -631,7 +631,7 @@ public class SavedSearchService : ISavedSearchService
             {
                 var json = await File.ReadAllTextAsync(_searchHistoryPath);
                 var history = JsonSerializer.Deserialize<List<SearchHistoryItem>>(json);
-                
+
                 _searchHistory.Clear();
                 if (history != null)
                 {
@@ -693,11 +693,11 @@ public interface ISavedSearchService
     ObservableCollection<SearchHistoryItem> SearchHistory { get; }
 
     // Saved searches
-    Task<SavedSearch> SaveSearchAsync(string name, string context, string query = null, 
-        Dictionary<string, object> filters = null, string sortBy = null, 
+    Task<SavedSearch> SaveSearchAsync(string name, string context, string query = null,
+        Dictionary<string, object> filters = null, string sortBy = null,
         bool sortDescending = false, bool isPinned = false);
-    Task<bool> UpdateSearchAsync(string id, string name = null, string query = null, 
-        Dictionary<string, object> filters = null, string sortBy = null, 
+    Task<bool> UpdateSearchAsync(string id, string name = null, string query = null,
+        Dictionary<string, object> filters = null, string sortBy = null,
         bool? sortDescending = null, bool? isPinned = null);
     Task<bool> DeleteSearchAsync(string id);
     Task MarkSearchUsedAsync(string id);
@@ -749,13 +749,13 @@ public class SavedSearch
         get
         {
             var parts = new List<string>();
-            
+
             if (!string.IsNullOrEmpty(Query))
                 parts.Add($"\"{Query}\"");
-            
+
             if (Filters?.Count > 0)
                 parts.Add($"{Filters.Count} bộ lọc");
-            
+
             if (!string.IsNullOrEmpty(SortBy))
                 parts.Add($"Sắp xếp: {SortBy}");
 
@@ -798,10 +798,10 @@ public class SearchHistoryItem
         {
             if (!string.IsNullOrEmpty(Query))
                 return Query;
-            
+
             if (Filters?.Count > 0)
                 return $"{Filters.Count} bộ lọc đã áp dụng";
-            
+
             return "Tìm kiếm";
         }
     }

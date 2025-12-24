@@ -56,7 +56,7 @@ public partial class AppNotificationService : ObservableObject, IAppNotification
     /// <summary>
     /// Gets unread notifications
     /// </summary>
-    public IEnumerable<AppNotification> UnreadNotifications => 
+    public IEnumerable<AppNotification> UnreadNotifications =>
         _notifications.Where(n => !n.IsRead);
 
     #endregion
@@ -90,7 +90,7 @@ public partial class AppNotificationService : ObservableObject, IAppNotification
             var notificationManager = AppNotificationManager.Default;
             notificationManager.NotificationInvoked += OnWindowsNotificationInvoked;
             notificationManager.Register();
-            
+
             System.Diagnostics.Debug.WriteLine("AppNotificationService: Successfully registered for Windows notifications");
             _isInitialized = true;
         }
@@ -290,8 +290,8 @@ public partial class AppNotificationService : ObservableObject, IAppNotification
             }
 
             var notification = builder.BuildNotification();
-            
-            await Task.Run(() => 
+
+            await Task.Run(() =>
             {
                 AppNotificationManager.Default.Show(notification);
             });
@@ -325,8 +325,8 @@ public partial class AppNotificationService : ObservableObject, IAppNotification
             }
 
             var notification = builder.BuildNotification();
-            
-            await Task.Run(() => 
+
+            await Task.Run(() =>
             {
                 AppNotificationManager.Default.Show(notification);
             });
@@ -340,14 +340,14 @@ public partial class AppNotificationService : ObservableObject, IAppNotification
     /// <summary>
     /// Shows a Windows notification with progress bar
     /// </summary>
-    public async Task<string> ShowWindowsProgressNotificationAsync(string title, string status)
+    public async Task<string?> ShowWindowsProgressNotificationAsync(string title, string status)
     {
         if (!_isInitialized) return null;
 
         try
         {
             var tag = Guid.NewGuid().ToString("N")[..8];
-            
+
             var builder = new AppNotificationBuilder()
                 .AddText(title)
                 .AddProgressBar(new AppNotificationProgressBar()
@@ -362,7 +362,7 @@ public partial class AppNotificationService : ObservableObject, IAppNotification
                 Value = 0
             };
 
-            await Task.Run(() => 
+            await Task.Run(() =>
             {
                 AppNotificationManager.Default.Show(notification);
             });
@@ -391,9 +391,9 @@ public partial class AppNotificationService : ObservableObject, IAppNotification
                 Value = progress
             };
 
-            await Task.Run(() => 
+            await Task.Run(async () =>
             {
-                AppNotificationManager.Default.UpdateAsync(progressData, tag);
+                await AppNotificationManager.Default.UpdateAsync(progressData, tag);
             });
         }
         catch (Exception ex)
@@ -511,7 +511,7 @@ public partial class AppNotificationService : ObservableObject, IAppNotification
     {
         // Handle notification click from Windows
         var arguments = args.Arguments;
-        
+
         // Find matching in-app notification if exists
         if (arguments.TryGetValue("notificationId", out var notificationId))
         {
@@ -555,13 +555,13 @@ public interface IAppNotificationService
     void Shutdown();
 
     // In-app notifications
-    void Show(string title, string message, NotificationType type = NotificationType.Info, 
+    void Show(string title, string message, NotificationType type = NotificationType.Info,
         string actionText = null, Action action = null, TimeSpan? autoHide = null);
     void ShowInfo(string title, string message, string actionText = null, Action action = null);
     void ShowSuccess(string title, string message, string actionText = null, Action action = null);
     void ShowWarning(string title, string message, string actionText = null, Action action = null);
     void ShowError(string title, string message, string actionText = null, Action action = null);
-    
+
     // Business notifications
     void ShowNewOrder(string orderId, string customerName, decimal total);
     void ShowLowStock(string productName, int currentStock, int threshold);
@@ -570,9 +570,9 @@ public interface IAppNotificationService
     void ShowImportComplete(string importType, int successCount, int failedCount);
 
     // Windows notifications
-    Task ShowWindowsNotificationAsync(string title, string message, string imageUri = null, 
+    Task ShowWindowsNotificationAsync(string title, string message, string imageUri = null,
         Dictionary<string, string> arguments = null);
-    Task ShowWindowsNotificationWithActionsAsync(string title, string message, 
+    Task ShowWindowsNotificationWithActionsAsync(string title, string message,
         params (string content, string argument)[] buttons);
     Task<string> ShowWindowsProgressNotificationAsync(string title, string status);
     Task UpdateWindowsProgressNotificationAsync(string tag, double progress, string status);
@@ -601,14 +601,14 @@ public class AppNotification : ObservableObject
     public string Message { get; set; }
     public NotificationType Type { get; set; }
     public DateTime Timestamp { get; set; }
-    
+
     private bool _isRead;
     public bool IsRead
     {
         get => _isRead;
         set => SetProperty(ref _isRead, value);
     }
-    
+
     public DateTime? ReadAt { get; set; }
     public string ActionText { get; set; }
     public Action Action { get; set; }

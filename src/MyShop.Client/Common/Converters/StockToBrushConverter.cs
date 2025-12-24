@@ -30,8 +30,11 @@ public class StockToBrushConverter : IValueConverter
             ( < 10, "Foreground") => new SolidColorBrush(Color.FromArgb(255, 180, 83, 9)),    // #B45309
 
             // In Stock (>= 10)
-            (_, "Background") => new SolidColorBrush(Color.FromArgb(255, 209, 250, 229)), // #D1FAE5
-            (_, "Foreground") => new SolidColorBrush(Color.FromArgb(255, 5, 150, 105)),   // #059669
+            ( >= 10, "Background") => new SolidColorBrush(Color.FromArgb(255, 209, 250, 229)), // #D1FAE5
+            ( >= 10, "Foreground") => new SolidColorBrush(Color.FromArgb(255, 5, 150, 105)),   // #059669
+
+            // Fallback for any unexpected cases
+            _ => new SolidColorBrush(Color.FromArgb(255, 107, 114, 128)), // Gray - Unknown
         };
     }
 
