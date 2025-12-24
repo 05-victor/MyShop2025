@@ -383,7 +383,8 @@
                                         </Grid>
 
                                         <!-- Low Stock Products List (Visibility based on collection) -->
-                                        <ListView ItemsSource="{x:Bind ViewModel.LowStockProducts, Mode=OneWay}"
+                                        <ListView x:Name="LowStockProductsListView"
+                                                  ItemsSource="{x:Bind ViewModel.LowStockProducts, Mode=OneWay}"
                                                   SelectionMode="None"
                                                   Visibility="{x:Bind ViewModel.LowStockProducts, Mode=OneWay, Converter={StaticResource CountToVisibilityConverter}}">
                                             <ListView.ItemTemplate>
@@ -417,20 +418,18 @@
                                                                            Foreground="{ThemeResource Gray900Brush}"
                                                                            TextTrimming="CharacterEllipsis"/>
 
-                                                                <Grid>
+                                                                <!-- Desktop Layout: Horizontal Category + Quantity -->
+                                                                <Grid x:Name="DesktopLayout">
                                                                     <Grid.ColumnDefinitions>
                                                                         <ColumnDefinition Width="*"/>
                                                                         <ColumnDefinition Width="Auto"/>
                                                                     </Grid.ColumnDefinitions>
 
-                                                                    <StackPanel Grid.Column="0"
-                                                                                Orientation="Horizontal"
-                                                                                Spacing="8">
-                                                                        <TextBlock FontSize="12"
-                                                                                   Foreground="{ThemeResource Gray600Brush}">
-                                                            <Run Text="{x:Bind CategoryName}"/>
-                                                                        </TextBlock>
-                                                                    </StackPanel>
+                                                                    <TextBlock Grid.Column="0"
+                                                                               Text="{x:Bind CategoryName}"
+                                                                               FontSize="12"
+                                                                               Foreground="{ThemeResource Gray600Brush}"
+                                                                               VerticalAlignment="Center"/>
 
                                                                     <Border Grid.Column="1"
                                                                             Background="{ThemeResource ErrorRedLightBrush}"
@@ -439,10 +438,30 @@
                                                                         <TextBlock FontSize="11"
                                                                                    FontWeight="SemiBold"
                                                                                    Foreground="{ThemeResource ErrorRedBrush}">
-                                                            <Run Text="Qty: "/><Run Text="{x:Bind Quantity}"/>
+                                                            <Run Text="Quantity: "/><Run Text="{x:Bind Quantity}"/>
                                                                         </TextBlock>
                                                                     </Border>
                                                                 </Grid>
+
+                                                                <!-- Tablet Layout: Vertical Category + Quantity -->
+                                                                <StackPanel x:Name="TabletLayout"
+                                                                            Spacing="6"
+                                                                            Visibility="Collapsed">
+                                                                    <TextBlock Text="{x:Bind CategoryName}"
+                                                                               FontSize="12"
+                                                                               Foreground="{ThemeResource Gray600Brush}"/>
+
+                                                                    <Border Background="{ThemeResource ErrorRedLightBrush}"
+                                                                            CornerRadius="8"
+                                                                            Padding="6,2"
+                                                                            HorizontalAlignment="Left">
+                                                                        <TextBlock FontSize="11"
+                                                                                   FontWeight="SemiBold"
+                                                                                   Foreground="{ThemeResource ErrorRedBrush}">
+                                                            <Run Text="Quantity: "/><Run Text="{x:Bind Quantity}"/>
+                                                                        </TextBlock>
+                                                                    </Border>
+                                                                </StackPanel>
                                                             </StackPanel>
                                                         </Grid>
                                                     </Border>
