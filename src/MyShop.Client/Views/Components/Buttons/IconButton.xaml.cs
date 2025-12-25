@@ -15,80 +15,34 @@ namespace MyShop.Client.Views.Components.Buttons;
 /// </summary>
 public sealed partial class IconButton : UserControl
 {
-    // Template children - accessed after template is applied
+    // Direct children - no template needed
     private FontIcon? _leftIcon;
     private FontIcon? _rightIcon;
     private TextBlock? _buttonText;
     private StackPanel? _contentPanel;
-    private bool _templateApplied = false;
+    private bool _initialized = false;
     
     public IconButton()
     {
         this.InitializeComponent();
         ActionButton.Loaded += ActionButton_Loaded;
-        ActionButton.LayoutUpdated += ActionButton_LayoutUpdated;
         // ✅ NO ThemeChanged subscription - styles handle theme automatically
     }
 
     private void ActionButton_Loaded(object sender, RoutedEventArgs e)
     {
-        FindTemplateChildren();
-        ApplyVariantStyle();
-        ApplyLayout();
-        _templateApplied = true;
-    }
-
-    private void ActionButton_LayoutUpdated(object? sender, object e)
-    {
-        // When tab switching causes Visibility changes, buttons re-render
-        // but Loaded doesn't fire again. LayoutUpdated catches these cases.
-        if (!_templateApplied || _leftIcon == null)
+        if (!_initialized)
         {
-            FindTemplateChildren();
-            if (_leftIcon != null)
-            {
-                ApplyVariantStyle();
-                ApplyLayout();
-                _templateApplied = true;
-            }
-        }
-    }
-
-    private void FindTemplateChildren()
-    {
-        // Find template children using VisualTreeHelper
-        _contentPanel = FindChildByName<StackPanel>(ActionButton, "ContentPanel");
-        if (_contentPanel != null)
-        {
-            _leftIcon = FindChildByName<FontIcon>(_contentPanel, "LeftIcon");
-            _rightIcon = FindChildByName<FontIcon>(_contentPanel, "RightIcon");
-            _buttonText = FindChildByName<TextBlock>(_contentPanel, "ButtonText");
-        }
-    }
-
-    // Helper method to find child element by name in visual tree
-    private static T? FindChildByName<T>(DependencyObject parent, string name) where T : FrameworkElement
-    {
-        if (parent == null) return null;
-
-        int childCount = VisualTreeHelper.GetChildrenCount(parent);
-        for (int i = 0; i < childCount; i++)
-        {
-            var child = VisualTreeHelper.GetChild(parent, i);
+            // Direct access to named children (no template)
+            _contentPanel = ContentPanel;
+            _leftIcon = LeftIcon;
+            _rightIcon = RightIcon;
+            _buttonText = ButtonText;
             
-            if (child is T typedChild && typedChild.Name == name)
-            {
-                return typedChild;
-            }
-
-            var result = FindChildByName<T>(child, name);
-            if (result != null)
-            {
-                return result;
-            }
+            ApplyVariantStyle();
+            ApplyLayout();
+            _initialized = true;
         }
-
-        return null;
     }
 
     #region IconGlyph Property

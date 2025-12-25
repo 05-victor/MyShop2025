@@ -63,19 +63,20 @@ public static class ThemeManager
         {
             CurrentTheme = theme;
             
-            // Set RequestedTheme on the main window content
+            // Set RequestedTheme on the main window content (Grid)
             // This triggers WinUI's automatic ThemeDictionaries resolution
             if (App.MainWindow?.Content is FrameworkElement rootElement)
             {
-                rootElement.RequestedTheme = theme == ThemeType.Dark 
-                    ? ElementTheme.Dark 
-                    : ElementTheme.Light;
+                var elementTheme = theme == ThemeType.Dark ? ElementTheme.Dark : ElementTheme.Light;
+                rootElement.RequestedTheme = elementTheme;
                 
-                System.Diagnostics.Debug.WriteLine($"ThemeManager: Applied {theme} theme via RequestedTheme");
+                System.Diagnostics.Debug.WriteLine($"ThemeManager: ✓ Applied {theme} theme via RequestedTheme={elementTheme}");
+                System.Diagnostics.Debug.WriteLine($"ThemeManager: Root element type: {rootElement.GetType().Name}");
+                System.Diagnostics.Debug.WriteLine($"ThemeManager: RequestedTheme is now: {rootElement.RequestedTheme}");
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine($"ThemeManager: MainWindow.Content not available yet");
+                System.Diagnostics.Debug.WriteLine($"ThemeManager: ⚠ MainWindow.Content not available yet (MainWindow={App.MainWindow}, Content={App.MainWindow?.Content})");
             }
 
             // Update SystemBackdrop based on theme
@@ -91,7 +92,8 @@ public static class ThemeManager
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"ThemeManager: Failed to apply theme {theme}: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"ThemeManager: ❌ Failed to apply theme {theme}: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"ThemeManager: Stack trace: {ex.StackTrace}");
         }
     }
 

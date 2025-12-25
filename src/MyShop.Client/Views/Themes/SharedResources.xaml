@@ -8,18 +8,18 @@
     
     <ResourceDictionary.MergedDictionaries>
         <!-- Core Design Tokens (theme-independent) -->
-        <ResourceDictionary Source="Brushes.xaml"/>
-        <ResourceDictionary Source="Typography.xaml"/>
-        <ResourceDictionary Source="Spacing.xaml"/>
-        <ResourceDictionary Source="Shadows.xaml"/>
-        <ResourceDictionary Source="Animations.xaml"/>
-        <ResourceDictionary Source="Icons.xaml"/>
+        <ResourceDictionary Source="Tokens/Brushes.xaml"/>
+        <ResourceDictionary Source="Tokens/Typography.xaml"/>
+        <ResourceDictionary Source="Tokens/Spacing.xaml"/>
+        <ResourceDictionary Source="Tokens/Shadows.xaml"/>
+        <ResourceDictionary Source="Tokens/Animations.xaml"/>
+        <ResourceDictionary Source="Tokens/Icons.xaml"/>
         <ResourceDictionary Source="Converters.xaml"/>
         
         <!-- Component Styles -->
-        <ResourceDictionary Source="InputStyles.xaml"/>
-        <ResourceDictionary Source="ButtonStyles.xaml"/>
-        <ResourceDictionary Source="CardStyles.xaml"/>
+        <ResourceDictionary Source="Styles/InputStyles.xaml"/>
+        <ResourceDictionary Source="Styles/ButtonStyles.xaml"/>
+        <ResourceDictionary Source="Styles/CardStyles.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
     <!-- Default CompositeTransform for animations -->

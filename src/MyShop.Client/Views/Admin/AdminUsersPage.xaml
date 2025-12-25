@@ -7,6 +7,7 @@
     xmlns:badges="using:MyShop.Client.Views.Components.Badges"
     xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     xmlns:components="using:MyShop.Client.Views.Components"
+    xmlns:controls="using:MyShop.Client.Views.Components.Controls"
     xmlns:forms="using:MyShop.Client.Views.Components.Forms"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -15,7 +16,7 @@
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Admin"
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:tables="using:MyShop.Client.Views.Components.Tables"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    Background="{ThemeResource PageBackgroundBrush}"
     mc:Ignorable="d">
 
     <Page.Transitions>
@@ -101,11 +102,11 @@
 
         <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
             <ScrollViewer VerticalScrollBarVisibility="Auto"
-                          Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+                          Background="{ThemeResource PageBackgroundBrush}">
                 <Grid x:Name="MainContent"
                       Padding="24"
                       RowSpacing="16"
-                      Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+                      Background="{ThemeResource PageBackgroundBrush}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
@@ -141,7 +142,7 @@
                                         AutomationProperties.HeadingLevel="Level2"/>
                                     <TextBlock
                                         FontSize="12"
-                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        Foreground="{ThemeResource TextSecondaryBrush}"
                                         Text="Find users by name, email, or phone number"/>
                                 </StackPanel>
 
@@ -167,13 +168,13 @@
                                     <TextBlock
                                         FontSize="12"
                                         FontWeight="SemiBold"
-                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        Foreground="{ThemeResource TextSecondaryBrush}"
                                         Text="Role"/>
                                     <ComboBox
                                         x:Name="RoleComboBox"
                                         Width="150"
                                         Padding="12"
-                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeBrush}"
                                         PlaceholderText="All Roles"
                                         AutomationProperties.Name="Role filter"
                                         AutomationProperties.HelpText="Filter users by role"
@@ -262,7 +263,7 @@
                                         <Grid>
                                             <Ellipse Width="120"
                                                      Height="120"
-                                                     Fill="{ThemeResource SubtleFillColorSecondaryBrush}"/>
+                                                     Fill="{ThemeResource SubtleBackgroundBrush}"/>
                                             <FontIcon
                                                 FontSize="64"
                                                 Foreground="{ThemeResource Gray500Brush}"
@@ -278,23 +279,18 @@
                                         TextAlignment="Center"/>
                                     <TextBlock
                                         FontSize="14"
-                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        Foreground="{ThemeResource TextSecondaryBrush}"
                                         Text="Start by adding your first user to the system"
                                         TextAlignment="Center"
                                         MaxWidth="300"
                                         TextWrapping="Wrap"/>
 
-                                    <Button
-                                        Style="{StaticResource PrimaryButtonStyle}"
+                                    <buttons:IconButton
+                                        Variant="Filled"
+                                        IconGlyph="&#xE710;"
+                                        Text="Add First User"
                                         Margin="0,12,0,0"
-                                        ToolTipService.ToolTip="Create a new user account">
-                                        <StackPanel Orientation="Horizontal"
-                                                    Spacing="8">
-                                            <FontIcon FontSize="16"
-                                                      Glyph="&#xE710;"/>
-                                            <TextBlock Text="Add First User"/>
-                                        </StackPanel>
-                                    </Button>
+                                        ToolTipService.ToolTip="Create a new user account"/>
                                 </StackPanel>
 
                                 <!--  Table Header  -->
@@ -315,7 +311,7 @@
                                         <DataTemplate x:DataType="viewmodels:UserViewModel">
                                             <Grid
                                                 Padding="16"
-                                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                BorderBrush="{ThemeResource CardStrokeBrush}"
                                                 BorderThickness="0,1,0,0">
                                                 <Grid.ChildrenTransitions>
                                                     <TransitionCollection>
@@ -358,7 +354,7 @@
                                                     Grid.Column="2"
                                                     VerticalAlignment="Center"
                                                     FontSize="14"
-                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                    Foreground="{ThemeResource TextPrimaryBrush}"
                                                     Text="{x:Bind Phone, Mode=OneWay}"/>
 
                                                 <!--  Status Badge  -->
@@ -378,36 +374,28 @@
                                                     Spacing="8">
                                                     <Button
                                                         x:Name="ViewDetailsButtonInTemplate"
-                                                        Padding="8,6"
-                                                        Background="{ThemeResource SecondaryBlueBrush}"
-                                                        Foreground="{ThemeResource WhiteBrush}"
-                                                        CornerRadius="6"
+                                                        Style="{StaticResource SecondaryButtonSmallStyle}"
                                                         ToolTipService.ToolTip="View user details"
                                                         CommandParameter="{x:Bind}"
                                                         Click="ViewDetailsButton_Click">
                                                         <StackPanel Orientation="Horizontal"
-                                                                    Spacing="4">
+                                                                    Spacing="6">
                                                             <FontIcon FontSize="14"
                                                                       Glyph="&#xE71B;"/>
-                                                            <TextBlock FontSize="12"
-                                                                       Text="View Details"/>
+                                                            <TextBlock Text="View Details"/>
                                                         </StackPanel>
                                                     </Button>
                                                     <Button
                                                         x:Name="DeleteButtonInTemplate"
-                                                        Padding="8,6"
-                                                        Background="{ThemeResource ErrorRedBrush}"
-                                                        Foreground="{ThemeResource WhiteBrush}"
-                                                        CornerRadius="6"
+                                                        Style="{StaticResource DangerButtonSmallStyle}"
                                                         ToolTipService.ToolTip="Delete user account"
                                                         CommandParameter="{x:Bind}"
                                                         Click="DeleteButton_Click">
                                                         <StackPanel Orientation="Horizontal"
-                                                                    Spacing="4">
+                                                                    Spacing="6">
                                                             <FontIcon FontSize="14"
                                                                       Glyph="&#xE74D;"/>
-                                                            <TextBlock FontSize="12"
-                                                                       Text="Delete"/>
+                                                            <TextBlock Text="Delete"/>
                                                         </StackPanel>
                                                     </Button>
                                                 </StackPanel>
@@ -419,57 +407,12 @@
                             </Grid>
                         </Border>
 
-                        <!--  Pagination (TASK-08 Standardized)  -->
-                        <Border
-                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            Padding="16,12"
-                            Margin="0,16,0,0">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <!--  Previous Button  -->
-                                <Button
-                                    Grid.Column="0"
-                                    Style="{StaticResource SecondaryButtonStyle}"
-                                    Content="Previous"
-                                    IsEnabled="{x:Bind ViewModel.HasPreviousPage, Mode=OneWay}"
-                                    Command="{x:Bind ViewModel.PreviousPageCommand}"/>
-
-                                <!--  Page Info  -->
-                                <StackPanel
-                                    Grid.Column="1"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Spacing="4">
-                                    <TextBlock
-                                        FontSize="14"
-                                        FontWeight="SemiBold"
-                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                        HorizontalAlignment="Center"
-                                        Text="{x:Bind ViewModel.PageInfoText, Mode=OneWay}"/>
-                                    <TextBlock
-                                        FontSize="12"
-                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                        HorizontalAlignment="Center"
-                                        Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}"/>
-                                </StackPanel>
-
-                                <!--  Next Button  -->
-                                <Button
-                                    Grid.Column="2"
-                                    Style="{StaticResource SecondaryButtonStyle}"
-                                    Content="Next"
-                                    IsEnabled="{x:Bind ViewModel.HasNextPage, Mode=OneWay}"
-                                    Command="{x:Bind ViewModel.NextPageCommand}"/>
-                            </Grid>
-                        </Border>
+                        <!--  Pagination (Standardized Component)  -->
+                        <controls:PaginationControl
+                            CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
+                            TotalPages="{x:Bind ViewModel.TotalPages, Mode=OneWay}"
+                            TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
+                            PageSize="{x:Bind ViewModel.PageSize, Mode=TwoWay}"/>
                     </StackPanel>
                 </Grid>
             </ScrollViewer>
@@ -523,67 +466,67 @@
                             <TextBlock x:Name="UserFullNameText"
                                        FontSize="16"
                                        FontWeight="Bold"
-                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                       Foreground="{ThemeResource TextPrimaryBrush}"
                                        Text="Full Name"/>
                             <TextBlock x:Name="UserRoleText"
                                        FontSize="12"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       Foreground="{ThemeResource TextSecondaryBrush}"
                                        Text="Role"/>
                         </StackPanel>
                     </Grid>
 
                     <!-- Divider -->
                     <Rectangle Height="1"
-                               Fill="{ThemeResource CardStrokeColorDefaultBrush}"/>
+                               Fill="{ThemeResource CardStrokeBrush}"/>
 
                     <!-- Account Information -->
                     <StackPanel Spacing="12">
                         <TextBlock FontSize="14"
                                    FontWeight="SemiBold"
-                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                   Foreground="{ThemeResource TextPrimaryBrush}"
                                    Text="Account Information"/>
 
                         <!-- Username -->
                         <StackPanel Spacing="4">
                             <TextBlock FontSize="12"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       Foreground="{ThemeResource TextSecondaryBrush}"
                                        Text="Username"/>
                             <TextBlock x:Name="UserUsernameText"
                                        FontSize="13"
-                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                       Foreground="{ThemeResource TextPrimaryBrush}"
                                        Text="username"/>
                         </StackPanel>
 
                         <!-- Email -->
                         <StackPanel Spacing="4">
                             <TextBlock FontSize="12"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       Foreground="{ThemeResource TextSecondaryBrush}"
                                        Text="Email"/>
                             <TextBlock x:Name="UserEmailText"
                                        FontSize="13"
-                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                       Foreground="{ThemeResource TextPrimaryBrush}"
                                        Text="email@example.com"/>
                         </StackPanel>
 
                         <!-- Phone -->
                         <StackPanel Spacing="4">
                             <TextBlock FontSize="12"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       Foreground="{ThemeResource TextSecondaryBrush}"
                                        Text="Phone Number"/>
                             <TextBlock x:Name="UserPhoneText"
                                        FontSize="13"
-                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                       Foreground="{ThemeResource TextPrimaryBrush}"
                                        Text="N/A"/>
                         </StackPanel>
 
                         <!-- Address -->
                         <StackPanel Spacing="4">
                             <TextBlock FontSize="12"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       Foreground="{ThemeResource TextSecondaryBrush}"
                                        Text="Address"/>
                             <TextBlock x:Name="UserAddressText"
                                        FontSize="13"
-                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                       Foreground="{ThemeResource TextPrimaryBrush}"
                                        Text="N/A"
                                        TextWrapping="Wrap"/>
                         </StackPanel>

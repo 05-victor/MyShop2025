@@ -7,7 +7,7 @@ using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Input;
 using Windows.System;
 using MyShop.Client.ViewModels.Shared;
-using MyShop.Client.Views.Components.Pagination;
+using MyShop.Client.Views.Components.Controls;
 using System.Linq;
 
 namespace MyShop.Client.Views.Shared
@@ -153,11 +153,11 @@ namespace MyShop.Client.Views.Shared
 
         #region Pagination Event Handler
 
-        private async void OnPageChanged(object sender, PageChangedEventArgs e)
+        private async void OnPageChanged(object sender, int currentPage)
         {
             if (ViewModel == null) return;
 
-            await ViewModel.GoToPageAsync(e.CurrentPage);
+            await ViewModel.GoToPageAsync(currentPage);
         }
 
         #endregion

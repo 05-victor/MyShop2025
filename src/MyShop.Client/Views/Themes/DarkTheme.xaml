@@ -1,11 +1,55 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- ============================================= -->
-    <!-- DARK THEME - MYSHOP2025                      -->
-    <!-- Professional dark mode optimized for comfort -->
-    <!-- ============================================= -->
+    <!-- ============================================================== -->
+    <!-- DARK THEME - MYSHOP2025                                       -->
+    <!-- ============================================================== -->
+    <!-- ONLY OVERRIDES - Do not duplicate Brushes.xaml definitions   -->
+    <!-- Tokens/* contains canonical definitions                       -->
+    <!-- This file ONLY overrides theme-specific values                -->
+    <!-- ============================================================== -->
 
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Tokens/Colors.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- ============================================= -->
+    <!-- SURFACE TOKENS - DARK THEME VALUES           -->
+    <!-- ============================================= -->
+    
+    <SolidColorBrush x:Key="PageBackgroundBrush" Color="{StaticResource Slate900Color}"/>
+    <SolidColorBrush x:Key="LayerBackgroundBrush" Color="{StaticResource Slate800Color}"/>
+    <SolidColorBrush x:Key="CardBackgroundBrush" Color="{StaticResource Slate800Color}"/>
+    <SolidColorBrush x:Key="PanelBackgroundBrush" Color="{StaticResource Slate800Color}"/>
+    <SolidColorBrush x:Key="DialogBackgroundBrush" Color="{StaticResource Slate800Color}"/>
+    <SolidColorBrush x:Key="SubtleBackgroundBrush" Color="{StaticResource Slate700Color}"/>
+    <SolidColorBrush x:Key="SubtleBackgroundHoverBrush" Color="{StaticResource Slate600Color}"/>
+    <SolidColorBrush x:Key="CardStrokeBrush" Color="{StaticResource Slate700Color}"/>
+    <SolidColorBrush x:Key="DividerStrokeBrush" Color="{StaticResource Slate800Color}"/>
+
+    <!-- ============================================= -->
+    <!-- TEXT TOKENS - DARK THEME VALUES              -->
+    <!-- ============================================= -->
+    
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource Slate100Color}"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource Slate300Color}"/>
+    <SolidColorBrush x:Key="TextTertiaryBrush" Color="{StaticResource Slate400Color}"/>
+    <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource Slate500Color}"/>
+
+    <!-- ============================================= -->
+    <!-- STATUS BADGE - DARK THEME VALUES             -->
+    <!-- ============================================= -->
+    
+    <SolidColorBrush x:Key="PendingForegroundBrush" Color="#FCD34D"/>
+    <SolidColorBrush x:Key="PendingBackgroundBrush" Color="#78350F"/>
+    <SolidColorBrush x:Key="ApprovedForegroundBrush" Color="#34D399"/>
+    <SolidColorBrush x:Key="ApprovedBackgroundBrush" Color="#064E3B"/>
+    <SolidColorBrush x:Key="RejectedForegroundBrush" Color="#F87171"/>
+    <SolidColorBrush x:Key="RejectedBackgroundBrush" Color="#7F1D1D"/>
+    <SolidColorBrush x:Key="ProcessingForegroundBrush" Color="#60A5FA"/>
+    <SolidColorBrush x:Key="ProcessingBackgroundBrush" Color="#1E3A8A"/>
+    <SolidColorBrush x:Key="CompletedForegroundBrush" Color="#A78BFA"/>
+    <SolidColorBrush x:Key="CompletedBackgroundBrush" Color="#4C1D95"/>
 
     <!-- ============================================= -->
     <!-- PRIMARY BRUSHES - ADJUSTED FOR DARK          -->
@@ -56,47 +100,9 @@
     <SolidColorBrush x:Key="Purple50Brush" Color="#2E1065"/>
     <SolidColorBrush x:Key="PurpleDarkBrush" Color="#8B5CF6"/>
 
-
-    <!-- ============================================= -->
-    <!-- SEMANTIC STATUS BRUSHES - DARK THEME         -->
-    <!-- For StatusBadge component variants           -->
-    <!-- ============================================= -->
-
-    <!-- Pending (Yellow/Orange tones) -->
-    <SolidColorBrush x:Key="PendingForegroundBrush" Color="#FCD34D"/>
-    <!-- Lighter yellow-300 -->
-    <SolidColorBrush x:Key="PendingBackgroundBrush" Color="#78350F"/>
-    <!-- Dark yellow-900 -->
-
-    <!-- Approved/Success (Green tones) -->
-    <SolidColorBrush x:Key="ApprovedForegroundBrush" Color="#34D399"/>
-    <!-- Lighter green-400 -->
-    <SolidColorBrush x:Key="ApprovedBackgroundBrush" Color="#064E3B"/>
-    <!-- Dark green-900 -->
-
-    <!-- Rejected/Error (Red tones) -->
-    <SolidColorBrush x:Key="RejectedForegroundBrush" Color="#F87171"/>
-    <!-- Lighter red-400 -->
-    <SolidColorBrush x:Key="RejectedBackgroundBrush" Color="#7F1D1D"/>
-    <!-- Dark red-900 -->
-
-    <!-- Processing (Blue tones) -->
-    <SolidColorBrush x:Key="ProcessingForegroundBrush" Color="#60A5FA"/>
-    <!-- Lighter blue-400 -->
-    <SolidColorBrush x:Key="ProcessingBackgroundBrush" Color="#1E3A8A"/>
-    <!-- Dark blue-900 -->
-
-    <!-- Completed (Purple tones) -->
-    <SolidColorBrush x:Key="CompletedForegroundBrush" Color="#A78BFA"/>
-    <!-- Lighter purple-400 -->
-    <SolidColorBrush x:Key="CompletedBackgroundBrush" Color="#4C1D95"/>
-    <!-- Dark purple-900 -->
-
     <!-- Info (Cyan tones) -->
     <SolidColorBrush x:Key="InfoForegroundBrush" Color="#22D3EE"/>
-    <!-- Lighter cyan-400 -->
     <SolidColorBrush x:Key="InfoBackgroundBrush" Color="#164E63"/>
-    <!-- Dark cyan-900 -->
 
 
     <!-- ============================================= -->
@@ -129,25 +135,6 @@
     <SolidColorBrush x:Key="NeutralBackgroundBrush" Color="#1F2937"/>
     <SolidColorBrush x:Key="NeutralTextBrush" Color="#9CA3AF"/>
 
-
-    <!-- ============================================= -->
-    <!-- NEUTRAL BRUSHES (Gray Scale) - DARK MODE     -->
-    <!-- ============================================= -->
-    
-    <!-- Background Layers (Dark Slate Blue palette) -->
-    <SolidColorBrush x:Key="BackgroundLightBrush" Color="#0F172A"/>
-    <!-- Main app background - darkest -->
-    <SolidColorBrush x:Key="BackgroundMediumBrush" Color="#1E293B"/>
-    <!-- Secondary layer -->
-    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#1E293B"/>
-    <!-- Card background -->
-    
-    <!-- Text Brushes - Light for dark background -->
-    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#CBD5E1"/>
-    <SolidColorBrush x:Key="TextTertiaryBrush" Color="#94A3B8"/>
-    <SolidColorBrush x:Key="TextMutedBrush" Color="#64748B"/>
-    
     <!-- All Gray Brushes - Inverted for dark mode -->
     <SolidColorBrush x:Key="Gray900Brush" Color="#F1F5F9"/>
     <SolidColorBrush x:Key="Gray800Brush" Color="#E2E8F0"/>
@@ -163,13 +150,9 @@
     <!-- Semantic Gray Brushes -->
     <SolidColorBrush x:Key="BorderDefaultBrush" Color="#334155"/>
     <SolidColorBrush x:Key="BorderLightBrush" Color="#475569"/>
-    <SolidColorBrush x:Key="BorderFocusBrush" Color="#3B82F6"/>    
-    <!-- Card/Button Borders (Missing resource) -->
-    <SolidColorBrush x:Key="CardStrokeColorDefaultBrush" Color="#4D475569"/><!-- Gray 400 with opacity for subtle borders -->
-    <SolidColorBrush x:Key="ControlStrokeColorDefaultBrush" Color="#475569"/><!-- Gray 400 for controls -->
-
-    <!-- Dialog-specific Brushes (Dark Theme) -->
-    <SolidColorBrush x:Key="DialogBackgroundBrush" Color="#1E293B"/><!-- Dark slate for dialog background -->
+    <SolidColorBrush x:Key="BorderFocusBrush" Color="#3B82F6"/>
+    
+    <!-- Dialog Foreground (Dark Theme) -->
     <SolidColorBrush x:Key="DialogForegroundBrush" Color="#F1F5F9"/><!-- Light text for readability -->
 
     <!-- ============================================= -->
@@ -264,7 +247,7 @@
     <SolidColorBrush x:Key="ComboBoxItemForeground" Color="#F1F5F9"/>
     <SolidColorBrush x:Key="ComboBoxItemForegroundPointerOver" Color="#F1F5F9"/>
     <SolidColorBrush x:Key="ComboBoxItemForegroundPressed" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="ComboBoxItemForegroundSelected" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+    <SolidColorBrush x:Key="ComboBoxItemForegroundSelected" Color="{StaticResource WhiteColor}"/>
     <SolidColorBrush x:Key="ComboBoxItemBackgroundPointerOver" Color="#334155"/>
     <SolidColorBrush x:Key="ComboBoxItemBackgroundPressed" Color="#475569"/>
     <SolidColorBrush x:Key="ComboBoxItemBackgroundSelected" Color="#3B82F6"/>
@@ -272,9 +255,9 @@
     <!-- NavigationView - Dark Mode -->
     <SolidColorBrush x:Key="NavigationViewBackground" Color="#0B1220"/>
     <SolidColorBrush x:Key="NavigationViewItemForeground" Color="#CBD5E1"/>
-    <SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
-    <SolidColorBrush x:Key="NavigationViewItemForegroundPressed" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
-    <SolidColorBrush x:Key="NavigationViewItemForegroundSelected" Color="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+    <SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="{StaticResource WhiteColor}"/>
+    <SolidColorBrush x:Key="NavigationViewItemForegroundPressed" Color="{StaticResource WhiteColor}"/>
+    <SolidColorBrush x:Key="NavigationViewItemForegroundSelected" Color="{StaticResource WhiteColor}"/>
     <SolidColorBrush x:Key="NavigationViewItemBackgroundPointerOver" Color="#1E3A8A"/>
     <SolidColorBrush x:Key="NavigationViewItemBackgroundPressed" Color="#1E40AF"/>
     <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected" Color="#2563EB"/>
@@ -328,5 +311,17 @@
     <SolidColorBrush x:Key="CalendarDatePickerTextForegroundFocused" Color="#F1F5F9"/>
     <SolidColorBrush x:Key="CalendarDatePickerTextForegroundDisabled" Color="#64748B"/>
     <SolidColorBrush x:Key="CalendarDatePickerHeaderForeground" Color="#F1F5F9"/>
+
+    <!-- ============================================= -->
+    <!-- SYSTEM BRUSH ALIASES (WinUI Compatibility)   -->
+    <!-- Maps WinUI system brushes to our tokens      -->
+    <!-- ============================================= -->
+    
+    <StaticResource x:Key="ApplicationPageBackgroundThemeBrush" ResourceKey="PageBackgroundBrush"/>
+    <StaticResource x:Key="TextFillColorPrimaryBrush" ResourceKey="TextPrimaryBrush"/>
+    <StaticResource x:Key="TextFillColorSecondaryBrush" ResourceKey="TextSecondaryBrush"/>
+    <StaticResource x:Key="TextFillColorTertiaryBrush" ResourceKey="TextTertiaryBrush"/>
+    <StaticResource x:Key="CardBackgroundFillColorDefaultBrush" ResourceKey="CardBackgroundBrush"/>
+    <StaticResource x:Key="CardStrokeColorDefaultBrush" ResourceKey="CardStrokeBrush"/>
 
 </ResourceDictionary>

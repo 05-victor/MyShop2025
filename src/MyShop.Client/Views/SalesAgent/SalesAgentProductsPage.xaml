@@ -118,8 +118,7 @@
 
                                 <!-- PAGE HEADER -->
                                 <layout:PageHeader
-                                    Title="My Products"
-                                    Breadcrumb="Sales Agent > Products">
+                                    Title="My Products">
                                     <layout:PageHeader.ActionContent>
                                         <StackPanel Orientation="Horizontal"
                                                     Spacing="12">

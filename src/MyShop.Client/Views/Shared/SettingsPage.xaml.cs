@@ -111,6 +111,9 @@ public sealed partial class SettingsPage : Page
         }
         finally
         {
+            // Ensure toggle reflects current theme after load
+            ThemeToggle.IsOn = ThemeManager.CurrentTheme == ThemeManager.ThemeType.Dark;
+            
             // Allow toggle events only after load completes and UI stabilizes
             _isInitializing = false;
             LoggingService.Instance.Debug("← OnNavigatedTo");

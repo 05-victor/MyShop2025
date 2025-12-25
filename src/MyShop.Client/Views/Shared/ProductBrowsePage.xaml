@@ -25,7 +25,7 @@
     <Page.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="ms-appx:///Themes/CardStyles.xaml"/>
+                <ResourceDictionary Source="ms-appx:///Views/Themes/Styles/CardStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>

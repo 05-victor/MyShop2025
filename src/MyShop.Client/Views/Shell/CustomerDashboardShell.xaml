@@ -85,44 +85,44 @@
 
         <!-- CUSTOMER MENU ITEMS -->
         <NavigationView.MenuItems>
-            <NavigationViewItem Content="Home" Tag="home" Foreground="#FFFFFF">
+            <NavigationViewItem Content="Home" Tag="home" Foreground="{ThemeResource WhiteBrush}">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE80F;" Foreground="#FFFFFF" />
+                    <FontIcon Glyph="&#xE80F;" Foreground="{ThemeResource WhiteBrush}" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
 
-            <NavigationViewItem Content="Shopping" Tag="shopping" Foreground="#FFFFFF">
+            <NavigationViewItem Content="Shopping" Tag="shopping" Foreground="{ThemeResource WhiteBrush}">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE719;" Foreground="#FFFFFF" />
+                    <FontIcon Glyph="&#xE719;" Foreground="{ThemeResource WhiteBrush}" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
 
-            <NavigationViewItem Content="Cart" Tag="cart" Foreground="#FFFFFF">
+            <NavigationViewItem Content="Cart" Tag="cart" Foreground="{ThemeResource WhiteBrush}">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE7BF;" Foreground="#FFFFFF" />
+                    <FontIcon Glyph="&#xE7BF;" Foreground="{ThemeResource WhiteBrush}" />
                 </NavigationViewItem.Icon>
                 <NavigationViewItem.InfoBadge>
                     <InfoBadge Value="{x:Bind ViewModel.CartCount, Mode=OneWay}" />
                 </NavigationViewItem.InfoBadge>
             </NavigationViewItem>
 
-            <NavigationViewItem Content="Purchase Orders" Tag="purchaseOrders" Foreground="#FFFFFF">
+            <NavigationViewItem Content="Purchase Orders" Tag="purchaseOrders" Foreground="{ThemeResource WhiteBrush}">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE7B8;" Foreground="#FFFFFF" />
+                    <FontIcon Glyph="&#xE7B8;" Foreground="{ThemeResource WhiteBrush}" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
 
             <NavigationViewItemSeparator/>
 
-            <NavigationViewItem Content="Profile" Tag="profile" Foreground="#FFFFFF">
+            <NavigationViewItem Content="Profile" Tag="profile" Foreground="{ThemeResource WhiteBrush}">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE77B;" Foreground="#FFFFFF" />
+                    <FontIcon Glyph="&#xE77B;" Foreground="{ThemeResource WhiteBrush}" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
 
-            <NavigationViewItem Content="Settings" Tag="settings" Foreground="#FFFFFF">
+            <NavigationViewItem Content="Settings" Tag="settings" Foreground="{ThemeResource WhiteBrush}">
                 <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE713;" Foreground="#FFFFFF" />
+                    <FontIcon Glyph="&#xE713;" Foreground="{ThemeResource WhiteBrush}" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
 
@@ -134,7 +134,7 @@
                                 Tag="becomeAdmin"
                                 Visibility="Collapsed"
                                 Tapped="BecomeAdminItem_Tapped"
-                                Foreground="#FFFFFF">
+                                Foreground="{ThemeResource WhiteBrush}">
                 <NavigationViewItem.Icon>
                     <FontIcon Glyph="&#xE7EE;" Foreground="{ThemeResource WarningAmberBrush}"/>
                 </NavigationViewItem.Icon>
@@ -142,9 +142,9 @@
         </NavigationView.MenuItems>
 
             <NavigationView.PaneFooter>
-                <NavigationViewItem Content="Logout" Tag="logout" Tapped="LogoutItem_Tapped" Foreground="#FFFFFF">
+                <NavigationViewItem Content="Logout" Tag="logout" Tapped="LogoutItem_Tapped" Foreground="{ThemeResource WhiteBrush}">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE7E8;" Foreground="#FFFFFF"/>
+                        <FontIcon Glyph="&#xE7E8;" Foreground="{ThemeResource WhiteBrush}"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
             </NavigationView.PaneFooter>
