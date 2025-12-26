@@ -1,0 +1,15 @@
+/.ipynb_checkpoints
+/.env
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+*.pywz
+*.pyzw
+*.pyzwz
+*.pyzwzw
+.DS_Store
+*.log
