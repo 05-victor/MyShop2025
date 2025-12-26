@@ -51,6 +51,22 @@
     <SolidColorBrush x:Key="CompletedForegroundBrush" Color="{StaticResource PurpleDarkColor}"/>
     <SolidColorBrush x:Key="CompletedBackgroundBrush" Color="{StaticResource PurpleLightColor}"/>
 
+    <!-- ============================================= -->
+    <!-- STOCK STATUS BADGES - LIGHT THEME            -->
+    <!-- ============================================= -->
+    
+    <!-- Out of Stock -->
+    <SolidColorBrush x:Key="StockOutOfStockBackgroundBrush" Color="#FEF2E2"/>
+    <SolidColorBrush x:Key="StockOutOfStockForegroundBrush" Color="#DC2626"/>
+    
+    <!-- Low Stock -->
+    <SolidColorBrush x:Key="StockLowStockBackgroundBrush" Color="#FEF3C7"/>
+    <SolidColorBrush x:Key="StockLowStockForegroundBrush" Color="#D97706"/>
+    
+    <!-- In Stock -->
+    <SolidColorBrush x:Key="StockInStockBackgroundBrush" Color="#D1FAE5"/>
+    <SolidColorBrush x:Key="StockInStockForegroundBrush" Color="#059669"/>
+
     <SolidColorBrush x:Key="CalendarDatePickerTextForegroundPointerOver" Color="#111827"/>
     <SolidColorBrush x:Key="CalendarDatePickerTextForegroundFocused" Color="#111827"/>
     <SolidColorBrush x:Key="CalendarDatePickerTextForegroundDisabled" Color="#9CA3AF"/>

@@ -4,9 +4,9 @@
     <!-- ============================================================== -->
     <!-- DARK THEME - MYSHOP2025                                       -->
     <!-- ============================================================== -->
-    <!-- ONLY OVERRIDES - Do not duplicate Brushes.xaml definitions   -->
-    <!-- Tokens/* contains canonical definitions                       -->
-    <!-- This file ONLY overrides theme-specific values                -->
+    <!-- Based on WinUI 3 Fluent Dark Theme - Neutral Charcoal Colors  -->
+    <!-- Fixed colors (not system-dependent) for consistent appearance -->
+    <!-- Reference: SettingsPage, ProfilePage dark mode appearance     -->
     <!-- ============================================================== -->
 
     <ResourceDictionary.MergedDictionaries>
@@ -14,27 +14,45 @@
     </ResourceDictionary.MergedDictionaries>
 
     <!-- ============================================= -->
-    <!-- SURFACE TOKENS - DARK THEME VALUES           -->
+    <!-- WinUI FLUENT DARK - SURFACE COLORS           -->
+    <!-- Pure neutral charcoal/gray (no blue tint)    -->
     <!-- ============================================= -->
     
-    <SolidColorBrush x:Key="PageBackgroundBrush" Color="{StaticResource Slate900Color}"/>
-    <SolidColorBrush x:Key="LayerBackgroundBrush" Color="{StaticResource Slate800Color}"/>
-    <SolidColorBrush x:Key="CardBackgroundBrush" Color="{StaticResource Slate800Color}"/>
-    <SolidColorBrush x:Key="PanelBackgroundBrush" Color="{StaticResource Slate800Color}"/>
-    <SolidColorBrush x:Key="DialogBackgroundBrush" Color="{StaticResource Slate800Color}"/>
-    <SolidColorBrush x:Key="SubtleBackgroundBrush" Color="{StaticResource Slate700Color}"/>
-    <SolidColorBrush x:Key="SubtleBackgroundHoverBrush" Color="{StaticResource Slate600Color}"/>
-    <SolidColorBrush x:Key="CardStrokeBrush" Color="{StaticResource Slate700Color}"/>
-    <SolidColorBrush x:Key="DividerStrokeBrush" Color="{StaticResource Slate800Color}"/>
+    <!-- Page/App Background: #202020 (WinUI ApplicationPageBackgroundThemeBrush) -->
+    <SolidColorBrush x:Key="PageBackgroundBrush" Color="#202020"/>
+    
+    <!-- Layer Background: #2D2D2D (WinUI LayerFillColorDefaultBrush) -->
+    <SolidColorBrush x:Key="LayerBackgroundBrush" Color="#2D2D2D"/>
+    
+    <!-- Card Background: #2D2D2D (WinUI CardBackgroundFillColorDefaultBrush) -->
+    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#2D2D2D"/>
+    <SolidColorBrush x:Key="PanelBackgroundBrush" Color="#2D2D2D"/>
+    <SolidColorBrush x:Key="DialogBackgroundBrush" Color="#2D2D2D"/>
+    
+    <!-- Subtle/Secondary Background: #3D3D3D -->
+    <SolidColorBrush x:Key="SubtleBackgroundBrush" Color="#3D3D3D"/>
+    <SolidColorBrush x:Key="SubtleBackgroundHoverBrush" Color="#4D4D4D"/>
+    
+    <!-- Strokes/Borders: #404040 (WinUI CardStrokeColorDefaultBrush) -->
+    <SolidColorBrush x:Key="CardStrokeBrush" Color="#404040"/>
+    <SolidColorBrush x:Key="DividerStrokeBrush" Color="#333333"/>
 
     <!-- ============================================= -->
-    <!-- TEXT TOKENS - DARK THEME VALUES              -->
+    <!-- WinUI FLUENT DARK - TEXT COLORS              -->
+    <!-- White/Gray text for dark backgrounds         -->
     <!-- ============================================= -->
     
-    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource Slate100Color}"/>
-    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource Slate300Color}"/>
-    <SolidColorBrush x:Key="TextTertiaryBrush" Color="{StaticResource Slate400Color}"/>
-    <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource Slate500Color}"/>
+    <!-- Primary Text: #FFFFFF (WinUI TextFillColorPrimaryBrush) -->
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#FFFFFF"/>
+    
+    <!-- Secondary Text: #C5C5C5 (WinUI TextFillColorSecondaryBrush) -->
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#C5C5C5"/>
+    
+    <!-- Tertiary Text: #9E9E9E (WinUI TextFillColorTertiaryBrush) -->
+    <SolidColorBrush x:Key="TextTertiaryBrush" Color="#9E9E9E"/>
+    
+    <!-- Muted/Disabled Text: #6E6E6E -->
+    <SolidColorBrush x:Key="TextMutedBrush" Color="#6E6E6E"/>
 
     <!-- ============================================= -->
     <!-- STATUS BADGE - DARK THEME VALUES             -->
@@ -52,7 +70,18 @@
     <SolidColorBrush x:Key="CompletedBackgroundBrush" Color="#4C1D95"/>
 
     <!-- ============================================= -->
-    <!-- PRIMARY BRUSHES - ADJUSTED FOR DARK          -->
+    <!-- STOCK STATUS BADGES - DARK THEME             -->
+    <!-- ============================================= -->
+    
+    <SolidColorBrush x:Key="StockOutOfStockBackgroundBrush" Color="#7F1D1D"/>
+    <SolidColorBrush x:Key="StockOutOfStockForegroundBrush" Color="#FCA5A5"/>
+    <SolidColorBrush x:Key="StockLowStockBackgroundBrush" Color="#78350F"/>
+    <SolidColorBrush x:Key="StockLowStockForegroundBrush" Color="#FCD34D"/>
+    <SolidColorBrush x:Key="StockInStockBackgroundBrush" Color="#064E3B"/>
+    <SolidColorBrush x:Key="StockInStockForegroundBrush" Color="#6EE7B7"/>
+
+    <!-- ============================================= -->
+    <!-- PRIMARY/ACCENT COLORS - DARK THEME           -->
     <!-- ============================================= -->
     
     <SolidColorBrush x:Key="NavyPrimaryBrush" Color="#3B82F6"/>
@@ -65,30 +94,29 @@
     <SolidColorBrush x:Key="SecondaryBlueBrush" Color="#3B82F6"/>
     <SolidColorBrush x:Key="DarkBlueBrush" Color="#2563EB"/>
 
-
     <!-- ============================================= -->
-    <!-- STATUS BRUSHES - SAME AS LIGHT               -->
+    <!-- STATUS COLORS - DARK THEME                   -->
     <!-- ============================================= -->
     
-    <!-- Success -->
+    <!-- Success (Green) -->
     <SolidColorBrush x:Key="SuccessGreenBrush" Color="#10B981"/>
     <SolidColorBrush x:Key="SuccessGreenLightBrush" Color="#064E3B"/>
     <SolidColorBrush x:Key="SuccessGreen50Brush" Color="#022C22"/>
     <SolidColorBrush x:Key="SuccessGreenDarkBrush" Color="#059669"/>
     
-    <!-- Warning -->
+    <!-- Warning (Amber) -->
     <SolidColorBrush x:Key="WarningAmberBrush" Color="#F59E0B"/>
     <SolidColorBrush x:Key="WarningAmberLightBrush" Color="#78350F"/>
     <SolidColorBrush x:Key="WarningAmber50Brush" Color="#451A03"/>
     <SolidColorBrush x:Key="WarningAmberDarkBrush" Color="#D97706"/>
     
-    <!-- Error -->
+    <!-- Error (Red) -->
     <SolidColorBrush x:Key="ErrorRedBrush" Color="#DC2626"/>
     <SolidColorBrush x:Key="ErrorRedLightBrush" Color="#7F1D1D"/>
     <SolidColorBrush x:Key="ErrorRed50Brush" Color="#450A0A"/>
     <SolidColorBrush x:Key="ErrorRedDarkBrush" Color="#B91C1C"/>
     
-    <!-- Info -->
+    <!-- Info (Blue) -->
     <SolidColorBrush x:Key="InfoBlueBrush" Color="#3B82F6"/>
     <SolidColorBrush x:Key="InfoBlueLightBrush" Color="#1E3A8A"/>
     <SolidColorBrush x:Key="InfoBlue50Brush" Color="#172554"/>
@@ -100,228 +128,212 @@
     <SolidColorBrush x:Key="Purple50Brush" Color="#2E1065"/>
     <SolidColorBrush x:Key="PurpleDarkBrush" Color="#8B5CF6"/>
 
-    <!-- Info (Cyan tones) -->
+    <!-- Info (Cyan) -->
     <SolidColorBrush x:Key="InfoForegroundBrush" Color="#22D3EE"/>
     <SolidColorBrush x:Key="InfoBackgroundBrush" Color="#164E63"/>
 
-
     <!-- ============================================= -->
-    <!-- SEMANTIC COLOR ALIASES (DARK THEME)          -->
-    <!-- Generic names pointing to specific colors    -->
+    <!-- SEMANTIC COLORS - DARK THEME                 -->
     <!-- ============================================= -->
     
-    <!-- Success Semantic (Dark) -->
     <SolidColorBrush x:Key="SuccessBrush" Color="#10B981"/>
     <SolidColorBrush x:Key="SuccessBackgroundBrush" Color="#022C22"/>
     <SolidColorBrush x:Key="SuccessTextBrush" Color="#10B981"/>
     
-    <!-- Warning Semantic (Dark) -->
     <SolidColorBrush x:Key="WarningBrush" Color="#F59E0B"/>
     <SolidColorBrush x:Key="WarningBackgroundBrush" Color="#451A03"/>
     <SolidColorBrush x:Key="WarningTextBrush" Color="#F59E0B"/>
     
-    <!-- Error/Danger Semantic (Dark) -->
     <SolidColorBrush x:Key="ErrorBrush" Color="#DC2626"/>
     <SolidColorBrush x:Key="DangerBrush" Color="#DC2626"/>
     <SolidColorBrush x:Key="ErrorBackgroundBrush" Color="#450A0A"/>
     <SolidColorBrush x:Key="ErrorTextBrush" Color="#DC2626"/>
     
-    <!-- Info Semantic (Dark) -->
     <SolidColorBrush x:Key="InfoBrush" Color="#3B82F6"/>
     <SolidColorBrush x:Key="InfoTextBrush" Color="#3B82F6"/>
     
-    <!-- Neutral Semantic (Dark) -->
     <SolidColorBrush x:Key="NeutralBrush" Color="#6B7280"/>
     <SolidColorBrush x:Key="NeutralBackgroundBrush" Color="#1F2937"/>
     <SolidColorBrush x:Key="NeutralTextBrush" Color="#9CA3AF"/>
 
-    <!-- All Gray Brushes - Inverted for dark mode -->
-    <SolidColorBrush x:Key="Gray900Brush" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="Gray800Brush" Color="#E2E8F0"/>
-    <SolidColorBrush x:Key="Gray700Brush" Color="#CBD5E1"/>
-    <SolidColorBrush x:Key="Gray600Brush" Color="#94A3B8"/>
-    <SolidColorBrush x:Key="Gray500Brush" Color="#64748B"/>
-    <SolidColorBrush x:Key="Gray400Brush" Color="#475569"/>
-    <SolidColorBrush x:Key="Gray300Brush" Color="#334155"/>
-    <SolidColorBrush x:Key="Gray200Brush" Color="#1E293B"/>
-    <SolidColorBrush x:Key="Gray100Brush" Color="#0F172A"/>
-    <SolidColorBrush x:Key="Gray50Brush" Color="#020617"/>
+    <!-- ============================================= -->
+    <!-- GRAY SCALE - INVERTED FOR DARK MODE          -->
+    <!-- ============================================= -->
     
-    <!-- Semantic Gray Brushes -->
-    <SolidColorBrush x:Key="BorderDefaultBrush" Color="#334155"/>
-    <SolidColorBrush x:Key="BorderLightBrush" Color="#475569"/>
+    <SolidColorBrush x:Key="Gray900Brush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Gray800Brush" Color="#E5E5E5"/>
+    <SolidColorBrush x:Key="Gray700Brush" Color="#C5C5C5"/>
+    <SolidColorBrush x:Key="Gray600Brush" Color="#9E9E9E"/>
+    <SolidColorBrush x:Key="Gray500Brush" Color="#757575"/>
+    <SolidColorBrush x:Key="Gray400Brush" Color="#5E5E5E"/>
+    <SolidColorBrush x:Key="Gray300Brush" Color="#4D4D4D"/>
+    <SolidColorBrush x:Key="Gray200Brush" Color="#3D3D3D"/>
+    <SolidColorBrush x:Key="Gray100Brush" Color="#2D2D2D"/>
+    <SolidColorBrush x:Key="Gray50Brush" Color="#202020"/>
+    
+    <!-- Border Brushes -->
+    <SolidColorBrush x:Key="BorderDefaultBrush" Color="#404040"/>
+    <SolidColorBrush x:Key="BorderLightBrush" Color="#4D4D4D"/>
     <SolidColorBrush x:Key="BorderFocusBrush" Color="#3B82F6"/>
     
-    <!-- Dialog Foreground (Dark Theme) -->
-    <SolidColorBrush x:Key="DialogForegroundBrush" Color="#F1F5F9"/><!-- Light text for readability -->
+    <!-- Dialog Foreground -->
+    <SolidColorBrush x:Key="DialogForegroundBrush" Color="#FFFFFF"/>
 
     <!-- ============================================= -->
-    <!-- SEMANTIC BRUSHES                             -->
+    <!-- SEMANTIC BASE BRUSHES                        -->
     <!-- ============================================= -->
     
     <SolidColorBrush x:Key="WhiteBrush" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="BlackBrush" Color="#000000"/>
     
-    <!-- Transparent Brushes -->
     <SolidColorBrush x:Key="WhiteSemiTransparent" Color="#80FFFFFF"/>
     <SolidColorBrush x:Key="WhiteLightTransparent" Color="#33FFFFFF"/>
     <SolidColorBrush x:Key="BlackSemiTransparent" Color="#80000000"/>
     <SolidColorBrush x:Key="BlackLightTransparent" Color="#1A000000"/>
     <SolidColorBrush x:Key="BlackVeryLightTransparent" Color="#0D000000"/>
 
-
     <!-- ============================================= -->
-    <!-- GRADIENT BRUSHES - ADJUSTED FOR DARK         -->
+    <!-- GRADIENT BRUSHES - DARK THEME                -->
     <!-- ============================================= -->
     
-    <!-- Primary Gradient (Blue) - Brighter for dark -->
     <LinearGradientBrush x:Key="PrimaryGradientBrush" StartPoint="0,0" EndPoint="1,1">
         <GradientStop Color="#3B82F6" Offset="0"/>
         <GradientStop Color="#2563EB" Offset="1"/>
     </LinearGradientBrush>
     
-    <!-- Success Gradient (Green) -->
     <LinearGradientBrush x:Key="SuccessGradientBrush" StartPoint="0,0" EndPoint="1,1">
         <GradientStop Color="#10B981" Offset="0"/>
         <GradientStop Color="#059669" Offset="1"/>
     </LinearGradientBrush>
     
-    <!-- Warning Gradient (Amber) -->
     <LinearGradientBrush x:Key="WarningGradientBrush" StartPoint="0,0" EndPoint="1,1">
         <GradientStop Color="#F59E0B" Offset="0"/>
         <GradientStop Color="#D97706" Offset="1"/>
     </LinearGradientBrush>
     
-    <!-- Error Gradient (Red) -->
     <LinearGradientBrush x:Key="ErrorGradientBrush" StartPoint="0,0" EndPoint="1,1">
         <GradientStop Color="#DC2626" Offset="0"/>
         <GradientStop Color="#B91C1C" Offset="1"/>
     </LinearGradientBrush>
     
-    <!-- Auth Sidebar Gradient (used in Login/Register pages) -->
     <LinearGradientBrush x:Key="AuthSidebarGradient" StartPoint="0,0" EndPoint="1,1">
         <GradientStop Color="#3B82F6" Offset="0"/>
         <GradientStop Color="#2563EB" Offset="1"/>
     </LinearGradientBrush>
     
-    <!-- Subtle Background Gradient - Dark -->
     <LinearGradientBrush x:Key="SubtleBackgroundGradient" StartPoint="0,0" EndPoint="0,1">
-        <GradientStop Color="#0F172A" Offset="0"/>
-        <GradientStop Color="#1E293B" Offset="1"/>
+        <GradientStop Color="#202020" Offset="0"/>
+        <GradientStop Color="#2D2D2D" Offset="1"/>
     </LinearGradientBrush>
 
-
     <!-- ============================================= -->
-    <!-- SYSTEM OVERRIDES FOR WINUI CONTROLS - DARK   -->
+    <!-- WINUI CONTROL OVERRIDES - DARK THEME         -->
     <!-- ============================================= -->
     
-    <!-- TextBox - Dark Mode -->
-    <SolidColorBrush x:Key="TextControlForeground" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="TextControlForegroundPointerOver" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="TextControlForegroundFocused" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="TextControlForegroundDisabled" Color="#64748B"/>
-    <SolidColorBrush x:Key="TextControlPlaceholderForeground" Color="#94A3B8"/>
-    <SolidColorBrush x:Key="TextControlPlaceholderForegroundPointerOver" Color="#94A3B8"/>
-    <SolidColorBrush x:Key="TextControlPlaceholderForegroundFocused" Color="#94A3B8"/>
-    <SolidColorBrush x:Key="TextControlBackground" Color="#1E293B"/>
-    <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="#334155"/>
-    <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="#334155"/>
-    <SolidColorBrush x:Key="TextControlBorderBrush" Color="#334155"/>
+    <!-- TextBox -->
+    <SolidColorBrush x:Key="TextControlForeground" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="TextControlForegroundPointerOver" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="TextControlForegroundFocused" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="TextControlForegroundDisabled" Color="#6E6E6E"/>
+    <SolidColorBrush x:Key="TextControlPlaceholderForeground" Color="#9E9E9E"/>
+    <SolidColorBrush x:Key="TextControlPlaceholderForegroundPointerOver" Color="#9E9E9E"/>
+    <SolidColorBrush x:Key="TextControlPlaceholderForegroundFocused" Color="#9E9E9E"/>
+    <SolidColorBrush x:Key="TextControlBackground" Color="#2D2D2D"/>
+    <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="#3D3D3D"/>
+    <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="#3D3D3D"/>
+    <SolidColorBrush x:Key="TextControlBorderBrush" Color="#404040"/>
     <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="#3B82F6"/>
     <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="#3B82F6"/>
 
-    <!-- ComboBox - Dark Mode -->
-    <SolidColorBrush x:Key="ComboBoxForeground" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="ComboBoxForegroundPointerOver" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="ComboBoxForegroundFocused" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="ComboBoxForegroundDisabled" Color="#64748B"/>
-    <SolidColorBrush x:Key="ComboBoxPlaceHolderForeground" Color="#94A3B8"/>
-    <SolidColorBrush x:Key="ComboBoxBackground" Color="#1E293B"/>
-    <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver" Color="#334155"/>
-    <SolidColorBrush x:Key="ComboBoxBackgroundFocused" Color="#334155"/>
-    <SolidColorBrush x:Key="ComboBoxBorderBrush" Color="#334155"/>
+    <!-- ComboBox -->
+    <SolidColorBrush x:Key="ComboBoxForeground" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="ComboBoxForegroundPointerOver" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="ComboBoxForegroundFocused" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="ComboBoxForegroundDisabled" Color="#6E6E6E"/>
+    <SolidColorBrush x:Key="ComboBoxPlaceHolderForeground" Color="#9E9E9E"/>
+    <SolidColorBrush x:Key="ComboBoxBackground" Color="#2D2D2D"/>
+    <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver" Color="#3D3D3D"/>
+    <SolidColorBrush x:Key="ComboBoxBackgroundFocused" Color="#3D3D3D"/>
+    <SolidColorBrush x:Key="ComboBoxBorderBrush" Color="#404040"/>
     <SolidColorBrush x:Key="ComboBoxBorderBrushPointerOver" Color="#3B82F6"/>
     <SolidColorBrush x:Key="ComboBoxBorderBrushFocused" Color="#3B82F6"/>
 
-    <!-- ComboBox Dropdown Items - Dark Mode -->
-    <SolidColorBrush x:Key="ComboBoxItemForeground" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="ComboBoxItemForegroundPointerOver" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="ComboBoxItemForegroundPressed" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="ComboBoxItemForegroundSelected" Color="{StaticResource WhiteColor}"/>
-    <SolidColorBrush x:Key="ComboBoxItemBackgroundPointerOver" Color="#334155"/>
-    <SolidColorBrush x:Key="ComboBoxItemBackgroundPressed" Color="#475569"/>
+    <!-- ComboBox Items -->
+    <SolidColorBrush x:Key="ComboBoxItemForeground" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="ComboBoxItemForegroundPointerOver" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="ComboBoxItemForegroundPressed" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="ComboBoxItemForegroundSelected" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="ComboBoxItemBackgroundPointerOver" Color="#3D3D3D"/>
+    <SolidColorBrush x:Key="ComboBoxItemBackgroundPressed" Color="#4D4D4D"/>
     <SolidColorBrush x:Key="ComboBoxItemBackgroundSelected" Color="#3B82F6"/>
 
-    <!-- NavigationView - Dark Mode -->
-    <SolidColorBrush x:Key="NavigationViewBackground" Color="#0B1220"/>
-    <SolidColorBrush x:Key="NavigationViewItemForeground" Color="#CBD5E1"/>
-    <SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="{StaticResource WhiteColor}"/>
-    <SolidColorBrush x:Key="NavigationViewItemForegroundPressed" Color="{StaticResource WhiteColor}"/>
-    <SolidColorBrush x:Key="NavigationViewItemForegroundSelected" Color="{StaticResource WhiteColor}"/>
-    <SolidColorBrush x:Key="NavigationViewItemBackgroundPointerOver" Color="#1E3A8A"/>
-    <SolidColorBrush x:Key="NavigationViewItemBackgroundPressed" Color="#1E40AF"/>
-    <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected" Color="#2563EB"/>
-    <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPointerOver" Color="#3B82F6"/>
+    <!-- NavigationView -->
+    <SolidColorBrush x:Key="NavigationViewBackground" Color="#1C1C1C"/>
+    <SolidColorBrush x:Key="NavigationViewItemForeground" Color="#C5C5C5"/>
+    <SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="NavigationViewItemForegroundPressed" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="NavigationViewItemForegroundSelected" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="NavigationViewItemBackgroundPointerOver" Color="#3D3D3D"/>
+    <SolidColorBrush x:Key="NavigationViewItemBackgroundPressed" Color="#4D4D4D"/>
+    <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected" Color="#3B82F6"/>
+    <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPointerOver" Color="#60A5FA"/>
 
     <!-- ============================================= -->
     <!-- ADMIN SHELL NAVIGATION (Dark Sidebar)        -->
-    <!-- Used by AdminDashboardShell for dark sidebar -->
     <!-- ============================================= -->
     
-    <SolidColorBrush x:Key="AdminNavPaneBackground" Color="#1F2937"/>
+    <SolidColorBrush x:Key="AdminNavPaneBackground" Color="#1C1C1C"/>
     <SolidColorBrush x:Key="AdminNavItemForeground" Color="#FFFFFF"/>
-    <!-- Always white for visibility -->
     <SolidColorBrush x:Key="AdminNavItemForegroundSelected" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="AdminNavItemForegroundPointerOver" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="AdminNavItemBackgroundSelected" Color="#3B82F6"/>
-    <!-- Blue-500 for selected -->
     <SolidColorBrush x:Key="AdminNavItemBackgroundSelectedPointerOver" Color="#60A5FA"/>
-    <!-- Blue-400 for selected+hover -->
     <SolidColorBrush x:Key="AdminNavItemBackgroundPointerOver" Color="#2563EB"/>
-    <!-- Blue-600 for hover only -->
-    <SolidColorBrush x:Key="AdminNavHeaderForeground" Color="White"/>
+    <SolidColorBrush x:Key="AdminNavHeaderForeground" Color="#FFFFFF"/>
 
     <!-- ============================================= -->
     <!-- SALESAGENT/CUSTOMER SHELL NAVIGATION         -->
-    <!-- Dark sidebar with cyan accent                -->
     <!-- ============================================= -->
     
-    <SolidColorBrush x:Key="AgentNavPaneBackground" Color="#1E293B"/>
+    <SolidColorBrush x:Key="AgentNavPaneBackground" Color="#1C1C1C"/>
     <SolidColorBrush x:Key="AgentNavItemForeground" Color="#FFFFFF"/>
-    <!-- Always white for visibility -->
     <SolidColorBrush x:Key="AgentNavItemForegroundSelected" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="AgentNavItemForegroundPointerOver" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="AgentNavItemBackgroundSelected" Color="#0EA5E9"/>
-    <!-- Cyan-500 for selected -->
     <SolidColorBrush x:Key="AgentNavItemBackgroundSelectedPointerOver" Color="#22D3EE"/>
-    <!-- Cyan-400 for selected+hover -->
     <SolidColorBrush x:Key="AgentNavItemBackgroundPointerOver" Color="#0891B2"/>
-    <!-- Cyan-600 for hover only -->
-    <SolidColorBrush x:Key="AgentNavHeaderForeground" Color="White"/>
+    <SolidColorBrush x:Key="AgentNavHeaderForeground" Color="#FFFFFF"/>
 
-    <!-- CalendarDatePicker - Dark Mode -->
-    <SolidColorBrush x:Key="CalendarDatePickerForeground" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="CalendarDatePickerForegroundPointerOver" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="CalendarDatePickerForegroundFocused" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="CalendarDatePickerForegroundDisabled" Color="#64748B"/>
-    <SolidColorBrush x:Key="CalendarDatePickerCalendarGlyphForeground" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="CalendarDatePickerCalendarGlyphForegroundPointerOver" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="CalendarDatePickerTextForeground" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="CalendarDatePickerTextForegroundPointerOver" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="CalendarDatePickerTextForegroundFocused" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="CalendarDatePickerTextForegroundDisabled" Color="#64748B"/>
-    <SolidColorBrush x:Key="CalendarDatePickerHeaderForeground" Color="#F1F5F9"/>
+    <!-- CalendarDatePicker -->
+    <SolidColorBrush x:Key="CalendarDatePickerForeground" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="CalendarDatePickerForegroundPointerOver" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="CalendarDatePickerForegroundFocused" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="CalendarDatePickerForegroundDisabled" Color="#6E6E6E"/>
+    <SolidColorBrush x:Key="CalendarDatePickerCalendarGlyphForeground" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="CalendarDatePickerCalendarGlyphForegroundPointerOver" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="CalendarDatePickerTextForeground" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="CalendarDatePickerTextForegroundPointerOver" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="CalendarDatePickerTextForegroundFocused" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="CalendarDatePickerTextForegroundDisabled" Color="#6E6E6E"/>
+    <SolidColorBrush x:Key="CalendarDatePickerHeaderForeground" Color="#FFFFFF"/>
 
     <!-- ============================================= -->
-    <!-- SYSTEM BRUSH ALIASES (WinUI Compatibility)   -->
-    <!-- Maps WinUI system brushes to our tokens      -->
+    <!-- WINUI SYSTEM BRUSH ALIASES                   -->
+    <!-- Maps WinUI ThemeResource names to our tokens -->
     <!-- ============================================= -->
     
     <StaticResource x:Key="ApplicationPageBackgroundThemeBrush" ResourceKey="PageBackgroundBrush"/>
+    <StaticResource x:Key="LayerFillColorDefaultBrush" ResourceKey="LayerBackgroundBrush"/>
+    <StaticResource x:Key="LayerFillColorAltBrush" ResourceKey="LayerBackgroundBrush"/>
     <StaticResource x:Key="TextFillColorPrimaryBrush" ResourceKey="TextPrimaryBrush"/>
     <StaticResource x:Key="TextFillColorSecondaryBrush" ResourceKey="TextSecondaryBrush"/>
     <StaticResource x:Key="TextFillColorTertiaryBrush" ResourceKey="TextTertiaryBrush"/>
+    <StaticResource x:Key="TextFillColorDisabledBrush" ResourceKey="TextMutedBrush"/>
     <StaticResource x:Key="CardBackgroundFillColorDefaultBrush" ResourceKey="CardBackgroundBrush"/>
     <StaticResource x:Key="CardStrokeColorDefaultBrush" ResourceKey="CardStrokeBrush"/>
+    <StaticResource x:Key="ControlStrokeColorDefaultBrush" ResourceKey="CardStrokeBrush"/>
+    <StaticResource x:Key="SubtleFillColorSecondaryBrush" ResourceKey="SubtleBackgroundBrush"/>
+    <StaticResource x:Key="DividerStrokeColorDefaultBrush" ResourceKey="DividerStrokeBrush"/>
+    <StaticResource x:Key="AccentFillColorDefaultBrush" ResourceKey="PrimaryBrush"/>
 
 </ResourceDictionary>

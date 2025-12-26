@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <UserControl
     x:Class="MyShop.Client.Views.Components.Buttons.IconButton"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -6,7 +6,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    x:Name="RootControl">
+    x:Name="RootControl"
+    UseLayoutRounding="True">
 
     <!--
     IconButton Component
@@ -30,6 +31,8 @@
     <Button x:Name="ActionButton"
             Padding="0"
             CornerRadius="8"
+            UseLayoutRounding="True"
+            BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
             Command="{Binding Command, ElementName=RootControl, Mode=OneWay}"
             CommandParameter="{Binding CommandParameter, ElementName=RootControl, Mode=OneWay}"
             ToolTipService.ToolTip="{Binding Tooltip, ElementName=RootControl, Mode=OneWay}"

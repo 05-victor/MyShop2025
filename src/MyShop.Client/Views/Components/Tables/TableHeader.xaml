@@ -25,9 +25,9 @@
     -->
 
     <Border Padding="16,12"
-            Background="{ThemeResource LayerFillColorDefaultBrush}"
-            CornerRadius="8,8,0,0"
-            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+            Background="Transparent"
+            CornerRadius="0"
+            BorderBrush="{ThemeResource CardStrokeBrush}"
             BorderThickness="0,0,0,1"
             AutomationProperties.Name="Table header"
             IsTabStop="False">

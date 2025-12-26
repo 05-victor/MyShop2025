@@ -94,6 +94,12 @@ public partial class CheckoutViewModel : ObservableObject
     private string _currentStep = "details"; // "details", "payment", "success"
 
     [ObservableProperty]
+    private string _selectedPaymentMethod = "QR Code / Banking App";
+
+    [ObservableProperty]
+    private string _selectedPaymentIcon = "\uE8A7"; // QR icon
+
+    [ObservableProperty]
     private int _countdown = 600; // 10 minutes in seconds
 
     [ObservableProperty]
@@ -137,10 +143,12 @@ public partial class CheckoutViewModel : ObservableObject
                         Items = new ObservableCollection<CheckoutItem>(
                             g.Select(i => new CheckoutItem
                             {
+                                CartItemId = i.Id, // Map CartItem.Id for API calls
                                 ProductId = i.ProductId,
                                 Name = i.ProductName,
                                 Quantity = i.Quantity,
                                 Price = i.Price,
+                                StockAvailable = i.StockAvailable, // For qty validation
                                 ImageUrl = !string.IsNullOrEmpty(i.ProductImage) 
                                     ? i.ProductImage 
                                     : "ms-appx:///Assets/Images/products/product-placeholder.png"
@@ -181,6 +189,27 @@ public partial class CheckoutViewModel : ObservableObject
     private async Task BackToCartAsync()
     {
         await _navigationService.NavigateInShell(typeof(MyShop.Client.Views.Shared.CartPage).FullName!);
+    }
+
+    /// <summary>
+    /// Command will be handled by View to show PaymentMethodDialog
+    /// View will update SelectedPaymentMethod and SelectedPaymentIcon
+    /// </summary>
+    [RelayCommand]
+    private void ChoosePaymentMethod()
+    {
+        // Event pattern: View will handle this and show dialog
+        System.Diagnostics.Debug.WriteLine("[CheckoutViewModel] ChoosePaymentMethod triggered");
+    }
+
+    /// <summary>
+    /// Update payment method selection (called by View after dialog)
+    /// </summary>
+    public void UpdatePaymentMethod(string methodText, string iconGlyph)
+    {
+        SelectedPaymentMethod = methodText;
+        SelectedPaymentIcon = iconGlyph;
+        System.Diagnostics.Debug.WriteLine($"[CheckoutViewModel] Payment method updated: {methodText}");
     }
 
     [RelayCommand]
@@ -305,24 +334,164 @@ public partial class CheckoutViewModel : ObservableObject
     {
         await _navigationService.NavigateInShell(typeof(MyShop.Client.Views.Shared.ProductBrowsePage).FullName!);
     }
+
+    // Task F: Cart Interaction Commands (using existing ICartFacade methods)
+    [RelayCommand]
+    private async Task IncreaseQuantityAsync(CheckoutItem item)
+    {
+        try
+        {
+            var newQty = Math.Min(item.Quantity + 1, item.StockAvailable);
+            if (newQty == item.Quantity) 
+            {
+                await _toastService.ShowWarning("Maximum stock reached");
+                return;
+            }
+
+            // Use existing UpdateCartItemQuantityAsync with cartItemId
+            var result = await _cartFacade.UpdateCartItemQuantityAsync(item.CartItemId, newQty);
+            if (result.IsSuccess)
+            {
+                item.Quantity = newQty;
+                RecalculateGroupSubtotals();
+                CalculateTotals();
+            }
+            else
+            {
+                await _toastService.ShowError($"Failed to update quantity: {result.ErrorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[CheckoutViewModel] IncreaseQuantityAsync failed: {ex.Message}");
+            await _toastService.ShowError("Failed to update quantity");
+        }
+    }
+
+    [RelayCommand]
+    private async Task DecreaseQuantityAsync(CheckoutItem item)
+    {
+        if (item.Quantity <= 1)
+        {
+            await RemoveItemAsync(item);
+            return;
+        }
+
+        try
+        {
+            var newQty = Math.Max(item.Quantity - 1, 1);
+            var result = await _cartFacade.UpdateCartItemQuantityAsync(item.CartItemId, newQty);
+            if (result.IsSuccess)
+            {
+                item.Quantity = newQty;
+                RecalculateGroupSubtotals();
+                CalculateTotals();
+            }
+            else
+            {
+                await _toastService.ShowError($"Failed to update quantity: {result.ErrorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[CheckoutViewModel] DecreaseQuantityAsync failed: {ex.Message}");
+            await _toastService.ShowError("Failed to update quantity");
+        }
+    }
+
+    [RelayCommand]
+    private async Task RemoveItemAsync(CheckoutItem item)
+    {
+        try
+        {
+            var result = await _cartFacade.RemoveFromCartAsync(item.CartItemId);
+            if (result.IsSuccess)
+            {
+                // Remove from UI
+                foreach (var group in SalesAgentGroups)
+                {
+                    var itemToRemove = group.Items.FirstOrDefault(i => i.CartItemId == item.CartItemId);
+                    if (itemToRemove != null)
+                    {
+                        group.Items.Remove(itemToRemove);
+                        break;
+                    }
+                }
+
+                // Remove empty groups
+                var emptyGroups = SalesAgentGroups.Where(g => g.Items.Count == 0).ToList();
+                foreach (var emptyGroup in emptyGroups)
+                {
+                    SalesAgentGroups.Remove(emptyGroup);
+                }
+
+                RecalculateGroupSubtotals();
+                CalculateTotals();
+                await _toastService.ShowSuccess("Item removed from cart");
+            }
+            else
+            {
+                await _toastService.ShowError($"Failed to remove item: {result.ErrorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[CheckoutViewModel] RemoveItemAsync failed: {ex.Message}");
+            await _toastService.ShowError("Failed to remove item");
+        }
+    }
+
+    private void RecalculateGroupSubtotals()
+    {
+        foreach (var group in SalesAgentGroups)
+        {
+            group.Subtotal = group.Items.Sum(i => i.Total);
+        }
+    }
 }
 
-public class SalesAgentGroup
+public partial class SalesAgentGroup : ObservableObject
 {
-    public Guid SalesAgentId { get; set; }
-    public string SalesAgentName { get; set; } = string.Empty;
-    public ObservableCollection<CheckoutItem> Items { get; set; } = new();
-    public decimal Subtotal { get; set; }
+    [ObservableProperty]
+    private Guid _salesAgentId;
+
+    [ObservableProperty]
+    private string _salesAgentName = string.Empty;
+
+    [ObservableProperty]
+    private ObservableCollection<CheckoutItem> _items = new();
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SubtotalFormatted))]
+    private decimal _subtotal;
+
     public string SubtotalFormatted => $"{Subtotal:N0} ₫";
 }
 
-public class CheckoutItem
+public partial class CheckoutItem : ObservableObject
 {
-    public Guid ProductId { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public int Quantity { get; set; }
-    public decimal Price { get; set; }
-    public string ImageUrl { get; set; } = string.Empty;
+    [ObservableProperty]
+    private Guid _cartItemId; // CartItem.Id from backend
+
+    [ObservableProperty]
+    private Guid _productId;
+
+    [ObservableProperty]
+    private string _name = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Total), nameof(TotalFormatted))]
+    private int _quantity;
+
+    [ObservableProperty]
+    private decimal _price;
+
+    [ObservableProperty]
+    private string _imageUrl = string.Empty;
+
+    [ObservableProperty]
+    private int _stockAvailable = int.MaxValue; // For qty validation
+
     public decimal Total => Quantity * Price;
     public string TotalFormatted => $"{Total:N0} ₫";
 }

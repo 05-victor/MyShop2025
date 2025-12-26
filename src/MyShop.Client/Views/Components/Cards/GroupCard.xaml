@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="MyShop.Client.Views.Components.Cards.GroupCard"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:MyShop.Client.ViewModels.Shared"
+    xmlns:cards="using:MyShop.Client.Views.Components.Cards"
+    x:Name="RootControl"
+    mc:Ignorable="d">
+
+    <Border Style="{StaticResource DefaultCardStyle}"
+            Padding="{StaticResource Padding_XL}"
+            Margin="0,0,0,16">
+        <StackPanel Spacing="{StaticResource Spacing_4}">
+            <!-- Group Header -->
+            <Grid Margin="0,0,0,12">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE77B;" FontSize="20" Foreground="{ThemeResource AccentBlueBrush}"/>
+                    <TextBlock 
+                        Text="{x:Bind GroupName, Mode=OneWay}"
+                        FontSize="16"
+                        FontWeight="SemiBold"
+                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                        VerticalAlignment="Center"/>
+                </StackPanel>
+                <TextBlock 
+                    Text="{x:Bind Subtotal, Mode=OneWay}"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Foreground="{ThemeResource AccentBlueBrush}"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"/>
+            </Grid>
+
+            <!-- Items List (Task F: Add +/-/Remove interactions) -->
+            <ItemsRepeater ItemsSource="{x:Bind Items, Mode=OneWay}">
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate x:DataType="vm:CheckoutItem">
+                        <Border Padding="0,8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Product Image -->
+                                <Border Width="64"
+                                        Height="64"
+                                        Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                        CornerRadius="8">
+                                    <Image Stretch="UniformToFill">
+                                        <Image.Source>
+                                            <BitmapImage UriSource="{x:Bind ImageUrl}"
+                                                         DecodePixelWidth="128"
+                                                         DecodePixelHeight="128"/>
+                                        </Image.Source>
+                                    </Image>
+                                </Border>
+
+                                <!-- Product Info -->
+                                <StackPanel Grid.Column="1"
+                                            Margin="16,0,0,0"
+                                            VerticalAlignment="Center"
+                                            Spacing="4">
+                                    <TextBlock Text="{x:Bind Name}"
+                                               FontSize="14"
+                                               FontWeight="SemiBold"
+                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                               TextTrimming="CharacterEllipsis"
+                                               MaxLines="2"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <TextBlock Text="Unit:"
+                                                   FontSize="11"
+                                                   Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                                        <TextBlock FontSize="12"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                            <Run Text="{x:Bind Price}"/><Run Text=" ₫"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!-- Quantity Controls -->
+                                <StackPanel Grid.Column="2"
+                                            Orientation="Horizontal"
+                                            Spacing="8"
+                                            VerticalAlignment="Center"
+                                            Margin="16,0">
+                                    <Button Style="{StaticResource SecondaryButtonSmallStyle}"
+                                            Width="32"
+                                            Height="32"
+                                            Padding="0"
+                                            Command="{Binding DecreaseQuantityCommand, ElementName=RootControl}"
+                                            CommandParameter="{x:Bind}"
+                                            ToolTipService.ToolTip="Decrease quantity">
+                                        <FontIcon Glyph="&#xE738;" FontSize="12"/>
+                                    </Button>
+                                    <TextBlock Text="{x:Bind Quantity, Mode=OneWay}"
+                                               FontSize="14"
+                                               FontWeight="SemiBold"
+                                               MinWidth="32"
+                                               TextAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                    <Button Style="{StaticResource PrimaryButtonSmallStyle}"
+                                            Width="32"
+                                            Height="32"
+                                            Padding="0"
+                                            Command="{Binding IncreaseQuantityCommand, ElementName=RootControl}"
+                                            CommandParameter="{x:Bind}"
+                                            ToolTipService.ToolTip="Increase quantity">
+                                        <FontIcon Glyph="&#xE710;" FontSize="12"/>
+                                    </Button>
+                                </StackPanel>
+
+                                <!-- Total Price & Remove -->
+                                <StackPanel Grid.Column="3"
+                                            Orientation="Horizontal"
+                                            Spacing="12"
+                                            VerticalAlignment="Center">
+                                    <StackPanel Spacing="2" VerticalAlignment="Center">
+                                        <TextBlock Text="Line Total"
+                                                   FontSize="10"
+                                                   Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                                   TextAlignment="Right"/>
+                                        <TextBlock Text="{x:Bind TotalFormatted, Mode=OneWay}"
+                                                   FontSize="14"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource AccentBlueBrush}"
+                                                   MinWidth="80"
+                                                   TextAlignment="Right"/>
+                                    </StackPanel>
+                                    <Button Style="{StaticResource DangerButtonSmallStyle}"
+                                            Width="32"
+                                            Height="32"
+                                            Padding="0"
+                                            Command="{Binding RemoveItemCommand, ElementName=RootControl}"
+                                            CommandParameter="{x:Bind}"
+                                            ToolTipService.ToolTip="Remove from cart">
+                                        <FontIcon Glyph="&#xE74D;" FontSize="14"/>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
+        </StackPanel>
+    </Border>
+</UserControl>

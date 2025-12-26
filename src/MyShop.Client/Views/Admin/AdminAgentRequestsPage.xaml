@@ -1,3 +1,22 @@
+<!--
+AdminAgentRequestsPage
+======================
+Pattern: Hybrid (Table + Cards) - based on AdminUsersPage + AdminDashboardPage
+
+Components Used:
+- PageHeader: Title + Subtitle + Refresh button
+- IconButton: Refresh, Approve, Reject, View Profile, Previous, Next
+- StatusBadge: Request status (Pending, Approved, Rejected)
+- UserAvatarInfo: User info with avatar (from Tables component)
+- AlertBox: Rejection reason display
+- TabView: Filter by status tabs
+
+Card Styles:
+- CardWithShadowStyle: Empty state, Request cards, Pagination (via inline ThemeShadow)
+
+Refactored: December 26, 2025
+Matches 4 exemplary pages pattern - Uses components and ThemeResource
+-->
 <?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="MyShop.Client.Views.Admin.AdminAgentRequestsPage"
@@ -12,7 +31,7 @@
     xmlns:tables="using:MyShop.Client.Views.Components.Tables"
     xmlns:feedback="using:MyShop.Client.Views.Components.Feedback"
     x:Name="MyPage"
-    Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+    Background="{ThemeResource PageBackgroundBrush}"
     mc:Ignorable="d">
 
     <Page.Transitions>
@@ -88,7 +107,7 @@
         </VisualStateManager.VisualStateGroups>
 
         <Grid x:Name="MainContent"
-                Padding="{StaticResource Padding_2XL}">
+                Padding="24">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -98,7 +117,7 @@
             <!--  Header  -->
             <layout:PageHeader
                 Grid.Row="0"
-                Margin="0,0,0,24"
+                Margin="0,0,0,20"
                 Title="Agent Requests"
                 Subtitle="Manage sales agent registration requests">
                 <layout:PageHeader.ActionContent>

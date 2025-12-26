@@ -1,3 +1,4 @@
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media;
 using Windows.UI;
@@ -6,7 +7,7 @@ namespace MyShop.Client.Common.Converters;
 
 /// <summary>
 /// Converts a boolean value to a color brush based on parameter specification.
-/// Parameter format: "FalseColor|TrueColor" (e.g., "#FEE2E2|#D1FAE5")
+/// Parameter format: "FalseColor|TrueColor" (e.g., "#FEE2E2|#D1FAE5" or "Theme:CardStrokeColorDefaultBrush|Theme:AccentFillColorDefaultBrush")
 /// If no parameter provided: False=Red, True=Green
 /// </summary>
 public partial class BoolToColorConverter : IValueConverter
@@ -39,6 +40,19 @@ public partial class BoolToColorConverter : IValueConverter
 
     private static SolidColorBrush ParseColorBrush(string colorString)
     {
+        // Check if it's a theme resource reference
+        if (colorString.StartsWith("Theme:", StringComparison.OrdinalIgnoreCase))
+        {
+            var resourceKey = colorString.Substring(6);
+            if (Application.Current?.Resources.TryGetValue(resourceKey, out var resource) == true)
+            {
+                if (resource is SolidColorBrush brush)
+                    return brush;
+            }
+            // Fallback to gray if theme resource not found
+            return new SolidColorBrush(Color.FromArgb(255, 107, 114, 128));
+        }
+        
         // Remove # if present
         colorString = colorString.TrimStart('#');
         

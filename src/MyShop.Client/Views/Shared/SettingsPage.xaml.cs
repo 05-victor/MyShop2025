@@ -34,19 +34,6 @@ public sealed partial class SettingsPage : Page
             // Initialize theme toggle based on current theme
             ThemeToggle.IsOn = ThemeManager.CurrentTheme == ThemeManager.ThemeType.Dark;
             
-            // Show/hide Developer tab based on EnableDeveloperOptions setting
-            var configService = App.Current.Services?.GetService<MyShop.Client.Services.Configuration.IConfigurationService>();
-            if (configService != null && configService.FeatureFlags.EnableDeveloperOptions)
-            {
-                DeveloperTab.Visibility = Visibility.Visible;
-                LoggingService.Instance.Debug("Developer tab enabled via FeatureFlags.EnableDeveloperOptions");
-            }
-            else
-            {
-                DeveloperTab.Visibility = Visibility.Collapsed;
-                LoggingService.Instance.Debug("Developer tab hidden - EnableDeveloperOptions is false");
-            }
-            
             SetupKeyboardShortcuts();
         }
         catch (Exception ex)

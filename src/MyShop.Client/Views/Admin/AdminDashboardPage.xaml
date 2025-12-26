@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="MyShop.Client.Views.Admin.AdminDashboardPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -12,7 +12,7 @@
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     mc:Ignorable="d"
-    Background="{ThemeResource LayerFillColorDefaultBrush}"
+    Background="{ThemeResource PageBackgroundBrush}"
     x:Name="MyPage">
 
     <Page.Transitions>
@@ -105,10 +105,11 @@
                 </TransitionCollection>
             </Grid.Transitions>
             <ScrollViewer VerticalScrollBarVisibility="Auto"
-                          Background="{ThemeResource LayerFillColorDefaultBrush}">
+                          Background="{ThemeResource PageBackgroundBrush}">
                 <Grid x:Name="MainContent"
-                      Padding="{StaticResource Padding_XL}"
-                      RowSpacing="20">
+                      Padding="24"
+                      RowSpacing="16"
+                      Background="{ThemeResource PageBackgroundBrush}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
@@ -142,23 +143,45 @@
                                                   Tag="year"/>
                                 </ComboBox>
 
-                                <!-- Export Button -->
-                                <buttons:IconButton
-                                    Variant="Filled"
-                                    IconGlyph="&#xE896;"
-                                    Text="Export"
-                                    Command="{x:Bind ViewModel.ExportDashboardCommand}"/>
+                                <!-- Export Button with Dropdown -->
+                                <Button
+                                    MinWidth="130"
+                                    Padding="16,0"
+                                    Style="{StaticResource SecondaryButtonSmallStyle}"
+                                    ToolTipService.ToolTip="Export dashboard data">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE898;" FontSize="14"/>
+                                        <TextBlock Text="Export"/>
+                                        <FontIcon Glyph="&#xE70D;" FontSize="10"/>
+                                    </StackPanel>
+                                    <Button.Flyout>
+                                        <MenuFlyout Placement="Bottom">
+                                            <MenuFlyoutItem Text="Export to CSV" 
+                                                            Click="ExportCsvButton_Click">
+                                                <MenuFlyoutItem.Icon>
+                                                    <FontIcon Glyph="&#xE9F9;"/>
+                                                </MenuFlyoutItem.Icon>
+                                            </MenuFlyoutItem>
+                                            <MenuFlyoutItem Text="Export to PDF" 
+                                                            Click="ExportPdfButton_Click">
+                                                <MenuFlyoutItem.Icon>
+                                                    <FontIcon Glyph="&#xEA90;"/>
+                                                </MenuFlyoutItem.Icon>
+                                            </MenuFlyoutItem>
+                                        </MenuFlyout>
+                                    </Button.Flyout>
+                                </Button>
                             </StackPanel>
                         </layout:PageHeader.ActionContent>
                     </layout:PageHeader>
 
                     <!-- Main Content -->
                     <StackPanel Grid.Row="1"
-                                Spacing="20"
-                                Margin="0,4,0,0">
+                                Spacing="20">
                         <!-- Statistics Cards (KPICard Components) -->
-                        <Grid x:Name="KPIGrid"
-                              ColumnSpacing="16">
+                        <Border Style="{StaticResource CardWithShadowStyle}">
+                            <Grid x:Name="KPIGrid"
+                                  ColumnSpacing="16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
@@ -227,7 +250,8 @@
                                 IconForegroundBrush="{ThemeResource ErrorRedBrush}"
                                 BadgeBackgroundBrush="{ThemeResource ErrorRedLightBrush}"
                                 BadgeForegroundBrush="{ThemeResource ErrorRedBrush}"/>
-                        </Grid>
+                            </Grid>
+                        </Border>
 
                         <!-- Charts Section -->
                         <Grid ColumnSpacing="16">
@@ -237,7 +261,8 @@
                             </Grid.ColumnDefinitions>
 
                             <!-- Revenue & Commission Trend Chart -->
-                            <charts:LineChartCard Grid.Column="0"
+                            <Border Grid.Column="0" Style="{StaticResource CardWithShadowStyle}">
+                                <charts:LineChartCard
                                                   Title="Revenue &amp; Commission Trend"
                                                   Series="{x:Bind ViewModel.RevenueSeries, Mode=OneWay}"
                                                   YAxes="{x:Bind ViewModel.YAxes, Mode=OneWay}"
@@ -247,17 +272,11 @@
                                                   Legend1Text="Revenue"
                                                   Legend2Text="Commission"
                                                   ShowMenu="Visible"/>
+                            </Border>
 
                             <!-- Sales by Category -->
                             <Border Grid.Column="1"
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    CornerRadius="8"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                    BorderThickness="1"
-                                    Padding="{StaticResource Padding_XL}">
-                                <Border.Shadow>
-                                    <ThemeShadow/>
-                                </Border.Shadow>
+                                    Style="{StaticResource CardWithShadowStyle}">
                                 <StackPanel Spacing="16">
                                     <!-- Header with Toggle Buttons -->
                                     <Grid>
@@ -270,27 +289,20 @@
                                                    Text="Top Sales"
                                                    FontSize="18"
                                                    FontWeight="SemiBold"
-                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                   Foreground="{ThemeResource TextPrimaryBrush}"
                                                    VerticalAlignment="Center"/>
 
-                                        <!-- Toggle Buttons -->
+                                        <!-- Toggle Buttons --><!--
                                         <StackPanel Grid.Column="1"
                                                     Orientation="Horizontal"
                                                     Spacing="8"
                                                     VerticalAlignment="Center">
-                                            <!-- Category Button -->
+                                            --><!-- Category Button --><!--
                                             <Button Content="Category"
-                                                    Padding="{StaticResource ButtonPadding_SM}"
-                                                    CornerRadius="8"
-                                                    FontSize="13"
-                                                    FontWeight="SemiBold"
+                                                    Style="{StaticResource SecondaryButtonSmallStyle}"
                                                     Command="{x:Bind ViewModel.SwitchSalesViewCommand}"
-                                                    CommandParameter="category"
-                                                    Background="{x:Bind ViewModel.IsCategoryView, Mode=OneWay, Converter={StaticResource BoolToButtonBackgroundConverter}}"
-                                                    Foreground="{x:Bind ViewModel.IsCategoryView, Mode=OneWay, Converter={StaticResource BoolToButtonForegroundConverter}}"
-                                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                                    BorderThickness="1"/>
-                                        </StackPanel>
+                                                    CommandParameter="category"/>
+                                        </StackPanel>-->
                                     </Grid>
 
                                     <!-- Sales by Category List -->
@@ -316,7 +328,7 @@
                                                             <TextBlock Text="{x:Bind Name}"
                                                                        FontSize="14"
                                                                        FontWeight="Medium"
-                                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                                       Foreground="{ThemeResource TextPrimaryBrush}"
                                                                        TextWrapping="NoWrap"
                                                                        TextTrimming="CharacterEllipsis"/>
                                                             <ProgressBar Value="{x:Bind Percentage}"
@@ -324,7 +336,7 @@
                                                                          Height="8"
                                                                          CornerRadius="4"
                                                                          Foreground="{ThemeResource PrimaryBrush}"
-                                                                         Background="{ThemeResource CardStrokeColorDefaultBrush}"/>
+                                                                         Background="{ThemeResource CardStrokeBrush}"/>
                                                         </StackPanel>
 
                                                         <!-- Percentage -->
@@ -365,7 +377,7 @@
                                                       Foreground="{ThemeResource Gray500Brush}"/>
                                             <TextBlock Text="No category data available"
                                                        FontSize="14"
-                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Foreground="{ThemeResource TextSecondaryBrush}"
                                                        HorizontalAlignment="Center"/>
                                         </StackPanel>
                                     </Grid>
@@ -400,7 +412,7 @@
                                                                 <TextBlock Text="{x:Bind Name}"
                                                                            FontSize="14"
                                                                            FontWeight="Medium"
-                                                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                                           Foreground="{ThemeResource TextPrimaryBrush}"
                                                                            TextWrapping="NoWrap"
                                                                            TextTrimming="CharacterEllipsis"/>
                                                                 <StackPanel Orientation="Horizontal"
@@ -410,7 +422,7 @@
                                                                               Foreground="{ThemeResource WarningAmberBrush}"/>
                                                                     <TextBlock Text="{x:Bind Rating}"
                                                                                FontSize="11"
-                                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                                               Foreground="{ThemeResource TextSecondaryBrush}"/>
                                                                 </StackPanel>
                                                             </StackPanel>
                                                         </StackPanel>
@@ -447,13 +459,13 @@
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
                                                     Spacing="12"
-                                                    Padding="{StaticResource Padding_XL}">
+                                                    Padding="24">
                                             <FontIcon Glyph="&#xE716;"
                                                       FontSize="32"
                                                       Foreground="{ThemeResource Gray500Brush}"/>
                                             <TextBlock Text="No agent data available"
                                                        FontSize="14"
-                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Foreground="{ThemeResource TextSecondaryBrush}"
                                                        HorizontalAlignment="Center"/>
                                         </StackPanel>
                                     </Grid>
@@ -478,7 +490,7 @@
                                     <StackPanel Spacing="0">
                                         <!-- Top SalesAgents Table Header -->
                                         <Grid Padding="0,0,0,12"
-                                              BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                              BorderBrush="{ThemeResource CardStrokeBrush}"
                                               BorderThickness="0,0,0,1">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="40"/>
@@ -491,17 +503,17 @@
                                                        Text="EMAIL"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
-                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                       Foreground="{ThemeResource TextSecondaryBrush}"/>
                                             <TextBlock Grid.Column="2"
                                                        Text="GMV"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
-                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                       Foreground="{ThemeResource TextSecondaryBrush}"/>
                                             <TextBlock Grid.Column="3"
                                                        Text="COMMISSION"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
-                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                       Foreground="{ThemeResource TextSecondaryBrush}"/>
                                         </Grid>
 
                                         <!-- Top SalesAgents List -->
@@ -509,8 +521,8 @@
                                                   SelectionMode="None">
                                             <ListView.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:TopSalesAgentItem">
-                                                    <Grid Padding="{StaticResource Padding_MD}"
-                                                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                    <Grid Padding="16"
+                                                          BorderBrush="{ThemeResource CardStrokeBrush}"
                                                           BorderThickness="0,0,0,1">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="40"/>
@@ -530,14 +542,14 @@
                                                         <TextBlock Grid.Column="1"
                                                                    Text="{x:Bind Email}"
                                                                    FontSize="14"
-                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                   Foreground="{ThemeResource TextSecondaryBrush}"
                                                                    VerticalAlignment="Center"/>
 
                                                         <!-- GMV -->
                                                         <TextBlock Grid.Column="2"
                                                                    Text="{x:Bind GMV, Converter={StaticResource CurrencyConverter}}"
                                                                    FontSize="14"
-                                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                                   Foreground="{ThemeResource TextPrimaryBrush}"
                                                                    VerticalAlignment="Center"/>
 
                                                         <!-- Commission -->
@@ -575,7 +587,7 @@
                                     <StackPanel Spacing="0">
                                         <!-- Table Header -->
                                         <Grid Padding="0,0,0,12"
-                                              BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                              BorderBrush="{ThemeResource CardStrokeBrush}"
                                               BorderThickness="0,0,0,1">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="1*"/>
@@ -587,17 +599,17 @@
                                                        Text="IMAGE"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
-                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                       Foreground="{ThemeResource TextSecondaryBrush}"/>
                                             <TextBlock Grid.Column="1"
                                                        Text="NAME"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
-                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                       Foreground="{ThemeResource TextSecondaryBrush}"/>
                                             <TextBlock Grid.Column="2"
                                                        Text="SOLD"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
-                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                       Foreground="{ThemeResource TextSecondaryBrush}"/>
                                         </Grid>
 
                                         <!-- Top Selling Products List -->
@@ -605,8 +617,8 @@
                                                   SelectionMode="None">
                                             <ListView.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:TopProductItem">
-                                                    <Grid Padding="{StaticResource Padding_MD}"
-                                                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                    <Grid Padding="16"
+                                                          BorderBrush="{ThemeResource CardStrokeBrush}"
                                                           BorderThickness="0,0,0,1">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="1*"/>
@@ -620,7 +632,7 @@
                                                             Width="48"
                                                             Height="48"
                                                             HorizontalAlignment="Left"
-                                                            Background="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                            Background="{ThemeResource CardStrokeBrush}"
                                                             CornerRadius="8">
                                                             <Image Stretch="UniformToFill">
                                                                 <Image.Source>
@@ -635,7 +647,7 @@
                                                         <TextBlock Grid.Column="1"
                                                                    Text="{x:Bind Name}"
                                                                    FontSize="14"
-                                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                                   Foreground="{ThemeResource TextPrimaryBrush}"
                                                                    VerticalAlignment="Center"
                                                                    TextWrapping="Wrap"
                                                                    Margin="4,0,0,0"/>
@@ -644,7 +656,7 @@
                                                         <TextBlock Grid.Column="2"
                                                                    Text="{x:Bind SoldCount}"
                                                                    FontSize="14"
-                                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                                   Foreground="{ThemeResource TextPrimaryBrush}"
                                                                    VerticalAlignment="Center"
                                                                    HorizontalAlignment="Center"/>
                                                     </Grid>
@@ -673,23 +685,23 @@
 
         <!-- Layer 1: Loading Overlay (Shown during loading) -->
         <Grid x:Name="LoadingOverlay"
-              Background="{ThemeResource LayerFillColorDefaultBrush}"
+              Background="{ThemeResource PageBackgroundBrush}"
               Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Spacing="24"
-                        Padding="{StaticResource Padding_3XL}">
+                        Padding="64">
                 <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
                               Width="64"
                               Height="64"/>
                 <TextBlock Text="Loading dashboard data..."
                            FontSize="18"
                            FontWeight="SemiBold"
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           Foreground="{ThemeResource TextSecondaryBrush}"
                            HorizontalAlignment="Center"/>
                 <TextBlock Text="Please wait while we fetch your analytics"
                            FontSize="14"
-                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                           Foreground="{ThemeResource TextTertiaryBrush}"
                            HorizontalAlignment="Center"/>
             </StackPanel>
         </Grid>
