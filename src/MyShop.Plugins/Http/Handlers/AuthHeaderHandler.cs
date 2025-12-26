@@ -1,4 +1,6 @@
 using MyShop.Core.Interfaces.Infrastructure;
+using MyShop.Plugins.API.Auth;
+using MyShop.Shared.DTOs.Requests;
 using System.Net;
 using System.Net.Http.Headers;
 
@@ -7,23 +9,26 @@ namespace MyShop.Plugins.Http.Handlers;
 /// <summary>
 /// HTTP delegating handler for automatic JWT token injection.
 /// Adds Authorization header with Bearer token to all outgoing requests.
-/// Handles 401 Unauthorized responses with token refresh logic.
+/// Handles 401 Unauthorized responses with automatic token refresh logic.
 /// </summary>
 public class AuthHeaderHandler : DelegatingHandler
 {
     private readonly ICredentialStorage _credentialStorage;
+    private readonly IAuthApi _authApi;
     private bool _isRefreshing = false;
+    private readonly SemaphoreSlim _refreshSemaphore = new(1, 1);
 
-    public AuthHeaderHandler(ICredentialStorage credentialStorage)
+    public AuthHeaderHandler(ICredentialStorage credentialStorage, IAuthApi authApi)
     {
         _credentialStorage = credentialStorage;
+        _authApi = authApi;
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage request, 
         CancellationToken cancellationToken)
     {
-        // Step 1: Add current token to request
+        // Step 1: Add current access token to request
         var token = _credentialStorage.GetToken();
         if (!string.IsNullOrEmpty(token))
         {
@@ -38,11 +43,14 @@ public class AuthHeaderHandler : DelegatingHandler
         {
             System.Diagnostics.Debug.WriteLine("[AuthHeaderHandler] 401 Unauthorized - Attempting token refresh...");
 
-            // Prevent multiple refresh attempts
-            _isRefreshing = true;
-
             try
             {
+                // Use semaphore to prevent multiple simultaneous refresh attempts
+                await _refreshSemaphore.WaitAsync(cancellationToken);
+                
+                // Prevent multiple refresh attempts
+                _isRefreshing = true;
+
                 // Attempt to refresh the token
                 var refreshResult = await RefreshTokenAsync(cancellationToken);
 
@@ -68,7 +76,7 @@ public class AuthHeaderHandler : DelegatingHandler
                 {
                     System.Diagnostics.Debug.WriteLine("[AuthHeaderHandler] Token refresh failed - Logout required");
                     // Token refresh failed - user needs to login again
-                    // Clear invalid token
+                    // Clear invalid tokens
                     await _credentialStorage.RemoveToken();
                 }
             }
@@ -80,6 +88,7 @@ public class AuthHeaderHandler : DelegatingHandler
             finally
             {
                 _isRefreshing = false;
+                _refreshSemaphore.Release();
             }
         }
 
@@ -88,24 +97,49 @@ public class AuthHeaderHandler : DelegatingHandler
 
     /// <summary>
     /// Refresh the access token using refresh token
-    /// TODO: Replace with actual refresh token API call when backend implements it
     /// </summary>
     private async Task<bool> RefreshTokenAsync(CancellationToken cancellationToken)
     {
         try
         {
-            // Mock implementation - In production, this would call:
-            // POST /api/auth/refresh-token
-            // Body: { refreshToken: "stored_refresh_token" }
-            // Response: { accessToken: "new_access_token", refreshToken: "new_refresh_token" }
+            // Get refresh token from storage
+            var refreshToken = _credentialStorage.GetRefreshToken();
+            
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                System.Diagnostics.Debug.WriteLine("[AuthHeaderHandler] No refresh token available");
+                return false;
+            }
 
-            System.Diagnostics.Debug.WriteLine("[AuthHeaderHandler] Mock refresh - In production, would call refresh token endpoint");
+            System.Diagnostics.Debug.WriteLine("[AuthHeaderHandler] Calling refresh token endpoint...");
 
-            // Simulate network delay
-            // await Task.Delay(500, cancellationToken);
+            // Call refresh token API
+            var request = new RefreshTokenRequest { RefreshToken = refreshToken };
+            var response = await _authApi.RefreshTokenAsync(request);
 
-            // For now, return false to force re-login
-            // When backend implements refresh token endpoint, implement actual logic
+            if (response.IsSuccessStatusCode && response.Content != null)
+            {
+                var apiResponse = response.Content;
+
+                if (apiResponse.Success == true && apiResponse.Result != null)
+                {
+                    var result = apiResponse.Result;
+
+                    // Save new tokens
+                    var newRefreshToken = result.RefreshToken ?? refreshToken; // Use old token if not rotated
+                    await _credentialStorage.SaveToken(result.AccessToken, newRefreshToken);
+
+                    System.Diagnostics.Debug.WriteLine("[AuthHeaderHandler] ? Token refreshed successfully");
+                    return true;
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AuthHeaderHandler] ? API returned error: {apiResponse.Message}");
+                    return false;
+                }
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[AuthHeaderHandler] ? HTTP error: {response.StatusCode}");
             return false;
         }
         catch (Exception ex)
@@ -156,5 +190,14 @@ public class AuthHeaderHandler : DelegatingHandler
         }
 
         return clone;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _refreshSemaphore?.Dispose();
+        }
+        base.Dispose(disposing);
     }
 }

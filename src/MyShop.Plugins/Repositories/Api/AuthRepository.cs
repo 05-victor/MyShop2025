@@ -47,8 +47,23 @@ public class AuthRepository : IAuthRepository
                 // Check inner ApiResponse (business logic)
                 if (apiResponse.Success == true && apiResponse.Result != null)
                 {
+                    // Store refresh token temporarily so we can pass it to AuthFacade
+                    var loginResponse = apiResponse.Result;
+                    
+                    // Save refresh token to storage immediately
+                    if (!string.IsNullOrEmpty(loginResponse.RefreshToken))
+                    {
+                        await _credentialStorage.SaveToken(loginResponse.Token, loginResponse.RefreshToken);
+                        System.Diagnostics.Debug.WriteLine($"[AuthRepository] Saved access and refresh tokens");
+                    }
+                    else
+                    {
+                        await _credentialStorage.SaveToken(loginResponse.Token);
+                        System.Diagnostics.Debug.WriteLine($"[AuthRepository] Saved access token only (no refresh token from server)");
+                    }
+                    
                     // Transform DTO → Client Model using AuthAdapter
-                    var user = AuthAdapter.ToModel(apiResponse.Result);
+                    var user = AuthAdapter.ToModel(loginResponse);
                     return Result<User>.Success(user);
                 }
 

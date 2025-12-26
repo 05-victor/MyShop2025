@@ -10,18 +10,26 @@ namespace MyShop.Core.Interfaces.Infrastructure;
 public interface ICredentialStorage
 {
     /// <summary>
-    /// Save authentication token to storage
+    /// Save authentication tokens to storage
     /// </summary>
-    Task<Result<Unit>> SaveToken(string token);
+    /// <param name="accessToken">JWT access token</param>
+    /// <param name="refreshToken">Optional refresh token</param>
+    Task<Result<Unit>> SaveToken(string accessToken, string? refreshToken = null);
 
     /// <summary>
-    /// Retrieve authentication token from storage
+    /// Retrieve access token from storage
     /// </summary>
-    /// <returns>Token if exist s, null otherwise</returns>
+    /// <returns>Access token if exists, null otherwise</returns>
     string? GetToken();
 
     /// <summary>
-    /// Remove authentication token from storage (logout)
+    /// Retrieve refresh token from storage
+    /// </summary>
+    /// <returns>Refresh token if exists, null otherwise</returns>
+    string? GetRefreshToken();
+
+    /// <summary>
+    /// Remove authentication tokens from storage (logout)
     /// </summary>
     Task<Result<Unit>> RemoveToken();
 }

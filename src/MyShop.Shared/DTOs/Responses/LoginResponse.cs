@@ -58,4 +58,20 @@ public class LoginResponse
     /// JWT authentication token for subsequent API calls.
     /// </summary>
     public string Token { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Refresh token (long-lived, typically 7-30 days).
+    /// Used to obtain new access tokens without re-authentication.
+    /// </summary>
+    public string RefreshToken { get; set; } = string.Empty;
+
+    /// <summary>
+    /// When the access token expires (UTC).
+    /// </summary>
+    public DateTime AccessTokenExpiresAt { get; set; }
+
+    /// <summary>
+    /// When the refresh token expires (UTC).
+    /// </summary>
+    public DateTime RefreshTokenExpiresAt { get; set; }
 }

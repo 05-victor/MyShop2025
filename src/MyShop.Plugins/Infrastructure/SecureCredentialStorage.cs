@@ -68,7 +68,7 @@ public class SecureCredentialStorage : ICredentialStorage
     /// </summary>
     public string? CurrentUserId => _currentUserId;
 
-    public async Task<Result<Unit>> SaveToken(string token)
+    public async Task<Result<Unit>> SaveToken(string accessToken, string? refreshToken = null)
     {
         try
         {
@@ -83,7 +83,8 @@ public class SecureCredentialStorage : ICredentialStorage
             // Create credential data with metadata
             var data = new CredentialData
             {
-                Token = token,
+                Token = accessToken,
+                RefreshToken = refreshToken,
                 SavedAt = DateTime.UtcNow,
                 UserId = _currentUserId
             };
@@ -107,13 +108,13 @@ public class SecureCredentialStorage : ICredentialStorage
                 StorageConstants.SaveLastLoggedInUser(_currentUserId);
             }
 
-            System.Diagnostics.Debug.WriteLine($"[SecureCredentialStorage] Token saved (encrypted) to: {filePath}");
+            System.Diagnostics.Debug.WriteLine($"[SecureCredentialStorage] Tokens saved (encrypted) to: {filePath}");
             return Result<Unit>.Success(Unit.Value);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[SecureCredentialStorage] SaveToken failed: {ex.Message}");
-            return Result<Unit>.Failure($"Failed to save token: {ex.Message}");
+            return Result<Unit>.Failure($"Failed to save tokens: {ex.Message}");
         }
     }
 
@@ -211,6 +212,103 @@ public class SecureCredentialStorage : ICredentialStorage
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[SecureCredentialStorage] DecryptTokenFromFile failed: {ex.Message}");
+            return null;
+        }
+    }
+
+    public string? GetRefreshToken()
+    {
+        try
+        {
+            // If current user is set, use their credentials
+            if (!string.IsNullOrEmpty(_currentUserId))
+            {
+                var filePath = GetCredentialsFilePath();
+                if (File.Exists(filePath))
+                {
+                    return DecryptRefreshTokenFromFile(filePath);
+                }
+                System.Diagnostics.Debug.WriteLine($"[SecureCredentialStorage] No credentials for current user: {_currentUserId}");
+                return null;
+            }
+
+            // No current user - try to find last logged-in user for Remember Me
+            var lastUserId = StorageConstants.GetLastLoggedInUser();
+            if (!string.IsNullOrEmpty(lastUserId))
+            {
+                var credentialsFile = StorageConstants.GetUserCredentialsFile(lastUserId);
+                if (File.Exists(credentialsFile))
+                {
+                    var refreshToken = DecryptRefreshTokenFromFile(credentialsFile);
+                    if (!string.IsNullOrEmpty(refreshToken))
+                    {
+                        // Set this user as current
+                        _currentUserId = lastUserId;
+                        StorageConstants.SetCurrentUser(lastUserId);
+                        System.Diagnostics.Debug.WriteLine($"[SecureCredentialStorage] Auto-login from last user: {lastUserId}");
+                        return refreshToken;
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SecureCredentialStorage] Last user has no credentials: {lastUserId}");
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("[SecureCredentialStorage] No last logged-in user found");
+            }
+
+            // Check temp credentials as fallback
+            if (File.Exists(StorageConstants.TempCredentialsFile))
+            {
+                return DecryptRefreshTokenFromFile(StorageConstants.TempCredentialsFile);
+            }
+
+            return null;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SecureCredentialStorage] GetRefreshToken failed: {ex.Message}");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Decrypt and return refresh token from a credentials file
+    /// </summary>
+    private string? DecryptRefreshTokenFromFile(string filePath)
+    {
+        try
+        {
+            if (!File.Exists(filePath))
+                return null;
+
+            // Read encrypted data
+            var encryptedBytes = File.ReadAllBytes(filePath);
+
+            // Decrypt using DPAPI
+            var plainBytes = ProtectedData.Unprotect(
+                encryptedBytes,
+                GetEntropy(),
+                DataProtectionScope.CurrentUser);
+
+            // Deserialize JSON
+            var json = Encoding.UTF8.GetString(plainBytes);
+            var data = JsonSerializer.Deserialize<CredentialData>(json, _jsonOptions);
+
+            return data?.RefreshToken;
+        }
+        catch (CryptographicException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SecureCredentialStorage] Decryption failed for {filePath}: {ex.Message}");
+            // Try to delete corrupted file
+            try { File.Delete(filePath); } catch { }
+            return null;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SecureCredentialStorage] DecryptRefreshTokenFromFile failed: {ex.Message}");
             return null;
         }
     }
@@ -341,6 +439,7 @@ public class SecureCredentialStorage : ICredentialStorage
     private class CredentialData
     {
         public string Token { get; set; } = string.Empty;
+        public string? RefreshToken { get; set; }
         public DateTime SavedAt { get; set; }
         public string? UserId { get; set; }
     }

@@ -81,6 +81,11 @@ namespace MyShop.Data
         public DbSet<AgentRequest> AgentRequests { get; set; }
 
         /// <summary>
+        /// DbSet cho entity RefreshToken - quản lý refresh tokens.
+        /// </summary>
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+
+        /// <summary>
         /// Cấu hình model và relationships khi tạo database.
         /// </summary>
         /// <param name="modelBuilder">Builder để cấu hình model</param>
@@ -224,6 +229,22 @@ namespace MyShop.Data
                 entity.HasOne(ar => ar.User)
                     .WithMany()
                     .HasForeignKey(ar => ar.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // RefreshToken configuration
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.HasKey(rt => rt.Id);
+                
+                entity.HasIndex(rt => rt.Token).IsUnique();
+                entity.HasIndex(rt => rt.UserId);
+                entity.HasIndex(rt => rt.ExpiresAt);
+                entity.HasIndex(rt => rt.RevokedAt);
+                
+                entity.HasOne(rt => rt.User)
+                    .WithMany(u => u.RefreshTokens)
+                    .HasForeignKey(rt => rt.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }
