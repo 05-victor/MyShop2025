@@ -14,6 +14,7 @@ public class AuthService : IAuthService
     private readonly IUserRepository _userRepository;
     private readonly IProfileRepository _profileRepository;
     private readonly IJwtService _jwtService;
+    private readonly IRefreshTokenService _refreshTokenService;
     private readonly IRoleRepository _roleRepository;
     private readonly ILogger<AuthService> _logger;
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -22,6 +23,7 @@ public class AuthService : IAuthService
         IUserRepository userRepository,
         IProfileRepository profileRepository,
         IJwtService jwtService,
+        IRefreshTokenService refreshTokenService,
         IRoleRepository roleRepository,
         ILogger<AuthService> logger,
         IHttpContextAccessor httpContextAccessor)
@@ -29,6 +31,7 @@ public class AuthService : IAuthService
         _userRepository = userRepository;
         _profileRepository = profileRepository;
         _jwtService = jwtService;
+        _refreshTokenService = refreshTokenService;
         _roleRepository = roleRepository;
         _logger = logger;
         _httpContextAccessor = httpContextAccessor;
@@ -177,8 +180,13 @@ public class AuthService : IAuthService
             _logger.LogInformation("User logged in successfully: {Username} (ID: {UserId})", 
                 user.Username, user.Id);
 
-            // Generate JWT token
-            var token = await _jwtService.GenerateAccessTokenAsync(user);
+            // Generate JWT access token
+            var accessToken = await _jwtService.GenerateAccessTokenAsync(user);
+            var accessTokenExpiry = DateTime.UtcNow.AddMinutes(_jwtService.GetAccessTokenExpirationMinutes());
+
+            // Generate refresh token
+            var ipAddress = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
+            var refreshToken = await _refreshTokenService.CreateRefreshTokenAsync(user, ipAddress);
 
             return new LoginResponse
             {
@@ -191,7 +199,10 @@ public class AuthService : IAuthService
                 TrialEndDate = user.TrialEndDate,
                 IsEmailVerified = user.IsEmailVerified,
                 RoleNames = user.Roles.Select(r => r.Name).ToList(),
-                Token = token
+                Token = accessToken,
+                RefreshToken = refreshToken.Token,
+                AccessTokenExpiresAt = accessTokenExpiry,
+                RefreshTokenExpiresAt = refreshToken.ExpiresAt
             };
         }
         catch (Exception ex) when (ex is not BaseApplicationException)

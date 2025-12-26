@@ -12,7 +12,7 @@ namespace MyShop.Data.Entities
     /// - Thông tin xác thực (Password)
     /// - Thông tin bổ sung (Avatar, ActivateTrial)
     /// - Metadata (CreatedAt)
-    /// - Navigation properties đến các entity liên quan (Orders, Roles)
+    /// - Navigation properties đến các entity liên quan (Orders, Roles, RefreshTokens)
     /// 
     /// Mật khẩu được lưu dưới dạng hash để đảm bảo bảo mật.
     /// </remarks>
@@ -96,6 +96,12 @@ namespace MyShop.Data.Entities
         /// ngay cả khi user có các quyền đó thông qua role của mình.
         /// </remarks>
         public ICollection<RemovedAuthorities> RemovedAuthorities { get; set; } = new List<RemovedAuthorities>();
+
+        /// <summary>
+        /// Lấy hoặc đặt danh sách các refresh token của người dùng.
+        /// </summary>
+        /// <value>Collection các RefreshToken entities thuộc user này</value>
+        public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
         public Guid? ProfileId { get; set; }
         public Profile? Profile { get; set; }

@@ -13,10 +13,11 @@ public static class AuthAdapter
 {
     /// <summary>
     /// Convert LoginResponse (DTO) to User (Model).
+    /// Includes both access token and refresh token.
     /// </summary>
     public static User ToModel(LoginResponse dto)
     {
-        return new User
+        var user = new User
         {
             Id = dto.Id,
             Username = dto.Username,
@@ -29,6 +30,10 @@ public static class AuthAdapter
             Token = dto.Token,
             Roles = ParseRoles(dto.RoleNames)
         };
+
+        System.Diagnostics.Debug.WriteLine($"[AuthAdapter] Mapped LoginResponse: Access token present={!string.IsNullOrEmpty(dto.Token)}, Refresh token present={!string.IsNullOrEmpty(dto.RefreshToken)}");
+        
+        return user;
     }
 
     /// <summary>
