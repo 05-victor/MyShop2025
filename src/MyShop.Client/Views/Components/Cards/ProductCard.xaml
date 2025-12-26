@@ -1,0 +1,181 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="MyShop.Client.Views.Components.Cards.ProductCard"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
+    xmlns:converters="using:MyShop.Client.Common.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:MyShop.Client.ViewModels.Shared"
+    x:Name="RootControl"
+    UseLayoutRounding="True"
+    mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <converters:CurrencyConverter x:Key="CurrencyConverter"/>
+        <converters:BoolToStockColorConverter x:Key="BoolToStockColorConverter"/>
+        <converters:BoolToCartTooltipConverter x:Key="CartTooltipConverter"/>
+    </UserControl.Resources>
+
+    <Border x:Name="CardBorder"
+            Width="240"
+            MinHeight="380"
+            Padding="20"
+            Style="{StaticResource ProductCardStyle}"
+            PointerEntered="CardBorder_PointerEntered"
+            PointerExited="CardBorder_PointerExited">
+        <Border.RenderTransform>
+            <TranslateTransform Y="0"/>
+        </Border.RenderTransform>
+        <Border.Shadow>
+            <ThemeShadow/>
+        </Border.Shadow>
+
+        <Grid RowSpacing="{StaticResource Spacing_3}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Image -->
+                <RowDefinition Height="*"/>    <!-- Product Info -->
+                <RowDefinition Height="Auto"/> <!-- Actions -->
+            </Grid.RowDefinitions>
+
+            <!--  Product Image with optimization  -->
+            <Border
+                Grid.Row="0"
+                Height="140"
+                HorizontalAlignment="Stretch"
+                Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                CornerRadius="8">
+                <Image Stretch="UniformToFill">
+                    <Image.Source>
+                        <BitmapImage UriSource="{x:Bind Product.ImageUrl, Mode=OneWay, FallbackValue='ms-appx:///Assets/placeholder-product.png'}"
+                                     DecodePixelWidth="240"
+                                     DecodePixelType="Logical"/>
+                    </Image.Source>
+                </Image>
+            </Border>
+
+            <!--  Product Info (Task C: Fix spacing)  -->
+            <StackPanel Grid.Row="1" Spacing="{StaticResource Spacing_2}" Padding="0">
+                <!--  Brand & Category  -->
+                <StackPanel Orientation="Horizontal"
+                            Spacing="{StaticResource Spacing_2}">
+                    <Border
+                        Padding="6,2"
+                        Background="{ThemeResource PurpleLightBrush}"
+                        CornerRadius="4">
+                        <TextBlock
+                            FontSize="10"
+                            Foreground="{ThemeResource PurpleBrush}"
+                            Text="{x:Bind Product.Category, Mode=OneWay, FallbackValue=''}"/>
+                    </Border>
+                    <TextBlock
+                        FontSize="12"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Text="{x:Bind Product.Manufacturer, Mode=OneWay, FallbackValue=''}"/>
+                </StackPanel>
+
+                <!--  Product Name (Task C: Max 2 lines + ellipsis + margin)  -->
+                <TextBlock
+                    FontSize="16"
+                    FontWeight="SemiBold"
+                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                    MaxLines="2"
+                    Margin="0,0,0,8"
+                    Text="{x:Bind Product.Name, Mode=OneWay, FallbackValue='Product'}"
+                    TextTrimming="CharacterEllipsis"/>
+
+                <!--  Rating  -->
+                <StackPanel Orientation="Horizontal"
+                            Spacing="4">
+                    <FontIcon
+                        FontSize="14"
+                        Foreground="{ThemeResource WarningAmberBrush}"
+                        Glyph="&#xE735;"/>
+                    <TextBlock
+                        FontSize="14"
+                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                        Text="{x:Bind Product.Rating, Mode=OneWay, FallbackValue=0}"/>
+                    <TextBlock FontSize="12"
+                               Foreground="{ThemeResource Gray600Brush}">
+                        <Run Text="("/><Run Text="{x:Bind Product.RatingCount, Mode=OneWay, FallbackValue=0}"/><Run Text=")"/>
+                    </TextBlock>
+                </StackPanel>
+
+                <!--  Price & Stock  -->
+                <Grid>
+                    <StackPanel
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal"
+                        Spacing="{StaticResource Spacing_2}">
+                        <TextBlock
+                            FontSize="20"
+                            FontWeight="Bold"
+                            Foreground="{ThemeResource AccentBlueBrush}"
+                            Text="{x:Bind Product.Price, Mode=OneWay, Converter={StaticResource CurrencyConverter}, FallbackValue='0'}"/>
+                        <Border
+                            Padding="6,2"
+                            Background="{x:Bind Product.IsInStock, Mode=OneWay, Converter={StaticResource BoolToStockColorConverter}}"
+                            CornerRadius="4">
+                            <TextBlock
+                                FontSize="10"
+                                Foreground="{ThemeResource WhiteBrush}"
+                                Text="{x:Bind Product.StockStatus, Mode=OneWay, FallbackValue='Out of Stock'}"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+
+                <!--  Email Verification Notice (if not verified)  -->
+                <InfoBar
+                    x:Name="EmailVerificationNotice"
+                    IsOpen="{x:Bind ShowEmailVerification, Mode=OneWay}"
+                    Severity="Warning"
+                    Title="Verify your email"
+                    Message="Verify your email to start shopping"
+                    IsIconVisible="True"
+                    IsClosable="False"
+                    Margin="0,8,0,0">
+                    <InfoBar.ActionButton>
+                        <Button 
+                            Style="{StaticResource SecondaryButtonSmallStyle}"
+                            Content="Verify now"
+                            Command="{x:Bind VerifyEmailCommand, Mode=OneWay}"/>
+                    </InfoBar.ActionButton>
+                </InfoBar>
+
+            </StackPanel>
+
+            <!--  Actions (Task D: Tooltip for disabled state) - Grid.Row 2 -->
+            <StackPanel Grid.Row="2"
+                        Margin="0,8,0,0"
+                        Orientation="Horizontal"
+                        Spacing="{StaticResource Spacing_2}">
+                <buttons:IconButton
+                    Width="140"
+                    Variant="Filled"
+                    IconGlyph="&#xE7BF;"
+                    Text="Add to Cart"
+                    Command="{x:Bind AddToCartCommand, Mode=OneWay}"
+                    CommandParameter="{x:Bind Product, Mode=OneWay}"
+                    IsEnabled="{x:Bind CanAddToCart, Mode=OneWay}">
+                    <ToolTipService.ToolTip>
+                        <TextBlock Text="{x:Bind CanAddToCart, Mode=OneWay, Converter={StaticResource CartTooltipConverter}}" />
+                    </ToolTipService.ToolTip>
+                </buttons:IconButton>
+                <Button Style="{StaticResource SecondaryButtonStyle}"
+                        Height="44"
+                        Width="44"
+                        Padding="{StaticResource Padding_None}"
+                        Command="{x:Bind ViewDetailsCommand, Mode=OneWay}"
+                        CommandParameter="{x:Bind Product, Mode=OneWay}"
+                        BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
+                        ToolTipService.ToolTip="View detailed product information">
+                    <FontIcon
+                        FontSize="16"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Glyph="&#xE890;"/>
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

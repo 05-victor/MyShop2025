@@ -1,0 +1,232 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ============================================================== -->
+    <!-- MYSHOP2025 DESIGN SYSTEM - Semantic Brush Tokens              -->
+    <!-- ============================================================== -->
+    <!-- SINGLE SOURCE OF TRUTH for semantic brush mappings            -->
+    <!-- References Colors.xaml for raw color values                   -->
+    <!-- LightTheme/DarkTheme override these tokens for theming        -->
+    <!-- ============================================================== -->
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Colors.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- ============================================= -->
+    <!-- PRIMARY BRUSHES                              -->
+    <!-- ============================================= -->
+    
+    <SolidColorBrush x:Key="NavyPrimaryBrush" Color="{StaticResource NavyPrimaryColor}"/>
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource NavyPrimaryColor}"/>
+    <SolidColorBrush x:Key="PrimaryHoverBrush" Color="{StaticResource NavyPrimaryHoverColor}"/>
+    <SolidColorBrush x:Key="PrimaryPressedBrush" Color="{StaticResource NavyPrimaryPressedColor}"/>
+    <SolidColorBrush x:Key="AccentBlueBrush" Color="{StaticResource AccentBlueColor}"/>
+    <SolidColorBrush x:Key="AccentBlueSubtleBrush" Color="#100EA5E9"/>
+    <SolidColorBrush x:Key="AccentBlueLightBrush" Color="#1A0EA5E9"/>
+    <SolidColorBrush x:Key="AccentBlueBorderBrush" Color="#4D0EA5E9"/>
+    <SolidColorBrush x:Key="SecondaryBlueBrush" Color="{StaticResource SecondaryBlueColor}"/>
+    <SolidColorBrush x:Key="DarkBlueBrush" Color="{StaticResource DarkBlueColor}"/>
+
+    <!-- ============================================= -->
+    <!-- STATUS BRUSHES                               -->
+    <!-- ============================================= -->
+    
+    <!-- Success -->
+    <SolidColorBrush x:Key="SuccessGreenBrush" Color="{StaticResource SuccessGreenColor}"/>
+    <SolidColorBrush x:Key="SuccessGreenLightBrush" Color="{StaticResource SuccessGreenLightColor}"/>
+    <SolidColorBrush x:Key="SuccessGreen50Brush" Color="{StaticResource SuccessGreen50Color}"/>
+    <SolidColorBrush x:Key="SuccessGreenDarkBrush" Color="{StaticResource SuccessGreenDarkColor}"/>
+    <SolidColorBrush x:Key="SuccessGreenPressedBrush" Color="{StaticResource SuccessGreenPressedColor}"/>
+    
+    <!-- Warning -->
+    <SolidColorBrush x:Key="WarningAmberBrush" Color="{StaticResource WarningAmberColor}"/>
+    <SolidColorBrush x:Key="WarningAmberLightBrush" Color="{StaticResource WarningAmberLightColor}"/>
+    <SolidColorBrush x:Key="WarningAmber50Brush" Color="{StaticResource WarningAmber50Color}"/>
+    <SolidColorBrush x:Key="WarningAmberDarkBrush" Color="{StaticResource WarningAmberDarkColor}"/>
+    
+    <!-- Error -->
+    <SolidColorBrush x:Key="ErrorRedBrush" Color="{StaticResource ErrorRedColor}"/>
+    <SolidColorBrush x:Key="ErrorRedLightBrush" Color="{StaticResource ErrorRedLightColor}"/>
+    <SolidColorBrush x:Key="ErrorRed50Brush" Color="{StaticResource ErrorRed50Color}"/>
+    <SolidColorBrush x:Key="ErrorRedDarkBrush" Color="{StaticResource ErrorRedDarkColor}"/>
+    <SolidColorBrush x:Key="ErrorRedPressedBrush" Color="{StaticResource ErrorRedPressedColor}"/>
+    
+    <!-- Info -->
+    <SolidColorBrush x:Key="InfoBlueBrush" Color="{StaticResource InfoBlueColor}"/>
+    <SolidColorBrush x:Key="InfoBlueLightBrush" Color="{StaticResource InfoBlueLightColor}"/>
+    <SolidColorBrush x:Key="InfoBlue50Brush" Color="{StaticResource InfoBlue50Color}"/>
+    <SolidColorBrush x:Key="InfoBlueDarkBrush" Color="{StaticResource InfoBlueDarkColor}"/>
+    
+    <!-- Purple -->
+    <SolidColorBrush x:Key="PurpleBrush" Color="{StaticResource PurpleColor}"/>
+    <SolidColorBrush x:Key="PurpleLightBrush" Color="{StaticResource PurpleLightColor}"/>
+    <SolidColorBrush x:Key="Purple50Brush" Color="{StaticResource Purple50Color}"/>
+    <SolidColorBrush x:Key="PurpleDarkBrush" Color="{StaticResource PurpleDarkColor}"/>
+
+    <!-- ============================================= -->
+    <!-- SEMANTIC STATUS BRUSHES (Theme-aware)        -->
+    <!-- StatusBadge component - override in themes   -->
+    <!-- ============================================= -->
+
+    <SolidColorBrush x:Key="PendingForegroundBrush" Color="{StaticResource WarningAmberDarkColor}"/>
+    <SolidColorBrush x:Key="PendingBackgroundBrush" Color="{StaticResource WarningAmberLightColor}"/>
+
+    <SolidColorBrush x:Key="ApprovedForegroundBrush" Color="{StaticResource SuccessGreenDarkColor}"/>
+    <SolidColorBrush x:Key="ApprovedBackgroundBrush" Color="{StaticResource SuccessGreenLightColor}"/>
+
+    <SolidColorBrush x:Key="RejectedForegroundBrush" Color="{StaticResource ErrorRedColor}"/>
+    <SolidColorBrush x:Key="RejectedBackgroundBrush" Color="{StaticResource ErrorRedLightColor}"/>
+
+    <SolidColorBrush x:Key="ProcessingForegroundBrush" Color="{StaticResource InfoBlueColor}"/>
+    <SolidColorBrush x:Key="ProcessingBackgroundBrush" Color="{StaticResource InfoBlueLightColor}"/>
+
+    <SolidColorBrush x:Key="CompletedForegroundBrush" Color="{StaticResource PurpleDarkColor}"/>
+    <SolidColorBrush x:Key="CompletedBackgroundBrush" Color="{StaticResource PurpleLightColor}"/>
+
+    <SolidColorBrush x:Key="InfoForegroundBrush" Color="{StaticResource InfoBlueColor}"/>
+    <SolidColorBrush x:Key="InfoBackgroundBrush" Color="{StaticResource InfoBlueLightColor}"/>
+
+    <!-- ============================================= -->
+    <!-- SEMANTIC COLOR ALIASES (Fallback)            -->
+    <!-- ============================================= -->
+    
+    <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessGreenColor}"/>
+    <SolidColorBrush x:Key="SuccessBackgroundBrush" Color="{StaticResource SuccessGreen50Color}"/>
+    <SolidColorBrush x:Key="SuccessTextBrush" Color="{StaticResource SuccessGreenDarkColor}"/>
+    
+    <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningAmberColor}"/>
+    <SolidColorBrush x:Key="WarningBackgroundBrush" Color="{StaticResource WarningAmber50Color}"/>
+    <SolidColorBrush x:Key="WarningTextBrush" Color="{StaticResource WarningAmberDarkColor}"/>
+    
+    <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorRedColor}"/>
+    <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource ErrorRedColor}"/>
+    <SolidColorBrush x:Key="ErrorBackgroundBrush" Color="{StaticResource ErrorRed50Color}"/>
+    <SolidColorBrush x:Key="ErrorTextBrush" Color="{StaticResource ErrorRedDarkColor}"/>
+    
+    <SolidColorBrush x:Key="NeutralBrush" Color="{StaticResource Gray600Color}"/>
+    <SolidColorBrush x:Key="NeutralBackgroundBrush" Color="{StaticResource Gray200Color}"/>
+    <SolidColorBrush x:Key="NeutralTextBrush" Color="{StaticResource Gray700Color}"/>
+
+    <!-- ============================================= -->
+    <!-- NEUTRAL BRUSHES (Gray Scale)                 -->
+    <!-- These are theme-independent utility colors   -->
+    <!-- ============================================= -->
+    
+    <!-- NOTE: TextPrimaryBrush, TextSecondaryBrush, TextTertiaryBrush, TextMutedBrush
+         are ONLY defined in LightTheme/DarkTheme.xaml for proper theming -->
+    
+    <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900Color}"/>
+    <SolidColorBrush x:Key="Gray800Brush" Color="{StaticResource Gray800Color}"/>
+    <SolidColorBrush x:Key="Gray700Brush" Color="{StaticResource Gray700Color}"/>
+    <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600Color}"/>
+    <SolidColorBrush x:Key="Gray500Brush" Color="{StaticResource Gray500Color}"/>
+    <SolidColorBrush x:Key="Gray400Brush" Color="{StaticResource Gray400Color}"/>
+    <SolidColorBrush x:Key="Gray300Brush" Color="{StaticResource Gray300Color}"/>
+    <SolidColorBrush x:Key="Gray200Brush" Color="{StaticResource Gray200Color}"/>
+    <SolidColorBrush x:Key="Gray100Brush" Color="{StaticResource Gray100Color}"/>
+    <SolidColorBrush x:Key="Gray50Brush" Color="{StaticResource Gray50Color}"/>
+    
+    <SolidColorBrush x:Key="BorderDefaultBrush" Color="{StaticResource Gray300Color}"/>
+    <SolidColorBrush x:Key="BorderLightBrush" Color="{StaticResource Gray300Color}"/>
+    <SolidColorBrush x:Key="BorderFocusBrush" Color="{StaticResource NavyPrimaryColor}"/>
+    <SolidColorBrush x:Key="BackgroundLightBrush" Color="{StaticResource Gray100Color}"/>
+    <SolidColorBrush x:Key="BackgroundMediumBrush" Color="{StaticResource Gray100Color}"/>
+
+    <!-- ============================================= -->
+    <!-- SEMANTIC SURFACE TOKENS (Theme-aware)        -->
+    <!-- DEFINED ONLY in LightTheme/DarkTheme.xaml    -->
+    <!-- DO NOT define here - causes theme override!  -->
+    <!-- ============================================= -->
+    
+    <!-- 
+    The following brushes are ONLY defined in theme files:
+    - PageBackgroundBrush
+    - LayerBackgroundBrush  
+    - CardBackgroundBrush
+    - PanelBackgroundBrush
+    - DialogBackgroundBrush
+    - SubtleBackgroundBrush
+    - SubtleBackgroundHoverBrush
+    - CardStrokeBrush
+    - DividerStrokeBrush
+    - TextPrimaryBrush
+    - TextSecondaryBrush
+    - TextTertiaryBrush
+    - TextMutedBrush
+    -->
+
+    <!-- ============================================= -->
+    <!-- BASE BRUSHES                                 -->
+    <!-- ============================================= -->
+    
+    <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource WhiteColor}"/>
+    <SolidColorBrush x:Key="BlackBrush" Color="{StaticResource BlackColor}"/>
+    
+    <SolidColorBrush x:Key="WhiteSemiTransparent" Color="#80FFFFFF"/>
+    <SolidColorBrush x:Key="WhiteLightTransparent" Color="#33FFFFFF"/>
+    <SolidColorBrush x:Key="BlackSemiTransparent" Color="#80000000"/>
+    <SolidColorBrush x:Key="BlackLightTransparent" Color="#1A000000"/>
+    <SolidColorBrush x:Key="BlackVeryLightTransparent" Color="#0D000000"/>
+
+    <!-- ============================================= -->
+    <!-- SHELL NAVIGATION BRUSHES (Fallback)          -->
+    <!-- Themes may override for specific styling     -->
+    <!-- ============================================= -->
+    
+    <SolidColorBrush x:Key="AdminNavPaneBackground" Color="{StaticResource AdminNavDarkColor}"/>
+    <SolidColorBrush x:Key="AdminNavItemForeground" Color="{StaticResource WhiteColor}"/>
+    <SolidColorBrush x:Key="AdminNavItemForegroundSelected" Color="{StaticResource WhiteColor}"/>
+    <SolidColorBrush x:Key="AdminNavItemForegroundPointerOver" Color="{StaticResource WhiteColor}"/>
+    <SolidColorBrush x:Key="AdminNavItemBackgroundSelected" Color="{StaticResource AdminNavSelectedColor}"/>
+    <SolidColorBrush x:Key="AdminNavItemBackgroundSelectedPointerOver" Color="{StaticResource AdminNavHoverColor}"/>
+    <SolidColorBrush x:Key="AdminNavItemBackgroundPointerOver" Color="{StaticResource SecondaryBlueColor}"/>
+    <SolidColorBrush x:Key="AdminNavHeaderForeground" Color="{StaticResource WhiteColor}"/>
+    
+    <SolidColorBrush x:Key="AgentNavPaneBackground" Color="{StaticResource AgentNavDarkColor}"/>
+    <SolidColorBrush x:Key="AgentNavItemForeground" Color="{StaticResource WhiteColor}"/>
+    <SolidColorBrush x:Key="AgentNavItemForegroundSelected" Color="{StaticResource WhiteColor}"/>
+    <SolidColorBrush x:Key="AgentNavItemForegroundPointerOver" Color="{StaticResource WhiteColor}"/>
+    <SolidColorBrush x:Key="AgentNavItemBackgroundSelected" Color="{StaticResource AgentNavSelectedColor}"/>
+    <SolidColorBrush x:Key="AgentNavItemBackgroundSelectedPointerOver" Color="{StaticResource AgentNavHoverColor}"/>
+    <SolidColorBrush x:Key="AgentNavItemBackgroundPointerOver" Color="{StaticResource SecondaryBlueColor}"/>
+    <SolidColorBrush x:Key="AgentNavHeaderForeground" Color="{StaticResource WhiteColor}"/>
+    
+    <SolidColorBrush x:Key="SidebarFixedBackgroundBrush" Color="{StaticResource AgentNavDarkColor}"/>
+    <SolidColorBrush x:Key="AdminSidebarFixedBackgroundBrush" Color="{StaticResource AdminNavDarkColor}"/>
+
+    <!-- ============================================= -->
+    <!-- GRADIENT BRUSHES                             -->
+    <!-- ============================================= -->
+    
+    <LinearGradientBrush x:Key="PrimaryGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource SecondaryBlueColor}" Offset="0"/>
+        <GradientStop Color="{StaticResource DarkBlueColor}" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <LinearGradientBrush x:Key="SuccessGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource SuccessGreenColor}" Offset="0"/>
+        <GradientStop Color="{StaticResource SuccessGreenDarkColor}" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <LinearGradientBrush x:Key="WarningGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource WarningAmberColor}" Offset="0"/>
+        <GradientStop Color="{StaticResource WarningAmberDarkColor}" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <LinearGradientBrush x:Key="ErrorGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource ErrorRedColor}" Offset="0"/>
+        <GradientStop Color="{StaticResource ErrorRedDarkColor}" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <LinearGradientBrush x:Key="AuthSidebarGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource SecondaryBlueColor}" Offset="0"/>
+        <GradientStop Color="{StaticResource DarkBlueColor}" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <LinearGradientBrush x:Key="SubtleBackgroundGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="{StaticResource Gray50Color}" Offset="0"/>
+        <GradientStop Color="{StaticResource Gray100Color}" Offset="1"/>
+    </LinearGradientBrush>
+
+</ResourceDictionary>

@@ -274,6 +274,10 @@ namespace MyShop.Client.Config
                     services.AddSingleton<ICurrentUserService, CurrentUserService>();
                     services.AddSingleton<Services.IChartExportService, Services.ChartExportService>();
                     services.AddSingleton<Services.IPdfExportService, Services.PdfExportService>();
+                    
+                    // ===== Chatbot Service =====
+                    services.AddSingleton<IChatbotService, Services.ChatbotService>();
+                    System.Diagnostics.Debug.WriteLine("[Bootstrapper] ChatbotService registered as Singleton");
 
                     // ===== Performance & Caching Services =====
                     services.AddSingleton<Services.ICacheService, Services.CacheService>();
@@ -377,6 +381,9 @@ namespace MyShop.Client.Config
                     services.AddTransient<ViewModels.Shell.DashboardShellViewModel>();
                     services.AddTransient<ViewModels.Settings.SettingsViewModel>();
                     services.AddTransient<ViewModels.Settings.TrialActivationViewModel>();
+                    
+                    // Component ViewModels
+                    services.AddTransient<ViewModels.Components.ChatFlyoutViewModel>();
                 })
                 .Build();
         }

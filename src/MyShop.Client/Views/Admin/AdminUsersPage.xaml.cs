@@ -134,11 +134,19 @@ public sealed partial class AdminUsersPage : Page
         }
     }
 
-    private async void ExportButton_Click(object sender, RoutedEventArgs e)
+    private async void ExportCsvButton_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel.ExportUsersCommand.CanExecute(null))
         {
             await ViewModel.ExportUsersCommand.ExecuteAsync(null);
+        }
+    }
+
+    private async void ExportPdfButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.ExportUsersToPdfCommand.CanExecute(null))
+        {
+            await ViewModel.ExportUsersToPdfCommand.ExecuteAsync(null);
         }
     }
 

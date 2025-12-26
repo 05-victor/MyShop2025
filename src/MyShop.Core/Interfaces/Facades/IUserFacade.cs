@@ -76,6 +76,11 @@ public interface IUserFacade
     Task<Result<string>> ExportUsersAsync(string? searchQuery = null, string? roleFilter = null);
 
     /// <summary>
+    /// Export users to PDF
+    /// </summary>
+    Task<Result<string>> ExportUsersToPdfAsync(string? searchQuery = null, string? roleFilter = null);
+
+    /// <summary>
     /// Get user statistics
     /// </summary>
     Task<Result<UserStatistics>> GetUserStatisticsAsync();

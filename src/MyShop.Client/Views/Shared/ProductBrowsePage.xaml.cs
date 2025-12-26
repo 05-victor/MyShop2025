@@ -6,8 +6,9 @@ using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Input;
 using Windows.System;
+using Windows.UI.Xaml; // For DependencyObject
 using MyShop.Client.ViewModels.Shared;
-using MyShop.Client.Views.Components.Pagination;
+using MyShop.Client.Views.Components.Controls;
 using System.Linq;
 
 namespace MyShop.Client.Views.Shared
@@ -22,7 +23,16 @@ namespace MyShop.Client.Views.Shared
             this.InitializeComponent();
             ViewModel = App.Current.Services.GetRequiredService<ProductBrowseViewModel>();
             this.DataContext = ViewModel;
+            
+            // Wire up product details event
+            ViewModel.ProductDetailsRequested += OnProductDetailsRequested;
+            
             SetupKeyboardShortcuts();
+        }
+
+        private async void OnProductDetailsRequested(object? sender, ProductCardViewModel product)
+        {
+            await ShowViewProductDialogAsync(product);
         }
 
         private void SetupKeyboardShortcuts()
@@ -52,13 +62,120 @@ namespace MyShop.Client.Views.Shared
             base.OnNavigatedTo(e);
             try
             {
-                await ViewModel.InitializeAsync();
+                // Always refresh data when navigating to this page
+                // This ensures products are up-to-date even if ViewModel is cached
+                if (e.NavigationMode == NavigationMode.Back || e.NavigationMode == NavigationMode.Forward)
+                {
+                    // User navigated back - refresh to show latest data
+                    await ViewModel.RefreshAsync();
+                }
+                else
+                {
+                    // First time navigation - initialize with categories/brands
+                    await ViewModel.InitializeAsync();
+                }
+                
+                AdjustGridColumns(); // Initial responsive setup
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[ProductBrowsePage] OnNavigatedTo failed: {ex.Message}");
             }
         }
+
+        #region Responsive Grid Logic
+
+        private void ProductGridView_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            AdjustGridColumns();
+        }
+
+        private void AdjustGridColumns()
+        {
+            if (ProductGridView == null) return;
+
+            // Find ItemsWrapGrid in ItemsPanel
+            var itemsWrapGrid = FindVisualChild<ItemsWrapGrid>(ProductGridView);
+            if (itemsWrapGrid == null) return;
+
+            // Use ContentHost ActualWidth (accounts for sidebar/nav)
+            var contentWidth = ProductGridView.ActualWidth;
+            
+            // Task B: Responsive rule - 1400×850 → 3 columns based on CONTENT width
+            const double minCardWidth = 240;
+            const double cardGap = 16;
+
+            // At 1400px+ content width → force 3 columns minimum
+            // Below 1400px → calculate dynamically
+            int columns;
+            if (contentWidth >= 1400)
+            {
+                // At 1400+ enforce minimum 3 columns, can go up to 4-5 if space allows
+                columns = Math.Max(3, (int)Math.Floor((contentWidth + cardGap) / (minCardWidth + cardGap)));
+            }
+            else
+            {
+                // Below 1400: dynamic (2 cols at ~900px, 1 col at ~500px)
+                columns = Math.Max(1, (int)Math.Floor((contentWidth + cardGap) / (minCardWidth + cardGap)));
+            }
+
+            // Set ItemWidth to fill space evenly
+            var totalSpacing = (columns - 1) * cardGap;
+            var adjustedItemWidth = (contentWidth - totalSpacing) / columns;
+
+            itemsWrapGrid.ItemWidth = Math.Max(220, adjustedItemWidth); // Min 220px per card
+            itemsWrapGrid.MaximumRowsOrColumns = columns;
+
+            System.Diagnostics.Debug.WriteLine($"[ProductBrowsePage] Responsive: ContentWidth={contentWidth:F0}px, Columns={columns}, CardWidth={adjustedItemWidth:F0}px");
+        }
+
+        private static T? FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T typedChild)
+                    return typedChild;
+
+                var result = FindVisualChild<T>(child);
+                if (result != null)
+                    return result;
+            }
+            return null;
+        }
+
+        #endregion
+
+        #region Pagination Event Handlers
+
+        private async void OnPageChanged(object sender, int newPage)
+        {
+            // PaginationControl already updated CurrentPage in its ChangePage method
+            // Just trigger the load - don't check if CurrentPage != newPage
+            await ViewModel.GoToPageAsync(newPage);
+            
+            // Scroll to top after page change for better UX
+            if (ProductGridView.ItemsPanelRoot != null)
+            {
+                var scrollViewer = FindVisualChild<ScrollViewer>(this);
+                scrollViewer?.ChangeView(null, 0, null, false);
+            }
+        }
+
+        private async void OnPageSizeChanged(object sender, int newPageSize)
+        {
+            // PaginationControl already updated PageSize before raising event
+            // Just trigger the reload - don't check if PageSize != newPageSize
+            ViewModel.PageSize = newPageSize;
+            ViewModel.CurrentPage = 1; // Reset to first page
+            await ViewModel.RefreshAsync();
+            
+            // Scroll to top after page size change
+            var scrollViewer = FindVisualChild<ScrollViewer>(this);
+            scrollViewer?.ChangeView(null, 0, null, false);
+        }
+
+        #endregion
 
         #region Search Card Event Handlers
 
@@ -151,17 +268,6 @@ namespace MyShop.Client.Views.Shared
 
         #endregion
 
-        #region Pagination Event Handler
-
-        private async void OnPageChanged(object sender, PageChangedEventArgs e)
-        {
-            if (ViewModel == null) return;
-
-            await ViewModel.GoToPageAsync(e.CurrentPage);
-        }
-
-        #endregion
-
         private async void RefreshContainer_RefreshRequested(RefreshContainer sender, RefreshRequestedEventArgs args)
         {
             using var deferral = args.GetDeferral();
@@ -196,23 +302,23 @@ namespace MyShop.Client.Views.Shared
                 // Set stock status badge
                 if (product.Stock <= 0)
                 {
-                    ViewProductStockBadge.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 254, 226, 226));
+                    ViewProductStockBadge.Background = (Brush)Application.Current.Resources["StockOutOfStockBackgroundBrush"];
                     ViewProductStockStatus.Text = "Out of Stock";
-                    ViewProductStockStatus.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 220, 38, 38));
+                    ViewProductStockStatus.Foreground = (Brush)Application.Current.Resources["StockOutOfStockForegroundBrush"];
                     DialogAddToCartButton.IsEnabled = false;
                 }
                 else if (product.Stock <= 10)
                 {
-                    ViewProductStockBadge.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 254, 243, 199));
+                    ViewProductStockBadge.Background = (Brush)Application.Current.Resources["StockLowStockBackgroundBrush"];
                     ViewProductStockStatus.Text = "Low Stock";
-                    ViewProductStockStatus.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 217, 119, 6));
+                    ViewProductStockStatus.Foreground = (Brush)Application.Current.Resources["StockLowStockForegroundBrush"];
                     DialogAddToCartButton.IsEnabled = true;
                 }
                 else
                 {
-                    ViewProductStockBadge.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 209, 250, 229));
+                    ViewProductStockBadge.Background = (Brush)Application.Current.Resources["StockInStockBackgroundBrush"];
                     ViewProductStockStatus.Text = "In Stock";
-                    ViewProductStockStatus.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 5, 150, 105));
+                    ViewProductStockStatus.Foreground = (Brush)Application.Current.Resources["StockInStockForegroundBrush"];
                     DialogAddToCartButton.IsEnabled = true;
                 }
 

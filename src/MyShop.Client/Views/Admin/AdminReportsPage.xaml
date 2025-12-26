@@ -14,7 +14,7 @@
     xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Admin"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    Background="{ThemeResource PageBackgroundBrush}"
     mc:Ignorable="d">
 
     <Page.Transitions>
@@ -29,56 +29,6 @@
         <converters:StockToBrushConverter x:Key="StockToBrushConverter"/>
         <converters:StockToStatusConverter x:Key="StockToStatusConverter"/>
         <converters:CurrencyConverter x:Key="CurrencyConverter"/>
-
-        <!--  Style cho các Card  -->
-        <Style x:Key="CardStyle"
-               TargetType="Border">
-            <Setter Property="Padding"
-                    Value="24"/>
-            <Setter Property="Background"
-                    Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
-            <Setter Property="BorderBrush"
-                    Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
-            <Setter Property="BorderThickness"
-                    Value="1"/>
-            <Setter Property="CornerRadius"
-                    Value="8"/>
-        </Style>
-
-        <!--  DataGrid Cell Content Styles  -->
-        <Style x:Key="CenteredTextBlockStyle"
-               TargetType="TextBlock">
-            <Setter Property="VerticalAlignment"
-                    Value="Center"/>
-            <Setter Property="TextWrapping"
-                    Value="NoWrap"/>
-        </Style>
-
-        <Style
-            x:Key="RightAlignedTextBlockStyle"
-            BasedOn="{StaticResource CenteredTextBlockStyle}"
-            TargetType="TextBlock">
-            <Setter Property="HorizontalAlignment"
-                    Value="Right"/>
-            <Setter Property="TextAlignment"
-                    Value="Right"/>
-        </Style>
-
-        <Style x:Key="ChipBorderStyle"
-               TargetType="Border">
-            <Setter Property="Padding"
-                    Value="8,4"/>
-            <Setter Property="HorizontalAlignment"
-                    Value="Center"/>
-            <Setter Property="VerticalAlignment"
-                    Value="Center"/>
-            <Setter Property="BorderThickness"
-                    Value="1"/>
-            <Setter Property="CornerRadius"
-                    Value="4"/>
-            <Setter Property="MinWidth"
-                    Value="80"/>
-        </Style>
     </Page.Resources>
 
     <Grid>
@@ -139,15 +89,16 @@
         </VisualStateManager.VisualStateGroups>
 
         <!--  Main Content  -->
-        <ScrollViewer Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+        <ScrollViewer Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                      Background="{ThemeResource PageBackgroundBrush}">
             <StackPanel x:Name="MainContent" Padding="24"
-                        Spacing="24">
+                        Spacing="20">
 
                 <layout:PageHeader Title="My Reports"
                                    Subtitle="View performance insights and revenue trends"/>
 
                 <!--  Header với Filters  -->
-                <Border Style="{StaticResource CardStyle}">
+                <Border Style="{StaticResource CardWithShadowStyle}">
                     <StackPanel Spacing="16">
                         <TextBlock
                             FontSize="16"
@@ -203,7 +154,7 @@
                 </Border>
 
                 <!--  Export Section  -->
-                <Border Style="{StaticResource CardStyle}">
+                <Border Style="{StaticResource CardWithShadowStyle}">
                     <StackPanel Spacing="16">
                         <TextBlock
                             FontSize="16"
@@ -288,7 +239,7 @@
                         x:Name="SalespersonCard"
                         Grid.Row="1"
                         Grid.Column="1"
-                        Style="{StaticResource CardStyle}">
+                        Style="{StaticResource CardWithShadowStyle}">
                         <StackPanel>
                             <TextBlock
                                 Margin="0,0,0,16"
@@ -374,7 +325,7 @@
                     </Border>
 
                     <!-- Product Summary Table -->
-                    <Border Grid.Row="2" Grid.ColumnSpan="2" Style="{StaticResource CardStyle}">
+                    <Border Grid.Row="2" Grid.ColumnSpan="2" Style="{StaticResource CardWithShadowStyle}">
                         <StackPanel Spacing="16">
                             <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
                             Text="Product Summary"/>

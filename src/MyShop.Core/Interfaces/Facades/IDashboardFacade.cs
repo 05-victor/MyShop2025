@@ -63,6 +63,11 @@ public interface IDashboardFacade
     Task<Result<string>> ExportDashboardDataAsync(string period = "current");
 
     /// <summary>
+    /// Export dashboard data to PDF
+    /// </summary>
+    Task<Result<string>> ExportDashboardToPdfAsync(string period = "current");
+
+    /// <summary>
     /// Navigate to specific dashboard page (Products, Users, Reports, etc.)
     /// </summary>
     Task NavigateToDashboardPageAsync(string pageName);

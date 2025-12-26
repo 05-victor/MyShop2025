@@ -174,9 +174,13 @@ public sealed partial class StatusBadge : UserControl
 
         System.Diagnostics.Debug.WriteLine($"[StatusBadge] Resource keys: BG={bgKey}, FG={fgKey}");
 
-        // CRITICAL FIX: Directly set Background and Foreground on UI elements
-        // Do NOT use UserControl.Resources because XAML uses ThemeResource which won't pick up local resources
-        if (Application.Current.Resources.TryGetValue(bgKey, out var bgBrush) && bgBrush is Brush brush)
+        // CRITICAL FIX: Use FrameworkElement.Resources to get theme-aware brushes
+        // Application.Current.Resources doesn't resolve ThemeDictionaries!
+        // We need to get resources from the element's actual theme context
+        var bgBrush = GetThemeResource(bgKey);
+        var fgBrush = GetThemeResource(fgKey);
+
+        if (bgBrush is Brush brush)
         {
             BadgeContainer.Background = brush;
             
@@ -186,17 +190,13 @@ public sealed partial class StatusBadge : UserControl
                 var color = solidBg.Color;
                 System.Diagnostics.Debug.WriteLine($"[StatusBadge] ✅ Background APPLIED: #{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}");
             }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine($"[StatusBadge] ✅ Background APPLIED: {brush.GetType().Name}");
-            }
         }
         else
         {
             System.Diagnostics.Debug.WriteLine($"[StatusBadge] ❌ Background brush NOT FOUND for key: {bgKey}");
         }
 
-        if (Application.Current.Resources.TryGetValue(fgKey, out var fgBrush) && fgBrush is Brush fgBrushCast)
+        if (fgBrush is Brush fgBrushCast)
         {
             BadgeText.Foreground = fgBrushCast;
             BadgeIcon.Foreground = fgBrushCast;
@@ -206,10 +206,6 @@ public sealed partial class StatusBadge : UserControl
             {
                 var color = solidFg.Color;
                 System.Diagnostics.Debug.WriteLine($"[StatusBadge] ✅ Foreground APPLIED: #{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}");
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine($"[StatusBadge] ✅ Foreground APPLIED: {fgBrushCast.GetType().Name}");
             }
         }
         else
@@ -224,5 +220,36 @@ public sealed partial class StatusBadge : UserControl
         }
         
         System.Diagnostics.Debug.WriteLine($"[StatusBadge] UpdateBadgeStyle complete");
+    }
+
+    /// <summary>
+    /// Gets a theme-aware resource by traversing the visual tree to find ThemeDictionaries.
+    /// This is necessary because Application.Current.Resources doesn't resolve ThemeDictionaries.
+    /// </summary>
+    private object? GetThemeResource(string key)
+    {
+        // First try to get from the element's own Resources
+        if (Resources.TryGetValue(key, out var localResource))
+            return localResource;
+
+        // Try to get from App Resources with ThemeDictionaries
+        var appResources = Application.Current.Resources;
+        
+        // Get current theme key
+        var themeKey = ActualTheme == ElementTheme.Dark ? "Dark" : "Light";
+        
+        // Try ThemeDictionaries first
+        if (appResources.ThemeDictionaries.TryGetValue(themeKey, out var themeDict) && 
+            themeDict is ResourceDictionary dict &&
+            dict.TryGetValue(key, out var themeResource))
+        {
+            return themeResource;
+        }
+        
+        // Fallback to merged dictionaries
+        if (appResources.TryGetValue(key, out var mergedResource))
+            return mergedResource;
+
+        return null;
     }
 }

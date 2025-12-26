@@ -585,3 +585,4 @@ staticwebassets.upToDateCheck.txt
 
 # Not ignore README.md files in any subdirectory
 !**/README.md
+src/MyShop.Client/appsettings.json

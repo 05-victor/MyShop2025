@@ -3,7 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using MyShop.Client.ViewModels.SalesAgent;
 using MyShop.Client.Services;
-using MyShop.Client.Views.Components.Pagination;
+using MyShop.Client.Views.Components.Controls;
 using System;
 using System.Linq;
 
@@ -90,12 +90,11 @@ namespace MyShop.Client.Views.SalesAgent
 
         #region Pagination Event Handler
 
-        private async void OnPageChanged(object sender, PageChangedEventArgs e)
+        private async void OnPageChanged(object sender, int currentPage)
         {
             if (ViewModel == null) return;
 
-            ViewModel.CurrentPage = e.CurrentPage;
-            ViewModel.PageSize = e.PageSize;
+            ViewModel.CurrentPage = currentPage;
 
             if (ViewModel.ApplyFiltersCommand?.CanExecute(null) == true)
             {

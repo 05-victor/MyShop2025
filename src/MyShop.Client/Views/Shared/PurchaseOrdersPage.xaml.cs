@@ -6,7 +6,7 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using MyShop.Client.ViewModels.Shared;
-using MyShop.Client.Views.Components.Pagination;
+using MyShop.Client.Views.Components.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -177,9 +177,9 @@ namespace MyShop.Client.Views.Shared
             }
         }
 
-        private async void OnPageChanged(object sender, PageChangedEventArgs e)
+        private async void OnPageChanged(object sender, int currentPage)
         {
-            ViewModel.CurrentPage = e.CurrentPage;
+            ViewModel.CurrentPage = currentPage;
             await ViewModel.LoadDataAsync();
         }
 

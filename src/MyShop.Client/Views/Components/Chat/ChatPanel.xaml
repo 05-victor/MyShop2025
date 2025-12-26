@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <UserControl
     x:Class="MyShop.Client.Views.Components.Chat.ChatPanel"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -14,11 +14,12 @@
     ChatPanel Component
     ===================
     Main chat UI panel with messages, input, and suggested prompts.
+    Uses PanelBackgroundBrush for proper theme-aware background.
     -->
 
-    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+    <Border Background="{ThemeResource PanelBackgroundBrush}"
             CornerRadius="8"
-            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+            BorderBrush="{ThemeResource CardStrokeBrush}"
             BorderThickness="1">
         <Border.Shadow>
             <ThemeShadow/>
@@ -48,7 +49,7 @@
                     <Border Grid.Column="0" 
                            Width="36" Height="36" 
                            CornerRadius="18"
-                           Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                           Background="{ThemeResource CardBackgroundBrush}"
                            Margin="0,0,12,0">
                         <FontIcon Glyph="&#xE99A;" FontSize="18" Foreground="{ThemeResource PrimaryBrush}"/>
                     </Border>
@@ -57,22 +58,21 @@
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="AI Assistant" 
                                   FontSize="16" FontWeight="SemiBold" 
-                                  Foreground="White"/>
+                                  Foreground="{ThemeResource WhiteBrush}"/>
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <Ellipse Width="8" Height="8" Fill="{ThemeResource SuccessGreenBrush}"/>
-                            <TextBlock Text="Online" FontSize="12" Foreground="White" Opacity="0.8"/>
+                            <TextBlock Text="Online" FontSize="12" Foreground="{ThemeResource WhiteBrush}"/>
                         </StackPanel>
                     </StackPanel>
                     
                     <!-- Clear Button -->
                     <Button Grid.Column="2"
-                           Background="Transparent"
-                           BorderThickness="0"
+                           Style="{StaticResource IconButtonGhostStyle}"
                            Padding="8"
                            ToolTipService.ToolTip="Clear chat"
                            AutomationProperties.Name="Clear chat history"
                            Click="ClearButton_Click">
-                        <FontIcon Glyph="&#xE74D;" FontSize="16" Foreground="White"/>
+                        <FontIcon Glyph="&#xE74D;" FontSize="16" Foreground="{ThemeResource WhiteBrush}"/>
                     </Button>
                 </Grid>
             </Border>
@@ -97,13 +97,13 @@
                    VerticalAlignment="Bottom"
                    Margin="12,0,0,8"
                    Padding="12,8"
-                   Background="{ThemeResource LayerFillColorDefaultBrush}"
+                   Background="{ThemeResource CardBackgroundBrush}"
                    CornerRadius="8"
                    Visibility="Collapsed">
                 <StackPanel Orientation="Horizontal" Spacing="4">
-                    <Ellipse Width="8" Height="8" Fill="{ThemeResource TextFillColorSecondaryBrush}" Opacity="0.5"/>
-                    <Ellipse Width="8" Height="8" Fill="{ThemeResource TextFillColorSecondaryBrush}" Opacity="0.7"/>
-                    <Ellipse Width="8" Height="8" Fill="{ThemeResource TextFillColorSecondaryBrush}" Opacity="0.9"/>
+                    <Ellipse Width="8" Height="8" Fill="{ThemeResource Gray400Brush}"/>
+                    <Ellipse Width="8" Height="8" Fill="{ThemeResource Gray500Brush}"/>
+                    <Ellipse Width="8" Height="8" Fill="{ThemeResource Gray600Brush}"/>
                 </StackPanel>
             </Border>
 
@@ -118,7 +118,7 @@
 
             <!-- Input Area -->
             <Border Grid.Row="3" 
-                   BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                   BorderBrush="{ThemeResource CardStrokeBrush}"
                    BorderThickness="0,1,0,0"
                    Padding="12">
                 <Grid ColumnSpacing="8">
@@ -133,20 +133,19 @@
                             CornerRadius="8"
                             Padding="16,10"
                             BorderThickness="1"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeBrush}"
                             AutomationProperties.Name="Chat message input"
                             KeyDown="InputTextBox_KeyDown"/>
                     
                     <Button Grid.Column="1"
                            x:Name="SendButton"
+                           Style="{StaticResource IconButtonFilledStyle}"
                            Width="40" Height="40"
                            CornerRadius="20"
-                           Background="{ThemeResource PrimaryBrush}"
-                           BorderThickness="0"
                            Padding="0"
                            AutomationProperties.Name="Send message"
                            Click="SendButton_Click">
-                        <FontIcon Glyph="&#xE724;" FontSize="16" Foreground="White"/>
+                        <FontIcon Glyph="&#xE724;" FontSize="16"/>
                     </Button>
                 </Grid>
             </Border>

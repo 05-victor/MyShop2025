@@ -10,19 +10,19 @@
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
                 
                 <!-- Theme-independent resources -->
-                <ResourceDictionary Source="Themes/SharedResources.xaml"/>
+                <ResourceDictionary Source="Views/Themes/SharedResources.xaml"/>
                 
                 <!-- Dialog styles -->
-                <ResourceDictionary Source="Themes/DialogStyles.xaml"/>
+                <ResourceDictionary Source="Views/Themes/Styles/DialogStyles.xaml"/>
                 
                 <!-- Fallback resources to prevent XAML crashes from missing StaticResource keys -->
-                <ResourceDictionary Source="Themes/FallbackResources.xaml"/>
+                <ResourceDictionary Source="Views/Themes/FallbackResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             
             <!-- Native WinUI ThemeDictionaries (automatic theme switching) -->
             <ResourceDictionary.ThemeDictionaries>
-                <ResourceDictionary x:Key="Light" Source="Themes/LightTheme.xaml"/>
-                <ResourceDictionary x:Key="Dark" Source="Themes/DarkTheme.xaml"/>
+                <ResourceDictionary x:Key="Light" Source="Views/Themes/LightTheme.xaml"/>
+                <ResourceDictionary x:Key="Dark" Source="Views/Themes/DarkTheme.xaml"/>
             </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
     </Application.Resources>

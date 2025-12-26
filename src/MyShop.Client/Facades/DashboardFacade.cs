@@ -284,8 +284,8 @@ public class DashboardFacade : IDashboardFacade
             var file = await savePicker.PickSaveFileAsync();
             if (file == null)
             {
-                // User cancelled the picker
-                return Result<string>.Success(string.Empty);
+                // User cancelled the save dialog
+                return Result<string>.Failure("Export cancelled");
             }
 
             var dashboardResult = await LoadDashboardAsync(period);
@@ -351,6 +351,73 @@ public class DashboardFacade : IDashboardFacade
         {
             System.Diagnostics.Debug.WriteLine($"[DashboardFacade] Error exporting dashboard: {ex.Message}");
             _ = _toastService.ShowError($"Error exporting data: {ex.Message}");
+            return Result<string>.Failure($"Error: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<string>> ExportDashboardToPdfAsync(string period = "current")
+    {
+        try
+        {
+            // Load all dashboard data
+            var adminSummary = await GetAdminSummaryAsync(period);
+            var topAgentsResult = await GetTopSalesAgentsAsync("current", 5);
+            var topProductsResult = await GetTopSellingProductsAsync(5);
+
+            var exportData = new Services.DashboardExportData
+            {
+                Period = period.ToUpper(),
+                TotalGmv = adminSummary.IsSuccess ? adminSummary.Data?.TotalGmv ?? 0 : 0,
+                AdminCommission = adminSummary.IsSuccess ? adminSummary.Data?.AdminCommission ?? 0 : 0,
+                ActiveAgents = adminSummary.IsSuccess ? adminSummary.Data?.ActiveSalesAgents ?? 0 : 0,
+                TotalProducts = adminSummary.IsSuccess ? adminSummary.Data?.TotalProducts ?? 0 : 0,
+                TotalOrders = adminSummary.IsSuccess ? adminSummary.Data?.TotalOrders ?? 0 : 0
+            };
+
+            // Map top agents
+            if (topAgentsResult.IsSuccess && topAgentsResult.Data != null)
+            {
+                exportData.TopAgents = topAgentsResult.Data.Select(a => new Services.TopAgentExportItem
+                {
+                    Name = a.Name ?? "N/A",
+                    Email = a.Email ?? "N/A",
+                    GMV = a.GMV,
+                    Commission = a.Commission
+                }).ToList();
+            }
+
+            // Map top products
+            if (topProductsResult.IsSuccess && topProductsResult.Data != null)
+            {
+                exportData.TopProducts = topProductsResult.Data.Select(p => new Services.TopProductExportItem
+                {
+                    Name = p.Name ?? "N/A",
+                    SoldCount = p.SoldCount
+                }).ToList();
+            }
+
+            // Use PdfExportService for PDF generation with FileSavePicker
+            var pdfService = new Services.PdfExportService();
+            var filePath = await pdfService.ExportDashboardReportAsync(exportData);
+            
+            if (string.IsNullOrEmpty(filePath))
+            {
+                // User cancelled the save dialog
+                return Result<string>.Failure("Export cancelled");
+            }
+
+            _ = _toastService.ShowSuccess($"Dashboard exported to PDF");
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade] Exported dashboard PDF to {filePath}");
+
+            // Open Explorer and select the exported file
+            StorageConstants.OpenExplorerAndSelectFile(filePath);
+
+            return Result<string>.Success(filePath);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[DashboardFacade] Error exporting dashboard to PDF: {ex.Message}");
+            _ = _toastService.ShowError($"Error exporting PDF: {ex.Message}");
             return Result<string>.Failure($"Error: {ex.Message}");
         }
     }

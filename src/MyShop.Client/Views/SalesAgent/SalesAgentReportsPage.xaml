@@ -12,7 +12,7 @@
     xmlns:forms="using:MyShop.Client.Views.Components.Forms"
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.SalesAgent"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    Background="{ThemeResource PageBackgroundBrush}"
     mc:Ignorable="d">
 
     <Page.Transitions>
@@ -28,21 +28,6 @@
         <converters:StockToBrushConverter x:Key="StockToBrushConverter"/>
         <converters:StockToTextConverter x:Key="StockToTextConverter"/>
         <converters:StockToStatusConverter x:Key="StockToStatusConverter"/>
-
-        <!--  Style cho các Card  -->
-        <Style x:Key="CardStyle"
-               TargetType="Border">
-            <Setter Property="Padding"
-                    Value="24"/>
-            <Setter Property="Background"
-                    Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
-            <Setter Property="BorderBrush"
-                    Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
-            <Setter Property="BorderThickness"
-                    Value="1"/>
-            <Setter Property="CornerRadius"
-                    Value="8"/>
-        </Style>
     </Page.Resources>
 
     <Grid>
@@ -111,7 +96,7 @@
             </Grid.Transitions>
             <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
                 <ScrollViewer>
-                    <StackPanel x:Name="MainContent" Padding="{StaticResource Padding_XL}"
+                    <StackPanel x:Name="MainContent" Padding="24"
                                 Spacing="24">
 
                         <layout:PageHeader
@@ -178,7 +163,7 @@
                             <Border
                                 Grid.Row="0"
                                 Grid.Column="0"
-                                Style="{StaticResource CardStyle}">
+                                Style="{StaticResource CardWithShadowStyle}">
                                 <StackPanel>
                                     <TextBlock
                                         Margin="0,0,0,16"
@@ -199,7 +184,7 @@
                             <Border
                                 Grid.Row="0"
                                 Grid.Column="1"
-                                Style="{StaticResource CardStyle}">
+                                Style="{StaticResource CardWithShadowStyle}">
                                 <StackPanel>
                                     <TextBlock
                                         Margin="0,0,0,16"
@@ -220,7 +205,7 @@
                             <Border
                                 Grid.Row="1"
                                 Grid.Column="0"
-                                Style="{StaticResource CardStyle}"
+                                Style="{StaticResource CardWithShadowStyle}"
                                 Visibility="Collapsed">
                                 <StackPanel>
                                     <TextBlock
@@ -241,7 +226,7 @@
                             <Border
                                 Grid.Row="1"
                                 Grid.Column="1"
-                                Style="{StaticResource CardStyle}"
+                                Style="{StaticResource CardWithShadowStyle}"
                                 Visibility="Collapsed">
                                 <StackPanel>
                                     <TextBlock

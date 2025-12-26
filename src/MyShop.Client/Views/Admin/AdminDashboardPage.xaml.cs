@@ -69,5 +69,21 @@ namespace MyShop.Client.Views.Admin
         {
             await ViewModel.NavigateToAgentRequestsCommand.ExecuteAsync(null);
         }
+
+        private async void ExportCsvButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (ViewModel.ExportDashboardCommand.CanExecute(null))
+            {
+                await ViewModel.ExportDashboardCommand.ExecuteAsync(null);
+            }
+        }
+
+        private async void ExportPdfButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (ViewModel.ExportDashboardToPdfCommand.CanExecute(null))
+            {
+                await ViewModel.ExportDashboardToPdfCommand.ExecuteAsync(null);
+            }
+        }
     }
 }
