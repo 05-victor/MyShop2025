@@ -1,4 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    SalesAgentOrdersPage - Table Pattern
+    Based on: AdminUsersPage.xaml
+    
+    UI Pattern: Table with KPIs + Search + Filters
+    Key Components:
+    - PageHeader: Title, subtitle, action buttons (Refresh, Export)
+    - SimpleStatCard: KPIs (Total Orders, Pending, Processing, Completed)
+    - SearchCard: Order search with auto-complete
+    - FilterCard: Order status, payment status
+    - StatusBadge: Order status chips
+    
+    Styles Used:
+    - CardWithShadowStyle: For all card containers
+    - PrimaryButtonStyle, SecondaryButtonStyle: For action buttons
+    
+    Theme Resources:
+    - PageBackgroundBrush: Page background (Light/Dark theme adaptive)
+    - TextFillColorPrimaryBrush, TextFillColorSecondaryBrush: Text colors
+    - SuccessGreenBrush, WarningAmberBrush, PrimaryBrush: Status colors
+-->
 <Page
     x:Class="MyShop.Client.Views.SalesAgent.SalesAgentOrdersPage"
     x:Name="RootPage"
@@ -17,7 +38,7 @@
     xmlns:converters="using:MyShop.Client.Common.Converters"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.SalesAgent"
     mc:Ignorable="d"
-    Background="{ThemeResource LayerFillColorDefaultBrush}">
+    Background="{ThemeResource PageBackgroundBrush}">
 
     <Page.Transitions>
         <TransitionCollection>
@@ -115,7 +136,7 @@
                 <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <Grid x:Name="MainGrid"
-                              Padding="{StaticResource Padding_XL}"
+                              Padding="24"
                               RowSpacing="16">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>

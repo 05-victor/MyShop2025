@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    SalesAgentEarningsPage - Table Pattern with KPI Grid
+    Based on: AdminUsersPage.xaml, SalesAgentDashboardPage.xaml
+    
+    UI Pattern: Table with extensive KPIs + Filters
+    Key Components:
+    - PageHeader: Title, subtitle, action buttons (Refresh, Export CSV/PDF)
+    - KPICard: 6 KPI cards (Total Earnings, Platform Fees, Net Earnings, Paid Out, Pending, Total Orders)
+    - FilterCard: Date range, payment status, product/category filters
+    - InfoBar: Platform fee information banner
+    
+    Styles Used:
+    - CardWithShadowStyle: For all card containers
+    - PrimaryButtonStyle, SecondaryButtonStyle: For action buttons
+    
+    Theme Resources:
+    - PageBackgroundBrush: Page background (Light/Dark theme adaptive)
+    - TextFillColorPrimaryBrush, TextFillColorSecondaryBrush: Text colors
+    - SuccessGreenBrush, ErrorRedBrush, PrimaryBrush: Status colors
+-->
 <Page
     x:Class="MyShop.Client.Views.SalesAgent.EarningsPage"
     x:Name="RootPage"
@@ -16,7 +36,7 @@
     xmlns:converters="using:MyShop.Client.Common.Converters"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.SalesAgent"
     mc:Ignorable="d"
-    Background="{ThemeResource LayerFillColorDefaultBrush}">
+    Background="{ThemeResource PageBackgroundBrush}">
 
     <Page.Transitions>
         <TransitionCollection>
@@ -127,7 +147,7 @@
             <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel x:Name="ContentStackPanel"
-                                Padding="{StaticResource Padding_2XL}"
+                                Padding="24"
                                 Spacing="24">
 
                         <!-- PAGE HEADER -->
