@@ -1,3 +1,4 @@
+﻿using MyShop.Data;
 using MyShop.Data.Entities;
 using MyShop.Data.Repositories.Interfaces;
 using MyShop.Server.Mappings;
@@ -7,6 +8,7 @@ using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
 using MyShop.Shared.Enums;
 using MyShop.Shared.Extensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace MyShop.Server.Services.Implementations;
 
@@ -17,19 +19,22 @@ public class AgentRequestService : IAgentRequestService
     private readonly IRoleRepository _roleRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<AgentRequestService> _logger;
+    private readonly ShopContext _context;
 
     public AgentRequestService(
         IAgentRequestRepository agentRequestRepository,
         IUserRepository userRepository,
         IRoleRepository roleRepository,
         ICurrentUserService currentUserService,
-        ILogger<AgentRequestService> logger)
+        ILogger<AgentRequestService> logger,
+        ShopContext context)
     {
         _agentRequestRepository = agentRequestRepository;
         _userRepository = userRepository;
         _roleRepository = roleRepository;
         _currentUserService = currentUserService;
         _logger = logger;
+        _context = context;
     }
 
     public async Task<AgentRequestResponse?> GetByIdAsync(Guid id)
@@ -148,18 +153,58 @@ public class AgentRequestService : IAgentRequestService
             return new ActivateUserResponse(false, "Internal error: SalesAgent role not found");
         }
 
-        // Add SalesAgent role to user
-        user.Roles.Add(salesAgentRole);
-        await _userRepository.UpdateAsync(user);
+        try
+        {
+            // SOLUTION: Directly insert into user_roles table using raw SQL
+            // This ensures the trigger fires immediately
+            _logger.LogInformation("Inserting SalesAgent role for user {UserId} using raw SQL", request.UserId);
+            
+            await _context.Database.ExecuteSqlRawAsync(
+                "INSERT INTO user_roles (users_id, roles_name) VALUES ({0}, {1})",
+                request.UserId,
+                "SalesAgent");
+            
+            _logger.LogInformation("SalesAgent role inserted via raw SQL for user {UserId}", request.UserId);
+            
+            // Reload user from database to get the store_id assigned by trigger
+            // Use AsNoTracking to force fresh fetch from DB
+            user = await _context.Users
+                .AsNoTracking()
+                .Include(u => u.Roles)
+                .Include(u => u.Profile)
+                .FirstOrDefaultAsync(u => u.Id == request.UserId);
+            
+            if (user?.StoreId.HasValue == true)
+            {
+                _logger.LogInformation("✅ Store ID {StoreId} automatically assigned to user {UserId} by database trigger", 
+                    user.StoreId.Value, request.UserId);
+            }
+            else
+            {
+                _logger.LogWarning("⚠️ Store ID was NOT assigned to user {UserId}. Trigger may not have fired. StoreId value: {StoreId}", 
+                    request.UserId, user?.StoreId);
+            }
 
-        // Update request status
-        request.Status = AgentRequestStatus.Approved;
-        request.ReviewedBy = _currentUserService.UserId;
-        request.ReviewedAt = DateTime.UtcNow;
-        await _agentRequestRepository.UpdateAsync(request);
+            // Update request status
+            request.Status = AgentRequestStatus.Approved;
+            request.ReviewedBy = _currentUserService.UserId;
+            request.ReviewedAt = DateTime.UtcNow;
+            await _agentRequestRepository.UpdateAsync(request);
 
-        _logger.LogInformation("Agent request {Id} approved. User {UserId} is now a SalesAgent", id, request.UserId);
-        return new ActivateUserResponse(true, "Agent request approved successfully. User is now a SalesAgent");
+            var storeMessage = user?.StoreId.HasValue == true 
+                ? $" Store ID {user.StoreId.Value} has been assigned." 
+                : "";
+
+            _logger.LogInformation("Agent request {Id} approved. User {UserId} is now a SalesAgent{StoreMessage}", 
+                id, request.UserId, storeMessage);
+                
+            return new ActivateUserResponse(true, $"Agent request approved successfully. User is now a SalesAgent.{storeMessage}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error approving agent request {Id} for user {UserId}", id, request.UserId);
+            return new ActivateUserResponse(false, $"Error approving request: {ex.Message}");
+        }
     }
 
     public async Task<ActivateUserResponse> RejectAsync(Guid id, RejectAgentRequest rejectAgentRequest)
