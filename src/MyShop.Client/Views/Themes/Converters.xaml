@@ -34,5 +34,8 @@
     
     <!-- Status Badge Converters -->
     <converters:StatusToVariantConverter x:Key="StatusToVariantConverter"/>
+    
+    <!-- Enum Converters -->
+    <converters:EnumToVisibilityConverter x:Key="EnumToVisibilityConverter"/>
 
 </ResourceDictionary>

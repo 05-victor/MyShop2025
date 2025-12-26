@@ -172,6 +172,11 @@ namespace MyShop.Client
                 MainWindow = new MainWindow();
                 LoggingService.Instance.Information("MainWindow created successfully");
 
+                // ===== APPLY THEME (after MainWindow is created) =====
+                // Re-apply saved theme now that MainWindow.Content is available
+                ThemeManager.ApplyTheme(ThemeManager.CurrentTheme);
+                LoggingService.Instance.Information($"Theme applied: {ThemeManager.CurrentTheme}");
+
                 // ===== API HEALTH CHECK (only if using real API) =====
                 var configService = Services.GetRequiredService<IConfigurationService>();
                 if (!configService.FeatureFlags.UseMockData)

@@ -16,7 +16,7 @@
     xmlns:converters="using:MyShop.Client.Common.Converters"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.SalesAgent"
     mc:Ignorable="d"
-    Background="{ThemeResource LayerFillColorDefaultBrush}">
+    Background="{ThemeResource PageBackgroundBrush}">
 
     <Page.Transitions>
         <TransitionCollection>
@@ -127,7 +127,7 @@
             <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel x:Name="ContentStackPanel"
-                                Padding="{StaticResource Padding_2XL}"
+                                Padding="24"
                                 Spacing="24">
 
                         <!-- PAGE HEADER -->

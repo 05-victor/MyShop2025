@@ -4,7 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using MyShop.Client.ViewModels.SalesAgent;
 using MyShop.Client.Services;
-using MyShop.Client.Views.Components.Pagination;
+using MyShop.Client.Views.Components.Controls;
 using MyShop.Core.Interfaces.Repositories;
 using System;
 using System.Linq;
@@ -218,9 +218,9 @@ namespace MyShop.Client.Views.SalesAgent
 
         #region Pagination
 
-        private async void OnPageChanged(object sender, PageChangedEventArgs e)
+        private async void OnPageChanged(object sender, int currentPage)
         {
-            await ViewModel.GoToPageAsync(e.CurrentPage);
+            await ViewModel.GoToPageAsync(currentPage);
         }
 
         #endregion

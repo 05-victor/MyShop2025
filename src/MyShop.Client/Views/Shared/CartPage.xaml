@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="MyShop.Client.Views.Shared.CartPage"
+    x:Name="RootPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
@@ -9,7 +10,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:MyShop.Client.ViewModels.Shared"
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
-    Background="{ThemeResource LayerFillColorDefaultBrush}"
+    Background="{ThemeResource PageBackgroundBrush}"
     mc:Ignorable="d">
 
     <Page.Transitions>
@@ -20,6 +21,8 @@
 
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
         <converters:StringFormatConverter x:Key="StringFormatConverter"/>
         <converters:CurrencyConverter x:Key="CurrencyConverter"/>
         <x:String x:Key="CurrencyFormat">{0:N0} ₫</x:String>
@@ -84,7 +87,7 @@
         </VisualStateManager.VisualStateGroups>
 
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <Grid x:Name="MainContent" Padding="{StaticResource Padding_XL}"
+            <Grid x:Name="MainContent" Padding="24"
                   RowSpacing="16">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -168,139 +171,204 @@
                             </StackPanel>
                         </Border>
 
-                        <!--  Cart Items List  -->
-                        <!-- ListView with virtualization for performance -->
-                        <ListView x:Name="CartItemsListView"
-                                  ItemsSource="{Binding Items, Mode=OneWay}"
-                                  SelectionMode="None"
-                                  IsItemClickEnabled="False">
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                    <Setter Property="Padding" Value="0"/>
-                                    <Setter Property="Margin" Value="0"/>
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                            <ListView.ItemTemplate>
-                                <DataTemplate x:DataType="vm:CartItemViewModel">
+                        <!--  Cart Items Grouped by Sales Agent  -->
+                        <ItemsRepeater x:Name="AgentGroupsRepeater"
+                                       ItemsSource="{x:Bind ViewModel.AgentGroups, Mode=OneWay}">
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CartAgentGroup">
+                                    <!-- Agent Group Card -->
                                     <Border Margin="0,0,0,16"
+                                            Padding="0"
+                                            BorderBrush="{x:Bind IsSelected, Mode=OneWay, Converter={StaticResource BoolToColorConverter}, ConverterParameter='Theme:CardStrokeColorDefaultBrush|Theme:AccentFillColorDefaultBrush'}"
                                             Style="{StaticResource CardWithShadowStyle}">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
+                                        <Border.BorderThickness>
+                                            <Thickness>2</Thickness>
+                                        </Border.BorderThickness>
+                                        <StackPanel Spacing="0">
+                                            <!-- Group Header -->
+                                            <Grid Padding="20,16"
+                                                  Background="{x:Bind IsSelected, Mode=OneWay, Converter={StaticResource BoolToColorConverter}, ConverterParameter='Theme:LayerFillColorDefaultBrush|Theme:SubtleFillColorSecondaryBrush'}">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
 
-                                            <!--  Product Image with DecodePixelWidth optimization  -->
-                                            <Border
-                                                Width="96"
-                                                Height="96"
-                                                Margin="0,0,16,0"
-                                                Background="{ThemeResource LayerFillColorDefaultBrush}"
-                                                CornerRadius="8">
-                                                <Image Stretch="UniformToFill">
-                                                    <Image.Source>
-                                                        <BitmapImage UriSource="{x:Bind ImageUrl}"
-                                                                     DecodePixelWidth="192"
-                                                                     DecodePixelType="Logical"/>
-                                                    </Image.Source>
-                                                </Image>
-                                            </Border>
+                                                <!-- Shop Icon -->
+                                                <Border Grid.Column="0"
+                                                        Width="40"
+                                                        Height="40"
+                                                        Margin="0,0,12,0"
+                                                        Background="{ThemeResource AccentBlueBrush}"
+                                                        CornerRadius="20">
+                                                    <FontIcon Glyph="&#xE8D1;"
+                                                              FontSize="20"
+                                                              Foreground="{ThemeResource WhiteBrush}"/>
+                                                </Border>
 
-                                            <!--  Product Info  -->
-                                            <StackPanel
-                                                Grid.Column="1"
-                                                VerticalAlignment="Top"
-                                                Spacing="8">
-                                                <TextBlock
-                                                    FontSize="16"
-                                                    FontWeight="SemiBold"
-                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                                    Text="{x:Bind Name}"/>
-                                                <TextBlock
-                                                    FontSize="12"
-                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                    Text="{x:Bind Category}"/>
-
-                                                <!--  Quantity Controls  -->
-                                                <StackPanel
-                                                    Margin="0,8,0,0"
-                                                    Orientation="Horizontal"
-                                                    Spacing="12">
-                                                    <Button
-                                                        Style="{StaticResource SecondaryButtonStyle}"
-                                                        Width="32"
-                                                        Height="32"
-                                                        Padding="{StaticResource Padding_None}"
-                                                        Command="{Binding ElementName=CartItemsListView, Path=DataContext.DecreaseQuantityCommand}"
-                                                        CommandParameter="{x:Bind}">
-                                                        <FontIcon FontSize="12"
-                                                                  Glyph="&#xE738;"/>
-                                                    </Button>
-                                                    <Border
-                                                        Width="60"
-                                                        Padding="12,6"
-                                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                                        BorderThickness="1"
-                                                        CornerRadius="8">
-                                                        <TextBlock
-                                                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                                            Text="{x:Bind Quantity, Mode=OneWay}"
-                                                            TextAlignment="Center"/>
-                                                    </Border>
-                                                    <Button
-                                                        Style="{StaticResource PrimaryButtonStyle}"
-                                                        Width="32"
-                                                        Height="32"
-                                                        Padding="{StaticResource Padding_None}"
-                                                        Command="{Binding ElementName=CartItemsListView, Path=DataContext.IncreaseQuantityCommand}"
-                                                        CommandParameter="{x:Bind}">
-                                                        <FontIcon FontSize="12"
-                                                                  Glyph="&#xE710;"/>
-                                                    </Button>
-                                                    <Button
-                                                        Style="{StaticResource IconButtonStyle}"
-                                                        Margin="12,0,0,0"
-                                                        Command="{Binding ElementName=CartItemsListView, Path=DataContext.RemoveItemCommand}"
-                                                        CommandParameter="{x:Bind}">
-                                                        <FontIcon
-                                                            FontSize="16"
-                                                            Foreground="{ThemeResource ErrorRedBrush}"
-                                                            Glyph="&#xE74D;"/>
-                                                    </Button>
+                                                <!-- Shop Info -->
+                                                <StackPanel Grid.Column="1" Spacing="4">
+                                                    <TextBlock Text="{x:Bind AgentName}"
+                                                               FontSize="16"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                                    <TextBlock FontSize="12"
+                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                        <Run Text="Subtotal:"/>
+                                                        <Run Text="{x:Bind SubtotalFormatted, Mode=OneWay}"
+                                                             FontWeight="SemiBold"
+                                                             Foreground="{ThemeResource SuccessGreenBrush}"/>
+                                                    </TextBlock>
                                                 </StackPanel>
-                                            </StackPanel>
 
-                                            <!--  Price  -->
-                                            <StackPanel
-                                                Grid.Column="2"
-                                                HorizontalAlignment="Right"
-                                                VerticalAlignment="Top">
-                                                <TextBlock
-                                                    FontSize="20"
-                                                    FontWeight="Bold"
-                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                                    Text="{x:Bind Price, Converter={StaticResource CurrencyConverter}}"
-                                                    TextAlignment="Right"/>
-                                                <TextBlock
-                                                    FontSize="12"
-                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                    Text="each"
-                                                    TextAlignment="Right"/>
-                                                <TextBlock
-                                                    Margin="0,8,0,0"
-                                                    FontSize="14"
-                                                    FontWeight="SemiBold"
-                                                    Foreground="{ThemeResource AccentBlueBrush}"
-                                                    Text="{x:Bind Total, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
-                                                    TextAlignment="Right"/>
-                                            </StackPanel>
-                                        </Grid>
+                                                <!-- Select Shop Button -->
+                                                <Button Grid.Column="2"
+                                                        Style="{StaticResource PrimaryButtonStyle}"
+                                                        Padding="16,8"
+                                                        Command="{Binding ElementName=RootPage, Path=ViewModel.SelectShopCommand}"
+                                                        CommandParameter="{x:Bind AgentId}"
+                                                        Visibility="{x:Bind IsSelected, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                                        <FontIcon Glyph="&#xE73E;" FontSize="14"/>
+                                                        <TextBlock Text="Select Shop"/>
+                                                    </StackPanel>
+                                                </Button>
+                                                
+                                                <!-- Selected Badge -->
+                                                <Border Grid.Column="2"
+                                                        Padding="12,6"
+                                                        Background="{ThemeResource SuccessGreenBrush}"
+                                                        CornerRadius="8"
+                                                        Visibility="{x:Bind IsSelected, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                                        <FontIcon Glyph="&#xE73E;"
+                                                                  FontSize="14"
+                                                                  Foreground="{ThemeResource WhiteBrush}"/>
+                                                        <TextBlock Text="Selected"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="{ThemeResource WhiteBrush}"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </Grid>
+
+                                            <!-- Items List -->
+                                            <ItemsRepeater ItemsSource="{x:Bind Items, Mode=OneWay}"
+                                                          Margin="16">
+                                                <ItemsRepeater.ItemTemplate>
+                                                    <DataTemplate x:DataType="vm:CartItemViewModel">
+                                                        <Border Margin="0,0,0,12"
+                                                                Padding="12"
+                                                                Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                                                CornerRadius="8"
+                                                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                                BorderThickness="1">
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                </Grid.ColumnDefinitions>
+
+                                                                <!--  Product Image  -->
+                                                                <Border Width="80"
+                                                                        Height="80"
+                                                                        Margin="0,0,12,0"
+                                                                        Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                                                        CornerRadius="6">
+                                                                    <Image Stretch="UniformToFill">
+                                                                        <Image.Source>
+                                                                            <BitmapImage UriSource="{x:Bind ImageUrl}"
+                                                                                         DecodePixelWidth="160"
+                                                                                         DecodePixelType="Logical"/>
+                                                                        </Image.Source>
+                                                                    </Image>
+                                                                </Border>
+
+                                                                <!--  Product Info  -->
+                                                                <StackPanel Grid.Column="1"
+                                                                            VerticalAlignment="Center"
+                                                                            Spacing="6">
+                                                                    <TextBlock Text="{x:Bind Name}"
+                                                                               FontSize="14"
+                                                                               FontWeight="SemiBold"
+                                                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                                                    <TextBlock Text="{x:Bind Category}"
+                                                                               FontSize="11"
+                                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+
+                                                                    <!--  Quantity Controls  -->
+                                                                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+                                                                        <Button Width="28"
+                                                                                Height="28"
+                                                                                Padding="0"
+                                                                                Style="{StaticResource SecondaryButtonStyle}"
+                                                                                Command="{Binding ElementName=RootPage, Path=ViewModel.DecreaseQuantityCommand}"
+                                                                                CommandParameter="{x:Bind}">
+                                                                            <FontIcon Glyph="&#xE738;" FontSize="10"/>
+                                                                        </Button>
+                                                                        <Border Width="50"
+                                                                                Padding="8,4"
+                                                                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                                                BorderThickness="1"
+                                                                                CornerRadius="6">
+                                                                            <TextBlock Text="{x:Bind Quantity, Mode=OneWay}"
+                                                                                       FontSize="12"
+                                                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                                                       TextAlignment="Center"/>
+                                                                        </Border>
+                                                                        <Button Width="28"
+                                                                                Height="28"
+                                                                                Padding="0"
+                                                                                Style="{StaticResource PrimaryButtonStyle}"
+                                                                                Command="{Binding ElementName=RootPage, Path=ViewModel.IncreaseQuantityCommand}"
+                                                                                CommandParameter="{x:Bind}">
+                                                                            <FontIcon Glyph="&#xE710;" FontSize="10"/>
+                                                                        </Button>
+                                                                        <Button Margin="8,0,0,0"
+                                                                                Width="28"
+                                                                                Height="28"
+                                                                                Padding="0"
+                                                                                Style="{StaticResource IconButtonStyle}"
+                                                                                Command="{Binding ElementName=RootPage, Path=ViewModel.RemoveItemCommand}"
+                                                                                CommandParameter="{x:Bind}">
+                                                                            <FontIcon Glyph="&#xE74D;"
+                                                                                      FontSize="12"
+                                                                                      Foreground="{ThemeResource ErrorRedBrush}"/>
+                                                                        </Button>
+                                                                    </StackPanel>
+                                                                </StackPanel>
+
+                                                                <!--  Price  -->
+                                                                <StackPanel Grid.Column="2"
+                                                                            HorizontalAlignment="Right"
+                                                                            VerticalAlignment="Center"
+                                                                            Spacing="4">
+                                                                    <TextBlock Text="{x:Bind Price, Converter={StaticResource CurrencyConverter}}"
+                                                                               FontSize="14"
+                                                                               FontWeight="SemiBold"
+                                                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                                               TextAlignment="Right"/>
+                                                                    <TextBlock Text="each"
+                                                                               FontSize="10"
+                                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                               TextAlignment="Right"/>
+                                                                    <TextBlock Text="{x:Bind Total, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                                                               FontSize="16"
+                                                                               FontWeight="Bold"
+                                                                               Foreground="{ThemeResource AccentBlueBrush}"
+                                                                               TextAlignment="Right"
+                                                                               Margin="0,4,0,0"/>
+                                                                </StackPanel>
+                                                            </Grid>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsRepeater.ItemTemplate>
+                                            </ItemsRepeater>
+                                        </StackPanel>
                                     </Border>
                                 </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
                     </StackPanel>
 
                     <!--  Order Summary Card  -->
@@ -312,6 +380,14 @@
                                 FontWeight="SemiBold"
                                 Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                 Text="Order Summary"/>
+
+                            <!-- Warning when no shop selected -->
+                            <InfoBar
+                                IsOpen="True"
+                                Severity="Informational"
+                                IsClosable="False"
+                                Message="Please select a shop above to see order summary"
+                                Visibility="{x:Bind ViewModel.CanProceedToCheckout, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
 
                             <StackPanel Spacing="12">
                                 <Grid>
@@ -365,7 +441,9 @@
                                     Variant="Filled"
                                     IconGlyph="&#xE8A1;"
                                     Text="Proceed to Checkout"
-                                    Command="{x:Bind ViewModel.ProceedToCheckoutCommand}"/>
+                                    Command="{x:Bind ViewModel.ProceedToCheckoutCommand}"
+                                    IsEnabled="{x:Bind ViewModel.CanProceedToCheckout, Mode=OneWay}"
+                                    ToolTipService.ToolTip="Select a shop to continue"/>
 
                             <HyperlinkButton
                                 HorizontalAlignment="Center"

@@ -147,11 +147,12 @@ public partial class AdminDashboardViewModel : BaseViewModel
 
     public AdminDashboardViewModel(
         IDashboardFacade dashboardFacade,
+        IToastService toastService,
         INavigationService navigationService,
         IConfigurationService configService,
         IActivityLogService? activityLogService = null,
         IAppNotificationService? notificationService = null)
-        : base(navigationService: navigationService)
+        : base(toastService: toastService, navigationService: navigationService)
     {
         _dashboardFacade = dashboardFacade;
         _configService = configService;
@@ -726,12 +727,45 @@ public partial class AdminDashboardViewModel : BaseViewModel
             if (result.IsSuccess)
             {
                 System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Exported to: {result.Data}");
+                await _toastHelper.ShowSuccess($"Dashboard exported to: {result.Data}");
+            }
+            else
+            {
+                await _toastHelper.ShowError(result.ErrorMessage ?? "Export failed");
             }
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Error exporting dashboard: {ex.Message}");
             await _toastHelper.ShowError("Failed to export dashboard data.");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task ExportDashboardToPdfAsync()
+    {
+        try
+        {
+            IsLoading = true;
+            var result = await _dashboardFacade.ExportDashboardToPdfAsync(SelectedPeriod);
+            if (result.IsSuccess)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminDashboard] Exported PDF to: {result.Data}");
+                await _toastHelper.ShowSuccess($"Dashboard exported to PDF: {result.Data}");
+            }
+            else
+            {
+                await _toastHelper.ShowError(result.ErrorMessage ?? "PDF export failed");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error exporting dashboard to PDF: {ex.Message}");
+            await _toastHelper.ShowError("Failed to export dashboard to PDF.");
         }
         finally
         {

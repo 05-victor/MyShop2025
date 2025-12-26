@@ -19,6 +19,8 @@ public interface IPdfExportService
     Task ExportInventoryReportAsync(List<ProductResponse> products, string reportTitle);
     Task ExportAgentCommissionReportAsync(int agentId, string agentName, List<CommissionData> data, DateTime period);
     Task ExportCustomReportAsync(string title, string subtitle, object data);
+    Task<string?> ExportUsersReportAsync(IEnumerable<UserInfoResponse> users, string reportTitle);
+    Task<string?> ExportDashboardReportAsync(DashboardExportData data);
 }
 
 public class PdfExportService : IPdfExportService
@@ -498,6 +500,202 @@ public class PdfExportService : IPdfExportService
         var invalidChars = Path.GetInvalidFileNameChars();
         return string.Concat(fileName.Where(c => !invalidChars.Contains(c))).Trim();
     }
+
+    /// <summary>
+    /// Export users list to PDF with simple table layout
+    /// </summary>
+    public async Task<string?> ExportUsersReportAsync(IEnumerable<UserInfoResponse> users, string reportTitle)
+    {
+        var file = await PickSaveFileAsync("Users_Report", "PDF Document", ".pdf");
+        if (file == null) return null;
+
+        try
+        {
+            var userList = users.ToList();
+            var document = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4.Landscape());
+                    page.Margin(40);
+                    page.PageColor(Colors.White);
+
+                    page.Header().Element(ComposeHeader);
+
+                    page.Content().Column(col =>
+                    {
+                        col.Item().PaddingBottom(20).Column(titleCol =>
+                        {
+                            titleCol.Item().Text(reportTitle).FontSize(24).Bold().FontColor(Colors.Blue.Darken2);
+                            titleCol.Item().Text($"Total Users: {userList.Count}").FontSize(14).FontColor(Colors.Grey.Darken1);
+                            titleCol.Item().Text($"Generated: {DateTime.Now:yyyy-MM-dd HH:mm}").FontSize(12).FontColor(Colors.Grey.Medium);
+                        });
+
+                        col.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(2); // Username
+                                columns.RelativeColumn(2); // Full Name
+                                columns.RelativeColumn(3); // Email
+                                columns.RelativeColumn(2); // Phone
+                                columns.RelativeColumn(1); // Role
+                                columns.RelativeColumn(1); // Verified
+                            });
+
+                            table.Header(header =>
+                            {
+                                header.Cell().Element(CellStyle).Text("Username").Bold();
+                                header.Cell().Element(CellStyle).Text("Full Name").Bold();
+                                header.Cell().Element(CellStyle).Text("Email").Bold();
+                                header.Cell().Element(CellStyle).Text("Phone").Bold();
+                                header.Cell().Element(CellStyle).Text("Role").Bold();
+                                header.Cell().Element(CellStyle).Text("Verified").Bold();
+                            });
+
+                            foreach (var user in userList)
+                            {
+                                var role = user.RoleNames?.FirstOrDefault() ?? "Customer";
+                                table.Cell().Element(CellStyle).Text(user.Username ?? "N/A");
+                                table.Cell().Element(CellStyle).Text(user.FullName ?? "N/A");
+                                table.Cell().Element(CellStyle).Text(user.Email ?? "N/A");
+                                table.Cell().Element(CellStyle).Text(user.PhoneNumber ?? "N/A");
+                                table.Cell().Element(CellStyle).Text(role);
+                                table.Cell().Element(CellStyle).Text(user.IsEmailVerified ? "Yes" : "No");
+                            }
+                        });
+                    });
+
+                    page.Footer().Element(ComposeFooter);
+                });
+            });
+
+            using var stream = await file.OpenStreamForWriteAsync();
+            document.GeneratePdf(stream);
+
+            LoggingService.Instance.Information($"Users report exported: {file.Path}");
+            return file.Path;
+        }
+        catch (Exception ex)
+        {
+            LoggingService.Instance.Error("Failed to export users report", ex);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Export dashboard data to PDF
+    /// </summary>
+    public async Task<string?> ExportDashboardReportAsync(DashboardExportData data)
+    {
+        var file = await PickSaveFileAsync("Dashboard_Report", "PDF Document", ".pdf");
+        if (file == null) return null;
+
+        try
+        {
+            var document = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(40);
+                    page.PageColor(Colors.White);
+
+                    page.Header().Element(ComposeHeader);
+
+                    page.Content().Column(col =>
+                    {
+                        col.Item().PaddingBottom(20).Column(titleCol =>
+                        {
+                            titleCol.Item().Text("Admin Dashboard Report").FontSize(24).Bold().FontColor(Colors.Blue.Darken2);
+                            titleCol.Item().Text($"Period: {data.Period}").FontSize(14).FontColor(Colors.Grey.Darken1);
+                            titleCol.Item().Text($"Generated: {DateTime.Now:yyyy-MM-dd HH:mm}").FontSize(12).FontColor(Colors.Grey.Medium);
+                        });
+
+                        // KPI Summary
+                        col.Item().PaddingBottom(20).Row(row =>
+                        {
+                            row.RelativeItem().Element(c => ComposeSummaryCard(c, "Total GMV", $"{data.TotalGmv:C0}", Colors.Blue.Lighten3));
+                            row.RelativeItem().PaddingHorizontal(10).Element(c => ComposeSummaryCard(c, "Commission", $"{data.AdminCommission:C0}", Colors.Green.Lighten3));
+                            row.RelativeItem().PaddingHorizontal(10).Element(c => ComposeSummaryCard(c, "Active Agents", $"{data.ActiveAgents}", Colors.Orange.Lighten3));
+                            row.RelativeItem().Element(c => ComposeSummaryCard(c, "Total Products", $"{data.TotalProducts}", Colors.Purple.Lighten3));
+                        });
+
+                        // Top Sales Agents
+                        if (data.TopAgents?.Any() == true)
+                        {
+                            col.Item().PaddingTop(20).Text("Top Sales Agents").FontSize(16).Bold();
+                            col.Item().PaddingTop(10).Table(table =>
+                            {
+                                table.ColumnsDefinition(columns =>
+                                {
+                                    columns.RelativeColumn(2); // Name
+                                    columns.RelativeColumn(2); // Email
+                                    columns.RelativeColumn(1); // GMV
+                                    columns.RelativeColumn(1); // Commission
+                                });
+
+                                table.Header(header =>
+                                {
+                                    header.Cell().Element(CellStyle).Text("Agent").Bold();
+                                    header.Cell().Element(CellStyle).Text("Email").Bold();
+                                    header.Cell().Element(CellStyle).AlignRight().Text("GMV").Bold();
+                                    header.Cell().Element(CellStyle).AlignRight().Text("Commission").Bold();
+                                });
+
+                                foreach (var agent in data.TopAgents)
+                                {
+                                    table.Cell().Element(CellStyle).Text(agent.Name ?? "N/A");
+                                    table.Cell().Element(CellStyle).Text(agent.Email ?? "N/A");
+                                    table.Cell().Element(CellStyle).AlignRight().Text($"{agent.GMV:C0}");
+                                    table.Cell().Element(CellStyle).AlignRight().Text($"{agent.Commission:C0}");
+                                }
+                            });
+                        }
+
+                        // Top Products
+                        if (data.TopProducts?.Any() == true)
+                        {
+                            col.Item().PaddingTop(20).Text("Top Selling Products").FontSize(16).Bold();
+                            col.Item().PaddingTop(10).Table(table =>
+                            {
+                                table.ColumnsDefinition(columns =>
+                                {
+                                    columns.RelativeColumn(3); // Name
+                                    columns.RelativeColumn(1); // Sold
+                                });
+
+                                table.Header(header =>
+                                {
+                                    header.Cell().Element(CellStyle).Text("Product").Bold();
+                                    header.Cell().Element(CellStyle).AlignRight().Text("Units Sold").Bold();
+                                });
+
+                                foreach (var product in data.TopProducts)
+                                {
+                                    table.Cell().Element(CellStyle).Text(product.Name ?? "N/A");
+                                    table.Cell().Element(CellStyle).AlignRight().Text($"{product.SoldCount}");
+                                }
+                            });
+                        }
+                    });
+
+                    page.Footer().Element(ComposeFooter);
+                });
+            });
+
+            using var stream = await file.OpenStreamForWriteAsync();
+            document.GeneratePdf(stream);
+
+            LoggingService.Instance.Information($"Dashboard report exported: {file.Path}");
+            return file.Path;
+        }
+        catch (Exception ex)
+        {
+            LoggingService.Instance.Error("Failed to export dashboard report", ex);
+            throw;
+        }
+    }
 }
 
 // Helper data models
@@ -519,4 +717,30 @@ public class CommissionData
     public decimal SalesAmount { get; set; }
     public decimal CommissionRate { get; set; }
     public decimal CommissionAmount { get; set; }
+}
+
+public class DashboardExportData
+{
+    public string Period { get; set; } = "Month";
+    public decimal TotalGmv { get; set; }
+    public decimal AdminCommission { get; set; }
+    public int ActiveAgents { get; set; }
+    public int TotalProducts { get; set; }
+    public int TotalOrders { get; set; }
+    public List<TopAgentExportItem> TopAgents { get; set; } = new();
+    public List<TopProductExportItem> TopProducts { get; set; } = new();
+}
+
+public class TopAgentExportItem
+{
+    public string Name { get; set; }
+    public string Email { get; set; }
+    public decimal GMV { get; set; }
+    public decimal Commission { get; set; }
+}
+
+public class TopProductExportItem
+{
+    public string Name { get; set; }
+    public int SoldCount { get; set; }
 }

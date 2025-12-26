@@ -5,6 +5,7 @@ using MyShop.Client.Facades;
 using MyShop.Client.ViewModels.Base;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Services;
+using MyShop.Core.Interfaces.Repositories;
 using MyShop.Shared.Models;
 using System;
 using System.Collections.ObjectModel;
@@ -20,9 +21,13 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
 {
     private readonly IProductFacade _productFacade;
     private readonly ICartFacade _cartFacade;
+    private readonly IAuthRepository _authRepository;
 
     // Alias for backward compatibility with XAML
     public ObservableCollection<ProductCardViewModel> Products => Items;
+
+    // Event for requesting product details dialog (handled by view)
+    public event EventHandler<ProductCardViewModel>? ProductDetailsRequested;
 
     [ObservableProperty]
     private ObservableCollection<string> _categories = new() { "All" };
@@ -51,19 +56,32 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
     public ProductBrowseViewModel(
         IProductFacade productFacade,
         ICartFacade cartFacade,
+        IAuthRepository authRepository,
         INavigationService? navigationService = null)
         : base(null, navigationService)
     {
         _productFacade = productFacade;
         _cartFacade = cartFacade;
+        _authRepository = authRepository;
         PageSize = 12; // Show 12 products per page for grid layout
     }
 
     public async Task InitializeAsync()
     {
+        // Check email verification status
+        var userResult = await _authRepository.GetCurrentUserAsync();
+        var isEmailVerified = userResult.IsSuccess && userResult.Data?.IsEmailVerified == true;
+
         await LoadCategoriesAsync();
         await LoadBrandsAsync();
         await LoadDataAsync(); // Use base class method
+
+        // Update all product cards with email verification status
+        foreach (var product in Products)
+        {
+            product.CanAddToCart = isEmailVerified && product.Stock > 0;
+            product.ShowEmailVerification = !isEmailVerified;
+        }
     }
 
     private async Task LoadCategoriesAsync()
@@ -182,10 +200,14 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
             {
                 var pagedData = result.Data;
 
+                // Check email verification once per page load
+                var userResult = await _authRepository.GetCurrentUserAsync();
+                var isEmailVerified = userResult.IsSuccess && userResult.Data?.IsEmailVerified == true;
+
                 Items.Clear();
                 foreach (var product in pagedData.Items)
                 {
-                    Items.Add(new ProductCardViewModel
+                    var productCard = new ProductCardViewModel
                     {
                         Id = product.Id,
                         Name = product.Name,
@@ -195,8 +217,13 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
                         RatingCount = product.RatingCount,
                         Stock = product.Quantity,
                         Category = product.CategoryName ?? product.Category ?? "Uncategorized",
-                        Manufacturer = product.Manufacturer ?? string.Empty
-                    });
+                        Manufacturer = product.Manufacturer ?? string.Empty,
+                        
+                        // Email verification UX
+                        CanAddToCart = isEmailVerified && product.Quantity > 0,
+                        ShowEmailVerification = !isEmailVerified
+                    };
+                    Items.Add(productCard);
                 }
 
                 UpdatePagingInfo(pagedData.TotalCount);
@@ -290,6 +317,18 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
     private async Task ViewProductDetailsAsync(ProductCardViewModel product)
     {
         System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] View details for product: {product.Name} (ID: {product.Id})");
+        
+        // Raise event for view to handle dialog display
+        ProductDetailsRequested?.Invoke(this, product);
+        
+        await Task.CompletedTask;
+    }
+
+    [RelayCommand]
+    private async Task VerifyEmailAsync()
+    {
+        System.Diagnostics.Debug.WriteLine("[ProductBrowseViewModel] Verify email command triggered");
+        // Navigate to profile/email verification page
         await Task.CompletedTask;
     }
 
@@ -346,6 +385,12 @@ public partial class ProductCardViewModel : ObservableObject
 
     [ObservableProperty]
     private string _manufacturer = string.Empty;
+
+    [ObservableProperty]
+    private bool _canAddToCart = true;
+
+    [ObservableProperty]
+    private bool _showEmailVerification = false;
 
     public string FormattedPrice => $"₫{Price:N0}";
     public string StockStatus => Stock > 0 ? $"{Stock} in stock" : "Out of stock";

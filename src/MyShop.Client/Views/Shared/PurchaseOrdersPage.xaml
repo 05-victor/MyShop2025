@@ -15,7 +15,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Shared"
     mc:Ignorable="d"
-    Background="{ThemeResource LayerFillColorAltBrush}">
+    Background="{ThemeResource PageBackgroundBrush}">
 
     <Page.Transitions>
         <TransitionCollection>
@@ -29,51 +29,6 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:CurrencyFormatConverter x:Key="CurrencyFormatConverter"/>
         <converters:CurrencyConverter x:Key="CurrencyConverter"/>
-        <Style x:Key="CardStyle"
-                TargetType="Border">
-            <Setter Property="Background"
-                    Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
-            <Setter Property="CornerRadius"
-                    Value="12"/>
-            <Setter Property="BorderBrush"
-                    Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
-            <Setter Property="BorderThickness"
-                    Value="1"/>
-            <Setter Property="Padding"
-                    Value="24"/>
-        </Style>
-
-        <Style x:Key="StatCardStyle"
-                TargetType="Border">
-            <Setter Property="Background"
-                    Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
-            <Setter Property="CornerRadius"
-                    Value="12"/>
-            <Setter Property="BorderBrush"
-                    Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
-            <Setter Property="BorderThickness"
-                    Value="1"/>
-            <Setter Property="Padding"
-                    Value="16"/>
-        </Style>
-
-        <Style x:Key="FilterToggleButtonStyle"
-                TargetType="ToggleButton">
-            <Setter Property="Background"
-                    Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
-            <Setter Property="Foreground"
-                    Value="{ThemeResource TextFillColorSecondaryBrush}"/>
-            <Setter Property="BorderBrush"
-                    Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
-            <Setter Property="BorderThickness"
-                    Value="1"/>
-            <Setter Property="Padding"
-                    Value="12,8"/>
-            <Setter Property="CornerRadius"
-                    Value="8"/>
-            <Setter Property="MinWidth"
-                    Value="60"/>
-        </Style>
     </Page.Resources>
 
     <Grid>
@@ -136,7 +91,7 @@
         <Grid RowDefinitions="Auto,*,Auto">
         <ScrollViewer Grid.Row="1"
                 VerticalScrollBarVisibility="Auto">
-            <StackPanel x:Name="MainContent" Padding="{StaticResource Padding_2XL}"
+            <StackPanel x:Name="MainContent" Padding="24"
                     Spacing="24">
 
                 <!-- Page Header -->
@@ -156,7 +111,7 @@
 
                     <!-- Total Orders -->
                     <Border Grid.Column="0"
-                            Style="{StaticResource StatCardStyle}"
+                            Style="{StaticResource CardWithShadowStyle}"
                             Margin="0,0,8,0">
                         <StackPanel Orientation="Horizontal"
                                 Spacing="12">
@@ -184,7 +139,7 @@
 
                     <!-- Pending -->
                     <Border Grid.Column="1"
-                            Style="{StaticResource StatCardStyle}"
+                            Style="{StaticResource CardWithShadowStyle}"
                             Margin="4,0">
                         <StackPanel Orientation="Horizontal"
                                 Spacing="12">
@@ -212,7 +167,7 @@
 
                     <!-- In Transit -->
                     <Border Grid.Column="2"
-                            Style="{StaticResource StatCardStyle}"
+                            Style="{StaticResource CardWithShadowStyle}"
                             Margin="4,0">
                         <StackPanel Orientation="Horizontal"
                                 Spacing="12">
@@ -240,7 +195,7 @@
 
                     <!-- Delivered -->
                     <Border Grid.Column="3"
-                            Style="{StaticResource StatCardStyle}"
+                            Style="{StaticResource CardWithShadowStyle}"
                             Margin="4,0">
                         <StackPanel Orientation="Horizontal"
                                 Spacing="12">
@@ -268,7 +223,7 @@
 
                     <!-- Total Spent -->
                     <Border Grid.Column="4"
-                            Style="{StaticResource StatCardStyle}"
+                            Style="{StaticResource CardWithShadowStyle}"
                             Margin="8,0,0,0">
                         <StackPanel Orientation="Horizontal"
                                 Spacing="12">
