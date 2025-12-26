@@ -111,7 +111,7 @@
 
                     <!-- Total Orders -->
                     <Border Grid.Column="0"
-                            Style="{StaticResource StatCardStyle}"
+                            Style="{StaticResource CardWithShadowStyle}"
                             Margin="0,0,8,0">
                         <StackPanel Orientation="Horizontal"
                                 Spacing="12">
@@ -139,7 +139,7 @@
 
                     <!-- Pending -->
                     <Border Grid.Column="1"
-                            Style="{StaticResource StatCardStyle}"
+                            Style="{StaticResource CardWithShadowStyle}"
                             Margin="4,0">
                         <StackPanel Orientation="Horizontal"
                                 Spacing="12">
@@ -167,7 +167,7 @@
 
                     <!-- In Transit -->
                     <Border Grid.Column="2"
-                            Style="{StaticResource StatCardStyle}"
+                            Style="{StaticResource CardWithShadowStyle}"
                             Margin="4,0">
                         <StackPanel Orientation="Horizontal"
                                 Spacing="12">
@@ -195,7 +195,7 @@
 
                     <!-- Delivered -->
                     <Border Grid.Column="3"
-                            Style="{StaticResource StatCardStyle}"
+                            Style="{StaticResource CardWithShadowStyle}"
                             Margin="4,0">
                         <StackPanel Orientation="Horizontal"
                                 Spacing="12">
@@ -223,7 +223,7 @@
 
                     <!-- Total Spent -->
                     <Border Grid.Column="4"
-                            Style="{StaticResource StatCardStyle}"
+                            Style="{StaticResource CardWithShadowStyle}"
                             Margin="8,0,0,0">
                         <StackPanel Orientation="Horizontal"
                                 Spacing="12">
