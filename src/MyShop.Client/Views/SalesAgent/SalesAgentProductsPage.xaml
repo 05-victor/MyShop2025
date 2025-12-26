@@ -1,3 +1,18 @@
+<!--
+SalesAgentProductsPage
+======================
+Pattern: Grid (based on ProductBrowsePage)
+
+Components Used:
+- PageHeader: Title + Action buttons (Refresh, Export, Add Product)
+- SearchCard: Product search with auto-suggestions
+- FilterCard: Category, Brand, Price, Sort filters with Apply/Reset
+- IconButton: Refresh, Export, Add Product
+- StockBadge: Product stock status
+
+Refactored: December 26, 2025
+Matches ProductBrowsePage pattern - Uses SearchCard, FilterCard, and standard components
+-->
 <?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="MyShop.Client.Views.SalesAgent.SalesAgentProductsPage"
@@ -17,7 +32,7 @@
     xmlns:converters="using:MyShop.Client.Common.Converters"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.SalesAgent"
     mc:Ignorable="d"
-    Background="{ThemeResource LayerFillColorDefaultBrush}">
+    Background="{ThemeResource PageBackgroundBrush}">
 
     <Page.Transitions>
         <TransitionCollection>
@@ -103,9 +118,10 @@
                     </TransitionCollection>
                 </Grid.Transitions>
                 <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  Background="{ThemeResource PageBackgroundBrush}">
                         <Grid x:Name="MainGrid"
-                              Padding="{StaticResource Padding_XL}"
+                              Padding="24"
                               RowSpacing="16">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
