@@ -1,3 +1,24 @@
+<!--
+    ProfilePage - Form Pattern
+    Based on: CheckoutPage.xaml
+    
+    UI Pattern: Form with sections (Profile Header Banner + Info Sections)
+    Key Components:
+    - Gradient header banner: Profile avatar and name
+    - Form sections: Personal Info, Account Settings, Password Change
+    - IconButton: Action buttons (Edit, Save, Change Password, etc.)
+    
+    Styles Used:
+    - CardWithShadowStyle: For all section cards (replaces inline CardStyle)
+    - BaseInputStyle, InputLabelStyle: For form inputs (replaces FormInputStyle)
+    - PrimaryButtonStyle, SecondaryButtonStyle: For action buttons (replaces OutlineButtonStyle)
+    
+    Theme Resources:
+    - PageBackgroundBrush: Page background (Light/Dark theme adaptive)
+    - CardBackgroundFillColorDefaultBrush: Section card background
+    - TextFillColorPrimaryBrush, TextFillColorSecondaryBrush: Text colors
+    - PrimaryBrush, AccentBlueBrush: Gradient colors
+-->
 <Page
     x:Class="MyShop.Client.Views.Shared.ProfilePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -8,7 +29,7 @@
     xmlns:winuic="using:Microsoft.UI.Xaml.Controls"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{ThemeResource PageBackgroundBrush}">
 
     <Page.Transitions>
         <TransitionCollection>
@@ -24,15 +45,6 @@
         <converters:StringToImageSourceConverter x:Key="StringToImageSource"/>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
 
-        <!-- Note: Using ThemeResource brushes directly in the page for proper dark/light theme support -->
-        <!-- TextPrimaryBrush → {ThemeResource TextFillColorPrimaryBrush} -->
-        <!-- TextSecondaryBrush → {ThemeResource TextFillColorSecondaryBrush} -->
-        <!-- BorderBrush → {ThemeResource CardStrokeColorDefaultBrush} -->
-        <!-- AdminBlueBrush → {ThemeResource AccentFillColorDefaultBrush} -->
-        <!-- SuccessBrush → {ThemeResource SystemFillColorSuccessBrush} -->
-        <!-- WarningBrush → {ThemeResource SystemFillColorCautionBrush} -->
-        <!-- DisabledBackgroundBrush → {ThemeResource LayerFillColorDefaultBrush} -->
-
         <LinearGradientBrush x:Key="AdminGradientBrush"
                              StartPoint="0,0"
                              EndPoint="1,0">
@@ -41,47 +53,6 @@
             <GradientStop Color="{ThemeResource AccentBlueBrush}"
                           Offset="1.0"/>
         </LinearGradientBrush>
-
-        <!-- Style cho Card -->
-        <Style x:Key="CardStyle"
-               TargetType="Border">
-            <Setter Property="Background"
-                    Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
-            <Setter Property="BorderBrush"
-                    Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
-            <Setter Property="BorderThickness"
-                    Value="1"/>
-            <Setter Property="CornerRadius"
-                    Value="16"/>
-            <Setter Property="Padding"
-                    Value="24"/>
-            <Setter Property="Shadow">
-                <Setter.Value>
-                    <ThemeShadow/>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Style cho các nút hành động phụ -->
-        <Style x:Key="OutlineButtonStyle"
-               TargetType="Button"
-               BasedOn="{StaticResource DefaultButtonStyle}">
-            <Setter Property="HorizontalContentAlignment"
-                    Value="Stretch"/>
-            <Setter Property="Padding"
-                    Value="10,5"/>
-        </Style>
-
-        <!-- Style cho Input -->
-        <Style x:Key="FormInputStyle"
-               TargetType="TextBox">
-            <Setter Property="Foreground"
-                    Value="{ThemeResource TextFillColorPrimaryBrush}"/>
-            <Setter Property="PlaceholderForeground"
-                    Value="{ThemeResource TextFillColorSecondaryBrush}"/>
-            <Setter Property="BorderBrush"
-                    Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
-        </Style>
     </Page.Resources>
 
     <Grid>
@@ -379,7 +350,7 @@
                     <!-- Content Sections -->
                     <StackPanel Spacing="24">
                         <!-- Personal Information -->
-                        <Border Style="{StaticResource CardStyle}">
+                        <Border Style="{StaticResource CardWithShadowStyle}">
                             <StackPanel Spacing="24">
                                 <!-- Card Header -->
                                 <Grid>
@@ -439,7 +410,7 @@
                                              Grid.ColumnSpan="2"
                                              Header="Full Name"
                                              Text="{x:Bind ViewModel.FullName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource FormInputStyle}"
+                                             Style="{StaticResource BaseInputStyle}"
                                              IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
 
                                     <!-- Phone Number (left) -->
@@ -447,7 +418,7 @@
                                              Grid.Column="0"
                                              Header="Phone Number"
                                              Text="{x:Bind ViewModel.PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource FormInputStyle}"
+                                             Style="{StaticResource BaseInputStyle}"
                                              IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
 
                                     <!-- Email with Badge (right) -->
@@ -491,7 +462,7 @@
                                             </Border>
                                         </StackPanel>
                                         <TextBox Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                 Style="{StaticResource FormInputStyle}"
+                                                 Style="{StaticResource BaseInputStyle}"
                                                  IsEnabled="{x:Bind ViewModel.CanEditEmail, Mode=OneWay}"/>
 
                                     </StackPanel>
@@ -501,14 +472,14 @@
                                              Grid.ColumnSpan="2"
                                              Header="Address"
                                              Text="{x:Bind ViewModel.Address, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource FormInputStyle}"
+                                             Style="{StaticResource BaseInputStyle}"
                                              IsEnabled="{x:Bind ViewModel.IsEditing, Mode=OneWay}"/>
                                 </Grid>
                             </StackPanel>
                         </Border>
 
                         <!-- Account Security -->
-                        <Border Style="{StaticResource CardStyle}">
+                        <Border Style="{StaticResource CardWithShadowStyle}">
                             <StackPanel Spacing="16">
                                 <StackPanel Orientation="Horizontal"
                                             Spacing="8"
