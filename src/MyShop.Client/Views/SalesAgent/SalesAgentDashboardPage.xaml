@@ -1,4 +1,22 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+﻿<!--
+SalesAgentDashboardPage
+=======================
+Pattern: Dashboard (based on AdminDashboardPage)
+
+Components Used:
+- PageHeader: Title + Subtitle + DateRange ComboBox + Export button
+- KPICard: Total Products, Total Sales, Commission Earned, Total Revenue (4 KPIs)
+- LineChartCard: Revenue & Commission trend chart
+- IconButton: Export button
+- InfoBar: Email verification warning
+
+Card Styles:
+- CardWithShadowStyle: Top Selling Products, Low Stock Products, Recent Orders
+
+Refactored: December 26, 2025
+Matches 4 exemplary pages pattern - Uses KPICard component and CardWithShadowStyle
+-->
+<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="MyShop.Client.Views.SalesAgent.SalesAgentDashboardPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -12,7 +30,7 @@
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     mc:Ignorable="d"
-    Background="{ThemeResource LayerFillColorDefaultBrush}"
+    Background="{ThemeResource PageBackgroundBrush}"
     x:Name="MyPage">
 
     <Page.Transitions>
@@ -112,9 +130,10 @@
                 </TransitionCollection>
             </Grid.Transitions>
             <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              Background="{ThemeResource PageBackgroundBrush}">
                     <Grid x:Name="MainContent"
-                          Padding="{StaticResource Padding_XL}"
+                          Padding="24"
                           RowSpacing="16">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
