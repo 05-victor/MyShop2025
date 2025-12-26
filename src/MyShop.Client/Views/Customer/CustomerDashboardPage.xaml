@@ -284,17 +284,7 @@
 
                                             <!-- Add to Cart Button -->
                                             <Button HorizontalAlignment="Stretch"
-                                                    Background="{ThemeResource AccentBlueBrush}"
-                                                    Foreground="{ThemeResource WhiteBrush}"
-                                                    BorderThickness="0"
-                                                    CornerRadius="8"
-                                                    Padding="0,10">
-                                                <Button.Resources>
-                                                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver"
-                                                            Color="{ThemeResource AccentBlueBrush}"/>
-                                                    <SolidColorBrush x:Key="ButtonBackgroundPressed"
-                                                            Color="{ThemeResource AccentBlueBrush}"/>
-                                                </Button.Resources>
+                                                    Style="{StaticResource PrimaryButtonStyle}">
                                                 <StackPanel Orientation="Horizontal"
                                                             Spacing="8"
                                                             HorizontalAlignment="Center">
@@ -405,17 +395,7 @@
 
                                             <!-- Add to Cart Button -->
                                             <Button HorizontalAlignment="Stretch"
-                                                    Background="{ThemeResource AccentBlueBrush}"
-                                                    Foreground="{ThemeResource WhiteBrush}"
-                                                    BorderThickness="0"
-                                                    CornerRadius="8"
-                                                    Padding="0,10">
-                                                <Button.Resources>
-                                                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver"
-                                                            Color="{ThemeResource AccentBlueBrush}"/>
-                                                    <SolidColorBrush x:Key="ButtonBackgroundPressed"
-                                                            Color="{ThemeResource AccentBlueBrush}"/>
-                                                </Button.Resources>
+                                                    Style="{StaticResource PrimaryButtonStyle}">
                                                 <StackPanel Orientation="Horizontal"
                                                             Spacing="8"
                                                             HorizontalAlignment="Center">

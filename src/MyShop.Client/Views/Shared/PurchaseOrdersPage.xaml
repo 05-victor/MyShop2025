@@ -50,24 +50,6 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:CurrencyFormatConverter x:Key="CurrencyFormatConverter"/>
         <converters:CurrencyConverter x:Key="CurrencyConverter"/>
-
-        <Style x:Key="FilterToggleButtonStyle"
-                TargetType="ToggleButton">
-            <Setter Property="Background"
-                    Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
-            <Setter Property="Foreground"
-                    Value="{ThemeResource TextFillColorSecondaryBrush}"/>
-            <Setter Property="BorderBrush"
-                    Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
-            <Setter Property="BorderThickness"
-                    Value="1"/>
-            <Setter Property="Padding"
-                    Value="12,8"/>
-            <Setter Property="CornerRadius"
-                    Value="8"/>
-            <Setter Property="MinWidth"
-                    Value="60"/>
-        </Style>
     </Page.Resources>
 
     <Grid>
