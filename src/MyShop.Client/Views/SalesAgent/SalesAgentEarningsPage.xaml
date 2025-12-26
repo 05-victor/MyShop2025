@@ -1,24 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    SalesAgentEarningsPage - Table Pattern with KPI Grid
-    Based on: AdminUsersPage.xaml, SalesAgentDashboardPage.xaml
-    
-    UI Pattern: Table with extensive KPIs + Filters
-    Key Components:
-    - PageHeader: Title, subtitle, action buttons (Refresh, Export CSV/PDF)
-    - KPICard: 6 KPI cards (Total Earnings, Platform Fees, Net Earnings, Paid Out, Pending, Total Orders)
-    - FilterCard: Date range, payment status, product/category filters
-    - InfoBar: Platform fee information banner
-    
-    Styles Used:
-    - CardWithShadowStyle: For all card containers
-    - PrimaryButtonStyle, SecondaryButtonStyle: For action buttons
-    
-    Theme Resources:
-    - PageBackgroundBrush: Page background (Light/Dark theme adaptive)
-    - TextFillColorPrimaryBrush, TextFillColorSecondaryBrush: Text colors
-    - SuccessGreenBrush, ErrorRedBrush, PrimaryBrush: Status colors
--->
 <Page
     x:Class="MyShop.Client.Views.SalesAgent.EarningsPage"
     x:Name="RootPage"

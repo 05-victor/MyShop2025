@@ -1,28 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<!--
-    CartPage - Custom Pattern (Cart/Checkout Hybrid)
-    Based on: CheckoutPage.xaml
-    
-    UI Pattern: Two-column layout (Cart Items + Order Summary)
-    Key Components:
-    - PageHeader: Title, subtitle, action buttons (Continue Shopping, Clear Cart)
-    - IconButton: Action buttons in header
-    - StatusBadge: For order item status (if needed)
-    
-    Styles Used:
-    - CardWithShadowStyle: For cart item cards, order summary card
-    - PrimaryButtonStyle, SecondaryButtonStyle: For action buttons
-    
-    Theme Resources:
-    - PageBackgroundBrush: Page background (Light/Dark theme adaptive)
-    - CardBackgroundBrush: Cart item/summary card background
-    - TextFillColorPrimaryBrush, TextFillColorSecondaryBrush: Text colors
-    
-    CRITICAL FIX NEEDED:
-    - Must group cart items by SalesAgent
-    - Must allow selecting 1 shop (SalesAgent) per checkout
-    - Currently flat list without grouping
--->
 <Page
     x:Class="MyShop.Client.Views.Shared.CartPage"
     x:Name="RootPage"

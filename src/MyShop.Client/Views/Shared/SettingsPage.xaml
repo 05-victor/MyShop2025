@@ -1,27 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    SettingsPage - Form Pattern
-    Based on: CheckoutPage.xaml (form sections), AdminDashboardPage.xaml (settings structure)
-    
-    UI Pattern: Form with tabs (General, Appearance, Notifications, About)
-    Key Components:
-    - PageHeader: Title, subtitle
-    - TabView: Settings categories
-    - Form sections: Input fields for various settings
-    - IconButton: Action buttons (Save, Cancel, etc.)
-    
-    Styles Used:
-    - CardWithShadowStyle: For section cards (replaced via inline Background/BorderBrush)
-    - BaseInputStyle, InputLabelStyle: For form inputs
-    - PrimaryButtonStyle, SecondaryButtonStyle: For action buttons
-    
-    Theme Resources:
-    - PageBackgroundBrush: Page background (Light/Dark theme adaptive)
-    - CardBackgroundFillColorDefaultBrush: Section card background
-    - TextFillColorPrimaryBrush, TextFillColorSecondaryBrush: Text colors
-    
-    NOTE: Already mostly correct (dark theme baseline), only minor tweaks needed
--->
 <Page
     x:Class="MyShop.Client.Views.Shared.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"

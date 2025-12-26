@@ -1,25 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    PurchaseOrdersPage - Table Pattern
-    Based on: AdminUsersPage.xaml
-    
-    UI Pattern: Table with stats + filters + pagination
-    Key Components:
-    - PageHeader: Title, subtitle
-    - Stats cards: Total orders, pending, completed, cancelled
-    - FilterCard: Status filters (toggle buttons)
-    - StatusBadge: Order status chips
-    - Pagination: Page navigation
-    
-    Styles Used:
-    - CardWithShadowStyle: For all card containers (replaces inline CardStyle/StatCardStyle)
-    - FilterToggleButtonStyle: For status filter buttons (kept as inline - unique to this page)
-    
-    Theme Resources:
-    - PageBackgroundBrush: Page background (Light/Dark theme adaptive)
-    - CardBackgroundFillColorDefaultBrush: Card background
-    - TextFillColorPrimaryBrush, TextFillColorSecondaryBrush: Text colors
--->
 <Page
     x:Class="MyShop.Client.Views.Shared.PurchaseOrdersPage"
     x:Name="PageRoot"

@@ -1,22 +1,3 @@
-<!--
-AdminAgentRequestsPage
-======================
-Pattern: Hybrid (Table + Cards) - based on AdminUsersPage + AdminDashboardPage
-
-Components Used:
-- PageHeader: Title + Subtitle + Refresh button
-- IconButton: Refresh, Approve, Reject, View Profile, Previous, Next
-- StatusBadge: Request status (Pending, Approved, Rejected)
-- UserAvatarInfo: User info with avatar (from Tables component)
-- AlertBox: Rejection reason display
-- TabView: Filter by status tabs
-
-Card Styles:
-- CardWithShadowStyle: Empty state, Request cards, Pagination (via inline ThemeShadow)
-
-Refactored: December 26, 2025
-Matches 4 exemplary pages pattern - Uses components and ThemeResource
--->
 <?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="MyShop.Client.Views.Admin.AdminAgentRequestsPage"

@@ -1,18 +1,3 @@
-<!--
-SalesAgentProductsPage
-======================
-Pattern: Grid (based on ProductBrowsePage)
-
-Components Used:
-- PageHeader: Title + Action buttons (Refresh, Export, Add Product)
-- SearchCard: Product search with auto-suggestions
-- FilterCard: Category, Brand, Price, Sort filters with Apply/Reset
-- IconButton: Refresh, Export, Add Product
-- StockBadge: Product stock status
-
-Refactored: December 26, 2025
-Matches ProductBrowsePage pattern - Uses SearchCard, FilterCard, and standard components
--->
 <?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="MyShop.Client.Views.SalesAgent.SalesAgentProductsPage"

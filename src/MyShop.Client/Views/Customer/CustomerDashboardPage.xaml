@@ -1,24 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    CustomerDashboardPage - Dashboard Pattern
-    Based on: AdminDashboardPage.xaml
-    
-    UI Pattern: Dashboard with featured products grid
-    Key Components:
-    - PageHeader (inline): Welcome banner with call-to-action buttons
-    - IconButton: Shop Now, Become Agent buttons
-    - BecomeAdminBanner: Dynamic admin activation banner
-    
-    Styles Used:
-    - CardWithShadowStyle: For welcome banner and product cards
-    - ProductCardStyle: For featured/recommended product cards
-    - PrimaryButtonStyle, SecondaryButtonStyle: For action buttons
-    
-    Theme Resources:
-    - PageBackgroundBrush: Page background (Light/Dark theme adaptive)
-    - TextFillColorPrimaryBrush, TextFillColorSecondaryBrush: Text colors
-    - AccentBlueBrush, PrimaryBrush: Action/price colors
--->
 <Page
     x:Class="MyShop.Client.Views.Customer.CustomerDashboardPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"

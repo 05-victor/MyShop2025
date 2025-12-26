@@ -1,24 +1,3 @@
-<!--
-AdminProductsPage
-=================
-Pattern: Table (based on AdminUsersPage)
-
-Components Used:
-- PageHeader: Title + Subtitle + Action buttons (Refresh, Export)
-- SearchCard: Product search with auto-suggestions
-- IconButton: Refresh, Export, Apply Filters, View, Delete
-- StockBadge: Stock status indicator
-- SkeletonTable: Loading state
-
-Button Styles:
-- SecondaryButtonStyle: Previous, Next pagination buttons
-
-Card Styles:
-- CardWithShadowStyle: Filters card, Products table card
-
-Refactored: December 26, 2025
-Matches 4 exemplary pages pattern - NO inline styles, all components/styles from Themes/
--->
 <?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="MyShop.Client.Views.Admin.AdminProductsPage"

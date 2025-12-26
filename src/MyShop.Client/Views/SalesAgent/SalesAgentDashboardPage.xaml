@@ -1,22 +1,4 @@
-﻿<!--
-SalesAgentDashboardPage
-=======================
-Pattern: Dashboard (based on AdminDashboardPage)
-
-Components Used:
-- PageHeader: Title + Subtitle + DateRange ComboBox + Export button
-- KPICard: Total Products, Total Sales, Commission Earned, Total Revenue (4 KPIs)
-- LineChartCard: Revenue & Commission trend chart
-- IconButton: Export button
-- InfoBar: Email verification warning
-
-Card Styles:
-- CardWithShadowStyle: Top Selling Products, Low Stock Products, Recent Orders
-
-Refactored: December 26, 2025
-Matches 4 exemplary pages pattern - Uses KPICard component and CardWithShadowStyle
--->
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="MyShop.Client.Views.SalesAgent.SalesAgentDashboardPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
