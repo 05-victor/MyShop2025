@@ -12,7 +12,7 @@ namespace MyShop.Plugins.API.Auth;
 public interface IAuthApi
 {
     /// <summary>
-    /// Authenticate user and get JWT token.
+    /// Authenticate user and get JWT access + refresh tokens.
     /// </summary>
     [Post("/api/v1/auth/login")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<LoginResponse>>> LoginAsync([Body] LoginRequest request);
@@ -28,4 +28,17 @@ public interface IAuthApi
     /// </summary>
     [Get("/api/v1/users/me")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<UserInfoResponse>>> GetMeAsync();
+
+    /// <summary>
+    /// Refresh access token using refresh token.
+    /// Returns new access token and optionally a new refresh token (if rotation is enabled).
+    /// </summary>
+    [Post("/api/v1/auth/refresh-token")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<RefreshTokenResponse>>> RefreshTokenAsync([Body] RefreshTokenRequest request);
+
+    /// <summary>
+    /// Revoke a refresh token (for logout or security purposes).
+    /// </summary>
+    [Post("/api/v1/auth/revoke-token")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<object>>> RevokeTokenAsync([Body] RefreshTokenRequest request);
 }

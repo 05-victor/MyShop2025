@@ -33,8 +33,6 @@ namespace MyShop.Server.Services.Implementations
         /// <summary>
         /// Generate a JWT access token for the specified user
         /// </summary>
-        /// <param name="user">User entity to generate token for</param>
-        /// <returns>JWT token string</returns>
         public async Task<string> GenerateAccessTokenAsync(User user)
         {
             try
@@ -60,7 +58,7 @@ namespace MyShop.Server.Services.Implementations
                     // add role claims
                     foreach (var roleName in effectiveAuthoritiesResponse.RoleNames)
                     {
-                        claims.Add(new Claim("role", roleName)); // Use "role" directly
+                        claims.Add(new Claim("role", roleName));
                     }
                 }
 
@@ -75,7 +73,7 @@ namespace MyShop.Server.Services.Implementations
 
                 var issuer = _configuration["JwtSettings:Issuer"] ?? "MyShop.Server";
                 var audience = _configuration["JwtSettings:Audience"] ?? "MyShop.Client";
-                var expiryInMinutes = _configuration.GetValue<int>("JwtSettings:ExpiryInMinutes", 60);
+                var expiryInMinutes = GetAccessTokenExpirationMinutes();
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
                 var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -92,7 +90,8 @@ namespace MyShop.Server.Services.Implementations
                 var token = _tokenHandler.CreateToken(tokenDescriptor);
                 var tokenString = _tokenHandler.WriteToken(token);
 
-                _logger.LogInformation("JWT token generated successfully for user: {Username}", user.Username);
+                _logger.LogInformation("JWT access token generated for user: {Username}, expires in {Minutes} minutes", 
+                    user.Username, expiryInMinutes);
                 return tokenString;
             }
             catch (Exception ex)
@@ -103,10 +102,9 @@ namespace MyShop.Server.Services.Implementations
         }
 
         /// <summary>
-        /// Generate a refresh token
+        /// Generate a cryptographically secure refresh token
         /// </summary>
-        /// <returns>Refresh token string</returns>
-        public string GenerateRefreshToken()
+        public string GenerateRefreshToken(string? ipAddress = null)
         {
             try
             {
@@ -115,7 +113,7 @@ namespace MyShop.Server.Services.Implementations
                 rng.GetBytes(randomBytes);
                 var refreshToken = Convert.ToBase64String(randomBytes);
 
-                _logger.LogDebug("Refresh token generated successfully");
+                _logger.LogDebug("Refresh token generated from IP: {IpAddress}", ipAddress ?? "Unknown");
                 return refreshToken;
             }
             catch (Exception ex)
@@ -128,8 +126,6 @@ namespace MyShop.Server.Services.Implementations
         /// <summary>
         /// Validate a JWT token and extract claims
         /// </summary>
-        /// <param name="token">JWT token to validate</param>
-        /// <returns>ClaimsPrincipal if valid, null if invalid</returns>
         public ClaimsPrincipal? ValidateToken(string token)
         {
             try
@@ -183,6 +179,22 @@ namespace MyShop.Server.Services.Implementations
                 _logger.LogError(ex, "Unexpected error during JWT token validation");
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Get access token expiration time from configuration
+        /// </summary>
+        public int GetAccessTokenExpirationMinutes()
+        {
+            return _configuration.GetValue<int>("JwtSettings:AccessTokenExpiryInMinutes", 60);
+        }
+
+        /// <summary>
+        /// Get refresh token expiration time from configuration
+        /// </summary>
+        public int GetRefreshTokenExpirationDays()
+        {
+            return _configuration.GetValue<int>("JwtSettings:RefreshTokenExpiryInDays", 7);
         }
     }
 }

@@ -86,19 +86,18 @@ builder.Services.AddAuthentication(options =>
         OnAuthenticationFailed = context =>
         {
             var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-            logger.LogError("❌ Authentication failed: {Message}", context.Exception.Message);
+            logger.LogError("Authentication failed: {Message}", context.Exception.Message);
             return Task.CompletedTask;
         },
         OnTokenValidated = context =>
         {
             var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
             var username = context.Principal?.Identity?.Name;
-            logger.LogInformation("✅ Token validated for user: {User}", username);
+            logger.LogInformation("Token validated for user: {User}", username);
             
-            // Debug: Log all claims in the token
             if (context.Principal != null)
             {
-                logger.LogInformation("📋 Token claims:");
+                logger.LogInformation("Token claims:");
                 foreach (var claim in context.Principal.Claims)
                 {
                     logger.LogInformation("  - {Type}: {Value}", claim.Type, claim.Value);
@@ -145,6 +144,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserAuthorityService, UserAuthorityService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IEmailNotificationService, EmailNotificationService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
@@ -164,6 +164,9 @@ builder.Services.AddHttpClient<IEmailNotificationService, EmailNotificationServi
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 
+// Register ForecastService
+builder.Services.AddScoped<IForecastService, ForecastService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -172,17 +175,15 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-// ✅ IMPORTANT: Add Global Exception Handler FIRST (before other middleware)
 app.UseGlobalExceptionHandler();
 
-// ✅ Add connection logging middleware
 app.Use(async (context, next) =>
 {
     var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
     var connectionId = context.Connection.Id;
     var clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
     
-    logger.LogInformation("✅ Client connected: {ConnectionId} from {ClientIP}", connectionId, clientIp);
+    logger.LogInformation("Client connected: {ConnectionId} from {ClientIP}", connectionId, clientIp);
     
     try
     {
@@ -190,7 +191,7 @@ app.Use(async (context, next) =>
     }
     finally
     {
-        logger.LogInformation("⚠️ Client disconnected: {ConnectionId} from {ClientIP}", connectionId, clientIp);
+        logger.LogInformation("Client disconnected: {ConnectionId} from {ClientIP}", connectionId, clientIp);
     }
 });
 

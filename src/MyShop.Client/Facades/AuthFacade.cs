@@ -94,11 +94,12 @@ public class AuthFacade : IAuthFacade
             // Step 3: Set current user for per-user storage
             SetCurrentUserForStorage(user.Id.ToString());
 
-            // Step 4: Save token if remember me
+            // Step 4: Save tokens if remember me
             if (rememberMe && !string.IsNullOrEmpty(user.Token))
             {
-                await _credentialStorage.SaveToken(user.Token);
-                System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] Token saved (rememberMe=true)");
+                // Refresh token is already saved in AuthRepository.LoginAsync()
+                // No need to save again here
+                System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] Tokens already saved by AuthRepository (rememberMe=true)");
             }
 
             // Step 5: Fetch complete user profile from GetMe endpoint

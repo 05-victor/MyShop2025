@@ -23,11 +23,16 @@ public class FileCredentialStorage : ICredentialStorage
         _filePath = Path.Combine(appFolder, "credentials.json");
     }
 
-    public async Task<Result<Unit>> SaveToken(string token)
+    public async Task<Result<Unit>> SaveToken(string accessToken, string? refreshToken = null)
     {
         try
         {
-            var data = new { Token = token, SavedAt = DateTime.UtcNow };
+            var data = new TokenData
+            {
+                Token = accessToken,
+                RefreshToken = refreshToken,
+                SavedAt = DateTime.UtcNow
+            };
             var json = JsonSerializer.Serialize(data);
             await File.WriteAllTextAsync(_filePath, json);
             return Result<Unit>.Success(Unit.Value);
@@ -35,7 +40,7 @@ public class FileCredentialStorage : ICredentialStorage
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[FileCredentialStorage] SaveToken failed: {ex.Message}");
-            return Result<Unit>.Failure($"Failed to save token: {ex.Message}");
+            return Result<Unit>.Failure($"Failed to save tokens: {ex.Message}");
         }
     }
 
@@ -53,6 +58,24 @@ public class FileCredentialStorage : ICredentialStorage
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[FileCredentialStorage] GetToken failed: {ex.Message}");
+            return null;
+        }
+    }
+
+    public string? GetRefreshToken()
+    {
+        try
+        {
+            if (!File.Exists(_filePath))
+                return null;
+
+            var json = File.ReadAllText(_filePath);
+            var data = JsonSerializer.Deserialize<TokenData>(json);
+            return data?.RefreshToken;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[FileCredentialStorage] GetRefreshToken failed: {ex.Message}");
             return null;
         }
     }
@@ -77,6 +100,7 @@ public class FileCredentialStorage : ICredentialStorage
     private class TokenData
     {
         public string Token { get; set; } = string.Empty;
+        public string? RefreshToken { get; set; }
         public DateTime SavedAt { get; set; }
     }
 }

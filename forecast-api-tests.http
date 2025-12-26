@@ -1,0 +1,80 @@
+# Forecast API Test Endpoints
+# Test the C# backend that calls Python ML service
+
+### Variables
+@baseUrl = http://localhost:5228
+@forecastUrl = {{baseUrl}}/api/v1/forecasts
+
+### Health Check - Forecast Service
+GET {{forecastUrl}}/health
+Content-Type: application/json
+
+### Demand Forecast - Basic test
+POST {{forecastUrl}}/demand
+Content-Type: application/json
+
+{
+    "week": "17/01/11",
+    "store_id": 8091,
+    "sku_id": 216418,
+    "base_price": 111.8625,
+    "total_price": 99.0375,
+    "is_featured_sku": 0,
+    "is_display_sku": 0
+}
+
+### Demand Forecast - Without total_price (should default to base_price)
+POST {{forecastUrl}}/demand
+Content-Type: application/json
+
+{
+    "week": "17/01/11",
+    "store_id": 8091,
+    "sku_id": 216418,
+    "base_price": 111.8625,
+    "is_featured_sku": 1,
+    "is_display_sku": 1
+}
+
+### Price Forecast - Linear strategy (default)
+POST {{forecastUrl}}/price
+Content-Type: application/json
+
+{
+    "Store": 1,
+    "Dept": 1,
+    "Date": "2012-11-02"
+}
+
+### Price Forecast - Linear strategy (explicit)
+POST {{forecastUrl}}/price
+Content-Type: application/json
+
+{
+    "Store": 1,
+    "Dept": 1,
+    "Date": "2012-11-02",
+    "strategy": "linear"
+}
+
+### Price Forecast - DNN strategy
+POST {{forecastUrl}}/price
+Content-Type: application/json
+
+{
+    "Store": 1,
+    "Dept": 1,
+    "Date": "2012-11-02",
+    "strategy": "dnn"
+}
+
+### Price Forecast - Different store/dept
+POST {{forecastUrl}}/price
+Content-Type: application/json
+
+{
+    "Store": 5,
+    "Dept": 10,
+    "Date": "2012-12-15",
+    "strategy": "linear"
+}
