@@ -53,4 +53,13 @@ public interface IDashboardService
         Guid? categoryId = null,
         int pageNumber = 1,
         int pageSize = 10);
+
+    /// <summary>
+    /// Get sales agent personal reports (Sales Agent only)
+    /// Returns revenue trends, orders by category, and top products for the current sales agent
+    /// </summary>
+    /// <param name="period">Report period: "day", "week", "month", "year"</param>
+    /// <param name="categoryId">Optional category filter</param>
+    /// <returns>Sales agent reports data</returns>
+    Task<SalesAgentReportsResponse> GetSalesAgentReportsAsync(string period, Guid? categoryId = null);
 }

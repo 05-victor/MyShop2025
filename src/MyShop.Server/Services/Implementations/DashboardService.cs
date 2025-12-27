@@ -1077,20 +1077,6 @@ public class DashboardService : IDashboardService
     }
 
     /// <summary>
-    /// Get initials from first and last name
-    /// </summary>
-    private static string GetInitials(string firstName, string lastName)
-    {
-        var initials = "";
-        if (!string.IsNullOrWhiteSpace(firstName))
-            initials += firstName[0];
-        if (!string.IsNullOrWhiteSpace(lastName))
-            initials += lastName[0];
-
-        return string.IsNullOrEmpty(initials) ? "?" : initials.ToUpper();
-    }
-
-    /// <summary>
     /// Determine stock status based on quantity and product status
     /// </summary>
     private static string GetStockStatus(int quantity, ProductStatus status)
@@ -1118,6 +1104,291 @@ public class DashboardService : IDashboardService
             _ => "#10b981"
         };
     }
+
+    #endregion
+
+    #region Sales Agent Reports
+
+    public async Task<SalesAgentReportsResponse> GetSalesAgentReportsAsync(string period, Guid? categoryId = null)
+    {
+        try
+        {
+            var currentUserId = _currentUserService.UserId;
+            if (!currentUserId.HasValue)
+            {
+                throw new UnauthorizedAccessException("User not authenticated");
+            }
+
+            var salesAgentId = currentUserId.Value;
+            _logger.LogInformation(
+                "Generating sales agent reports for {AgentId}, period: {Period}, categoryId: {CategoryId}",
+                salesAgentId, period, categoryId);
+
+            var response = new SalesAgentReportsResponse();
+
+            // Get date range based on period
+            var (startDate, endDate) = GetDateRangeForPeriod(period);
+
+            _logger.LogDebug("Date range: {Start} to {End}", startDate, endDate);
+
+            // Get all orders for this sales agent in the period (exclude cancelled)
+            var orders = await _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                        .ThenInclude(p => p.Category)
+                .Where(o => o.SaleAgentId == salesAgentId)
+                .Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate)
+                .Where(o => o.Status != OrderStatus.Cancelled)
+                .ToListAsync();
+
+            _logger.LogDebug("Found {Count} orders for sales agent in period", orders.Count);
+
+            // 1. Revenue Trend
+            response.RevenueTrend = await GenerateSalesAgentRevenueTrendAsync(period, startDate, endDate, orders);
+            _logger.LogDebug("Revenue trend: {Count} data points", response.RevenueTrend.Count);
+
+            // 2. Orders by Category
+            response.OrdersByCategory = await GenerateSalesAgentOrdersByCategoryAsync(orders, categoryId);
+            _logger.LogDebug("Orders by category: {Count} categories", response.OrdersByCategory.Count);
+
+            // 3. Top Products (top 5)
+            response.TopProducts = await GenerateSalesAgentTopProductsAsync(orders, categoryId);
+            _logger.LogDebug("Top products: {Count} products", response.TopProducts.Count);
+
+            _logger.LogInformation("Sales agent reports generated successfully for {AgentId}", salesAgentId);
+
+            return response;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating sales agent reports");
+            throw;
+        }
+    }
+
+    #region Sales Agent Reports Helper Methods
+
+    /// <summary>
+    /// Get date range for period (always "current" period, e.g., "this week", "this month")
+    /// </summary>
+    private static (DateTime startDate, DateTime endDate) GetDateRangeForPeriod(string period)
+    {
+        var now = DateTime.UtcNow;
+
+        return period.ToLower() switch
+        {
+            "day" => (now.Date, now),                                    // Today: 00:00:00 to now
+            "week" => (GetStartOfWeek(now), now),                        // This week: Monday to now
+            "month" => (now.StartOfMonth(), now),                        // This month: 1st to now
+            "year" => (new DateTime(now.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc), now),  // This year: Jan 1 to now
+            _ => throw new ArgumentException($"Invalid period: {period}. Valid values are: day, week, month, year")
+        };
+    }
+
+    /// <summary>
+    /// Generate revenue trend for sales agent based on period
+    /// </summary>
+    private async Task<List<SalesAgentRevenueTrendItem>> GenerateSalesAgentRevenueTrendAsync(
+        string period,
+        DateTime startDate,
+        DateTime endDate,
+        List<Data.Entities.Order> orders)
+    {
+        var trend = new List<SalesAgentRevenueTrendItem>();
+
+        switch (period.ToLower())
+        {
+            case "day":
+                // Group by 3-hour blocks for today
+                for (int hour = 0; hour < 24; hour += 3)
+                {
+                    var blockStart = startDate.AddHours(hour);
+                    var blockEnd = blockStart.AddHours(3);
+
+                    var blockOrders = orders.Where(o => o.OrderDate >= blockStart && o.OrderDate < blockEnd).ToList();
+                    var blockRevenue = blockOrders.Sum(o => o.GrandTotal);
+                    var blockOrderCount = blockOrders.Count;
+
+                    trend.Add(new SalesAgentRevenueTrendItem
+                    {
+                        Date = $"{hour:D2}:00-{(hour + 3):D2}:00",
+                        Revenue = blockRevenue,
+                        OrderCount = blockOrderCount,
+                        AverageOrderValue = blockOrderCount > 0 ? blockRevenue / blockOrderCount : 0
+                    });
+                }
+                break;
+
+            case "week":
+                // Daily data for the week (Mon-Sun)
+                var dayNames = new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
+                for (int i = 0; i < 7; i++)
+                {
+                    var dayStart = startDate.AddDays(i).Date;
+                    var dayEnd = dayStart.AddDays(1);
+
+                    var dayOrders = orders.Where(o => o.OrderDate >= dayStart && o.OrderDate < dayEnd).ToList();
+                    var dayRevenue = dayOrders.Sum(o => o.GrandTotal);
+                    var dayOrderCount = dayOrders.Count;
+
+                    trend.Add(new SalesAgentRevenueTrendItem
+                    {
+                        Date = dayNames[i],
+                        Revenue = dayRevenue,
+                        OrderCount = dayOrderCount,
+                        AverageOrderValue = dayOrderCount > 0 ? dayRevenue / dayOrderCount : 0
+                    });
+                }
+                break;
+
+            case "month":
+                // Weekly data for the month
+                var currentWeekStart = startDate;
+                int weekNumber = 1;
+
+                while (currentWeekStart < endDate)
+                {
+                    var weekEnd = currentWeekStart.AddDays(7);
+                    if (weekEnd > endDate) weekEnd = endDate;
+
+                    var weekOrders = orders.Where(o => o.OrderDate >= currentWeekStart && o.OrderDate < weekEnd).ToList();
+                    var weekRevenue = weekOrders.Sum(o => o.GrandTotal);
+                    var weekOrderCount = weekOrders.Count;
+
+                    var weekLabel = $"Week {weekNumber} ({currentWeekStart:MMM d}-{weekEnd.AddDays(-1):d})";
+
+                    trend.Add(new SalesAgentRevenueTrendItem
+                    {
+                        Date = weekLabel,
+                        Revenue = weekRevenue,
+                        OrderCount = weekOrderCount,
+                        AverageOrderValue = weekOrderCount > 0 ? weekRevenue / weekOrderCount : 0
+                    });
+
+                    currentWeekStart = weekEnd;
+                    weekNumber++;
+                }
+                break;
+
+            case "year":
+                // Monthly data for the year
+                var monthNames = new[] { "January", "February", "March", "April", "May", "June",
+                                        "July", "August", "September", "October", "November", "December" };
+
+                for (int month = 1; month <= endDate.Month; month++)
+                {
+                    var monthStart = new DateTime(startDate.Year, month, 1, 0, 0, 0, DateTimeKind.Utc);
+                    var monthEnd = monthStart.AddMonths(1);
+                    if (monthEnd > endDate) monthEnd = endDate;
+
+                    var monthOrders = orders.Where(o => o.OrderDate >= monthStart && o.OrderDate < monthEnd).ToList();
+                    var monthRevenue = monthOrders.Sum(o => o.GrandTotal);
+                    var monthOrderCount = monthOrders.Count;
+
+                    trend.Add(new SalesAgentRevenueTrendItem
+                    {
+                        Date = monthNames[month - 1],
+                        Revenue = monthRevenue,
+                        OrderCount = monthOrderCount,
+                        AverageOrderValue = monthOrderCount > 0 ? monthRevenue / monthOrderCount : 0
+                    });
+                }
+                break;
+        }
+
+        return await Task.FromResult(trend);
+    }
+
+    /// <summary>
+    /// Generate orders by category for sales agent
+    /// </summary>
+    private async Task<List<SalesAgentOrdersByCategoryItem>> GenerateSalesAgentOrdersByCategoryAsync(
+        List<Data.Entities.Order> orders,
+        Guid? categoryId)
+    {
+        var platformFee = _configuration.GetValue<decimal>("BusinessSettings:PlatformFee");
+        var totalRevenue = orders.Sum(o => o.GrandTotal);
+
+        var categoryStats = orders
+            .SelectMany(o => o.OrderItems)
+            .Where(oi => !categoryId.HasValue || oi.Product.CategoryId == categoryId.Value)
+            .GroupBy(oi => new
+            {
+                CategoryId = oi.Product.CategoryId,
+                CategoryName = oi.Product.Category.Name
+            })
+            .Select(g => new
+            {
+                g.Key.CategoryId,
+                g.Key.CategoryName,
+                OrderCount = g.Select(oi => oi.OrderId).Distinct().Count(),
+                Revenue = g.Sum(oi => oi.TotalPrice)
+            })
+            .OrderByDescending(c => c.Revenue)
+            .ToList();
+
+        var result = categoryStats.Select(c => new SalesAgentOrdersByCategoryItem
+        {
+            CategoryId = c.CategoryId,
+            CategoryName = c.CategoryName,
+            OrderCount = c.OrderCount,
+            Revenue = c.Revenue,
+            Percentage = totalRevenue > 0 ? Math.Round((decimal)((c.Revenue / totalRevenue) * 100), 1) : 0,
+            Commission = Math.Round(c.Revenue * (1 - platformFee), 2) // Agent gets 95%
+        }).ToList();
+
+        return await Task.FromResult(result);
+    }
+
+    /// <summary>
+    /// Generate top products for sales agent (top 5 by revenue)
+    /// </summary>
+    private async Task<List<SalesAgentTopProduct>> GenerateSalesAgentTopProductsAsync(
+        List<Data.Entities.Order> orders,
+        Guid? categoryId)
+    {
+        var totalRevenue = orders.Sum(o => o.GrandTotal);
+
+        var productStats = orders
+            .SelectMany(o => o.OrderItems)
+            .Where(oi => !categoryId.HasValue || oi.Product.CategoryId == categoryId.Value)
+            .GroupBy(oi => new
+            {
+                oi.ProductId,
+                ProductName = oi.Product.Name,
+                CategoryName = oi.Product.Category.Name
+            })
+            .Select(g => new
+            {
+                g.Key.ProductId,
+                g.Key.ProductName,
+                g.Key.CategoryName,
+                UnitsSold = g.Sum(oi => oi.Quantity),
+                Revenue = g.Sum(oi => oi.TotalPrice)
+            })
+            .OrderByDescending(p => p.Revenue)
+            .Take(5)
+            .ToList();
+
+        var result = productStats.Select(p => new SalesAgentTopProduct
+        {
+            ProductId = p.ProductId,
+            ProductName = p.ProductName,
+            CategoryName = p.CategoryName,
+            UnitsSold = p.UnitsSold,
+            Revenue = p.Revenue,
+            AverageRating = 0, // TODO: Implement when rating system is added
+            Percentage = totalRevenue > 0 ? Math.Round((decimal)((p.Revenue / totalRevenue) * 100), 1) : 0
+        }).ToList();
+
+        return await Task.FromResult(result);
+    }
+
+    #endregion
 
     #endregion
 }
