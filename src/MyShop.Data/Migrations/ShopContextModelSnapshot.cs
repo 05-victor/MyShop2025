@@ -643,6 +643,10 @@ namespace MyShop.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("profile_id");
 
+                    b.Property<int?>("StoreId")
+                        .HasColumnType("integer")
+                        .HasColumnName("store_id");
+
                     b.Property<DateTime?>("TrialEndDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("trial_end_date");
