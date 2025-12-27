@@ -843,9 +843,23 @@ public class DashboardService : IDashboardService
         List<Data.Entities.Order> orders)
     {
         var trend = new List<RevenueTrendItem>();
-        var currentDate = from.Date;
+        
+        // If no orders, return empty trend
+        if (!orders.Any())
+        {
+            return trend;
+        }
 
-        while (currentDate <= to.Date)
+        // Use provided date range (controller already validated and set defaults)
+        var startDate = from.Date;
+        var endDate = to.Date;
+
+        _logger.LogDebug("Generating revenue trend from {Start} to {End}", 
+            startDate.ToString("yyyy-MM-dd"), endDate.ToString("yyyy-MM-dd"));
+
+        var currentDate = startDate;
+
+        while (currentDate <= endDate)
         {
             var dayOrders = orders.Where(o => o.OrderDate.Date == currentDate).ToList();
             var dayRevenue = dayOrders.Sum(o => o.GrandTotal);
@@ -951,6 +965,7 @@ public class DashboardService : IDashboardService
                 o.SaleAgentId,
                 FirstName = o.SaleAgent?.Profile?.FullName?.Split(' ').FirstOrDefault() ?? "Unknown",
                 LastName = o.SaleAgent?.Profile?.FullName?.Split(' ').LastOrDefault() ?? "",
+                Avatar = o.SaleAgent?.Profile?.Avatar ?? "",
                 Email = o.SaleAgent?.Email ?? ""
             })
             .Select(g => new
@@ -958,6 +973,7 @@ public class DashboardService : IDashboardService
                 g.Key.SaleAgentId,
                 g.Key.FirstName,
                 g.Key.LastName,
+                g.Key.Avatar,
                 g.Key.Email,
                 TotalSales = g.Count(),
                 TotalRevenue = g.Sum(o => o.GrandTotal)
@@ -972,7 +988,7 @@ public class DashboardService : IDashboardService
             FirstName = a.FirstName,
             LastName = a.LastName,
             Email = a.Email,
-            Avatar = GetInitials(a.FirstName, a.LastName),
+            Avatar = a.Avatar,
             TotalSales = a.TotalSales,
             TotalRevenue = a.TotalRevenue,
             Commission = Math.Round(a.TotalRevenue * (1 - platformFee), 2), // Agent gets 95%, platform gets 5%
@@ -988,9 +1004,9 @@ public class DashboardService : IDashboardService
     private async Task<PagedProductSummary> GenerateProductSummaryAsync(
         DateTime from,
         DateTime to,
-        Guid? categoryId,
-        int pageNumber,
-        int pageSize)
+        Guid? categoryId = null,
+        int pageNumber = 1,
+        int pageSize = 10)
     {
         // Get product statistics from orders in the period
         var productStatsQuery = _context.OrderItems
