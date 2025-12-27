@@ -79,6 +79,17 @@ namespace MyShop.Data.Entities
         /// <value>DateTime khi tài khoản được cập nhật lần cuối, có thể null</value>
         public DateTime? UpdatedAt { get; set; }
 
+        /// <summary>
+        /// Lấy hoặc đặt Store ID cho SalesAgent users.
+        /// </summary>
+        /// <value>Store ID (0-99) for SalesAgent users, null for other user types</value>
+        /// <remarks>
+        /// This field is automatically assigned when a user becomes a SalesAgent.
+        /// Auto-incremented by database trigger when SalesAgent role is assigned.
+        /// Used for Walmart sales forecasting integration.
+        /// </remarks>
+        public int? StoreId { get; set; }
+
         // Navigation Properties
         
         /// <summary>
