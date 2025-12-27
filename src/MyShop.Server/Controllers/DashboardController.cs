@@ -248,4 +248,152 @@ public class DashboardController : ControllerBase
                 ApiResponse<object>.ServerErrorResponse("An error occurred while retrieving admin revenue chart"));
         }
     }
+
+    /// <summary>
+    /// Get consolidated admin reports data - All metrics in one API call
+    /// Admin only - Returns revenue trends, category analysis, ratings, salesperson stats, and product summary
+    /// Optimized for performance with single database query
+    /// </summary>
+    /// <param name="from">Start date (inclusive) in ISO 8601 format</param>
+    /// <param name="to">End date (inclusive) in ISO 8601 format</param>
+    /// <param name="categoryId">Optional category filter for product summary</param>
+    /// <param name="pageNumber">Page number for product summary (default: 1)</param>
+    /// <param name="pageSize">Page size for product summary (default: 10, max: 100)</param>
+    /// <returns>Consolidated admin reports data</returns>
+    /// <response code="200">Returns admin reports data</response>
+    /// <response code="400">Invalid parameters (date range, pagination, etc.)</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="403">User is not an admin</response>
+    [HttpGet("admin-reports")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ApiResponse<AdminReportsResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetAdminReports(
+        [FromQuery] DateTime? from = null,
+        [FromQuery] DateTime? to = null,
+        [FromQuery] Guid? categoryId = null,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10)
+    {
+        try
+        {
+            _logger.LogInformation(
+                "GET /api/v1/dashboard/admin-reports - From: {From}, To: {To}, CategoryId: {CategoryId}, Page: {Page}, PageSize: {PageSize}",
+                from?.ToString("yyyy-MM-dd") ?? "not specified",
+                to?.ToString("yyyy-MM-dd") ?? "not specified",
+                categoryId,
+                pageNumber,
+                pageSize);
+
+            // Validate date range - default to last 7 days if not specified
+            var startDate = from ?? DateTime.UtcNow.AddDays(-7).Date;
+            var endDate = to ?? DateTime.UtcNow;
+
+            if (startDate > endDate)
+            {
+                _logger.LogWarning("Invalid date range: from={From} > to={To}", startDate, endDate);
+                return BadRequest(ApiResponse<object>.ErrorResponse(
+                    "Invalid date range. Start date must be before or equal to end date."));
+            }
+
+            // Validate pagination
+            if (pageNumber < 1)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(
+                    "Page number must be at least 1"));
+            }
+
+            if (pageSize < 1 || pageSize > 100)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(
+                    "Page size must be between 1 and 100"));
+            }
+
+            var reports = await _dashboardService.GetAdminReportsAsync(
+                startDate,
+                endDate,
+                categoryId,
+                pageNumber,
+                pageSize);
+
+            return Ok(ApiResponse<AdminReportsResponse>.SuccessResponse(
+                reports,
+                "Admin reports retrieved successfully"));
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning("Unauthorized access to admin reports: {Message}", ex.Message);
+            return Unauthorized(ApiResponse<object>.UnauthorizedResponse("User not authenticated"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving admin reports");
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                ApiResponse<object>.ServerErrorResponse("An error occurred while retrieving admin reports"));
+        }
+    }
+
+    /// <summary>
+    /// Get sales agent personal reports
+    /// SalesAgent only - Returns personal revenue trends, orders by category, and top products
+    /// Data is filtered to show only the current sales agent's performance
+    /// </summary>
+    /// <param name="period">Report period: "day", "week", "month", "year"</param>
+    /// <param name="categoryId">Optional category filter for products</param>
+    /// <returns>Sales agent reports data</returns>
+    /// <response code="200">Returns sales agent reports data</response>
+    /// <response code="400">Invalid period parameter</response>
+    /// <response code="401">User not authenticated</response>
+    /// <response code="403">User is not a sales agent</response>
+    [HttpGet("sales-agent-reports")]
+    [Authorize(Roles = "SalesAgent")]
+    [ProducesResponseType(typeof(ApiResponse<SalesAgentReportsResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetSalesAgentReports(
+        [FromQuery] string period = "week",
+        [FromQuery] Guid? categoryId = null)
+    {
+        try
+        {
+            _logger.LogInformation(
+                "GET /api/v1/dashboard/sales-agent-reports - Period: {Period}, CategoryId: {CategoryId}",
+                period,
+                categoryId);
+
+            // Validate period parameter
+            var validPeriods = new[] { "day", "week", "month", "year" };
+            if (!validPeriods.Contains(period.ToLower()))
+            {
+                _logger.LogWarning("Invalid period parameter: {Period}", period);
+                return BadRequest(ApiResponse<object>.ErrorResponse(
+                    $"Invalid period. Valid values are: {string.Join(", ", validPeriods)}"));
+            }
+
+            var reports = await _dashboardService.GetSalesAgentReportsAsync(period, categoryId);
+
+            return Ok(ApiResponse<SalesAgentReportsResponse>.SuccessResponse(
+                reports,
+                "Sales agent reports retrieved successfully"));
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning("Unauthorized access to sales agent reports: {Message}", ex.Message);
+            return Unauthorized(ApiResponse<object>.UnauthorizedResponse("User not authenticated"));
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning("Invalid argument in sales agent reports: {Message}", ex.Message);
+            return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving sales agent reports");
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                ApiResponse<object>.ServerErrorResponse("An error occurred while retrieving sales agent reports"));
+        }
+    }
 }
