@@ -763,4 +763,345 @@ public class DashboardService : IDashboardService
     }
 
     #endregion
+
+    public async Task<AdminReportsResponse> GetAdminReportsAsync(
+        DateTime from,
+        DateTime to,
+        Guid? categoryId = null,
+        int pageNumber = 1,
+        int pageSize = 10)
+    {
+        try
+        {
+            _logger.LogInformation(
+                "Generating admin reports from {From} to {To}, categoryId={CategoryId}, page={Page}, pageSize={PageSize}",
+                from.ToString("yyyy-MM-dd"), to.ToString("yyyy-MM-dd"), categoryId, pageNumber, pageSize);
+
+            var response = new AdminReportsResponse
+            {
+                Period = new PeriodInfo
+                {
+                    From = from,
+                    To = to
+                }
+            };
+
+            // Get all orders in the period (exclude cancelled)
+            var ordersQuery = _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                        .ThenInclude(p => p.Category)
+                .Include(o => o.SaleAgent)
+                    .ThenInclude(sa => sa.Profile)
+                .Where(o => o.OrderDate >= from && o.OrderDate <= to)
+                .Where(o => o.Status != OrderStatus.Cancelled);
+
+            var orders = await ordersQuery.ToListAsync();
+
+            _logger.LogDebug("Found {Count} orders in the period", orders.Count);
+
+            // 1. Revenue Trend (daily breakdown)
+            response.RevenueTrend = await GenerateRevenueTrendAsync(from, to, orders);
+            _logger.LogDebug("Revenue trend: {Count} data points", response.RevenueTrend.Count);
+
+            // 2. Orders by Category
+            response.OrdersByCategory = await GenerateOrdersByCategoryAsync(orders);
+            _logger.LogDebug("Orders by category: {Count} categories", response.OrdersByCategory.Count);
+
+            // 3. Product Ratings Analysis
+            response.ProductRatings = await GenerateProductRatingsAnalysisAsync();
+            _logger.LogDebug("Product ratings: {Total} total ratings", response.ProductRatings.TotalRatings);
+
+            // 4. Salesperson Contributions (top 10 by revenue)
+            response.SalespersonContributions = await GenerateSalespersonContributionsAsync(orders);
+            _logger.LogDebug("Salesperson contributions: {Count} agents", response.SalespersonContributions.Count);
+
+            // 5. Product Summary (paginated)
+            response.ProductSummary = await GenerateProductSummaryAsync(from, to, categoryId, pageNumber, pageSize);
+            _logger.LogDebug("Product summary: {Count} products, total {Total}",
+                response.ProductSummary.Data.Count, response.ProductSummary.TotalCount);
+
+            _logger.LogInformation("Admin reports generated successfully");
+
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating admin reports");
+            throw;
+        }
+    }
+
+    #region Admin Reports Helper Methods
+
+    /// <summary>
+    /// Generate revenue trend data (daily breakdown)
+    /// </summary>
+    private async Task<List<RevenueTrendItem>> GenerateRevenueTrendAsync(
+        DateTime from,
+        DateTime to,
+        List<Data.Entities.Order> orders)
+    {
+        var trend = new List<RevenueTrendItem>();
+        var currentDate = from.Date;
+
+        while (currentDate <= to.Date)
+        {
+            var dayOrders = orders.Where(o => o.OrderDate.Date == currentDate).ToList();
+            var dayRevenue = dayOrders.Sum(o => o.GrandTotal);
+            var dayOrderCount = dayOrders.Count;
+
+            trend.Add(new RevenueTrendItem
+            {
+                Date = currentDate.ToString("yyyy-MM-dd"),
+                Revenue = dayRevenue,
+                OrderCount = dayOrderCount,
+                AverageOrderValue = dayOrderCount > 0 ? dayRevenue / dayOrderCount : 0
+            });
+
+            currentDate = currentDate.AddDays(1);
+        }
+
+        return await Task.FromResult(trend);
+    }
+
+    /// <summary>
+    /// Generate orders by category analysis
+    /// </summary>
+    private async Task<List<OrdersByCategoryItem>> GenerateOrdersByCategoryAsync(
+        List<Data.Entities.Order> orders)
+    {
+        var totalRevenue = orders.Sum(o => o.GrandTotal);
+
+        var categoryStats = orders
+            .SelectMany(o => o.OrderItems)
+            .GroupBy(oi => new
+            {
+                CategoryId = oi.Product.CategoryId,
+                CategoryName = oi.Product.Category.Name
+            })
+            .Select(g => new
+            {
+                g.Key.CategoryId,
+                g.Key.CategoryName,
+                OrderCount = g.Select(oi => oi.OrderId).Distinct().Count(),
+                Revenue = g.Sum(oi => oi.TotalPrice)
+            })
+            .OrderByDescending(c => c.Revenue)
+            .ToList();
+
+        var result = categoryStats.Select(c => new OrdersByCategoryItem
+        {
+            CategoryId = c.CategoryId,
+            CategoryName = c.CategoryName,
+            OrderCount = c.OrderCount,
+            Revenue = c.Revenue,
+            Percentage = totalRevenue > 0 ? Math.Round((c.Revenue / (decimal)totalRevenue) * 100, 1) : 0
+        }).ToList();
+
+        return await Task.FromResult(result);
+    }
+
+    /// <summary>
+    /// Generate product ratings analysis (distribution of 1-5 star ratings)
+    /// </summary>
+    private async Task<ProductRatingAnalysis> GenerateProductRatingsAnalysisAsync()
+    {
+        // TODO: Implement when product rating system is added to database
+        // Current Product entity doesn't have Rating/RatingCount properties
+        // For now, return placeholder data
+        
+        _logger.LogDebug("Product ratings analysis not yet implemented - returning placeholder data");
+        
+        var analysis = new ProductRatingAnalysis
+        {
+            Excellent = 0,
+            VeryGood = 0,
+            Good = 0,
+            Fair = 0,
+            Poor = 0,
+            TotalRatings = 0,
+            AverageRating = 0
+        };
+
+        return await Task.FromResult(analysis);
+        
+        // FUTURE IMPLEMENTATION:
+        // Once Rating table is added, query like this:
+        // var ratings = await _context.ProductRatings
+        //     .Where(r => r.CreatedAt >= from && r.CreatedAt <= to)
+        //     .GroupBy(r => r.Rating)
+        //     .Select(g => new { Rating = g.Key, Count = g.Count() })
+        //     .ToListAsync();
+    }
+
+    /// <summary>
+    /// Generate salesperson contributions (top 10 by revenue)
+    /// </summary>
+    private async Task<List<SalespersonContribution>> GenerateSalespersonContributionsAsync(
+        List<Data.Entities.Order> orders)
+    {
+        var totalRevenue = orders.Sum(o => o.GrandTotal);
+
+        var platformFee = _configuration.GetValue<decimal>("BusinessSettings:PlatformFee");
+
+        var agentStats = orders
+            .GroupBy(o => new
+            {
+                o.SaleAgentId,
+                FirstName = o.SaleAgent?.Profile?.FullName?.Split(' ').FirstOrDefault() ?? "Unknown",
+                LastName = o.SaleAgent?.Profile?.FullName?.Split(' ').LastOrDefault() ?? "",
+                Email = o.SaleAgent?.Email ?? ""
+            })
+            .Select(g => new
+            {
+                g.Key.SaleAgentId,
+                g.Key.FirstName,
+                g.Key.LastName,
+                g.Key.Email,
+                TotalSales = g.Count(),
+                TotalRevenue = g.Sum(o => o.GrandTotal)
+            })
+            .OrderByDescending(a => a.TotalRevenue)
+            .Take(10)
+            .ToList();
+
+        var result = agentStats.Select(a => new SalespersonContribution
+        {
+            SalespersonId = a.SaleAgentId,
+            FirstName = a.FirstName,
+            LastName = a.LastName,
+            Email = a.Email,
+            Avatar = GetInitials(a.FirstName, a.LastName),
+            TotalSales = a.TotalSales,
+            TotalRevenue = a.TotalRevenue,
+            Commission = Math.Round(a.TotalRevenue * (1 - platformFee), 2), // Agent gets 95%, platform gets 5%
+            Percentage = totalRevenue > 0 ? Math.Round((a.TotalRevenue / (decimal)totalRevenue) * 100, 1) : 0
+        }).ToList();
+
+        return await Task.FromResult(result);
+    }
+
+    /// <summary>
+    /// Generate product summary (paginated, top products by revenue)
+    /// </summary>
+    private async Task<PagedProductSummary> GenerateProductSummaryAsync(
+        DateTime from,
+        DateTime to,
+        Guid? categoryId,
+        int pageNumber,
+        int pageSize)
+    {
+        // Get product statistics from orders in the period
+        var productStatsQuery = _context.OrderItems
+            .Where(oi => oi.Order.OrderDate >= from && oi.Order.OrderDate <= to)
+            .Where(oi => oi.Order.Status != OrderStatus.Cancelled)
+            .GroupBy(oi => new
+            {
+                oi.ProductId,
+                ProductName = oi.Product.Name,
+                CategoryName = oi.Product.Category.Name,
+                CategoryId = oi.Product.CategoryId,
+                oi.Product.Quantity,
+                oi.Product.Status
+            })
+            .Select(g => new
+            {
+                g.Key.ProductId,
+                g.Key.ProductName,
+                g.Key.CategoryName,
+                g.Key.CategoryId,
+                g.Key.Quantity,
+                g.Key.Status,
+                TotalOrders = g.Select(oi => oi.OrderId).Distinct().Count(),
+                TotalRevenue = g.Sum(oi => oi.TotalPrice)
+            });
+
+        // Apply category filter if specified
+        if (categoryId.HasValue)
+        {
+            productStatsQuery = productStatsQuery.Where(p => p.CategoryId == categoryId.Value);
+        }
+
+        // Order by revenue descending
+        productStatsQuery = productStatsQuery.OrderByDescending(p => p.TotalRevenue);
+
+        // Get total count
+        var totalCount = await productStatsQuery.CountAsync();
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        // Apply pagination
+        var pagedData = await productStatsQuery
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var items = pagedData.Select(p => new ProductSummaryItem
+        {
+            ProductId = p.ProductId,
+            ProductName = p.ProductName,
+            CategoryName = p.CategoryName,
+            TotalOrders = p.TotalOrders,
+            TotalRevenue = p.TotalRevenue,
+            AverageRating = 0, // TODO: Implement when rating system is added
+            StockLevel = p.Quantity,
+            Status = GetStockStatus(p.Quantity, p.Status),
+            StatusColor = GetStockStatusColor(p.Quantity, p.Status),
+            LowStockThreshold = 10
+        }).ToList();
+
+        return new PagedProductSummary
+        {
+            Data = items,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            TotalPages = totalPages
+        };
+    }
+
+    /// <summary>
+    /// Get initials from first and last name
+    /// </summary>
+    private static string GetInitials(string firstName, string lastName)
+    {
+        var initials = "";
+        if (!string.IsNullOrWhiteSpace(firstName))
+            initials += firstName[0];
+        if (!string.IsNullOrWhiteSpace(lastName))
+            initials += lastName[0];
+
+        return string.IsNullOrEmpty(initials) ? "?" : initials.ToUpper();
+    }
+
+    /// <summary>
+    /// Determine stock status based on quantity and product status
+    /// </summary>
+    private static string GetStockStatus(int quantity, ProductStatus status)
+    {
+        if (status == ProductStatus.Discontinued)
+            return "DISCONTINUED";
+        if (quantity == 0)
+            return "OUT_OF_STOCK";
+        if (quantity <= 10)
+            return "LOW_STOCK";
+        return "IN_STOCK";
+    }
+
+    /// <summary>
+    /// Get status color for UI display
+    /// </summary>
+    private static string GetStockStatusColor(int quantity, ProductStatus status)
+    {
+        return GetStockStatus(quantity, status) switch
+        {
+            "IN_STOCK" => "#10b981",        // Green
+            "LOW_STOCK" => "#f59e0b",       // Orange
+            "OUT_OF_STOCK" => "#ef4444",    // Red
+            "DISCONTINUED" => "#6b7280",    // Gray
+            _ => "#10b981"
+        };
+    }
+
+    #endregion
 }
