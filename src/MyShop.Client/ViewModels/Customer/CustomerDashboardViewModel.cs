@@ -43,17 +43,29 @@ public partial class CustomerDashboardViewModel : BaseViewModel
         [ObservableProperty]
         private bool _profileCompleted = true;
 
-        public CustomerDashboardViewModel(
-            INavigationService navigationService,
-            IProductFacade productFacade,
-            IProfileFacade profileFacade,
-            ISystemActivationRepository activationRepository)
-        {
-            _navigationService = navigationService;
-            _productFacade = productFacade;
-            _profileFacade = profileFacade;
-            _activationRepository = activationRepository;
-        }
+    [ObservableProperty]
+    private int _totalOrders = 0;
+
+    [ObservableProperty]
+    private double _totalSpent = 0;
+
+    [ObservableProperty]
+    private int _loyaltyPoints = 0;
+
+    [ObservableProperty]
+    private int _memberSinceDays = 0;
+
+    public CustomerDashboardViewModel(
+        INavigationService navigationService,
+        IProductFacade productFacade,
+        IProfileFacade profileFacade,
+        ISystemActivationRepository activationRepository)
+    {
+        _navigationService = navigationService;
+        _productFacade = productFacade;
+        _profileFacade = profileFacade;
+        _activationRepository = activationRepository;
+    }
 
     public async void Initialize(User user)
     {
@@ -61,6 +73,16 @@ public partial class CustomerDashboardViewModel : BaseViewModel
         {
             CurrentUser = user;
             IsVerified = user.IsEmailVerified;
+            
+            // Calculate member since days
+            MemberSinceDays = (DateTime.Now - user.CreatedAt).Days;
+            
+            // TODO: Load actual statistics from orders/transactions
+            // For now, using placeholder values
+            TotalOrders = 0;
+            TotalSpent = 0;
+            LoyaltyPoints = 0;
+            
             await CheckAdminBannerAsync();
             UpdateWelcomeMessage();
             await LoadDataAsync();
