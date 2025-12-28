@@ -134,6 +134,9 @@ namespace MyShop.Client.Views.Shell
                 case "settings":
                     NavigateToPage(typeof(SettingsPage), ViewModel.CurrentUser);
                     break;
+                case "becomeAgent":
+                    NavigateToPage(typeof(BecomeAgentPage), ViewModel.CurrentUser);
+                    break;
                 default:
                     LoggingService.Instance.Warning($"Customer menu item '{tag}' not implemented yet");
                     RestoreSelection();

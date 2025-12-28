@@ -6,6 +6,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     xmlns:cards="using:MyShop.Client.Views.Components.Cards"
+    xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:MyShop.Client.ViewModels.Shared"
@@ -92,32 +93,24 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- Header -->
-                <Grid Grid.Row="0"
-                        Margin="0,0,0,20">
-                    <StackPanel Orientation="Horizontal"
-                            Spacing="16">
+                <!-- Page Header -->
+                <layout:PageHeader
+                    Grid.Row="0"
+                    Title="Checkout"
+                    Subtitle="Complete your purchase">
+                    <layout:PageHeader.ActionContent>
                         <Button Style="{StaticResource SecondaryButtonStyle}"
                                 Command="{x:Bind ViewModel.BackToCartCommand}"
                                 MinWidth="120">
                             <StackPanel Orientation="Horizontal"
                                     Spacing="8">
                                 <FontIcon Glyph="&#xE72B;"
-                                        FontSize="16"/>
+                                        FontSize="{StaticResource FontSize_LG}"/>
                                 <TextBlock Text="Back to Cart"/>
                             </StackPanel>
                         </Button>
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Checkout"
-                                       FontSize="28"
-                                       FontWeight="Bold"
-                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                            <TextBlock Text="Complete your purchase"
-                                       FontSize="14"
-                                       Foreground="{ThemeResource Gray400Brush}"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Grid>
+                    </layout:PageHeader.ActionContent>
+                </layout:PageHeader>
 
                 <Grid Grid.Row="1"
                         ColumnSpacing="24">
@@ -136,7 +129,7 @@
                                 Padding="{StaticResource Padding_XL}">
                             <StackPanel Spacing="{StaticResource Spacing_4}">
                                 <TextBlock Text="Shipping Information"
-                                           FontSize="18"
+                                           FontSize="{StaticResource FontSize_XL}"
                                            FontWeight="SemiBold"
                                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
 
@@ -155,7 +148,7 @@
                                     <!-- Row 1: Name & Email -->
                                     <StackPanel Grid.Row="0" Grid.Column="0">
                                         <TextBlock Text="Full Name *"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource FontSize_SM}"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource Gray900Brush}"
                                                    Margin="0,0,0,8"/>
@@ -167,7 +160,7 @@
 
                                     <StackPanel Grid.Row="0" Grid.Column="1">
                                         <TextBlock Text="Email Address *"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource FontSize_SM}"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource Gray900Brush}"
                                                    Margin="0,0,0,8"/>
@@ -180,7 +173,7 @@
                                     <!-- Row 2: Phone & Country -->
                                     <StackPanel Grid.Row="1" Grid.Column="0">
                                         <TextBlock Text="Phone Number *"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource FontSize_SM}"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource Gray900Brush}"
                                                    Margin="0,0,0,8"/>
@@ -192,7 +185,7 @@
 
                                     <StackPanel Grid.Row="1" Grid.Column="1">
                                         <TextBlock Text="Country *"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource FontSize_SM}"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource Gray900Brush}"
                                                    Margin="0,0,0,8"/>
@@ -204,7 +197,7 @@
                                     <!-- Row 3: Address (full width) -->
                                     <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
                                         <TextBlock Text="Street Address *"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource FontSize_SM}"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource Gray900Brush}"
                                                    Margin="0,0,0,8"/>
@@ -217,7 +210,7 @@
                                     <!-- Row 4: City & ZIP -->
                                     <StackPanel Grid.Row="3" Grid.Column="0">
                                         <TextBlock Text="City *"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource FontSize_SM}"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource Gray900Brush}"
                                                    Margin="0,0,0,8"/>
@@ -229,7 +222,7 @@
 
                                     <StackPanel Grid.Row="3" Grid.Column="1">
                                         <TextBlock Text="ZIP Code *"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource FontSize_SM}"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource Gray900Brush}"
                                                    Margin="0,0,0,8"/>
@@ -247,7 +240,7 @@
                                 Padding="{StaticResource Padding_XL}">
                             <StackPanel Spacing="{StaticResource Spacing_4}">
                                 <TextBlock Text="Payment Method"
-                                           FontSize="18"
+                                           FontSize="{StaticResource FontSize_XL}"
                                            FontWeight="SemiBold"
                                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                 
@@ -269,23 +262,23 @@
                                         
                                         <FontIcon Grid.Column="0"
                                                   Glyph="{x:Bind ViewModel.SelectedPaymentIcon, Mode=OneWay}"
-                                                  FontSize="24"
+                                                  FontSize="{StaticResource FontSize_3XL}"
                                                   Margin="0,0,12,0"
                                                   Foreground="{ThemeResource AccentBlueBrush}"/>
                                         
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                             <TextBlock Text="{x:Bind ViewModel.SelectedPaymentMethod, Mode=OneWay}"
-                                                       FontSize="14"
+                                                       FontSize="{StaticResource FontSize_Base}"
                                                        FontWeight="SemiBold"
                                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                             <TextBlock Text="Click to change payment method"
-                                                       FontSize="11"
+                                                       FontSize="{StaticResource FontSize_XS}"
                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         </StackPanel>
                                         
                                         <FontIcon Grid.Column="2"
                                                   Glyph="&#xE76C;"
-                                                  FontSize="12"
+                                                  FontSize="{StaticResource FontSize_SM}"
                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                     </Grid>
                                 </Button>
@@ -300,7 +293,7 @@
                             VerticalAlignment="Top">
                         <StackPanel Spacing="{StaticResource Spacing_4}">
                             <TextBlock Text="Order Summary"
-                                       FontSize="18"
+                                       FontSize="{StaticResource FontSize_XL}"
                                        FontWeight="SemiBold"
                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
 
@@ -311,14 +304,14 @@
                                         <DataTemplate x:DataType="vm:SalesAgentGroup">
                                             <Grid Margin="0,4">
                                                 <TextBlock 
-                                                    FontSize="13"
+                                                    FontSize="{StaticResource FontSize_SM}"
                                                     Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                                     <Run Text="From "/><Run Text="{x:Bind SalesAgentName, Mode=OneWay}" FontWeight="SemiBold"/>
                                                 </TextBlock>
                                                 <TextBlock Text="{x:Bind SubtotalFormatted, Mode=OneWay}"
                                                            HorizontalAlignment="Right"
                                                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                                           FontSize="13"/>
+                                                           FontSize="{StaticResource FontSize_SM}"/>
                                             </Grid>
                                         </DataTemplate>
                                     </ItemsRepeater.ItemTemplate>
@@ -330,29 +323,29 @@
                                 <Grid>
                                     <TextBlock Text="Subtotal"
                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                            FontSize="14"/>
+                                            FontSize="{StaticResource FontSize_Base}"/>
                                     <TextBlock Text="{x:Bind ViewModel.Subtotal, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                HorizontalAlignment="Right"
                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                               FontSize="14"/>
+                                               FontSize="{StaticResource FontSize_Base}"/>
                                 </Grid>
                                 <Grid>
                                     <TextBlock Text="Shipping"
                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                            FontSize="14"/>
+                                            FontSize="{StaticResource FontSize_Base}"/>
                                     <TextBlock Text="{x:Bind ViewModel.Shipping, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                HorizontalAlignment="Right"
                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                               FontSize="14"/>
+                                               FontSize="{StaticResource FontSize_Base}"/>
                                 </Grid>
                                 <Grid>
                                     <TextBlock Text="Tax (10%)"
                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                            FontSize="14"/>
+                                            FontSize="{StaticResource FontSize_Base}"/>
                                     <TextBlock Text="{x:Bind ViewModel.Tax, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
                                                HorizontalAlignment="Right"
                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                               FontSize="14"/>
+                                               FontSize="{StaticResource FontSize_Base}"/>
                                 </Grid>
 
                                 <Border Height="1"
@@ -361,11 +354,11 @@
 
                                 <Grid>
                                     <TextBlock Text="Total"
-                                               FontSize="18"
+                                               FontSize="{StaticResource FontSize_XL}"
                                                FontWeight="SemiBold"
                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                     <TextBlock Text="{x:Bind ViewModel.Total, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
-                                               FontSize="20"
+                                               FontSize="{StaticResource FontSize_2XL}"
                                                FontWeight="Bold"
                                                HorizontalAlignment="Right"
                                                Foreground="{ThemeResource SecondaryBlueBrush}"/>
@@ -387,13 +380,13 @@
 
                             <StackPanel Spacing="{StaticResource Spacing_3}">
                                 <TextBlock Text="Payment via QR Code"
-                                           FontSize="16"
+                                           FontSize="{StaticResource FontSize_LG}"
                                            FontWeight="SemiBold"
                                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                            HorizontalAlignment="Center"/>
 
                                 <TextBlock Text="Scan to pay with your banking app"
-                                           FontSize="12"
+                                           FontSize="{StaticResource FontSize_SM}"
                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                            HorizontalAlignment="Center"/>
 
@@ -422,14 +415,14 @@
                                     <StackPanel HorizontalAlignment="Center"
                                             Spacing="{StaticResource Spacing_2}">
                                         <FontIcon Glyph="&#xED14;"
-                                                FontSize="48"
+                                                FontSize="{StaticResource FontSize_5XL}"
                                                 Foreground="{ThemeResource Gray500Brush}"/>
                                         <TextBlock Text="QR Code"
-                                                FontSize="14"
+                                                FontSize="{StaticResource FontSize_Base}"
                                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                    HorizontalAlignment="Center"/>
                                         <TextBlock Text="Add payment-qr.png to Assets"
-                                                FontSize="11"
+                                                FontSize="{StaticResource FontSize_XS}"
                                                 Foreground="{ThemeResource Gray500Brush}"
                                                    HorizontalAlignment="Center"/>
                                     </StackPanel>
@@ -447,7 +440,7 @@
                                     IsEnabled="{x:Bind ViewModel.IsProcessing, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
 
                             <TextBlock Text="Your order will be processed once payment is confirmed"
-                                       FontSize="11"
+                                       FontSize="{StaticResource FontSize_XS}"
                                        Foreground="{ThemeResource Gray500Brush}"
                                        TextAlignment="Center"
                                        TextWrapping="Wrap"/>

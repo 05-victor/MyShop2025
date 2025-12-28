@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="MyShop.Client.Views.Components.PageHeader"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    x:Name="RootControl"
+    mc:Ignorable="d">
+
+    <!--
+    PageHeader Component
+    ====================
+    Standardized page header for all pages in the application.
+    
+    Features:
+    - Title with H1 typography token
+    - Optional subtitle with secondary text color
+    - Optional icon
+    - Consistent spacing and alignment
+    - Responsive design (stacks on mobile)
+    
+    Usage:
+    <components:PageHeader
+        Title="Page Title"
+        Subtitle="Optional description"
+        Icon="&#xE7C3;" />
+    -->
+
+    <Grid x:Name="HeaderGrid" ColumnSpacing="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>  <!-- Icon -->
+            <ColumnDefinition Width="*"/>     <!-- Text Content -->
+        </Grid.ColumnDefinitions>
+
+        <!-- Icon (Optional) -->
+        <Border Grid.Column="0"
+                Visibility="{x:Bind IconVisibility, Mode=OneWay}"
+                Background="{ThemeResource AccentFillColorDefaultBrush}"
+                CornerRadius="8"
+                Width="48"
+                Height="48"
+                VerticalAlignment="Top">
+            <FontIcon Glyph="{x:Bind Icon, Mode=OneWay}"
+                      FontSize="24"
+                      Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
+        </Border>
+
+        <!-- Text Content -->
+        <StackPanel Grid.Column="1"
+                    Spacing="4"
+                    VerticalAlignment="Center">
+            <!-- Title -->
+            <TextBlock Text="{x:Bind Title, Mode=OneWay}"
+                       Style="{StaticResource TitleTextBlockStyle}"
+                       FontSize="28"
+                       FontWeight="SemiBold"
+                       TextWrapping="Wrap"/>
+
+            <!-- Subtitle -->
+            <TextBlock Text="{x:Bind Subtitle, Mode=OneWay}"
+                       Visibility="{x:Bind SubtitleVisibility, Mode=OneWay}"
+                       FontSize="14"
+                       Foreground="{ThemeResource TextSecondaryBrush}"
+                       TextWrapping="Wrap"
+                       Opacity="0.8"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

@@ -141,19 +141,19 @@
                                                  Height="120"
                                                  Fill="{ThemeResource SubtleFillColorSecondaryBrush}"/>
                                         <FontIcon
-                                            FontSize="64"
+                                            FontSize="{ThemeResource FontSize_6XL}"
                                             Foreground="{ThemeResource Gray500Brush}"
                                             Glyph="&#xE7BF;"/>
                                     </Grid>
                                 </Viewbox>
                                 <TextBlock
-                                    FontSize="20"
+                                    FontSize="{ThemeResource FontSize_2XL}"
                                     FontWeight="SemiBold"
                                     Foreground="{ThemeResource TextTertiaryBrush}"
                                     Text="Your cart is empty"
                                     TextAlignment="Center"/>
                                 <TextBlock
-                                    FontSize="14"
+                                    FontSize="{ThemeResource FontSize_Base}"
                                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                     Text="Browse products and add items to start shopping"
                                     TextAlignment="Center"
@@ -202,17 +202,17 @@
                                                         Background="{ThemeResource AccentBlueBrush}"
                                                         CornerRadius="20">
                                                     <FontIcon Glyph="&#xE8D1;"
-                                                              FontSize="20"
+                                                              FontSize="{ThemeResource FontSize_2XL}"
                                                               Foreground="{ThemeResource WhiteBrush}"/>
                                                 </Border>
 
                                                 <!-- Shop Info -->
                                                 <StackPanel Grid.Column="1" Spacing="4">
                                                     <TextBlock Text="{x:Bind AgentName}"
-                                                               FontSize="16"
+                                                               FontSize="{ThemeResource FontSize_LG}"
                                                                FontWeight="SemiBold"
                                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                                    <TextBlock FontSize="12"
+                                                    <TextBlock FontSize="{ThemeResource FontSize_SM}"
                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                                         <Run Text="Subtotal:"/>
                                                         <Run Text="{x:Bind SubtotalFormatted, Mode=OneWay}"
@@ -229,7 +229,7 @@
                                                         CommandParameter="{x:Bind AgentId}"
                                                         Visibility="{x:Bind IsSelected, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                                     <StackPanel Orientation="Horizontal" Spacing="8">
-                                                        <FontIcon Glyph="&#xE73E;" FontSize="14"/>
+                                                        <FontIcon Glyph="&#xE73E;" FontSize="{ThemeResource FontSize_Base}"/>
                                                         <TextBlock Text="Select Shop"/>
                                                     </StackPanel>
                                                 </Button>
@@ -242,7 +242,7 @@
                                                         Visibility="{x:Bind IsSelected, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                                                     <StackPanel Orientation="Horizontal" Spacing="6">
                                                         <FontIcon Glyph="&#xE73E;"
-                                                                  FontSize="14"
+                                                                  FontSize="{ThemeResource FontSize_Base}"
                                                                   Foreground="{ThemeResource WhiteBrush}"/>
                                                         <TextBlock Text="Selected"
                                                                    FontWeight="SemiBold"
@@ -289,11 +289,11 @@
                                                                             VerticalAlignment="Center"
                                                                             Spacing="6">
                                                                     <TextBlock Text="{x:Bind Name}"
-                                                                               FontSize="14"
+                                                                               FontSize="{ThemeResource FontSize_Base}"
                                                                                FontWeight="SemiBold"
                                                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                                                     <TextBlock Text="{x:Bind Category}"
-                                                                               FontSize="11"
+                                                                               FontSize="{ThemeResource FontSize_XS}"
                                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                                                                     <!--  Quantity Controls  -->
@@ -304,7 +304,7 @@
                                                                                 Style="{StaticResource SecondaryButtonStyle}"
                                                                                 Command="{Binding ElementName=RootPage, Path=ViewModel.DecreaseQuantityCommand}"
                                                                                 CommandParameter="{x:Bind}">
-                                                                            <FontIcon Glyph="&#xE738;" FontSize="10"/>
+                                                                            <FontIcon Glyph="&#xE738;" FontSize="{ThemeResource FontSize_2XS}"/>
                                                                         </Button>
                                                                         <Border Width="50"
                                                                                 Padding="8,4"
@@ -312,7 +312,7 @@
                                                                                 BorderThickness="1"
                                                                                 CornerRadius="6">
                                                                             <TextBlock Text="{x:Bind Quantity, Mode=OneWay}"
-                                                                                       FontSize="12"
+                                                                                       FontSize="{ThemeResource FontSize_SM}"
                                                                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                                                        TextAlignment="Center"/>
                                                                         </Border>
@@ -322,7 +322,7 @@
                                                                                 Style="{StaticResource PrimaryButtonStyle}"
                                                                                 Command="{Binding ElementName=RootPage, Path=ViewModel.IncreaseQuantityCommand}"
                                                                                 CommandParameter="{x:Bind}">
-                                                                            <FontIcon Glyph="&#xE710;" FontSize="10"/>
+                                                                            <FontIcon Glyph="&#xE710;" FontSize="{ThemeResource FontSize_2XS}"/>
                                                                         </Button>
                                                                         <Button Margin="8,0,0,0"
                                                                                 Width="28"
@@ -332,7 +332,7 @@
                                                                                 Command="{Binding ElementName=RootPage, Path=ViewModel.RemoveItemCommand}"
                                                                                 CommandParameter="{x:Bind}">
                                                                             <FontIcon Glyph="&#xE74D;"
-                                                                                      FontSize="12"
+                                                                                      FontSize="{ThemeResource FontSize_SM}"
                                                                                       Foreground="{ThemeResource ErrorRedBrush}"/>
                                                                         </Button>
                                                                     </StackPanel>
@@ -344,16 +344,16 @@
                                                                             VerticalAlignment="Center"
                                                                             Spacing="4">
                                                                     <TextBlock Text="{x:Bind Price, Converter={StaticResource CurrencyConverter}}"
-                                                                               FontSize="14"
+                                                                               FontSize="{ThemeResource FontSize_Base}"
                                                                                FontWeight="SemiBold"
                                                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                                                TextAlignment="Right"/>
                                                                     <TextBlock Text="each"
-                                                                               FontSize="10"
+                                                                               FontSize="{ThemeResource FontSize_2XS}"
                                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                                                TextAlignment="Right"/>
                                                                     <TextBlock Text="{x:Bind Total, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
-                                                                               FontSize="16"
+                                                                               FontSize="{ThemeResource FontSize_LG}"
                                                                                FontWeight="Bold"
                                                                                Foreground="{ThemeResource AccentBlueBrush}"
                                                                                TextAlignment="Right"
@@ -376,7 +376,7 @@
                             Style="{StaticResource CardWithShadowStyle}">
                         <StackPanel Spacing="16">
                             <TextBlock
-                                FontSize="18"
+                                FontSize="{ThemeResource FontSize_XL}"
                                 FontWeight="SemiBold"
                                 Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                 Text="Order Summary"/>
@@ -422,13 +422,13 @@
 
                                 <Grid>
                                     <TextBlock
-                                        FontSize="18"
+                                        FontSize="{ThemeResource FontSize_XL}"
                                         FontWeight="SemiBold"
                                         Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                         Text="Total"/>
                                     <TextBlock
                                         HorizontalAlignment="Right"
-                                        FontSize="20"
+                                        FontSize="{ThemeResource FontSize_2XL}"
                                         FontWeight="Bold"
                                         Foreground="{ThemeResource AccentBlueBrush}"
                                         Text="{x:Bind ViewModel.Total, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"/>

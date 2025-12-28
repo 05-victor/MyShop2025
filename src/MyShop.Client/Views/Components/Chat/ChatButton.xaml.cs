@@ -115,7 +115,6 @@ public sealed partial class ChatButton : UserControl
 
     private void FloatingButton_Click(object sender, RoutedEventArgs e)
     {
-        ChatFlyout.ShowAt(FloatingButton);
         Click?.Invoke(this, e);
     }
 }

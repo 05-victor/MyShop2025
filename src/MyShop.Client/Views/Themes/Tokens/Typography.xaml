@@ -91,6 +91,14 @@
         <Setter Property="LineHeight" Value="26"/>
     </Style>
     
+    <!-- Section Header (for dialogs, cards) -->
+    <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource FontSize_LG}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{ThemeResource TextPrimaryBrush}"/>
+        <Setter Property="Margin" Value="0,16,0,12"/>
+    </Style>
+    
     <!-- Body Text (Default) -->
     <Style x:Key="BodyTextStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource FontSize_Base}"/>

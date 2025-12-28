@@ -228,5 +228,18 @@
         <GradientStop Color="{StaticResource Gray50Color}" Offset="0"/>
         <GradientStop Color="{StaticResource Gray100Color}" Offset="1"/>
     </LinearGradientBrush>
+    
+    <!-- Profile/Header Banner Gradient -->
+    <LinearGradientBrush x:Key="ProfileBannerGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource NavyPrimaryColor}" Offset="0"/>
+        <GradientStop Color="{StaticResource PurpleColor}" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <!-- Accent Button Gradient (for CTAs) -->
+    <LinearGradientBrush x:Key="AccentButtonGradient" StartPoint="0,0.5" EndPoint="1,0.5">
+        <GradientStop Color="{StaticResource AccentBlueColor}" Offset="0"/>
+        <GradientStop Color="{StaticResource SecondaryBlueColor}" Offset="0.5"/>
+        <GradientStop Color="{StaticResource PurpleColor}" Offset="1"/>
+    </LinearGradientBrush>
 
 </ResourceDictionary>

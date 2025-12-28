@@ -11,33 +11,28 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-        <!-- NavigationView HARDCODED colors - NO theme dependency -->
-        <!-- Sidebar background: Always navy, never changes -->
-        <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="#1F2937"/>
-        <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="#1F2937"/>
+        <!-- Navigation colors from theme resources - use AdminNav* brushes from DarkTheme/LightTheme -->
+        <StaticResource x:Key="NavigationViewExpandedPaneBackground" ResourceKey="AdminNavPaneBackground"/>
+        <StaticResource x:Key="NavigationViewDefaultPaneBackground" ResourceKey="AdminNavPaneBackground"/>
         
-        <!-- Text colors: ALWAYS WHITE for visibility -->
-        <SolidColorBrush x:Key="NavigationViewItemForeground" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="NavigationViewItemForegroundSelected" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="NavigationViewItemForegroundSelectedPointerOver" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="NavigationViewItemForegroundPressed" Color="#FFFFFF"/>
+        <!-- Text colors: Use theme resources -->
+        <StaticResource x:Key="NavigationViewItemForeground" ResourceKey="AdminNavItemForeground"/>
+        <StaticResource x:Key="NavigationViewItemForegroundSelected" ResourceKey="AdminNavItemForegroundSelected"/>
+        <StaticResource x:Key="NavigationViewItemForegroundPointerOver" ResourceKey="AdminNavItemForegroundPointerOver"/>
+        <StaticResource x:Key="NavigationViewItemForegroundSelectedPointerOver" ResourceKey="AdminNavItemForegroundSelected"/>
+        <StaticResource x:Key="NavigationViewItemForegroundPressed" ResourceKey="AdminNavItemForeground"/>
         
         <!-- Toggle Button (Hamburger Menu) colors -->
-        <SolidColorBrush x:Key="NavigationViewItemForegroundCollapsed" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="NavigationViewButtonForeground" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="NavigationViewButtonForegroundPointerOver" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="NavigationViewButtonForegroundPressed" Color="#FFFFFF"/>
+        <StaticResource x:Key="NavigationViewItemForegroundCollapsed" ResourceKey="AdminNavItemForeground"/>
+        <StaticResource x:Key="NavigationViewButtonForeground" ResourceKey="AdminNavItemForeground"/>
+        <StaticResource x:Key="NavigationViewButtonForegroundPointerOver" ResourceKey="AdminNavItemForeground"/>
+        <StaticResource x:Key="NavigationViewButtonForegroundPressed" ResourceKey="AdminNavItemForeground"/>
         
-        <!-- Background colors for states -->
-        <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected" Color="#3B82F6"/>
-        <!-- Blue-500: Selected state -->
-        <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPointerOver" Color="#60A5FA"/>
-        <!-- Blue-400: Selected + Hover -->
-        <SolidColorBrush x:Key="NavigationViewItemBackgroundPointerOver" Color="#2563EB"/>
-        <!-- Blue-600: Hover only -->
-        <SolidColorBrush x:Key="NavigationViewItemBackgroundPressed" Color="#1D4ED8"/>
-        <!-- Blue-700: Pressed -->
+        <!-- Background colors for states - use theme resources -->
+        <StaticResource x:Key="NavigationViewItemBackgroundSelected" ResourceKey="AdminNavItemBackgroundSelected"/>
+        <StaticResource x:Key="NavigationViewItemBackgroundSelectedPointerOver" ResourceKey="AdminNavItemBackgroundSelectedPointerOver"/>
+        <StaticResource x:Key="NavigationViewItemBackgroundPointerOver" ResourceKey="AdminNavItemBackgroundPointerOver"/>
+        <StaticResource x:Key="NavigationViewItemBackgroundPressed" ResourceKey="AdminNavItemBackgroundPointerOver"/>
     </Page.Resources>
 
     <Grid>
@@ -72,12 +67,12 @@
                 <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center"
                             Visibility="{x:Bind Nav.IsPaneOpen, Mode=OneWay}">
                     <TextBlock
-                        FontSize="18"
+                        FontSize="{StaticResource FontSize_XL}"
                         FontWeight="Bold"
                         Foreground="{ThemeResource AdminNavHeaderForeground}"
                         Text="MyShop2025" />
                     <TextBlock
-                        FontSize="11"
+                        FontSize="{StaticResource FontSize_XS}"
                         Foreground="{ThemeResource Gray500Brush}"
                         Text="Welcome back, admin!" />
                 </StackPanel>

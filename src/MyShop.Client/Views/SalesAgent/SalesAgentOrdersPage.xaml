@@ -10,6 +10,7 @@
     xmlns:badges="using:MyShop.Client.Views.Components.Badges"
     xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     xmlns:cards="using:MyShop.Client.Views.Components.Cards"
+    xmlns:controls="using:MyShop.Client.Views.Components.Controls"
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:tables="using:MyShop.Client.Views.Components.Tables"
     xmlns:forms="using:MyShop.Client.Views.Components.Forms"
@@ -216,7 +217,7 @@
 
                                             <StackPanel Grid.Column="0">
                                                 <TextBlock Text="Order Status"
-                                                           FontSize="12"
+                                                           FontSize="{StaticResource FontSize_SM}"
                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                            Margin="0,0,0,4"/>
                                                 <ComboBox x:Name="StatusComboBox"
@@ -241,7 +242,7 @@
 
                                             <StackPanel Grid.Column="1">
                                                 <TextBlock Text="Payment Status"
-                                                           FontSize="12"
+                                                           FontSize="{StaticResource FontSize_SM}"
                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                            Margin="0,0,0,4"/>
                                                 <ComboBox x:Name="PaymentStatusComboBox"
@@ -350,33 +351,33 @@
 
                                                         <TextBlock Grid.Column="0"
                                                                    Text="{x:Bind OrderId, Mode=OneWay}"
-                                                                   FontSize="13"
+                                                                   FontSize="{StaticResource FontSize_SM}"
                                                                    FontFamily="Consolas"
                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                                    VerticalAlignment="Center"/>
 
                                                         <TextBlock Grid.Column="1"
                                                                    Text="{x:Bind CustomerName, Mode=OneWay}"
-                                                                   FontSize="14"
+                                                                   FontSize="{StaticResource FontSize_Base}"
                                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                                    VerticalAlignment="Center"/>
 
                                                         <TextBlock Grid.Column="2"
                                                                    Text="{x:Bind ProductDescription, Mode=OneWay}"
-                                                                   FontSize="14"
+                                                                   FontSize="{StaticResource FontSize_Base}"
                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                                    TextTrimming="CharacterEllipsis"
                                                                    VerticalAlignment="Center"/>
 
                                                         <TextBlock Grid.Column="3"
                                                                    Text="{x:Bind FormattedDate, Mode=OneWay}"
-                                                                   FontSize="13"
+                                                                   FontSize="{StaticResource FontSize_SM}"
                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                                    VerticalAlignment="Center"/>
 
                                                         <TextBlock Grid.Column="4"
                                                                    Text="{x:Bind TotalAmount, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
-                                                                   FontSize="14"
+                                                                   FontSize="{StaticResource FontSize_Base}"
                                                                    FontWeight="SemiBold"
                                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                                    VerticalAlignment="Center"/>
@@ -389,7 +390,7 @@
 
                                                         <TextBlock Grid.Column="6"
                                                                    Text="{x:Bind PaymentStatus, Mode=OneWay}"
-                                                                   FontSize="13"
+                                                                   FontSize="{StaticResource FontSize_SM}"
                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                                    VerticalAlignment="Center"/>
 
@@ -453,71 +454,18 @@
                 </RefreshContainer>
             </Grid>
 
-            <!-- Bottom Pagination - Fixed at bottom -->
+            <!-- Pagination (Migrated to PaginationControl) -->
             <Border Grid.Row="1"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     BorderThickness="0,1,0,0"
                     Padding="24,12">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!--  Pagination (TASK-08 Standardized - Agent)  -->
-                    <Border Grid.Column="0"
-                            Grid.ColumnSpan="2"
-                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            Padding="16,12"
-                            Margin="0,16,0,0">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!--  Previous Button  -->
-                            <Button
-                                Style="{StaticResource SecondaryButtonStyle}"
-                                Grid.Column="0"
-                                Content="Previous"
-                                IsEnabled="{x:Bind ViewModel.HasPreviousPage, Mode=OneWay}"
-                                Command="{x:Bind ViewModel.PreviousPageCommand}"/>
-
-                            <!--  Page Info  -->
-                            <StackPanel
-                                Grid.Column="1"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                Spacing="4">
-                                <TextBlock
-                                    FontSize="14"
-                                    FontWeight="SemiBold"
-                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                    HorizontalAlignment="Center"
-                                    Text="{x:Bind ViewModel.PageInfoText, Mode=OneWay}"/>
-                                <TextBlock
-                                    FontSize="12"
-                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                    HorizontalAlignment="Center"
-                                    Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}"/>
-                            </StackPanel>
-
-                            <!--  Next Button  -->
-                            <Button
-                                Style="{StaticResource SecondaryButtonStyle}"
-                                Grid.Column="2"
-                                Content="Next"
-                                IsEnabled="{x:Bind ViewModel.HasNextPage, Mode=OneWay}"
-                                Command="{x:Bind ViewModel.NextPageCommand}"/>
-                        </Grid>
-                    </Border>
-                </Grid>
+                <controls:PaginationControl
+                    CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
+                    TotalPages="{x:Bind ViewModel.TotalPages, Mode=OneWay}"
+                    TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
+                    PageSize="{x:Bind ViewModel.PageSize, Mode=TwoWay}"
+                    Margin="0,16,0,0"/>
             </Border>
 
             <!-- Layer 2: Loading Overlay (Shown during loading) -->
@@ -532,12 +480,12 @@
                                   Width="64"
                                   Height="64"/>
                     <TextBlock Text="Loading orders..."
-                               FontSize="18"
+                               FontSize="{StaticResource FontSize_XL}"
                                FontWeight="SemiBold"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                HorizontalAlignment="Center"/>
                     <TextBlock Text="Please wait while we fetch your sales orders"
-                               FontSize="14"
+                               FontSize="{StaticResource FontSize_Base}"
                                Foreground="{ThemeResource TextFillColorTertiaryBrush}"
                                HorizontalAlignment="Center"/>
                 </StackPanel>
