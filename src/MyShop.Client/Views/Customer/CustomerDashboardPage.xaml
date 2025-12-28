@@ -4,6 +4,8 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
+    xmlns:cards="using:MyShop.Client.Views.Components.Cards"
+    xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Customer"
@@ -93,6 +95,11 @@
             <StackPanel Grid.Row="0"
                     Spacing="16">
 
+                <!-- Page Header -->
+                <layout:PageHeader
+                    Title="Customer Dashboard"
+                    Subtitle="Welcome back! Here's your account overview"/>
+
                 <!-- Become Admin Banner (shows when no admin exists) -->
                 <components:BecomeAdminBanner
                     x:Name="BecomeAdminBannerControl"
@@ -125,12 +132,12 @@
                         <StackPanel Grid.Column="0"
                                 Spacing="8">
                             <TextBlock Text="{x:Bind ViewModel.WelcomeMessage, Mode=OneWay}"
-                                       FontSize="28"
+                                       FontSize="{StaticResource FontSize_4XL}"
                                        FontWeight="Bold"
                                        TextWrapping="Wrap"
                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                             <TextBlock Text="Discover amazing products and great deals"
-                                       FontSize="14"
+                                       FontSize="{StaticResource FontSize_Base}"
                                        Foreground="{ThemeResource Gray400Brush}"/>
                         </StackPanel>
 
@@ -147,10 +154,10 @@
                                 <StackPanel Orientation="Horizontal"
                                         Spacing="8">
                                     <FontIcon Glyph="&#xE735;"
-                                            FontSize="16"
+                                            FontSize="{StaticResource FontSize_LG}"
                                             Foreground="{ThemeResource AccentBlueBrush}"/>
                                     <TextBlock Text="Become Agent"
-                                            FontSize="14"
+                                            FontSize="{StaticResource FontSize_Base}"
                                             FontWeight="SemiBold"/>
                                 </StackPanel>
                             </Button>
@@ -164,6 +171,58 @@
                         </StackPanel>
                     </Grid>
                 </Border>
+
+                <!-- KPI Stats Cards (P1 - Component Enforcement) -->
+                <Grid x:Name="KPIGrid"
+                      ColumnSpacing="20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Total Orders KPI -->
+                    <cards:KPICard
+                        Grid.Column="0"
+                        Title="Total Orders"
+                        Value="{x:Bind ViewModel.TotalOrders, Mode=OneWay}"
+                        Subtitle="All time"
+                        Icon="&#xF133;"
+                        IconBackgroundBrush="{ThemeResource PurpleLightBrush}"
+                        IconForegroundBrush="{ThemeResource SecondaryBlueBrush}"/>
+
+                    <!-- Total Spent KPI -->
+                    <cards:KPICard
+                        Grid.Column="1"
+                        Title="Total Spent"
+                        Value="{x:Bind ViewModel.TotalSpent, Mode=OneWay}"
+                        Subtitle="All time"
+                        Icon="&#xE8C7;"
+                        IsCurrency="True"
+                        IconBackgroundBrush="{ThemeResource WarningAmberLightBrush}"
+                        IconForegroundBrush="{ThemeResource WarningAmberBrush}"/>
+
+                    <!-- Loyalty Points KPI -->
+                    <cards:KPICard
+                        Grid.Column="2"
+                        Title="Loyalty Points"
+                        Value="{x:Bind ViewModel.LoyaltyPoints, Mode=OneWay}"
+                        Subtitle="Rewards balance"
+                        Icon="&#xE734;"
+                        IconBackgroundBrush="{ThemeResource SuccessGreenLightBrush}"
+                        IconForegroundBrush="{ThemeResource SuccessGreenBrush}"/>
+
+                    <!-- Account Age KPI -->
+                    <cards:KPICard
+                        Grid.Column="3"
+                        Title="Member Since"
+                        Value="{x:Bind ViewModel.MemberSinceDays, Mode=OneWay}"
+                        Subtitle="days ago"
+                        Icon="&#xE77B;"
+                        IconBackgroundBrush="{ThemeResource SubtleFillColorSecondaryBrush}"
+                        IconForegroundBrush="{ThemeResource AccentBlueBrush}"/>
+                </Grid>
 
             </StackPanel>
 
@@ -181,14 +240,14 @@
 
                         <TextBlock Grid.Column="0"
                                    Text="Featured Products"
-                                   FontSize="24"
+                                   FontSize="{StaticResource FontSize_3XL}"
                                    FontWeight="Bold"
                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                    AutomationProperties.HeadingLevel="Level2"/>
 
                         <HyperlinkButton Grid.Column="1"
                                          Content="View All →"
-                                         FontSize="14"
+                                         FontSize="{StaticResource FontSize_Base}"
                                          Foreground="{ThemeResource AccentBlueBrush}"/>
                     </Grid>
 
@@ -223,12 +282,12 @@
                                         <StackPanel Grid.Row="1"
                                                 Spacing="8">
                                             <TextBlock Text="{x:Bind Category}"
-                                                       FontSize="12"
+                                                       FontSize="{StaticResource FontSize_SM}"
                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                        TextTrimming="CharacterEllipsis"/>
 
                                             <TextBlock Text="{x:Bind Name}"
-                                                       FontSize="16"
+                                                       FontSize="{StaticResource FontSize_LG}"
                                                        FontWeight="SemiBold"
                                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                        TextWrapping="Wrap"
@@ -245,20 +304,20 @@
                                                             Orientation="Horizontal"
                                                             Spacing="4">
                                                     <FontIcon Glyph="&#xE735;"
-                                                              FontSize="14"
+                                                              FontSize="{StaticResource FontSize_Base}"
                                                               Foreground="{ThemeResource WarningAmberBrush}"/>
                                                     <TextBlock Text="{x:Bind Rating}"
-                                                               FontSize="13"
+                                                               FontSize="{StaticResource FontSize_SM}"
                                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                                     <TextBlock Text="{x:Bind Reviews, Mode=OneTime}"
-                                                               FontSize="12"
+                                                               FontSize="{StaticResource FontSize_SM}"
                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                 </StackPanel>
                                             </Grid>
 
                                             <!-- Price -->
                                             <TextBlock Text="{x:Bind Price, Converter={StaticResource CurrencyConverter}}"
-                                                       FontSize="20"
+                                                       FontSize="{StaticResource FontSize_2XL}"
                                                        FontWeight="Bold"
                                                        Foreground="{ThemeResource PrimaryBrush}"/>
 
@@ -269,9 +328,9 @@
                                                             Spacing="8"
                                                             HorizontalAlignment="Center">
                                                     <FontIcon Glyph="&#xE7BF;"
-                                                            FontSize="16"/>
+                                                            FontSize="{StaticResource FontSize_LG}"/>
                                                     <TextBlock Text="Add to Cart"
-                                                            FontSize="14"
+                                                            FontSize="{StaticResource FontSize_Base}"
                                                             FontWeight="SemiBold"/>
                                                 </StackPanel>
                                             </Button>
@@ -293,13 +352,13 @@
 
                         <TextBlock Grid.Column="0"
                                    Text="Recommended for You"
-                                   FontSize="24"
+                                   FontSize="{StaticResource FontSize_3XL}"
                                    FontWeight="Bold"
                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
 
                         <HyperlinkButton Grid.Column="1"
                                          Content="View All →"
-                                         FontSize="14"
+                                         FontSize="{StaticResource FontSize_Base}"
                                          Foreground="{ThemeResource AccentBlueBrush}"/>
                     </Grid>
 
@@ -334,12 +393,12 @@
                                         <StackPanel Grid.Row="1"
                                                 Spacing="8">
                                             <TextBlock Text="{x:Bind Category}"
-                                                       FontSize="12"
+                                                       FontSize="{StaticResource FontSize_SM}"
                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                        TextTrimming="CharacterEllipsis"/>
 
                                             <TextBlock Text="{x:Bind Name}"
-                                                       FontSize="16"
+                                                       FontSize="{StaticResource FontSize_LG}"
                                                        FontWeight="SemiBold"
                                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                        TextWrapping="Wrap"
@@ -356,20 +415,20 @@
                                                             Orientation="Horizontal"
                                                             Spacing="4">
                                                     <FontIcon Glyph="&#xE735;"
-                                                              FontSize="14"
+                                                              FontSize="{StaticResource FontSize_Base}"
                                                               Foreground="{ThemeResource WarningAmberBrush}"/>
                                                     <TextBlock Text="{x:Bind Rating}"
-                                                               FontSize="13"
+                                                               FontSize="{StaticResource FontSize_SM}"
                                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                                     <TextBlock Text="{x:Bind Reviews, Mode=OneTime}"
-                                                               FontSize="12"
+                                                               FontSize="{StaticResource FontSize_SM}"
                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                 </StackPanel>
                                             </Grid>
 
                                             <!-- Price -->
                                             <TextBlock Text="{x:Bind Price, Converter={StaticResource CurrencyConverter}}"
-                                                       FontSize="20"
+                                                       FontSize="{StaticResource FontSize_2XL}"
                                                        FontWeight="Bold"
                                                        Foreground="{ThemeResource PrimaryBrush}"/>
 
@@ -380,9 +439,9 @@
                                                             Spacing="8"
                                                             HorizontalAlignment="Center">
                                                     <FontIcon Glyph="&#xE7BF;"
-                                                            FontSize="16"/>
+                                                            FontSize="{StaticResource FontSize_LG}"/>
                                                     <TextBlock Text="Add to Cart"
-                                                            FontSize="14"
+                                                            FontSize="{StaticResource FontSize_Base}"
                                                             FontWeight="SemiBold"/>
                                                 </StackPanel>
                                             </Button>
