@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="MyShop.Client.Views.Customer.BecomeAgentPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -311,10 +311,6 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    
-                    <Button Content="Cancel" 
-                            Style="{StaticResource SecondaryButtonStyle}"
-                            Command="{x:Bind ViewModel.CancelCommand}"/>
                     
                     <Button Grid.Column="1" 
                             Style="{StaticResource PrimaryButtonStyle}"

@@ -78,70 +78,7 @@
             </Grid>
         </NavigationView.PaneHeader>
 
-        <!-- SALESAGENT MENU ITEMS -->
-        <NavigationView.MenuItems>
-            <NavigationViewItem Content="Dashboard" Tag="dashboard" Foreground="{ThemeResource AgentNavItemForeground}">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE80F;" Foreground="{ThemeResource AgentNavItemForeground}" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-
-            <NavigationViewItem Content="My Products" Tag="myProducts" Foreground="{ThemeResource AgentNavItemForeground}">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE7B8;" Foreground="{ThemeResource AgentNavItemForeground}" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-
-            <NavigationViewItem Content="Sales Orders" Tag="salesOrders" Foreground="{ThemeResource AgentNavItemForeground}">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE7BF;" Foreground="{ThemeResource AgentNavItemForeground}" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-
-            <NavigationViewItem Content="Earnings" Tag="earnings" Foreground="{ThemeResource AgentNavItemForeground}">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE7DB;" Foreground="{ThemeResource AgentNavItemForeground}" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-
-            <NavigationViewItem Content="Reports" Tag="reports" Foreground="{ThemeResource AgentNavItemForeground}">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE9D9;" Foreground="{ThemeResource AgentNavItemForeground}" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-
-            <NavigationViewItem Content="Shopping" Tag="shopping" Foreground="{ThemeResource AgentNavItemForeground}">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE719;" Foreground="{ThemeResource AgentNavItemForeground}" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-
-            <NavigationViewItem Content="Cart" Tag="cart" Foreground="{ThemeResource AgentNavItemForeground}">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE7BF;" Foreground="{ThemeResource AgentNavItemForeground}" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-
-            <NavigationViewItem Content="Purchase Orders" Tag="purchaseOrders" Foreground="{ThemeResource AgentNavItemForeground}">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE8F1;" Foreground="{ThemeResource AgentNavItemForeground}" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-
-            <NavigationViewItemSeparator/>
-
-            <NavigationViewItem Content="Profile" Tag="profile" Foreground="{ThemeResource AgentNavItemForeground}">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE77B;" Foreground="{ThemeResource AgentNavItemForeground}" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-
-            <NavigationViewItem Content="Settings" Tag="settings" Foreground="{ThemeResource AgentNavItemForeground}">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE713;" Foreground="{ThemeResource AgentNavItemForeground}" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-        </NavigationView.MenuItems>
+        <!-- SALESAGENT MENU ITEMS - Populated dynamically from NavRegistry in code-behind -->
 
             <NavigationView.PaneFooter>
                 <NavigationViewItem Content="Logout" Tag="logout" Tapped="LogoutItem_Tapped" Foreground="{ThemeResource AgentNavItemForeground}">

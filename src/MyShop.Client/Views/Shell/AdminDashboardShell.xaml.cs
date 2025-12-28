@@ -11,11 +11,14 @@ using MyShop.Client.Views.Shared;
 using MyShop.Client.Services;
 using MyShop.Client.Extensions;
 using MyShop.Core.Interfaces.Services;
+using MyShop.Client.Common.Navigation;
 
 namespace MyShop.Client.Views.Shell
 {
     public sealed partial class AdminDashboardShell : Page
     {
+        private const string ROLE = "Admin";
+        
         public DashboardShellViewModel ViewModel { get; }
         private readonly INavigationService _navigationService;
         private NavigationViewItem? _currentContentItem;
@@ -32,6 +35,9 @@ namespace MyShop.Client.Views.Shell
                 _navigationService = App.Current.Services.GetRequiredService<INavigationService>();
                 DataContext = ViewModel;
 
+                // Populate navigation menu from NavRegistry
+                PopulateNavigationMenu();
+
                 // Register the shell's ContentFrame for in-shell navigation
                 Loaded += (s, e) => _navigationService.RegisterShellFrame(ContentFrame);
                 Unloaded += (s, e) => _navigationService.UnregisterShellFrame();
@@ -45,6 +51,35 @@ namespace MyShop.Client.Views.Shell
             {
                 LoggingService.Instance.Error("AdminDashboardShell constructor failed", ex);
                 throw;
+            }
+        }
+
+        private void PopulateNavigationMenu()
+        {
+            // Get all navigation items for Admin role from registry
+            var allItems = NavigationViewHelper.CreateMenuItemsForRole(ROLE, "AdminNavItemForeground").ToList();
+            
+            // Separate common items (profile, settings) from role-specific items
+            var commonTags = new[] { "profile", "settings" };
+            var roleSpecificItems = allItems.Where(item => !commonTags.Contains(item.Tag as string)).ToList();
+            var commonItems = allItems.Where(item => commonTags.Contains(item.Tag as string)).ToList();
+
+            // Add role-specific items first
+            foreach (var item in roleSpecificItems)
+            {
+                Nav.MenuItems.Add(item);
+            }
+
+            // Add separator before common items
+            if (commonItems.Count > 0)
+            {
+                Nav.MenuItems.Add(new NavigationViewItemSeparator());
+                
+                // Add common items
+                foreach (var item in commonItems)
+                {
+                    Nav.MenuItems.Add(item);
+                }
             }
         }
 
@@ -99,36 +134,18 @@ namespace MyShop.Client.Views.Shell
             if (item == _currentContentItem)
                 return;
 
-            switch (tag)
+            _currentContentItem = item;
+
+            // Use NavRegistry to resolve page type
+            var pageType = NavRegistry.GetPageType(tag, ROLE);
+            if (pageType != null)
             {
-                case "dashboard":
-                    _currentContentItem = item;
-                    NavigateToPage(typeof(AdminDashboardPage), ViewModel.CurrentUser);
-                    break;
-                case "products":
-                    _currentContentItem = item;
-                    NavigateToPage(typeof(AdminProductsPage), ViewModel.CurrentUser);
-                    break;
-                case "profile":
-                    _currentContentItem = item;
-                    NavigateToPage(typeof(ProfilePage), ViewModel.CurrentUser);
-                    break;
-                case "settings":
-                    _currentContentItem = item;
-                    NavigateToPage(typeof(SettingsPage), ViewModel.CurrentUser);
-                    break;
-                case "reports":
-                    _currentContentItem = item;
-                    NavigateToPage(typeof(AdminReportsPage), ViewModel.CurrentUser);
-                    break;
-                case "users":
-                    _currentContentItem = item;
-                    NavigateToPage(typeof(AdminUsersPage), ViewModel.CurrentUser);
-                    break;
-                case "salesAgents":
-                    _currentContentItem = item;
-                    NavigateToPage(typeof(AdminAgentRequestsPage), ViewModel.CurrentUser);
-                    break;
+                NavigateToPage(pageType, ViewModel.CurrentUser);
+            }
+            else
+            {
+                LoggingService.Instance.Warning($"No page type found for tag '{tag}' and role '{ROLE}'");
+                RestoreSelection();
             }
         }
 
@@ -194,30 +211,11 @@ namespace MyShop.Client.Views.Shell
         }
 
         /// <summary>
-        /// Maps page types to their corresponding NavigationView item tags
+        /// Maps page types to their corresponding NavigationView item tags using NavRegistry
         /// </summary>
         private string? GetNavigationTagForPageType(Type? pageType)
         {
-            if (pageType == null)
-                return null;
-
-            // Map each page type to its NavigationView tag
-            if (pageType == typeof(AdminDashboardPage))
-                return "dashboard";
-            else if (pageType == typeof(AdminProductsPage))
-                return "products";
-            else if (pageType == typeof(AdminReportsPage))
-                return "reports";
-            else if (pageType == typeof(AdminAgentRequestsPage))
-                return "salesAgents";
-            else if (pageType == typeof(AdminUsersPage))
-                return "users";
-            else if (pageType == typeof(ProfilePage))
-                return "profile";
-            else if (pageType == typeof(SettingsPage))
-                return "settings";
-
-            return null;
+            return NavRegistry.GetTagByPageType(pageType);
         }
 
         /// <summary>

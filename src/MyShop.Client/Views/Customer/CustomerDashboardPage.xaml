@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="MyShop.Client.Views.Customer.CustomerDashboardPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -116,6 +116,8 @@
                     <InfoBar.ActionButton>
                         <Button
                             Content="Resend Email"
+                            MinWidth="140"
+                            Click="ResendVerificationEmail_Click"
                             Style="{StaticResource AccentButtonStyle}"/>
                     </InfoBar.ActionButton>
                 </InfoBar>
@@ -166,6 +168,7 @@
                                     Variant="Filled"
                                     IconGlyph="&#xE719;"
                                     Text="Shop Now"
+                                    Click="OnShopNowClick"
                                     AutomationProperties.Name="Shop now"
                                     AccessKey="N"/>
                         </StackPanel>
@@ -247,6 +250,7 @@
 
                         <HyperlinkButton Grid.Column="1"
                                          Content="View All →"
+                                         Click="ViewAllFeaturedProducts_Click"
                                          FontSize="{StaticResource FontSize_Base}"
                                          Foreground="{ThemeResource AccentBlueBrush}"/>
                     </Grid>
@@ -358,6 +362,7 @@
 
                         <HyperlinkButton Grid.Column="1"
                                          Content="View All →"
+                                         Click="ViewAllRecommendedProducts_Click"
                                          FontSize="{StaticResource FontSize_Base}"
                                          Foreground="{ThemeResource AccentBlueBrush}"/>
                     </Grid>

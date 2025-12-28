@@ -315,6 +315,7 @@ namespace MyShop.Client.Config
                     // Product & Catalog
                     services.AddTransient<MyShop.Core.Interfaces.Facades.IProductFacade, Facades.ProductFacade>();
                     services.AddTransient<MyShop.Core.Interfaces.Facades.ICategoryFacade, Facades.Products.CategoryFacade>();
+                    services.AddTransient<Facades.CategoriesFacade>(); // New Categories management facade
 
                     // Shopping & Orders
                     services.AddTransient<MyShop.Core.Interfaces.Facades.ICartFacade, Facades.CartFacade>();
@@ -377,6 +378,7 @@ namespace MyShop.Client.Config
                     services.AddTransient<ViewModels.Shared.PurchaseOrdersViewModel>();
                     services.AddTransient<ViewModels.Shared.ProfileViewModel>();
                     services.AddTransient<ViewModels.Shared.ChangePasswordViewModel>();
+                    services.AddTransient<ViewModels.Shared.CategoriesViewModel>(); // New Categories management VM
 
                     // Shell & Settings
                     services.AddTransient<ViewModels.Shell.DashboardShellViewModel>();
