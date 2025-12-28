@@ -10,33 +10,28 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-        <!-- NavigationView HARDCODED colors - NO theme dependency -->
-        <!-- Sidebar background: Always navy, never changes -->
-        <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="#1E293B"/>
-        <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="#1E293B"/>
+        <!-- Navigation colors from theme resources - use AgentNav* brushes from DarkTheme/LightTheme -->
+        <StaticResource x:Key="NavigationViewExpandedPaneBackground" ResourceKey="AgentNavPaneBackground"/>
+        <StaticResource x:Key="NavigationViewDefaultPaneBackground" ResourceKey="AgentNavPaneBackground"/>
         
-        <!-- Text colors: ALWAYS WHITE for visibility -->
-        <SolidColorBrush x:Key="NavigationViewItemForeground" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="NavigationViewItemForegroundSelected" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="NavigationViewItemForegroundSelectedPointerOver" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="NavigationViewItemForegroundPressed" Color="#FFFFFF"/>
+        <!-- Text colors: Use theme resources -->
+        <StaticResource x:Key="NavigationViewItemForeground" ResourceKey="AgentNavItemForeground"/>
+        <StaticResource x:Key="NavigationViewItemForegroundSelected" ResourceKey="AgentNavItemForegroundSelected"/>
+        <StaticResource x:Key="NavigationViewItemForegroundPointerOver" ResourceKey="AgentNavItemForegroundPointerOver"/>
+        <StaticResource x:Key="NavigationViewItemForegroundSelectedPointerOver" ResourceKey="AgentNavItemForegroundSelected"/>
+        <StaticResource x:Key="NavigationViewItemForegroundPressed" ResourceKey="AgentNavItemForeground"/>
         
         <!-- Toggle Button (Hamburger Menu) colors -->
-        <SolidColorBrush x:Key="NavigationViewItemForegroundCollapsed" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="NavigationViewButtonForeground" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="NavigationViewButtonForegroundPointerOver" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="NavigationViewButtonForegroundPressed" Color="#FFFFFF"/>
+        <StaticResource x:Key="NavigationViewItemForegroundCollapsed" ResourceKey="AgentNavItemForeground"/>
+        <StaticResource x:Key="NavigationViewButtonForeground" ResourceKey="AgentNavItemForeground"/>
+        <StaticResource x:Key="NavigationViewButtonForegroundPointerOver" ResourceKey="AgentNavItemForeground"/>
+        <StaticResource x:Key="NavigationViewButtonForegroundPressed" ResourceKey="AgentNavItemForeground"/>
         
-        <!-- Background colors for states (Cyan theme for Agent) -->
-        <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected" Color="#0EA5E9"/>
-        <!-- Cyan-500: Selected state -->
-        <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPointerOver" Color="#22D3EE"/>
-        <!-- Cyan-400: Selected + Hover -->
-        <SolidColorBrush x:Key="NavigationViewItemBackgroundPointerOver" Color="#0891B2"/>
-        <!-- Cyan-600: Hover only -->
-        <SolidColorBrush x:Key="NavigationViewItemBackgroundPressed" Color="#0E7490"/>
-        <!-- Cyan-700: Pressed -->
+        <!-- Background colors for states (Cyan theme for Agent) - use theme resources -->
+        <StaticResource x:Key="NavigationViewItemBackgroundSelected" ResourceKey="AgentNavItemBackgroundSelected"/>
+        <StaticResource x:Key="NavigationViewItemBackgroundSelectedPointerOver" ResourceKey="AgentNavItemBackgroundSelectedPointerOver"/>
+        <StaticResource x:Key="NavigationViewItemBackgroundPointerOver" ResourceKey="AgentNavItemBackgroundPointerOver"/>
+        <StaticResource x:Key="NavigationViewItemBackgroundPressed" ResourceKey="AgentNavItemBackgroundPointerOver"/>
     </Page.Resources>
 
     <Grid>
@@ -71,12 +66,12 @@
                 <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center"
                             Visibility="{x:Bind Nav.IsPaneOpen, Mode=OneWay}">
                     <TextBlock
-                        FontSize="18"
+                        FontSize="{StaticResource FontSize_XL}"
                         FontWeight="Bold"
                         Foreground="{ThemeResource AgentNavHeaderForeground}"
                         Text="MyShop2025" />
                     <TextBlock
-                        FontSize="11"
+                        FontSize="{StaticResource FontSize_XS}"
                         Foreground="{ThemeResource Gray500Brush}"
                         Text="Sales Agent" />
                 </StackPanel>
