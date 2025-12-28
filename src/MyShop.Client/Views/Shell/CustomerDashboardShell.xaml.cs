@@ -144,6 +144,34 @@ namespace MyShop.Client.Views.Shell
             }
         }
 
+        /// <summary>
+        /// Public method to navigate to Become Agent page from child pages
+        /// </summary>
+        public void NavigateToBecomeAgent()
+        {
+            var becomeAgentItem = FindNavigationItemByTag("becomeAgent");
+            if (becomeAgentItem != null && becomeAgentItem != _currentContentItem)
+            {
+                _currentContentItem = becomeAgentItem;
+                Nav.SelectedItem = becomeAgentItem;
+                NavigateToPage(typeof(BecomeAgentPage), ViewModel.CurrentUser);
+            }
+        }
+
+        /// <summary>
+        /// Public method to navigate to Shopping page from child pages
+        /// </summary>
+        public void NavigateToShopping()
+        {
+            var shoppingItem = FindNavigationItemByTag("shopping");
+            if (shoppingItem != null && shoppingItem != _currentContentItem)
+            {
+                _currentContentItem = shoppingItem;
+                Nav.SelectedItem = shoppingItem;
+                NavigateToPage(typeof(ProductBrowsePage), ViewModel.CurrentUser);
+            }
+        }
+
         private void NavigateToPage(Type pageType, object? parameter = null)
         {
             try

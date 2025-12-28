@@ -79,52 +79,7 @@
             </Grid>
         </NavigationView.PaneHeader>
 
-        <!-- ADMIN MENU ITEMS -->
-        <NavigationView.MenuItems>
-            <NavigationViewItem Content="Dashboard" Tag="dashboard" Foreground="{ThemeResource AdminNavItemForeground}">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE80F;" Foreground="{ThemeResource AdminNavItemForeground}" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-
-            <NavigationViewItem Content="Products" Tag="products" Foreground="{ThemeResource AdminNavItemForeground}">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE7B8;" Foreground="{ThemeResource AdminNavItemForeground}" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-
-            <NavigationViewItem Content="Reports" Tag="reports" Foreground="{ThemeResource AdminNavItemForeground}">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE9D9;" Foreground="{ThemeResource AdminNavItemForeground}" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-
-            <NavigationViewItem Content="SalesAgents" Tag="salesAgents" Foreground="{ThemeResource AdminNavItemForeground}">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE8F2;" Foreground="{ThemeResource AdminNavItemForeground}" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-
-            <NavigationViewItem Content="Users" Tag="users" Foreground="{ThemeResource AdminNavItemForeground}">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE716;" Foreground="{ThemeResource AdminNavItemForeground}" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-
-            <NavigationViewItemSeparator/>
-
-            <NavigationViewItem Content="Profile" Tag="profile" Foreground="{ThemeResource AdminNavItemForeground}">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE77B;" Foreground="{ThemeResource AdminNavItemForeground}" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-
-            <NavigationViewItem Content="Settings" Tag="settings" Foreground="{ThemeResource AdminNavItemForeground}">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE713;" Foreground="{ThemeResource AdminNavItemForeground}" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-        </NavigationView.MenuItems>
+        <!-- ADMIN MENU ITEMS - Populated dynamically from NavRegistry in code-behind -->
 
             <NavigationView.PaneFooter>
                 <NavigationViewItem Content="Logout" Tag="logout" Tapped="LogoutItem_Tapped" Foreground="{ThemeResource AdminNavItemForeground}">

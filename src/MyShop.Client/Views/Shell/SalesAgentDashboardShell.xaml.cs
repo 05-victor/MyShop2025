@@ -11,11 +11,14 @@ using MyShop.Client.Views.Shared;
 using MyShop.Client.Services;
 using MyShop.Client.Extensions;
 using MyShop.Core.Interfaces.Services;
+using MyShop.Client.Common.Navigation;
 
 namespace MyShop.Client.Views.Shell
 {
     public sealed partial class SalesAgentDashboardShell : Page
     {
+        private const string ROLE = "Agent";
+        
         public DashboardShellViewModel ViewModel { get; }
         private readonly INavigationService _navigationService;
         private NavigationViewItem? _currentContentItem;
@@ -29,12 +32,44 @@ namespace MyShop.Client.Views.Shell
             _navigationService = App.Current.Services.GetRequiredService<INavigationService>();
             DataContext = ViewModel;
 
+            // Populate navigation menu from NavRegistry
+            PopulateNavigationMenu();
+
             // Register the shell's ContentFrame for in-shell navigation
             Loaded += (s, e) => _navigationService.RegisterShellFrame(ContentFrame);
             Unloaded += (s, e) => _navigationService.UnregisterShellFrame();
 
             // Subscribe to ContentFrame navigation to sync NavigationView selection
             ContentFrame.Navigated += ContentFrame_Navigated;
+        }
+
+        private void PopulateNavigationMenu()
+        {
+            // Get all navigation items for Agent role from registry
+            var allItems = NavigationViewHelper.CreateMenuItemsForRole(ROLE, "AgentNavItemForeground").ToList();
+            
+            // Separate common items (profile, settings) from role-specific items
+            var commonTags = new[] { "profile", "settings" };
+            var roleSpecificItems = allItems.Where(item => !commonTags.Contains(item.Tag as string)).ToList();
+            var commonItems = allItems.Where(item => commonTags.Contains(item.Tag as string)).ToList();
+
+            // Add role-specific items first
+            foreach (var item in roleSpecificItems)
+            {
+                Nav.MenuItems.Add(item);
+            }
+
+            // Add separator before common items
+            if (commonItems.Count > 0)
+            {
+                Nav.MenuItems.Add(new NavigationViewItemSeparator());
+                
+                // Add common items
+                foreach (var item in commonItems)
+                {
+                    Nav.MenuItems.Add(item);
+                }
+            }
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -74,45 +109,19 @@ namespace MyShop.Client.Views.Shell
             // Prevent flash: if clicking already selected item, do nothing
             if (item == _currentContentItem)
                 return;
-            
+
             _currentContentItem = item;
 
-            switch (tag)
+            // Use NavRegistry to resolve page type
+            var pageType = NavRegistry.GetPageType(tag, ROLE);
+            if (pageType != null)
             {
-                case "dashboard":
-                    NavigateToPage(typeof(SalesAgentDashboardPage), ViewModel.CurrentUser);
-                    break;
-                case "myProducts":
-                    NavigateToPage(typeof(SalesAgentProductsPage), ViewModel.CurrentUser);
-                    break;
-                case "salesOrders":
-                    NavigateToPage(typeof(SalesAgentOrdersPage), ViewModel.CurrentUser);
-                    break;
-                case "earnings":
-                    NavigateToPage(typeof(EarningsPage), ViewModel.CurrentUser);
-                    break;
-                case "shopping":
-                    NavigateToPage(typeof(ProductBrowsePage), ViewModel.CurrentUser);
-                    break;
-                case "cart":
-                    NavigateToPage(typeof(CartPage), ViewModel.CurrentUser);
-                    break;
-                case "purchaseOrders":
-                    NavigateToPage(typeof(PurchaseOrdersPage), ViewModel.CurrentUser);
-                    break;
-                case "profile":
-                    NavigateToPage(typeof(ProfilePage), ViewModel.CurrentUser);
-                    break;
-                case "settings":
-                    NavigateToPage(typeof(SettingsPage), ViewModel.CurrentUser);
-                    break;
-                case "reports":
-                    NavigateToPage(typeof(SalesAgentReportsPage), ViewModel.CurrentUser);
-                    break;
-                default:
-                    LoggingService.Instance.Warning($"SalesAgent menu item '{tag}' not implemented yet");
-                    RestoreSelection();
-                    break;
+                NavigateToPage(pageType, ViewModel.CurrentUser);
+            }
+            else
+            {
+                LoggingService.Instance.Warning($"No page type found for tag '{tag}' and role '{ROLE}'");
+                RestoreSelection();
             }
         }
 
@@ -173,36 +182,11 @@ namespace MyShop.Client.Views.Shell
         }
 
         /// <summary>
-        /// Maps page types to their corresponding NavigationView item tags
+        /// Maps page types to their corresponding NavigationView item tags using NavRegistry
         /// </summary>
         private string? GetNavigationTagForPageType(Type? pageType)
         {
-            if (pageType == null)
-                return null;
-
-            // Map each page type to its NavigationView tag
-            if (pageType == typeof(SalesAgentDashboardPage))
-                return "dashboard";
-            else if (pageType == typeof(SalesAgentProductsPage))
-                return "myProducts";
-            else if (pageType == typeof(SalesAgentOrdersPage))
-                return "salesOrders";
-            else if (pageType == typeof(EarningsPage))
-                return "earnings";
-            else if (pageType == typeof(SalesAgentReportsPage))
-                return "reports";
-            else if (pageType == typeof(ProductBrowsePage))
-                return "shopping";
-            else if (pageType == typeof(CartPage))
-                return "cart";
-            else if (pageType == typeof(PurchaseOrdersPage))
-                return "purchaseOrders";
-            else if (pageType == typeof(ProfilePage))
-                return "profile";
-            else if (pageType == typeof(SettingsPage))
-                return "settings";
-
-            return null;
+            return NavRegistry.GetTagByPageType(pageType);
         }
 
         /// <summary>
