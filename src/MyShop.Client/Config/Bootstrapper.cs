@@ -276,7 +276,7 @@ namespace MyShop.Client.Config
                     services.AddSingleton<ICurrentUserService, CurrentUserService>();
                     services.AddSingleton<Services.IChartExportService, Services.ChartExportService>();
                     services.AddSingleton<Services.IPdfExportService, Services.PdfExportService>();
-                    
+
                     // ===== Chatbot Service =====
                     services.AddSingleton<IChatbotService, Services.ChatbotService>();
                     System.Diagnostics.Debug.WriteLine("[Bootstrapper] ChatbotService registered as Singleton");

@@ -43,7 +43,7 @@ public class AuthHeaderHandler : DelegatingHandler
         var token = _credentialStorage.GetToken();
         var hasToken = !string.IsNullOrEmpty(token);
         System.Diagnostics.Debug.WriteLine($"[AuthHeaderHandler.SendAsync] {request.Method} {request.RequestUri?.PathAndQuery} - Token: {(hasToken ? "exists" : "NULL")}");
-        
+
         if (hasToken)
         {
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);

@@ -1,5 +1,6 @@
 using MyShop.Shared.Models;
 using MyShop.Core.Common;
+using MyShop.Shared.DTOs.Requests;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ public interface IOrderRepository
     Task<Result<bool>> MarkAsPaidAsync(Guid orderId);
     Task<Result<bool>> CancelAsync(Guid orderId, string reason);
     Task<Result<bool>> DeleteAsync(Guid id);
+    Task<Result<bool>> ProcessCardPaymentAsync(Guid orderId, ProcessCardPaymentRequest request);
     Task<decimal> GetTodayRevenueAsync();
     Task<decimal> GetRevenueByDateRangeAsync(DateTime fromDate, DateTime toDate);
 

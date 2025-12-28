@@ -2,6 +2,7 @@ using MyShop.Shared.Models;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.Mocks.Data;
 using MyShop.Core.Common;
+using MyShop.Shared.DTOs.Requests;
 
 namespace MyShop.Plugins.Repositories.Mocks;
 
@@ -249,6 +250,13 @@ public class MockOrderRepository : IOrderRepository
             System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] GetRevenueByDateRangeAsync error: {ex.Message}");
             return 0;
         }
+    }
+
+    public Task<Result<bool>> ProcessCardPaymentAsync(Guid orderId, ProcessCardPaymentRequest request)
+    {
+        // Mock implementation: assume payment always succeeds
+        System.Diagnostics.Debug.WriteLine($"[MockOrderRepository] ProcessCardPaymentAsync called for order {orderId}");
+        return Task.FromResult(Result<bool>.Success(true));
     }
 
     public async Task<Result<PagedList<Order>>> GetPagedAsync(
