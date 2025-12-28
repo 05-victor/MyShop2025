@@ -243,6 +243,14 @@ namespace MyShop.Client.Views.SalesAgent
             }
         }
 
+        private async void ExportPdfButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (ViewModel.ExportCommand?.CanExecute(null) == true)
+            {
+                await ViewModel.ExportCommand.ExecuteAsync(null);
+            }
+        }
+
         private async void AddProductButton_Click(object sender, RoutedEventArgs e)
         {
             try

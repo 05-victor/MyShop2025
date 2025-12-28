@@ -1,25 +1,17 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyShop.Client.Services.Configuration;
+using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
-using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Plugins.Repositories.Mocks;
+using MyShop.Shared.Models.Enums;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
 using System.Reflection;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
-using Windows.Storage;
-using Windows.Storage.Pickers;
-
 // Use alias to avoid ambiguity with MockSettingsRepository.AppSettings
 using AppSettings = MyShop.Shared.Models.AppSettings;
-using PaginationSettings = MyShop.Shared.Models.PaginationSettings;
 
 namespace MyShop.Client.ViewModels.Settings;
 
@@ -61,64 +53,6 @@ public partial class SettingsViewModel : ObservableObject
     public string AppVersion => Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0";
     public string ReleaseYear => $"© {DateTime.Now.Year} MyShop. All rights reserved.";
 
-    // Developer tab properties
-    public bool UseMockData
-    {
-        get => _configService.FeatureFlags.UseMockData;
-        set
-        {
-            if (_configService.FeatureFlags.UseMockData != value)
-            {
-                // Note: This only updates the in-memory value
-                // Actual config change requires editing appsettings.Development.json
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(DataModeDisplay));
-            }
-        }
-    }
-
-    public string ServerUrl
-    {
-        get => _configService.Api.BaseUrl;
-        set => OnPropertyChanged();
-    }
-
-    public string DataModeDisplay => UseMockData ? "Mock Data" : "Real API";
-    
-    [ObservableProperty]
-    private string _currentUserEmail = "Not logged in";
-    
-    [ObservableProperty]
-    private string _currentUserRole = "Unknown";
-    
-#if DEBUG
-    public string BuildConfiguration => "Debug";
-#else
-    public string BuildConfiguration => "Release";
-#endif
-
-    /// <summary>
-    /// Gets formatted debug information for clipboard copy
-    /// </summary>
-    public string GetDebugInfo()
-    {
-        var sb = new StringBuilder();
-        sb.AppendLine("=== MyShop 2025 Debug Info ===");
-        sb.AppendLine($"Version: {AppVersion}");
-        sb.AppendLine($"Build: {BuildConfiguration}");
-        sb.AppendLine($"Data Mode: {DataModeDisplay}");
-        sb.AppendLine($"Server URL: {ServerUrl}");
-        sb.AppendLine($"User: {CurrentUserEmail}");
-        sb.AppendLine($"Role: {CurrentUserRole}");
-        sb.AppendLine($"Theme: {Theme}");
-        sb.AppendLine($"Language: {Language}");
-        sb.AppendLine($"OS: {Environment.OSVersion}");
-        sb.AppendLine($".NET: {Environment.Version}");
-        sb.AppendLine($"Timestamp: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
-        sb.AppendLine("==============================");
-        return sb.ToString();
-    }
-
     // Settings properties
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
@@ -145,50 +79,7 @@ public partial class SettingsViewModel : ObservableObject
     //     new LanguageOption { Code = "en-US", Name = "English", Flag = "🇺🇸" }
     // };
 
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private bool _notificationsEnabled = true;
-
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private bool _restoreLastPage = true;
-
-    // Page size preferences
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private int _productsPageSize = Core.Common.PaginationConstants.ProductsPageSize;
-
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private int _ordersPageSize = Core.Common.PaginationConstants.OrdersPageSize;
-
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private int _customersPageSize = 20;
-
-    public ObservableCollection<int> PageSizeOptions { get; } = new() { 10, 15, 20, 25, 50, 100 };
-
-    // Extended notification settings
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private bool _enableSoundNotifications = true;
-
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private bool _notifyOnLowStock = true;
-
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private bool _notifyOnNewOrders = true;
-
-    // Cache management
-    [ObservableProperty] private string _cacheSize = "0 MB";
-
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private bool _enableOfflineMode = false;
-
-    // Shop information settings
+    // Shop information settings (Admin only)
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
     private string _shopName = "MyShop 2025";
@@ -196,21 +87,6 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
     private string _address = string.Empty;
-
-    // Timezone settings
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private int _selectedTimezoneIndex = 0;
-
-    public ObservableCollection<string> TimezoneOptions { get; } = new()
-    {
-        "UTC+7 (Vietnam)",
-        "UTC+8 (Singapore)",
-        "UTC+9 (Japan)",
-        "UTC+0 (GMT)",
-        "UTC-5 (EST)",
-        "UTC-8 (PST)"
-    };
 
     // Track if settings changed
     private AppSettings? _originalSettings;
@@ -369,40 +245,59 @@ public partial class SettingsViewModel : ObservableObject
     
     /// <summary>
     /// Load license info to determine Trial tab visibility
-    /// Only show Trial tab for Admin users with Trial license
+    /// Trial tab shows for: Admin without Permanent license (Trial or No license)
+    /// Trial tab hidden for: Non-Admin or Admin with Permanent license
     /// </summary>
     private async Task LoadLicenseInfoAsync()
     {
         try
         {
+            // First check if user is Admin
+            var userResult = await _authRepository.GetCurrentUserAsync();
+            if (userResult.IsSuccess && userResult.Data != null)
+            {
+                var currentUser = userResult.Data;
+                IsAdmin = currentUser.Roles != null && currentUser.Roles.Contains(UserRole.Admin);
+            }
+            else
+            {
+                IsAdmin = false;
+            }
+
+            // Only load license info if user is Admin
+            if (!IsAdmin)
+            {
+                ShowTrialTab = false;
+                Debug.WriteLine("[SettingsViewModel] User is not Admin - hiding Trial tab");
+                return;
+            }
+
             var licenseResult = await _activationRepository.GetCurrentLicenseAsync();
             if (licenseResult.IsSuccess && licenseResult.Data != null)
             {
                 var license = licenseResult.Data;
-                IsAdmin = true;
                 IsTrialAdmin = !license.IsPermanent;
                 IsPermanentAdmin = license.IsPermanent;
                 LicenseType = license.IsPermanent ? "Permanent" : "Trial";
                 LicenseExpiresAt = license.ExpiresAt;
                 TrialDaysRemaining = license.RemainingDays;
                 
-                // Only show Trial tab for Trial admin (not Permanent admin)
-                ShowTrialTab = IsTrialAdmin;
+                // Show Trial tab only for Admin without Permanent license
+                ShowTrialTab = !license.IsPermanent;
                 
-                Debug.WriteLine($"[SettingsViewModel] License loaded: Type={LicenseType}, ExpiresAt={LicenseExpiresAt}, RemainingDays={TrialDaysRemaining}, ShowTrialTab={ShowTrialTab}");
+                Debug.WriteLine($"[SettingsViewModel] License loaded: Type={LicenseType}, IsPermanent={license.IsPermanent}, ShowTrialTab={ShowTrialTab}");
             }
             else
             {
-                // No license = not admin or no license activated
-                IsAdmin = false;
+                // Admin without license - show Trial tab so they can activate
                 IsTrialAdmin = false;
                 IsPermanentAdmin = false;
-                ShowTrialTab = false;
+                ShowTrialTab = true;
                 LicenseType = "None";
                 LicenseExpiresAt = null;
                 TrialDaysRemaining = 0;
                 
-                Debug.WriteLine("[SettingsViewModel] No license found - hiding Trial tab");
+                Debug.WriteLine($"[SettingsViewModel] Admin without license - showing Trial tab for activation");
             }
         }
         catch (Exception ex)
@@ -410,170 +305,6 @@ public partial class SettingsViewModel : ObservableObject
             Debug.WriteLine($"[SettingsViewModel] Failed to load license info: {ex.Message}");
             ShowTrialTab = false;
         }
-    }
-
-    [RelayCommand]
-    private async Task CalculateCacheSizeAsync()
-    {
-        try
-        {
-            var cacheFolder = ApplicationData.Current.LocalCacheFolder;
-            var properties = await cacheFolder.GetBasicPropertiesAsync();
-            double sizeInMB = properties.Size / 1024.0 / 1024.0;
-            CacheSize = $"{sizeInMB:F2} MB";
-        }
-        catch
-        {
-            CacheSize = "0 MB";
-        }
-    }
-
-    [RelayCommand]
-    private async Task ClearCacheAsync()
-    {
-        try
-        {
-            var cacheFolder = ApplicationData.Current.LocalCacheFolder;
-            var files = await cacheFolder.GetFilesAsync();
-            foreach (var file in files)
-            {
-                await file.DeleteAsync();
-            }
-            await CalculateCacheSizeAsync();
-        }
-        catch
-        {
-            // Silently fail
-        }
-    }
-
-    [RelayCommand]
-    private async Task ExportSettingsAsync()
-    {
-        try
-        {
-            IsLoading = true;
-
-            var savePicker = new FileSavePicker();
-            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
-            WinRT.Interop.InitializeWithWindow.Initialize(savePicker, hwnd);
-
-            savePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
-            savePicker.FileTypeChoices.Add("JSON Settings", new List<string> { ".json" });
-            savePicker.SuggestedFileName = $"myshop-settings-{DateTime.Now:yyyyMMdd-HHmmss}";
-
-            var file = await savePicker.PickSaveFileAsync();
-            if (file != null)
-            {
-                var result = await _settingsStorage.GetAsync();
-                if (!result.IsSuccess || result.Data == null)
-                {
-                    await _toastHelper.ShowError("Failed to load current settings for export.");
-                    return;
-                }
-                
-                var settings = result.Data;
-                var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
-                await FileIO.WriteTextAsync(file, json);
-
-                await _toastHelper.ShowSuccess($"Settings exported to {file.Name}");
-                System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Settings exported to: {file.Path}");
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Export error: {ex.Message}");
-            await _toastHelper.ShowError("Failed to export settings.");
-        }
-        finally
-        {
-            IsLoading = false;
-        }
-    }
-
-    [RelayCommand]
-    private async Task ImportSettingsAsync()
-    {
-        try
-        {
-            IsLoading = true;
-
-            var openPicker = new FileOpenPicker();
-            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
-            WinRT.Interop.InitializeWithWindow.Initialize(openPicker, hwnd);
-
-            openPicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
-            openPicker.FileTypeFilter.Add(".json");
-
-            var file = await openPicker.PickSingleFileAsync();
-            if (file != null)
-            {
-                var json = await FileIO.ReadTextAsync(file);
-                var settings = JsonSerializer.Deserialize<AppSettings>(json, new JsonSerializerOptions 
-                { 
-                    PropertyNameCaseInsensitive = true 
-                });
-
-                if (settings != null)
-                {
-                    // Validate settings before applying
-                    if (ValidateImportedSettings(settings))
-                    {
-                        var result = await _settingsStorage.SaveAsync(settings);
-                        if (result.IsSuccess)
-                        {
-                            await LoadAsync();
-                            await _toastHelper.ShowSuccess($"Settings imported from {file.Name}");
-                            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Settings imported from: {file.Path}");
-                        }
-                        else
-                        {
-                            await _toastHelper.ShowError("Failed to save imported settings.");
-                        }
-                    }
-                    else
-                    {
-                        await _toastHelper.ShowError("Invalid settings file format.");
-                    }
-                }
-                else
-                {
-                    await _toastHelper.ShowError("Failed to parse settings file.");
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Import error: {ex.Message}");
-            await _toastHelper.ShowError("Failed to import settings.");
-        }
-        finally
-        {
-            IsLoading = false;
-        }
-    }
-
-    private bool ValidateImportedSettings(AppSettings settings)
-    {
-        // Basic validation
-        if (settings == null) return false;
-        
-        // Validate theme
-        if (!string.IsNullOrEmpty(settings.Theme) && 
-            !new[] { "System", "Light", "Dark" }.Contains(settings.Theme))
-        {
-            return false;
-        }
-
-        // Validate page sizes via Pagination object
-        if (settings.Pagination != null)
-        {
-            if (settings.Pagination.ProductsPageSize < 1 || settings.Pagination.ProductsPageSize > 200) return false;
-            if (settings.Pagination.OrdersPageSize < 1 || settings.Pagination.OrdersPageSize > 200) return false;
-            if (settings.Pagination.CustomersPageSize < 1 || settings.Pagination.CustomersPageSize > 200) return false;
-        }
-
-        return true;
     }
 
     /// <summary>
@@ -601,18 +332,8 @@ public partial class SettingsViewModel : ObservableObject
             
             Theme = settings.Theme;
             Language = settings.Language;
-            NotificationsEnabled = settings.NotificationsEnabled;
-            RestoreLastPage = settings.RestoreLastPage;
-            ProductsPageSize = settings.Pagination.ProductsPageSize;
-            OrdersPageSize = settings.Pagination.OrdersPageSize;
-            CustomersPageSize = settings.Pagination.CustomersPageSize;
-            EnableSoundNotifications = settings.EnableSoundNotifications;
-            NotifyOnLowStock = settings.NotifyOnLowStock;
-            NotifyOnNewOrders = settings.NotifyOnNewOrders;
-            EnableOfflineMode = settings.EnableOfflineMode;
             ShopName = settings.ShopName ?? "MyShop 2025";
             Address = settings.Address ?? string.Empty;
-            SelectedTimezoneIndex = settings.SelectedTimezoneIndex;
 
             // Store original for change detection
             _originalSettings = settings;
@@ -645,21 +366,8 @@ public partial class SettingsViewModel : ObservableObject
             {
                 Theme = Theme,
                 Language = Language,
-                NotificationsEnabled = NotificationsEnabled,
-                RestoreLastPage = RestoreLastPage,
-                Pagination = new PaginationSettings
-                {
-                    ProductsPageSize = ProductsPageSize,
-                    OrdersPageSize = OrdersPageSize,
-                    CustomersPageSize = CustomersPageSize
-                },
-                EnableSoundNotifications = EnableSoundNotifications,
-                NotifyOnLowStock = NotifyOnLowStock,
-                NotifyOnNewOrders = NotifyOnNewOrders,
-                EnableOfflineMode = EnableOfflineMode,
                 ShopName = ShopName,
-                Address = Address,
-                SelectedTimezoneIndex = SelectedTimezoneIndex
+                Address = Address
             };
 
             var result = await _settingsStorage.SaveAsync(settings);
@@ -672,10 +380,6 @@ public partial class SettingsViewModel : ObservableObject
             // Update original settings
             _originalSettings = settings;
             
-            // Sync with global PaginationService so all ViewModels get updated values
-            _paginationService.Initialize(settings.Pagination);
-            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] PaginationService synced: Products={ProductsPageSize}, Orders={OrdersPageSize}");
-
             await _toastHelper.ShowSuccess("Settings saved successfully!");
             
             // Apply theme and language immediately
@@ -739,18 +443,8 @@ public partial class SettingsViewModel : ObservableObject
 
         return Theme != _originalSettings.Theme ||
                Language != _originalSettings.Language ||
-               NotificationsEnabled != _originalSettings.NotificationsEnabled ||
-               RestoreLastPage != _originalSettings.RestoreLastPage ||
-               ProductsPageSize != _originalSettings.Pagination.ProductsPageSize ||
-               OrdersPageSize != _originalSettings.Pagination.OrdersPageSize ||
-               CustomersPageSize != _originalSettings.Pagination.CustomersPageSize ||
-               EnableSoundNotifications != _originalSettings.EnableSoundNotifications ||
-               NotifyOnLowStock != _originalSettings.NotifyOnLowStock ||
-               NotifyOnNewOrders != _originalSettings.NotifyOnNewOrders ||
-               EnableOfflineMode != _originalSettings.EnableOfflineMode ||
                ShopName != _originalSettings.ShopName ||
-               Address != _originalSettings.Address ||
-               SelectedTimezoneIndex != _originalSettings.SelectedTimezoneIndex;
+               Address != _originalSettings.Address;
     }
 
     /// <summary>

@@ -173,9 +173,8 @@ namespace MyShop.Client.Views.Shared
             // Skip during initialization - prevents extra RefreshAsync calls during init
             if (ViewModel.IsInitializing) return;
 
-            // PaginationControl already updated PageSize before raising event
-            // Just trigger the reload - don't check if PageSize != newPageSize
-            ViewModel.PageSize = newPageSize;
+            // PaginationControl already updated PageSize via TwoWay binding before raising event
+            // Don't set it again - just reset to page 1 and reload
             ViewModel.CurrentPage = 1; // Reset to first page
             await ViewModel.RefreshAsync();
 

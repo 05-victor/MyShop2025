@@ -276,6 +276,7 @@ namespace MyShop.Client.Config
                     services.AddSingleton<ICurrentUserService, CurrentUserService>();
                     services.AddSingleton<Services.IChartExportService, Services.ChartExportService>();
                     services.AddSingleton<Services.IPdfExportService, Services.PdfExportService>();
+                    services.AddTransient<MyShop.Core.Interfaces.Services.IAuthService, Services.AuthService>();
 
                     // ===== Chatbot Service =====
                     services.AddSingleton<IChatbotService, Services.ChatbotService>();
@@ -353,6 +354,12 @@ namespace MyShop.Client.Config
                     // ===== ViewModels (Client) =====
                     services.AddTransient<ViewModels.Shared.LoginViewModel>();
                     services.AddTransient<ViewModels.Shared.RegisterViewModel>();
+
+                    // Auth ViewModels
+                    services.AddTransient<ViewModels.Auth.ForgotPasswordRequestViewModel>();
+                    services.AddTransient<ViewModels.Auth.ForgotPasswordOtpViewModel>();
+                    services.AddTransient<ViewModels.Auth.ForgotPasswordResetViewModel>();
+                    services.AddTransient<ViewModels.Auth.ForgotPasswordSuccessViewModel>();
 
                     // Admin ViewModels
                     services.AddTransient<ViewModels.Admin.AdminDashboardViewModel>();

@@ -117,6 +117,7 @@
                         <Button
                             Content="Resend Email"
                             MinWidth="140"
+                            MaxWidth="150"
                             Click="ResendVerificationEmail_Click"
                             Style="{StaticResource AccentButtonStyle}"/>
                     </InfoBar.ActionButton>

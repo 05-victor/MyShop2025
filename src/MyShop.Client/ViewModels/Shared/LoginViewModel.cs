@@ -267,7 +267,7 @@ public partial class LoginViewModel : BaseViewModel
     [RelayCommand]
     private async Task ForgotPasswordAsync()
     {
-        await _toastHelper.ShowInfo("Password recovery feature coming soon!");
+        await _navigationService.NavigateTo("MyShop.Client.Views.Auth.ForgotPasswordRequestPage");
     }
 
     [RelayCommand]

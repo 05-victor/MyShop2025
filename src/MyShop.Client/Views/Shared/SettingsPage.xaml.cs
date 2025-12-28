@@ -2,21 +2,17 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
-using MyShop.Core.Common;
 using MyShop.Client.ViewModels.Settings;
-using MyShop.Client.Views.Dialogs;
 using MyShop.Client.Services;
 using System;
-using System.Diagnostics;
-using Windows.ApplicationModel.DataTransfer;
 
 namespace MyShop.Client.Views.Shared;
 
 public sealed partial class SettingsPage : Page
 {
     public SettingsViewModel ViewModel { get; }
-    private bool _isDialogOpen = false;
     private bool _isInitializing = true;
+    private string _originalTheme = "Light"; // Track original theme for revert
 
     public SettingsPage()
     {
@@ -57,24 +53,6 @@ public sealed partial class SettingsPage : Page
         };
         saveShortcut.Invoked += async (s, e) => { await ViewModel.SaveCommand.ExecuteAsync(null); e.Handled = true; };
         KeyboardAccelerators.Add(saveShortcut);
-
-        // Ctrl+E: Export settings
-        var exportShortcut = new Microsoft.UI.Xaml.Input.KeyboardAccelerator 
-        { 
-            Key = Windows.System.VirtualKey.E, 
-            Modifiers = Windows.System.VirtualKeyModifiers.Control 
-        };
-        exportShortcut.Invoked += async (s, e) => { await ViewModel.ExportSettingsCommand.ExecuteAsync(null); e.Handled = true; };
-        KeyboardAccelerators.Add(exportShortcut);
-
-        // Ctrl+I: Import settings
-        var importShortcut = new Microsoft.UI.Xaml.Input.KeyboardAccelerator 
-        { 
-            Key = Windows.System.VirtualKey.I, 
-            Modifiers = Windows.System.VirtualKeyModifiers.Control 
-        };
-        importShortcut.Invoked += async (s, e) => { await ViewModel.ImportSettingsCommand.ExecuteAsync(null); e.Handled = true; };
-        KeyboardAccelerators.Add(importShortcut);
     }
 
     protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -98,112 +76,15 @@ public sealed partial class SettingsPage : Page
         }
         finally
         {
-            // Ensure toggle reflects current theme after load
-            ThemeToggle.IsOn = ThemeManager.CurrentTheme == ThemeManager.ThemeType.Dark;
+            // Sync toggle with saved theme after loading
+            ThemeToggle.IsOn = ViewModel.Theme == "Dark";
+            
+            // Store original theme for revert on navigation away without save
+            _originalTheme = ViewModel.Theme;
             
             // Allow toggle events only after load completes and UI stabilizes
             _isInitializing = false;
             LoggingService.Instance.Debug("← OnNavigatedTo");
-        }
-    }
-
-    private async void MockDataToggle_Toggled(object sender, RoutedEventArgs e)
-    {
-        // Skip during page initialization
-        if (_isInitializing) return;
-        
-        // Prevent opening multiple dialogs
-        if (_isDialogOpen) return;
-        
-        // Show warning that restart is required
-        if (sender is ToggleSwitch toggle)
-        {
-            try
-            {
-                _isDialogOpen = true;
-                
-                var dialog = new ContentDialog
-                {
-                    Title = "Restart Required",
-                    Content = "Changing the data source requires restarting the application. Would you like to save this setting?",
-                    PrimaryButtonText = "Save & Restart Later",
-                    CloseButtonText = "Cancel",
-                    XamlRoot = this.XamlRoot
-                };
-
-                var result = await dialog.ShowAsync();
-                if (result != ContentDialogResult.Primary)
-                {
-                    // Revert toggle without triggering event again
-                    toggle.Toggled -= MockDataToggle_Toggled;
-                    toggle.IsOn = !toggle.IsOn;
-                    toggle.Toggled += MockDataToggle_Toggled;
-                }
-            }
-            finally
-            {
-                _isDialogOpen = false;
-            }
-        }
-    }
-
-    private async void ConfigureServer_Click(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            var dialog = new ServerConfigDialog
-            {
-                XamlRoot = this.XamlRoot
-            };
-            await dialog.ShowAsync();
-        }
-        catch (Exception ex)
-        {
-            LoggingService.Instance.Error("Failed to open server config dialog", ex);
-        }
-    }
-
-    private void OpenLogsFolder_Click(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            var logsPath = StorageConstants.LogsDirectory;
-            if (!System.IO.Directory.Exists(logsPath))
-            {
-                System.IO.Directory.CreateDirectory(logsPath);
-            }
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = logsPath,
-                UseShellExecute = true
-            });
-        }
-        catch (Exception ex)
-        {
-            LoggingService.Instance.Error("Failed to open logs folder", ex);
-        }
-    }
-
-    private void OpenExportsFolder_Click(object sender, RoutedEventArgs e)
-    {
-        StorageConstants.OpenExportsFolder();
-    }
-
-    private void CopyDebugInfo_Click(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            var debugInfo = ViewModel.GetDebugInfo();
-            var dataPackage = new DataPackage();
-            dataPackage.SetText(debugInfo);
-            Clipboard.SetContent(dataPackage);
-            
-            // Could show a toast notification here
-            LoggingService.Instance.Information("Debug info copied to clipboard");
-        }
-        catch (Exception ex)
-        {
-            LoggingService.Instance.Error("Failed to copy debug info", ex);
         }
     }
 
@@ -216,18 +97,36 @@ public sealed partial class SettingsPage : Page
         {
             try
             {
+                // Update ViewModel.Theme property for tracking
+                ViewModel.Theme = toggle.IsOn ? "Dark" : "Light";
+                
+                // Apply theme preview immediately
                 var newTheme = toggle.IsOn ? ThemeManager.ThemeType.Dark : ThemeManager.ThemeType.Light;
                 ThemeManager.ApplyTheme(newTheme);
-                LoggingService.Instance.Information($"Theme changed to: {newTheme}");
+                
+                LoggingService.Instance.Information($"Theme preview applied: {ViewModel.Theme} (save to persist)");
             }
             catch (Exception ex)
             {
-                LoggingService.Instance.Error("Failed to change theme", ex);
+                LoggingService.Instance.Error("Failed to apply theme preview", ex);
                 // Revert toggle on error
                 toggle.Toggled -= ThemeToggle_Toggled;
                 toggle.IsOn = !toggle.IsOn;
                 toggle.Toggled += ThemeToggle_Toggled;
             }
+        }
+    }
+
+    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    {
+        base.OnNavigatedFrom(e);
+        
+        // If theme changed but wasn't saved, revert to original
+        if (ViewModel.Theme != _originalTheme)
+        {
+            var savedTheme = _originalTheme == "Dark" ? ThemeManager.ThemeType.Dark : ThemeManager.ThemeType.Light;
+            ThemeManager.ApplyTheme(savedTheme);
+            LoggingService.Instance.Information($"Reverted theme to original: {_originalTheme} (changes not saved)");
         }
     }
 }

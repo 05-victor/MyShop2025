@@ -98,25 +98,14 @@ namespace MyShop.Client
         {
             try
             {
-                LoggingService.Instance.Information("Initializing PaginationService from settings...");
+                LoggingService.Instance.Information("Initializing PaginationService with defaults...");
                 
-                var settingsStorage = Services.GetRequiredService<ISettingsStorage>();
                 var paginationService = Services.GetRequiredService<IPaginationService>();
                 
-                var result = await settingsStorage.GetAsync();
-                if (result.IsSuccess && result.Data != null)
-                {
-                    var settings = result.Data;
-                    // Create PaginationSettings from AppSettings.Pagination
-                    var paginationSettings = settings.Pagination ?? new MyShop.Shared.Models.PaginationSettings();
-                    
-                    paginationService.Initialize(paginationSettings);
-                    LoggingService.Instance.Information($"PaginationService initialized: Products={paginationSettings.ProductsPageSize}, Orders={paginationSettings.OrdersPageSize}");
-                }
-                else
-                {
-                    LoggingService.Instance.Warning("Settings not found, using default pagination values");
-                }
+                // Use default pagination values
+                var paginationSettings = new MyShop.Shared.Models.PaginationSettings();
+                paginationService.Initialize(paginationSettings);
+                LoggingService.Instance.Information($"PaginationService initialized with defaults: Products={paginationSettings.ProductsPageSize}, Orders={paginationSettings.OrdersPageSize}");
             }
             catch (Exception ex)
             {

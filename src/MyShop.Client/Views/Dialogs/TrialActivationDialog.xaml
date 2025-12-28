@@ -92,7 +92,7 @@
                             FontSize="11"
                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                             TextWrapping="Wrap">
-                            <Run FontWeight="SemiBold" Text="Demo codes (8 characters):" />
+                            <Run FontWeight="SemiBold" Text="Activation codes (8 characters):" />
                             <Run Text="ADMIN123, TRIAL001" />
                         </TextBlock>
                     </Border>

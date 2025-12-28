@@ -16,6 +16,7 @@
         <!-- Converters for visibility -->
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
         <converters:StringToImageSourceConverter x:Key="StringToImageSource"/>
     </Page.Resources>
 
@@ -133,6 +134,7 @@
                                             <TextBlock Style="{StaticResource InputLabelStyle}"
                                                     Text="Shop Name"/>
                                             <TextBox Style="{StaticResource BaseInputStyle}"
+                                                    IsReadOnly="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
                                                     PlaceholderText="MyShop 2025"
                                                     Text="{x:Bind ViewModel.ShopName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                         </StackPanel>
@@ -140,12 +142,18 @@
                                         <StackPanel Spacing="8">
                                             <TextBlock Style="{StaticResource InputLabelStyle}"
                                                     Text="Address"/>
-                                            <TextBox
-                                                Style="{StaticResource BaseInputStyle}"
-                                                AcceptsReturn="True"
-                                                Height="80"
-                                                PlaceholderText="Enter shop address"
-                                                Text="{x:Bind ViewModel.Address, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            <TextBox Style="{StaticResource BaseInputStyle}"
+                                                    IsReadOnly="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                                                    AcceptsReturn="True"
+                                                    Height="80"
+                                                    PlaceholderText="Enter shop address"
+                                                    Text="{x:Bind ViewModel.Address, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    TextWrapping="Wrap"/>
+                                            <TextBlock
+                                                FontSize="{StaticResource FontSize_SM}"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                                                Text="Only Admin can edit shop information"
                                                 TextWrapping="Wrap"/>
                                         </StackPanel>
                                     </StackPanel>
@@ -156,6 +164,7 @@
                                         Variant="Filled"
                                         IconGlyph="&#xE74E;"
                                         Text="Save Changes"
+                                        Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
                                         Command="{x:Bind ViewModel.SaveCommand}"/>
                             </StackPanel>
                         </ScrollViewer>
@@ -228,6 +237,13 @@
                                             TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Border>
+
+                                <buttons:IconButton
+                                        HorizontalAlignment="Left"
+                                        Variant="Filled"
+                                        IconGlyph="&#xE74E;"
+                                        Text="Save Changes"
+                                        Command="{x:Bind ViewModel.SaveCommand}"/>
                             </StackPanel>
                         </ScrollViewer>
                     </TabViewItem>

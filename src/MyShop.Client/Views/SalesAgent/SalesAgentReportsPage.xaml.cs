@@ -92,4 +92,12 @@ public sealed partial class SalesAgentReportsPage : Page
             Services.LoggingService.Instance.Error("Failed to refresh reports", ex);
         }
     }
+
+    private async void ExportPdfButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.ExportReportCommand?.CanExecute(null) == true)
+        {
+            await ViewModel.ExportReportCommand.ExecuteAsync(null);
+        }
+    }
 }

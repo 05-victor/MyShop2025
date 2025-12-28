@@ -226,6 +226,15 @@ public sealed partial class AdminProductsPage : Page
         }
     }
 
+    private async void ExportPdfButton_Click(object sender, RoutedEventArgs e)
+    {
+        // Execute export command for PDF format
+        if (ViewModel.ExportCommand.CanExecute(null))
+        {
+            await ViewModel.ExportCommand.ExecuteAsync(null);
+        }
+    }
+
     private void ImportButton_Click(object sender, RoutedEventArgs e)
     {
         // TODO: Implement import from CSV/Excel when FileOpenPicker is integrated
