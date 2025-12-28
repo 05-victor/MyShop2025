@@ -135,13 +135,13 @@
 
                                 <StackPanel Spacing="4">
                                     <TextBlock
-                                        FontSize="14"
+                                        FontSize="{StaticResource FontSize_Base}"
                                         FontWeight="SemiBold"
                                         Foreground="{ThemeResource TextTertiaryBrush}"
                                         Text="Search Users"
                                         AutomationProperties.HeadingLevel="Level2"/>
                                     <TextBlock
-                                        FontSize="12"
+                                        FontSize="{StaticResource FontSize_SM}"
                                         Foreground="{ThemeResource TextSecondaryBrush}"
                                         Text="Find users by name, email, or phone number"/>
                                 </StackPanel>
@@ -166,7 +166,7 @@
                                 <!--  Column 0: Role Filter (Left)  -->
                                 <StackPanel Grid.Column="0" Spacing="4">
                                     <TextBlock
-                                        FontSize="12"
+                                        FontSize="{StaticResource FontSize_SM}"
                                         FontWeight="SemiBold"
                                         Foreground="{ThemeResource TextSecondaryBrush}"
                                         Text="Role"/>
@@ -227,9 +227,9 @@
                                     Style="{StaticResource SecondaryButtonSmallStyle}"
                                     ToolTipService.ToolTip="Export users">
                                     <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <FontIcon Glyph="&#xE898;" FontSize="14"/>
+                                        <FontIcon Glyph="&#xE898;" FontSize="{StaticResource FontSize_Base}"/>
                                         <TextBlock Text="Export"/>
-                                        <FontIcon Glyph="&#xE70D;" FontSize="10"/>
+                                        <FontIcon Glyph="&#xE70D;" FontSize="{StaticResource FontSize_XS}"/>
                                     </StackPanel>
                                     <Button.Flyout>
                                         <MenuFlyout Placement="Bottom">
@@ -287,20 +287,20 @@
                                                      Height="120"
                                                      Fill="{ThemeResource SubtleBackgroundBrush}"/>
                                             <FontIcon
-                                                FontSize="64"
+                                                FontSize="{StaticResource FontSize_5XL}"
                                                 Foreground="{ThemeResource Gray500Brush}"
                                                 Glyph="&#xE77B;"/>
                                         </Grid>
                                     </Viewbox>
 
                                     <TextBlock
-                                        FontSize="20"
+                                        FontSize="{StaticResource FontSize_2XL}"
                                         FontWeight="SemiBold"
                                         Foreground="{ThemeResource TextTertiaryBrush}"
                                         Text="No users found"
                                         TextAlignment="Center"/>
                                     <TextBlock
-                                        FontSize="14"
+                                        FontSize="{StaticResource FontSize_Base}"
                                         Foreground="{ThemeResource TextSecondaryBrush}"
                                         Text="Start by adding your first user to the system"
                                         TextAlignment="Center"
@@ -365,7 +365,7 @@
                                                     Background="{x:Bind RoleBgColor, Mode=OneWay}"
                                                     CornerRadius="6">
                                                     <TextBlock
-                                                        FontSize="12"
+                                                        FontSize="{StaticResource FontSize_SM}"
                                                         FontWeight="SemiBold"
                                                         Foreground="{x:Bind RoleColor, Mode=OneWay}"
                                                         Text="{x:Bind Role, Mode=OneWay}"/>
@@ -375,7 +375,7 @@
                                                 <TextBlock
                                                     Grid.Column="2"
                                                     VerticalAlignment="Center"
-                                                    FontSize="14"
+                                                    FontSize="{StaticResource FontSize_Base}"
                                                     Foreground="{ThemeResource TextPrimaryBrush}"
                                                     Text="{x:Bind Phone, Mode=OneWay}"/>
 
@@ -402,7 +402,7 @@
                                                         Click="ViewDetailsButton_Click">
                                                         <StackPanel Orientation="Horizontal"
                                                                     Spacing="6">
-                                                            <FontIcon FontSize="14"
+                                                            <FontIcon FontSize="{StaticResource FontSize_Base}"
                                                                       Glyph="&#xE71B;"/>
                                                             <TextBlock Text="View Details"/>
                                                         </StackPanel>
@@ -415,7 +415,7 @@
                                                         Click="DeleteButton_Click">
                                                         <StackPanel Orientation="Horizontal"
                                                                     Spacing="6">
-                                                            <FontIcon FontSize="14"
+                                                            <FontIcon FontSize="{StaticResource FontSize_Base}"
                                                                       Glyph="&#xE74D;"/>
                                                             <TextBlock Text="Delete"/>
                                                         </StackPanel>
@@ -477,7 +477,7 @@
                                    x:Name="UserAvatarText"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
-                                   FontSize="32"
+                                   FontSize="{StaticResource FontSize_5XL}"
                                    FontWeight="Bold"
                                    Foreground="{ThemeResource WhiteBrush}"
                                    Text="A"/>
@@ -486,12 +486,12 @@
                         <StackPanel Grid.Column="1"
                                     Spacing="4">
                             <TextBlock x:Name="UserFullNameText"
-                                       FontSize="16"
+                                       FontSize="{StaticResource FontSize_LG}"
                                        FontWeight="Bold"
                                        Foreground="{ThemeResource TextPrimaryBrush}"
                                        Text="Full Name"/>
                             <TextBlock x:Name="UserRoleText"
-                                       FontSize="12"
+                                       FontSize="{StaticResource FontSize_SM}"
                                        Foreground="{ThemeResource TextSecondaryBrush}"
                                        Text="Role"/>
                         </StackPanel>
@@ -503,51 +503,51 @@
 
                     <!-- Account Information -->
                     <StackPanel Spacing="12">
-                        <TextBlock FontSize="14"
+                        <TextBlock FontSize="{StaticResource FontSize_Base}"
                                    FontWeight="SemiBold"
                                    Foreground="{ThemeResource TextPrimaryBrush}"
                                    Text="Account Information"/>
 
                         <!-- Username -->
                         <StackPanel Spacing="4">
-                            <TextBlock FontSize="12"
+                            <TextBlock FontSize="{StaticResource FontSize_SM}"
                                        Foreground="{ThemeResource TextSecondaryBrush}"
                                        Text="Username"/>
                             <TextBlock x:Name="UserUsernameText"
-                                       FontSize="13"
+                                       FontSize="{StaticResource FontSize_SM}"
                                        Foreground="{ThemeResource TextPrimaryBrush}"
                                        Text="username"/>
                         </StackPanel>
 
                         <!-- Email -->
                         <StackPanel Spacing="4">
-                            <TextBlock FontSize="12"
+                            <TextBlock FontSize="{StaticResource FontSize_SM}"
                                        Foreground="{ThemeResource TextSecondaryBrush}"
                                        Text="Email"/>
                             <TextBlock x:Name="UserEmailText"
-                                       FontSize="13"
+                                       FontSize="{StaticResource FontSize_SM}"
                                        Foreground="{ThemeResource TextPrimaryBrush}"
                                        Text="email@example.com"/>
                         </StackPanel>
 
                         <!-- Phone -->
                         <StackPanel Spacing="4">
-                            <TextBlock FontSize="12"
+                            <TextBlock FontSize="{StaticResource FontSize_SM}"
                                        Foreground="{ThemeResource TextSecondaryBrush}"
                                        Text="Phone Number"/>
                             <TextBlock x:Name="UserPhoneText"
-                                       FontSize="13"
+                                       FontSize="{StaticResource FontSize_SM}"
                                        Foreground="{ThemeResource TextPrimaryBrush}"
                                        Text="N/A"/>
                         </StackPanel>
 
                         <!-- Address -->
                         <StackPanel Spacing="4">
-                            <TextBlock FontSize="12"
+                            <TextBlock FontSize="{StaticResource FontSize_SM}"
                                        Foreground="{ThemeResource TextSecondaryBrush}"
                                        Text="Address"/>
                             <TextBlock x:Name="UserAddressText"
-                                       FontSize="13"
+                                       FontSize="{StaticResource FontSize_SM}"
                                        Foreground="{ThemeResource TextPrimaryBrush}"
                                        Text="N/A"
                                        TextWrapping="Wrap"/>

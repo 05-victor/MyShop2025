@@ -274,7 +274,7 @@
                                                                 VerticalAlignment="Center">
                                                         <TextBlock FontWeight="SemiBold"
                                                                    Text="{Binding Name}"/>
-                                                        <TextBlock FontSize="12"
+                                                        <TextBlock FontSize="{StaticResource FontSize_SM}"
                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                                 <Run Text="{Binding Sales}"/>
                                                 <Run Text=" sales"/>
@@ -290,7 +290,7 @@
                                                         </TextBlock>
                                                         <TextBlock
                                                             HorizontalAlignment="Right"
-                                                            FontSize="12"
+                                                            FontSize="{StaticResource FontSize_SM}"
                                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                             Text="revenue"/>
                                                     </StackPanel>
@@ -328,7 +328,7 @@
                                                         BorderBrush="{ThemeResource TextFillColorDisabledBrush}"
                                                         BorderThickness="1"
                                                         CornerRadius="4">
-                                                        <TextBlock FontSize="12"
+                                                        <TextBlock FontSize="{StaticResource FontSize_SM}"
                                                                    Text="{Binding Category}"/>
                                                     </Border>
                                                 </DataTemplate>
@@ -364,7 +364,7 @@
                                                             Text="{Binding Rating}"/>
                                                         <FontIcon
                                                             VerticalAlignment="Center"
-                                                            FontSize="12"
+                                                            FontSize="{StaticResource FontSize_SM}"
                                                             Foreground="{ThemeResource WarningAmberBrush}"
                                                             Glyph="&#xE735;"/>
                                                     </StackPanel>
@@ -385,7 +385,7 @@
                                                         <TextBlock
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Center"
-                                                            FontSize="12"
+                                                            FontSize="{StaticResource FontSize_SM}"
                                                             FontWeight="SemiBold"
                                                             Foreground="{Binding Stock, Converter={StaticResource StockToBrushConverter}, ConverterParameter=Foreground}"
                                                             Text="{Binding Stock, Converter={StaticResource StockToStatusConverter}, FallbackValue='In Stock'}"
@@ -415,7 +415,7 @@
                               Width="64"
                               Height="64"/>
                 <TextBlock Text="Loading reports..."
-                           FontSize="18"
+                           FontSize="{StaticResource FontSize_XL}"
                            FontWeight="SemiBold"
                            HorizontalAlignment="Center"/>
             </StackPanel>
