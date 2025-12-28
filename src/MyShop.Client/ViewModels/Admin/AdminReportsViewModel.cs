@@ -167,6 +167,42 @@ public partial class AdminReportsViewModel : BaseViewModel
         }
     }
 
+    /// <summary>
+    /// Auto-update StartDate and EndDate when Quick Date Range selection changes
+    /// </summary>
+    partial void OnSelectedDateRangeChanged(DateRangeOption? value)
+    {
+        if (value == null) return;
+
+        var today = DateTimeOffset.Now;
+
+        switch (value.Value)
+        {
+            case "week":
+                // This Week: from 7 days ago to today
+                StartDate = today.AddDays(-7);
+                EndDate = today;
+                System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Updated dates for This Week: {StartDate:yyyy-MM-dd} to {EndDate:yyyy-MM-dd}");
+                break;
+
+            case "month":
+                // This Month: from first day of month to today
+                var firstDayOfMonth = new DateTimeOffset(today.Year, today.Month, 1, 0, 0, 0, today.Offset);
+                StartDate = firstDayOfMonth;
+                EndDate = today;
+                System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Updated dates for This Month: {StartDate:yyyy-MM-dd} to {EndDate:yyyy-MM-dd}");
+                break;
+
+            case "year":
+                // This Year: from first day of year to today
+                var firstDayOfYear = new DateTimeOffset(today.Year, 1, 1, 0, 0, 0, today.Offset);
+                StartDate = firstDayOfYear;
+                EndDate = today;
+                System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Updated dates for This Year: {StartDate:yyyy-MM-dd} to {EndDate:yyyy-MM-dd}");
+                break;
+        }
+    }
+
     [RelayCommand]
     private async Task ExportReportAsync()
     {
