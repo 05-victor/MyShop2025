@@ -1,0 +1,85 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ============================================================== -->
+    <!-- LIGHT THEME - MYSHOP2025                                      -->
+    <!-- ============================================================== -->
+    <!-- ONLY OVERRIDES - Do not duplicate Brushes.xaml definitions   -->
+    <!-- Tokens/* contains canonical definitions                       -->
+    <!-- This file ONLY overrides theme-specific values                -->
+    <!-- ============================================================== -->
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Tokens/Colors.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- ============================================= -->
+    <!-- SURFACE TOKENS - LIGHT THEME VALUES          -->
+    <!-- ============================================= -->
+    
+    <SolidColorBrush x:Key="PageBackgroundBrush" Color="{StaticResource WhiteColor}"/>
+    <SolidColorBrush x:Key="LayerBackgroundBrush" Color="{StaticResource Gray100Color}"/>
+    <SolidColorBrush x:Key="CardBackgroundBrush" Color="{StaticResource WhiteColor}"/>
+    <SolidColorBrush x:Key="PanelBackgroundBrush" Color="{StaticResource WhiteColor}"/>
+    <SolidColorBrush x:Key="DialogBackgroundBrush" Color="{StaticResource WhiteColor}"/>
+    <SolidColorBrush x:Key="SubtleBackgroundBrush" Color="{StaticResource Gray200Color}"/>
+    <SolidColorBrush x:Key="SubtleBackgroundHoverBrush" Color="{StaticResource Gray300Color}"/>
+    <SolidColorBrush x:Key="CardStrokeBrush" Color="{StaticResource Gray300Color}"/>
+    <SolidColorBrush x:Key="DividerStrokeBrush" Color="{StaticResource Gray200Color}"/>
+
+    <!-- ============================================= -->
+    <!-- TEXT TOKENS - LIGHT THEME VALUES             -->
+    <!-- ============================================= -->
+    
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource Gray900Color}"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource Gray800Color}"/>
+    <SolidColorBrush x:Key="TextTertiaryBrush" Color="{StaticResource Gray700Color}"/>
+    <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource Gray600Color}"/>
+
+    <!-- ============================================= -->
+    <!-- STATUS BADGE - LIGHT THEME VALUES            -->
+    <!-- ============================================= -->
+    
+    <SolidColorBrush x:Key="PendingForegroundBrush" Color="{StaticResource WarningAmberDarkColor}"/>
+    <SolidColorBrush x:Key="PendingBackgroundBrush" Color="{StaticResource WarningAmberLightColor}"/>
+    <SolidColorBrush x:Key="ApprovedForegroundBrush" Color="{StaticResource SuccessGreenDarkColor}"/>
+    <SolidColorBrush x:Key="ApprovedBackgroundBrush" Color="{StaticResource SuccessGreenLightColor}"/>
+    <SolidColorBrush x:Key="RejectedForegroundBrush" Color="{StaticResource ErrorRedColor}"/>
+    <SolidColorBrush x:Key="RejectedBackgroundBrush" Color="{StaticResource ErrorRedLightColor}"/>
+    <SolidColorBrush x:Key="ProcessingForegroundBrush" Color="{StaticResource InfoBlueColor}"/>
+    <SolidColorBrush x:Key="ProcessingBackgroundBrush" Color="{StaticResource InfoBlueLightColor}"/>
+    <SolidColorBrush x:Key="CompletedForegroundBrush" Color="{StaticResource PurpleDarkColor}"/>
+    <SolidColorBrush x:Key="CompletedBackgroundBrush" Color="{StaticResource PurpleLightColor}"/>
+
+    <!-- ============================================= -->
+    <!-- STOCK STATUS BADGES - LIGHT THEME            -->
+    <!-- ============================================= -->
+    
+    <!-- Out of Stock -->
+    <SolidColorBrush x:Key="StockOutOfStockBackgroundBrush" Color="#FEF2E2"/>
+    <SolidColorBrush x:Key="StockOutOfStockForegroundBrush" Color="#DC2626"/>
+    
+    <!-- Low Stock -->
+    <SolidColorBrush x:Key="StockLowStockBackgroundBrush" Color="#FEF3C7"/>
+    <SolidColorBrush x:Key="StockLowStockForegroundBrush" Color="#D97706"/>
+    
+    <!-- In Stock -->
+    <SolidColorBrush x:Key="StockInStockBackgroundBrush" Color="#D1FAE5"/>
+    <SolidColorBrush x:Key="StockInStockForegroundBrush" Color="#059669"/>
+
+    <SolidColorBrush x:Key="CalendarDatePickerTextForegroundPointerOver" Color="#111827"/>
+    <SolidColorBrush x:Key="CalendarDatePickerTextForegroundFocused" Color="#111827"/>
+    <SolidColorBrush x:Key="CalendarDatePickerTextForegroundDisabled" Color="#9CA3AF"/>
+    <SolidColorBrush x:Key="CalendarDatePickerHeaderForeground" Color="#111827"/>
+    <!-- ============================================= -->
+    <!-- SYSTEM BRUSH ALIASES (WinUI Compatibility)   -->
+    <!-- Maps WinUI system brushes to our tokens      -->
+    <!-- ============================================= -->
+    
+    <StaticResource x:Key="ApplicationPageBackgroundThemeBrush" ResourceKey="PageBackgroundBrush"/>
+    <StaticResource x:Key="TextFillColorPrimaryBrush" ResourceKey="TextPrimaryBrush"/>
+    <StaticResource x:Key="TextFillColorSecondaryBrush" ResourceKey="TextSecondaryBrush"/>
+    <StaticResource x:Key="TextFillColorTertiaryBrush" ResourceKey="TextTertiaryBrush"/>
+    <StaticResource x:Key="CardBackgroundFillColorDefaultBrush" ResourceKey="CardBackgroundBrush"/>
+    <StaticResource x:Key="CardStrokeColorDefaultBrush" ResourceKey="CardStrokeBrush"/>
+</ResourceDictionary>

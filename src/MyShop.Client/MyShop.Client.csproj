@@ -28,9 +28,6 @@
 		</EmbeddedResource>
 		
 		<!-- Development settings: Only copy in Debug mode for developers -->
-		<None Include="appsettings.Development.json" Condition="'$(Configuration)' == 'Debug'">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
 	</ItemGroup>
 
 	<!-- Copy mock data JSON files from Plugins project to output directory -->

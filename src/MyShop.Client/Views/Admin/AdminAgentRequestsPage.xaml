@@ -12,7 +12,7 @@
     xmlns:tables="using:MyShop.Client.Views.Components.Tables"
     xmlns:feedback="using:MyShop.Client.Views.Components.Feedback"
     x:Name="MyPage"
-    Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+    Background="{ThemeResource PageBackgroundBrush}"
     mc:Ignorable="d">
 
     <Page.Transitions>
@@ -88,7 +88,7 @@
         </VisualStateManager.VisualStateGroups>
 
         <Grid x:Name="MainContent"
-                Padding="{StaticResource Padding_2XL}">
+                Padding="24">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -98,7 +98,7 @@
             <!--  Header  -->
             <layout:PageHeader
                 Grid.Row="0"
-                Margin="0,0,0,24"
+                Margin="0,0,0,20"
                 Title="Agent Requests"
                 Subtitle="Manage sales agent registration requests">
                 <layout:PageHeader.ActionContent>

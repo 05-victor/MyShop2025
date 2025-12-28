@@ -212,6 +212,37 @@ public partial class AdminUsersViewModel : PagedViewModelBase<UserViewModel>
         }
     }
 
+    [RelayCommand]
+    private async Task ExportUsersToPdfAsync()
+    {
+        SetLoadingState(true);
+        try
+        {
+            var roleFilter = SelectedRole == "All Roles" ? null : SelectedRole;
+
+            var result = await _userFacade.ExportUsersToPdfAsync(
+                searchQuery: SearchQuery,
+                roleFilter: roleFilter);
+
+            if (result.IsSuccess)
+            {
+                await _toastHelper?.ShowSuccess($"Users exported to PDF: {result.Data}");
+            }
+            else
+            {
+                await _toastHelper?.ShowError(result.ErrorMessage ?? "PDF export failed");
+            }
+        }
+        catch (Exception ex)
+        {
+            await _toastHelper?.ShowError($"PDF export error: {ex.Message}");
+        }
+        finally
+        {
+            SetLoadingState(false);
+        }
+    }
+
     /// <summary>
     /// Show user details (fetches from API: GET /api/v1/users/{id})
     /// Uses IsDetailsLoading instead of IsLoading to avoid layout jumps from UserListSkeleton

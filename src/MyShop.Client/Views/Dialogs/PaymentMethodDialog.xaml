@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="MyShop.Client.Views.Dialogs.PaymentMethodDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Select Payment Method"
+    PrimaryButtonText="Confirm"
+    SecondaryButtonText="Cancel"
+    DefaultButton="Primary"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    SecondaryButtonClick="ContentDialog_SecondaryButtonClick">
+
+    <ScrollViewer MaxHeight="500" VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="16" Padding="4">
+            
+            <!-- QR Banking -->
+            <RadioButton 
+                x:Name="QRRadioButton"
+                GroupName="PaymentMethod"
+                IsChecked="True"
+                Click="PaymentMethod_Click">
+                <RadioButton.Content>
+                    <Grid Padding="12" ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Icon -->
+                        <Border Grid.Column="0"
+                                Width="48"
+                                Height="48"
+                                Background="{ThemeResource AccentBlueLightBrush}"
+                                CornerRadius="8">
+                            <FontIcon Glyph="&#xE8A7;"
+                                      FontSize="24"
+                                      Foreground="{ThemeResource AccentBlueBrush}"/>
+                        </Border>
+
+                        <!-- Details -->
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock Text="QR Code / Banking App"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="Scan QR code with your banking app"
+                                       FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       TextWrapping="Wrap"/>
+                            <TextBlock Text="✓ Fast, secure, instant confirmation"
+                                       FontSize="11"
+                                       Foreground="{ThemeResource SuccessGreenBrush}"
+                                       FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Grid>
+                </RadioButton.Content>
+            </RadioButton>
+
+            <!-- Card Payment -->
+            <RadioButton 
+                x:Name="CardRadioButton"
+                GroupName="PaymentMethod"
+                Click="PaymentMethod_Click">
+                <RadioButton.Content>
+                    <Grid Padding="12" ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Icon -->
+                        <Border Grid.Column="0"
+                                Width="48"
+                                Height="48"
+                                Background="{ThemeResource PurpleLightBrush}"
+                                CornerRadius="8">
+                            <FontIcon Glyph="&#xE8C7;"
+                                      FontSize="24"
+                                      Foreground="{ThemeResource PurpleBrush}"/>
+                        </Border>
+
+                        <!-- Details -->
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock Text="Credit / Debit Card"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="Visa, Mastercard, JCB accepted"
+                                       FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       TextWrapping="Wrap"/>
+                            <TextBlock Text="✓ Secure online payment"
+                                       FontSize="11"
+                                       Foreground="{ThemeResource SuccessGreenBrush}"
+                                       FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Grid>
+                </RadioButton.Content>
+            </RadioButton>
+
+            <!-- Cash on Delivery -->
+            <RadioButton 
+                x:Name="CODRadioButton"
+                GroupName="PaymentMethod"
+                Click="PaymentMethod_Click">
+                <RadioButton.Content>
+                    <Grid Padding="12" ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Icon -->
+                        <Border Grid.Column="0"
+                                Width="48"
+                                Height="48"
+                                Background="{ThemeResource SuccessGreenLightBrush}"
+                                CornerRadius="8">
+                            <FontIcon Glyph="&#xE8A1;"
+                                      FontSize="24"
+                                      Foreground="{ThemeResource SuccessGreenBrush}"/>
+                        </Border>
+
+                        <!-- Details -->
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock Text="Cash on Delivery (COD)"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="Pay when you receive the order"
+                                       FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       TextWrapping="Wrap"/>
+                            <TextBlock Text="⚠ Additional fee may apply"
+                                       FontSize="11"
+                                       Foreground="{ThemeResource WarningAmberBrush}"
+                                       FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Grid>
+                </RadioButton.Content>
+            </RadioButton>
+
+        </StackPanel>
+    </ScrollViewer>
+</ContentDialog>

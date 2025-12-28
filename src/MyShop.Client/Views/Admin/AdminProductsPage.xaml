@@ -18,7 +18,7 @@
     xmlns:forms="using:MyShop.Client.Views.Components.Forms"
     xmlns:cards="using:MyShop.Client.Views.Components.Cards"
     x:Name="MyPage"
-    Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+    Background="{ThemeResource PageBackgroundBrush}"
     mc:Ignorable="d">
 
     <Page.Transitions>
@@ -31,35 +31,6 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
         <converters:CurrencyConverter x:Key="CurrencyConverter"/>
-
-        <!--  Card style (giống card trắng bo góc trong React)  -->
-        <Style x:Key="CardBorderStyle"
-               TargetType="Border">
-            <Setter Property="Background"
-                    Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
-            <Setter Property="CornerRadius"
-                    Value="12"/>
-            <Setter Property="BorderBrush"
-                    Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
-            <Setter Property="BorderThickness"
-                    Value="1"/>
-            <Setter Property="Padding"
-                    Value="16"/>
-            <Setter Property="Margin"
-                    Value="0,0,0,16"/>
-        </Style>
-
-        <!--  Badge stock  -->
-        <Style x:Key="StockBadgeStyle"
-               TargetType="Border">
-            <Setter Property="CornerRadius"
-                    Value="999"/>
-            <Setter Property="Padding"
-                    Value="4,2"/>
-            <Setter Property="HorizontalAlignment"
-                    Value="Left"/>
-        </Style>
-
     </Page.Resources>
 
     <Grid>
@@ -125,10 +96,11 @@
         </VisualStateManager.VisualStateGroups>
 
         <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          Background="{ThemeResource PageBackgroundBrush}">
                 <StackPanel x:Name="MainContent"
-                        Padding="{StaticResource Padding_2XL}"
-                            Spacing="24">
+                        Padding="24"
+                            Spacing="20">
 
                     <!--  PAGE TITLE  -->
                     <layout:PageHeader
@@ -166,7 +138,7 @@
                         SearchRequested="SearchButton_Click"/>
 
                     <!--  FILTERS CARD  -->
-                    <Border Style="{StaticResource CardBorderStyle}">
+                    <Border Style="{StaticResource CardWithShadowStyle}">
                         <StackPanel Spacing="16">
                             <TextBlock
                                 FontSize="16"
@@ -282,7 +254,7 @@
                     </Border>
 
                     <!--  PRODUCTS TABLE CARD  -->
-                    <Border Style="{StaticResource CardBorderStyle}">
+                    <Border Style="{StaticResource CardWithShadowStyle}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
@@ -440,44 +412,7 @@
                                                 VerticalAlignment="Center"
                                                 Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                 Text="{x:Bind Category}"/>
-                                            <!--  Price  -->
-                                            <TextBlock
-                                                Grid.Column="3"
-                                                VerticalAlignment="Center"
-                                                Foreground="{ThemeResource SuccessGreenBrush}"
-                                                Text="{x:Bind Price, Converter={StaticResource CurrencyConverter}}"/>
 
-                                            <!--  Import price  -->
-                                            <TextBlock
-                                                Grid.Column="4"
-                                                VerticalAlignment="Center"
-                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                Text="{x:Bind ImportPrice, Converter={StaticResource CurrencyConverter}}"/>
-
-                                            <!--  Stock badge  -->
-                                            <!--<Border Grid.Column="5"
-                                                Style="{StaticResource StockBadgeStyle}"
-                                                Background="{ThemeResource SuccessGreenBrush}">
-                                        -->
-                                            <!--  TODO: Use converter to change color based on Stock  -->
-                                            <!--
-                                            <TextBlock Text="{x:Bind Stock}"
-                                                       Foreground="{ThemeResource WhiteBrush}"
-                                                       FontSize="12"/>
-                                        </Border>-->
-                                            <Border
-                                                Grid.Column="5"
-                                                Margin="0,12"
-                                                Padding="8,4"
-                                                HorizontalAlignment="Center"
-                                                Background="{ThemeResource SuccessGreenBrush}"
-                                                CornerRadius="4">
-                                                <TextBlock
-                                                    VerticalAlignment="Center"
-                                                    FontSize="12"
-                                                    Foreground="{ThemeResource WhiteBrush}"
-                                                    Text="{x:Bind Stock}"/>
-                                            </Border>
                                             <!--  Price  -->
                                             <TextBlock
                                                 Grid.Column="3"

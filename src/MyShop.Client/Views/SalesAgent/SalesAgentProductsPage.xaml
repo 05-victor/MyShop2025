@@ -17,7 +17,7 @@
     xmlns:converters="using:MyShop.Client.Common.Converters"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.SalesAgent"
     mc:Ignorable="d"
-    Background="{ThemeResource LayerFillColorDefaultBrush}">
+    Background="{ThemeResource PageBackgroundBrush}">
 
     <Page.Transitions>
         <TransitionCollection>
@@ -103,9 +103,10 @@
                     </TransitionCollection>
                 </Grid.Transitions>
                 <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  Background="{ThemeResource PageBackgroundBrush}">
                         <Grid x:Name="MainGrid"
-                              Padding="{StaticResource Padding_XL}"
+                              Padding="24"
                               RowSpacing="16">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -118,8 +119,7 @@
 
                                 <!-- PAGE HEADER -->
                                 <layout:PageHeader
-                                    Title="My Products"
-                                    Breadcrumb="Sales Agent > Products">
+                                    Title="My Products">
                                     <layout:PageHeader.ActionContent>
                                         <StackPanel Orientation="Horizontal"
                                                     Spacing="12">

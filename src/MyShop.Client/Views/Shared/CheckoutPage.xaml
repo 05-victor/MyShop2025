@@ -1,9 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="MyShop.Client.Views.Shared.CheckoutPage"
+    x:Name="RootPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
+    xmlns:cards="using:MyShop.Client.Views.Components.Cards"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:MyShop.Client.ViewModels.Shared"
@@ -21,92 +23,6 @@
         <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:CurrencyConverter x:Key="CurrencyConverter"/>
-
-        <Style x:Key="CardStyle"
-                TargetType="Border">
-            <Setter Property="Background"
-                    Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
-            <Setter Property="CornerRadius"
-                    Value="16"/>
-            <Setter Property="BorderBrush"
-                    Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
-            <Setter Property="BorderThickness"
-                    Value="1"/>
-            <Setter Property="Padding"
-                    Value="24"/>
-        </Style>
-
-        <Style x:Key="InputLabelStyle"
-                TargetType="TextBlock">
-            <Setter Property="FontSize"
-                    Value="14"/>
-            <Setter Property="FontWeight"
-                    Value="SemiBold"/>
-            <Setter Property="Foreground"
-                    Value="{ThemeResource TextTertiaryBrush}"/>
-            <Setter Property="Margin"
-                    Value="0,0,0,8"/>
-        </Style>
-
-        <Style x:Key="InputBoxStyle"
-                TargetType="TextBox">
-            <Setter Property="Height"
-                    Value="40"/>
-            <Setter Property="CornerRadius"
-                    Value="10"/>
-            <Setter Property="Padding"
-                    Value="12,8"/>
-            <Setter Property="BorderBrush"
-                    Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
-            <Setter Property="Background"
-                    Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
-        </Style>
-
-        <DataTemplate x:Key="CheckoutItemTemplate"
-                x:DataType="vm:CheckoutItem">
-            <Grid Padding="{StaticResource Spacing_2_Thickness}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <Border Width="64"
-                        Height="64"
-                        Background="{ThemeResource LayerFillColorDefaultBrush}"
-                        CornerRadius="8">
-                    <Image Stretch="UniformToFill">
-                        <Image.Source>
-                            <BitmapImage UriSource="{x:Bind ImageUrl}"
-                                         DecodePixelWidth="128"
-                                         DecodePixelHeight="128"/>
-                        </Image.Source>
-                    </Image>
-                </Border>
-
-                <StackPanel Grid.Column="1"
-                        Margin="16,0,0,0"
-                        VerticalAlignment="Center">
-                    <TextBlock Text="{x:Bind Name}"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                               TextTrimming="CharacterEllipsis"
-                               MaxLines="2"/>
-                    <TextBlock FontSize="12"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                        <Run Text="Qty: "/><Run Text="{x:Bind Quantity}"/>
-                    </TextBlock>
-                </StackPanel>
-
-                <TextBlock Grid.Column="2"
-                           Text="{x:Bind Total, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
-                           FontSize="14"
-                           FontWeight="SemiBold"
-                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                           VerticalAlignment="Center"/>
-            </Grid>
-        </DataTemplate>
     </Page.Resources>
 
     <Grid>
@@ -168,7 +84,7 @@
 
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                 HorizontalScrollBarVisibility="Disabled">
-            <Grid x:Name="MainContent" Padding="{StaticResource Padding_XL}"
+            <Grid x:Name="MainContent" Padding="32,32,32,88"
                     MaxWidth="1200"
                     HorizontalAlignment="Center">
                 <Grid.RowDefinitions>
@@ -213,17 +129,18 @@
 
                     <!-- Left Column: Forms & Content -->
                     <StackPanel Grid.Column="0"
-                            Spacing="24">
+                            Spacing="{StaticResource Spacing_6}">
 
-                        <!-- Shipping Information Form -->
-                        <Border Style="{StaticResource CardStyle}">
-                            <StackPanel Spacing="16">
+                        <!-- Shipping Information Form (Card component) -->
+                        <Border Style="{StaticResource DefaultCardStyle}"
+                                Padding="{StaticResource Padding_XL}">
+                            <StackPanel Spacing="{StaticResource Spacing_4}">
                                 <TextBlock Text="Shipping Information"
                                            FontSize="18"
                                            FontWeight="SemiBold"
                                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
 
-                                <Grid>
+                                <Grid RowSpacing="{StaticResource Spacing_4}" ColumnSpacing="{StaticResource Spacing_4}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
@@ -236,75 +153,88 @@
                                     </Grid.RowDefinitions>
 
                                     <!-- Row 1: Name & Email -->
-                                    <StackPanel Grid.Row="0"
-                                            Grid.Column="0"
-                                            Margin="0,0,8,0">
+                                    <StackPanel Grid.Row="0" Grid.Column="0">
                                         <TextBlock Text="Full Name *"
-                                                Style="{StaticResource InputLabelStyle}"/>
-                                        <TextBox Style="{StaticResource InputBoxStyle}"
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource Gray900Brush}"
+                                                   Margin="0,0,0,8"/>
+                                        <TextBox Height="40"
+                                                 CornerRadius="8"
                                                  Text="{x:Bind ViewModel.FullName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  PlaceholderText="John Doe"/>
                                     </StackPanel>
 
-                                    <StackPanel Grid.Row="0"
-                                            Grid.Column="1"
-                                            Margin="8,0,0,0">
+                                    <StackPanel Grid.Row="0" Grid.Column="1">
                                         <TextBlock Text="Email Address *"
-                                                Style="{StaticResource InputLabelStyle}"/>
-                                        <TextBox Style="{StaticResource InputBoxStyle}"
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource Gray900Brush}"
+                                                   Margin="0,0,0,8"/>
+                                        <TextBox Height="40"
+                                                 CornerRadius="8"
                                                  Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  PlaceholderText="john@example.com"/>
                                     </StackPanel>
 
                                     <!-- Row 2: Phone & Country -->
-                                    <StackPanel Grid.Row="1"
-                                            Grid.Column="0"
-                                            Margin="0,16,8,0">
+                                    <StackPanel Grid.Row="1" Grid.Column="0">
                                         <TextBlock Text="Phone Number *"
-                                                Style="{StaticResource InputLabelStyle}"/>
-                                        <TextBox Style="{StaticResource InputBoxStyle}"
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource Gray900Brush}"
+                                                   Margin="0,0,0,8"/>
+                                        <TextBox Height="40"
+                                                 CornerRadius="8"
                                                  Text="{x:Bind ViewModel.Phone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  PlaceholderText="+84 (555) 000-0000"/>
                                     </StackPanel>
 
-                                    <StackPanel Grid.Row="1"
-                                            Grid.Column="1"
-                                            Margin="8,16,0,0">
+                                    <StackPanel Grid.Row="1" Grid.Column="1">
                                         <TextBlock Text="Country *"
-                                                Style="{StaticResource InputLabelStyle}"/>
-                                        <TextBox Style="{StaticResource InputBoxStyle}"
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource Gray900Brush}"
+                                                   Margin="0,0,0,8"/>
+                                        <TextBox Height="40"
+                                                 CornerRadius="8"
                                                  Text="{x:Bind ViewModel.Country, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                     </StackPanel>
 
                                     <!-- Row 3: Address (full width) -->
-                                    <StackPanel Grid.Row="2"
-                                            Grid.Column="0"
-                                            Grid.ColumnSpan="2"
-                                            Margin="0,16,0,0">
+                                    <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
                                         <TextBlock Text="Street Address *"
-                                                Style="{StaticResource InputLabelStyle}"/>
-                                        <TextBox Style="{StaticResource InputBoxStyle}"
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource Gray900Brush}"
+                                                   Margin="0,0,0,8"/>
+                                        <TextBox Height="40"
+                                                 CornerRadius="8"
                                                  Text="{x:Bind ViewModel.Address, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  PlaceholderText="123 Main Street, Apt 4B"/>
                                     </StackPanel>
 
                                     <!-- Row 4: City & ZIP -->
-                                    <StackPanel Grid.Row="3"
-                                            Grid.Column="0"
-                                            Margin="0,16,8,0">
+                                    <StackPanel Grid.Row="3" Grid.Column="0">
                                         <TextBlock Text="City *"
-                                                Style="{StaticResource InputLabelStyle}"/>
-                                        <TextBox Style="{StaticResource InputBoxStyle}"
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource Gray900Brush}"
+                                                   Margin="0,0,0,8"/>
+                                        <TextBox Height="40"
+                                                 CornerRadius="8"
                                                  Text="{x:Bind ViewModel.City, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  PlaceholderText="Ho Chi Minh City"/>
                                     </StackPanel>
 
-                                    <StackPanel Grid.Row="3"
-                                            Grid.Column="1"
-                                            Margin="8,16,0,0">
+                                    <StackPanel Grid.Row="3" Grid.Column="1">
                                         <TextBlock Text="ZIP Code *"
-                                                Style="{StaticResource InputLabelStyle}"/>
-                                        <TextBox Style="{StaticResource InputBoxStyle}"
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource Gray900Brush}"
+                                                   Margin="0,0,0,8"/>
+                                        <TextBox Height="40"
+                                                 CornerRadius="8"
                                                  Text="{x:Bind ViewModel.ZipCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  PlaceholderText="700000"/>
                                     </StackPanel>
@@ -312,47 +242,91 @@
                             </StackPanel>
                         </Border>
 
-                        <!-- Order Items -->
-                        <Border Style="{StaticResource CardStyle}">
-                            <StackPanel Spacing="16">
-                                <TextBlock FontSize="18"
-                                        FontWeight="SemiBold"
-                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}">
-                                    <Run Text="Order Items ("/>
-                                    <Run Text="{x:Bind ViewModel.OrderItems.Count, Mode=OneWay}"/>
-                                    <Run Text=")"/>
-                                </TextBlock>
-
-                                <!-- ListView with virtualization for better performance -->
-                                <ListView ItemsSource="{x:Bind ViewModel.OrderItems, Mode=OneWay}"
-                                          ItemTemplate="{StaticResource CheckoutItemTemplate}"
-                                          SelectionMode="None"
-                                          IsItemClickEnabled="False"
-                                          MaxHeight="300">
-                                    <ListView.ItemContainerStyle>
-                                        <Style TargetType="ListViewItem">
-                                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                            <Setter Property="Padding" Value="0"/>
-                                        </Style>
-                                    </ListView.ItemContainerStyle>
-                                </ListView>
+                        <!-- Payment Method Selector -->
+                        <Border Style="{StaticResource DefaultCardStyle}"
+                                Padding="{StaticResource Padding_XL}">
+                            <StackPanel Spacing="{StaticResource Spacing_4}">
+                                <TextBlock Text="Payment Method"
+                                           FontSize="18"
+                                           FontWeight="SemiBold"
+                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                
+                                <!-- Selected Method Display -->
+                                <Button Click="ChoosePaymentButton_Click"
+                                        Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1"
+                                        Padding="16"
+                                        CornerRadius="8"
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Left">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <FontIcon Grid.Column="0"
+                                                  Glyph="{x:Bind ViewModel.SelectedPaymentIcon, Mode=OneWay}"
+                                                  FontSize="24"
+                                                  Margin="0,0,12,0"
+                                                  Foreground="{ThemeResource AccentBlueBrush}"/>
+                                        
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Text="{x:Bind ViewModel.SelectedPaymentMethod, Mode=OneWay}"
+                                                       FontSize="14"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                            <TextBlock Text="Click to change payment method"
+                                                       FontSize="11"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        </StackPanel>
+                                        
+                                        <FontIcon Grid.Column="2"
+                                                  Glyph="&#xE76C;"
+                                                  FontSize="12"
+                                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    </Grid>
+                                </Button>
                             </StackPanel>
                         </Border>
-
                     </StackPanel>
 
                     <!-- Right Column: Order Summary (Sticky) -->
                     <Border Grid.Column="1"
-                            Style="{StaticResource CardStyle}"
+                            Style="{StaticResource DefaultCardStyle}"
+                            Padding="{StaticResource Padding_XL}"
                             VerticalAlignment="Top">
-                        <StackPanel Spacing="16">
+                        <StackPanel Spacing="{StaticResource Spacing_4}">
                             <TextBlock Text="Order Summary"
                                        FontSize="18"
                                        FontWeight="SemiBold"
                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
 
+                            <!-- Per-Agent Subtotals -->
+                            <StackPanel Spacing="{StaticResource Spacing_3}" Margin="0,12,0,0">
+                                <ItemsRepeater ItemsSource="{x:Bind ViewModel.SalesAgentGroups, Mode=OneWay}">
+                                    <ItemsRepeater.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:SalesAgentGroup">
+                                            <Grid Margin="0,4">
+                                                <TextBlock 
+                                                    FontSize="13"
+                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                    <Run Text="From "/><Run Text="{x:Bind SalesAgentName, Mode=OneWay}" FontWeight="SemiBold"/>
+                                                </TextBlock>
+                                                <TextBlock Text="{x:Bind SubtotalFormatted, Mode=OneWay}"
+                                                           HorizontalAlignment="Right"
+                                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                           FontSize="13"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsRepeater.ItemTemplate>
+                                </ItemsRepeater>
+                            </StackPanel>
+
                             <!-- Price Breakdown -->
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="{StaticResource Spacing_3}" Margin="0,12,0,0">
                                 <Grid>
                                     <TextBlock Text="Subtotal"
                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -372,7 +346,7 @@
                                                FontSize="14"/>
                                 </Grid>
                                 <Grid>
-                                    <TextBlock Text="Tax (8%)"
+                                    <TextBlock Text="Tax (10%)"
                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                             FontSize="14"/>
                                     <TextBlock Text="{x:Bind ViewModel.Tax, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
@@ -398,12 +372,20 @@
                                 </Grid>
                             </StackPanel>
 
+                            <!-- Payment Notice -->
+                            <InfoBar
+                                IsOpen="True"
+                                Severity="Informational"
+                                Message="You're ordering from multiple sellers. Each will receive a separate order."
+                                Margin="0,16,0,0"
+                                IsClosable="False"/>
+
                             <!-- QR Code Payment Section -->
                             <Border Height="1"
                                     Background="{ThemeResource CardStrokeColorDefaultBrush}"
                                     Margin="0,8"/>
 
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="{StaticResource Spacing_3}">
                                 <TextBlock Text="Payment via QR Code"
                                            FontSize="16"
                                            FontWeight="SemiBold"
@@ -415,7 +397,7 @@
                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                            HorizontalAlignment="Center"/>
 
-                                <!-- QR Code Image Only -->
+                                <!-- QR Code Image -->
                                 <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                         CornerRadius="8"
                                         Padding="{StaticResource Padding_MD}"
@@ -438,7 +420,7 @@
                                         Padding="{StaticResource Padding_XL}"
                                         HorizontalAlignment="Center">
                                     <StackPanel HorizontalAlignment="Center"
-                                            Spacing="8">
+                                            Spacing="{StaticResource Spacing_2}">
                                         <FontIcon Glyph="&#xED14;"
                                                 FontSize="48"
                                                 Foreground="{ThemeResource Gray500Brush}"/>

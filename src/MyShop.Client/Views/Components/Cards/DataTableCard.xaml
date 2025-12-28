@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <UserControl
     x:Class="MyShop.Client.Views.Components.Cards.DataTableCard"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -22,7 +22,7 @@
             <!-- Header with accent line -->
             <Grid Grid.Row="0" 
                   Padding="24,20,24,16" 
-                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                  BorderBrush="{ThemeResource CardStrokeBrush}"
                   BorderThickness="0,0,0,1">
                 <Grid.Background>
                     <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
@@ -58,12 +58,12 @@
                            Text="{Binding Title, ElementName=RootControl, Mode=OneWay}"
                            FontSize="18"
                            FontWeight="SemiBold"
-                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                           Foreground="{ThemeResource TextPrimaryBrush}"
                            AutomationProperties.HeadingLevel="Level2"
                            VerticalAlignment="Center"/>
 
                 <!-- View All Button -->
-                <Button Grid.Column="2"
+                <!--<Button Grid.Column="2"
                         Click="ViewAllButton_Click"
                         Visibility="{Binding ShowViewAll, ElementName=RootControl, Mode=OneWay}"
                         Padding="16,8"
@@ -86,7 +86,7 @@
                                   FontSize="12"
                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                     </StackPanel>
-                </Button>
+                </Button>-->
             </Grid>
 
             <!-- Table Content Slot -->

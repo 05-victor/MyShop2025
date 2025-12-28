@@ -18,7 +18,7 @@
     xmlns:orderConverters="using:MyShop.Client.Converters"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.SalesAgent"
     mc:Ignorable="d"
-    Background="{ThemeResource LayerFillColorDefaultBrush}">
+    Background="{ThemeResource PageBackgroundBrush}">
 
     <Page.Transitions>
         <TransitionCollection>
@@ -117,7 +117,7 @@
                 <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <Grid x:Name="MainGrid"
-                              Padding="{StaticResource Padding_XL}"
+                              Padding="24"
                               RowSpacing="16">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="MyShop.Client.Views.Components.Controls.PaginationControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    x:Name="RootControl">
+
+    <!--
+    PaginationControl Component
+    ===========================
+    Standardized pagination UI for all list pages.
+    
+    Features:
+    - First/Prev/Next/Last navigation
+    - Page number buttons (up to 7 visible)
+    - PageSize selector (10/15/20/50)
+    - "Go to page" input with validation
+    - "Showing x-y of z items" display
+    
+    Usage:
+    <controls:PaginationControl
+        CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
+        TotalPages="{x:Bind ViewModel.TotalPages, Mode=OneWay}"
+        TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
+        PageSize="{x:Bind ViewModel.PageSize, Mode=TwoWay}"
+        PageChanged="OnPageChanged"
+        PageSizeChanged="OnPageSizeChanged"/>
+    -->
+
+    <Border Background="{ThemeResource PanelBackgroundBrush}"
+            BorderBrush="{ThemeResource CardStrokeBrush}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="16,12">
+        <Grid ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>  <!-- Info text -->
+                <ColumnDefinition Width="*"/>     <!-- Spacer -->
+                <ColumnDefinition Width="Auto"/>  <!-- Navigation -->
+                <ColumnDefinition Width="Auto"/>  <!-- PageSize -->
+            </Grid.ColumnDefinitions>
+
+            <!-- Items Info -->
+            <TextBlock Grid.Column="0"
+                      x:Name="ItemsInfoText"
+                      FontSize="14"
+                      Foreground="{ThemeResource TextSecondaryBrush}"
+                      VerticalAlignment="Center"
+                      Text="Showing 1-10 of 100 items"/>
+
+            <!-- Navigation Controls -->
+            <StackPanel Grid.Column="2"
+                       Orientation="Horizontal"
+                       Spacing="4"
+                       VerticalAlignment="Center">
+                
+                <!-- First Page -->
+                <Button x:Name="FirstButton"
+                       Style="{StaticResource SecondaryButtonSmallStyle}"
+                       Width="32" Height="32"
+                       Padding="0"
+                       ToolTipService.ToolTip="First page"
+                       Click="FirstButton_Click">
+                    <FontIcon Glyph="&#xE892;" FontSize="12"/>
+                </Button>
+
+                <!-- Previous Page -->
+                <Button x:Name="PreviousButton"
+                       Style="{StaticResource SecondaryButtonSmallStyle}"
+                       Width="32" Height="32"
+                       Padding="0"
+                       ToolTipService.ToolTip="Previous page"
+                       Click="PreviousButton_Click">
+                    <FontIcon Glyph="&#xE76B;" FontSize="12"/>
+                </Button>
+
+                <!-- Page Numbers -->
+                <ItemsRepeater x:Name="PageNumbersRepeater"
+                              Margin="4,0"
+                              ElementPrepared="PageNumbersRepeater_ElementPrepared">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Orientation="Horizontal" Spacing="4"/>
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="x:Int32">
+                            <Button Width="32" Height="32"
+                                   Padding="0"
+                                   ToolTipService.ToolTip="{x:Bind}"
+                                   Click="PageNumberButton_Click"
+                                   Tag="{x:Bind}">
+                                <TextBlock Text="{x:Bind}"
+                                          FontSize="14"
+                                          FontWeight="SemiBold"/>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+
+                <!-- Next Page -->
+                <Button x:Name="NextButton"
+                       Style="{StaticResource SecondaryButtonSmallStyle}"
+                       Width="32" Height="32"
+                       Padding="0"
+                       ToolTipService.ToolTip="Next page"
+                       Click="NextButton_Click">
+                    <FontIcon Glyph="&#xE76C;" FontSize="12"/>
+                </Button>
+
+                <!-- Last Page -->
+                <Button x:Name="LastButton"
+                       Style="{StaticResource SecondaryButtonSmallStyle}"
+                       Width="32" Height="32"
+                       Padding="0"
+                       ToolTipService.ToolTip="Last page"
+                       Click="LastButton_Click">
+                    <FontIcon Glyph="&#xE893;" FontSize="12"/>
+                </Button>
+
+                <!-- Go to Page -->
+                <StackPanel Orientation="Horizontal"
+                           Spacing="8"
+                           Margin="8,0,0,0">
+                    <TextBlock Text="Go to:"
+                              FontSize="14"
+                              Foreground="{ThemeResource TextSecondaryBrush}"
+                              VerticalAlignment="Center"/>
+                    <TextBox x:Name="GoToPageInput"
+                            Width="60"
+                            Height="32"
+                            Padding="8,4"
+                            FontSize="14"
+                            TextAlignment="Center"
+                            InputScope="Number"
+                            PlaceholderText="1"
+                            KeyDown="GoToPageInput_KeyDown"
+                            LostFocus="GoToPageInput_LostFocus"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Page Size Selector -->
+            <StackPanel Grid.Column="3"
+                       Orientation="Horizontal"
+                       Spacing="8"
+                       VerticalAlignment="Center">
+                <TextBlock Text="Show:"
+                          FontSize="14"
+                          Foreground="{ThemeResource TextSecondaryBrush}"
+                          VerticalAlignment="Center"/>
+                <ComboBox x:Name="PageSizeComboBox"
+                         Width="80"
+                         Height="32"
+                         Padding="12,4"
+                         FontSize="14"
+                         SelectedIndex="0"
+                         SelectionChanged="PageSizeComboBox_SelectionChanged">
+                    <ComboBoxItem Content="10" Tag="10"/>
+                    <ComboBoxItem Content="15" Tag="15"/>
+                    <ComboBoxItem Content="25" Tag="25"/>
+                    <ComboBoxItem Content="50" Tag="50"/>
+                </ComboBox>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

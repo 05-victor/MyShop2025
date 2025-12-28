@@ -1,0 +1,28 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ============================================= -->
+    <!-- MYSHOP 2025 SHARED RESOURCES                 -->
+    <!-- Theme-independent resources (styles, etc.)   -->
+    <!-- ============================================= -->
+    
+    <ResourceDictionary.MergedDictionaries>
+        <!-- Core Design Tokens (theme-independent) -->
+        <ResourceDictionary Source="Tokens/Brushes.xaml"/>
+        <ResourceDictionary Source="Tokens/Typography.xaml"/>
+        <ResourceDictionary Source="Tokens/Spacing.xaml"/>
+        <ResourceDictionary Source="Tokens/Shadows.xaml"/>
+        <ResourceDictionary Source="Tokens/Animations.xaml"/>
+        <ResourceDictionary Source="Tokens/Icons.xaml"/>
+        <ResourceDictionary Source="Converters.xaml"/>
+        
+        <!-- Component Styles -->
+        <ResourceDictionary Source="Styles/InputStyles.xaml"/>
+        <ResourceDictionary Source="Styles/ButtonStyles.xaml"/>
+        <ResourceDictionary Source="Styles/CardStyles.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- Default CompositeTransform for animations -->
+    <CompositeTransform x:Key="DefaultCompositeTransform"/>
+    
+</ResourceDictionary>

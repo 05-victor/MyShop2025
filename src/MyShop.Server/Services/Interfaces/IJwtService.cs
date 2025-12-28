@@ -18,8 +18,9 @@ namespace MyShop.Server.Services.Interfaces
         /// <summary>
         /// Generate a refresh token
         /// </summary>
+        /// <param name="ipAddress">IP address of the client requesting the token</param>
         /// <returns>Refresh token string</returns>
-        string GenerateRefreshToken();
+        string GenerateRefreshToken(string? ipAddress = null);
 
         /// <summary>
         /// Validate a JWT token and extract claims
@@ -28,5 +29,16 @@ namespace MyShop.Server.Services.Interfaces
         /// <returns>ClaimsPrincipal if valid, null if invalid</returns>
         ClaimsPrincipal? ValidateToken(string token);
 
+        /// <summary>
+        /// Get access token expiration time from configuration
+        /// </summary>
+        /// <returns>Access token lifetime in minutes</returns>
+        int GetAccessTokenExpirationMinutes();
+
+        /// <summary>
+        /// Get refresh token expiration time from configuration
+        /// </summary>
+        /// <returns>Refresh token lifetime in days</returns>
+        int GetRefreshTokenExpirationDays();
     }
 }

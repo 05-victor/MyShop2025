@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="MyShop.Client.Views.SalesAgent.SalesAgentDashboardPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -12,7 +12,7 @@
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     mc:Ignorable="d"
-    Background="{ThemeResource LayerFillColorDefaultBrush}"
+    Background="{ThemeResource PageBackgroundBrush}"
     x:Name="MyPage">
 
     <Page.Transitions>
@@ -112,9 +112,10 @@
                 </TransitionCollection>
             </Grid.Transitions>
             <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              Background="{ThemeResource PageBackgroundBrush}">
                     <Grid x:Name="MainContent"
-                          Padding="{StaticResource Padding_XL}"
+                          Padding="24"
                           RowSpacing="16">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -291,10 +292,11 @@
 
                                                                 <!-- Product Image -->
                                                                 <Border Grid.Column="0"
-                                                                        Width="70"
-                                                                        Height="70"
+                                                                        Width="60"
+                                                                        Height="60"
+                                                                        Margin="0,0,12,0"
                                                                         CornerRadius="6"
-                                                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                                                                        Background="{ThemeResource SubtleFillColorSecondaryBrush}">
                                                                     <Image Source="{x:Bind ImageUrl, Converter={StaticResource StringToImageSourceConverter}}"
                                                                            Stretch="UniformToFill"/>
                                                                 </Border>
@@ -323,6 +325,7 @@
                                                                 <!-- Revenue -->
                                                                 <TextBlock Grid.Column="2"
                                                                            FontSize="14"
+                                                                           TextAlignment="Right"
                                                                            FontWeight="Bold"
                                                                            Foreground="{ThemeResource SuccessGreenBrush}"
                                                                            VerticalAlignment="Center"
