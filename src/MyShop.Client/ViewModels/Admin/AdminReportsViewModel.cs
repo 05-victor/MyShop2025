@@ -124,7 +124,7 @@ public partial class AdminReportsViewModel : BaseViewModel
             await LoadReportDataAsync();
 
             System.Diagnostics.Debug.WriteLine(
-                $"[AdminReportsViewModel] InitializeAsync completed. Charts: Revenue={RevenueSeries?.Length ?? 0}, Orders={OrdersByCategorySeries?.Length ?? 0}, Ratings={RatingDistributionSeries?.Length ?? 0}");
+                $"[AdminReportsViewModel] InitializeAsync completed. Charts: Revenue={RevenueSeries?.Length ?? 0}, Orders={OrdersByCategorySeries?.Length ?? 0}");
         }
         catch (Exception ex)
         {
@@ -301,7 +301,7 @@ public partial class AdminReportsViewModel : BaseViewModel
                 System.Diagnostics.Debug.WriteLine(
                     $"[AdminReportsViewModel] Report data loaded successfully: {result.Data.ProductSummary?.Data?.Count ?? 0} products");
                 System.Diagnostics.Debug.WriteLine(
-                    $"[AdminReportsViewModel] Final chart series lengths - Revenue: {RevenueSeries?.Length ?? 0}, Orders: {OrdersByCategorySeries?.Length ?? 0}, Ratings: {RatingDistributionSeries?.Length ?? 0}");
+                    $"[AdminReportsViewModel] Final chart series lengths - Revenue: {RevenueSeries?.Length ?? 0}, Orders: {OrdersByCategorySeries?.Length ?? 0}");
             }
             else
             {
@@ -468,49 +468,8 @@ public partial class AdminReportsViewModel : BaseViewModel
                 XAxes = new Axis[] { new Axis() };
             }
 
-            // Rating Distribution - Pie chart with 5 slices for rating buckets
-            if (ReportData.ProductRatings != null)
-            {
-                var ratings = ReportData.ProductRatings;
-                var ratingValues = new List<double>
-                {
-                    ratings.Excellent,
-                    ratings.VeryGood,
-                    ratings.Good,
-                    ratings.Fair,
-                    ratings.Poor
-                };
-
-                var hasAnyRatings = ratingValues.Any(v => v > 0);
-
-                if (hasAnyRatings)
-                {
-                    // Create pie series with data labels
-                    // Note: For LiveCharts 2.0.0-rc6.1, use simple labeling approach
-                    var pieSeries = new PieSeries<double>
-                    {
-                        Values = ratingValues,
-                        InnerRadius = 0,
-                        DataLabelsSize = 11,
-                        DataLabelsFormatter = point => $"{point.Coordinate.PrimaryValue:F0}"
-                    };
-
-                    RatingDistributionSeries = new ISeries[] { pieSeries };
-                }
-                else
-                {
-                    // No ratings - clear chart
-                    RatingDistributionSeries = Array.Empty<ISeries>();
-                }
-            }
-            else
-            {
-                // Null rating data - clear chart
-                RatingDistributionSeries = Array.Empty<ISeries>();
-            }
-
             System.Diagnostics.Debug.WriteLine(
-                $"[AdminReportsViewModel] Charts created: Revenue={RevenueSeries.Length}, Orders={OrdersByCategorySeries.Length}, Ratings={RatingDistributionSeries.Length}");
+                $"[AdminReportsViewModel] Charts created: Revenue={RevenueSeries.Length}, Orders={OrdersByCategorySeries.Length}");
         }
         catch (Exception ex)
         {
