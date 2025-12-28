@@ -65,6 +65,11 @@ public interface IOrderFacade
     Task<Result<Unit>> CancelOrderAsync(Guid orderId, string reason);
 
     /// <summary>
+    /// Permanently delete an order (admin/sales agent only)
+    /// </summary>
+    Task<Result<Unit>> DeleteOrderAsync(Guid orderId);
+
+    /// <summary>
     /// Get orders by customer
     /// </summary>
     Task<Result<List<Order>>> GetOrdersByCustomerAsync(Guid customerId);
@@ -73,6 +78,16 @@ public interface IOrderFacade
     /// Get orders by sales agent
     /// </summary>
     Task<Result<List<Order>>> GetOrdersBySalesAgentAsync(Guid agentId);
+
+    /// <summary>
+    /// Process card payment for an existing order
+    /// </summary>
+    Task<Result<Unit>> ProcessCardPaymentAsync(
+        Guid orderId,
+        string cardNumber,
+        string cardHolderName,
+        string expiryDate,
+        string cvv);
 
     /// <summary>
     /// Export orders to CSV

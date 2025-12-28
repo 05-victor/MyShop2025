@@ -125,7 +125,7 @@
                                     BorderThickness="1"
                                     CornerRadius="8">
                                     <StackPanel Spacing="16">
-                                        <TextBlock FontSize="16"
+                                        <TextBlock FontSize="{StaticResource FontSize_LG}"
                                                 FontWeight="SemiBold"
                                                 Text="Shop Information"/>
 
@@ -177,7 +177,7 @@
                                     BorderThickness="1"
                                     CornerRadius="8">
                                     <StackPanel Spacing="16">
-                                        <TextBlock FontSize="16"
+                                        <TextBlock FontSize="{StaticResource FontSize_LG}"
                                                 FontWeight="SemiBold"
                                                 Text="Appearance Settings"/>
 
@@ -194,7 +194,7 @@
                                                 <StackPanel>
                                                     <TextBlock Text="Theme"
                                                             FontWeight="SemiBold"/>
-                                                    <TextBlock FontSize="12"
+                                                    <TextBlock FontSize="{StaticResource FontSize_SM}"
                                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                             Text="Choose between Light and Dark mode"
                                                             TextWrapping="Wrap"/>
@@ -204,7 +204,7 @@
                                                         Toggled="ThemeToggle_Toggled">
                                                     <ToggleSwitch.OnContent>
                                                         <StackPanel Orientation="Horizontal" Spacing="8">
-                                                            <FontIcon FontSize="16" 
+                                                            <FontIcon FontSize="{StaticResource FontSize_LG}" 
                                                                     Glyph="&#xE708;"
                                                                     Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
                                                             <TextBlock Text="Dark"/>
@@ -212,7 +212,7 @@
                                                     </ToggleSwitch.OnContent>
                                                     <ToggleSwitch.OffContent>
                                                         <StackPanel Orientation="Horizontal" Spacing="8">
-                                                            <FontIcon FontSize="16" 
+                                                            <FontIcon FontSize="{StaticResource FontSize_LG}" 
                                                                     Glyph="&#xE706;"
                                                                     Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
                                                             <TextBlock Text="Light"/>
@@ -256,13 +256,13 @@
                                                     CornerRadius="8">
                                                 <TextBlock HorizontalAlignment="Center"
                                                         VerticalAlignment="Center"
-                                                        FontSize="24"
+                                                        FontSize="{StaticResource FontSize_3XL}"
                                                         FontWeight="Bold"
                                                         Foreground="{ThemeResource WhiteBrush}"
                                                         Text="MS"/>
                                             </Border>
                                             <StackPanel VerticalAlignment="Center">
-                                                <TextBlock FontSize="18"
+                                                <TextBlock FontSize="{StaticResource FontSize_XL}"
                                                         FontWeight="SemiBold"
                                                         Text="MyShop 2025"/>
                                                 <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -342,13 +342,13 @@
                                             </Grid.ColumnDefinitions>
                                             <FontIcon
                                                 Grid.Column="0"
-                                                FontSize="32"
+                                                FontSize="{StaticResource FontSize_5XL}"
                                                 Foreground="{ThemeResource WarningAmberBrush}"
                                                 Glyph="&#xE7BA;"/>
                                             <StackPanel Grid.Column="1"
                                                     Margin="16,0,0,0"
                                                     VerticalAlignment="Center">
-                                                <TextBlock FontSize="18"
+                                                <TextBlock FontSize="{StaticResource FontSize_XL}"
                                                         FontWeight="Bold"
                                                         Text="Trial Mode Active"/>
                                                 <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -376,7 +376,7 @@
                                                         HorizontalAlignment="Right"
                                                         VerticalAlignment="Center">
                                                     <TextBlock
-                                                        FontSize="32"
+                                                        FontSize="{StaticResource FontSize_5XL}"
                                                         FontWeight="Bold"
                                                         Foreground="{ThemeResource WarningAmberBrush}"
                                                         Text="{x:Bind ViewModel.TrialDaysRemaining, Mode=OneWay}"/>
@@ -396,29 +396,29 @@
                                                 ToolTipService.ToolTip="Open upgrade page in browser">
                                                 <StackPanel Orientation="Horizontal"
                                                         Spacing="8">
-                                                    <FontIcon FontSize="14"
+                                                    <FontIcon FontSize="{StaticResource FontSize_Base}"
                                                             Glyph="&#xE734;"/>
                                                     <TextBlock Text="Upgrade to Pro - $49/month"/>
                                                 </StackPanel>
                                             </Button>
 
                                             <StackPanel Spacing="8">
-                                                <TextBlock FontSize="12"
+                                                <TextBlock FontSize="{StaticResource FontSize_SM}"
                                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                                     <Run Text="✓"/>
                                                     <Run Text="Unlimited products and orders"/>
                                                 </TextBlock>
-                                                <TextBlock FontSize="12"
+                                                <TextBlock FontSize="{StaticResource FontSize_SM}"
                                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                                     <Run Text="✓"/>
                                                     <Run Text="Advanced analytics and reporting"/>
                                                 </TextBlock>
-                                                <TextBlock FontSize="12"
+                                                <TextBlock FontSize="{StaticResource FontSize_SM}"
                                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                                     <Run Text="✓"/>
                                                     <Run Text="Priority customer support"/>
                                                 </TextBlock>
-                                                <TextBlock FontSize="12"
+                                                <TextBlock FontSize="{StaticResource FontSize_SM}"
                                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                                     <Run Text="✓"/>
                                                     <Run Text="Custom branding options"/>
@@ -436,7 +436,7 @@
                                     BorderThickness="1"
                                     CornerRadius="8">
                                     <StackPanel Spacing="16">
-                                        <TextBlock FontSize="16"
+                                        <TextBlock FontSize="{StaticResource FontSize_LG}"
                                                 FontWeight="SemiBold"
                                                 Text="Activate License"/>
                                         <TextBlock
@@ -459,7 +459,7 @@
                                                     ToolTipService.ToolTip="Enter a valid code to activate your license">
                                                 <StackPanel Orientation="Horizontal"
                                                         Spacing="8">
-                                                    <FontIcon FontSize="14"
+                                                    <FontIcon FontSize="{StaticResource FontSize_Base}"
                                                             Glyph="&#xE73E;"/>
                                                     <TextBlock Text="Activate Code"/>
                                                 </StackPanel>
@@ -482,7 +482,7 @@
                                     BorderThickness="1"
                                     CornerRadius="8">
                                     <StackPanel Spacing="12">
-                                        <TextBlock FontSize="16"
+                                        <TextBlock FontSize="{StaticResource FontSize_LG}"
                                                 FontWeight="SemiBold"
                                                 Text="What You Get with Pro"/>
 
@@ -497,13 +497,13 @@
                                                 <FontIcon
                                                     Grid.Column="0"
                                                     Margin="0,0,12,0"
-                                                    FontSize="20"
+                                                    FontSize="{StaticResource FontSize_2XL}"
                                                     Foreground="{ThemeResource SuccessGreenBrush}"
                                                     Glyph="&#xE73E;"/>
                                                 <StackPanel Grid.Column="1">
                                                     <TextBlock FontWeight="SemiBold"
                                                             Text="Unlimited Everything"/>
-                                                    <TextBlock FontSize="12"
+                                                    <TextBlock FontSize="{StaticResource FontSize_SM}"
                                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                             Text="No limits on products, orders, or customers"
                                                             TextWrapping="Wrap"/>
@@ -522,13 +522,13 @@
                                                 <FontIcon
                                                     Grid.Column="0"
                                                     Margin="0,0,12,0"
-                                                    FontSize="20"
+                                                    FontSize="{StaticResource FontSize_2XL}"
                                                     Foreground="{ThemeResource SuccessGreenBrush}"
                                                     Glyph="&#xE73E;"/>
                                                 <StackPanel Grid.Column="1">
                                                     <TextBlock FontWeight="SemiBold"
                                                             Text="Advanced Analytics"/>
-                                                    <TextBlock FontSize="12"
+                                                    <TextBlock FontSize="{StaticResource FontSize_SM}"
                                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                             Text="Detailed reports and insights"
                                                             TextWrapping="Wrap"/>
@@ -547,13 +547,13 @@
                                                 <FontIcon
                                                     Grid.Column="0"
                                                     Margin="0,0,12,0"
-                                                    FontSize="20"
+                                                    FontSize="{StaticResource FontSize_2XL}"
                                                     Foreground="{ThemeResource SuccessGreenBrush}"
                                                     Glyph="&#xE73E;"/>
                                                 <StackPanel Grid.Column="1">
                                                     <TextBlock FontWeight="SemiBold"
                                                             Text="Priority Support"/>
-                                                    <TextBlock FontSize="12"
+                                                    <TextBlock FontSize="{StaticResource FontSize_SM}"
                                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                             Text="24/7 dedicated support team"
                                                             TextWrapping="Wrap"/>
@@ -570,13 +570,13 @@
                                                 <FontIcon
                                                     Grid.Column="0"
                                                     Margin="0,0,12,0"
-                                                    FontSize="20"
+                                                    FontSize="{StaticResource FontSize_2XL}"
                                                     Foreground="{ThemeResource SuccessGreenBrush}"
                                                     Glyph="&#xE73E;"/>
                                                 <StackPanel Grid.Column="1">
                                                     <TextBlock FontWeight="SemiBold"
                                                             Text="Custom Branding"/>
-                                                    <TextBlock FontSize="12"
+                                                    <TextBlock FontSize="{StaticResource FontSize_SM}"
                                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                             Text="Add your logo and brand colors"
                                                             TextWrapping="Wrap"/>

@@ -82,4 +82,33 @@
     <StaticResource x:Key="TextFillColorTertiaryBrush" ResourceKey="TextTertiaryBrush"/>
     <StaticResource x:Key="CardBackgroundFillColorDefaultBrush" ResourceKey="CardBackgroundBrush"/>
     <StaticResource x:Key="CardStrokeColorDefaultBrush" ResourceKey="CardStrokeBrush"/>
+
+    <!-- ============================================= -->
+    <!-- ADMIN SHELL NAVIGATION (Light Theme Sidebar) -->
+    <!-- Dark sidebar with white text for contrast     -->
+    <!-- ============================================= -->
+    
+    <SolidColorBrush x:Key="AdminNavPaneBackground" Color="#1F2937"/>
+    <SolidColorBrush x:Key="AdminNavItemForeground" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="AdminNavItemForegroundSelected" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="AdminNavItemForegroundPointerOver" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="AdminNavItemBackgroundSelected" Color="#3B82F6"/>
+    <SolidColorBrush x:Key="AdminNavItemBackgroundSelectedPointerOver" Color="#60A5FA"/>
+    <SolidColorBrush x:Key="AdminNavItemBackgroundPointerOver" Color="#2563EB"/>
+    <SolidColorBrush x:Key="AdminNavHeaderForeground" Color="#FFFFFF"/>
+
+    <!-- ============================================= -->
+    <!-- SALESAGENT/CUSTOMER SHELL NAVIGATION         -->
+    <!-- Dark sidebar with cyan accent                -->
+    <!-- ============================================= -->
+    
+    <SolidColorBrush x:Key="AgentNavPaneBackground" Color="#1E293B"/>
+    <SolidColorBrush x:Key="AgentNavItemForeground" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="AgentNavItemForegroundSelected" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="AgentNavItemForegroundPointerOver" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="AgentNavItemBackgroundSelected" Color="#0EA5E9"/>
+    <SolidColorBrush x:Key="AgentNavItemBackgroundSelectedPointerOver" Color="#22D3EE"/>
+    <SolidColorBrush x:Key="AgentNavItemBackgroundPointerOver" Color="#0891B2"/>
+    <SolidColorBrush x:Key="AgentNavHeaderForeground" Color="#FFFFFF"/>
+
 </ResourceDictionary>

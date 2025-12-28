@@ -150,9 +150,9 @@
                                     Style="{StaticResource SecondaryButtonSmallStyle}"
                                     ToolTipService.ToolTip="Export dashboard data">
                                     <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <FontIcon Glyph="&#xE898;" FontSize="14"/>
+                                        <FontIcon Glyph="&#xE898;" FontSize="{StaticResource FontSize_Base}"/>
                                         <TextBlock Text="Export"/>
-                                        <FontIcon Glyph="&#xE70D;" FontSize="10"/>
+                                        <FontIcon Glyph="&#xE70D;" FontSize="{StaticResource FontSize_XS}"/>
                                     </StackPanel>
                                     <Button.Flyout>
                                         <MenuFlyout Placement="Bottom">
@@ -287,7 +287,7 @@
 
                                         <TextBlock Grid.Column="0"
                                                    Text="Top Sales"
-                                                   FontSize="18"
+                                                   FontSize="{StaticResource FontSize_XL}"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextPrimaryBrush}"
                                                    VerticalAlignment="Center"/>
@@ -326,7 +326,7 @@
                                                                     Spacing="6"
                                                                     VerticalAlignment="Center">
                                                             <TextBlock Text="{x:Bind Name}"
-                                                                       FontSize="14"
+                                                                       FontSize="{StaticResource FontSize_Base}"
                                                                        FontWeight="Medium"
                                                                        Foreground="{ThemeResource TextPrimaryBrush}"
                                                                        TextWrapping="NoWrap"
@@ -341,7 +341,7 @@
 
                                                         <!-- Percentage -->
                                                         <TextBlock Grid.Column="1"
-                                                                   FontSize="15"
+                                                                   FontSize="{StaticResource FontSize_LG}"
                                                                    FontWeight="SemiBold"
                                                                    Foreground="{ThemeResource PrimaryBrush}"
                                                                    HorizontalAlignment="Right"
@@ -373,10 +373,10 @@
                                                     Spacing="12"
                                                     Padding="24">
                                             <FontIcon Glyph="&#xE9F9;"
-                                                      FontSize="32"
+                                                      FontSize="{StaticResource FontSize_5XL}"
                                                       Foreground="{ThemeResource Gray500Brush}"/>
                                             <TextBlock Text="No category data available"
-                                                       FontSize="14"
+                                                       FontSize="{StaticResource FontSize_Base}"
                                                        Foreground="{ThemeResource TextSecondaryBrush}"
                                                        HorizontalAlignment="Center"/>
                                         </StackPanel>
@@ -410,7 +410,7 @@
                                                             <StackPanel VerticalAlignment="Center"
                                                                         Spacing="2">
                                                                 <TextBlock Text="{x:Bind Name}"
-                                                                           FontSize="14"
+                                                                           FontSize="{StaticResource FontSize_Base}"
                                                                            FontWeight="Medium"
                                                                            Foreground="{ThemeResource TextPrimaryBrush}"
                                                                            TextWrapping="NoWrap"
@@ -418,10 +418,10 @@
                                                                 <StackPanel Orientation="Horizontal"
                                                                             Spacing="4">
                                                                     <FontIcon Glyph="&#xE735;"
-                                                                              FontSize="10"
+                                                                              FontSize="{StaticResource FontSize_XS}"
                                                                               Foreground="{ThemeResource WarningAmberBrush}"/>
                                                                     <TextBlock Text="{x:Bind Rating}"
-                                                                               FontSize="11"
+                                                                               FontSize="{StaticResource FontSize_XS}"
                                                                                Foreground="{ThemeResource TextSecondaryBrush}"/>
                                                                 </StackPanel>
                                                             </StackPanel>
@@ -429,7 +429,7 @@
 
                                                         <!-- GMV Value -->
                                                         <TextBlock Grid.Column="1"
-                                                                   FontSize="14"
+                                                                   FontSize="{StaticResource FontSize_Base}"
                                                                    FontWeight="SemiBold"
                                                                    Foreground="{ThemeResource SuccessGreenBrush}"
                                                                    HorizontalAlignment="Right"
@@ -461,10 +461,10 @@
                                                     Spacing="12"
                                                     Padding="24">
                                             <FontIcon Glyph="&#xE716;"
-                                                      FontSize="32"
+                                                      FontSize="{StaticResource FontSize_5XL}"
                                                       Foreground="{ThemeResource Gray500Brush}"/>
                                             <TextBlock Text="No agent data available"
-                                                       FontSize="14"
+                                                       FontSize="{StaticResource FontSize_Base}"
                                                        Foreground="{ThemeResource TextSecondaryBrush}"
                                                        HorizontalAlignment="Center"/>
                                         </StackPanel>
@@ -501,17 +501,17 @@
 
                                             <TextBlock Grid.Column="1"
                                                        Text="EMAIL"
-                                                       FontSize="12"
+                                                       FontSize="{StaticResource FontSize_SM}"
                                                        FontWeight="SemiBold"
                                                        Foreground="{ThemeResource TextSecondaryBrush}"/>
                                             <TextBlock Grid.Column="2"
                                                        Text="GMV"
-                                                       FontSize="12"
+                                                       FontSize="{StaticResource FontSize_SM}"
                                                        FontWeight="SemiBold"
                                                        Foreground="{ThemeResource TextSecondaryBrush}"/>
                                             <TextBlock Grid.Column="3"
                                                        Text="COMMISSION"
-                                                       FontSize="12"
+                                                       FontSize="{StaticResource FontSize_SM}"
                                                        FontWeight="SemiBold"
                                                        Foreground="{ThemeResource TextSecondaryBrush}"/>
                                         </Grid>
@@ -541,21 +541,21 @@
                                                         <!-- Email -->
                                                         <TextBlock Grid.Column="1"
                                                                    Text="{x:Bind Email}"
-                                                                   FontSize="14"
+                                                                   FontSize="{StaticResource FontSize_Base}"
                                                                    Foreground="{ThemeResource TextSecondaryBrush}"
                                                                    VerticalAlignment="Center"/>
 
                                                         <!-- GMV -->
                                                         <TextBlock Grid.Column="2"
                                                                    Text="{x:Bind GMV, Converter={StaticResource CurrencyConverter}}"
-                                                                   FontSize="14"
+                                                                   FontSize="{StaticResource FontSize_Base}"
                                                                    Foreground="{ThemeResource TextPrimaryBrush}"
                                                                    VerticalAlignment="Center"/>
 
                                                         <!-- Commission -->
                                                         <TextBlock Grid.Column="3"
                                                                    Text="{x:Bind Commission, Converter={StaticResource CurrencyConverter}}"
-                                                                   FontSize="14"
+                                                                   FontSize="{StaticResource FontSize_Base}"
                                                                    FontWeight="SemiBold"
                                                                    Foreground="{ThemeResource SuccessGreenBrush}"
                                                                    VerticalAlignment="Center"/>
@@ -597,17 +597,17 @@
 
                                             <TextBlock Grid.Column="0"
                                                        Text="IMAGE"
-                                                       FontSize="12"
+                                                       FontSize="{StaticResource FontSize_SM}"
                                                        FontWeight="SemiBold"
                                                        Foreground="{ThemeResource TextSecondaryBrush}"/>
                                             <TextBlock Grid.Column="1"
                                                        Text="NAME"
-                                                       FontSize="12"
+                                                       FontSize="{StaticResource FontSize_SM}"
                                                        FontWeight="SemiBold"
                                                        Foreground="{ThemeResource TextSecondaryBrush}"/>
                                             <TextBlock Grid.Column="2"
                                                        Text="SOLD"
-                                                       FontSize="12"
+                                                       FontSize="{StaticResource FontSize_SM}"
                                                        FontWeight="SemiBold"
                                                        Foreground="{ThemeResource TextSecondaryBrush}"/>
                                         </Grid>
@@ -646,7 +646,7 @@
                                                         <!-- Product Name -->
                                                         <TextBlock Grid.Column="1"
                                                                    Text="{x:Bind Name}"
-                                                                   FontSize="14"
+                                                                   FontSize="{StaticResource FontSize_Base}"
                                                                    Foreground="{ThemeResource TextPrimaryBrush}"
                                                                    VerticalAlignment="Center"
                                                                    TextWrapping="Wrap"
@@ -655,7 +655,7 @@
                                                         <!-- Number Sold -->
                                                         <TextBlock Grid.Column="2"
                                                                    Text="{x:Bind SoldCount}"
-                                                                   FontSize="14"
+                                                                   FontSize="{StaticResource FontSize_Base}"
                                                                    Foreground="{ThemeResource TextPrimaryBrush}"
                                                                    VerticalAlignment="Center"
                                                                    HorizontalAlignment="Center"/>
@@ -695,12 +695,12 @@
                               Width="64"
                               Height="64"/>
                 <TextBlock Text="Loading dashboard data..."
-                           FontSize="18"
+                           FontSize="{StaticResource FontSize_XL}"
                            FontWeight="SemiBold"
                            Foreground="{ThemeResource TextSecondaryBrush}"
                            HorizontalAlignment="Center"/>
                 <TextBlock Text="Please wait while we fetch your analytics"
-                           FontSize="14"
+                           FontSize="{StaticResource FontSize_Base}"
                            Foreground="{ThemeResource TextTertiaryBrush}"
                            HorizontalAlignment="Center"/>
             </StackPanel>

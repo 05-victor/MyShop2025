@@ -101,7 +101,7 @@
                 <Border Style="{StaticResource CardWithShadowStyle}">
                     <StackPanel Spacing="16">
                         <TextBlock
-                            FontSize="16"
+                            FontSize="{StaticResource FontSize_LG}"
                             FontWeight="SemiBold"
                             Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                             Text="Filters"/>
@@ -157,12 +157,12 @@
                 <Border Style="{StaticResource CardWithShadowStyle}">
                     <StackPanel Spacing="16">
                         <TextBlock
-                            FontSize="16"
+                            FontSize="{StaticResource FontSize_LG}"
                             FontWeight="SemiBold"
                             Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                             Text="Export Report"/>
                         <TextBlock
-                            FontSize="14"
+                            FontSize="{StaticResource FontSize_Base}"
                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                             Text="Download the current report data"/>
                         <StackPanel Orientation="Horizontal" Spacing="12">
@@ -274,7 +274,7 @@
                                             Width="40"
                                             Height="40"
                                             Margin="0,0,12,0"
-                                            Background="CornflowerBlue"
+                                            Background="{ThemeResource SecondaryBlueBrush}"
                                             CornerRadius="8">
                                                 <TextBlock
                                                 HorizontalAlignment="Center"
@@ -287,7 +287,7 @@
                                                     VerticalAlignment="Center">
                                                 <TextBlock FontWeight="SemiBold"
                                                        Text="{Binding Name}"/>
-                                                <TextBlock FontSize="12"
+                                                <TextBlock FontSize="{StaticResource FontSize_SM}"
                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                                 <Run Text="{Binding Sales}"/>
                                                 <Run Text=" sales"/>
@@ -304,7 +304,7 @@
                                                 </TextBlock>
                                                 <TextBlock
                                                 HorizontalAlignment="Right"
-                                                FontSize="12"
+                                                FontSize="{StaticResource FontSize_SM}"
                                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                 Text="revenue"/>
                                             </StackPanel>
@@ -347,10 +347,9 @@
                                     Binding="{Binding Name}"
                                     Header="Product">
                                         <controls:DataGridTextColumn.ElementStyle>
-                                            <Style BasedOn="{StaticResource CenteredTextBlockStyle}"
-                                               TargetType="TextBlock">
-                                                <Setter Property="FontWeight"
-                                                    Value="SemiBold"/>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                                <Setter Property="TextAlignment" Value="Center"/>
                                             </Style>
                                         </controls:DataGridTextColumn.ElementStyle>
                                     </controls:DataGridTextColumn>
@@ -368,7 +367,7 @@
                                                 BorderThickness="1"
                                                 CornerRadius="4">
                                                     <TextBlock
-                                                    FontSize="12"
+                                                    FontSize="{StaticResource FontSize_SM}"
                                                     Text="{Binding Category}"/>
                                                 </Border>
                                             </DataTemplate>
@@ -381,8 +380,9 @@
                                     Binding="{Binding Sold}"
                                     Header="Total Orders">
                                         <controls:DataGridTextColumn.ElementStyle>
-                                            <Style BasedOn="{StaticResource RightAlignedTextBlockStyle}"
-                                               TargetType="TextBlock"/>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="TextAlignment" Value="Right"/>
+                                            </Style>
                                         </controls:DataGridTextColumn.ElementStyle>
                                     </controls:DataGridTextColumn>
 
@@ -418,7 +418,7 @@
                                                     Text="{Binding Rating}"/>
                                                     <FontIcon
                                                     VerticalAlignment="Center"
-                                                    FontSize="12"
+                                                    FontSize="{StaticResource FontSize_SM}"
                                                     Foreground="{ThemeResource WarningAmberBrush}"
                                                     Glyph="&#xE735;"/>
                                                 </StackPanel>
@@ -441,7 +441,7 @@
                                                     <TextBlock
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
-                                                    FontSize="12"
+                                                    FontSize="{StaticResource FontSize_SM}"
                                                     FontWeight="SemiBold"
                                                     Foreground="{Binding Stock, Converter={StaticResource StockToBrushConverter}, ConverterParameter=Foreground}"
                                                     Text="{Binding Stock, Converter={StaticResource StockToStatusConverter}, FallbackValue='In Stock'}"
@@ -472,7 +472,7 @@
                     IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"/>
                 <TextBlock
                     HorizontalAlignment="Center"
-                    FontSize="18"
+                    FontSize="{StaticResource FontSize_XL}"
                     FontWeight="SemiBold"
                     Text="Loading reports..."/>
             </StackPanel>
@@ -525,7 +525,7 @@
                         BorderThickness="1"
                         CornerRadius="4">
                         <TextBlock x:Name="ProductDetailCategory"
-                                   FontSize="12"/>
+                                   FontSize="{StaticResource FontSize_SM}"/>
                     </Border>
 
                     <TextBlock
@@ -561,7 +561,7 @@
                         Spacing="4">
                         <TextBlock x:Name="ProductDetailRating"/>
                         <FontIcon
-                            FontSize="12"
+                            FontSize="{StaticResource FontSize_SM}"
                             Foreground="{ThemeResource WarningAmberBrush}"
                             Glyph="&#xE735;"/>
                     </StackPanel>

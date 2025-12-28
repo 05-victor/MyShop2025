@@ -30,17 +30,26 @@ public class CategoryFacade : ICategoryFacade
     {
         try
         {
+            System.Diagnostics.Debug.WriteLine("[CategoryFacade.LoadCategoriesAsync] Starting...");
             var result = await _categoryRepository.GetAllAsync();
+
+            System.Diagnostics.Debug.WriteLine($"[CategoryFacade.LoadCategoriesAsync] Repository result - IsSuccess: {result.IsSuccess}, Data null: {result.Data == null}");
+
             if (!result.IsSuccess || result.Data == null)
             {
+                System.Diagnostics.Debug.WriteLine($"[CategoryFacade.LoadCategoriesAsync] Failed: {result.ErrorMessage}");
                 await _toastService.ShowError("Failed to load categories");
                 return Result<List<Category>>.Failure(result.ErrorMessage ?? "Failed to load categories");
             }
-            return Result<List<Category>>.Success(result.Data.ToList());
+
+            var list = result.Data.ToList();
+            System.Diagnostics.Debug.WriteLine($"[CategoryFacade.LoadCategoriesAsync] Success! Count: {list.Count}");
+            return Result<List<Category>>.Success(list);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[CategoryFacade] Error loading categories: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[CategoryFacade] Stack trace: {ex.StackTrace}");
             await _toastService.ShowError($"Error: {ex.Message}");
             return Result<List<Category>>.Failure($"Error: {ex.Message}");
         }

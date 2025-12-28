@@ -18,7 +18,9 @@ public static class CategoryAdapter
         {
             Id = dto.Id,
             Name = dto.Name ?? string.Empty,
-            Description = dto.Description ?? string.Empty
+            Description = dto.Description ?? string.Empty,
+            CreatedAt = dto.CreatedAt ?? DateTime.UtcNow,
+            UpdatedAt = dto.UpdatedAt
         };
     }
 

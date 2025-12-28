@@ -47,7 +47,30 @@ namespace MyShop.Server.Controllers
         {
             var createdCategory = await _categoryService.CreateAsync(createCategoryRequest);
             // Provide a URI for the created resource as the first argument
-            return CreatedAtRoute("GetCategoryById",new { id = createdCategory.Id }, ApiResponse<CategoryResponse>.SuccessResponse(createdCategory, "Category created successfully", 201));
+            return CreatedAtRoute("GetCategoryById", new { id = createdCategory.Id }, ApiResponse<CategoryResponse>.SuccessResponse(createdCategory, "Category created successfully", 201));
+        }
+
+        [HttpPatch("{id:guid}")]
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(ApiResponse<CategoryResponse>), 200)]
+        [ProducesResponseType(typeof(ApiResponse<object>), 400)]
+        [ProducesResponseType(typeof(ApiResponse<object>), 404)]
+        [ProducesResponseType(typeof(ApiResponse<object>), 500)]
+        public async Task<ActionResult<ApiResponse<CategoryResponse>>> UpdateAsync([FromRoute] Guid id, [FromBody] UpdateCategoryRequest updateCategoryRequest)
+        {
+            var updatedCategory = await _categoryService.UpdateAsync(id, updateCategoryRequest);
+            return Ok(ApiResponse<CategoryResponse>.SuccessResponse(updatedCategory, "Category updated successfully", 200));
+        }
+
+        [HttpDelete("{id:guid}")]
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(ApiResponse<bool>), 200)]
+        [ProducesResponseType(typeof(ApiResponse<object>), 404)]
+        [ProducesResponseType(typeof(ApiResponse<object>), 500)]
+        public async Task<ActionResult<ApiResponse<bool>>> DeleteAsync([FromRoute] Guid id)
+        {
+            var result = await _categoryService.DeleteAsync(id);
+            return Ok(ApiResponse<bool>.SuccessResponse(result, "Category deleted successfully", 200));
         }
     }
 }

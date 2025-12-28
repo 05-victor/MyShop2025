@@ -3,6 +3,7 @@ using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Auth;
 using MyShop.Plugins.Adapters;
+using MyShop.Plugins.Infrastructure;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.DTOs.Responses;
 using MyShop.Shared.Models;
@@ -15,6 +16,12 @@ namespace MyShop.Plugins.Repositories.Api;
 /// Real API implementation of IAuthRepository.
 /// Wraps IAuthApi (Refit) and transforms DTOs to Client Models.
 /// Handles HTTP errors and network exceptions with user-friendly messages.
+/// 
+/// IMPORTANT - RememberMe Token Storage:
+/// - When rememberMe=false: Tokens saved to session memory only (cleared on app exit)
+/// - When rememberMe=true: Tokens saved to both session memory AND persistent storage (survives app restart)
+/// - currentUserId MUST be set BEFORE SaveToken() so GetToken() can retrieve session tokens correctly
+/// - This ensures API calls work during current session regardless of rememberMe value
 /// </summary>
 public class AuthRepository : IAuthRepository
 {
@@ -27,7 +34,7 @@ public class AuthRepository : IAuthRepository
         _credentialStorage = credentialStorage ?? throw new ArgumentNullException(nameof(credentialStorage));
     }
 
-    public async Task<Result<User>> LoginAsync(string usernameOrEmail, string password)
+    public async Task<Result<User>> LoginAsync(string usernameOrEmail, string password, bool rememberMe = false)
     {
         try
         {
@@ -49,19 +56,28 @@ public class AuthRepository : IAuthRepository
                 {
                     // Store refresh token temporarily so we can pass it to AuthFacade
                     var loginResponse = apiResponse.Result;
-                    
-                    // Save refresh token to storage immediately
+
+                    // CRITICAL: Set currentUserId BEFORE SaveToken so session tokens have proper context
+                    // This ensures GetToken() can retrieve session tokens even when rememberMe=false
+                    if (_credentialStorage is SecureCredentialStorage secureStorage && loginResponse.Id != Guid.Empty)
+                    {
+                        secureStorage.SetCurrentUser(loginResponse.Id.ToString());
+                        System.Diagnostics.Debug.WriteLine($"[AuthRepository] Set currentUserId before SaveToken: {loginResponse.Id}");
+                    }
+
+                    // Always save tokens (to session memory)
+                    // persistToFile=true only if rememberMe=true (saves to persistent storage)
                     if (!string.IsNullOrEmpty(loginResponse.RefreshToken))
                     {
-                        await _credentialStorage.SaveToken(loginResponse.Token, loginResponse.RefreshToken);
-                        System.Diagnostics.Debug.WriteLine($"[AuthRepository] Saved access and refresh tokens");
+                        await _credentialStorage.SaveToken(loginResponse.Token, loginResponse.RefreshToken, persistToFile: rememberMe);
+                        System.Diagnostics.Debug.WriteLine($"[AuthRepository] Saved tokens - AccessToken: yes, RefreshToken: yes, Persist: {rememberMe}");
                     }
                     else
                     {
-                        await _credentialStorage.SaveToken(loginResponse.Token);
-                        System.Diagnostics.Debug.WriteLine($"[AuthRepository] Saved access token only (no refresh token from server)");
+                        await _credentialStorage.SaveToken(loginResponse.Token, persistToFile: rememberMe);
+                        System.Diagnostics.Debug.WriteLine($"[AuthRepository] Saved tokens - AccessToken: yes, RefreshToken: no, Persist: {rememberMe}");
                     }
-                    
+
                     // Transform DTO → Client Model using AuthAdapter
                     var user = AuthAdapter.ToModel(loginResponse);
                     return Result<User>.Success(user);
@@ -177,8 +193,17 @@ public class AuthRepository : IAuthRepository
                 return Result<User>.Failure(apiResponse.Message ?? "Failed to get user info");
             }
 
-            // HTTP error
+            // HTTP error - if 401, token might be expired
             System.Diagnostics.Debug.WriteLine($"[AuthRepository.GetCurrentUserAsync] ✗ HTTP Error: {refitResponse.StatusCode}");
+
+            if (refitResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AuthRepository.GetCurrentUserAsync] Got 401 after AuthHeaderHandler - refresh attempt already failed or handler not in pipeline");
+                // DO NOT clear tokens here - AuthHeaderHandler already tried refresh if it was in the pipeline
+                // Only AuthHeaderHandler or explicit Logout should clear tokens
+                // Return failure but preserve session tokens for debugging/retry
+            }
+
             return Result<User>.Failure($"HTTP Error: {refitResponse.StatusCode}");
         }
         catch (ApiException apiEx)

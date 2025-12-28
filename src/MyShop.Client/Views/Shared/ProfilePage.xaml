@@ -1,9 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="MyShop.Client.Views.Shared.ProfilePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
+    xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuic="using:Microsoft.UI.Xaml.Controls"
@@ -24,15 +25,6 @@
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
         <converters:StringToImageSourceConverter x:Key="StringToImageSource"/>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
-
-        <LinearGradientBrush x:Key="AdminGradientBrush"
-                             StartPoint="0,0"
-                             EndPoint="1,0">
-            <GradientStop Color="{ThemeResource PrimaryBrush}"
-                          Offset="0.0"/>
-            <GradientStop Color="{ThemeResource AccentBlueBrush}"
-                          Offset="1.0"/>
-        </LinearGradientBrush>
     </Page.Resources>
 
     <Grid>
@@ -94,26 +86,22 @@
 
         <ScrollViewer x:Name="MainScroller" VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="0">
+                <!-- Page Header -->
+                <layout:PageHeader
+                    Title="My Profile"
+                    Subtitle="Manage your account information"
+                    Margin="48,24,48,16"/>
+
                 <!-- Gradient Header Banner -->
-                <Border Height="200">
-                    <Border.Background>
-                        <LinearGradientBrush StartPoint="0,0"
-                                             EndPoint="1,1">
-                            <GradientStop Color="{ThemeResource PrimaryBrush}"
-                                          Offset="0.0"/>
-                            <GradientStop Color="{ThemeResource PurpleBrush}"
-                                          Offset="1.0"/>
-                        </LinearGradientBrush>
-                    </Border.Background>
-                </Border>
+                <Border Height="200"
+                        Background="{ThemeResource ProfileBannerGradient}"/>
 
                 <!-- Main Profile Content -->
                 <StackPanel MaxWidth="1400"
                             HorizontalAlignment="Stretch"
                             Margin="48,-80,48,48">
                     <!-- Profile Card with Avatar -->
-                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            CornerRadius="8"
+                    <Border Style="{StaticResource CardWithShadowStyle}"
                             Padding="32,24,32,24"
                             Margin="0,0,0,24">
                         <Border.Shadow>
@@ -175,22 +163,23 @@
                                 <StackPanel Grid.Column="1"
                                             VerticalAlignment="Center"
                                             Spacing="8">
-                                    <StackPanel Orientation="Horizontal"
-                                                Spacing="12">
-                                        <TextBlock Text="{x:Bind ViewModel.FullName, Mode=OneWay, FallbackValue='User'}"
-                                                   FontSize="28"
-                                                   FontWeight="Bold"
-                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                        <Border Background="{ThemeResource InfoBlueLightBrush}"
-                                                CornerRadius="8"
-                                                Padding="10,4"
-                                                VerticalAlignment="Center">
-                                            <TextBlock Text="{x:Bind ViewModel.RoleDisplay, Mode=OneWay, FallbackValue='User'}"
-                                                       FontSize="13"
-                                                       Foreground="{ThemeResource AccentBlueBrush}"
-                                                       FontWeight="SemiBold"/>
-                                        </Border>
-                                    </StackPanel>
+                                    <!-- Role Badge -->
+                                    <Border Background="{ThemeResource InfoBlueLightBrush}"
+                                            CornerRadius="12"
+                                            Padding="16,6"
+                                            HorizontalAlignment="Left">
+                                        <TextBlock Text="{x:Bind ViewModel.RoleDisplay, Mode=OneWay, FallbackValue='User'}"
+                                                   FontSize="20"
+                                                   Foreground="{ThemeResource AccentBlueBrush}"
+                                                   FontWeight="SemiBold"/>
+                                    </Border>
+                                    
+                                    <!-- Full Name -->
+                                    <TextBlock Text="{x:Bind ViewModel.FullName, Mode=OneWay, FallbackValue='User'}"
+                                               FontSize="28"
+                                               FontWeight="Bold"
+                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                    
                                     <TextBlock Text="{x:Bind ViewModel.UsernameDisplay, Mode=OneWay, FallbackValue='@user'}"
                                                FontSize="15"
                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>

@@ -257,7 +257,7 @@
                                         Style="{StaticResource CardWithShadowStyle}">
                                     <StackPanel Spacing="16">
                                         <TextBlock Text="Top Selling Products"
-                                                   FontSize="18"
+                                                   FontSize="{StaticResource FontSize_XL}"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
 
@@ -277,7 +277,7 @@
 
                                                             <TextBlock Grid.Row="0"
                                                                        Text="{x:Bind Product}"
-                                                                       FontSize="14"
+                                                                       FontSize="{StaticResource FontSize_Base}"
                                                                        FontWeight="SemiBold"
                                                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                                        TextTrimming="CharacterEllipsis"/>
@@ -306,14 +306,14 @@
                                                                             Spacing="6"
                                                                             VerticalAlignment="Center">
                                                                     <TextBlock Text="{x:Bind Product}"
-                                                                               FontSize="13"
+                                                                               FontSize="{StaticResource FontSize_SM}"
                                                                                FontWeight="SemiBold"
                                                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                                                TextTrimming="CharacterEllipsis"/>
                                                                     <TextBlock Text="{x:Bind CategoryName}"
-                                                                               FontSize="11"
+                                                                               FontSize="{StaticResource FontSize_XS}"
                                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                                    <TextBlock FontSize="11"
+                                                                    <TextBlock FontSize="{StaticResource FontSize_XS}"
                                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                                                     <Run Text="Sold: "/>
                                                                     <Run Text="{x:Bind SoldCount}"
@@ -324,7 +324,7 @@
 
                                                                 <!-- Revenue -->
                                                                 <TextBlock Grid.Column="2"
-                                                                           FontSize="14"
+                                                                           FontSize="{StaticResource FontSize_Base}"
                                                                            TextAlignment="Right"
                                                                            FontWeight="Bold"
                                                                            Foreground="{ThemeResource SuccessGreenBrush}"
@@ -369,7 +369,7 @@
 
                                             <TextBlock Grid.Column="0"
                                                        Text="Low Stock Products"
-                                                       FontSize="18"
+                                                       FontSize="{StaticResource FontSize_XL}"
                                                        FontWeight="SemiBold"
                                                        Foreground="{ThemeResource Gray900Brush}"/>
 
@@ -379,7 +379,7 @@
                                                     CornerRadius="8"
                                                     Padding="8,4">
                                                 <TextBlock Text="{x:Bind ViewModel.LowStockProducts.Count, Mode=OneWay}"
-                                                           FontSize="12"
+                                                           FontSize="{StaticResource FontSize_SM}"
                                                            FontWeight="SemiBold"
                                                            Foreground="{ThemeResource ErrorRedBrush}"/>
                                             </Border>
@@ -416,7 +416,7 @@
                                                             <StackPanel Grid.Column="1"
                                                                         Spacing="8">
                                                                 <TextBlock Text="{x:Bind Name}"
-                                                                           FontSize="13"
+                                                                           FontSize="{StaticResource FontSize_SM}"
                                                                            FontWeight="SemiBold"
                                                                            Foreground="{ThemeResource Gray900Brush}"
                                                                            TextTrimming="CharacterEllipsis"/>
@@ -430,7 +430,7 @@
 
                                                                     <TextBlock Grid.Column="0"
                                                                                Text="{x:Bind CategoryName}"
-                                                                               FontSize="12"
+                                                                               FontSize="{StaticResource FontSize_SM}"
                                                                                Foreground="{ThemeResource Gray600Brush}"
                                                                                VerticalAlignment="Center"/>
 
@@ -438,7 +438,7 @@
                                                                             Background="{ThemeResource ErrorRedLightBrush}"
                                                                             CornerRadius="8"
                                                                             Padding="6,2">
-                                                                        <TextBlock FontSize="11"
+                                                                        <TextBlock FontSize="{StaticResource FontSize_XS}"
                                                                                    FontWeight="SemiBold"
                                                                                    Foreground="{ThemeResource ErrorRedBrush}">
                                                             <Run Text="Quantity: "/><Run Text="{x:Bind Quantity}"/>
@@ -451,14 +451,14 @@
                                                                             Spacing="6"
                                                                             Visibility="Collapsed">
                                                                     <TextBlock Text="{x:Bind CategoryName}"
-                                                                               FontSize="12"
+                                                                               FontSize="{StaticResource FontSize_SM}"
                                                                                Foreground="{ThemeResource Gray600Brush}"/>
 
                                                                     <Border Background="{ThemeResource ErrorRedLightBrush}"
                                                                             CornerRadius="8"
                                                                             Padding="6,2"
                                                                             HorizontalAlignment="Left">
-                                                                        <TextBlock FontSize="11"
+                                                                        <TextBlock FontSize="{StaticResource FontSize_XS}"
                                                                                    FontWeight="SemiBold"
                                                                                    Foreground="{ThemeResource ErrorRedBrush}">
                                                             <Run Text="Quantity: "/><Run Text="{x:Bind Quantity}"/>
@@ -484,7 +484,7 @@
 
                                         <!-- Empty State when no low stock products -->
                                         <TextBlock Text="All products have healthy stock levels"
-                                                   FontSize="13"
+                                                   FontSize="{StaticResource FontSize_SM}"
                                                    Foreground="{ThemeResource Gray500Brush}"
                                                    TextAlignment="Center"
                                                    Visibility="{x:Bind ViewModel.LowStockProducts, Mode=OneWay, Converter={StaticResource InverseCountToVisibilityConverter}}"/>
@@ -517,32 +517,32 @@
 
                                                     <TextBlock Grid.Column="0"
                                                                Text="ORDER ID"
-                                                               FontSize="11"
+                                                               FontSize="{StaticResource FontSize_XS}"
                                                                FontWeight="SemiBold"
                                                                Foreground="{ThemeResource Gray600Brush}"/>
                                                     <TextBlock Grid.Column="1"
                                                                Text="CUSTOMER"
-                                                               FontSize="11"
+                                                               FontSize="{StaticResource FontSize_XS}"
                                                                FontWeight="SemiBold"
                                                                Foreground="{ThemeResource Gray600Brush}"/>
                                                     <TextBlock Grid.Column="2"
                                                                Text="PRODUCT"
-                                                               FontSize="11"
+                                                               FontSize="{StaticResource FontSize_XS}"
                                                                FontWeight="SemiBold"
                                                                Foreground="{ThemeResource Gray600Brush}"/>
                                                     <TextBlock Grid.Column="3"
                                                                Text="DATE"
-                                                               FontSize="11"
+                                                               FontSize="{StaticResource FontSize_XS}"
                                                                FontWeight="SemiBold"
                                                                Foreground="{ThemeResource Gray600Brush}"/>
                                                     <TextBlock Grid.Column="4"
                                                                Text="AMOUNT"
-                                                               FontSize="11"
+                                                               FontSize="{StaticResource FontSize_XS}"
                                                                FontWeight="SemiBold"
                                                                Foreground="{ThemeResource Gray600Brush}"/>
                                                     <TextBlock Grid.Column="5"
                                                                Text="STATUS"
-                                                               FontSize="11"
+                                                               FontSize="{StaticResource FontSize_XS}"
                                                                FontWeight="SemiBold"
                                                                Foreground="{ThemeResource Gray600Brush}"/>
                                                 </Grid>
@@ -564,28 +564,28 @@
 
                                                         <TextBlock Grid.Column="0"
                                                                    Text="{x:Bind OrderId}"
-                                                                   FontSize="13"
+                                                                   FontSize="{StaticResource FontSize_SM}"
                                                                    FontFamily="Consolas"
                                                                    Foreground="{ThemeResource Gray600Brush}"/>
 
                                                         <TextBlock Grid.Column="1"
                                                                    Text="{x:Bind Customer}"
-                                                                   FontSize="14"
+                                                                   FontSize="{StaticResource FontSize_Base}"
                                                                    Foreground="{ThemeResource Gray900Brush}"/>
 
                                                         <TextBlock Grid.Column="2"
                                                                    Text="{x:Bind Product}"
-                                                                   FontSize="14"
+                                                                   FontSize="{StaticResource FontSize_Base}"
                                                                    Foreground="{ThemeResource Gray600Brush}"
                                                                    TextTrimming="CharacterEllipsis"/>
 
                                                         <TextBlock Grid.Column="3"
                                                                    Text="{x:Bind OrderDate}"
-                                                                   FontSize="13"
+                                                                   FontSize="{StaticResource FontSize_SM}"
                                                                    Foreground="{ThemeResource Gray600Brush}"/>
 
                                                         <TextBlock Grid.Column="4"
-                                                                   FontSize="14"
+                                                                   FontSize="{StaticResource FontSize_Base}"
                                                                    FontWeight="SemiBold"
                                                                    Foreground="{ThemeResource Gray900Brush}">
                                         <Run Text="{x:Bind Amount, Converter={StaticResource CurrencyConverter}}"/>
@@ -597,7 +597,7 @@
                                                                 Padding="8,4"
                                                                 HorizontalAlignment="Left">
                                                             <TextBlock Text="{x:Bind Status}"
-                                                                       FontSize="12"
+                                                                       FontSize="{StaticResource FontSize_SM}"
                                                                        FontWeight="SemiBold"
                                                                        Foreground="{ThemeResource InfoBlueDarkBrush}"/>
                                                         </Border>
@@ -638,12 +638,12 @@
                               Width="64"
                               Height="64"/>
                 <TextBlock Text="Loading dashboard data..."
-                           FontSize="18"
+                           FontSize="{StaticResource FontSize_XL}"
                            FontWeight="SemiBold"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                            HorizontalAlignment="Center"/>
                 <TextBlock Text="Please wait while we fetch your analytics"
-                           FontSize="14"
+                           FontSize="{StaticResource FontSize_Base}"
                            Foreground="{ThemeResource TextFillColorTertiaryBrush}"
                            HorizontalAlignment="Center"/>
             </StackPanel>

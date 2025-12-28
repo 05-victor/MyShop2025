@@ -98,10 +98,19 @@ public partial class BecomeAgentViewModel : BaseViewModel
         _toastService = toastService;
     }
 
-    public async Task InitializeAsync()
+    public async Task InitializeAsync(MyShop.Shared.Models.User? user = null)
     {
         SetLoadingState(false);
-        // Could pre-fill with current user's info if needed
+        
+        // Pre-fill with current user's info if provided
+        if (user != null)
+        {
+            FullName = user.FullName ?? string.Empty;
+            Email = user.Email ?? string.Empty;
+            PhoneNumber = user.PhoneNumber ?? string.Empty;
+        }
+        
+        await Task.CompletedTask;
     }
 
     [RelayCommand]

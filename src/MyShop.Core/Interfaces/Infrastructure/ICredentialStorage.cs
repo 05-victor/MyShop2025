@@ -14,7 +14,8 @@ public interface ICredentialStorage
     /// </summary>
     /// <param name="accessToken">JWT access token</param>
     /// <param name="refreshToken">Optional refresh token</param>
-    Task<Result<Unit>> SaveToken(string accessToken, string? refreshToken = null);
+    /// <param name="persistToFile">Whether to persist to file (Remember Me). Always keeps token in session memory</param>
+    Task<Result<Unit>> SaveToken(string accessToken, string? refreshToken = null, bool persistToFile = true);
 
     /// <summary>
     /// Retrieve access token from storage

@@ -227,7 +227,7 @@ public class OrderFacade : IOrderFacade
         try
         {
             // Validate status
-            var validStatuses = new[] { "Pending", "Processing", "Shipping", "Completed", "Cancelled" };
+            var validStatuses = new[] { "Pending", "Confirmed", "Processing", "Shipped", "Delivered", "Cancelled", "Returned" };
             if (!validStatuses.Contains(newStatus, StringComparer.OrdinalIgnoreCase))
             {
                 _ = _toastService.ShowError($"Invalid status. Valid values: {string.Join(", ", validStatuses)}");
@@ -244,17 +244,23 @@ public class OrderFacade : IOrderFacade
 
             var order = orderResult.Data;
 
-            // Validate status transition
-            if (order.Status == "Completed" && newStatus != "Completed")
+            // Validate status transition - prevent changes to terminal statuses
+            if (order.Status == "Delivered" && newStatus != "Delivered")
             {
-                _ = _toastService.ShowError("Cannot change status of completed order");
-                return Result<Order>.Failure("Order already completed");
+                _ = _toastService.ShowError("Cannot change status of delivered order");
+                return Result<Order>.Failure("Order already delivered");
             }
 
             if (order.Status == "Cancelled")
             {
                 _ = _toastService.ShowError("Cannot change status of cancelled order");
                 return Result<Order>.Failure("Order already cancelled");
+            }
+
+            if (order.Status == "Returned")
+            {
+                _ = _toastService.ShowError("Cannot change status of returned order");
+                return Result<Order>.Failure("Order already returned");
             }
 
             // Update status
@@ -337,6 +343,37 @@ public class OrderFacade : IOrderFacade
         }
     }
 
+    public async Task<Result<Unit>> DeleteOrderAsync(Guid orderId)
+    {
+        try
+        {
+            // Ensure order exists before attempting delete (better error messaging)
+            var existingOrderResult = await _orderRepository.GetByIdAsync(orderId);
+            if (!existingOrderResult.IsSuccess || existingOrderResult.Data == null)
+            {
+                _ = _toastService.ShowError("Order not found");
+                return Result<Unit>.Failure("Order not found");
+            }
+
+            var deleteResult = await _orderRepository.DeleteAsync(orderId);
+            if (!deleteResult.IsSuccess || !deleteResult.Data)
+            {
+                _ = _toastService.ShowError("Failed to delete order");
+                return Result<Unit>.Failure(deleteResult.ErrorMessage ?? "Failed to delete order");
+            }
+
+            _ = _toastService.ShowSuccess("Order deleted successfully");
+            System.Diagnostics.Debug.WriteLine($"[OrderFacade] Order {orderId} deleted successfully");
+            return Result<Unit>.Success(Unit.Value);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[OrderFacade] Error deleting order: {ex.Message}");
+            _ = _toastService.ShowError($"Error deleting order: {ex.Message}");
+            return Result<Unit>.Failure($"Error: {ex.Message}");
+        }
+    }
+
     public async Task<Result<List<Order>>> GetOrdersByCustomerAsync(Guid customerId)
     {
         try
@@ -388,6 +425,53 @@ public class OrderFacade : IOrderFacade
             System.Diagnostics.Debug.WriteLine($"[OrderFacade] Error loading agent orders: {ex.Message}");
             _ = _toastService.ShowError($"Error loading orders: {ex.Message}");
             return Result<List<Order>>.Failure($"Error: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<Unit>> ProcessCardPaymentAsync(
+        Guid orderId,
+        string cardNumber,
+        string cardHolderName,
+        string expiryDate,
+        string cvv)
+    {
+        try
+        {
+            // Basic input validation before sending to API
+            if (string.IsNullOrWhiteSpace(cardNumber) ||
+                string.IsNullOrWhiteSpace(cardHolderName) ||
+                string.IsNullOrWhiteSpace(expiryDate) ||
+                string.IsNullOrWhiteSpace(cvv))
+            {
+                _ = _toastService.ShowError("Please fill in all card details");
+                return Result<Unit>.Failure("Card information is required");
+            }
+
+            var request = new MyShop.Shared.DTOs.Requests.ProcessCardPaymentRequest
+            {
+                OrderId = orderId,
+                CardNumber = cardNumber,
+                CardHolderName = cardHolderName,
+                ExpiryDate = expiryDate,
+                Cvv = cvv
+            };
+
+            var result = await _orderRepository.ProcessCardPaymentAsync(orderId, request);
+            if (!result.IsSuccess || !result.Data)
+            {
+                _ = _toastService.ShowError(result.ErrorMessage ?? "Failed to process card payment");
+                return Result<Unit>.Failure(result.ErrorMessage ?? "Failed to process card payment");
+            }
+
+            _ = _toastService.ShowSuccess("Payment successfully processed");
+            System.Diagnostics.Debug.WriteLine($"[OrderFacade] Card payment processed for order {orderId}");
+            return Result<Unit>.Success(Unit.Value);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[OrderFacade] Error processing card payment: {ex.Message}");
+            _ = _toastService.ShowError($"Error processing payment: {ex.Message}");
+            return Result<Unit>.Failure($"Error: {ex.Message}");
         }
     }
 

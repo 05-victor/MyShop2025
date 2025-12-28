@@ -1,8 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="MyShop.Client.Views.Customer.BecomeAgentPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Customer"
@@ -15,33 +16,8 @@
         </TransitionCollection>
     </Page.Transitions>
 
-    <Page.Resources>
-        <Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Margin" Value="0,0,0,24"/>
-            <Setter Property="Padding" Value="24"/>
-            <Setter Property="Shadow">
-                <Setter.Value>
-                    <ThemeShadow/>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="IconContainerStyle" TargetType="Border">
-            <Setter Property="Width" Value="40"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Margin" Value="0,0,12,0"/>
-        </Style>
-
-        <Style x:Key="FormTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Margin" Value="0,0,0,16"/>
-            <Setter Property="CornerRadius" Value="8"/>
-        </Style>
-    </Page.Resources>
+    <!-- Note: Using design system styles - CardWithShadowStyle for cards -->
+    <!-- FormTextBoxStyle removed - using default TextBox style with consistent spacing -->
 
     <Grid>
         <VisualStateManager.VisualStateGroups>
@@ -103,6 +79,12 @@
         <ScrollViewer x:Name="MainContent" Padding="0,40,0,40">
             <StackPanel MaxWidth="800" HorizontalAlignment="Center" Spacing="0">
             
+            <!-- Page Header -->
+            <layout:PageHeader
+                Title="Become a Sales Agent"
+                Subtitle="Apply to join our sales team"
+                Margin="0,0,0,24"/>
+
             <!-- Header -->
             <StackPanel HorizontalAlignment="Center" Margin="0,0,0,40">
                 <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
@@ -132,16 +114,11 @@
             </StackPanel>
 
             <!-- Personal Information Card -->
-            <Border Style="{StaticResource CardStyle}">
+            <Border Style="{StaticResource CardWithShadowStyle}" Margin="0,0,0,24">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
-                        <Border Style="{StaticResource IconContainerStyle}">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="{ThemeResource AccentBlueBrush}" Offset="0"/>
-                                    <GradientStop Color="{ThemeResource SecondaryBlueBrush}" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
+                        <Border Width="40" Height="40" CornerRadius="8" Margin="0,0,12,0"
+                                Background="{ThemeResource AccentBlueBrush}">
                             <FontIcon Glyph="&#xE77B;" Foreground="{ThemeResource WhiteBrush}" FontSize="16"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
@@ -165,7 +142,7 @@
                                  Header="Full Name *" 
                                  PlaceholderText="Enter your full name" 
                                  Grid.Column="0"
-                                 Style="{StaticResource FormTextBoxStyle}"
+                                 Margin="0,0,0,16"
                                  Text="{x:Bind ViewModel.FullName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         
                         <TextBox x:Name="EmailTextBox"
@@ -173,7 +150,7 @@
                                  PlaceholderText="your.email@example.com" 
                                  Grid.Column="1" 
                                  InputScope="EmailSmtpAddress"
-                                 Style="{StaticResource FormTextBoxStyle}"
+                                 Margin="0,0,0,16"
                                  Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </Grid>
                     
@@ -181,22 +158,17 @@
                              Header="Phone Number *" 
                              PlaceholderText="+84 987 654 321" 
                              InputScope="TelephoneNumber"
-                             Style="{StaticResource FormTextBoxStyle}"
+                             Margin="0,0,0,16"
                              Text="{x:Bind ViewModel.PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
             </Border>
 
             <!-- Address Information Card -->
-            <Border Style="{StaticResource CardStyle}">
+            <Border Style="{StaticResource CardWithShadowStyle}" Margin="0,0,0,24">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
-                        <Border Style="{StaticResource IconContainerStyle}">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="{ThemeResource SecondaryBlueBrush}" Offset="0"/>
-                                    <GradientStop Color="{ThemeResource PurpleBrush}" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
+                        <Border Width="40" Height="40" CornerRadius="8" Margin="0,0,12,0"
+                                Background="{ThemeResource SecondaryBlueBrush}">
                             <FontIcon Glyph="&#xE707;" Foreground="{ThemeResource WhiteBrush}" FontSize="16"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
@@ -212,7 +184,7 @@
 
                     <TextBox Header="Street Address *" 
                              PlaceholderText="123 Main Street"
-                             Style="{StaticResource FormTextBoxStyle}"
+                             Margin="0,0,0,16"
                              Text="{x:Bind ViewModel.StreetAddress, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                     <Grid ColumnSpacing="24">
@@ -223,28 +195,23 @@
                         <TextBox Header="City *" 
                                  PlaceholderText="Ho Chi Minh City" 
                                  Grid.Column="0"
-                                 Style="{StaticResource FormTextBoxStyle}"
+                                 Margin="0,0,0,16"
                                  Text="{x:Bind ViewModel.City, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         <TextBox Header="State/Province *" 
                                  PlaceholderText="Vietnam" 
                                  Grid.Column="1"
-                                 Style="{StaticResource FormTextBoxStyle}"
+                                 Margin="0,0,0,16"
                                  Text="{x:Bind ViewModel.StateProvince, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </Grid>
                 </StackPanel>
             </Border>
 
             <!-- Business Information Card -->
-            <Border Style="{StaticResource CardStyle}">
+            <Border Style="{StaticResource CardWithShadowStyle}" Margin="0,0,0,24">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
-                        <Border Style="{StaticResource IconContainerStyle}">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="{ThemeResource PurpleBrush}" Offset="0"/>
-                                    <GradientStop Color="{ThemeResource PurpleBrush}" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
+                        <Border Width="40" Height="40" CornerRadius="8" Margin="0,0,12,0"
+                                Background="{ThemeResource PurpleBrush}">
                             <FontIcon Glyph="&#xEC07;" Foreground="{ThemeResource WhiteBrush}" FontSize="16"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
@@ -266,28 +233,23 @@
                         <TextBox Header="Business Name" 
                                  PlaceholderText="Your Business LLC" 
                                  Grid.Column="0"
-                                 Style="{StaticResource FormTextBoxStyle}"
+                                 Margin="0,0,0,16"
                                  Text="{x:Bind ViewModel.BusinessName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         <TextBox Header="Tax ID / Business Registration" 
                                  PlaceholderText="XX-XXXXXXX" 
                                  Grid.Column="1"
-                                 Style="{StaticResource FormTextBoxStyle}"
+                                 Margin="0,0,0,16"
                                  Text="{x:Bind ViewModel.TaxId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </Grid>
                 </StackPanel>
             </Border>
 
             <!-- Experience and Motivation Card -->
-            <Border Style="{StaticResource CardStyle}">
+            <Border Style="{StaticResource CardWithShadowStyle}" Margin="0,0,0,24">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
-                        <Border Style="{StaticResource IconContainerStyle}">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="{ThemeResource SuccessGreenBrush}" Offset="0"/>
-                                    <GradientStop Color="{ThemeResource AccentBlueBrush}" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
+                        <Border Width="40" Height="40" CornerRadius="8" Margin="0,0,12,0"
+                                Background="{ThemeResource SuccessGreenBrush}">
                             <FontIcon Glyph="&#xE8F1;" Foreground="{ThemeResource WhiteBrush}" FontSize="16"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
@@ -306,7 +268,7 @@
                              AcceptsReturn="True" 
                              TextWrapping="Wrap" 
                              MinHeight="100"
-                             Style="{StaticResource FormTextBoxStyle}"
+                             Margin="0,0,0,16"
                              Text="{x:Bind ViewModel.SalesExperience, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     
                     <TextBox Header="Why do you want to become a Sales Agent? *" 
@@ -314,14 +276,13 @@
                              AcceptsReturn="True" 
                              TextWrapping="Wrap" 
                              MinHeight="100"
-                             Style="{StaticResource FormTextBoxStyle}"
                              Text="{x:Bind ViewModel.Motivation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
             </Border>
 
             <!-- Terms and Submit -->
             <StackPanel Spacing="16">
-                <Border Style="{StaticResource CardStyle}">
+                <Border Style="{StaticResource CardWithShadowStyle}">
                     <CheckBox IsChecked="{x:Bind ViewModel.AgreeToTerms, Mode=TwoWay}" FontSize="14">
                         <CheckBox.Content>
                             <TextBlock TextWrapping="Wrap">
@@ -351,22 +312,12 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     
-                    <Button Content="Cancel" 
-                            Style="{StaticResource SecondaryButtonStyle}"
-                            Command="{x:Bind ViewModel.CancelCommand}"/>
-                    
                     <Button Grid.Column="1" 
                             Style="{StaticResource PrimaryButtonStyle}"
                             HorizontalAlignment="Stretch"
+                            Background="{ThemeResource AccentButtonGradient}"
                             Command="{x:Bind ViewModel.SubmitCommand}"
                             IsEnabled="{x:Bind ViewModel.CanSubmit, Mode=OneWay}">
-                        <Button.Background>
-                            <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-                                <GradientStop Color="{ThemeResource AccentBlueBrush}" Offset="0"/>
-                                <GradientStop Color="{ThemeResource SecondaryBlueBrush}" Offset="0.5"/>
-                                <GradientStop Color="{ThemeResource PurpleBrush}" Offset="1"/>
-                            </LinearGradientBrush>
-                        </Button.Background>
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <ProgressRing Width="16" 
                                           Height="16" 

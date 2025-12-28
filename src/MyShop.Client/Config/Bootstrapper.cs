@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Configuration;
@@ -193,6 +193,8 @@ namespace MyShop.Client.Config
                             client.Timeout = apiOptions.Timeout;
                         }
 
+                        // IAuthApi NOW uses AuthHeaderHandler - circular dependency solved via lazy IServiceProvider
+                        // This ensures /users/me has Authorization header and benefits from token refresh
                         services.AddRefitClient<IAuthApi>()
                             .ConfigureHttpClient(ConfigureApiClient)
                             .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
@@ -274,7 +276,7 @@ namespace MyShop.Client.Config
                     services.AddSingleton<ICurrentUserService, CurrentUserService>();
                     services.AddSingleton<Services.IChartExportService, Services.ChartExportService>();
                     services.AddSingleton<Services.IPdfExportService, Services.PdfExportService>();
-                    
+
                     // ===== Chatbot Service =====
                     services.AddSingleton<IChatbotService, Services.ChatbotService>();
                     System.Diagnostics.Debug.WriteLine("[Bootstrapper] ChatbotService registered as Singleton");
@@ -314,6 +316,7 @@ namespace MyShop.Client.Config
                     // Product & Catalog
                     services.AddTransient<MyShop.Core.Interfaces.Facades.IProductFacade, Facades.ProductFacade>();
                     services.AddTransient<MyShop.Core.Interfaces.Facades.ICategoryFacade, Facades.Products.CategoryFacade>();
+                    // Note: CategoriesFacade (old HttpClient-based) is deprecated in favor of CategoryFacade
 
                     // Shopping & Orders
                     services.AddTransient<MyShop.Core.Interfaces.Facades.ICartFacade, Facades.CartFacade>();
@@ -376,14 +379,12 @@ namespace MyShop.Client.Config
                     services.AddTransient<ViewModels.Shared.PurchaseOrdersViewModel>();
                     services.AddTransient<ViewModels.Shared.ProfileViewModel>();
                     services.AddTransient<ViewModels.Shared.ChangePasswordViewModel>();
+                    services.AddTransient<ViewModels.Shared.CategoriesViewModel>(); // New Categories management VM
 
                     // Shell & Settings
                     services.AddTransient<ViewModels.Shell.DashboardShellViewModel>();
                     services.AddTransient<ViewModels.Settings.SettingsViewModel>();
                     services.AddTransient<ViewModels.Settings.TrialActivationViewModel>();
-                    
-                    // Component ViewModels
-                    services.AddTransient<ViewModels.Components.ChatFlyoutViewModel>();
                 })
                 .Build();
         }

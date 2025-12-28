@@ -80,8 +80,8 @@ public class AuthFacade : IAuthFacade
             }
 
             // Step 2: Call repository to login (DTO → Domain Model via Adapter)
-            System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] Calling _authRepository.LoginAsync()...");
-            var loginResult = await _authRepository.LoginAsync(username.Trim(), password);
+            System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] Calling _authRepository.LoginAsync() with rememberMe={rememberMe}...");
+            var loginResult = await _authRepository.LoginAsync(username.Trim(), password, rememberMe);
             if (!loginResult.IsSuccess || loginResult.Data == null)
             {
                 System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] ✗ Login failed: {loginResult.ErrorMessage}");
@@ -94,12 +94,14 @@ public class AuthFacade : IAuthFacade
             // Step 3: Set current user for per-user storage
             SetCurrentUserForStorage(user.Id.ToString());
 
-            // Step 4: Save tokens if remember me
-            if (rememberMe && !string.IsNullOrEmpty(user.Token))
+            // Step 4: Tokens saved to session memory by AuthRepository; persistence controlled by rememberMe
+            if (rememberMe)
             {
-                // Refresh token is already saved in AuthRepository.LoginAsync()
-                // No need to save again here
-                System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] Tokens already saved by AuthRepository (rememberMe=true)");
+                System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] Tokens saved to session + persistent storage (rememberMe=true)");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] Tokens saved to session memory only; persistent storage skipped (rememberMe=false)");
             }
 
             // Step 5: Fetch complete user profile from GetMe endpoint

@@ -9,12 +9,15 @@
     Title="Order Items"
     PrimaryButtonText="Close"
     DefaultButton="Primary"
+    PrimaryButtonClick="OnCloseClick"
+    SecondaryButtonClick="OnActionButtonClick"
+    CloseButtonClick="OnCloseClick"
     Style="{StaticResource DefaultContentDialogStyle}">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
-            MaxHeight="600">
+                  MaxHeight="600">
         <StackPanel Spacing="16"
-                Padding="8">
+                    Padding="8">
             <!-- Items Header -->
             <TextBlock Text="Order Items"
                        FontSize="18"
@@ -23,7 +26,7 @@
 
             <!-- Items Container - Populated by code-behind -->
             <StackPanel x:Name="ItemsStackPanel"
-                    Spacing="12"/>
+                        Spacing="12"/>
         </StackPanel>
     </ScrollViewer>
 </ContentDialog>

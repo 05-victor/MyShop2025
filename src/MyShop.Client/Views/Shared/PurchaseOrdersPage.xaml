@@ -7,6 +7,7 @@
     xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
     xmlns:badges="using:MyShop.Client.Views.Components.Badges"
     xmlns:components="using:MyShop.Client.Views.Components"
+    xmlns:controls="using:MyShop.Client.Views.Components.Controls"
     xmlns:forms="using:MyShop.Client.Views.Components.Forms"
     xmlns:pagination="using:MyShop.Client.Views.Components.Pagination"
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
@@ -120,17 +121,17 @@
                                     Background="{ThemeResource PurpleLightBrush}"
                                     CornerRadius="8">
                                 <FontIcon Glyph="&#xF133;"
-                                        FontSize="20"
+                                        FontSize="{StaticResource FontSize_2XL}"
                                         Foreground="{ThemeResource SecondaryBlueBrush}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel>
                                 <TextBlock Text="Total Orders"
-                                        FontSize="12"
+                                        FontSize="{StaticResource FontSize_SM}"
                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                 <TextBlock Text="{x:Bind ViewModel.TotalOrders, Mode=OneWay}"
-                                        FontSize="18"
+                                        FontSize="{StaticResource FontSize_XL}"
                                         FontWeight="SemiBold"
                                         Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                             </StackPanel>
@@ -148,17 +149,17 @@
                                     Background="{ThemeResource SubtleFillColorSecondaryBrush}"
                                     CornerRadius="8">
                                 <FontIcon Glyph="&#xE121;"
-                                        FontSize="20"
+                                        FontSize="{StaticResource FontSize_2XL}"
                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel>
                                 <TextBlock Text="Pending"
-                                        FontSize="12"
+                                        FontSize="{StaticResource FontSize_SM}"
                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                 <TextBlock Text="{x:Bind ViewModel.PendingOrders, Mode=OneWay}"
-                                        FontSize="18"
+                                        FontSize="{StaticResource FontSize_XL}"
                                         FontWeight="SemiBold"
                                         Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                             </StackPanel>
@@ -176,17 +177,17 @@
                                     Background="{ThemeResource InfoBlueLightBrush}"
                                     CornerRadius="8">
                                 <FontIcon Glyph="&#xE916;"
-                                        FontSize="20"
+                                        FontSize="{StaticResource FontSize_2XL}"
                                         Foreground="{ThemeResource AccentBlueBrush}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel>
                                 <TextBlock Text="In Transit"
-                                        FontSize="12"
+                                        FontSize="{StaticResource FontSize_SM}"
                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                 <TextBlock Text="{x:Bind ViewModel.InTransitOrders, Mode=OneWay}"
-                                        FontSize="18"
+                                        FontSize="{StaticResource FontSize_XL}"
                                         FontWeight="SemiBold"
                                         Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                             </StackPanel>
@@ -204,17 +205,17 @@
                                     Background="{ThemeResource SuccessGreenLightBrush}"
                                     CornerRadius="8">
                                 <FontIcon Glyph="&#xE73E;"
-                                        FontSize="20"
+                                        FontSize="{StaticResource FontSize_2XL}"
                                         Foreground="{ThemeResource SuccessGreenBrush}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel>
                                 <TextBlock Text="Delivered"
-                                        FontSize="12"
+                                        FontSize="{StaticResource FontSize_SM}"
                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                 <TextBlock Text="{x:Bind ViewModel.DeliveredOrders, Mode=OneWay}"
-                                        FontSize="18"
+                                        FontSize="{StaticResource FontSize_XL}"
                                         FontWeight="SemiBold"
                                         Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                             </StackPanel>
@@ -232,17 +233,17 @@
                                     Background="{ThemeResource WarningAmberLightBrush}"
                                     CornerRadius="8">
                                 <FontIcon Glyph="&#xE8C7;"
-                                        FontSize="20"
+                                        FontSize="{StaticResource FontSize_2XL}"
                                         Foreground="{ThemeResource WarningAmberBrush}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel>
                                 <TextBlock Text="Total Spent"
-                                        FontSize="12"
+                                        FontSize="{StaticResource FontSize_SM}"
                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                 <TextBlock Text="{x:Bind ViewModel.TotalSpent, Converter={StaticResource CurrencyConverter}, Mode=OneWay}"
-                                        FontSize="18"
+                                        FontSize="{StaticResource FontSize_XL}"
                                         FontWeight="SemiBold"
                                         Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                             </StackPanel>
@@ -250,19 +251,16 @@
                     </Border>
                 </Grid>
 
+                <!-- Search Card (P0 - Component Enforcement) -->
+                <forms:SearchCard
+                    Title="Search Orders"
+                    Subtitle="Find orders by ID, tracking number, or product name"
+                    PlaceholderText="Search by order ID, tracking, or product name..."
+                    SearchText="{x:Bind ViewModel.SearchQuery, Mode=TwoWay}"/>
+
                 <!-- Filters -->
                 <Border Style="{StaticResource CardStyle}">
                     <StackPanel Spacing="16">
-                        <!-- Search Box (auto complete - no button needed) -->
-                        <AutoSuggestBox x:Name="SearchBox"
-                                        PlaceholderText="Search by order ID, tracking, or product name..."
-                                        QueryIcon="Find"
-                                        Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                        TextChanged="SearchBox_TextChanged"
-                                        QuerySubmitted="SearchBox_QuerySubmitted"
-                                        Height="40"
-                                        CornerRadius="8"/>
-
                         <!-- Filter Buttons and Sort -->
                         <Grid ColumnDefinitions="*,Auto">
                             <StackPanel Orientation="Horizontal"
@@ -341,13 +339,13 @@
                                         <Grid>
                                             <StackPanel>
                                                 <TextBlock Text="{x:Bind ProductSummary}"
-                                                        FontSize="18"
+                                                        FontSize="{StaticResource FontSize_XL}"
                                                         FontWeight="SemiBold"
                                                         Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                         TextTrimming="CharacterEllipsis"
                                                         MaxWidth="400"/>
                                                 <TextBlock Text="{x:Bind OrderId}"
-                                                        FontSize="13"
+                                                        FontSize="{StaticResource FontSize_SM}"
                                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                         Margin="0,4,0,0"/>
                                                 <StackPanel Orientation="Horizontal"
@@ -356,13 +354,13 @@
                                                     <StackPanel Orientation="Horizontal"
                                                             Spacing="4">
                                                         <FontIcon Glyph="&#xE787;"
-                                                                FontSize="14"
+                                                                FontSize="{StaticResource FontSize_Base}"
                                                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                         <TextBlock Text="{x:Bind FormattedOrderDate}"
-                                                                FontSize="12"
+                                                                FontSize="{StaticResource FontSize_SM}"
                                                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                     </StackPanel>
-                                                    <TextBlock FontSize="12"
+                                                    <TextBlock FontSize="{StaticResource FontSize_SM}"
                                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                                         <Run Text="Tracking: "/>
                                                         <Run Text="{x:Bind TrackingNumber}"/>
@@ -386,10 +384,10 @@
                                             <StackPanel Orientation="Horizontal"
                                                     Spacing="8">
                                                 <FontIcon Glyph="&#xE73E;"
-                                                        FontSize="16"
+                                                        FontSize="{StaticResource FontSize_LG}"
                                                         Foreground="{ThemeResource SuccessGreenBrush}"/>
                                                 <TextBlock Text="{x:Bind DeliveryMessage}"
-                                                        FontSize="14"
+                                                        FontSize="{StaticResource FontSize_Base}"
                                                         Foreground="{ThemeResource SuccessGreenBrush}"/>
                                             </StackPanel>
                                         </Border>
@@ -405,28 +403,28 @@
                                             <StackPanel Spacing="12">
                                                 <Grid>
                                                     <TextBlock Text="Subtotal"
-                                                            FontSize="14"
+                                                            FontSize="{StaticResource FontSize_Base}"
                                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                     <TextBlock Text="{x:Bind Subtotal, Converter={StaticResource CurrencyConverter}}"
-                                                            FontSize="14"
+                                                            FontSize="{StaticResource FontSize_Base}"
                                                             Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                             HorizontalAlignment="Right"/>
                                                 </Grid>
                                                 <Grid>
                                                     <TextBlock Text="Shipping"
-                                                            FontSize="14"
+                                                            FontSize="{StaticResource FontSize_Base}"
                                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                     <TextBlock Text="{x:Bind Shipping, Converter={StaticResource CurrencyConverter}}"
-                                                            FontSize="14"
+                                                            FontSize="{StaticResource FontSize_Base}"
                                                             Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                             HorizontalAlignment="Right"/>
                                                 </Grid>
                                                 <Grid>
                                                     <TextBlock Text="Tax"
-                                                            FontSize="14"
+                                                            FontSize="{StaticResource FontSize_Base}"
                                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                     <TextBlock Text="{x:Bind Tax, Converter={StaticResource CurrencyConverter}}"
-                                                            FontSize="14"
+                                                            FontSize="{StaticResource FontSize_Base}"
                                                             Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                             HorizontalAlignment="Right"/>
                                                 </Grid>
@@ -434,11 +432,11 @@
                                                         Background="{ThemeResource CardStrokeColorDefaultBrush}"/>
                                                 <Grid>
                                                     <TextBlock Text="Total"
-                                                            FontSize="14"
+                                                            FontSize="{StaticResource FontSize_Base}"
                                                             FontWeight="SemiBold"
                                                             Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                                     <TextBlock Text="{x:Bind Total, Converter={StaticResource CurrencyConverter}}"
-                                                            FontSize="18"
+                                                            FontSize="{StaticResource FontSize_XL}"
                                                             FontWeight="Bold"
                                                             Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                             HorizontalAlignment="Right"/>
@@ -475,15 +473,15 @@
                             Spacing="12"
                             Padding="{StaticResource Padding_3XL}">
                             <FontIcon Glyph="&#xE719;"
-                                FontSize="48"
+                                FontSize="{StaticResource FontSize_5XL}"
                                 Foreground="{ThemeResource Gray500Brush}"/>
                             <TextBlock Text="No orders found"
-                                FontSize="16"
+                                FontSize="{StaticResource FontSize_LG}"
                                 FontWeight="SemiBold"
                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 HorizontalAlignment="Center"/>
                             <TextBlock Text="Try adjusting your search or filters"
-                                FontSize="14"
+                                FontSize="{StaticResource FontSize_Base}"
                                 Foreground="{ThemeResource Gray500Brush}"
                                 HorizontalAlignment="Center"/>
                         </StackPanel>
@@ -491,57 +489,14 @@
                 </StackPanel>
         </ScrollViewer>
 
-        <!-- Pagination Control (TASK-08 Standardized - Customer) -->
-        <Border Grid.Row="2"
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                BorderThickness="1"
-                Padding="16,12"
-                Margin="32,16"
-                CornerRadius="8">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <!--  Previous Button  -->
-                <Button
-                    Style="{StaticResource SecondaryButtonStyle}"
-                    Grid.Column="0"
-                    Content="Previous"
-                    IsEnabled="{x:Bind ViewModel.HasPreviousPage, Mode=OneWay}"
-                    Command="{x:Bind ViewModel.PreviousPageCommand}"/>
-
-                <!--  Page Info  -->
-                <StackPanel
-                    Grid.Column="1"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Spacing="4">
-                    <TextBlock
-                        FontSize="14"
-                        FontWeight="SemiBold"
-                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                        HorizontalAlignment="Center"
-                        Text="{x:Bind ViewModel.PageInfoText, Mode=OneWay}"/>
-                    <TextBlock
-                        FontSize="12"
-                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                        HorizontalAlignment="Center"
-                        Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}"/>
-                </StackPanel>
-
-                <!--  Next Button  -->
-                <Button
-                    Style="{StaticResource SecondaryButtonStyle}"
-                    Grid.Column="2"
-                    Content="Next"
-                    IsEnabled="{x:Bind ViewModel.HasNextPage, Mode=OneWay}"
-                    Command="{x:Bind ViewModel.NextPageCommand}"/>
-            </Grid>
-        </Border>
+        <!-- Pagination (Migrated to PaginationControl) -->
+        <controls:PaginationControl
+            Grid.Row="2"
+            CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
+            TotalPages="{x:Bind ViewModel.TotalPages, Mode=OneWay}"
+            TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
+            PageSize="{x:Bind ViewModel.PageSize, Mode=TwoWay}"
+            Margin="32,16"/>
     </Grid>
 </Grid>
 </Page>

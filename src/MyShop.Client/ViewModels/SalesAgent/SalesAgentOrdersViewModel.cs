@@ -11,6 +11,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using Windows.UI;
 
 namespace MyShop.Client.ViewModels.SalesAgent;
 
@@ -133,6 +136,7 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
 
                 Items.Add(new OrderViewModel
                 {
+                    OriginalOrderId = o.Id,
                     OrderId = FormatOrderId(o.Id),
                     CustomerName = o.CustomerName,
                     CustomerEmail = $"{o.CustomerName.ToLower().Replace(" ", ".")}@example.com",
@@ -204,7 +208,24 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
             {
                 dialog.XamlRoot = xamlRoot;
             }
-            dialog.Initialize(order.OrderItems);
+
+            // Set up callbacks for action buttons
+            dialog.OnMarkAsProcessingAsync = async () =>
+            {
+                await MarkAsProcessingAsync(order);
+            };
+
+            dialog.OnMarkAsShippedAsync = async () =>
+            {
+                await MarkAsShippedAsync(order);
+            };
+
+            dialog.OnMarkAsDeliveredAsync = async () =>
+            {
+                await MarkAsDeliveredAsync(order);
+            };
+
+            dialog.Initialize(order.OrderItems, order.Status, order.OrderId);
             await dialog.ShowAsync();
         }
         catch (Exception ex)
@@ -235,6 +256,222 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
         }
     }
 
+    [RelayCommand]
+    private async Task MarkAsProcessingAsync(OrderViewModel order)
+    {
+        if (order == null)
+        {
+            await _toastHelper?.ShowError("Order not found");
+            return;
+        }
+
+        // Show confirmation dialog
+        var xamlRoot = _xamlRootProvider?.Invoke();
+        if (xamlRoot == null)
+        {
+            await _toastHelper?.ShowError("Cannot show dialog");
+            return;
+        }
+
+        var dialog = new ContentDialog
+        {
+            Title = "Confirm Status Update",
+            Content = new TextBlock
+            {
+                Text = $"Mark order {order.OrderId} as PROCESSING?\n\nNote: This action cannot be easily undone.",
+                TextWrapping = TextWrapping.Wrap,
+                Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 255, 255))
+            },
+            PrimaryButtonText = "Process",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Close,
+            XamlRoot = xamlRoot
+        };
+
+        var result = await dialog.ShowAsync();
+        if (result != ContentDialogResult.Primary)
+        {
+            return;
+        }
+
+        // Proceed with update
+        SetLoadingState(true);
+        try
+        {
+            var updateResult = await _orderFacade.UpdateOrderStatusAsync(
+                order.OriginalOrderId,
+                "Processing");
+
+            if (updateResult.IsSuccess && updateResult.Data != null)
+            {
+                // Update local order status
+                order.Status = "Processing";
+                await _toastHelper?.ShowSuccess("Order marked as processing");
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentOrdersViewModel] Order {order.OrderId} processing");
+
+                // Refresh the list to update UI
+                await LoadPageAsync();
+            }
+            else
+            {
+                await _toastHelper?.ShowError(updateResult.ErrorMessage ?? "Failed to update order");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentOrdersViewModel] Error marking as processing: {ex.Message}");
+            await _toastHelper?.ShowError($"Error: {ex.Message}");
+        }
+        finally
+        {
+            SetLoadingState(false);
+        }
+    }
+
+    [RelayCommand]
+    private async Task MarkAsShippedAsync(OrderViewModel order)
+    {
+        if (order == null)
+        {
+            await _toastHelper?.ShowError("Order not found");
+            return;
+        }
+
+        // Show confirmation dialog
+        var xamlRoot = _xamlRootProvider?.Invoke();
+        if (xamlRoot == null)
+        {
+            await _toastHelper?.ShowError("Cannot show dialog");
+            return;
+        }
+
+        var dialog = new ContentDialog
+        {
+            Title = "Confirm Status Update",
+            Content = new TextBlock
+            {
+                Text = $"Mark order {order.OrderId} as SHIPPED?\n\nNote: This action cannot be easily undone.",
+                TextWrapping = TextWrapping.Wrap,
+                Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 255, 255))
+            },
+            PrimaryButtonText = "Ship",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Close,
+            XamlRoot = xamlRoot
+        };
+
+        var result = await dialog.ShowAsync();
+        if (result != ContentDialogResult.Primary)
+        {
+            return;
+        }
+
+        // Proceed with update
+        SetLoadingState(true);
+        try
+        {
+            var updateResult = await _orderFacade.UpdateOrderStatusAsync(
+                order.OriginalOrderId,
+                "Shipped");
+
+            if (updateResult.IsSuccess && updateResult.Data != null)
+            {
+                // Update local order status
+                order.Status = "Shipped";
+                await _toastHelper?.ShowSuccess("Order marked as shipped");
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentOrdersViewModel] Order {order.OrderId} shipped");
+
+                // Refresh the list to update UI
+                await LoadPageAsync();
+            }
+            else
+            {
+                await _toastHelper?.ShowError(updateResult.ErrorMessage ?? "Failed to update order");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentOrdersViewModel] Error marking as shipped: {ex.Message}");
+            await _toastHelper?.ShowError($"Error: {ex.Message}");
+        }
+        finally
+        {
+            SetLoadingState(false);
+        }
+    }
+
+    [RelayCommand]
+    private async Task MarkAsDeliveredAsync(OrderViewModel order)
+    {
+        if (order == null)
+        {
+            await _toastHelper?.ShowError("Order not found");
+            return;
+        }
+
+        // Show confirmation dialog
+        var xamlRoot = _xamlRootProvider?.Invoke();
+        if (xamlRoot == null)
+        {
+            await _toastHelper?.ShowError("Cannot show dialog");
+            return;
+        }
+
+        var dialog = new ContentDialog
+        {
+            Title = "Confirm Status Update",
+            Content = new TextBlock
+            {
+                Text = $"Mark order {order.OrderId} as DELIVERED?\n\nNote: This action cannot be easily undone.",
+                TextWrapping = TextWrapping.Wrap,
+                Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 255, 255))
+            },
+            PrimaryButtonText = "Deliver",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Close,
+            XamlRoot = xamlRoot
+        };
+
+        var result = await dialog.ShowAsync();
+        if (result != ContentDialogResult.Primary)
+        {
+            return;
+        }
+
+        // Proceed with update
+        SetLoadingState(true);
+        try
+        {
+            var updateResult = await _orderFacade.UpdateOrderStatusAsync(
+                order.OriginalOrderId,
+                "Delivered");
+
+            if (updateResult.IsSuccess && updateResult.Data != null)
+            {
+                // Update local order status
+                order.Status = "Delivered";
+                await _toastHelper?.ShowSuccess("Order marked as delivered");
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentOrdersViewModel] Order {order.OrderId} delivered");
+
+                // Refresh the list to update UI
+                await LoadPageAsync();
+            }
+            else
+            {
+                await _toastHelper?.ShowError(updateResult.ErrorMessage ?? "Failed to update order");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentOrdersViewModel] Error marking as delivered: {ex.Message}");
+            await _toastHelper?.ShowError($"Error: {ex.Message}");
+        }
+        finally
+        {
+            SetLoadingState(false);
+        }
+    }
+
     /// <summary>
     /// Format Order ID to show first character + last 4 characters for uniqueness
     /// Example: 9a68d343-08ca-4665-9161-7df1902c3035 → ORD-93035
@@ -250,6 +487,9 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
 
 public partial class OrderViewModel : ObservableObject
 {
+    [ObservableProperty]
+    private Guid _originalOrderId;
+
     [ObservableProperty]
     private string _orderId = string.Empty;
 
@@ -281,4 +521,14 @@ public partial class OrderViewModel : ObservableObject
     private List<MyShop.Shared.Models.OrderItem> _orderItems = new();
 
     public string FormattedDate => OrderDate.ToString("MMM dd, yyyy");
+
+    /// <summary>
+    /// True if order is in CONFIRMED status and can be marked as SHIPPED
+    /// </summary>
+    public bool CanShip => Status == "Confirmed";
+
+    /// <summary>
+    /// True if order is in SHIPPED status and can be marked as DELIVERED
+    /// </summary>
+    public bool CanDeliver => Status == "Shipped";
 }
