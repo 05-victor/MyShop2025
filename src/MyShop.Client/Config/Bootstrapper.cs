@@ -247,11 +247,7 @@ namespace MyShop.Client.Config
                             .ConfigureHttpClient(ConfigureApiClient)
                             .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
 
-                        services.AddRefitClient<MyShop.Plugins.API.PasswordReset.IPasswordResetApi>()
-                            .ConfigureHttpClient(ConfigureApiClient);
-                            // Note: No auth header needed - these endpoints are public
-
-                        System.Diagnostics.Debug.WriteLine("[Bootstrapper] All Refit API clients registered (including IPasswordResetApi)");
+                        System.Diagnostics.Debug.WriteLine("[Bootstrapper] All Refit API clients registered");
 
                         // ===== Repositories (Real - from Plugins) =====
                         // Changed to Transient to allow XAML root provider resolution
@@ -384,9 +380,6 @@ namespace MyShop.Client.Config
                     services.AddTransient<ViewModels.Shared.ProfileViewModel>();
                     services.AddTransient<ViewModels.Shared.ChangePasswordViewModel>();
                     services.AddTransient<ViewModels.Shared.CategoriesViewModel>(); // New Categories management VM
-
-                    // Dialog ViewModels
-                    services.AddTransient<Views.Dialogs.ForgotPasswordDialogViewModel>();
 
                     // Shell & Settings
                     services.AddTransient<ViewModels.Shell.DashboardShellViewModel>();

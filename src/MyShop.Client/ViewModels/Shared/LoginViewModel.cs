@@ -267,20 +267,7 @@ public partial class LoginViewModel : BaseViewModel
     [RelayCommand]
     private async Task ForgotPasswordAsync()
     {
-        try
-        {
-            var dialog = new ForgotPasswordDialog
-            {
-                XamlRoot = App.MainWindow.Content.XamlRoot
-            };
-
-            await dialog.ShowAsync();
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Error showing forgot password dialog: {ex.Message}");
-            await _toastHelper.ShowError("Failed to open password reset dialog");
-        }
+        await _toastHelper.ShowInfo("Password recovery feature is now available! Please contact support or use the API endpoint /api/v1/password-reset/forgot-password");
     }
 
     [RelayCommand]

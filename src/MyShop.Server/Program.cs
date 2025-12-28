@@ -23,6 +23,9 @@ builder.Services.AddControllers();
 // Add HttpContextAccessor for accessing HttpContext in services
 builder.Services.AddHttpContextAccessor();
 
+// Add Memory Cache for password reset codes
+builder.Services.AddMemoryCache();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
