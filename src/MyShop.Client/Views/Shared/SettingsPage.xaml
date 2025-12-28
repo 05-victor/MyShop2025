@@ -152,7 +152,7 @@
                                             <TextBlock
                                                 FontSize="{StaticResource FontSize_SM}"
                                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                                                Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"
                                                 Text="Only Admin can edit shop information"
                                                 TextWrapping="Wrap"/>
                                         </StackPanel>

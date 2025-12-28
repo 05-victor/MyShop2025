@@ -42,38 +42,50 @@ public static class AuthAdapter
     /// </summary>
     public static User ToModel(UserInfoResponse dto, string token)
     {
-        System.Diagnostics.Debug.WriteLine($"[AuthAdapter.ToModel] Converting UserInfoResponse to User model:");
-        System.Diagnostics.Debug.WriteLine($"  - Id: {dto.Id}");
-        System.Diagnostics.Debug.WriteLine($"  - Username: {dto.Username}");
-        System.Diagnostics.Debug.WriteLine($"  - Email: {dto.Email}");
-        System.Diagnostics.Debug.WriteLine($"  - FullName: {dto.FullName}");
-        System.Diagnostics.Debug.WriteLine($"  - PhoneNumber: {dto.PhoneNumber}");
-        System.Diagnostics.Debug.WriteLine($"  - Address: {dto.Address}");
-        System.Diagnostics.Debug.WriteLine($"  - Avatar: {dto.Avatar}");
-        System.Diagnostics.Debug.WriteLine($"  - IsEmailVerified: {dto.IsEmailVerified}");
-        System.Diagnostics.Debug.WriteLine($"  - IsTrialActive: {dto.IsTrialActive}");
-        System.Diagnostics.Debug.WriteLine($"  - RoleNames: {(dto.RoleNames != null ? string.Join(", ", dto.RoleNames) : "null")}");
-
-        var roles = ParseRoles(dto.RoleNames);
-        System.Diagnostics.Debug.WriteLine($"  - Parsed Roles: {string.Join(", ", roles)}");
-
-        return new User
+        try
         {
-            Id = dto.Id,
-            Username = dto.Username,
-            Email = dto.Email,
-            CreatedAt = dto.CreatedAt,
-            IsTrialActive = dto.IsTrialActive,
-            TrialStartDate = dto.TrialStartDate,
-            TrialEndDate = dto.TrialEndDate,
-            IsEmailVerified = dto.IsEmailVerified,
-            Avatar = dto.Avatar,
-            FullName = dto.FullName,
-            PhoneNumber = dto.PhoneNumber,
-            Address = dto.Address,
-            Token = token,
-            Roles = roles
-        };
+            System.Diagnostics.Debug.WriteLine($"[AuthAdapter.ToModel] Converting UserInfoResponse to User model:");
+            System.Diagnostics.Debug.WriteLine($"  - Id: {dto.Id}");
+            System.Diagnostics.Debug.WriteLine($"  - Username: {dto.Username}");
+            System.Diagnostics.Debug.WriteLine($"  - Email: {dto.Email}");
+            System.Diagnostics.Debug.WriteLine($"  - FullName: {dto.FullName}");
+            System.Diagnostics.Debug.WriteLine($"  - PhoneNumber: {dto.PhoneNumber}");
+            System.Diagnostics.Debug.WriteLine($"  - Address: {dto.Address}");
+            System.Diagnostics.Debug.WriteLine($"  - Avatar: {dto.Avatar}");
+            System.Diagnostics.Debug.WriteLine($"  - IsEmailVerified: {dto.IsEmailVerified}");
+            System.Diagnostics.Debug.WriteLine($"  - IsTrialActive: {dto.IsTrialActive}");
+            System.Diagnostics.Debug.WriteLine($"  - UpdatedAt: {dto.UpdatedAt}");
+            System.Diagnostics.Debug.WriteLine($"  - RoleNames type: {dto.RoleNames?.GetType().FullName ?? "null"}");
+            System.Diagnostics.Debug.WriteLine($"  - RoleNames: {(dto.RoleNames != null ? string.Join(", ", dto.RoleNames) : "null")}");
+
+            var roles = ParseRoles(dto.RoleNames);
+            System.Diagnostics.Debug.WriteLine($"  - Parsed Roles: {string.Join(", ", roles)}");
+
+            return new User
+            {
+                Id = dto.Id,
+                Username = dto.Username,
+                Email = dto.Email,
+                CreatedAt = dto.CreatedAt,
+                UpdatedAt = dto.UpdatedAt,
+                IsTrialActive = dto.IsTrialActive,
+                TrialStartDate = dto.TrialStartDate,
+                TrialEndDate = dto.TrialEndDate,
+                IsEmailVerified = dto.IsEmailVerified,
+                Avatar = dto.Avatar,
+                FullName = dto.FullName,
+                PhoneNumber = dto.PhoneNumber,
+                Address = dto.Address,
+                Token = token,
+                Roles = roles
+            };
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AuthAdapter.ToModel] ✗ ERROR during mapping: {ex.GetType().Name} - {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[AuthAdapter.ToModel] StackTrace: {ex.StackTrace}");
+            throw new InvalidOperationException($"Failed to convert UserInfoResponse to User: {ex.Message}", ex);
+        }
     }
 
     /// <summary>
