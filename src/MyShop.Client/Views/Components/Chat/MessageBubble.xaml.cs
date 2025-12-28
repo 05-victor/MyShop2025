@@ -65,6 +65,22 @@ public sealed partial class MessageBubble : UserControl
         set => SetValue(TimestampProperty, value);
     }
 
+    /// <summary>
+    /// Optional image URL to display in the message.
+    /// </summary>
+    public static readonly DependencyProperty ImageUrlProperty =
+        DependencyProperty.Register(
+            nameof(ImageUrl),
+            typeof(string),
+            typeof(MessageBubble),
+            new PropertyMetadata(null));
+
+    public string? ImageUrl
+    {
+        get => (string?)GetValue(ImageUrlProperty);
+        set => SetValue(ImageUrlProperty, value);
+    }
+
     private static void OnIsUserChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is MessageBubble bubble)

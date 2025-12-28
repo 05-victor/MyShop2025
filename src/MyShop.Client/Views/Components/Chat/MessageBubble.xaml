@@ -21,6 +21,16 @@
                CornerRadius="8"
                HorizontalAlignment="Left">
             <StackPanel Spacing="4">
+                <!-- Bot Image (if present) -->
+                <Border CornerRadius="8"
+                        Visibility="{Binding ImageUrl, ElementName=RootControl, Converter={StaticResource NullToVisibilityConverter}, Mode=OneWay}">
+                    <Image x:Name="MessageImage"
+                           Source="{Binding ImageUrl, ElementName=RootControl, Mode=OneWay}"
+                           MaxWidth="300"
+                           MaxHeight="300"
+                           Stretch="Uniform"/>
+                </Border>
+                
                 <!-- Message Text -->
                 <TextBlock Text="{Binding Message, ElementName=RootControl, Mode=OneWay}"
                           TextWrapping="Wrap"

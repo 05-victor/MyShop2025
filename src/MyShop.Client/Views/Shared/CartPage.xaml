@@ -304,7 +304,7 @@
                                                                                 Style="{StaticResource SecondaryButtonStyle}"
                                                                                 Command="{Binding ElementName=RootPage, Path=ViewModel.DecreaseQuantityCommand}"
                                                                                 CommandParameter="{x:Bind}">
-                                                                            <FontIcon Glyph="&#xE738;" FontSize="{ThemeResource FontSize_2XS}"/>
+                                                                            <FontIcon Glyph="&#xE738;" FontSize="{ThemeResource FontSize_XS}"/>
                                                                         </Button>
                                                                         <Border Width="50"
                                                                                 Padding="8,4"
@@ -322,7 +322,7 @@
                                                                                 Style="{StaticResource PrimaryButtonStyle}"
                                                                                 Command="{Binding ElementName=RootPage, Path=ViewModel.IncreaseQuantityCommand}"
                                                                                 CommandParameter="{x:Bind}">
-                                                                            <FontIcon Glyph="&#xE710;" FontSize="{ThemeResource FontSize_2XS}"/>
+                                                                            <FontIcon Glyph="&#xE710;" FontSize="{ThemeResource FontSize_XS}"/>
                                                                         </Button>
                                                                         <Button Margin="8,0,0,0"
                                                                                 Width="28"
@@ -349,7 +349,7 @@
                                                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                                                TextAlignment="Right"/>
                                                                     <TextBlock Text="each"
-                                                                               FontSize="{ThemeResource FontSize_2XS}"
+                                                                               FontSize="{ThemeResource FontSize_XS}"
                                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                                                TextAlignment="Right"/>
                                                                     <TextBlock Text="{x:Bind Total, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
