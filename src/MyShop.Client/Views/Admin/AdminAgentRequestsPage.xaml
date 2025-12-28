@@ -9,6 +9,7 @@
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Admin"
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:buttons="using:MyShop.Client.Views.Components.Buttons"
+    xmlns:controls="using:MyShop.Client.Views.Components.Controls"
     xmlns:tables="using:MyShop.Client.Views.Components.Tables"
     xmlns:feedback="using:MyShop.Client.Views.Components.Feedback"
     x:Name="MyPage"
@@ -178,19 +179,19 @@
                                              Height="100"
                                              Fill="{ThemeResource SubtleFillColorSecondaryBrush}"/>
                                     <FontIcon
-                                        FontSize="48"
+                                        FontSize="{StaticResource FontSize_5XL}"
                                         Foreground="{ThemeResource Gray500Brush}"
                                         Glyph="&#xE823;"/>
                                 </Grid>
                             </Viewbox>
                             <TextBlock
-                                FontSize="18"
+                                FontSize="{StaticResource FontSize_XL}"
                                 FontWeight="SemiBold"
                                 Foreground="{ThemeResource TextTertiaryBrush}"
                                 Text="No agent requests"
                                 HorizontalAlignment="Center"/>
                             <TextBlock
-                                FontSize="14"
+                                FontSize="{StaticResource FontSize_Base}"
                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Text="There are currently no pending agent requests"
                                 HorizontalAlignment="Center"
@@ -255,11 +256,11 @@
                                                             <StackPanel Orientation="Horizontal"
                                                                         Spacing="6">
                                                                 <FontIcon
-                                                                    FontSize="14"
+                                                                    FontSize="{StaticResource FontSize_Base}"
                                                                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                                     Glyph="&#xE787;"/>
                                                                 <TextBlock
-                                                                    FontSize="13"
+                                                                    FontSize="{StaticResource FontSize_SM}"
                                                                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                                     Text="{x:Bind SubmittedDate}"/>
                                                             </StackPanel>
@@ -267,11 +268,11 @@
                                                         <StackPanel Orientation="Horizontal"
                                                                     Spacing="6">
                                                             <FontIcon
-                                                                FontSize="14"
+                                                                FontSize="{StaticResource FontSize_Base}"
                                                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                                 Glyph="&#xE717;"/>
                                                             <TextBlock
-                                                                FontSize="13"
+                                                                FontSize="{StaticResource FontSize_SM}"
                                                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                                 Text="{x:Bind Phone}"/>
                                                         </StackPanel>
@@ -286,7 +287,7 @@
                                             <!--  Reason  -->
                                             <StackPanel Spacing="8">
                                                 <TextBlock
-                                                    FontSize="13"
+                                                    FontSize="{StaticResource FontSize_SM}"
                                                     FontWeight="SemiBold"
                                                     Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                     Text="Reason:"/>
@@ -295,7 +296,7 @@
                                                     CornerRadius="8"
                                                     Padding="12">
                                                     <TextBlock
-                                                        FontSize="13"
+                                                        FontSize="{StaticResource FontSize_SM}"
                                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                         Text="{x:Bind Reason}"
                                                         TextWrapping="Wrap"/>
@@ -305,7 +306,7 @@
                                             <!--  Experience  -->
                                             <StackPanel Spacing="8">
                                                 <TextBlock
-                                                    FontSize="13"
+                                                    FontSize="{StaticResource FontSize_SM}"
                                                     FontWeight="SemiBold"
                                                     Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                     Text="Experience:"/>
@@ -314,7 +315,7 @@
                                                     CornerRadius="8"
                                                     Padding="{StaticResource Padding_MD}">
                                                     <TextBlock
-                                                        FontSize="13"
+                                                        FontSize="{StaticResource FontSize_SM}"
                                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                         Text="{x:Bind Experience}"
                                                         TextWrapping="Wrap"/>
@@ -366,57 +367,12 @@
                         </ItemsRepeater.ItemTemplate>
                     </ItemsRepeater>
 
-                    <!--  Pagination Controls  -->
-                    <Border
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="1"
-                        CornerRadius="8"
-                        Padding="{ThemeResource Spacing_5}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!--  Previous Button  -->
-                            <buttons:IconButton
-                                Grid.Column="0"
-                                Variant="Outline"
-                                IconGlyph="&#xE76B;"
-                                Text="Previous"
-                                Command="{x:Bind ViewModel.PreviousPageCommand}"/>
-
-                            <!--  Page Info  -->
-                            <StackPanel
-                                Grid.Column="1"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                Spacing="4">
-                                <TextBlock
-                                    FontSize="14"
-                                    FontWeight="SemiBold"
-                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                    HorizontalAlignment="Center"
-                                    Text="{x:Bind ViewModel.PageInfoText, Mode=OneWay}"/>
-                                <TextBlock
-                                    FontSize="12"
-                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                    HorizontalAlignment="Center"
-                                    Text="{x:Bind ViewModel.ItemsInfoText, Mode=OneWay}"/>
-                            </StackPanel>
-
-                            <!--  Next Button  -->
-                            <buttons:IconButton
-                                Grid.Column="2"
-                                Variant="Outline"
-                                IconGlyph="&#xE76C;"
-                                Text="Next"
-                                IconPosition="Right"
-                                Command="{x:Bind ViewModel.NextPageCommand}"/>
-                        </Grid>
-                    </Border>
+                    <!--  Pagination (Migrated to PaginationControl)  -->
+                    <controls:PaginationControl
+                        CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
+                        TotalPages="{x:Bind ViewModel.TotalPages, Mode=OneWay}"
+                        TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
+                        PageSize="{x:Bind ViewModel.PageSize, Mode=TwoWay}"/>
                 </StackPanel>
             </ScrollViewer>
         </Grid>
