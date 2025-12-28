@@ -86,6 +86,16 @@ namespace MyShop.Data
         public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         /// <summary>
+        /// DbSet cho entity AppSetting - quản lý cài đặt toàn cục.
+        /// </summary>
+        public DbSet<AppSetting> AppSettings { get; set; }
+
+        /// <summary>
+        /// DbSet cho entity UserPreference - quản lý cài đặt cá nhân của người dùng.
+        /// </summary>
+        public DbSet<UserPreference> UserPreferences { get; set; }
+
+        /// <summary>
         /// Cấu hình model và relationships khi tạo database.
         /// </summary>
         /// <param name="modelBuilder">Builder để cấu hình model</param>
@@ -245,6 +255,37 @@ namespace MyShop.Data
                 entity.HasOne(rt => rt.User)
                     .WithMany(u => u.RefreshTokens)
                     .HasForeignKey(rt => rt.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // AppSetting configuration
+            modelBuilder.Entity<AppSetting>(entity =>
+            {
+                entity.HasKey(a => a.Id);
+                
+                // Seed default app settings with static datetime values
+                entity.HasData(new AppSetting
+                {
+                    Id = 1,
+                    ShopName = "MyShop 2025",
+                    Address = "123 Main Street",
+                    AppName = "MyShop 2025",
+                    Version = "1.0.0",
+                    ReleaseDate = new DateTime(2025, 11, 1, 0, 0, 0, DateTimeKind.Utc),
+                    License = "Commercial",
+                    Support = "support@myshop.com",
+                    UpdatedAt = new DateTime(2025, 12, 28, 0, 0, 0, DateTimeKind.Utc)
+                });
+            });
+
+            // UserPreference configuration
+            modelBuilder.Entity<UserPreference>(entity =>
+            {
+                entity.HasKey(up => up.UserId);
+                
+                entity.HasOne(up => up.User)
+                    .WithOne()
+                    .HasForeignKey<UserPreference>(up => up.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }
