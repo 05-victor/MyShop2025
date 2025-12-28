@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:components="using:MyShop.Client.Views.Components"
     xmlns:controls="using:MyShop.Client.Views.Controls"
+    xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.Shared"
@@ -96,7 +97,7 @@
                         <!-- Brand Name (Restored) -->
                         <TextBlock
                             AutomationProperties.HeadingLevel="Level1"
-                            FontSize="32"
+                            FontSize="{StaticResource FontSize_5XL}"
                             FontWeight="Bold"
                             HorizontalAlignment="Center"
                             Foreground="{ThemeResource TextFillColorPrimaryBrush}"
@@ -256,7 +257,7 @@
                         <TextBlock
                             Grid.Column="1"
                             Margin="16,0"
-                            FontSize="12"
+                            FontSize="{StaticResource FontSize_SM}"
                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                             Text="OR"/>
                         <Border
