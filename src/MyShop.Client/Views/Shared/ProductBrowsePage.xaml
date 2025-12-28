@@ -97,7 +97,7 @@
                 <EntranceThemeTransition FromVerticalOffset="50"/>
             </TransitionCollection>
         </Grid.Transitions>
-        
+
         <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <Grid x:Name="MainContent"
@@ -304,7 +304,7 @@
                             <!--  Product Card Component Template  -->
                             <GridView.ItemTemplate>
                                 <DataTemplate x:DataType="vm:ProductCardViewModel">
-                                    <cards:ProductCard 
+                                    <cards:ProductCard
                                         Product="{x:Bind Mode=OneWay}"
                                         AddToCartCommand="{Binding ElementName=ProductGridView, Path=DataContext.AddToCartCommand}"
                                         ViewDetailsCommand="{Binding ElementName=ProductGridView, Path=DataContext.ViewProductDetailsCommand}"
@@ -315,15 +315,19 @@
                             </GridView.ItemTemplate>
                             <GridView.ItemContainerStyle>
                                 <Style TargetType="GridViewItem">
-                                    <Setter Property="Margin" Value="8"/>
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                    <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                                    <Setter Property="Margin"
+                                            Value="8"/>
+                                    <Setter Property="HorizontalContentAlignment"
+                                            Value="Stretch"/>
+                                    <Setter Property="VerticalContentAlignment"
+                                            Value="Stretch"/>
                                 </Style>
                             </GridView.ItemContainerStyle>
                         </GridView>
 
                         <!--  Pagination Control (Standardized - Same as AdminUsersPage)  -->
                         <controls:PaginationControl
+                            x:Name="PaginationControlElement"
                             Visibility="{x:Bind ViewModel.ShowPagination, Mode=OneWay}"
                             CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
                             TotalPages="{x:Bind ViewModel.TotalPages, Mode=OneWay}"
@@ -501,8 +505,8 @@
                                             VerticalAlignment="Center"
                                             Spacing="2">
                                     <FontIcon FontSize="{StaticResource FontSize_LG}"
-                                            Foreground="{ThemeResource WarningAmberBrush}"
-                                            Glyph="&#xE735;"/>
+                                              Foreground="{ThemeResource WarningAmberBrush}"
+                                              Glyph="&#xE735;"/>
                                     <TextBlock
                                         x:Name="ViewProductRatingCount"
                                         FontSize="{StaticResource FontSize_SM}"
@@ -533,9 +537,9 @@
                 </StackPanel>
             </ScrollViewer>
         </ContentDialog>
-        
+
         <!-- Loading Overlay -->
-        <components:LoadingOverlay 
+        <components:LoadingOverlay
             IsLoading="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
             Message="Loading products..."/>
     </Grid>

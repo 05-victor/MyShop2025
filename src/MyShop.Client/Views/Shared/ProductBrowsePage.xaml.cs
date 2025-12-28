@@ -23,10 +23,13 @@ namespace MyShop.Client.Views.Shared
             this.InitializeComponent();
             ViewModel = App.Current.Services.GetRequiredService<ProductBrowseViewModel>();
             this.DataContext = ViewModel;
-            
+
             // Wire up product details event
             ViewModel.ProductDetailsRequested += OnProductDetailsRequested;
-            
+
+            // Set page size options for card grid layout
+            PaginationControlElement.PageSizeOptions = ViewModel.CardPageSizeOptions.ToList();
+
             SetupKeyboardShortcuts();
         }
 
@@ -74,7 +77,7 @@ namespace MyShop.Client.Views.Shared
                     // First time navigation - initialize with categories/brands
                     await ViewModel.InitializeAsync();
                 }
-                
+
                 AdjustGridColumns(); // Initial responsive setup
             }
             catch (Exception ex)
@@ -100,7 +103,7 @@ namespace MyShop.Client.Views.Shared
 
             // Use ContentHost ActualWidth (accounts for sidebar/nav)
             var contentWidth = ProductGridView.ActualWidth;
-            
+
             // Task B: Responsive rule - 1400×850 → 3 columns based on CONTENT width
             const double minCardWidth = 240;
             const double cardGap = 16;
@@ -150,10 +153,13 @@ namespace MyShop.Client.Views.Shared
 
         private async void OnPageChanged(object sender, int newPage)
         {
+            // Skip during initialization - prevents extra LoadPageAsync calls during init
+            if (ViewModel.IsInitializing) return;
+
             // PaginationControl already updated CurrentPage in its ChangePage method
             // Just trigger the load - don't check if CurrentPage != newPage
             await ViewModel.GoToPageAsync(newPage);
-            
+
             // Scroll to top after page change for better UX
             if (ProductGridView.ItemsPanelRoot != null)
             {
@@ -164,12 +170,15 @@ namespace MyShop.Client.Views.Shared
 
         private async void OnPageSizeChanged(object sender, int newPageSize)
         {
+            // Skip during initialization - prevents extra RefreshAsync calls during init
+            if (ViewModel.IsInitializing) return;
+
             // PaginationControl already updated PageSize before raising event
             // Just trigger the reload - don't check if PageSize != newPageSize
             ViewModel.PageSize = newPageSize;
             ViewModel.CurrentPage = 1; // Reset to first page
             await ViewModel.RefreshAsync();
-            
+
             // Scroll to top after page size change
             var scrollViewer = FindVisualChild<ScrollViewer>(this);
             scrollViewer?.ChangeView(null, 0, null, false);

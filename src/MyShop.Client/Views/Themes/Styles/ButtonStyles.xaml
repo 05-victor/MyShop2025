@@ -16,7 +16,7 @@
     <!-- ============================================= -->
 
     <Style x:Key="PrimaryButtonStyle"
-            TargetType="Button">
+           TargetType="Button">
         <Setter Property="Height"
                 Value="40"/>
         <Setter Property="Padding"
@@ -86,8 +86,8 @@
 
     <!-- Primary Button - Small -->
     <Style x:Key="PrimaryButtonSmallStyle"
-            TargetType="Button"
-            BasedOn="{StaticResource PrimaryButtonStyle}">
+           TargetType="Button"
+           BasedOn="{StaticResource PrimaryButtonStyle}">
         <Setter Property="Height"
                 Value="32"/>
         <Setter Property="Padding"
@@ -98,8 +98,8 @@
 
     <!-- Primary Button - Large -->
     <Style x:Key="PrimaryButtonLargeStyle"
-            TargetType="Button"
-            BasedOn="{StaticResource PrimaryButtonStyle}">
+           TargetType="Button"
+           BasedOn="{StaticResource PrimaryButtonStyle}">
         <Setter Property="Height"
                 Value="48"/>
         <Setter Property="Padding"
@@ -114,7 +114,7 @@
     <!-- ============================================= -->
 
     <Style x:Key="SecondaryButtonStyle"
-            TargetType="Button">
+           TargetType="Button">
         <Setter Property="Height"
                 Value="40"/>
         <Setter Property="Padding"
@@ -191,8 +191,8 @@
 
     <!-- Secondary Button - Small -->
     <Style x:Key="SecondaryButtonSmallStyle"
-            TargetType="Button"
-            BasedOn="{StaticResource SecondaryButtonStyle}">
+           TargetType="Button"
+           BasedOn="{StaticResource SecondaryButtonStyle}">
         <Setter Property="Height"
                 Value="32"/>
         <Setter Property="Padding"
@@ -203,8 +203,8 @@
 
     <!-- Secondary Button - Large -->
     <Style x:Key="SecondaryButtonLargeStyle"
-            TargetType="Button"
-            BasedOn="{StaticResource SecondaryButtonStyle}">
+           TargetType="Button"
+           BasedOn="{StaticResource SecondaryButtonStyle}">
         <Setter Property="Height"
                 Value="48"/>
         <Setter Property="Padding"
@@ -219,7 +219,7 @@
     <!-- ============================================= -->
 
     <Style x:Key="DangerButtonStyle"
-            TargetType="Button">
+           TargetType="Button">
         <Setter Property="Height"
                 Value="40"/>
         <Setter Property="Padding"
@@ -287,8 +287,8 @@
 
     <!-- Danger Button - Small -->
     <Style x:Key="DangerButtonSmallStyle"
-            TargetType="Button"
-            BasedOn="{StaticResource DangerButtonStyle}">
+           TargetType="Button"
+           BasedOn="{StaticResource DangerButtonStyle}">
         <Setter Property="Height"
                 Value="32"/>
         <Setter Property="Padding"
@@ -299,8 +299,8 @@
 
     <!-- Danger Button - Large -->
     <Style x:Key="DangerButtonLargeStyle"
-            TargetType="Button"
-            BasedOn="{StaticResource DangerButtonStyle}">
+           TargetType="Button"
+           BasedOn="{StaticResource DangerButtonStyle}">
         <Setter Property="Height"
                 Value="48"/>
         <Setter Property="Padding"
@@ -315,7 +315,7 @@
     <!-- ============================================= -->
 
     <Style x:Key="SuccessButtonStyle"
-            TargetType="Button">
+           TargetType="Button">
         <Setter Property="Height"
                 Value="40"/>
         <Setter Property="Padding"
@@ -383,8 +383,8 @@
 
     <!-- Success Button - Small -->
     <Style x:Key="SuccessButtonSmallStyle"
-            TargetType="Button"
-            BasedOn="{StaticResource SuccessButtonStyle}">
+           TargetType="Button"
+           BasedOn="{StaticResource SuccessButtonStyle}">
         <Setter Property="Height"
                 Value="32"/>
         <Setter Property="Padding"
@@ -395,8 +395,8 @@
 
     <!-- Success Button - Large -->
     <Style x:Key="SuccessButtonLargeStyle"
-            TargetType="Button"
-            BasedOn="{StaticResource SuccessButtonStyle}">
+           TargetType="Button"
+           BasedOn="{StaticResource SuccessButtonStyle}">
         <Setter Property="Height"
                 Value="48"/>
         <Setter Property="Padding"
@@ -411,7 +411,7 @@
     <!-- ============================================= -->
 
     <Style x:Key="IconButtonStyle"
-            TargetType="Button">
+           TargetType="Button">
         <Setter Property="Width"
                 Value="36"/>
         <Setter Property="Height"
@@ -471,8 +471,8 @@
 
     <!-- Icon Button - Small (32x32) -->
     <Style x:Key="IconButtonSmallStyle"
-            TargetType="Button"
-            BasedOn="{StaticResource IconButtonStyle}">
+           TargetType="Button"
+           BasedOn="{StaticResource IconButtonStyle}">
         <Setter Property="Width"
                 Value="32"/>
         <Setter Property="Height"
@@ -481,8 +481,8 @@
 
     <!-- Icon Button - Large (40x40) -->
     <Style x:Key="IconButtonLargeStyle"
-            TargetType="Button"
-            BasedOn="{StaticResource IconButtonStyle}">
+           TargetType="Button"
+           BasedOn="{StaticResource IconButtonStyle}">
         <Setter Property="Width"
                 Value="40"/>
         <Setter Property="Height"
@@ -491,8 +491,8 @@
 
     <!-- Icon Button - Danger (for Delete action) -->
     <Style x:Key="DangerIconButtonStyle"
-            TargetType="Button"
-            BasedOn="{StaticResource IconButtonStyle}">
+           TargetType="Button"
+           BasedOn="{StaticResource IconButtonStyle}">
         <Setter Property="Foreground"
                 Value="{ThemeResource DangerBrush}"/>
     </Style>
@@ -503,7 +503,7 @@
     <!-- ============================================= -->
 
     <Style x:Key="TextButtonStyle"
-            TargetType="Button">
+           TargetType="Button">
         <Setter Property="Height"
                 Value="36"/>
         <Setter Property="Padding"
@@ -569,7 +569,7 @@
     <!-- ============================================= -->
 
     <Style x:Key="LinkButtonStyle"
-            TargetType="HyperlinkButton">
+           TargetType="HyperlinkButton">
         <Setter Property="FontSize"
                 Value="{StaticResource FontSize_SM}"/>
         <Setter Property="Padding"
@@ -584,7 +584,7 @@
     <!-- ============================================= -->
 
     <Style x:Key="TabRadioButtonStyle"
-            TargetType="RadioButton">
+           TargetType="RadioButton">
         <Setter Property="Padding"
                 Value="16,10"/>
         <Setter Property="FontSize"
@@ -642,7 +642,7 @@
 
     <!-- IconButton Ghost: Transparent, no border -->
     <Style x:Key="IconButtonGhostStyle"
-            TargetType="Button">
+           TargetType="Button">
         <Setter Property="Background"
                 Value="Transparent"/>
         <Setter Property="Foreground"
@@ -699,7 +699,7 @@
 
     <!-- IconButton Outline: Border with transparent background -->
     <Style x:Key="IconButtonOutlineStyle"
-            TargetType="Button">
+           TargetType="Button">
         <Setter Property="Background"
                 Value="Transparent"/>
         <Setter Property="Foreground"
@@ -762,7 +762,7 @@
 
     <!-- IconButton Filled: Colored background -->
     <Style x:Key="IconButtonFilledStyle"
-            TargetType="Button">
+           TargetType="Button">
         <Setter Property="Background"
                 Value="{ThemeResource PrimaryBrush}"/>
         <Setter Property="Foreground"
@@ -825,7 +825,7 @@
     <!-- ============================================= -->
 
     <Style x:Key="FloatingActionButtonStyle"
-            TargetType="Button">
+           TargetType="Button">
         <Setter Property="Background"
                 Value="{ThemeResource AccentFillColorDefaultBrush}"/>
         <Setter Property="Foreground"
@@ -905,7 +905,7 @@
     <!-- ============================================= -->
 
     <Style x:Key="IconToggleButtonStyle"
-            TargetType="Button">
+           TargetType="Button">
         <Setter Property="Background"
                 Value="Transparent"/>
         <Setter Property="Foreground"
@@ -982,8 +982,8 @@
     <!-- ============================================= -->
 
     <Style x:Key="AccentButtonStyle"
-            TargetType="Button"
-            BasedOn="{StaticResource PrimaryButtonStyle}"/>
+           TargetType="Button"
+           BasedOn="{StaticResource PrimaryButtonStyle}"/>
 
     <!-- ============================================= -->
     <!-- LEGACY ALIASES (For backward compatibility)  -->
@@ -992,13 +992,13 @@
 
     <!-- SmallSuccessButtonStyle → SuccessButtonSmallStyle -->
     <Style x:Key="SmallSuccessButtonStyle"
-            TargetType="Button"
-            BasedOn="{StaticResource SuccessButtonSmallStyle}"/>
+           TargetType="Button"
+           BasedOn="{StaticResource SuccessButtonSmallStyle}"/>
 
     <!-- SmallDangerButtonStyle → DangerButtonSmallStyle -->
     <Style x:Key="SmallDangerButtonStyle"
-            TargetType="Button"
-            BasedOn="{StaticResource DangerButtonSmallStyle}"/>
+           TargetType="Button"
+           BasedOn="{StaticResource DangerButtonSmallStyle}"/>
 
     <!-- ============================================= -->
     <!-- PAGINATION BUTTON STYLES                     -->
@@ -1006,7 +1006,7 @@
     <!-- ============================================= -->
 
     <Style x:Key="PaginationButtonStyle"
-            TargetType="Button">
+           TargetType="Button">
         <Setter Property="Background"
                 Value="Transparent"/>
         <Setter Property="BorderBrush"
@@ -1060,7 +1060,8 @@
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
 
-                        <ContentPresenter Content="{TemplateBinding Content}"
+                        <ContentPresenter x:Name="ContentPresenter"
+                                          Content="{TemplateBinding Content}"
                                           HorizontalAlignment="Center"
                                           VerticalAlignment="Center"/>
                     </Grid>
@@ -1070,8 +1071,8 @@
     </Style>
 
     <Style x:Key="PaginationActiveButtonStyle"
-            TargetType="Button"
-            BasedOn="{StaticResource PaginationButtonStyle}">
+           TargetType="Button"
+           BasedOn="{StaticResource PaginationButtonStyle}">
         <Setter Property="Background"
                 Value="{ThemeResource AccentFillColorDefaultBrush}"/>
         <Setter Property="Foreground"
@@ -1085,7 +1086,7 @@
     <!-- Use for: Status filters, category toggles    -->
     <!-- ============================================= -->
     <Style x:Key="FilterToggleButtonStyle"
-            TargetType="ToggleButton">
+           TargetType="ToggleButton">
         <Setter Property="Background"
                 Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
         <Setter Property="Foreground"
