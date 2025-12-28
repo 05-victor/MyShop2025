@@ -23,21 +23,17 @@ public class MockAuthRepository : IAuthRepository
         {
             var result = await MockAuthData.LoginAsync(usernameOrEmail, password);
 
-            // Only save tokens if remember me is enabled
-            if (result.IsSuccess && result.Data != null && rememberMe)
+            // Always save tokens (to session memory)
+            // persistToFile=true only if rememberMe=true (saves to persistent storage)
+            if (result.IsSuccess && result.Data != null)
             {
                 var user = result.Data;
-                // Mock data has tokens - save them if rememberMe is true
                 if (!string.IsNullOrEmpty(user.Token))
                 {
                     var refreshToken = user.Token; // Mock uses same token for simplicity
-                    await _credentialStorage.SaveToken(user.Token, refreshToken);
-                    System.Diagnostics.Debug.WriteLine($"[MockAuthRepository] Saved tokens (rememberMe=true)");
+                    await _credentialStorage.SaveToken(user.Token, refreshToken, persistToFile: rememberMe);
+                    System.Diagnostics.Debug.WriteLine($"[MockAuthRepository] Saved tokens - AccessToken: yes, RefreshToken: yes, Persist: {rememberMe}");
                 }
-            }
-            else if (result.IsSuccess)
-            {
-                System.Diagnostics.Debug.WriteLine($"[MockAuthRepository] Tokens NOT saved (rememberMe=false)");
             }
 
             return result;

@@ -193,10 +193,11 @@ namespace MyShop.Client.Config
                             client.Timeout = apiOptions.Timeout;
                         }
 
-                        // IAuthApi should NOT use AuthHeaderHandler to avoid circular dependency
-                        // (AuthHeaderHandler uses IAuthApi for token refresh)
+                        // IAuthApi NOW uses AuthHeaderHandler - circular dependency solved via lazy IServiceProvider
+                        // This ensures /users/me has Authorization header and benefits from token refresh
                         services.AddRefitClient<IAuthApi>()
-                            .ConfigureHttpClient(ConfigureApiClient);
+                            .ConfigureHttpClient(ConfigureApiClient)
+                            .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
 
                         services.AddRefitClient<IDashboardApi>()
                             .ConfigureHttpClient(ConfigureApiClient)

@@ -94,14 +94,14 @@ public class AuthFacade : IAuthFacade
             // Step 3: Set current user for per-user storage
             SetCurrentUserForStorage(user.Id.ToString());
 
-            // Step 4: Tokens were already saved by AuthRepository if rememberMe=true
+            // Step 4: Tokens saved to session memory by AuthRepository; persistence controlled by rememberMe
             if (rememberMe)
             {
-                System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] Tokens saved by AuthRepository (rememberMe=true)");
+                System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] Tokens saved to session + persistent storage (rememberMe=true)");
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] Tokens NOT saved (rememberMe=false)");
+                System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] Tokens saved to session memory only; persistent storage skipped (rememberMe=false)");
             }
 
             // Step 5: Fetch complete user profile from GetMe endpoint

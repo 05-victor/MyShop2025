@@ -14,6 +14,13 @@ namespace MyShop.Plugins.Http.Handlers;
 /// NOTE: Uses IServiceProvider instead of direct IAuthApi dependency
 /// to avoid circular dependency during DI container initialization.
 /// IAuthApi is resolved lazily only when token refresh is needed.
+///
+/// CRITICAL: This handler MUST be in the pipeline for ALL API clients including IAuthApi.
+/// Previously IAuthApi was excluded to "avoid circular dependency" but that caused:
+/// - /users/me sent without Authorization header after login
+/// - 401 response caused AuthRepository to clear session tokens
+/// - All subsequent API calls failed
+/// The circular dependency is solved by lazy IServiceProvider resolution (see RefreshTokenAsync).
 /// </summary>
 public class AuthHeaderHandler : DelegatingHandler
 {
@@ -34,9 +41,17 @@ public class AuthHeaderHandler : DelegatingHandler
     {
         // Step 1: Add current access token to request
         var token = _credentialStorage.GetToken();
-        if (!string.IsNullOrEmpty(token))
+        var hasToken = !string.IsNullOrEmpty(token);
+        System.Diagnostics.Debug.WriteLine($"[AuthHeaderHandler.SendAsync] {request.Method} {request.RequestUri?.PathAndQuery} - Token: {(hasToken ? "exists" : "NULL")}");
+        
+        if (hasToken)
         {
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            System.Diagnostics.Debug.WriteLine($"[AuthHeaderHandler.SendAsync] Authorization header attached");
+        }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine($"[AuthHeaderHandler.SendAsync] WARNING: No token available, request will be sent without Authorization header");
         }
 
         // Step 2: Send the request
