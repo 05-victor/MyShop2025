@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Configuration;
@@ -193,9 +193,10 @@ namespace MyShop.Client.Config
                             client.Timeout = apiOptions.Timeout;
                         }
 
+                        // IAuthApi should NOT use AuthHeaderHandler to avoid circular dependency
+                        // (AuthHeaderHandler uses IAuthApi for token refresh)
                         services.AddRefitClient<IAuthApi>()
-                            .ConfigureHttpClient(ConfigureApiClient)
-                            .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
+                            .ConfigureHttpClient(ConfigureApiClient);
 
                         services.AddRefitClient<IDashboardApi>()
                             .ConfigureHttpClient(ConfigureApiClient)
@@ -381,9 +382,6 @@ namespace MyShop.Client.Config
                     services.AddTransient<ViewModels.Shell.DashboardShellViewModel>();
                     services.AddTransient<ViewModels.Settings.SettingsViewModel>();
                     services.AddTransient<ViewModels.Settings.TrialActivationViewModel>();
-                    
-                    // Component ViewModels
-                    services.AddTransient<ViewModels.Components.ChatFlyoutViewModel>();
                 })
                 .Build();
         }
