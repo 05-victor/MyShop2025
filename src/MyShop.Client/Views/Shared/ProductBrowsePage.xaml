@@ -161,7 +161,7 @@
                                     <!--  Category  -->
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="Category"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource FontSize_SM}"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                    Margin="0,0,0,8"/>
@@ -178,7 +178,7 @@
                                     <!--  Brand  -->
                                     <StackPanel Grid.Column="1">
                                         <TextBlock Text="Brand"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource FontSize_SM}"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                    Margin="0,0,0,8"/>
@@ -195,7 +195,7 @@
                                     <!--  Sort  -->
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="Sort By"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource FontSize_SM}"
                                                    FontWeight="SemiBold"
                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                    Margin="0,0,0,8"/>
@@ -242,19 +242,19 @@
                                                  Height="120"
                                                  Fill="{ThemeResource Gray100Brush}"/>
                                         <FontIcon
-                                            FontSize="64"
+                                            FontSize="{StaticResource FontSize_5XL}"
                                             Foreground="{ThemeResource Gray500Brush}"
                                             Glyph="&#xE721;"/>
                                     </Grid>
                                 </Viewbox>
                                 <TextBlock
-                                    FontSize="20"
+                                    FontSize="{StaticResource FontSize_2XL}"
                                     FontWeight="SemiBold"
                                     Foreground="{ThemeResource TextTertiaryBrush}"
                                     Text="No products found"
                                     TextAlignment="Center"/>
                                 <TextBlock
-                                    FontSize="14"
+                                    FontSize="{StaticResource FontSize_Base}"
                                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                     Text="Try adjusting your filters or search query"
                                     TextAlignment="Center"
@@ -266,7 +266,7 @@
                                     ToolTipService.ToolTip="Clear all filters">
                                     <StackPanel Orientation="Horizontal"
                                                 Spacing="8">
-                                        <FontIcon FontSize="16"
+                                        <FontIcon FontSize="{StaticResource FontSize_LG}"
                                                   Glyph="&#xE894;"
                                                   Foreground="{ThemeResource Gray600Brush}"/>
                                         <TextBlock Text="Clear Filters"
@@ -363,7 +363,7 @@
                                 Stretch="UniformToFill"/>
                             <FontIcon
                                 x:Name="ViewProductImagePlaceholder"
-                                FontSize="48"
+                                FontSize="{StaticResource FontSize_5XL}"
                                 Foreground="{ThemeResource Gray500Brush}"
                                 Glyph="&#xE8B9;"
                                 HorizontalAlignment="Center"
@@ -374,13 +374,13 @@
                     <!--  Product Name  -->
                     <StackPanel Spacing="4">
                         <TextBlock
-                            FontSize="12"
+                            FontSize="{StaticResource FontSize_SM}"
                             FontWeight="SemiBold"
                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                             Text="PRODUCT NAME"/>
                         <TextBlock
                             x:Name="ViewProductName"
-                            FontSize="18"
+                            FontSize="{StaticResource FontSize_XL}"
                             FontWeight="Bold"
                             Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                             TextWrapping="Wrap"/>
@@ -396,7 +396,7 @@
                         <StackPanel Grid.Column="0"
                                     Spacing="4">
                             <TextBlock
-                                FontSize="12"
+                                FontSize="{StaticResource FontSize_SM}"
                                 FontWeight="SemiBold"
                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Text="CATEGORY"/>
@@ -407,7 +407,7 @@
                                 HorizontalAlignment="Left">
                                 <TextBlock
                                     x:Name="ViewProductCategory"
-                                    FontSize="12"
+                                    FontSize="{StaticResource FontSize_SM}"
                                     FontWeight="SemiBold"
                                     Foreground="{ThemeResource PurpleDarkBrush}"/>
                             </Border>
@@ -416,13 +416,13 @@
                         <StackPanel Grid.Column="1"
                                     Spacing="4">
                             <TextBlock
-                                FontSize="12"
+                                FontSize="{StaticResource FontSize_SM}"
                                 FontWeight="SemiBold"
                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Text="MANUFACTURER"/>
                             <TextBlock
                                 x:Name="ViewProductManufacturer"
-                                FontSize="14"
+                                FontSize="{StaticResource FontSize_Base}"
                                 Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                         </StackPanel>
                     </Grid>
@@ -435,14 +435,14 @@
                         <StackPanel Spacing="4"
                                     HorizontalAlignment="Center">
                             <TextBlock
-                                FontSize="12"
+                                FontSize="{StaticResource FontSize_SM}"
                                 FontWeight="SemiBold"
                                 Foreground="{ThemeResource SuccessGreenDarkBrush}"
                                 Text="PRICE"
                                 HorizontalAlignment="Center"/>
                             <TextBlock
                                 x:Name="ViewProductPrice"
-                                FontSize="28"
+                                FontSize="{StaticResource FontSize_4XL}"
                                 FontWeight="Bold"
                                 Foreground="{ThemeResource SuccessGreenDarkBrush}"
                                 HorizontalAlignment="Center"/>
@@ -459,7 +459,7 @@
                         <StackPanel Grid.Column="0"
                                     Spacing="4">
                             <TextBlock
-                                FontSize="12"
+                                FontSize="{StaticResource FontSize_SM}"
                                 FontWeight="SemiBold"
                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Text="STOCK"/>
@@ -467,7 +467,7 @@
                                         Spacing="8">
                                 <TextBlock
                                     x:Name="ViewProductStock"
-                                    FontSize="24"
+                                    FontSize="{StaticResource FontSize_3XL}"
                                     FontWeight="Bold"
                                     Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                 <Border
@@ -477,7 +477,7 @@
                                     VerticalAlignment="Center">
                                     <TextBlock
                                         x:Name="ViewProductStockStatus"
-                                        FontSize="12"
+                                        FontSize="{StaticResource FontSize_SM}"
                                         FontWeight="SemiBold"/>
                                 </Border>
                             </StackPanel>
@@ -486,7 +486,7 @@
                         <StackPanel Grid.Column="1"
                                     Spacing="4">
                             <TextBlock
-                                FontSize="12"
+                                FontSize="{StaticResource FontSize_SM}"
                                 FontWeight="SemiBold"
                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Text="RATING"/>
@@ -494,18 +494,18 @@
                                         Spacing="8">
                                 <TextBlock
                                     x:Name="ViewProductRating"
-                                    FontSize="24"
+                                    FontSize="{StaticResource FontSize_3XL}"
                                     FontWeight="Bold"
                                     Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                 <StackPanel Orientation="Horizontal"
                                             VerticalAlignment="Center"
                                             Spacing="2">
-                                    <FontIcon FontSize="16"
+                                    <FontIcon FontSize="{StaticResource FontSize_LG}"
                                             Foreground="{ThemeResource WarningAmberBrush}"
                                             Glyph="&#xE735;"/>
                                     <TextBlock
                                         x:Name="ViewProductRatingCount"
-                                        FontSize="12"
+                                        FontSize="{StaticResource FontSize_SM}"
                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                         VerticalAlignment="Center"/>
                                 </StackPanel>
@@ -524,7 +524,7 @@
                         Click="DialogAddToCartButton_Click">
                         <StackPanel Orientation="Horizontal"
                                     Spacing="8">
-                            <FontIcon FontSize="16"
+                            <FontIcon FontSize="{StaticResource FontSize_LG}"
                                       Glyph="&#xE7BF;"/>
                             <TextBlock Text="Add to Cart"
                                        FontWeight="SemiBold"/>
