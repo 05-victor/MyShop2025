@@ -961,6 +961,11 @@ public class ReportFacade : IReportFacade
     {
         return Result<AdminReportsResponse>.Failure("Not implemented - use ReportFacade from Reports folder");
     }
+
+    public async Task<Result<SalesAgentReportsResponse>> GetSalesAgentReportsAsync(string period = "week", Guid? categoryId = null)
+    {
+        return Result<SalesAgentReportsResponse>.Failure("Not implemented - use ReportFacade from Reports folder");
+    }
 }
 
 #endregion

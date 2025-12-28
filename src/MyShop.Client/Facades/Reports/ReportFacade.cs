@@ -257,4 +257,36 @@ public class ReportFacade : IReportFacade
             return Result<AdminReportsResponse>.Failure($"Error: {ex.Message}");
         }
     }
+
+    /// <summary>
+    /// Get sales agent personal reports (revenue trend, orders by category, top products)
+    /// </summary>
+    public async Task<Result<SalesAgentReportsResponse>> GetSalesAgentReportsAsync(string period = "week", Guid? categoryId = null)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[ReportFacade] Calling GetSalesAgentReportsAsync: period={period}, categoryId={categoryId}");
+
+            var response = await _dashboardApi.GetSalesAgentReportsAsync(period, categoryId);
+
+            if (response.IsSuccessStatusCode && response.Content?.Result != null)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[ReportFacade] ✅ GetSalesAgentReportsAsync Success: " +
+                    $"RevenueTrend={response.Content.Result.RevenueTrend?.Count ?? 0}, " +
+                    $"OrdersByCategory={response.Content.Result.OrdersByCategory?.Count ?? 0}, " +
+                    $"TopProducts={response.Content.Result.TopProducts?.Count ?? 0}");
+                return Result<SalesAgentReportsResponse>.Success(response.Content.Result);
+            }
+
+            var errorMsg = response.Content?.Message ?? $"API returned {response.StatusCode}";
+            System.Diagnostics.Debug.WriteLine($"[ReportFacade] API Error: {errorMsg}");
+            return Result<SalesAgentReportsResponse>.Failure(errorMsg);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ReportFacade] Exception in GetSalesAgentReportsAsync: {ex.Message}");
+            return Result<SalesAgentReportsResponse>.Failure($"Error: {ex.Message}");
+        }
+    }
 }

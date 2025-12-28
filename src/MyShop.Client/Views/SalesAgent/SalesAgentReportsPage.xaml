@@ -33,14 +33,15 @@
     <Grid>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="ResponsiveStates">
-                
+
                 <!-- Large Desktop: 1920px+ -->
                 <VisualState x:Name="LargeDesktopState">
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="1920"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="40"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="40"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -50,7 +51,8 @@
                         <AdaptiveTrigger MinWindowWidth="1280"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="32"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="32"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -60,7 +62,8 @@
                         <AdaptiveTrigger MinWindowWidth="960"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="24"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="24"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -70,7 +73,8 @@
                         <AdaptiveTrigger MinWindowWidth="640"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="20"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="20"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -80,10 +84,11 @@
                         <AdaptiveTrigger MinWindowWidth="0"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="16"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="16"/>
                     </VisualState.Setters>
                 </VisualState>
-                
+
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
@@ -96,7 +101,8 @@
             </Grid.Transitions>
             <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
                 <ScrollViewer>
-                    <StackPanel x:Name="MainContent" Padding="24"
+                    <StackPanel x:Name="MainContent"
+                            Padding="24"
                                 Spacing="24">
 
                         <layout:PageHeader
@@ -123,7 +129,7 @@
                                         ItemsSource="{x:Bind ViewModel.DateRanges, Mode=OneWay}"
                                         DisplayMemberPath="Display"
                                         SelectedValuePath="Value"
-                                        SelectedItem="{x:Bind ViewModel.SelectedDateRange, Mode=TwoWay}"/>
+                                        SelectedValue="{x:Bind ViewModel.SelectedDateRange, Mode=TwoWay}"/>
 
                                     <forms:LabeledComboBox
                                         Grid.Column="1"
@@ -131,7 +137,10 @@
                                         ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
                                         SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"/>
 
-                                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom">
+                                    <StackPanel Grid.Column="2"
+                                            Orientation="Horizontal"
+                                            Spacing="8"
+                                            VerticalAlignment="Bottom">
                                         <buttons:IconButton
                                             Variant="Outline"
                                             IconGlyph="&#xE74E;"
@@ -240,9 +249,12 @@
                                               MaxHeight="400">
                                         <ListView.ItemContainerStyle>
                                             <Style TargetType="ListViewItem">
-                                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                                <Setter Property="Padding" Value="0"/>
-                                                <Setter Property="Margin" Value="0"/>
+                                                <Setter Property="HorizontalContentAlignment"
+                                                        Value="Stretch"/>
+                                                <Setter Property="Padding"
+                                                        Value="0"/>
+                                                <Setter Property="Margin"
+                                                        Value="0"/>
                                             </Style>
                                         </ListView.ItemContainerStyle>
                                         <ListView.ItemTemplate>

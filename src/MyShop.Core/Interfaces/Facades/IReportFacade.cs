@@ -60,6 +60,14 @@ public interface IReportFacade
         Guid? categoryId = null,
         int pageNumber = 1,
         int pageSize = 10);
+
+    /// <summary>
+    /// Get sales agent personal reports with revenue trend, orders by category, and top products
+    /// Supports filtering by period and optional category
+    /// </summary>
+    Task<Result<SalesAgentReportsResponse>> GetSalesAgentReportsAsync(
+        string period = "week",
+        Guid? categoryId = null);
 }
 
 /// <summary>

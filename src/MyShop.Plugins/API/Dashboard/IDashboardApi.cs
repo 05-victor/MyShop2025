@@ -60,4 +60,17 @@ public interface IDashboardApi
         [Query] Guid? categoryId = null,
         [Query] int pageNumber = 1,
         [Query] int pageSize = 10);
+
+    /// <summary>
+    /// GET /api/v1/dashboard/sales-agent-reports
+    /// Get sales agent personal reports (revenue trends, orders by category, top products)
+    /// Data is filtered to show only the current sales agent's performance
+    /// Requires SalesAgent role
+    /// </summary>
+    /// <param name="period">Report period: "day", "week", "month", "year" (default: "week")</param>
+    /// <param name="categoryId">Optional category ID filter for top products</param>
+    [Get("/api/v1/dashboard/sales-agent-reports")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<SalesAgentReportsResponse>>> GetSalesAgentReportsAsync(
+        [Query] string period = "week",
+        [Query] Guid? categoryId = null);
 }
