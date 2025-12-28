@@ -24,35 +24,17 @@ public sealed partial class ChatPanel : UserControl
     {
         SuggestionsPanel.Children.Clear();
         var prompts = _chatService?.GetSuggestedPrompts() ?? new[] { "How can I help you?" };
+        
+        // Get the style from resources
+        var buttonStyle = Resources["SuggestionButtonStyle"] as Style;
+        
         foreach (var prompt in prompts)
         {
             var button = new Button
             {
                 Content = prompt,
-                FontSize = 12,
-                Padding = new Thickness(12, 6, 12, 6),
-                CornerRadius = new CornerRadius(16),
-                BorderThickness = new Thickness(1)
+                Style = buttonStyle // Apply XAML-defined style
             };
-            
-            // Use theme-aware resources
-            if (Application.Current.Resources.TryGetValue("SubtleFillColorSecondaryBrush", out var bgBrush) 
-                && bgBrush is Microsoft.UI.Xaml.Media.Brush background)
-            {
-                button.Background = background;
-            }
-            
-            if (Application.Current.Resources.TryGetValue("CardStrokeColorDefaultBrush", out var borderBrush) 
-                && borderBrush is Microsoft.UI.Xaml.Media.Brush border)
-            {
-                button.BorderBrush = border;
-            }
-            
-            if (Application.Current.Resources.TryGetValue("TextPrimaryBrush", out var textBrush) 
-                && textBrush is Microsoft.UI.Xaml.Media.Brush foreground)
-            {
-                button.Foreground = foreground;
-            }
             
             button.Click += SuggestionButton_Click;
             SuggestionsPanel.Children.Add(button);

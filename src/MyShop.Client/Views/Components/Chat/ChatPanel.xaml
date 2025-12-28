@@ -17,6 +17,54 @@
     Uses PanelBackgroundBrush for proper theme-aware background.
     -->
 
+    <UserControl.Resources>
+        <!-- Suggestion Button Style with proper theme support -->
+        <Style x:Key="SuggestionButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{ThemeResource SubtleFillColorSecondaryBrush}"/>
+            <Setter Property="Foreground" Value="{ThemeResource TextFillColorPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="RootBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter x:Name="ContentPresenter"
+                                            Content="{TemplateBinding Content}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal"/>
+                                    <VisualState x:Name="PointerOver">
+                                        <VisualState.Setters>
+                                            <Setter Target="RootBorder.Background" Value="{ThemeResource SubtleFillColorTertiaryBrush}"/>
+                                            <Setter Target="RootBorder.BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <VisualState.Setters>
+                                            <Setter Target="RootBorder.Background" Value="{ThemeResource SubtleFillColorTertiaryBrush}"/>
+                                            <Setter Target="RootBorder.BorderBrush" Value="{ThemeResource AccentBlueBrush}"/>
+                                            <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource AccentBlueBrush}"/>
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
     <Border Background="{ThemeResource PanelBackgroundBrush}"
             CornerRadius="8"
             BorderBrush="{ThemeResource CardStrokeBrush}"
@@ -49,7 +97,7 @@
                     <Border Grid.Column="0" 
                            Width="36" Height="36" 
                            CornerRadius="18"
-                           Background="{ThemeResource CardBackgroundBrush}"
+                           Background="{ThemeResource WhiteBrush}"
                            Margin="0,0,12,0">
                         <FontIcon Glyph="&#xE99A;" FontSize="18" Foreground="{ThemeResource PrimaryBrush}"/>
                     </Border>
