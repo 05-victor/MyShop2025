@@ -267,7 +267,7 @@ public partial class LoginViewModel : BaseViewModel
     [RelayCommand]
     private async Task ForgotPasswordAsync()
     {
-        await _toastHelper.ShowInfo("Password recovery feature coming soon!");
+        await _toastHelper.ShowInfo("Password recovery feature is now available! Please contact support or use the API endpoint /api/v1/password-reset/forgot-password");
     }
 
     [RelayCommand]

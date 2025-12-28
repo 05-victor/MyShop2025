@@ -13,6 +13,7 @@ using AutoMapper;
 using MyShop.Server.Factories.Implementations;
 using MyShop.Server.Factories.Interfaces;
 using MyShop.Server.Middleware;
+using MyShop.Server.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,11 +23,17 @@ builder.Services.AddControllers();
 // Add HttpContextAccessor for accessing HttpContext in services
 builder.Services.AddHttpContextAccessor();
 
+// Add Memory Cache for password reset codes
+builder.Services.AddMemoryCache();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(Program));
+
+// Configure EmailSettings
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 // Configuration is automatically loaded from appsettings.json
 // No need to configure separate settings classes
@@ -147,9 +154,9 @@ builder.Services.AddScoped<IUserAuthorityService, UserAuthorityService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
-builder.Services.AddScoped<IEmailNotificationService, EmailNotificationService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
+builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
@@ -159,8 +166,20 @@ builder.Services.AddScoped<IEarningsService, EarningsService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<ISettingsService, SettingsService>();
 
-// Register HttpClient for EmailNotificationService
-builder.Services.AddHttpClient<IEmailNotificationService, EmailNotificationService>();
+// Register HttpClient for EmailNotificationService with API key header
+builder.Services.AddHttpClient<IEmailNotificationService, EmailNotificationService>((serviceProvider, client) =>
+{
+    var emailSettings = builder.Configuration.GetSection("EmailSettings").Get<EmailSettings>();
+    if (emailSettings != null)
+    {
+        var decodedApiKey = emailSettings.GetDecodedApiKey();
+        if (!string.IsNullOrEmpty(decodedApiKey))
+        {
+            client.DefaultRequestHeaders.Add("api-key", decodedApiKey);
+            client.DefaultRequestHeaders.Add("Accept", "application/json");
+        }
+    }
+});
 
 // Register HttpClient and FileUploadService
 builder.Services.AddHttpClient();
