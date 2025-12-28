@@ -36,4 +36,30 @@ public interface IDashboardService
     /// <param name="period">Chart period: "day" (hourly), "week" (daily), "month" (daily), "year" (monthly)</param>
     /// <returns>Chart data with labels, revenue data, and commission data</returns>
     Task<AdminRevenueChartResponse> GetAdminRevenueChartAsync(string period = "week");
+
+    /// <summary>
+    /// Get consolidated admin reports data (Admin only)
+    /// Returns all report metrics in a single API call for optimal performance
+    /// </summary>
+    /// <param name="from">Start date (inclusive)</param>
+    /// <param name="to">End date (inclusive)</param>
+    /// <param name="categoryId">Optional category filter for product summary</param>
+    /// <param name="pageNumber">Page number for product summary (default: 1)</param>
+    /// <param name="pageSize">Page size for product summary (default: 10)</param>
+    /// <returns>Consolidated admin reports data</returns>
+    Task<AdminReportsResponse> GetAdminReportsAsync(
+        DateTime from,
+        DateTime to,
+        Guid? categoryId = null,
+        int pageNumber = 1,
+        int pageSize = 10);
+
+    /// <summary>
+    /// Get sales agent personal reports (Sales Agent only)
+    /// Returns revenue trends, orders by category, and top products for the current sales agent
+    /// </summary>
+    /// <param name="period">Report period: "day", "week", "month", "year"</param>
+    /// <param name="categoryId">Optional category filter</param>
+    /// <returns>Sales agent reports data</returns>
+    Task<SalesAgentReportsResponse> GetSalesAgentReportsAsync(string period, Guid? categoryId = null);
 }

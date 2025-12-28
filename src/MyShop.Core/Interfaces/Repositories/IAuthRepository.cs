@@ -13,7 +13,10 @@ public interface IAuthRepository
     /// <summary>
     /// Login with username or email.
     /// </summary>
-    Task<Result<User>> LoginAsync(string usernameOrEmail, string password);
+    /// <param name="usernameOrEmail">Username or email</param>
+    /// <param name="password">Password</param>
+    /// <param name="rememberMe">Whether to persist credentials for auto-login</param>
+    Task<Result<User>> LoginAsync(string usernameOrEmail, string password, bool rememberMe = false);
 
     /// <summary>
     /// Register a new user.

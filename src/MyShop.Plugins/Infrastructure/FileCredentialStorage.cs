@@ -14,6 +14,8 @@ namespace MyShop.Plugins.Infrastructure;
 public class FileCredentialStorage : ICredentialStorage
 {
     private readonly string _filePath;
+    private string? _sessionAccessToken;
+    private string? _sessionRefreshToken;
 
     public FileCredentialStorage()
     {
@@ -23,10 +25,22 @@ public class FileCredentialStorage : ICredentialStorage
         _filePath = Path.Combine(appFolder, "credentials.json");
     }
 
-    public async Task<Result<Unit>> SaveToken(string accessToken, string? refreshToken = null)
+    public async Task<Result<Unit>> SaveToken(string accessToken, string? refreshToken = null, bool persistToFile = true)
     {
         try
         {
+            // Always save to session (memory)
+            _sessionAccessToken = accessToken;
+            _sessionRefreshToken = refreshToken;
+            System.Diagnostics.Debug.WriteLine($"[FileCredentialStorage] Session tokens saved to memory");
+
+            // Only save to file if persistToFile=true
+            if (!persistToFile)
+            {
+                System.Diagnostics.Debug.WriteLine($"[FileCredentialStorage] Skipping file storage (persistToFile=false)");
+                return Result<Unit>.Success(Unit.Value);
+            }
+
             var data = new TokenData
             {
                 Token = accessToken,
@@ -35,6 +49,7 @@ public class FileCredentialStorage : ICredentialStorage
             };
             var json = JsonSerializer.Serialize(data);
             await File.WriteAllTextAsync(_filePath, json);
+            System.Diagnostics.Debug.WriteLine($"[FileCredentialStorage] Tokens saved to file");
             return Result<Unit>.Success(Unit.Value);
         }
         catch (Exception ex)
@@ -48,11 +63,32 @@ public class FileCredentialStorage : ICredentialStorage
     {
         try
         {
+            // Check session first
+            if (!string.IsNullOrEmpty(_sessionAccessToken))
+            {
+                System.Diagnostics.Debug.WriteLine($"[FileCredentialStorage] Returning session access token from memory");
+                return _sessionAccessToken;
+            }
+
             if (!File.Exists(_filePath))
+            {
+                // Return session token if available (for rememberMe=false case)
+                if (!string.IsNullOrEmpty(_sessionAccessToken))
+                {
+                    System.Diagnostics.Debug.WriteLine($"[FileCredentialStorage] Returning session token (no persistent file)");
+                    return _sessionAccessToken;
+                }
                 return null;
+            }
 
             var json = File.ReadAllText(_filePath);
             var data = JsonSerializer.Deserialize<TokenData>(json);
+            if (data?.Token != null)
+            {
+                _sessionAccessToken = data.Token;
+                _sessionRefreshToken = data.RefreshToken;
+                System.Diagnostics.Debug.WriteLine($"[FileCredentialStorage] Loaded tokens from file to session (AccessToken: yes, RefreshToken: {(!string.IsNullOrEmpty(_sessionRefreshToken) ? "yes" : "no")})");
+            }
             return data?.Token;
         }
         catch (Exception ex)
@@ -66,11 +102,32 @@ public class FileCredentialStorage : ICredentialStorage
     {
         try
         {
+            // Check session first
+            if (!string.IsNullOrEmpty(_sessionRefreshToken))
+            {
+                System.Diagnostics.Debug.WriteLine($"[FileCredentialStorage] Returning session refresh token from memory");
+                return _sessionRefreshToken;
+            }
+
             if (!File.Exists(_filePath))
+            {
+                // Return session token if available (for rememberMe=false case)
+                if (!string.IsNullOrEmpty(_sessionRefreshToken))
+                {
+                    System.Diagnostics.Debug.WriteLine($"[FileCredentialStorage] Returning session refresh token (no persistent file)");
+                    return _sessionRefreshToken;
+                }
                 return null;
+            }
 
             var json = File.ReadAllText(_filePath);
             var data = JsonSerializer.Deserialize<TokenData>(json);
+            if (data?.RefreshToken != null)
+            {
+                _sessionRefreshToken = data.RefreshToken;
+                _sessionAccessToken = data.Token;
+                System.Diagnostics.Debug.WriteLine($"[FileCredentialStorage] Loaded tokens from file to session (AccessToken: {(!string.IsNullOrEmpty(_sessionAccessToken) ? "yes" : "no")}, RefreshToken: yes)");
+            }
             return data?.RefreshToken;
         }
         catch (Exception ex)
@@ -84,6 +141,11 @@ public class FileCredentialStorage : ICredentialStorage
     {
         try
         {
+            // Clear session tokens
+            _sessionAccessToken = null;
+            _sessionRefreshToken = null;
+            System.Diagnostics.Debug.WriteLine($"[FileCredentialStorage] Session tokens cleared");
+
             if (File.Exists(_filePath))
             {
                 File.Delete(_filePath);

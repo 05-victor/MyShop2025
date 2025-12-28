@@ -10,29 +10,48 @@ namespace MyShop.Plugins.Http.Handlers;
 /// HTTP delegating handler for automatic JWT token injection.
 /// Adds Authorization header with Bearer token to all outgoing requests.
 /// Handles 401 Unauthorized responses with automatic token refresh logic.
+/// 
+/// NOTE: Uses IServiceProvider instead of direct IAuthApi dependency
+/// to avoid circular dependency during DI container initialization.
+/// IAuthApi is resolved lazily only when token refresh is needed.
+///
+/// CRITICAL: This handler MUST be in the pipeline for ALL API clients including IAuthApi.
+/// Previously IAuthApi was excluded to "avoid circular dependency" but that caused:
+/// - /users/me sent without Authorization header after login
+/// - 401 response caused AuthRepository to clear session tokens
+/// - All subsequent API calls failed
+/// The circular dependency is solved by lazy IServiceProvider resolution (see RefreshTokenAsync).
 /// </summary>
 public class AuthHeaderHandler : DelegatingHandler
 {
     private readonly ICredentialStorage _credentialStorage;
-    private readonly IAuthApi _authApi;
+    private readonly IServiceProvider _serviceProvider;
     private bool _isRefreshing = false;
     private readonly SemaphoreSlim _refreshSemaphore = new(1, 1);
 
-    public AuthHeaderHandler(ICredentialStorage credentialStorage, IAuthApi authApi)
+    public AuthHeaderHandler(ICredentialStorage credentialStorage, IServiceProvider serviceProvider)
     {
         _credentialStorage = credentialStorage;
-        _authApi = authApi;
+        _serviceProvider = serviceProvider;
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(
-        HttpRequestMessage request, 
+        HttpRequestMessage request,
         CancellationToken cancellationToken)
     {
         // Step 1: Add current access token to request
         var token = _credentialStorage.GetToken();
-        if (!string.IsNullOrEmpty(token))
+        var hasToken = !string.IsNullOrEmpty(token);
+        System.Diagnostics.Debug.WriteLine($"[AuthHeaderHandler.SendAsync] {request.Method} {request.RequestUri?.PathAndQuery} - Token: {(hasToken ? "exists" : "NULL")}");
+        
+        if (hasToken)
         {
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            System.Diagnostics.Debug.WriteLine($"[AuthHeaderHandler.SendAsync] Authorization header attached");
+        }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine($"[AuthHeaderHandler.SendAsync] WARNING: No token available, request will be sent without Authorization header");
         }
 
         // Step 2: Send the request
@@ -47,7 +66,7 @@ public class AuthHeaderHandler : DelegatingHandler
             {
                 // Use semaphore to prevent multiple simultaneous refresh attempts
                 await _refreshSemaphore.WaitAsync(cancellationToken);
-                
+
                 // Prevent multiple refresh attempts
                 _isRefreshing = true;
 
@@ -104,7 +123,7 @@ public class AuthHeaderHandler : DelegatingHandler
         {
             // Get refresh token from storage
             var refreshToken = _credentialStorage.GetRefreshToken();
-            
+
             if (string.IsNullOrEmpty(refreshToken))
             {
                 System.Diagnostics.Debug.WriteLine("[AuthHeaderHandler] No refresh token available");
@@ -113,9 +132,17 @@ public class AuthHeaderHandler : DelegatingHandler
 
             System.Diagnostics.Debug.WriteLine("[AuthHeaderHandler] Calling refresh token endpoint...");
 
+            // Lazily resolve IAuthApi only when needed (breaks circular dependency)
+            var authApi = _serviceProvider.GetService(typeof(IAuthApi)) as IAuthApi;
+            if (authApi == null)
+            {
+                System.Diagnostics.Debug.WriteLine("[AuthHeaderHandler] Failed to resolve IAuthApi from service provider");
+                return false;
+            }
+
             // Call refresh token API
             var request = new RefreshTokenRequest { RefreshToken = refreshToken };
-            var response = await _authApi.RefreshTokenAsync(request);
+            var response = await authApi.RefreshTokenAsync(request);
 
             if (response.IsSuccessStatusCode && response.Content != null)
             {
