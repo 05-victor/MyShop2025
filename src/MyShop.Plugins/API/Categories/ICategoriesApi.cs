@@ -12,7 +12,7 @@ public interface ICategoriesApi
 {
     [Get("/api/v1/categories")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<PagedResult<CategoryResponse>>>> GetAllAsync(
-        [Query] int pageNumber = 1, 
+        [Query] int pageNumber = 1,
         [Query] int pageSize = 10);
 
     [Get("/api/v1/categories/{id}")]
@@ -21,7 +21,7 @@ public interface ICategoriesApi
     [Post("/api/v1/categories")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<CategoryResponse>>> CreateAsync([Body] object request);
 
-    [Put("/api/v1/categories/{id}")]
+    [Patch("/api/v1/categories/{id}")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<CategoryResponse>>> UpdateAsync(Guid id, [Body] object request);
 
     [Delete("/api/v1/categories/{id}")]
