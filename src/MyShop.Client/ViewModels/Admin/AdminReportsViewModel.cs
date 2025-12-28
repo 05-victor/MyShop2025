@@ -24,6 +24,7 @@ namespace MyShop.Client.ViewModels.Admin;
 public partial class AdminReportsViewModel : BaseViewModel
 {
     private readonly IReportFacade _reportFacade;
+    private readonly IProductFacade _productFacade;
 
     // --- Filters (no auto-reload, user must click Apply Filters) ---
     [ObservableProperty]
@@ -69,11 +70,13 @@ public partial class AdminReportsViewModel : BaseViewModel
 
     public AdminReportsViewModel(
         IReportFacade reportFacade,
+        IProductFacade productFacade,
         IToastService toastService,
         INavigationService navigationService)
         : base(toastService, navigationService)
     {
         _reportFacade = reportFacade;
+        _productFacade = productFacade;
 
         DateRanges = new ObservableCollection<DateRangeOption>
         {
@@ -90,7 +93,7 @@ public partial class AdminReportsViewModel : BaseViewModel
         _startDate = DateTimeOffset.Now.AddDays(-7);
 
         // Initialize collections to prevent DataGrid crash
-        Categories = new ObservableCollection<string> { "All", "Electronics", "Clothing", "Home & Garden", "Food" };
+        Categories = new ObservableCollection<string> { "All" };
         _selectedCategory = "All"; // Set backing field directly to avoid triggering OnChanged
         _filteredProducts = new ObservableCollection<ProductPerformance>();
         _salespersonData = new ObservableCollection<Salesperson>();
@@ -120,7 +123,7 @@ public partial class AdminReportsViewModel : BaseViewModel
             };
 
             // Load data - this calls CreateChartsFromApiData() which sets chart series
-            // DO NOT override series with mock data after LoadReportDataAsync()
+            // and also populates categories from OrdersByCategory
             await LoadReportDataAsync();
 
             System.Diagnostics.Debug.WriteLine(
@@ -164,6 +167,45 @@ public partial class AdminReportsViewModel : BaseViewModel
         finally
         {
             SetLoadingState(false);
+        }
+    }
+
+    /// <summary>
+    /// Load categories from API using LoadCategoriesAsync endpoint
+    /// Called when report data is loaded to populate category filter dropdown
+    /// </summary>
+    private async Task LoadCategoriesFromApiAsync()
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine("[AdminReportsViewModel] LoadCategoriesFromApiAsync: Starting category load from API");
+
+            var result = await _productFacade.LoadCategoriesAsync();
+
+            if (!result.IsSuccess || result.Data == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] LoadCategoriesFromApiAsync: Failed to load - {result.ErrorMessage}");
+                return;
+            }
+
+            // Clear existing items but keep "All" at index 0
+            while (Categories.Count > 1)
+            {
+                Categories.RemoveAt(Categories.Count - 1);
+            }
+
+            // Add API categories
+            foreach (var category in result.Data)
+            {
+                Categories.Add(category.Name);
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] ✅ LoadCategoriesFromApiAsync: Loaded {result.Data.Count} categories from API");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] ❌ LoadCategoriesFromApiAsync: ERROR - {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Stack trace: {ex.StackTrace}");
         }
     }
 
@@ -302,28 +344,8 @@ public partial class AdminReportsViewModel : BaseViewModel
             {
                 ReportData = result.Data;
 
-                // Update categories dropdown - extract unique category names from OrdersByCategory
-                if (result.Data.OrdersByCategory != null && result.Data.OrdersByCategory.Count > 0)
-                {
-                    var categoryNames = new List<string> { "All" };
-                    foreach (var cat in result.Data.OrdersByCategory)
-                    {
-                        if (!categoryNames.Contains(cat.CategoryName))
-                        {
-                            categoryNames.Add(cat.CategoryName);
-                        }
-                    }
-
-                    // Update the Categories observable collection (for dropdown binding)
-                    Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
-                    {
-                        Categories.Clear();
-                        foreach (var catName in categoryNames)
-                        {
-                            Categories.Add(catName);
-                        }
-                    });
-                }
+                // Load/update categories from API
+                await LoadCategoriesFromApiAsync();
 
                 // Update product table from API data
                 UpdateProductTable();
@@ -442,6 +464,13 @@ public partial class AdminReportsViewModel : BaseViewModel
         {
             var currencyConv = new CurrencyConverter();
 
+            // Debug: Check all report data
+            System.Diagnostics.Debug.WriteLine("[AdminReportsViewModel] CreateChartsFromApiData: Report data inspection:");
+            System.Diagnostics.Debug.WriteLine($"  - RevenueTrend count: {ReportData.RevenueTrend?.Count ?? 0}");
+            System.Diagnostics.Debug.WriteLine($"  - OrdersByCategory count: {ReportData.OrdersByCategory?.Count ?? 0}");
+            System.Diagnostics.Debug.WriteLine($"  - ProductSummary.Data count: {ReportData.ProductSummary?.Data?.Count ?? 0}");
+            System.Diagnostics.Debug.WriteLine($"  - SalespersonContributions count: {ReportData.SalespersonContributions?.Count ?? 0}");
+
             // Revenue Trend Chart - Line chart from daily revenue
             if (ReportData.RevenueTrend?.Count > 0)
             {
@@ -477,17 +506,20 @@ public partial class AdminReportsViewModel : BaseViewModel
                 var categoryNames = ReportData.OrdersByCategory.Select(c => c.CategoryName).ToArray();
                 var orderCounts = ReportData.OrdersByCategory.Select(c => c.OrderCount).ToList();
 
-                // Create single ColumnSeries with multiple values
+                // Create single ColumnSeries with data labels showing order counts
                 var columnSeries = new ColumnSeries<int>
                 {
                     Values = orderCounts,
                     Name = "Orders",
-                    Fill = new SolidColorPaint(SKColors.RoyalBlue)
+                    Fill = new SolidColorPaint(SKColors.RoyalBlue),
+                    // Show order counts on top of bars
+                    DataLabelsSize = 11,
+                    DataLabelsFormatter = point => orderCounts[(int)point.Index].ToString()
                 };
 
                 OrdersByCategorySeries = new ISeries[] { columnSeries };
 
-                // Set X-axis labels to category names
+                // Set X-axis labels to category names  
                 XAxes = new Axis[]
                 {
                     new Axis
@@ -496,6 +528,15 @@ public partial class AdminReportsViewModel : BaseViewModel
                         LabelsRotation = 45
                     }
                 };
+
+                // Debug: Log the data we're creating
+                System.Diagnostics.Debug.WriteLine(
+                    $"[AdminReportsViewModel] Orders by Category chart created with {ReportData.OrdersByCategory.Count} categories:");
+                foreach (var cat in ReportData.OrdersByCategory)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        $"  - {cat.CategoryName}: {cat.OrderCount} orders, Revenue: {cat.Revenue:N0}, {cat.Percentage:F1}%");
+                }
             }
             else
             {

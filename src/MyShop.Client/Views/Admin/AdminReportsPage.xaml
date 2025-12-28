@@ -97,7 +97,7 @@
         <ScrollViewer Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"
                       Background="{ThemeResource PageBackgroundBrush}">
             <StackPanel x:Name="MainContent"
-                    Padding="24"
+                        Padding="24"
                         Spacing="20">
 
                 <layout:PageHeader Title="My Reports"
@@ -133,9 +133,9 @@
                             <forms:LabeledComboBox
                                 x:Name="CategoryComboBox"
                                 Grid.Column="1"
-                                ItemsSource="{Binding Categories, Mode=OneWay}"
+                                ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
                                 Label="Category"
-                                SelectedIndex="0"
+                                SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"
                                 SelectionChanged="CategoryComboBox_SelectionChanged"/>
                         </Grid>
 
@@ -172,7 +172,7 @@
                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                             Text="Download the current report data"/>
                         <StackPanel Orientation="Horizontal"
-                                Spacing="12">
+                                    Spacing="12">
                             <buttons:IconButton
                                 IconGlyph="&#xE74E;"
                                 Text="Export CSV"
