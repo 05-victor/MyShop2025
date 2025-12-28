@@ -227,7 +227,7 @@ public class OrderFacade : IOrderFacade
         try
         {
             // Validate status
-            var validStatuses = new[] { "Pending", "Processing", "Shipping", "Completed", "Cancelled" };
+            var validStatuses = new[] { "Pending", "Confirmed", "Processing", "Shipped", "Delivered", "Cancelled", "Returned" };
             if (!validStatuses.Contains(newStatus, StringComparer.OrdinalIgnoreCase))
             {
                 _ = _toastService.ShowError($"Invalid status. Valid values: {string.Join(", ", validStatuses)}");
@@ -244,17 +244,23 @@ public class OrderFacade : IOrderFacade
 
             var order = orderResult.Data;
 
-            // Validate status transition
-            if (order.Status == "Completed" && newStatus != "Completed")
+            // Validate status transition - prevent changes to terminal statuses
+            if (order.Status == "Delivered" && newStatus != "Delivered")
             {
-                _ = _toastService.ShowError("Cannot change status of completed order");
-                return Result<Order>.Failure("Order already completed");
+                _ = _toastService.ShowError("Cannot change status of delivered order");
+                return Result<Order>.Failure("Order already delivered");
             }
 
             if (order.Status == "Cancelled")
             {
                 _ = _toastService.ShowError("Cannot change status of cancelled order");
                 return Result<Order>.Failure("Order already cancelled");
+            }
+
+            if (order.Status == "Returned")
+            {
+                _ = _toastService.ShowError("Cannot change status of returned order");
+                return Result<Order>.Failure("Order already returned");
             }
 
             // Update status

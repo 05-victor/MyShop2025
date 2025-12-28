@@ -16,6 +16,7 @@
     xmlns:forms="using:MyShop.Client.Views.Components.Forms"
     xmlns:pagination="using:MyShop.Client.Views.Components.Pagination"
     xmlns:converters="using:MyShop.Client.Common.Converters"
+    xmlns:orderConverters="using:MyShop.Client.Converters"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.SalesAgent"
     mc:Ignorable="d"
     Background="{ThemeResource PageBackgroundBrush}">
@@ -30,6 +31,7 @@
         <converters:StatusToVariantConverter x:Key="StatusToVariantConverter"/>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <orderConverters:StatusEqualsToVisibilityConverter x:Key="StatusEqualsToVisibilityConverter"/>
     </Page.Resources>
 
     <Grid>
@@ -227,6 +229,8 @@
                                                                   Tag="All"/>
                                                     <ComboBoxItem Content="Pending"
                                                                   Tag="Pending"/>
+                                                    <ComboBoxItem Content="Confirmed"
+                                                                  Tag="Confirmed"/>
                                                     <ComboBoxItem Content="Processing"
                                                                   Tag="Processing"/>
                                                     <ComboBoxItem Content="Shipped"
@@ -276,14 +280,14 @@
                                               BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                               BorderThickness="0,0,0,1">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="108"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="100"/>
                                                 <ColumnDefinition Width="120"/>
+                                                <ColumnDefinition Width="96"/>
                                                 <ColumnDefinition Width="80"/>
-                                                <ColumnDefinition Width="80"/>
-                                                <ColumnDefinition Width="80"/>
+                                                <ColumnDefinition Width="100"/>
                                             </Grid.ColumnDefinitions>
 
                                             <TextBlock Grid.Column="0"
@@ -335,14 +339,14 @@
                                                             </TransitionCollection>
                                                         </Grid.ChildrenTransitions>
                                                         <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="100"/>
+                                                            <ColumnDefinition Width="108"/>
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="100"/>
                                                             <ColumnDefinition Width="120"/>
+                                                            <ColumnDefinition Width="96"/>
                                                             <ColumnDefinition Width="80"/>
-                                                            <ColumnDefinition Width="80"/>
-                                                            <ColumnDefinition Width="80"/>
+                                                            <ColumnDefinition Width="100"/>
                                                         </Grid.ColumnDefinitions>
 
                                                         <TextBlock Grid.Column="0"
@@ -390,15 +394,53 @@
                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                                    VerticalAlignment="Center"/>
 
-                                                        <Button Grid.Column="7"
-                                                                Style="{StaticResource IconButtonStyle}"
-                                                                Command="{Binding ElementName=RootPage, Path=ViewModel.ViewOrderDetailsCommand}"
-                                                                CommandParameter="{x:Bind}"
-                                                                VerticalAlignment="Center">
-                                                            <FontIcon Glyph="&#xE7A6;"
-                                                                      FontSize="{StaticResource FontSize_LG}"
-                                                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                        </Button>
+                                                        <StackPanel Grid.Column="7"
+                                                                    Orientation="Horizontal"
+                                                                    Spacing="8"
+                                                                    VerticalAlignment="Center">
+                                                            <!-- View Details Button (Always shown) -->
+                                                            <Button Style="{StaticResource IconButtonStyle}"
+                                                                    Command="{Binding ElementName=RootPage, Path=ViewModel.ViewOrderDetailsCommand}"
+                                                                    CommandParameter="{x:Bind}"
+                                                                    ToolTipService.ToolTip="View order details">
+                                                                <FontIcon Glyph="&#xE7A6;"
+                                                                          FontSize="16"
+                                                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                            </Button>
+
+                                                            <!-- Mark as Processing Button (Visible when Status == "Confirmed") -->
+                                                            <Button Style="{StaticResource IconButtonStyle}"
+                                                                    Visibility="{x:Bind Status, Mode=OneWay, Converter={StaticResource StatusEqualsToVisibilityConverter}, ConverterParameter=Confirmed}"
+                                                                    Command="{Binding ElementName=RootPage, Path=ViewModel.MarkAsProcessingCommand}"
+                                                                    CommandParameter="{x:Bind}"
+                                                                    ToolTipService.ToolTip="Mark as processing">
+                                                                <FontIcon Glyph="&#xE896;"
+                                                                          FontSize="16"
+                                                                          Foreground="{ThemeResource WarningAmberBrush}"/>
+                                                            </Button>
+
+                                                            <!-- Ship Button (Visible when Status == "Processing") -->
+                                                            <Button Style="{StaticResource IconButtonStyle}"
+                                                                    Visibility="{x:Bind Status, Mode=OneWay, Converter={StaticResource StatusEqualsToVisibilityConverter}, ConverterParameter=Processing}"
+                                                                    Command="{Binding ElementName=RootPage, Path=ViewModel.MarkAsShippedCommand}"
+                                                                    CommandParameter="{x:Bind}"
+                                                                    ToolTipService.ToolTip="Mark as shipped">
+                                                                <FontIcon Glyph="&#xE897;"
+                                                                          FontSize="16"
+                                                                          Foreground="{ThemeResource WarningAmberBrush}"/>
+                                                            </Button>
+
+                                                            <!-- Deliver Button (Visible when Status == "Shipped") -->
+                                                            <Button Style="{StaticResource IconButtonStyle}"
+                                                                    Visibility="{x:Bind Status, Mode=OneWay, Converter={StaticResource StatusEqualsToVisibilityConverter}, ConverterParameter=Shipped}"
+                                                                    Command="{Binding ElementName=RootPage, Path=ViewModel.MarkAsDeliveredCommand}"
+                                                                    CommandParameter="{x:Bind}"
+                                                                    ToolTipService.ToolTip="Mark as delivered">
+                                                                <FontIcon Glyph="&#xE930;"
+                                                                          FontSize="16"
+                                                                          Foreground="{ThemeResource SuccessGreenBrush}"/>
+                                                            </Button>
+                                                        </StackPanel>
                                                     </Grid>
                                                 </DataTemplate>
                                             </ItemsRepeater.ItemTemplate>
