@@ -377,8 +377,6 @@ public sealed partial class AdminProductsPage : Page
             ViewProductCategory.Text = string.IsNullOrEmpty(product.Category) ? "Uncategorized" : product.Category;
             ViewProductPrice.Text = product.Price.ToString("C0");
             ViewProductImportPrice.Text = product.ImportPrice.ToString("C0");
-            ViewProductStock.Text = product.Stock.ToString();
-            ViewProductRating.Text = product.Rating.ToString("F1");
 
             // Calculate and display profit margin
             if (product.ImportPrice > 0)
@@ -389,26 +387,6 @@ public sealed partial class AdminProductsPage : Page
             else
             {
                 ViewProductMargin.Text = "N/A";
-            }
-
-            // Set stock status badge
-            if (product.Stock <= 0)
-            {
-                ViewProductStockBadge.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 254, 226, 226)); // Red background
-                ViewProductStockStatus.Text = "Out of Stock";
-                ViewProductStockStatus.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 220, 38, 38)); // Red text
-            }
-            else if (product.Stock <= 10)
-            {
-                ViewProductStockBadge.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 254, 243, 199)); // Yellow background
-                ViewProductStockStatus.Text = "Low Stock";
-                ViewProductStockStatus.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 217, 119, 6)); // Yellow text
-            }
-            else
-            {
-                ViewProductStockBadge.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 209, 250, 229)); // Green background
-                ViewProductStockStatus.Text = "In Stock";
-                ViewProductStockStatus.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 5, 150, 105)); // Green text
             }
 
             // Load product image

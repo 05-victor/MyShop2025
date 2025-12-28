@@ -19,7 +19,7 @@ public sealed partial class SalesAgentReportsPage : Page
         try
         {
             Services.LoggingService.Instance.Debug("[SalesAgentReportsPage] Constructor start");
-            
+
             // Resolve ViewModel
             ViewModel = App.Current.Services.GetRequiredService<SalesAgentReportsViewModel>();
             Services.LoggingService.Instance.Debug("[SalesAgentReportsPage] ViewModel resolved");
@@ -36,7 +36,7 @@ public sealed partial class SalesAgentReportsPage : Page
             Services.LoggingService.Instance.Debug("[SalesAgentReportsPage] Calling InitializeComponent");
             this.InitializeComponent();
             Services.LoggingService.Instance.Debug("[SalesAgentReportsPage] InitializeComponent SUCCESS");
-            
+
             // CRITICAL FIX: Set DataContext so {Binding} resolves to ViewModel
             this.DataContext = ViewModel;
         }
@@ -46,7 +46,7 @@ public sealed partial class SalesAgentReportsPage : Page
             Services.LoggingService.Instance.Error($"Exception Type: {ex.GetType().FullName}");
             Services.LoggingService.Instance.Error($"Message: {ex.Message}");
             Services.LoggingService.Instance.Error($"StackTrace: {ex.StackTrace}");
-            
+
             // Create minimal fallback UI
             this.Content = new Microsoft.UI.Xaml.Controls.TextBlock
             {
@@ -67,7 +67,7 @@ public sealed partial class SalesAgentReportsPage : Page
         {
             base.OnNavigatedTo(e);
             Services.NavigationLogger.LogNavigatedTo(nameof(SalesAgentReportsPage), e.Parameter);
-            
+
             // Initialize ViewModel after page is loaded and UI thread is ready
             _ = ViewModel.InitializeCommand.ExecuteAsync(null);
         }
@@ -91,11 +91,5 @@ public sealed partial class SalesAgentReportsPage : Page
         {
             Services.LoggingService.Instance.Error("Failed to refresh reports", ex);
         }
-    }
-
-    private void ExportPdfButton_Click(object sender, RoutedEventArgs e)
-    {
-        // Export PDF functionality - placeholder for now
-        Services.LoggingService.Instance.Information("Export PDF requested");
     }
 }

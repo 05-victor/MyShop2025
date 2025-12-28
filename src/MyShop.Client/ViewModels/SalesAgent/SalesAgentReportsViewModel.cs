@@ -505,10 +505,33 @@ public partial class SalesAgentReportsViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private void ExportReport()
+    private async Task ExportReportAsync()
     {
-        // TODO: Implement CSV/PDF export when FileSavePicker is integrated
-        System.Diagnostics.Debug.WriteLine("[SalesAgentReportsViewModel] Export report requested");
+        try
+        {
+            System.Diagnostics.Debug.WriteLine("[SalesAgentReportsViewModel] ExportReportAsync: Starting export");
+
+            // Use the selected period for export
+            var period = SelectedPeriod ?? "week";
+
+            // Call the ReportFacade to export the sales report
+            var result = await _reportFacade.ExportSalesReportAsync(period);
+
+            if (result.IsSuccess && !string.IsNullOrEmpty(result.Data))
+            {
+                System.Diagnostics.Debug.WriteLine("[SalesAgentReportsViewModel] ExportReportAsync: Export completed successfully");
+                // Toast is shown by the facade
+            }
+            else if (!result.IsSuccess)
+            {
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentReportsViewModel] ExportReportAsync: Export failed - {result.ErrorMessage}");
+            }
+            // Empty result means user cancelled the file picker
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentReportsViewModel] ExportReportAsync error: {ex.Message}");
+        }
     }
 }
 

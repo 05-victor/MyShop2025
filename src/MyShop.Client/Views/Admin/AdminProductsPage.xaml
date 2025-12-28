@@ -100,7 +100,7 @@
             <ScrollViewer VerticalScrollBarVisibility="Auto"
                           Background="{ThemeResource PageBackgroundBrush}">
                 <StackPanel x:Name="MainContent"
-                        Padding="24"
+                            Padding="24"
                             Spacing="20">
 
                     <!--  PAGE TITLE  -->
@@ -229,8 +229,6 @@
                                         BorderThickness="1"
                                         SelectedIndex="0"
                                         SelectionChanged="SortByComboBox_SelectionChanged">
-                                        <ComboBoxItem Content="Rating (High to Low)"
-                                                      Tag="rating-desc"/>
                                         <ComboBoxItem Content="Price (High to Low)"
                                                       Tag="price-desc"/>
                                         <ComboBoxItem Content="Price (Low to High)"
@@ -314,8 +312,6 @@
                                             <ColumnDefinition Width="2*"/>
                                             <!--  Stock  -->
                                             <ColumnDefinition Width="1*"/>
-                                            <!--  Rating  -->
-                                            <ColumnDefinition Width="80"/>
                                             <!--  Actions  -->
                                         </Grid.ColumnDefinitions>
 
@@ -353,11 +349,6 @@
                                             Grid.Column="6"
                                             FontWeight="SemiBold"
                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                            Text="Rating"/>
-                                        <TextBlock
-                                            Grid.Column="7"
-                                            FontWeight="SemiBold"
-                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                             Text="Actions"/>
                                     </Grid>
                                 </ListView.Header>
@@ -374,7 +365,6 @@
                                                 <ColumnDefinition Width="2*"/>
                                                 <ColumnDefinition Width="2*"/>
                                                 <ColumnDefinition Width="1*"/>
-                                                <ColumnDefinition Width="80"/>
                                             </Grid.ColumnDefinitions>
 
                                             <!--  Image with DecodePixelWidth optimization  -->
@@ -400,7 +390,7 @@
                                                 VerticalAlignment="Center"
                                                 Spacing="2">
                                                 <TextBlock Text="{x:Bind Name}"
-                                                        TextTrimming="CharacterEllipsis"/>
+                                                           TextTrimming="CharacterEllipsis"/>
                                                 <TextBlock
                                                     FontSize="{StaticResource FontSize_SM}"
                                                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -435,22 +425,9 @@
                                                 LowStockThreshold="10"
                                                 Stock="{x:Bind Stock}"/>
 
-                                            <!--  Rating  -->
-                                            <StackPanel
-                                                Grid.Column="6"
-                                                Orientation="Horizontal"
-                                                Spacing="4">
-                                                <TextBlock VerticalAlignment="Center"
-                                                           Text="{x:Bind Rating}"/>
-                                                <FontIcon
-                                                    FontSize="{StaticResource FontSize_Base}"
-                                                    Foreground="{ThemeResource WarningAmberBrush}"
-                                                    Glyph="&#xE735;"/>
-                                            </StackPanel>
-
                                             <!--  Actions  -->
                                             <StackPanel
-                                                Grid.Column="7"
+                                                Grid.Column="6"
                                                 Orientation="Horizontal"
                                                 Spacing="4">
                                                 <!--  View  -->
@@ -865,65 +842,6 @@
                             </StackPanel>
                         </Grid>
                     </Border>
-
-                    <!--  Stock + Rating Row  -->
-                    <Grid ColumnSpacing="24">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Grid.Column="0"
-                                    Spacing="4">
-                            <TextBlock
-                                FontSize="{StaticResource FontSize_SM}"
-                                FontWeight="SemiBold"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="STOCK"/>
-                            <StackPanel Orientation="Horizontal"
-                                        Spacing="8">
-                                <TextBlock
-                                    x:Name="ViewProductStock"
-                                    FontSize="{StaticResource FontSize_3XL}"
-                                    FontWeight="Bold"
-                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                <Border
-                                    x:Name="ViewProductStockBadge"
-                                    Padding="8,4"
-                                    CornerRadius="4"
-                                    VerticalAlignment="Center">
-                                    <TextBlock
-                                        x:Name="ViewProductStockStatus"
-                                        FontSize="{StaticResource FontSize_SM}"
-                                        FontWeight="SemiBold"/>
-                                </Border>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="1"
-                                    Spacing="4">
-                            <TextBlock
-                                FontSize="{StaticResource FontSize_SM}"
-                                FontWeight="SemiBold"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="RATING"/>
-                            <StackPanel Orientation="Horizontal"
-                                        Spacing="8">
-                                <TextBlock
-                                    x:Name="ViewProductRating"
-                                    FontSize="{StaticResource FontSize_3XL}"
-                                    FontWeight="Bold"
-                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                <StackPanel Orientation="Horizontal"
-                                            VerticalAlignment="Center">
-                                    <FontIcon
-                                        FontSize="{StaticResource FontSize_LG}"
-                                        Foreground="{ThemeResource WarningAmberBrush}"
-                                        Glyph="&#xE735;"/>
-                                </StackPanel>
-                            </StackPanel>
-                        </StackPanel>
-                    </Grid>
 
                     <!--  ID (Technical Info)  -->
                     <Border

@@ -406,30 +406,6 @@
                                         </controls:DataGridTemplateColumn.CellTemplate>
                                     </controls:DataGridTemplateColumn>
 
-                                    <!--  Avg Rating Column (Fixed Width, Right-Aligned)  -->
-                                    <controls:DataGridTemplateColumn Width="110"
-                                                                     Header="Avg Rating">
-                                        <controls:DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <StackPanel
-                                                    HorizontalAlignment="Right"
-                                                    VerticalAlignment="Center"
-                                                    Orientation="Horizontal"
-                                                    Spacing="4">
-                                                    <TextBlock
-                                                        VerticalAlignment="Center"
-                                                        FontWeight="SemiBold"
-                                                        Text="{Binding Rating}"/>
-                                                    <FontIcon
-                                                        VerticalAlignment="Center"
-                                                        FontSize="{StaticResource FontSize_SM}"
-                                                        Foreground="{ThemeResource WarningAmberBrush}"
-                                                        Glyph="&#xE735;"/>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </controls:DataGridTemplateColumn.CellTemplate>
-                                    </controls:DataGridTemplateColumn>
-
                                     <!--  Status Column (Fixed Width)  -->
                                     <controls:DataGridTemplateColumn Width="120"
                                                                      Header="Status">
@@ -552,23 +528,6 @@
                         Grid.Row="3"
                         Grid.Column="1"
                         Foreground="{ThemeResource SuccessGreenBrush}"/>
-
-                    <TextBlock
-                        Grid.Row="4"
-                        Grid.Column="0"
-                        FontWeight="SemiBold"
-                        Text="Rating:"/>
-                    <StackPanel
-                        Grid.Row="4"
-                        Grid.Column="1"
-                        Orientation="Horizontal"
-                        Spacing="4">
-                        <TextBlock x:Name="ProductDetailRating"/>
-                        <FontIcon
-                            FontSize="{StaticResource FontSize_SM}"
-                            Foreground="{ThemeResource WarningAmberBrush}"
-                            Glyph="&#xE735;"/>
-                    </StackPanel>
 
                     <TextBlock
                         Grid.Row="5"
