@@ -20,6 +20,10 @@
 		<Content Include="Assets\**" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Page Remove="Views\Dialogs\ForgotPasswordDialog.xaml" />
+	</ItemGroup>
+
 	<!-- Configuration Files -->
 	<ItemGroup>
 		<!-- Production settings: Embed in executable to hide from users -->
@@ -123,6 +127,12 @@
 
 	<ItemGroup>
 	  <Folder Include="Logs\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="Views\Dialogs\ForgotPasswordDialog.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </None>
 	</ItemGroup>
 
 </Project>
