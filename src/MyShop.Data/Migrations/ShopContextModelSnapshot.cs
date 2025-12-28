@@ -150,7 +150,7 @@ namespace MyShop.Data.Migrations
                             ReleaseDate = new DateTime(2025, 11, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             ShopName = "MyShop 2025",
                             Support = "support@myshop.com",
-                            UpdatedAt = new DateTime(2025, 12, 28, 8, 51, 13, 528, DateTimeKind.Utc).AddTicks(3249),
+                            UpdatedAt = new DateTime(2025, 12, 28, 0, 0, 0, 0, DateTimeKind.Utc),
                             Version = "1.0.0"
                         });
                 });

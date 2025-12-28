@@ -55,7 +55,7 @@ namespace MyShop.Data.Migrations
             migrationBuilder.InsertData(
                 table: "app_settings",
                 columns: new[] { "id", "address", "app_name", "license", "release_date", "shop_name", "support", "updated_at", "updated_by", "version" },
-                values: new object[] { 1, "123 Main Street", "MyShop 2025", "Commercial", new DateTime(2025, 11, 1, 0, 0, 0, 0, DateTimeKind.Utc), "MyShop 2025", "support@myshop.com", new DateTime(2025, 12, 28, 8, 51, 13, 528, DateTimeKind.Utc).AddTicks(3249), null, "1.0.0" });
+                values: new object[] { 1, "123 Main Street", "MyShop 2025", "Commercial", new DateTime(2025, 11, 1, 0, 0, 0, 0, DateTimeKind.Utc), "MyShop 2025", "support@myshop.com", new DateTime(2025, 12, 28, 0, 0, 0, 0, DateTimeKind.Utc), null, "1.0.0" });
         }
 
         /// <inheritdoc />

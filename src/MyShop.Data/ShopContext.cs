@@ -263,7 +263,7 @@ namespace MyShop.Data
             {
                 entity.HasKey(a => a.Id);
                 
-                // Seed default app settings
+                // Seed default app settings with static datetime values
                 entity.HasData(new AppSetting
                 {
                     Id = 1,
@@ -274,7 +274,7 @@ namespace MyShop.Data
                     ReleaseDate = new DateTime(2025, 11, 1, 0, 0, 0, DateTimeKind.Utc),
                     License = "Commercial",
                     Support = "support@myshop.com",
-                    UpdatedAt = DateTime.UtcNow
+                    UpdatedAt = new DateTime(2025, 12, 28, 0, 0, 0, DateTimeKind.Utc)
                 });
             });
 
