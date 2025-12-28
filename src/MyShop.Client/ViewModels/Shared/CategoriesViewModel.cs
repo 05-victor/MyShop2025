@@ -10,6 +10,7 @@ using MyShop.Client.Facades;
 using MyShop.Client.Services;
 using MyShop.Shared.DTOs.Responses;
 using MyShop.Shared.Models;
+using MyShop.Core.Interfaces.Facades;
 
 namespace MyShop.Client.ViewModels.Shared;
 
@@ -18,12 +19,15 @@ namespace MyShop.Client.ViewModels.Shared;
 /// </summary>
 public partial class CategoriesViewModel : ObservableObject
 {
-    private readonly CategoriesFacade _facade;
+    private readonly ICategoryFacade _categoryFacade;
     private readonly MyShop.Core.Interfaces.Services.IDialogService _dialogService;
     private readonly MyShop.Core.Interfaces.Services.IToastService _toastService;
 
     [ObservableProperty]
     private User? _currentUser;
+
+    [ObservableProperty]
+    private bool _isAdmin;
 
     [ObservableProperty]
     private ObservableCollection<CategoryResponse> _categories = new();
@@ -46,14 +50,26 @@ public partial class CategoriesViewModel : ObservableObject
     [ObservableProperty]
     private string _selectedSortOption = "Name A-Z";
 
+    [ObservableProperty]
+    private bool _hasCategories = false;
+
+    [ObservableProperty]
+    private bool _hasFilteredCategories = false;
+
+    [ObservableProperty]
+    private bool _showNoCategoriesState = false;
+
+    [ObservableProperty]
+    private bool _showNoResultsState = false;
+
     public ICommand LoadCommand { get; }
     public ICommand RefreshCommand { get; }
     public ICommand ClearSearchCommand { get; }
     public ICommand DeleteCategoryCommand { get; }
 
-    public CategoriesViewModel(CategoriesFacade facade, MyShop.Core.Interfaces.Services.IDialogService dialogService, MyShop.Core.Interfaces.Services.IToastService toastService)
+    public CategoriesViewModel(ICategoryFacade categoryFacade, MyShop.Core.Interfaces.Services.IDialogService dialogService, MyShop.Core.Interfaces.Services.IToastService toastService)
     {
-        _facade = facade;
+        _categoryFacade = categoryFacade;
         _dialogService = dialogService;
         _toastService = toastService;
 
@@ -66,16 +82,44 @@ public partial class CategoriesViewModel : ObservableObject
     public void Initialize(User user)
     {
         CurrentUser = user;
+        IsAdmin = user?.GetPrimaryRole() == MyShop.Shared.Models.Enums.UserRole.Admin;
+    }
+
+    private void UpdateVisibilityStates()
+    {
+        var hasCategories = Categories?.Count > 0;
+        var hasFilteredCategories = FilteredCategories?.Count > 0;
+
+        HasCategories = hasCategories;
+        HasFilteredCategories = hasFilteredCategories;
+        ShowNoCategoriesState = !hasCategories && !IsLoading;
+        ShowNoResultsState = hasCategories && !hasFilteredCategories && !string.IsNullOrWhiteSpace(SearchText);
+
+        System.Diagnostics.Debug.WriteLine($"[UpdateVisibilityStates] HasCategories={HasCategories}, HasFilteredCategories={HasFilteredCategories}, ShowNoCategoriesState={ShowNoCategoriesState}, ShowNoResultsState={ShowNoResultsState}");
     }
 
     partial void OnSearchTextChanged(string value)
     {
+        System.Diagnostics.Debug.WriteLine($"[OnSearchTextChanged] value: '{value}'");
         ApplyFiltersAndSort();
+        UpdateVisibilityStates();
     }
 
     partial void OnSelectedSortOptionChanged(string value)
     {
+        System.Diagnostics.Debug.WriteLine($"[OnSelectedSortOptionChanged] value: '{value}'");
         ApplyFiltersAndSort();
+        UpdateVisibilityStates();
+    }
+
+    partial void OnCategoriesChanged(ObservableCollection<CategoryResponse> value)
+    {
+        System.Diagnostics.Debug.WriteLine($"[OnCategoriesChanged] new count: {value?.Count ?? 0}");
+    }
+
+    partial void OnFilteredCategoriesChanged(ObservableCollection<CategoryResponse> value)
+    {
+        System.Diagnostics.Debug.WriteLine($"[OnFilteredCategoriesChanged] new count: {value?.Count ?? 0}");
     }
 
     private void ClearSearch()
@@ -87,30 +131,51 @@ public partial class CategoriesViewModel : ObservableObject
     {
         try
         {
+            System.Diagnostics.Debug.WriteLine("[CategoriesViewModel.LoadCategoriesAsync] Starting...");
             IsLoading = true;
             HasError = false;
             ErrorMessage = string.Empty;
 
-            var result = await _facade.GetAllCategoriesAsync();
+            var result = await _categoryFacade.LoadCategoriesAsync();
+
+            System.Diagnostics.Debug.WriteLine($"[CategoriesViewModel.LoadCategoriesAsync] Facade result - IsSuccess: {result.IsSuccess}, Data null: {result.Data == null}");
 
             if (result.IsSuccess && result.Data != null)
             {
+                System.Diagnostics.Debug.WriteLine($"[CategoriesViewModel.LoadCategoriesAsync] Data count: {result.Data.Count}");
                 Categories.Clear();
+
                 foreach (var category in result.Data)
                 {
-                    Categories.Add(category);
+                    System.Diagnostics.Debug.WriteLine($"[CategoriesViewModel] Category: {category.Id} - {category.Name} - {category.Description}");
+                    // Convert Category model to CategoryResponse for UI
+                    var categoryResponse = new CategoryResponse
+                    {
+                        Id = category.Id,
+                        Name = category.Name,
+                        Description = category.Description,
+                        CreatedAt = category.CreatedAt,
+                        UpdatedAt = category.UpdatedAt
+                    };
+                    Categories.Add(categoryResponse);
                 }
 
+                System.Diagnostics.Debug.WriteLine($"[CategoriesViewModel.LoadCategoriesAsync] Categories.Count after add: {Categories.Count}");
                 ApplyFiltersAndSort();
+                System.Diagnostics.Debug.WriteLine($"[CategoriesViewModel.LoadCategoriesAsync] FilteredCategories.Count after filter: {FilteredCategories.Count}");
+                UpdateVisibilityStates();
             }
             else
             {
+                System.Diagnostics.Debug.WriteLine($"[CategoriesViewModel.LoadCategoriesAsync] Error: {result.ErrorMessage}");
                 HasError = true;
                 ErrorMessage = result.ErrorMessage ?? "Failed to load categories";
             }
         }
         catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[CategoriesViewModel.LoadCategoriesAsync] Exception: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[CategoriesViewModel.LoadCategoriesAsync] Stack trace: {ex.StackTrace}");
             HasError = true;
             ErrorMessage = ex.Message;
             LoggingService.Instance.Error("Failed to load categories", ex);
@@ -118,11 +183,14 @@ public partial class CategoriesViewModel : ObservableObject
         finally
         {
             IsLoading = false;
+            System.Diagnostics.Debug.WriteLine("[CategoriesViewModel.LoadCategoriesAsync] Finished");
         }
     }
 
     public void ApplyFiltersAndSort()
     {
+        System.Diagnostics.Debug.WriteLine($"[ApplyFiltersAndSort] Starting - Categories.Count: {Categories.Count}");
+
         var filtered = Categories.AsEnumerable();
 
         // Apply search filter
@@ -142,11 +210,14 @@ public partial class CategoriesViewModel : ObservableObject
             _ => filtered.OrderBy(c => c.Name)
         };
 
-        FilteredCategories.Clear();
-        foreach (var category in filtered)
-        {
-            FilteredCategories.Add(category);
-        }
+        var filteredList = filtered.ToList();
+        System.Diagnostics.Debug.WriteLine($"[ApplyFiltersAndSort] Filtered count: {filteredList.Count}");
+
+        // Create new collection to force binding refresh
+        var newFilteredCategories = new ObservableCollection<CategoryResponse>(filteredList);
+        FilteredCategories = newFilteredCategories;
+
+        System.Diagnostics.Debug.WriteLine($"[ApplyFiltersAndSort] Finished - FilteredCategories.Count: {FilteredCategories.Count}");
     }
 
     private async Task DeleteCategoryAsync(CategoryResponse? category)
@@ -162,7 +233,7 @@ public partial class CategoriesViewModel : ObservableObject
             if (!confirmResult.IsSuccess || !confirmResult.Data) return;
 
             IsLoading = true;
-            var result = await _facade.DeleteCategoryAsync(category.Id);
+            var result = await _categoryFacade.DeleteCategoryAsync(category.Id);
 
             if (result.IsSuccess)
             {

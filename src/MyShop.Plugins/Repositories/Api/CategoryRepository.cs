@@ -23,22 +23,31 @@ public class CategoryRepository : ICategoryRepository
     {
         try
         {
+            System.Diagnostics.Debug.WriteLine("[CategoryRepository.GetAllAsync] Calling API...");
             var response = await _api.GetAllAsync(pageNumber: 1, pageSize: int.MaxValue);
+
+            System.Diagnostics.Debug.WriteLine($"[CategoryRepository.GetAllAsync] Response status: {response.IsSuccessStatusCode}");
 
             if (response.IsSuccessStatusCode && response.Content != null)
             {
                 var apiResponse = response.Content;
+                System.Diagnostics.Debug.WriteLine($"[CategoryRepository.GetAllAsync] API Success: {apiResponse.Success}, Result null: {apiResponse.Result == null}");
+
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
+                    System.Diagnostics.Debug.WriteLine($"[CategoryRepository.GetAllAsync] Items count: {apiResponse.Result.Items?.Count() ?? 0}");
                     var categories = CategoryAdapter.ToModelList(apiResponse.Result.Items);
+                    System.Diagnostics.Debug.WriteLine($"[CategoryRepository.GetAllAsync] Mapped categories count: {categories.Count}");
                     return Result<IEnumerable<Category>>.Success(categories);
                 }
             }
 
+            System.Diagnostics.Debug.WriteLine("[CategoryRepository.GetAllAsync] Failed to retrieve categories");
             return Result<IEnumerable<Category>>.Failure("Failed to retrieve categories");
         }
         catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[CategoryRepository.GetAllAsync] Exception: {ex.Message}");
             return Result<IEnumerable<Category>>.Failure($"Error retrieving categories: {ex.Message}");
         }
     }

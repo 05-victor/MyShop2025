@@ -316,7 +316,7 @@ namespace MyShop.Client.Config
                     // Product & Catalog
                     services.AddTransient<MyShop.Core.Interfaces.Facades.IProductFacade, Facades.ProductFacade>();
                     services.AddTransient<MyShop.Core.Interfaces.Facades.ICategoryFacade, Facades.Products.CategoryFacade>();
-                    services.AddTransient<Facades.CategoriesFacade>(); // New Categories management facade
+                    // Note: CategoriesFacade (old HttpClient-based) is deprecated in favor of CategoryFacade
 
                     // Shopping & Orders
                     services.AddTransient<MyShop.Core.Interfaces.Facades.ICartFacade, Facades.CartFacade>();

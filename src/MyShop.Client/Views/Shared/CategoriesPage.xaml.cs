@@ -29,7 +29,10 @@ public sealed partial class CategoriesPage : Page
         ViewModel = App.Current.Services.GetRequiredService<CategoriesViewModel>();
         _dialogService = App.Current.Services.GetRequiredService<MyShop.Core.Interfaces.Services.IDialogService>();
         _toastService = App.Current.Services.GetRequiredService<MyShop.Core.Interfaces.Services.IToastService>();
+
+        System.Diagnostics.Debug.WriteLine("[CategoriesPage.ctor] Setting DataContext");
         DataContext = ViewModel;
+        System.Diagnostics.Debug.WriteLine($"[CategoriesPage.ctor] DataContext set - ViewModel is {(DataContext == ViewModel ? "correct" : "WRONG")}");
 
         AddCategoryCommand = new RelayCommand(AddCategory);
     }
@@ -37,12 +40,31 @@ public sealed partial class CategoriesPage : Page
     protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
+        System.Diagnostics.Debug.WriteLine("[CategoriesPage.OnNavigatedTo] Called");
 
         if (e.Parameter is MyShop.Shared.Models.User user)
         {
+            System.Diagnostics.Debug.WriteLine($"[CategoriesPage.OnNavigatedTo] User: {user.Username}");
             ViewModel.Initialize(user);
+            System.Diagnostics.Debug.WriteLine($"[CategoriesPage.OnNavigatedTo] ViewModel initialized - IsAdmin: {ViewModel.IsAdmin}");
+
             if (ViewModel.LoadCommand is CommunityToolkit.Mvvm.Input.IAsyncRelayCommand loadCmd)
+            {
+                System.Diagnostics.Debug.WriteLine("[CategoriesPage.OnNavigatedTo] Executing LoadCommand");
                 await loadCmd.ExecuteAsync(null);
+                System.Diagnostics.Debug.WriteLine($"[CategoriesPage.OnNavigatedTo] LoadCommand completed - FilteredCategories.Count: {ViewModel.FilteredCategories.Count}");
+
+                // Force UI refresh using DispatcherQueue
+                System.Diagnostics.Debug.WriteLine("[CategoriesPage.OnNavigatedTo] Queuing UI refresh");
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    System.Diagnostics.Debug.WriteLine($"[CategoriesPage.OnNavigatedTo] UI refresh - FilteredCategories.Count: {ViewModel.FilteredCategories.Count}");
+                });
+            }
+        }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine("[CategoriesPage.OnNavigatedTo] No user parameter passed!");
         }
     }
 
@@ -57,13 +79,6 @@ public sealed partial class CategoriesPage : Page
     {
         ViewModel.ClearSearchCommand.Execute(null);
         args.Handled = true;
-    }
-
-    private Visibility ShowNoResultsState(int totalCount, int filteredCount, string searchText)
-    {
-        return totalCount > 0 && filteredCount == 0 && !string.IsNullOrWhiteSpace(searchText)
-            ? Visibility.Visible
-            : Visibility.Collapsed;
     }
 
     private void AddCategory()
@@ -193,13 +208,15 @@ public sealed partial class CategoriesPage : Page
         try
         {
             ViewModel.IsLoading = true;
-            var facade = App.Current.Services.GetRequiredService<Facades.CategoriesFacade>();
-            var result = await facade.CreateCategoryAsync(request);
+            var categoryFacade = App.Current.Services.GetRequiredService<MyShop.Core.Interfaces.Facades.ICategoryFacade>();
+            var result = await categoryFacade.CreateCategoryAsync(request.Name, request.Description ?? string.Empty);
 
             if (result.IsSuccess && result.Data != null)
             {
-                ViewModel.Categories.Add(result.Data);
-                ViewModel.FilteredCategories.Add(result.Data);
+                // Reload all categories to get fresh data
+                if (ViewModel.LoadCommand is CommunityToolkit.Mvvm.Input.IAsyncRelayCommand loadCmd)
+                    await loadCmd.ExecuteAsync(null);
+
                 _toastService.ShowSuccess("Category created successfully");
             }
             else
@@ -223,20 +240,15 @@ public sealed partial class CategoriesPage : Page
         try
         {
             ViewModel.IsLoading = true;
-            var facade = App.Current.Services.GetRequiredService<Facades.CategoriesFacade>();
-            var result = await facade.UpdateCategoryAsync(id, request);
+            var categoryFacade = App.Current.Services.GetRequiredService<MyShop.Core.Interfaces.Facades.ICategoryFacade>();
+            var result = await categoryFacade.UpdateCategoryAsync(id, request.Name ?? string.Empty, request.Description ?? string.Empty);
 
             if (result.IsSuccess && result.Data != null)
             {
-                var existing = ViewModel.Categories.FirstOrDefault(c => c.Id == id);
-                if (existing != null)
-                {
-                    var index = ViewModel.Categories.IndexOf(existing);
-                    ViewModel.Categories[index] = result.Data;
-                }
+                // Reload all categories to get fresh data
+                if (ViewModel.LoadCommand is CommunityToolkit.Mvvm.Input.IAsyncRelayCommand loadCmd)
+                    await loadCmd.ExecuteAsync(null);
 
-                // Re-apply filters
-                ViewModel.ApplyFiltersAndSort();
                 _toastService.ShowSuccess("Category updated successfully");
             }
             else
