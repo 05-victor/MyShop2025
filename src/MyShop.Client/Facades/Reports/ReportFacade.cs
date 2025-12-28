@@ -2,7 +2,9 @@ using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
+using MyShop.Plugins.API.Dashboard;
 using MyShop.Shared.Models;
+using MyShop.Shared.DTOs.Responses;
 using System.Text;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -11,16 +13,21 @@ namespace MyShop.Client.Facades.Reports;
 
 /// <summary>
 /// Facade for reporting operations
-/// Aggregates: IReportRepository, IToastService
+/// Aggregates: IReportRepository, IDashboardApi, IToastService
 /// </summary>
 public class ReportFacade : IReportFacade
 {
     private readonly IReportRepository _reportRepository;
+    private readonly IDashboardApi _dashboardApi;
     private readonly IToastService _toastService;
 
-    public ReportFacade(IReportRepository reportRepository, IToastService toastService)
+    public ReportFacade(
+        IReportRepository reportRepository,
+        IDashboardApi dashboardApi,
+        IToastService toastService)
     {
         _reportRepository = reportRepository ?? throw new ArgumentNullException(nameof(reportRepository));
+        _dashboardApi = dashboardApi ?? throw new ArgumentNullException(nameof(dashboardApi));
         _toastService = toastService ?? throw new ArgumentNullException(nameof(toastService));
     }
 
@@ -110,7 +117,7 @@ public class ReportFacade : IReportFacade
             }
 
             var reportResult = await GetSalesReportAsync(period);
-            
+
             var csv = new StringBuilder();
             csv.AppendLine("SALES REPORT");
             csv.AppendLine($"Period,{period}");
@@ -169,7 +176,7 @@ public class ReportFacade : IReportFacade
             }
 
             var performanceResult = await GetProductPerformanceAsync(startDate, endDate, top: 1000);
-            
+
             var csv = new StringBuilder();
             csv.AppendLine("PRODUCT PERFORMANCE REPORT");
             csv.AppendLine($"Date Range,{startDate?.ToString("yyyy-MM-dd") ?? "All"} to {endDate?.ToString("yyyy-MM-dd") ?? "All"}");
@@ -177,7 +184,7 @@ public class ReportFacade : IReportFacade
             csv.AppendLine();
 
             csv.AppendLine("Product Name,Category,Units Sold,Revenue,Commission,Clicks,Conversion Rate");
-            
+
             if (performanceResult.IsSuccess && performanceResult.Data != null)
             {
                 foreach (var product in performanceResult.Data)
@@ -201,6 +208,53 @@ public class ReportFacade : IReportFacade
             System.Diagnostics.Debug.WriteLine($"[ReportFacade] Error exporting product performance: {ex.Message}");
             await _toastService.ShowError($"Error exporting performance: {ex.Message}");
             return Result<string>.Failure($"Error: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<AdminReportsResponse>> GetAdminReportsAsync(
+        DateTime from,
+        DateTime to,
+        Guid? categoryId = null,
+        int pageNumber = 1,
+        int pageSize = 10)
+    {
+        try
+        {
+            // Validate date range
+            if (from > to)
+            {
+                return Result<AdminReportsResponse>.Failure("Start date must be before end date");
+            }
+
+            // Convert to UTC if not already UTC
+            var fromUtc = from.Kind == DateTimeKind.Utc ? from : from.ToUniversalTime();
+            var toUtc = to.Kind == DateTimeKind.Utc ? to : to.ToUniversalTime();
+
+            // Serialize to ISO 8601 UTC format with 'Z' suffix
+            var fromString = fromUtc.ToString("O"); // "O" format: 2025-12-21T18:04:58.0000000Z
+            var toString = toUtc.ToString("O");
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[ReportFacade] Calling GetAdminReportsAsync: from={fromString} (Kind={fromUtc.Kind}), to={toString} (Kind={toUtc.Kind}), categoryId={categoryId}, page={pageNumber}, size={pageSize}");
+
+            // Call API with string parameters to ensure proper serialization
+            var response = await _dashboardApi.GetAdminReportsAsync(fromString, toString, categoryId, pageNumber, pageSize);
+
+            if (response.IsSuccessStatusCode && response.Content?.Result != null)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[ReportFacade] API Success: {response.Content.Result.ProductSummary?.Data?.Count ?? 0} products loaded");
+                return Result<AdminReportsResponse>.Success(response.Content.Result);
+            }
+
+            var errorMsg = response.Content?.Message ?? $"API returned {response.StatusCode}";
+            System.Diagnostics.Debug.WriteLine($"[ReportFacade] API Error: {errorMsg}");
+            return Result<AdminReportsResponse>.Failure(errorMsg);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ReportFacade] Exception in GetAdminReportsAsync: {ex.Message}");
+            return Result<AdminReportsResponse>.Failure($"Error: {ex.Message}");
         }
     }
 }

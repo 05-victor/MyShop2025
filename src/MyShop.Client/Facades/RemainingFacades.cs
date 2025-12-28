@@ -3,6 +3,7 @@ using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Shared.Models;
+using MyShop.Shared.DTOs.Responses;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -454,14 +455,14 @@ public class UserFacade : IUserFacade
                 await _toastService.ShowError("Failed to load users for export");
                 return Result<string>.Failure("Failed to load users");
             }
-            
+
             var totalUsers = countResult.Data?.TotalCount ?? 0;
             if (totalUsers == 0)
             {
                 await _toastService.ShowWarning("No users to export");
                 return Result<string>.Failure("No users to export");
             }
-            
+
             // Now load all users using actual total count
             var usersResult = await LoadUsersAsync(searchQuery, roleFilter, null, 1, totalUsers);
             if (!usersResult.IsSuccess || usersResult.Data?.Items == null)
@@ -487,18 +488,18 @@ public class UserFacade : IUserFacade
             var window = App.MainWindow;
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
             WinRT.Interop.InitializeWithWindow.Initialize(savePicker, hwnd);
-            
+
             savePicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
             savePicker.FileTypeChoices.Add("CSV File", new List<string>() { ".csv" });
             savePicker.SuggestedFileName = $"Users_{DateTime.Now:yyyyMMdd_HHmmss}";
-            
+
             var file = await savePicker.PickSaveFileAsync();
             if (file == null)
             {
                 // User cancelled
                 return Result<string>.Failure("Export cancelled");
             }
-            
+
             await Windows.Storage.FileIO.WriteTextAsync(file, csv.ToString());
 
             await _toastService.ShowSuccess($"Exported {users.Count} users to CSV");
@@ -524,14 +525,14 @@ public class UserFacade : IUserFacade
                 await _toastService.ShowError("Failed to load users for PDF export");
                 return Result<string>.Failure("Failed to load users");
             }
-            
+
             var totalUsers = countResult.Data?.TotalCount ?? 0;
             if (totalUsers == 0)
             {
                 await _toastService.ShowWarning("No users to export");
                 return Result<string>.Failure("No users to export");
             }
-            
+
             // Now load all users using actual total count
             var usersResult = await LoadUsersAsync(searchQuery, roleFilter, null, 1, totalUsers);
             if (!usersResult.IsSuccess || usersResult.Data?.Items == null)
@@ -558,7 +559,7 @@ public class UserFacade : IUserFacade
             // Use PdfExportService for PDF generation with FileSavePicker
             var pdfService = new Services.PdfExportService();
             var filePath = await pdfService.ExportUsersReportAsync(userResponses, "Users Report");
-            
+
             if (string.IsNullOrEmpty(filePath))
             {
                 // User cancelled the save dialog
@@ -949,6 +950,16 @@ public class ReportFacade : IReportFacade
             await _toastService.ShowError($"Error exporting performance: {ex.Message}");
             return Result<string>.Failure($"Error: {ex.Message}");
         }
+    }
+
+    public async Task<Result<AdminReportsResponse>> GetAdminReportsAsync(
+        DateTime from,
+        DateTime to,
+        Guid? categoryId = null,
+        int pageNumber = 1,
+        int pageSize = 10)
+    {
+        return Result<AdminReportsResponse>.Failure("Not implemented - use ReportFacade from Reports folder");
     }
 }
 
