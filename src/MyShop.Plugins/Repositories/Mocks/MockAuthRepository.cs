@@ -17,11 +17,30 @@ public class MockAuthRepository : IAuthRepository
     {
         _credentialStorage = credentialStorage ?? throw new ArgumentNullException(nameof(credentialStorage));
     }
-    public async Task<Result<User>> LoginAsync(string usernameOrEmail, string password)
+    public async Task<Result<User>> LoginAsync(string usernameOrEmail, string password, bool rememberMe = false)
     {
         try
         {
-            return await MockAuthData.LoginAsync(usernameOrEmail, password);
+            var result = await MockAuthData.LoginAsync(usernameOrEmail, password);
+
+            // Only save tokens if remember me is enabled
+            if (result.IsSuccess && result.Data != null && rememberMe)
+            {
+                var user = result.Data;
+                // Mock data has tokens - save them if rememberMe is true
+                if (!string.IsNullOrEmpty(user.Token))
+                {
+                    var refreshToken = user.Token; // Mock uses same token for simplicity
+                    await _credentialStorage.SaveToken(user.Token, refreshToken);
+                    System.Diagnostics.Debug.WriteLine($"[MockAuthRepository] Saved tokens (rememberMe=true)");
+                }
+            }
+            else if (result.IsSuccess)
+            {
+                System.Diagnostics.Debug.WriteLine($"[MockAuthRepository] Tokens NOT saved (rememberMe=false)");
+            }
+
+            return result;
         }
         catch (Exception ex)
         {
@@ -86,7 +105,7 @@ public class MockAuthRepository : IAuthRepository
         try
         {
             var userResult = await GetCurrentUserAsync();
-            
+
             if (userResult.IsSuccess && userResult.Data != null)
             {
                 return Result<Guid>.Success(userResult.Data.Id);
@@ -124,7 +143,7 @@ public class MockAuthRepository : IAuthRepository
         {
             // Simulate API call
             // await Task.Delay(300);
-            
+
             // Check if user exists in mock data and get verification status
             var user = await MockAuthData.GetUserByIdAsync(userId);
             if (user == null)

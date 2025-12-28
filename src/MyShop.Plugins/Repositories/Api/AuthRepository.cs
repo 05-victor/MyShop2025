@@ -27,7 +27,7 @@ public class AuthRepository : IAuthRepository
         _credentialStorage = credentialStorage ?? throw new ArgumentNullException(nameof(credentialStorage));
     }
 
-    public async Task<Result<User>> LoginAsync(string usernameOrEmail, string password)
+    public async Task<Result<User>> LoginAsync(string usernameOrEmail, string password, bool rememberMe = false)
     {
         try
         {
@@ -49,19 +49,23 @@ public class AuthRepository : IAuthRepository
                 {
                     // Store refresh token temporarily so we can pass it to AuthFacade
                     var loginResponse = apiResponse.Result;
-                    
-                    // Save refresh token to storage immediately
-                    if (!string.IsNullOrEmpty(loginResponse.RefreshToken))
+
+                    // Only save tokens if remember me is enabled
+                    if (rememberMe && !string.IsNullOrEmpty(loginResponse.RefreshToken))
                     {
                         await _credentialStorage.SaveToken(loginResponse.Token, loginResponse.RefreshToken);
-                        System.Diagnostics.Debug.WriteLine($"[AuthRepository] Saved access and refresh tokens");
+                        System.Diagnostics.Debug.WriteLine($"[AuthRepository] Saved access and refresh tokens (rememberMe=true)");
+                    }
+                    else if (rememberMe)
+                    {
+                        await _credentialStorage.SaveToken(loginResponse.Token);
+                        System.Diagnostics.Debug.WriteLine($"[AuthRepository] Saved access token only (rememberMe=true, no refresh token from server)");
                     }
                     else
                     {
-                        await _credentialStorage.SaveToken(loginResponse.Token);
-                        System.Diagnostics.Debug.WriteLine($"[AuthRepository] Saved access token only (no refresh token from server)");
+                        System.Diagnostics.Debug.WriteLine($"[AuthRepository] Tokens NOT saved (rememberMe=false)");
                     }
-                    
+
                     // Transform DTO → Client Model using AuthAdapter
                     var user = AuthAdapter.ToModel(loginResponse);
                     return Result<User>.Success(user);
