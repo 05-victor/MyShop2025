@@ -22,13 +22,16 @@
                HorizontalAlignment="Left">
             <StackPanel Spacing="4">
                 <!-- Bot Image (if present) -->
-                <Border CornerRadius="8"
+                <Border x:Name="ImageBorder"
+                        CornerRadius="8"
                         Visibility="{Binding ImageUrl, ElementName=RootControl, Converter={StaticResource NullToVisibilityConverter}, Mode=OneWay}">
                     <Image x:Name="MessageImage"
                            Source="{Binding ImageUrl, ElementName=RootControl, Mode=OneWay}"
                            MaxWidth="300"
-                           MaxHeight="300"
-                           Stretch="Uniform"/>
+                           Stretch="Uniform"
+                           Tapped="MessageImage_Tapped"
+                           PointerEntered="MessageImage_PointerEntered"
+                           PointerExited="MessageImage_PointerExited"/>
                 </Border>
                 
                 <!-- Message Text -->

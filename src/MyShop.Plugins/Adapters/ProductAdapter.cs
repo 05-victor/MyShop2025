@@ -30,7 +30,10 @@ public static class ProductAdapter
             CommissionRate = dto.CommissionRate ?? 0,
             Status = dto.Status ?? "AVAILABLE",
             CreatedAt = dto.CreatedAt ?? DateTime.Now,
-            UpdatedAt = dto.UpdatedAt
+            UpdatedAt = dto.UpdatedAt,
+            SaleAgentId = dto.SaleAgentId,
+            SaleAgentUsername = dto.SaleAgentUsername,
+            SaleAgentFullName = dto.SaleAgentFullName
         };
     }
 

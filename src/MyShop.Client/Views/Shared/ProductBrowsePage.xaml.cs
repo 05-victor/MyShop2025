@@ -104,22 +104,34 @@ namespace MyShop.Client.Views.Shared
             // Use ContentHost ActualWidth (accounts for sidebar/nav)
             var contentWidth = ProductGridView.ActualWidth;
 
-            // Task B: Responsive rule - 1400×850 → 3 columns based on CONTENT width
+            // Responsive rule - Use window minimum width from MainWindow
+            const double sidebarWidth = 245; // NavigationView sidebar approximate width
             const double minCardWidth = 240;
             const double cardGap = 16;
 
-            // At 1400px+ content width → force 3 columns minimum
-            // Below 1400px → calculate dynamically
+            // Calculate expected content width at minimum window size
+            var minContentWidth = MainWindow.MIN_WIDTH - sidebarWidth; // ~1220px
+
+            // Responsive breakpoints based on content width
             int columns;
-            if (contentWidth >= 1400)
+            if (contentWidth >= minContentWidth * 0.82) // ~1000px → 4 columns at min window size
             {
-                // At 1400+ enforce minimum 3 columns, can go up to 4-5 if space allows
-                columns = Math.Max(3, (int)Math.Floor((contentWidth + cardGap) / (minCardWidth + cardGap)));
+                columns = 4;
+            }
+            else if (contentWidth >= 750)
+            {
+                // 750-999px → 3 columns
+                columns = 3;
+            }
+            else if (contentWidth >= 500)
+            {
+                // 500-749px → 2 columns
+                columns = 2;
             }
             else
             {
-                // Below 1400: dynamic (2 cols at ~900px, 1 col at ~500px)
-                columns = Math.Max(1, (int)Math.Floor((contentWidth + cardGap) / (minCardWidth + cardGap)));
+                // Below 500px → 1 column
+                columns = 1;
             }
 
             // Set ItemWidth to fill space evenly
@@ -241,7 +253,8 @@ namespace MyShop.Client.Views.Shared
 
         private async void CategoryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (ViewModel == null) return;
+            // Skip during initialization to prevent duplicate LoadPageAsync calls
+            if (ViewModel == null || ViewModel.IsInitializing) return;
 
             if (CategoryComboBox.SelectedItem is string category)
             {
@@ -251,7 +264,8 @@ namespace MyShop.Client.Views.Shared
 
         private async void BrandComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (ViewModel == null) return;
+            // Skip during initialization to prevent duplicate LoadPageAsync calls
+            if (ViewModel == null || ViewModel.IsInitializing) return;
 
             if (BrandComboBox.SelectedItem is string brand)
             {
@@ -261,8 +275,8 @@ namespace MyShop.Client.Views.Shared
 
         private async void SortComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Guard: Prevent NullReferenceException during page initialization
-            if (ViewModel == null) return;
+            // Skip during initialization to prevent duplicate LoadPageAsync calls
+            if (ViewModel == null || ViewModel.IsInitializing) return;
 
             if (sender is ComboBox comboBox && comboBox.SelectedItem is ComboBoxItem selectedItem)
             {
@@ -305,7 +319,7 @@ namespace MyShop.Client.Views.Shared
                 ViewProductPrice.Text = $"₫{product.Price:N0}";
                 ViewProductStock.Text = product.Stock.ToString();
 
-                // Set stock status badge
+                // Set stock status badge and button enabled state (check stock AND CanAddToCart for email verification)
                 if (product.Stock <= 0)
                 {
                     ViewProductStockBadge.Background = (Brush)Application.Current.Resources["StockOutOfStockBackgroundBrush"];
@@ -318,14 +332,14 @@ namespace MyShop.Client.Views.Shared
                     ViewProductStockBadge.Background = (Brush)Application.Current.Resources["StockLowStockBackgroundBrush"];
                     ViewProductStockStatus.Text = "Low Stock";
                     ViewProductStockStatus.Foreground = (Brush)Application.Current.Resources["StockLowStockForegroundBrush"];
-                    DialogAddToCartButton.IsEnabled = true;
+                    DialogAddToCartButton.IsEnabled = product.CanAddToCart; // Check email verification
                 }
                 else
                 {
                     ViewProductStockBadge.Background = (Brush)Application.Current.Resources["StockInStockBackgroundBrush"];
                     ViewProductStockStatus.Text = "In Stock";
                     ViewProductStockStatus.Foreground = (Brush)Application.Current.Resources["StockInStockForegroundBrush"];
-                    DialogAddToCartButton.IsEnabled = true;
+                    DialogAddToCartButton.IsEnabled = product.CanAddToCart; // Check email verification
                 }
 
                 // Load product image

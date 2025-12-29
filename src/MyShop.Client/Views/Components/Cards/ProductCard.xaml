@@ -17,12 +17,12 @@
         <converters:BoolToStockColorConverter x:Key="BoolToStockColorConverter"/>
         <converters:BoolToCartTooltipConverter x:Key="CartTooltipConverter"/>
         <converters:StringToImageSourceConverter x:Key="StringToImageSource"/>
+        <converters:EmptyStringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
     </UserControl.Resources>
 
     <Border x:Name="CardBorder"
             Width="240"
-            MinHeight="330"
-            Padding="20"
+            Padding="16,12"
             Style="{StaticResource ProductCardStyle}"
             PointerEntered="CardBorder_PointerEntered"
             PointerExited="CardBorder_PointerExited">
@@ -33,11 +33,11 @@
             <ThemeShadow/>
         </Border.Shadow>
 
-        <Grid RowSpacing="0">
+        <Grid RowSpacing="8">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <!-- Image -->
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
                 <!-- Product Info (flexible) -->
                 <RowDefinition Height="Auto"/>
                 <!-- Actions (anchored to bottom) -->
@@ -77,19 +77,27 @@
                         Text="{x:Bind Product.Manufacturer, Mode=OneWay, FallbackValue=''}"/>
                 </StackPanel>
 
+                <!--  Agent Name (if available)  -->
+                <TextBlock
+                    FontSize="11"
+                    Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                    Text="{x:Bind Product.AgentDisplay, Mode=OneWay}"
+                    Visibility="{x:Bind Product.AgentName, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
+                    Margin="0,-2,0,0"/>
+
                 <!--  Product Name (Task C: Max 2 lines + ellipsis + margin)  -->
                 <TextBlock
                     FontSize="16"
                     FontWeight="SemiBold"
                     Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                     MaxLines="2"
-                    Margin="0,0,0,6"
+                    Margin="0,0,0,4"
                     Text="{x:Bind Product.Name, Mode=OneWay, FallbackValue='Product'}"
                     TextTrimming="CharacterEllipsis"/>
 
                 <!--  Price & Stock  -->
                 <Grid VerticalAlignment="Center"
-                      Margin="0,0,0,4">
+                      Margin="0,0,0,2">
                     <StackPanel
                         Orientation="Horizontal"
                         Spacing="{StaticResource Spacing_2}"
@@ -124,7 +132,7 @@
                     Message="Verify your email to start shopping"
                     IsIconVisible="True"
                     IsClosable="False"
-                    Margin="0,4,0,0">
+                    Margin="0,2,0,0">
                     <InfoBar.ActionButton>
                         <Button
                             Style="{StaticResource SecondaryButtonSmallStyle}"
@@ -137,7 +145,7 @@
 
             <!--  Actions (Task D: Tooltip for disabled state) - Grid.Row 2 -->
             <StackPanel Grid.Row="2"
-                        Margin="0,4,0,0"
+                        Margin="0,2,0,0"
                         Orientation="Horizontal"
                         Spacing="{StaticResource Spacing_2}"
                         VerticalAlignment="Bottom">

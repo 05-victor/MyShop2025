@@ -1076,6 +1076,25 @@ public class AgentRequestFacade : IAgentRequestFacade
         return Result<User>.Failure("Not implemented");
     }
 
+    public async Task<Result<MyShop.Shared.DTOs.Responses.AgentRequestResponse?>> GetMyRequestAsync()
+    {
+        try
+        {
+            var result = await _agentRequestRepository.GetMyRequestAsync();
+            if (!result.IsSuccess)
+            {
+                // No request found is not an error - return null
+                return Result<MyShop.Shared.DTOs.Responses.AgentRequestResponse?>.Success(null);
+            }
+            return Result<MyShop.Shared.DTOs.Responses.AgentRequestResponse?>.Success(result.Data);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AgentRequestFacade] Error getting my request: {ex.Message}");
+            return Result<MyShop.Shared.DTOs.Responses.AgentRequestResponse?>.Failure($"Error: {ex.Message}");
+        }
+    }
+
     public async Task<Result<PagedList<AgentRequest>>> GetPagedAsync(
         int page = 1,
         int pageSize = 10,

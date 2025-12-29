@@ -146,17 +146,12 @@
                                           ShowActions="True"
                                           ShowResetButton="True">
                             <forms:FilterCard.FilterContent>
-                                <Grid ColumnSpacing="16"
-                                      RowSpacing="16">
+                                <Grid ColumnSpacing="16">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
 
                                     <!--  Category  -->
                                     <StackPanel Grid.Column="0">
@@ -293,8 +288,8 @@
                                 <ItemsPanelTemplate>
                                     <ItemsWrapGrid
                                         x:Name="ProductWrapGrid"
-                                        ItemHeight="400"
-                                        ItemWidth="280"
+                                        ItemHeight="350"
+                                        ItemWidth="220"
                                         Orientation="Horizontal"/>
                                 </ItemsPanelTemplate>
                             </GridView.ItemsPanel>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="MyShop.Client.Views.Shared.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -91,7 +91,7 @@
 
         <!--  Main Content  -->
         <ScrollViewer>
-            <StackPanel x:Name="MainContent" MaxWidth="900"
+            <StackPanel x:Name="MainContent" 
                     Padding="40,24,40,24"
                     Spacing="24">
                 <!--  Header  -->
@@ -116,9 +116,8 @@
                         <TabViewItem.IconSource>
                             <FontIconSource Glyph="&#xE713;"/>
                         </TabViewItem.IconSource>
-                        <ScrollViewer>
-                            <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
-                                    Spacing="24">
+                        <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
+                                Spacing="24">
                                 <Border
                                     Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
@@ -166,8 +165,7 @@
                                         Text="Save Changes"
                                         Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
                                         Command="{x:Bind ViewModel.SaveCommand}"/>
-                            </StackPanel>
-                        </ScrollViewer>
+                        </StackPanel>
                     </TabViewItem>
 
                     <!--  Appearance Tab  -->
@@ -176,10 +174,9 @@
                         <TabViewItem.IconSource>
                             <FontIconSource Glyph="&#xE771;"/>
                         </TabViewItem.IconSource>
-                        <ScrollViewer>
-                            <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
-                                    Spacing="24">
-                                <Border
+                        <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
+                                Spacing="24">
+                            <Border
                                     Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
@@ -244,8 +241,7 @@
                                         IconGlyph="&#xE74E;"
                                         Text="Save Changes"
                                         Command="{x:Bind ViewModel.SaveCommand}"/>
-                            </StackPanel>
-                        </ScrollViewer>
+                        </StackPanel>
                     </TabViewItem>
 
                     <!--  About Tab  -->
@@ -254,10 +250,9 @@
                         <TabViewItem.IconSource>
                             <FontIconSource Glyph="&#xE946;"/>
                         </TabViewItem.IconSource>
-                        <ScrollViewer>
-                            <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
-                                    Spacing="24">
-                                <Border
+                        <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
+                                Spacing="24">
+                            <Border
                                     Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
@@ -328,8 +323,7 @@
                                                 TextAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
-                            </StackPanel>
-                        </ScrollViewer>
+                        </StackPanel>
                     </TabViewItem>
 
                     <!--  Trial Tab (Admin with Trial License Only) - Placed last to avoid being selected by default  -->
@@ -339,11 +333,10 @@
                         <TabViewItem.IconSource>
                             <FontIconSource Glyph="&#xE8D7;"/>
                         </TabViewItem.IconSource>
-                        <ScrollViewer>
-                            <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
-                                    Spacing="24">
-                                <!--  Trial Status Card  -->
-                                <Border
+                        <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
+                                Spacing="24">
+                            <!--  Trial Status Card  -->
+                            <Border
                                     Padding="{StaticResource Padding_XL}"
                                     Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
                                     BorderBrush="{ThemeResource SystemFillColorAttentionBrush}"
@@ -601,8 +594,7 @@
                                         </Border>
                                     </StackPanel>
                                 </Border>
-                            </StackPanel>
-                        </ScrollViewer>
+                        </StackPanel>
                     </TabViewItem>
                 </TabView>
 
