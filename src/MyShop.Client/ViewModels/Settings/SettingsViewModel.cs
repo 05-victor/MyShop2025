@@ -478,18 +478,19 @@ public partial class SettingsViewModel : ObservableObject
 
             if (IsAdmin)
             {
-                // Admin: Can update both shop info and appearance
-                if (shopInfoChanged)
+                // Admin: Always use UpdateSettingsAsync for ANY changes (shop info or appearance)
+                // Admin can update both shop settings and appearance using the main PUT endpoint
+                if (shopInfoChanged || themeChanged)
                 {
                     // Validate ShopName is not empty (required by API)
                     if (string.IsNullOrEmpty(ShopName))
                     {
-                        System.Diagnostics.Debug.WriteLine("[SettingsViewModel] ❌ Admin shop update failed: ShopName is required");
+                        System.Diagnostics.Debug.WriteLine("[SettingsViewModel] ❌ Admin update failed: ShopName is required");
                         ErrorMessage = "Shop name is required and cannot be empty.";
                         return false;
                     }
 
-                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] Admin updating shop settings via API");
+                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] Admin updating settings (shop info and/or appearance) via API");
                     var updateRequest = new UpdateSettingsRequest
                     {
                         ShopName = ShopName,
@@ -501,38 +502,21 @@ public partial class SettingsViewModel : ObservableObject
                     var result = await _settingsRepository.UpdateSettingsAsync(updateRequest);
                     if (!result.IsSuccess)
                     {
-                        System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] ❌ Admin shop update failed: {result.ErrorMessage}");
-                        ErrorMessage = $"Failed to update shop settings: {result.ErrorMessage}";
+                        System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] ❌ Admin settings update failed: {result.ErrorMessage}");
+                        ErrorMessage = $"Failed to update settings: {result.ErrorMessage}";
                         return false;
                     }
 
-                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] ✅ Admin shop settings updated via API");
-                    return true;
-                }
-                else if (themeChanged)
-                {
-                    // Admin changing only appearance (theme)
-                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] Admin updating appearance via API");
-                    var appearanceRequest = new UpdateAppearanceRequest { Theme = Theme };
-
-                    var result = await _settingsRepository.UpdateAppearanceAsync(appearanceRequest);
-                    if (!result.IsSuccess)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] ❌ Appearance update failed: {result.ErrorMessage}");
-                        ErrorMessage = $"Failed to update appearance: {result.ErrorMessage}";
-                        return false;
-                    }
-
-                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] ✅ Appearance updated via API");
+                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] ✅ Admin settings updated via API");
                     return true;
                 }
             }
             else
             {
-                // SalesAgent/User: Can only update appearance (theme)
+                // SalesAgent/User: Can only update appearance (theme) using the appearance endpoint
                 if (themeChanged)
                 {
-                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] User updating appearance via API");
+                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] SalesAgent/User updating appearance via API");
                     var appearanceRequest = new UpdateAppearanceRequest { Theme = Theme };
 
                     var result = await _settingsRepository.UpdateAppearanceAsync(appearanceRequest);
