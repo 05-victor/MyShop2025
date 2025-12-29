@@ -218,6 +218,7 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
                 Items.Add(new OrderViewModel
                 {
                     OrderId = o.OrderCode ?? $"ORD-{o.Id.ToString().Substring(0, 8)}",
+                    OrderGuid = o.Id,
                     ProductSummary = productSummary,
                     FirstProductImage = firstProductImage ?? "ms-appx:///Assets/Images/placeholder.png",
                     CustomerName = o.CustomerName,
@@ -226,10 +227,10 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
                     Status = o.Status,
                     DeliveredDate = o.Status == "Delivered" || o.Status == "DELIVERED" ? o.OrderDate.AddDays(3) : null,
                     Items = itemViewModels,
-                    Subtotal = o.Subtotal > 0 ? o.Subtotal : o.FinalPrice * 0.9m,
-                    Shipping = 10.00m,
-                    Tax = (o.Subtotal > 0 ? o.Subtotal : o.FinalPrice * 0.9m) * 0.08m,
-                    Total = o.FinalPrice
+                    Subtotal = (decimal)o.Subtotal,
+                    Shipping = (decimal)o.ShippingFee,
+                    Tax = (decimal)o.Tax,
+                    Total = (decimal)o.FinalPrice
                 });
             }
 
@@ -353,10 +354,54 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
             await _toastHelper?.ShowError("Failed to add items to cart");
         }
     }
+
+    [RelayCommand]
+    private async Task PayNowAsync(OrderViewModel order)
+    {
+        try
+        {
+            if (order?.OrderGuid == Guid.Empty)
+            {
+                await _toastHelper?.ShowError("Invalid order ID");
+                return;
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Processing payment for order: {order.OrderId}");
+
+            // Call payment API with card details
+            var result = await _orderFacade.ProcessCardPaymentAsync(
+                orderId: order.OrderGuid,
+                cardNumber: "4532015112830366", // Mock card for testing
+                cardHolderName: "Test User",
+                expiryDate: "12/25",
+                cvv: "123");
+
+            if (result.IsSuccess)
+            {
+                await _toastHelper?.ShowSuccess("Payment processed successfully!");
+
+                // Reload orders to refresh status
+                CurrentPage = 1;
+                await LoadPageAsync();
+            }
+            else
+            {
+                await _toastHelper?.ShowError(result.ErrorMessage ?? "Payment failed");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Error processing payment: {ex.Message}");
+            await _toastHelper?.ShowError($"Payment error: {ex.Message}");
+        }
+    }
 }
 
 public partial class OrderViewModel : ObservableObject
 {
+    [ObservableProperty]
+    private Guid _orderGuid;
+
     [ObservableProperty]
     private string _orderId = string.Empty;
 

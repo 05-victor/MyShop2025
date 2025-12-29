@@ -28,6 +28,8 @@ public static class OrderAdapter
             FinalPrice = dto.GrandTotal,
             Subtotal = dto.TotalAmount,
             Discount = dto.DiscountAmount,
+            ShippingFee = dto.ShippingFee,
+            Tax = dto.TaxAmount,
             Notes = dto.Note,
             OrderDate = dto.OrderDate,
             CreatedAt = dto.CreatedAt,
