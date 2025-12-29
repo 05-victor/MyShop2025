@@ -122,6 +122,13 @@ public class AuthFacade : IAuthFacade
             _currentUserService.SetCurrentUser(user);
             System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] User cached via ICurrentUserService");
 
+            // Step 6b: Set current user for per-user settings storage
+            if (_settingsStorage is FileSettingsStorage fileStorage)
+            {
+                fileStorage.SetCurrentUser(user.Id.ToString());
+                System.Diagnostics.Debug.WriteLine($"[AuthFacade.LoginAsync] Current user set for FileSettingsStorage: {user.Id}");
+            }
+
             // Step 7: Show success notification
             await _toastService.ShowSuccess($"Welcome back, {user.Username}!");
 

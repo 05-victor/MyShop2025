@@ -28,8 +28,6 @@ public static class ThemeManager
     /// </summary>
     public static ThemeType CurrentTheme { get; private set; } = ThemeType.Light;
 
-    private const string ThemePreferenceKey = "UserThemePreference";
-
     /// <summary>
     /// Event raised when the theme changes.
     /// NOTE: With native ThemeDictionaries, manual subscriptions are no longer needed.
@@ -39,22 +37,21 @@ public static class ThemeManager
 
     /// <summary>
     /// Initializes the theme system with a default theme.
-    /// Loads saved theme preference if available.
+    /// Only sets CurrentTheme - no loading of saved preferences.
+    /// Persistence is managed by Settings storage/service.
     /// </summary>
-    /// <param name="defaultTheme">The theme to use if no preference is saved.</param>
+    /// <param name="defaultTheme">The theme to use.</param>
     public static void Initialize(ThemeType defaultTheme = ThemeType.Light)
     {
-        // Try to load saved preference
-        var savedTheme = LoadThemePreference();
-        var themeToApply = savedTheme ?? defaultTheme;
-        
-        ApplyTheme(themeToApply);
+        CurrentTheme = defaultTheme;
+        System.Diagnostics.Debug.WriteLine($"[ThemeManager] Initialized with default theme: {defaultTheme}");
     }
 
     /// <summary>
     /// Applies the specified theme using WinUI's native RequestedTheme API.
     /// This automatically resolves ThemeResource references in XAML.
     /// Also updates the SystemBackdrop based on theme (Acrylic for Light, Mica for Dark).
+    /// Does NOT persist theme - persistence is managed by Settings storage/service.
     /// </summary>
     /// <param name="theme">The theme to apply.</param>
     public static void ApplyTheme(ThemeType theme)
@@ -62,21 +59,21 @@ public static class ThemeManager
         try
         {
             CurrentTheme = theme;
-            
+
             // Set RequestedTheme on the main window content (Grid)
             // This triggers WinUI's automatic ThemeDictionaries resolution
             if (App.MainWindow?.Content is FrameworkElement rootElement)
             {
                 var elementTheme = theme == ThemeType.Dark ? ElementTheme.Dark : ElementTheme.Light;
                 rootElement.RequestedTheme = elementTheme;
-                
-                System.Diagnostics.Debug.WriteLine($"ThemeManager: ✓ Applied {theme} theme via RequestedTheme={elementTheme}");
-                System.Diagnostics.Debug.WriteLine($"ThemeManager: Root element type: {rootElement.GetType().Name}");
-                System.Diagnostics.Debug.WriteLine($"ThemeManager: RequestedTheme is now: {rootElement.RequestedTheme}");
+
+                System.Diagnostics.Debug.WriteLine($"[ThemeManager] ✓ Applied {theme} theme via RequestedTheme={elementTheme}");
+                System.Diagnostics.Debug.WriteLine($"[ThemeManager] Root element type: {rootElement.GetType().Name}");
+                System.Diagnostics.Debug.WriteLine($"[ThemeManager] RequestedTheme is now: {rootElement.RequestedTheme}");
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine($"ThemeManager: ⚠ MainWindow.Content not available yet (MainWindow={App.MainWindow}, Content={App.MainWindow?.Content})");
+                System.Diagnostics.Debug.WriteLine($"[ThemeManager] ⚠ MainWindow.Content not available yet (MainWindow={App.MainWindow}, Content={App.MainWindow?.Content})");
             }
 
             // Update SystemBackdrop based on theme
@@ -84,16 +81,13 @@ public static class ThemeManager
             // Dark theme: MicaBackdrop for modern look
             UpdateBackdrop(theme);
 
-            // Save preference
-            SaveThemePreference(theme);
-
             // Notify subscribers (for legacy components that still need it)
             ThemeChanged?.Invoke(theme);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"ThemeManager: ❌ Failed to apply theme {theme}: {ex.Message}");
-            System.Diagnostics.Debug.WriteLine($"ThemeManager: Stack trace: {ex.StackTrace}");
+            System.Diagnostics.Debug.WriteLine($"[ThemeManager] ❌ Failed to apply theme {theme}: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[ThemeManager] Stack trace: {ex.StackTrace}");
         }
     }
 
@@ -108,16 +102,16 @@ public static class ThemeManager
         {
             if (App.MainWindow == null) return;
 
-            SystemBackdrop backdrop = theme == ThemeType.Light 
-                ? new DesktopAcrylicBackdrop() 
+            SystemBackdrop backdrop = theme == ThemeType.Light
+                ? new DesktopAcrylicBackdrop()
                 : new MicaBackdrop();
 
             App.MainWindow.SystemBackdrop = backdrop;
-            System.Diagnostics.Debug.WriteLine($"ThemeManager: Set {(theme == ThemeType.Light ? "DesktopAcrylicBackdrop" : "MicaBackdrop")}");
+            System.Diagnostics.Debug.WriteLine($"[ThemeManager] Set {(theme == ThemeType.Light ? "DesktopAcrylicBackdrop" : "MicaBackdrop")}");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"ThemeManager: Failed to update backdrop: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[ThemeManager] Failed to update backdrop: {ex.Message}");
         }
     }
 
@@ -130,76 +124,12 @@ public static class ThemeManager
         ApplyTheme(newTheme);
     }
 
-    /// <summary>
-    /// Saves the current theme preference to local storage.
-    /// </summary>
-    private static void SaveThemePreference(ThemeType theme)
-    {
-        try
-        {
-            var appData = Windows.Storage.ApplicationData.Current;
-            if (appData?.LocalSettings == null)
-                return;
-                
-            var localSettings = appData.LocalSettings;
-            localSettings.Values[ThemePreferenceKey] = theme.ToString();
-        }
-        catch (InvalidOperationException)
-        {
-            // ApplicationData not available yet - this is expected during early startup
-        }
-        catch (System.Runtime.InteropServices.COMException)
-        {
-            // COM object not available - this is expected during early startup
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"ThemeManager: Failed to save preference: {ex.Message}");
-        }
-    }
-
-    /// <summary>
-    /// Loads the saved theme preference from local storage.
-    /// </summary>
-    private static ThemeType? LoadThemePreference()
-    {
-        try
-        {
-            var appData = Windows.Storage.ApplicationData.Current;
-            if (appData?.LocalSettings == null)
-                return null;
-                
-            var localSettings = appData.LocalSettings;
-            if (localSettings.Values.TryGetValue(ThemePreferenceKey, out var value) && value is string themeStr)
-            {
-                if (Enum.TryParse<ThemeType>(themeStr, out var theme))
-                    return theme;
-            }
-        }
-        catch (InvalidOperationException)
-        {
-            // ApplicationData not available yet
-            System.Diagnostics.Debug.WriteLine("ThemeManager: ApplicationData not available yet");
-        }
-        catch (System.Runtime.InteropServices.COMException)
-        {
-            // COM object not available
-            System.Diagnostics.Debug.WriteLine("ThemeManager: COM exception during preference load");
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"ThemeManager: Failed to load preference: {ex.Message}");
-        }
-
-        return null;
-    }
-
     // ============================================
     // LEGACY METHODS (DEPRECATED)
     // ============================================
     // These methods are kept for backward compatibility but no longer needed
     // with native ThemeDictionaries. They can be safely removed after migration.
-    
+
     /// <summary>
     /// [DEPRECATED] Applies theme brushes to a framework element.
     /// With native ThemeDictionaries, this is no longer needed.

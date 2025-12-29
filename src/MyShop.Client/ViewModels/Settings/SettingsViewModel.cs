@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MyShop.Client.Services;
 using MyShop.Client.Services.Configuration;
 using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Core.Interfaces.Repositories;
@@ -330,7 +331,8 @@ public partial class SettingsViewModel : ObservableObject
             {
                 // Load from API response
                 var apiSettings = apiResult.Data;
-                Theme = string.IsNullOrEmpty(apiSettings.Theme) ? "Light" : apiSettings.Theme;
+                // Normalize theme string using ThemeMapping to ensure consistency
+                Theme = ThemeMapping.ToAppSettings(ThemeMapping.FromAppSettings(apiSettings.Theme));
                 ShopName = string.IsNullOrEmpty(apiSettings.ShopName) ? "MyShop 2025" : apiSettings.ShopName;
                 Address = apiSettings.Address ?? string.Empty;
                 Language = "en-US"; // Language not yet supported by API, use default
@@ -349,6 +351,10 @@ public partial class SettingsViewModel : ObservableObject
 
                 // Also cache to local storage for offline support
                 await _settingsStorage.SaveAsync(cacheSettings);
+
+                // Apply loaded theme immediately to the app
+                System.Diagnostics.Debug.WriteLine("[SettingsViewModel] Applying loaded theme from API");
+                ApplyThemeAndLanguage();
             }
             else
             {
@@ -366,6 +372,10 @@ public partial class SettingsViewModel : ObservableObject
                     _originalSettings = settings;
 
                     System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Loaded from local storage: Theme={Theme}");
+
+                    // Apply loaded theme immediately to the app
+                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] Applying loaded theme from local storage");
+                    ApplyThemeAndLanguage();
                 }
                 else
                 {
@@ -383,6 +393,10 @@ public partial class SettingsViewModel : ObservableObject
                     };
 
                     System.Diagnostics.Debug.WriteLine("[SettingsViewModel] Using default settings");
+
+                    // Apply default theme immediately to the app
+                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] Applying default theme");
+                    ApplyThemeAndLanguage();
                 }
             }
         }
@@ -508,6 +522,13 @@ public partial class SettingsViewModel : ObservableObject
                     }
 
                     System.Diagnostics.Debug.WriteLine("[SettingsViewModel] ✅ Admin settings updated via API");
+
+                    // Save theme to session storage for startup if theme changed
+                    if (themeChanged)
+                    {
+                        await SaveSessionThemeAsync();
+                    }
+
                     return true;
                 }
             }
@@ -528,6 +549,10 @@ public partial class SettingsViewModel : ObservableObject
                     }
 
                     System.Diagnostics.Debug.WriteLine("[SettingsViewModel] ✅ Appearance updated via API");
+
+                    // Save theme to session storage for startup
+                    await SaveSessionThemeAsync();
+
                     return true;
                 }
             }
@@ -545,6 +570,32 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     private bool CanSave() => !IsLoading && HasChanges();
+
+    /// <summary>
+    /// Save current theme to session storage (for app startup without user context).
+    /// This allows the app to remember the last used theme before next login.
+    /// </summary>
+    private async Task SaveSessionThemeAsync()
+    {
+        try
+        {
+            var themeString = ThemeMapping.ToAppSettings(ThemeMapping.FromAppSettings(Theme));
+            var sessionResult = await _settingsStorage.SaveSessionThemeAsync(themeString);
+
+            if (sessionResult.IsSuccess)
+            {
+                System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] ✓ Theme saved to session storage: {themeString}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] ⚠️ Failed to save theme to session: {sessionResult.ErrorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Error saving session theme: {ex.Message}");
+        }
+    }
 
     /// <summary>
     /// Reset settings to defaults

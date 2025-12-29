@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Repositories;
+using MyShop.Core.Interfaces.Infrastructure;
+using MyShop.Client.Services;
+using MyShop.Plugins.Infrastructure;
 using MyShop.Client.Strategies;
 
 namespace MyShop.Client.ViewModels.Shared;
@@ -29,6 +32,7 @@ public partial class LoginViewModel : BaseViewModel
     private readonly IRoleStrategyFactory _roleStrategyFactory;
     private new readonly IToastService _toastHelper;
     private readonly ISettingsRepository _settingsRepository;
+    private readonly ISettingsStorage _settingsStorage;
     private CancellationTokenSource? _loginCancellationTokenSource;
 
     [ObservableProperty]
@@ -86,13 +90,15 @@ public partial class LoginViewModel : BaseViewModel
         INavigationService navigationService,
         IRoleStrategyFactory roleStrategyFactory,
         IToastService toastHelper,
-        ISettingsRepository settingsRepository)
+        ISettingsRepository settingsRepository,
+        ISettingsStorage settingsStorage)
     {
         _authFacade = authFacade ?? throw new ArgumentNullException(nameof(authFacade));
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
         _roleStrategyFactory = roleStrategyFactory ?? throw new ArgumentNullException(nameof(roleStrategyFactory));
         _toastHelper = toastHelper ?? throw new ArgumentNullException(nameof(toastHelper));
         _settingsRepository = settingsRepository ?? throw new ArgumentNullException(nameof(settingsRepository));
+        _settingsStorage = settingsStorage ?? throw new ArgumentNullException(nameof(settingsStorage));
 
         // Notify LoginButtonText when IsLoading changes
         PropertyChanged += (s, e) =>
@@ -165,17 +171,31 @@ public partial class LoginViewModel : BaseViewModel
             {
                 var user = result.Data;
 
-                // Load settings after successful login
-                System.Diagnostics.Debug.WriteLine("[LoginViewModel] Login successful, loading settings");
+                // Set current user for per-user settings storage (enables users/{UserId}/preferences.json)
+                if (_settingsStorage is FileSettingsStorage fileStorage)
+                {
+                    fileStorage.SetCurrentUser(user.Id.ToString());
+                }
+
+                // Load settings from server (source of truth) and apply theme immediately
+                System.Diagnostics.Debug.WriteLine("[LoginViewModel] Login successful, loading and applying user settings");
                 var settingsResult = await _settingsRepository.GetSettingsAsync();
-                if (settingsResult.IsSuccess)
+                if (settingsResult.IsSuccess && settingsResult.Data != null)
                 {
                     System.Diagnostics.Debug.WriteLine("[LoginViewModel] Settings loaded successfully");
+
+                    // Apply user's theme preference to override session theme
+                    if (!string.IsNullOrEmpty(settingsResult.Data.Theme))
+                    {
+                        var mappedTheme = ThemeMapping.FromAppSettings(settingsResult.Data.Theme);
+                        ThemeManager.ApplyTheme(mappedTheme);
+                        System.Diagnostics.Debug.WriteLine($"[LoginViewModel] Applied user theme: {settingsResult.Data.Theme}");
+                    }
                 }
                 else
                 {
                     System.Diagnostics.Debug.WriteLine($"[LoginViewModel] Warning: Failed to load settings: {settingsResult.ErrorMessage}");
-                    // Don't block login even if settings failed to load
+                    // Don't block login even if settings failed to load - theme from session will be retained
                 }
 
                 // Use strategy pattern to navigate to appropriate dashboard
