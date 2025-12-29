@@ -48,4 +48,18 @@ public interface IAuthApi
     /// </summary>
     [Post("/api/v1/email-verification/send")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<object>>> SendVerificationEmailAsync();
+
+    /// <summary>
+    /// Send a password reset code to the specified email.
+    /// User does not need to be authenticated.
+    /// </summary>
+    [Post("/api/v1/passwordreset/forgot-password")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<object>>> SendPasswordResetCodeAsync([Body] ForgotPasswordRequest request);
+
+    /// <summary>
+    /// Reset password using email, reset code, and new password.
+    /// User does not need to be authenticated.
+    /// </summary>
+    [Post("/api/v1/passwordreset/reset-password")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<object>>> ResetPasswordAsync([Body] ResetPasswordRequest request);
 }

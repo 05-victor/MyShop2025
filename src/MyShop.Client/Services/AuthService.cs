@@ -1,71 +1,105 @@
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Services;
+using MyShop.Plugins.API.Auth;
+using MyShop.Shared.DTOs.Requests;
+using MyShop.Shared.DTOs.Responses;
 
 namespace MyShop.Client.Services;
 
 /// <summary>
-/// Stub implementation of IAuthService for password reset operations.
-/// TODO: Implement actual API calls when backend is ready.
+/// Implementation of IAuthService for password reset operations.
+/// Makes actual API calls to the backend endpoints.
 /// </summary>
 public class AuthService : IAuthService
 {
-    public AuthService()
+    private readonly IAuthApi _authApi;
+
+    public AuthService(IAuthApi authApi)
     {
+        _authApi = authApi;
     }
 
     /// <summary>
     /// Send a password reset code to the specified email.
-    /// TODO: Call actual API endpoint.
     /// </summary>
     public async Task<Result<Unit>> SendPasswordResetCodeAsync(string email)
     {
-        // Simulate network delay
-        await Task.Delay(1000);
+        try
+        {
+            var request = new ForgotPasswordRequest { Email = email };
+            var response = await _authApi.SendPasswordResetCodeAsync(request);
 
-        // TODO: Replace with actual API call
-        // For now, simulate success
-        return Result<Unit>.Success(Unit.Value);
+            if (response.IsSuccessStatusCode && response.Content?.Success == true)
+            {
+                return Result<Unit>.Success(Unit.Value);
+            }
 
-        // Example error cases to implement:
-        // return Result<Unit>.Failure("Email not found");
-        // return Result<Unit>.Failure("Network error");
+            var errorMessage = response.Content?.Message ?? "Failed to send password reset code";
+            return Result<Unit>.Failure(errorMessage);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AuthService] SendPasswordResetCodeAsync Error: {ex.Message}");
+            return Result<Unit>.Failure($"Network error: {ex.Message}");
+        }
     }
 
     /// <summary>
     /// Verify a password reset code for the specified email.
-    /// TODO: Call actual API endpoint.
+    /// Note: This method validates the code client-side only.
+    /// The backend validates it during the reset operation.
     /// </summary>
     public async Task<Result<string>> VerifyPasswordResetCodeAsync(string email, string code)
     {
-        // Simulate network delay
-        await Task.Delay(1000);
+        try
+        {
+            // Client-side validation only - the code format is just a string
+            if (string.IsNullOrWhiteSpace(code))
+            {
+                return Result<string>.Failure("Code is required");
+            }
 
-        // TODO: Replace with actual API call
-        // For now, simulate success with a mock token
-        string mockToken = $"reset_token_{Guid.NewGuid():N}";
-        return Result<string>.Success(mockToken);
-
-        // Example error cases to implement:
-        // return Result<string>.Failure("Invalid code");
-        // return Result<string>.Failure("Code expired");
-        // return Result<string>.Failure("Too many attempts");
+            // Return the code as the token - backend will validate it during reset
+            await Task.Delay(500); // Simulate network delay for UX consistency
+            return Result<string>.Success(code);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AuthService] VerifyPasswordResetCodeAsync Error: {ex.Message}");
+            return Result<string>.Failure($"Network error: {ex.Message}");
+        }
     }
 
     /// <summary>
     /// Reset the password using the provided token.
-    /// TODO: Call actual API endpoint.
     /// </summary>
-    public async Task<Result<Unit>> ResetPasswordAsync(string email, string token, string newPassword)
+    public async Task<Result<Unit>> ResetPasswordAsync(string email, string token, string newPassword, string confirmPassword = "")
     {
-        // Simulate network delay
-        await Task.Delay(1000);
+        try
+        {
+            // The backend expects email, resetCode (token), newPassword, and confirmPassword
+            var request = new ResetPasswordRequest
+            {
+                Email = email,
+                ResetCode = token, // The token is actually the reset code
+                NewPassword = newPassword,
+                ConfirmPassword = confirmPassword ?? newPassword // If not provided, use newPassword
+            };
 
-        // TODO: Replace with actual API call
-        // For now, simulate success
-        return Result<Unit>.Success(Unit.Value);
+            var response = await _authApi.ResetPasswordAsync(request);
 
-        // Example error cases to implement:
-        // return Result<Unit>.Failure("Invalid or expired token");
-        // return Result<Unit>.Failure("Password does not meet requirements");
+            if (response.IsSuccessStatusCode && response.Content?.Success == true)
+            {
+                return Result<Unit>.Success(Unit.Value);
+            }
+
+            var errorMessage = response.Content?.Message ?? "Failed to reset password";
+            return Result<Unit>.Failure(errorMessage);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AuthService] ResetPasswordAsync Error: {ex.Message}");
+            return Result<Unit>.Failure($"Network error: {ex.Message}");
+        }
     }
 }

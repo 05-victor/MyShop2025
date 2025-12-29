@@ -19,12 +19,11 @@ public sealed partial class ForgotPasswordResetPage : Page
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        
-        // Get email and token from navigation parameter
-        if (e.Parameter != null)
+
+        // Initialize with email from navigation parameter
+        if (e.Parameter is string email)
         {
-            dynamic param = e.Parameter;
-            ViewModel.InitializeWithEmailAndToken(param.Email, param.Token);
+            ViewModel.InitializeWithEmail(email);
         }
     }
 }

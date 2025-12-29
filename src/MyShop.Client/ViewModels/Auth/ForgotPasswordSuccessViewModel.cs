@@ -25,7 +25,7 @@ public partial class ForgotPasswordSuccessViewModel : BaseViewModel
     [RelayCommand]
     private void BackToLogin()
     {
-        // Navigate to login page with email prefilled
-        _navigationService?.NavigateTo("Login", Email);
+        // Navigate to login page
+        _navigationService?.NavigateTo("MyShop.Client.Views.Shared.LoginPage");
     }
 }

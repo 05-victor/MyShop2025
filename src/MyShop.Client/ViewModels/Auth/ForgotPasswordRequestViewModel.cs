@@ -68,8 +68,9 @@ public partial class ForgotPasswordRequestViewModel : BaseViewModel
 
             if (result.IsSuccess)
             {
-                // Navigate to OTP page with email parameter
-                _navigationService?.NavigateTo("ForgotPasswordOtp", Email.Trim().ToLower());
+                // Navigate directly to reset page with email
+                // User will enter the code they received via email
+                _navigationService?.NavigateTo("MyShop.Client.Views.Auth.ForgotPasswordResetPage", Email.Trim().ToLower());
             }
             else
             {
@@ -98,7 +99,7 @@ public partial class ForgotPasswordRequestViewModel : BaseViewModel
     [RelayCommand]
     private void BackToLogin()
     {
-        _navigationService?.NavigateTo("Login");
+        _navigationService?.NavigateTo("MyShop.Client.Views.Shared.LoginPage");
     }
 
     private static bool IsValidEmail(string email)

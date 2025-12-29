@@ -18,11 +18,12 @@ public partial class ForgotPasswordResetViewModel : BaseViewModel
     private string _email = string.Empty;
 
     [ObservableProperty]
-    private string _token = string.Empty;
+    [NotifyPropertyChangedFor(nameof(CanResetPassword))]
+    private string _resetCode = string.Empty;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ShowChecklist), nameof(MinLengthIcon), nameof(MinLengthColor), 
-                              nameof(HasNumberIcon), nameof(HasNumberColor), nameof(HasSymbolIcon), 
+    [NotifyPropertyChangedFor(nameof(ShowChecklist), nameof(MinLengthIcon), nameof(MinLengthColor),
+                              nameof(HasNumberIcon), nameof(HasNumberColor), nameof(HasSymbolIcon),
                               nameof(HasSymbolColor), nameof(CanResetPassword))]
     private string _newPassword = string.Empty;
 
@@ -52,24 +53,25 @@ public partial class ForgotPasswordResetViewModel : BaseViewModel
     public string HasSymbolIcon => HasSymbol ? "\uE73E" : "\uE711";
     public string PasswordsMatchIcon => PasswordsMatch ? "\uE73E" : "\uE711";
 
-    public SolidColorBrush MinLengthColor => MinLengthMet 
-        ? new SolidColorBrush(Colors.Green) 
+    public SolidColorBrush MinLengthColor => MinLengthMet
+        ? new SolidColorBrush(Colors.Green)
         : new SolidColorBrush(Colors.Gray);
-    public SolidColorBrush HasNumberColor => HasNumber 
-        ? new SolidColorBrush(Colors.Green) 
+    public SolidColorBrush HasNumberColor => HasNumber
+        ? new SolidColorBrush(Colors.Green)
         : new SolidColorBrush(Colors.Gray);
-    public SolidColorBrush HasSymbolColor => HasSymbol 
-        ? new SolidColorBrush(Colors.Green) 
+    public SolidColorBrush HasSymbolColor => HasSymbol
+        ? new SolidColorBrush(Colors.Green)
         : new SolidColorBrush(Colors.Gray);
-    public SolidColorBrush PasswordsMatchColor => PasswordsMatch 
-        ? new SolidColorBrush(Colors.Green) 
+    public SolidColorBrush PasswordsMatchColor => PasswordsMatch
+        ? new SolidColorBrush(Colors.Green)
         : new SolidColorBrush(Colors.Gray);
 
-    public bool CanResetPassword => 
-        !IsLoading && 
-        MinLengthMet && 
-        HasNumber && 
-        HasSymbol && 
+    public bool CanResetPassword =>
+        !IsLoading &&
+        !string.IsNullOrWhiteSpace(ResetCode) &&
+        MinLengthMet &&
+        HasNumber &&
+        HasSymbol &&
         PasswordsMatch;
 
     public ForgotPasswordResetViewModel(
@@ -81,10 +83,9 @@ public partial class ForgotPasswordResetViewModel : BaseViewModel
         _authService = authService;
     }
 
-    public void InitializeWithEmailAndToken(string email, string token)
+    public void InitializeWithEmail(string email)
     {
         Email = email;
-        Token = token;
     }
 
     partial void OnNewPasswordChanged(string value)
@@ -105,6 +106,12 @@ public partial class ForgotPasswordResetViewModel : BaseViewModel
             ErrorMessage = string.Empty;
 
             // Validation
+            if (string.IsNullOrWhiteSpace(ResetCode))
+            {
+                ErrorMessage = "Please enter the verification code";
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(NewPassword))
             {
                 ErrorMessage = "Password is required";
@@ -131,13 +138,17 @@ public partial class ForgotPasswordResetViewModel : BaseViewModel
 
             IsLoading = true;
 
-            // Call API to reset password
-            var result = await _authService.ResetPasswordAsync(Email, Token, NewPassword);
+            // Call API to reset password with code and new password
+            // The backend will validate the code and reset the password in one call
+            var result = await _authService.ResetPasswordAsync(Email, ResetCode, NewPassword, ConfirmPassword);
 
             if (result.IsSuccess)
             {
-                // Navigate to success page
-                _navigationService?.NavigateTo("ForgotPasswordSuccess", Email);
+                // Show success message
+                await ShowSuccessToast("Password updated successfully. You can now sign in.");
+
+                // Navigate to login page
+                _navigationService?.NavigateTo("MyShop.Client.Views.Shared.LoginPage");
             }
             else
             {
@@ -158,6 +169,6 @@ public partial class ForgotPasswordResetViewModel : BaseViewModel
     [RelayCommand]
     private void Cancel()
     {
-        _navigationService?.NavigateTo("Login");
+        _navigationService?.NavigateTo("MyShop.Client.Views.Shared.LoginPage");
     }
 }
