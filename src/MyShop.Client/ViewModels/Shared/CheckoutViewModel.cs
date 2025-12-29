@@ -73,6 +73,9 @@ public partial class CheckoutViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<SalesAgentGroup> _salesAgentGroups = new();
 
+    // Store the selected agent ID from Cart
+    private Guid? _selectedAgentId;
+
     // Backward compatibility for XAML binding
     public ObservableCollection<CheckoutItem> OrderItems
     {
@@ -111,8 +114,9 @@ public partial class CheckoutViewModel : ObservableObject
     public string TaxFormatted => $"{Tax:N0} ₫";
     public string TotalFormatted => $"{Total:N0} ₫";
 
-    public async Task InitializeAsync()
+    public async Task InitializeAsync(Guid? selectedAgentId = null)
     {
+        _selectedAgentId = selectedAgentId;
         IsLoading = true;
         try
         {
@@ -132,8 +136,13 @@ public partial class CheckoutViewModel : ObservableObject
             
             if (result.IsSuccess && result.Data != null)
             {
+                // Filter by selected agent if provided
+                var itemsToCheckout = _selectedAgentId.HasValue
+                    ? result.Data.Where(i => i.SalesAgentId == _selectedAgentId.Value).ToList()
+                    : result.Data;
+
                 // Group cart items by sales agent
-                var groupedItems = result.Data
+                var groupedItems = itemsToCheckout
                     .Where(i => i.SalesAgentId.HasValue) // Only include items with sales agent
                     .GroupBy(i => new { SalesAgentId = i.SalesAgentId!.Value, i.SalesAgentName })
                     .Select(g => new SalesAgentGroup

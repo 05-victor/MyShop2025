@@ -13,6 +13,7 @@
     DefaultButton="Primary"
     IsPrimaryButtonEnabled="{Binding CanActivate, Mode=OneWay}"
     PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    Style="{StaticResource DefaultContentDialogStyle}"
     mc:Ignorable="d">
 
     <ContentDialog.Resources>

@@ -162,6 +162,7 @@
 
                                 <buttons:IconButton
                                         Margin="0,12,0,0"
+                                        HorizontalAlignment="Center"
                                         MinWidth="160"
                                         Variant="Filled"
                                         IconGlyph="&#xE719;"
@@ -437,7 +438,7 @@
 
                             <buttons:IconButton
                                     Margin="0,16,0,0"
-                                    HorizontalAlignment="Stretch"
+                                    HorizontalAlignment="Center"
                                     Variant="Filled"
                                     IconGlyph="&#xE8A1;"
                                     Text="Proceed to Checkout"
