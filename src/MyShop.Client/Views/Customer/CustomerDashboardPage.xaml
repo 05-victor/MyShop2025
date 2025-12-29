@@ -91,7 +91,7 @@
 
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <Grid x:Name="MainContent"
-                    Padding="24"
+                  Padding="24"
                   RowSpacing="16">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -304,47 +304,12 @@
                                                            TextWrapping="Wrap"
                                                            MaxLines="2"/>
 
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
-
-                                                    <!-- Rating -->
-                                                    <StackPanel Grid.Column="0"
-                                                                Orientation="Horizontal"
-                                                                Spacing="4">
-                                                        <FontIcon Glyph="&#xE735;"
-                                                                  FontSize="{StaticResource FontSize_Base}"
-                                                                  Foreground="{ThemeResource WarningAmberBrush}"/>
-                                                        <TextBlock Text="{x:Bind Rating}"
-                                                                   FontSize="{StaticResource FontSize_SM}"
-                                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                                        <TextBlock Text="{x:Bind Reviews, Mode=OneTime}"
-                                                                   FontSize="{StaticResource FontSize_SM}"
-                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                    </StackPanel>
-                                                </Grid>
-
                                                 <!-- Price -->
                                                 <TextBlock Text="{x:Bind Price, Converter={StaticResource CurrencyConverter}}"
                                                            FontSize="{StaticResource FontSize_2XL}"
                                                            FontWeight="Bold"
                                                            Foreground="{ThemeResource PrimaryBrush}"/>
 
-                                                <!-- Add to Cart Button -->
-                                                <Button HorizontalAlignment="Stretch"
-                                                        Style="{StaticResource PrimaryButtonStyle}">
-                                                    <StackPanel Orientation="Horizontal"
-                                                                Spacing="8"
-                                                                HorizontalAlignment="Center">
-                                                        <FontIcon Glyph="&#xE7BF;"
-                                                                  FontSize="{StaticResource FontSize_LG}"/>
-                                                        <TextBlock Text="Add to Cart"
-                                                                   FontSize="{StaticResource FontSize_Base}"
-                                                                   FontWeight="SemiBold"/>
-                                                    </StackPanel>
-                                                </Button>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -416,47 +381,12 @@
                                                            TextWrapping="Wrap"
                                                            MaxLines="2"/>
 
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
-
-                                                    <!-- Rating -->
-                                                    <StackPanel Grid.Column="0"
-                                                                Orientation="Horizontal"
-                                                                Spacing="4">
-                                                        <FontIcon Glyph="&#xE735;"
-                                                                  FontSize="{StaticResource FontSize_Base}"
-                                                                  Foreground="{ThemeResource WarningAmberBrush}"/>
-                                                        <TextBlock Text="{x:Bind Rating}"
-                                                                   FontSize="{StaticResource FontSize_SM}"
-                                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                                        <TextBlock Text="{x:Bind Reviews, Mode=OneTime}"
-                                                                   FontSize="{StaticResource FontSize_SM}"
-                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                    </StackPanel>
-                                                </Grid>
-
                                                 <!-- Price -->
                                                 <TextBlock Text="{x:Bind Price, Converter={StaticResource CurrencyConverter}}"
                                                            FontSize="{StaticResource FontSize_2XL}"
                                                            FontWeight="Bold"
                                                            Foreground="{ThemeResource PrimaryBrush}"/>
 
-                                                <!-- Add to Cart Button -->
-                                                <Button HorizontalAlignment="Stretch"
-                                                        Style="{StaticResource PrimaryButtonStyle}">
-                                                    <StackPanel Orientation="Horizontal"
-                                                                Spacing="8"
-                                                                HorizontalAlignment="Center">
-                                                        <FontIcon Glyph="&#xE7BF;"
-                                                                  FontSize="{StaticResource FontSize_LG}"/>
-                                                        <TextBlock Text="Add to Cart"
-                                                                   FontSize="{StaticResource FontSize_Base}"
-                                                                   FontWeight="SemiBold"/>
-                                                    </StackPanel>
-                                                </Button>
                                             </StackPanel>
                                         </Grid>
                                     </Border>

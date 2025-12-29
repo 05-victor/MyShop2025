@@ -326,40 +326,6 @@ public partial class CustomerDashboardViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async Task AddToCartAsync(string productId)
-    {
-        try
-        {
-            if (string.IsNullOrEmpty(productId) || !Guid.TryParse(productId, out var parsedId))
-            {
-                System.Diagnostics.Debug.WriteLine("[CustomerDashboard] Invalid product ID");
-                return;
-            }
-
-            System.Diagnostics.Debug.WriteLine($"[CustomerDashboard] Adding product {productId} to cart");
-
-            // Add to cart with quantity 1
-            var result = await _cartFacade.AddToCartAsync(parsedId, quantity: 1);
-
-            if (result.IsSuccess)
-            {
-                System.Diagnostics.Debug.WriteLine("[CustomerDashboard] Product added to cart successfully");
-                // Refresh cart preview
-                await LoadCartPreviewAsync();
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine(
-                    $"[CustomerDashboard] Failed to add product to cart: {result.ErrorMessage}");
-            }
-        }
-        catch (System.Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[CustomerDashboard] Error adding to cart: {ex.Message}");
-        }
-    }
-
-    [RelayCommand]
     private async Task ViewCartAsync()
     {
         System.Diagnostics.Debug.WriteLine("[CustomerDashboard] Navigating to cart page");

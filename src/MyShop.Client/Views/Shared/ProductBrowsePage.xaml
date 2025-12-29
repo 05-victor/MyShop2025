@@ -216,8 +216,6 @@
                                                           Tag="Price: Low to High"/>
                                             <ComboBoxItem Content="Price: High to Low"
                                                           Tag="Price: High to Low"/>
-                                            <ComboBoxItem Content="Rating"
-                                                          Tag="Rating"/>
                                         </ComboBox>
                                     </StackPanel>
                                 </Grid>
@@ -453,69 +451,32 @@
                         </StackPanel>
                     </Border>
 
-                    <!--  Stock + Rating Row  -->
-                    <Grid ColumnSpacing="24">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Grid.Column="0"
-                                    Spacing="4">
+                    <!--  Stock Row  -->
+                    <StackPanel Spacing="4">
+                        <TextBlock
+                            FontSize="{StaticResource FontSize_SM}"
+                            FontWeight="SemiBold"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Text="STOCK"/>
+                        <StackPanel Orientation="Horizontal"
+                                    Spacing="8">
                             <TextBlock
-                                FontSize="{StaticResource FontSize_SM}"
-                                FontWeight="SemiBold"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="STOCK"/>
-                            <StackPanel Orientation="Horizontal"
-                                        Spacing="8">
+                                x:Name="ViewProductStock"
+                                FontSize="{StaticResource FontSize_3XL}"
+                                FontWeight="Bold"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                            <Border
+                                x:Name="ViewProductStockBadge"
+                                Padding="8,4"
+                                CornerRadius="4"
+                                VerticalAlignment="Center">
                                 <TextBlock
-                                    x:Name="ViewProductStock"
-                                    FontSize="{StaticResource FontSize_3XL}"
-                                    FontWeight="Bold"
-                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                <Border
-                                    x:Name="ViewProductStockBadge"
-                                    Padding="8,4"
-                                    CornerRadius="4"
-                                    VerticalAlignment="Center">
-                                    <TextBlock
-                                        x:Name="ViewProductStockStatus"
-                                        FontSize="{StaticResource FontSize_SM}"
-                                        FontWeight="SemiBold"/>
-                                </Border>
-                            </StackPanel>
+                                    x:Name="ViewProductStockStatus"
+                                    FontSize="{StaticResource FontSize_SM}"
+                                    FontWeight="SemiBold"/>
+                            </Border>
                         </StackPanel>
-
-                        <StackPanel Grid.Column="1"
-                                    Spacing="4">
-                            <TextBlock
-                                FontSize="{StaticResource FontSize_SM}"
-                                FontWeight="SemiBold"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="RATING"/>
-                            <StackPanel Orientation="Horizontal"
-                                        Spacing="8">
-                                <TextBlock
-                                    x:Name="ViewProductRating"
-                                    FontSize="{StaticResource FontSize_3XL}"
-                                    FontWeight="Bold"
-                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                <StackPanel Orientation="Horizontal"
-                                            VerticalAlignment="Center"
-                                            Spacing="2">
-                                    <FontIcon FontSize="{StaticResource FontSize_LG}"
-                                              Foreground="{ThemeResource WarningAmberBrush}"
-                                              Glyph="&#xE735;"/>
-                                    <TextBlock
-                                        x:Name="ViewProductRatingCount"
-                                        FontSize="{StaticResource FontSize_SM}"
-                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                        VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </StackPanel>
-                        </StackPanel>
-                    </Grid>
+                    </StackPanel>
 
                     <!--  Add to Cart Button  -->
                     <Button
