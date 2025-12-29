@@ -164,4 +164,38 @@ public class MockProductRepository : IProductRepository
             return Result<PagedList<Product>>.Failure($"Failed to get paged products: {ex.Message}");
         }
     }
+
+    public async Task<Result<BulkImportResult>> BulkCreateAsync(List<Product> products)
+    {
+        try
+        {
+            var result = new BulkImportResult
+            {
+                TotalSubmitted = products.Count
+            };
+
+            foreach (var product in products)
+            {
+                try
+                {
+                    product.Id = Guid.NewGuid();
+                    await MockProductData.CreateAsync(product);
+                    result.SuccessCount++;
+                }
+                catch (Exception ex)
+                {
+                    result.FailureCount++;
+                    result.Errors.Add($"{product.Name}: {ex.Message}");
+                }
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[MockProductRepository] BulkCreate: {result.SuccessCount}/{result.TotalSubmitted} succeeded");
+            return Result<BulkImportResult>.Success(result);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockProductRepository] BulkCreateAsync error: {ex.Message}");
+            return Result<BulkImportResult>.Failure($"Failed to bulk create products: {ex.Message}");
+        }
+    }
 }

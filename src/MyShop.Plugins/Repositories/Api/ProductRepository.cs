@@ -383,4 +383,60 @@ public class ProductRepository : IProductRepository
             return Result<PagedList<Product>>.Failure($"Error retrieving paged products: {ex.Message}");
         }
     }
+
+    public async Task<Result<BulkImportResult>> BulkCreateAsync(List<Product> products)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProductRepository.BulkCreateAsync] Creating {products.Count} products");
+
+            // Map Product list to CreateProductRequest list
+            var requests = products.Select(p => ProductAdapter.ToCreateRequest(p)).ToList();
+
+            var bulkRequest = new
+            {
+                products = requests,
+                skipInvalidProducts = true,
+                validateBeforeInsert = false
+            };
+
+            var response = await _api.BulkCreateAsync(bulkRequest);
+
+            if (response.IsSuccessStatusCode && response.Content != null)
+            {
+                var apiResponse = response.Content;
+                if (apiResponse.Success && apiResponse.Result != null)
+                {
+                    var bulkResponse = apiResponse.Result;
+                    
+                    var result = new BulkImportResult
+                    {
+                        TotalSubmitted = bulkResponse.TotalSubmitted,
+                        SuccessCount = bulkResponse.SuccessCount,
+                        FailureCount = bulkResponse.FailureCount,
+                        Errors = bulkResponse.Errors.Select(e => $"[{e.Index}] {e.ProductIdentifier}: {e.ErrorMessage}").ToList()
+                    };
+
+                    System.Diagnostics.Debug.WriteLine($"[ProductRepository.BulkCreateAsync] ✅ Success: {result.SuccessCount}/{result.TotalSubmitted}");
+                    return Result<BulkImportResult>.Success(result);
+                }
+            }
+
+            // Log error details if available
+            var errorContent = response.Error?.Content ?? "Unknown error";
+            System.Diagnostics.Debug.WriteLine($"[ProductRepository.BulkCreateAsync] ❌ Failed: {errorContent}: {errorContent}");
+            return Result<BulkImportResult>.Failure($"Bulk create failed: {errorContent}");
+        }
+        catch (ApiException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProductRepository.BulkCreateAsync] ❌ API Error: {ex.StatusCode} - {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[ProductRepository.BulkCreateAsync] Content: {ex.Content}");
+            return Result<BulkImportResult>.Failure($"API error: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProductRepository.BulkCreateAsync] ❌ Error: {ex.Message}");
+            return Result<BulkImportResult>.Failure($"Error: {ex.Message}");
+        }
+    }
 }

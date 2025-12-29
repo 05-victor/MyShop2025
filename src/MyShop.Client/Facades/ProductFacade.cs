@@ -861,4 +861,38 @@ public class ProductFacade : IProductFacade
             return Result<Unit>.Failure("Failed to update stock", ex);
         }
     }
+
+    public async Task<Result<BulkImportResult>> BulkCreateProductsAsync(List<Product> products)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] BulkCreateProductsAsync - Creating {products.Count} products");
+
+            var result = await _productRepository.BulkCreateAsync(products);
+
+            if (!result.IsSuccess || result.Data == null)
+            {
+                return Result<BulkImportResult>.Failure(result.ErrorMessage ?? "Bulk create failed");
+            }
+
+            var bulkResult = result.Data;
+
+            if (bulkResult.SuccessCount > 0)
+            {
+                await _toastService.ShowSuccess($"✅ Imported {bulkResult.SuccessCount}/{bulkResult.TotalSubmitted} products");
+            }
+            
+            if (bulkResult.FailureCount > 0)
+            {
+                await _toastService.ShowError($"❌ {bulkResult.FailureCount} products failed");
+            }
+
+            return Result<BulkImportResult>.Success(bulkResult);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProductFacade] BulkCreateProductsAsync failed: {ex.Message}");
+            return Result<BulkImportResult>.Failure("Failed to bulk create products", ex);
+        }
+    }
 }

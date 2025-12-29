@@ -80,6 +80,36 @@ public class ProductController : ControllerBase
             ApiResponse<ProductResponse>.SuccessResponse(createdProduct, "Product created successfully", 201));
     }
 
+    [HttpPost("bulk")]
+    [Authorize(Roles = "Admin,SalesAgent")]
+    [ProducesResponseType(typeof(ApiResponse<BulkCreateProductsResponse>), 201)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 400)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 500)]
+    public async Task<ActionResult<ApiResponse<BulkCreateProductsResponse>>> BulkCreateAsync([FromBody] BulkCreateProductsRequest request)
+    {
+        _logger.LogInformation("Bulk create endpoint called for {Count} products", request.Products.Count);
+
+        var result = await _productService.BulkCreateAsync(request);
+
+        var message = $"Bulk creation completed: {result.SuccessCount} succeeded, {result.FailureCount} failed";
+        
+        // Return 201 if at least one product was created, otherwise 400
+        if (result.SuccessCount > 0)
+        {
+            return CreatedAtRoute(
+                "GetProductById", 
+                new { id = result.CreatedProducts.FirstOrDefault()?.Id ?? Guid.Empty }, 
+                ApiResponse<BulkCreateProductsResponse>.SuccessResponse(result, message, 201));
+        }
+        
+        return BadRequest(new ApiResponse<BulkCreateProductsResponse>
+        {
+            Code = 400,
+            Message = message,
+            Result = result
+        });
+    }
+
     [HttpPatch("{id:guid}")]
     [Authorize(Roles = "Admin,SalesAgent")]
     [ProducesResponseType(typeof(ApiResponse<ProductResponse>), 200)]

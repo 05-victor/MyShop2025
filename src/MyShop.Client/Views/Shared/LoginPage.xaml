@@ -31,7 +31,7 @@
             Grid.Column="0"
             Grid.ColumnSpan="1">
             <Grid.Background>
-                <ImageBrush ImageSource="/Assets/login-background.jpg"
+                <ImageBrush ImageSource="ms-appx:///Assets/login-background.jpg"
                         Stretch="UniformToFill"/>
             </Grid.Background>
 
@@ -46,7 +46,7 @@
                     Width="120"
                     Height="120"
                     AutomationProperties.Name="MyShop2025 Logo"
-                    Source="/Assets/Images/logo.png"
+                    Source="ms-appx:///Assets/Images/logo.png"
                     Stretch="Uniform"/>
 
                 <TextBlock
@@ -280,7 +280,7 @@
                                 Width="20"
                                 Height="20"
                                 AutomationProperties.Name="Google logo"
-                                Source="/Assets/Google.png"/>
+                                Source="ms-appx:///Assets/Google.png"/>
                             <TextBlock VerticalAlignment="Center"
                                     Text="Sign in with Google"/>
                         </StackPanel>

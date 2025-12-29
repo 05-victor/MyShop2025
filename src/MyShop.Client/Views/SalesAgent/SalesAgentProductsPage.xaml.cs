@@ -728,5 +728,32 @@ namespace MyShop.Client.Views.SalesAgent
                 LoggingService.Instance.Error("Failed to refresh products", ex);
             }
         }
+
+        private async void ImportCsvMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var openPicker = new Windows.Storage.Pickers.FileOpenPicker();
+                
+                // Initialize with window handle using XamlRoot
+                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+                WinRT.Interop.InitializeWithWindow.Initialize(openPicker, hwnd);
+
+                openPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+                openPicker.FileTypeFilter.Add(".csv");
+                openPicker.FileTypeFilter.Add(".txt");
+
+                var file = await openPicker.PickSingleFileAsync();
+                if (file != null)
+                {
+                    // Call ViewModel method to process the file, passing XamlRoot for dialogs
+                    await ViewModel.ProcessImportFileAsync(file, this.XamlRoot);
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.Error("[SalesAgentProductsPage] Import CSV failed", ex);
+            }
+        }
     }
 }

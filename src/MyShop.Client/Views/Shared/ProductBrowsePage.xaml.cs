@@ -329,7 +329,7 @@ namespace MyShop.Client.Views.Shared
                 }
 
                 // Load product image
-                if (!string.IsNullOrEmpty(product.ImageUrl) && product.ImageUrl != "/Assets/placeholder-product.png")
+                if (!string.IsNullOrEmpty(product.ImageUrl) && product.ImageUrl != "ms-appx:///Assets/placeholder-product.png")
                 {
                     try
                     {

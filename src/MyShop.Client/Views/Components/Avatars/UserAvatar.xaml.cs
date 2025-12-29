@@ -8,7 +8,7 @@ namespace MyShop.Client.Views.Components.Avatars;
 /// <summary>
 /// User avatar component with initials fallback and status indicator.
 /// Usage:
-/// <avatars:UserAvatar ImageSource="/Assets/user.jpg"
+/// <avatars:UserAvatar ImageSource="ms-appx:///Assets/user.jpg"
 ///                     DisplayName="John Doe"
 ///                     Size="Medium"
 ///                     Status="Online"/>

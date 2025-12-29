@@ -45,4 +45,9 @@ public interface IProductRepository
         string? stockStatus = null,
         string sortBy = "name",
         bool sortDescending = false);
+
+    /// <summary>
+    /// Create multiple products at once using bulk API
+    /// </summary>
+    Task<Result<BulkImportResult>> BulkCreateAsync(List<Product> products);
 }
