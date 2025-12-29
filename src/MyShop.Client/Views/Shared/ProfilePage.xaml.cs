@@ -186,7 +186,14 @@ public sealed partial class ProfilePage : Page
                 XamlRoot = this.XamlRoot
             };
 
-            await dialog.ShowAsync();
+            var result = await dialog.ShowAsync();
+
+            // If password changed successfully, show success notification
+            if (result == ContentDialogResult.Primary && dialog.ViewModel.IsSuccess)
+            {
+                var toastService = App.Current.Services.GetRequiredService<Core.Interfaces.Services.IToastService>();
+                await toastService.ShowSuccess("Password changed successfully!");
+            }
         }
         catch (Exception ex)
         {

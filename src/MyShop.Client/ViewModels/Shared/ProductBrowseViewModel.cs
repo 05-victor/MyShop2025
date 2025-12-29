@@ -23,6 +23,7 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
     private readonly ICartFacade _cartFacade;
     private readonly IAuthRepository _authRepository;
     private bool _isInitializing = true; // Guard to prevent LoadPageAsync during initial setup
+    private bool _hasInitialized = false; // Track if InitializeAsync has completed
 
     // Alias for backward compatibility with XAML
     public ObservableCollection<ProductCardViewModel> Products => Items;
@@ -77,7 +78,15 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
 
     public async Task InitializeAsync()
     {
-        SetLoadingState(true);
+        // Prevent double initialization
+        if (_hasInitialized)
+        {
+            System.Diagnostics.Debug.WriteLine("[ProductBrowseViewModel] InitializeAsync: Already initialized, skipping");
+            return;
+        }
+
+        System.Diagnostics.Debug.WriteLine("[ProductBrowseViewModel] InitializeAsync: START");
+
         try
         {
             // Check email verification status
@@ -89,7 +98,7 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
 
             // Now enable event firing and load page
             _isInitializing = false;
-            await LoadPageAsync(); // Call LoadPageAsync directly instead of LoadDataAsync to avoid double SetLoadingState
+            await LoadPageAsync(); // LoadPageAsync will set loading state and handle it
 
             // Update all product cards with email verification status
             foreach (var product in Products)
@@ -97,9 +106,13 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
                 product.CanAddToCart = isEmailVerified && product.Stock > 0;
                 product.ShowEmailVerification = !isEmailVerified;
             }
+
+            _hasInitialized = true;
+            System.Diagnostics.Debug.WriteLine("[ProductBrowseViewModel] InitializeAsync: COMPLETE");
         }
-        finally
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] InitializeAsync: ERROR - {ex.Message}");
             SetLoadingState(false);
         }
     }
@@ -227,17 +240,31 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
                 Items.Clear();
                 foreach (var product in pagedData.Items)
                 {
+                    // Normalize image URL - handle old/incorrect placeholder paths
+                    var imageUrl = product.ImageUrl;
+                    if (string.IsNullOrWhiteSpace(imageUrl) || 
+                        imageUrl.Contains("product-placeholder.png") ||
+                        imageUrl.Contains("placeholder-product.png"))
+                    {
+                        imageUrl = "ms-appx:///Assets/Images/products/product-placeholder.png";
+                    }
+
+                    // Debug agent data
+                    var agentName = product.SaleAgentFullName ?? product.SaleAgentUsername;
+                    System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] Product '{product.Name}': AgentId={product.SaleAgentId}, FullName='{product.SaleAgentFullName}', Username='{product.SaleAgentUsername}', Final='{agentName}'");
+
                     var productCard = new ProductCardViewModel
                     {
                         Id = product.Id,
                         Name = product.Name,
                         Price = product.SellingPrice,
-                        ImageUrl = string.IsNullOrWhiteSpace(product.ImageUrl) ? "ms-appx:///Assets/Images/products/product-placeholder.png" : product.ImageUrl,
+                        ImageUrl = imageUrl,
                         Rating = product.Rating,
                         RatingCount = product.RatingCount,
                         Stock = product.Quantity,
                         Category = product.CategoryName ?? product.Category ?? "Uncategorized",
                         Manufacturer = product.Manufacturer ?? string.Empty,
+                        AgentName = agentName,
 
                         // Email verification UX
                         CanAddToCart = isEmailVerified && product.Quantity > 0,
@@ -412,7 +439,11 @@ public partial class ProductCardViewModel : ObservableObject
     [ObservableProperty]
     private bool _showEmailVerification = false;
 
+    [ObservableProperty]
+    private string? _agentName;
+
     public string FormattedPrice => $"₫{Price:N0}";
     public string StockStatus => Stock > 0 ? $"{Stock} in stock" : "Out of stock";
     public bool IsInStock => Stock > 0;
+    public string AgentDisplay => !string.IsNullOrEmpty(AgentName) ? $"by {AgentName}" : string.Empty;
 }

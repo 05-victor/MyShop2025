@@ -398,7 +398,7 @@
                                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         BorderThickness="1">
                                     <Image x:Name="QrCodeImage"
-                                           Source="ms-appx:///Assets/payment-qr.png"
+                                           Source="ms-appx:///Assets/Images/payment-qr.jpg"
                                            Width="200"
                                            Height="200"
                                            Stretch="Uniform"
@@ -431,7 +431,7 @@
 
                             <!-- Confirm Payment Button -->
                             <buttons:IconButton
-                                    HorizontalAlignment="Stretch"
+                                    HorizontalAlignment="Center"
                                     Margin="0,16,0,0"
                                     Variant="Filled"
                                     IconGlyph="&#xE8FB;"

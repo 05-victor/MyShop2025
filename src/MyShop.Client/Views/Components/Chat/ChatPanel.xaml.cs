@@ -91,7 +91,8 @@ public sealed partial class ChatPanel : UserControl
                 {
                     Message = response.Message.Content,
                     IsUser = false,
-                    Timestamp = response.Message.Timestamp
+                    Timestamp = response.Message.Timestamp,
+                    ImageUrl = response.Message.ImageUrl
                 };
                 MessagesPanel.Children.Add(aiBubble);
                 ScrollToBottom();

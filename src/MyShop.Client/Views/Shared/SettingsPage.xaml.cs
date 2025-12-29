@@ -84,7 +84,21 @@ public sealed partial class SettingsPage : Page
             
             // Allow toggle events only after load completes and UI stabilizes
             _isInitializing = false;
+            
+            // Subscribe to PropertyChanged to update _originalTheme when saved
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+            
             LoggingService.Instance.Debug("← OnNavigatedTo");
+        }
+    }
+
+    private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        // Update _originalTheme when theme is saved (after SaveCommand completes)
+        if (e.PropertyName == nameof(ViewModel.Theme) && !ViewModel.IsLoading)
+        {
+            _originalTheme = ViewModel.Theme;
+            LoggingService.Instance.Debug($"Updated original theme to: {_originalTheme}");
         }
     }
 
@@ -120,6 +134,9 @@ public sealed partial class SettingsPage : Page
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
         base.OnNavigatedFrom(e);
+        
+        // Unsubscribe from PropertyChanged to avoid memory leaks
+        ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
         
         // If theme changed but wasn't saved, revert to original
         if (ViewModel.Theme != _originalTheme)

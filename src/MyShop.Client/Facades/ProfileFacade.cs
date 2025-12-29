@@ -189,9 +189,7 @@ public class ProfileFacade : IProfileFacade
                 return Result<Unit>.Failure(changeResult.ErrorMessage ?? "Failed to change password");
             }
 
-            // Step 4: Show success notification
-            await _toastService.ShowSuccess("Password changed successfully!");
-
+            // Success - UI layer will show toast notification after dialog closes
             return Result<Unit>.Success(Unit.Value);
         }
         catch (Exception ex)
