@@ -247,7 +247,7 @@ namespace MyShop.Client.Config
                             .ConfigureHttpClient(ConfigureApiClient)
                             .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
 
-                        System.Diagnostics.Debug.WriteLine("[Bootstrapper] All 10 Refit API clients registered (including IEarningsApi and IAgentRequestsApi)");
+                        System.Diagnostics.Debug.WriteLine("[Bootstrapper] All Refit API clients registered");
 
                         // ===== Repositories (Real - from Plugins) =====
                         // Changed to Transient to allow XAML root provider resolution

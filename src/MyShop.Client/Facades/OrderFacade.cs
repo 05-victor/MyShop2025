@@ -132,7 +132,7 @@ public class OrderFacade : IOrderFacade
     {
         try
         {
-            // Call repository with explicit sort parameters so sorting works
+            // Call repository (sort/search parameters ignored - backend doesn't support them)
             var result = await _orderRepository.GetPagedAsync(
                 page: page,
                 pageSize: pageSize,
@@ -142,8 +142,8 @@ public class OrderFacade : IOrderFacade
                 salesAgentId: salesAgentId,
                 startDate: null,
                 endDate: null,
-                sortBy: sortBy,
-                sortDescending: sortDescending);
+                sortBy: null,  // Not supported by backend
+                sortDescending: false);
 
             if (!result.IsSuccess || result.Data == null)
             {
@@ -152,24 +152,6 @@ public class OrderFacade : IOrderFacade
             }
 
             var pagedResult = result.Data;
-
-            // Apply search query filter (client-side for text search)
-            if (!string.IsNullOrWhiteSpace(searchQuery))
-            {
-                var query = searchQuery.ToLower();
-                var filteredItems = pagedResult.Items.Where(o =>
-                    (o.OrderCode?.ToLower().Contains(query) ?? false) ||
-                    (o.CustomerName?.ToLower().Contains(query) ?? false) ||
-                    (o.CustomerPhone?.ToLower().Contains(query) ?? false) ||
-                    (o.CustomerAddress?.ToLower().Contains(query) ?? false) ||
-                    // Search in product names within order items
-                    (o.OrderItems?.Any(item => item.ProductName?.ToLower().Contains(query) ?? false) ?? false) ||
-                    (o.Items?.Any(item => item.ProductName?.ToLower().Contains(query) ?? false) ?? false)
-                ).ToList();
-
-                // Update count to match filtered items for current page view
-                pagedResult = new PagedList<Order>(filteredItems, filteredItems.Count, page, pageSize);
-            }
 
             System.Diagnostics.Debug.WriteLine($"[OrderFacade] Loaded {pagedResult.Items.Count} orders (page {page}/{pagedResult.TotalPages}, total: {pagedResult.TotalCount})");
             return Result<PagedList<Order>>.Success(pagedResult);

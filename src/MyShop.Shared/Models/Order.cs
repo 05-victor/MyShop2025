@@ -15,6 +15,8 @@ public class Order
     public string? CustomerAddress { get; set; }
     public decimal Subtotal { get; set; }
     public decimal Discount { get; set; }
+    public decimal ShippingFee { get; set; }
+    public decimal Tax { get; set; }
     public decimal FinalPrice { get; set; }
     public string Status { get; set; } = "CREATED";
     public string? PaymentStatus { get; set; }

@@ -71,10 +71,10 @@ public partial class SalesAgentReportsViewModel : BaseViewModel
     [ObservableProperty]
     private ObservableCollection<FilterOption> _dateRanges = new()
     {
-        new FilterOption { Display = "This Week", Value = "week" },
-        new FilterOption { Display = "This Month", Value = "month" },
-        new FilterOption { Display = "Last 3 Months", Value = "3months" },
-        new FilterOption { Display = "This Year", Value = "year" }
+        new FilterOption { Display = "This day", Value = "day" },
+        new FilterOption { Display = "This week", Value = "week" },
+        new FilterOption { Display = "This month", Value = "month" },
+        new FilterOption { Display = "This year", Value = "year" }
     };
 
     [ObservableProperty]
@@ -472,10 +472,10 @@ public partial class SalesAgentReportsViewModel : BaseViewModel
         var endDate = DateTime.Now;
         var startDate = period switch
         {
-            "This Week" => endDate.AddDays(-7),
-            "This Month" => endDate.AddMonths(-1),
-            "Last 3 Months" => endDate.AddMonths(-3),
-            "This Year" => endDate.AddYears(-1),
+            "day" => endDate.AddDays(-1),
+            "week" => endDate.AddDays(-7),
+            "month" => endDate.AddMonths(-1),
+            "year" => endDate.AddYears(-1),
             _ => endDate.AddMonths(-1)
         };
         return (startDate, endDate);

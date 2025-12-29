@@ -474,15 +474,6 @@ public class OrderRepository : IOrderRepository
                 if (endDate.HasValue)
                     query = query.Where(o => o.OrderDate <= endDate.Value);
 
-                // Apply sorting
-                query = sortBy.ToLower() switch
-                {
-                    "orderdate" => sortDescending ? query.OrderByDescending(o => o.OrderDate) : query.OrderBy(o => o.OrderDate),
-                    "finalprice" or "amount" => sortDescending ? query.OrderByDescending(o => o.FinalPrice) : query.OrderBy(o => o.FinalPrice),
-                    "status" => sortDescending ? query.OrderByDescending(o => o.Status) : query.OrderBy(o => o.Status),
-                    _ => sortDescending ? query.OrderByDescending(o => o.OrderDate) : query.OrderBy(o => o.OrderDate)
-                };
-
                 var items = query.ToList();
                 var pagedList = new PagedList<Order>(items, items.Count, page, pageSize);
                 return Result<PagedList<Order>>.Success(pagedList);
@@ -507,15 +498,6 @@ public class OrderRepository : IOrderRepository
                     query = query.Where(o => o.OrderDate >= startDate.Value);
                 if (endDate.HasValue)
                     query = query.Where(o => o.OrderDate <= endDate.Value);
-
-                // Apply sorting
-                query = sortBy.ToLower() switch
-                {
-                    "orderdate" => sortDescending ? query.OrderByDescending(o => o.OrderDate) : query.OrderBy(o => o.OrderDate),
-                    "finalprice" or "amount" => sortDescending ? query.OrderByDescending(o => o.FinalPrice) : query.OrderBy(o => o.FinalPrice),
-                    "status" => sortDescending ? query.OrderByDescending(o => o.Status) : query.OrderBy(o => o.Status),
-                    _ => sortDescending ? query.OrderByDescending(o => o.OrderDate) : query.OrderBy(o => o.OrderDate)
-                };
 
                 var items = query.ToList();
                 var pagedList = new PagedList<Order>(items, items.Count, page, pageSize);
@@ -546,23 +528,6 @@ public class OrderRepository : IOrderRepository
             {
                 allQuery = allQuery.Where(o => o.OrderDate <= endDate.Value);
             }
-
-            // Apply sorting
-            allQuery = sortBy.ToLower() switch
-            {
-                "orderdate" => sortDescending
-                    ? allQuery.OrderByDescending(o => o.OrderDate)
-                    : allQuery.OrderBy(o => o.OrderDate),
-                "finalprice" or "amount" => sortDescending
-                    ? allQuery.OrderByDescending(o => o.FinalPrice)
-                    : allQuery.OrderBy(o => o.FinalPrice),
-                "status" => sortDescending
-                    ? allQuery.OrderByDescending(o => o.Status)
-                    : allQuery.OrderBy(o => o.Status),
-                _ => sortDescending
-                    ? allQuery.OrderByDescending(o => o.OrderDate)
-                    : allQuery.OrderBy(o => o.OrderDate)
-            };
 
             var totalCount = allQuery.Count();
             var allItems = allQuery.Skip((page - 1) * pageSize).Take(pageSize).ToList();
