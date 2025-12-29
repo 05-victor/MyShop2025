@@ -304,8 +304,6 @@ namespace MyShop.Client.Views.Shared
                 ViewProductManufacturer.Text = string.IsNullOrEmpty(product.Manufacturer) ? "Unknown" : product.Manufacturer;
                 ViewProductPrice.Text = $"₫{product.Price:N0}";
                 ViewProductStock.Text = product.Stock.ToString();
-                ViewProductRating.Text = product.Rating.ToString("F1");
-                ViewProductRatingCount.Text = $"({product.RatingCount} reviews)";
 
                 // Set stock status badge
                 if (product.Stock <= 0)

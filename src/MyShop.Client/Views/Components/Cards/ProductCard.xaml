@@ -20,7 +20,7 @@
 
     <Border x:Name="CardBorder"
             Width="240"
-            MinHeight="380"
+            MinHeight="330"
             Padding="20"
             Style="{StaticResource ProductCardStyle}"
             PointerEntered="CardBorder_PointerEntered"
@@ -32,11 +32,14 @@
             <ThemeShadow/>
         </Border.Shadow>
 
-        <Grid RowSpacing="{StaticResource Spacing_3}">
+        <Grid RowSpacing="0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/> <!-- Image -->
-                <RowDefinition Height="*"/>    <!-- Product Info -->
-                <RowDefinition Height="Auto"/> <!-- Actions -->
+                <RowDefinition Height="Auto"/>
+                <!-- Image -->
+                <RowDefinition Height="*"/>
+                <!-- Product Info (flexible) -->
+                <RowDefinition Height="Auto"/>
+                <!-- Actions (anchored to bottom) -->
             </Grid.RowDefinitions>
 
             <!--  Product Image with optimization  -->
@@ -56,7 +59,10 @@
             </Border>
 
             <!--  Product Info (Task C: Fix spacing)  -->
-            <StackPanel Grid.Row="1" Spacing="{StaticResource Spacing_2}" Padding="0">
+            <StackPanel Grid.Row="1"
+                        Spacing="4"
+                        Padding="0"
+                        VerticalAlignment="Top">
                 <!--  Brand & Category  -->
                 <StackPanel Orientation="Horizontal"
                             Spacing="{StaticResource Spacing_2}">
@@ -81,45 +87,33 @@
                     FontWeight="SemiBold"
                     Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                     MaxLines="2"
-                    Margin="0,0,0,8"
+                    Margin="0,0,0,6"
                     Text="{x:Bind Product.Name, Mode=OneWay, FallbackValue='Product'}"
                     TextTrimming="CharacterEllipsis"/>
 
-                <!--  Rating  -->
-                <StackPanel Orientation="Horizontal"
-                            Spacing="4">
-                    <FontIcon
-                        FontSize="14"
-                        Foreground="{ThemeResource WarningAmberBrush}"
-                        Glyph="&#xE735;"/>
-                    <TextBlock
-                        FontSize="14"
-                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                        Text="{x:Bind Product.Rating, Mode=OneWay, FallbackValue=0}"/>
-                    <TextBlock FontSize="12"
-                               Foreground="{ThemeResource Gray600Brush}">
-                        <Run Text="("/><Run Text="{x:Bind Product.RatingCount, Mode=OneWay, FallbackValue=0}"/><Run Text=")"/>
-                    </TextBlock>
-                </StackPanel>
-
                 <!--  Price & Stock  -->
-                <Grid>
+                <Grid VerticalAlignment="Center"
+                      Margin="0,0,0,4">
                     <StackPanel
-                        VerticalAlignment="Center"
                         Orientation="Horizontal"
-                        Spacing="{StaticResource Spacing_2}">
+                        Spacing="{StaticResource Spacing_2}"
+                        VerticalAlignment="Center">
                         <TextBlock
                             FontSize="20"
                             FontWeight="Bold"
                             Foreground="{ThemeResource AccentBlueBrush}"
+                            VerticalAlignment="Center"
                             Text="{x:Bind Product.Price, Mode=OneWay, Converter={StaticResource CurrencyConverter}, FallbackValue='0'}"/>
                         <Border
-                            Padding="6,2"
+                            Padding="6,3"
+                            VerticalAlignment="Center"
                             Background="{x:Bind Product.IsInStock, Mode=OneWay, Converter={StaticResource BoolToStockColorConverter}}"
-                            CornerRadius="4">
+                            CornerRadius="4"
+                            Height="22">
                             <TextBlock
                                 FontSize="10"
                                 Foreground="{ThemeResource WhiteBrush}"
+                                VerticalAlignment="Center"
                                 Text="{x:Bind Product.StockStatus, Mode=OneWay, FallbackValue='Out of Stock'}"/>
                         </Border>
                     </StackPanel>
@@ -134,9 +128,9 @@
                     Message="Verify your email to start shopping"
                     IsIconVisible="True"
                     IsClosable="False"
-                    Margin="0,8,0,0">
+                    Margin="0,4,0,0">
                     <InfoBar.ActionButton>
-                        <Button 
+                        <Button
                             Style="{StaticResource SecondaryButtonSmallStyle}"
                             Content="Verify now"
                             Command="{x:Bind VerifyEmailCommand, Mode=OneWay}"/>
@@ -147,9 +141,10 @@
 
             <!--  Actions (Task D: Tooltip for disabled state) - Grid.Row 2 -->
             <StackPanel Grid.Row="2"
-                        Margin="0,8,0,0"
+                        Margin="0,4,0,0"
                         Orientation="Horizontal"
-                        Spacing="{StaticResource Spacing_2}">
+                        Spacing="{StaticResource Spacing_2}"
+                        VerticalAlignment="Bottom">
                 <buttons:IconButton
                     Width="140"
                     Variant="Filled"
@@ -159,7 +154,7 @@
                     CommandParameter="{x:Bind Product, Mode=OneWay}"
                     IsEnabled="{x:Bind CanAddToCart, Mode=OneWay}">
                     <ToolTipService.ToolTip>
-                        <TextBlock Text="{x:Bind CanAddToCart, Mode=OneWay, Converter={StaticResource CartTooltipConverter}}" />
+                        <TextBlock Text="{x:Bind CanAddToCart, Mode=OneWay, Converter={StaticResource CartTooltipConverter}}"/>
                     </ToolTipService.ToolTip>
                 </buttons:IconButton>
                 <Button Style="{StaticResource SecondaryButtonStyle}"
