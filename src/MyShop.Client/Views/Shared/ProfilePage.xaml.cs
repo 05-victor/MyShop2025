@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using MyShop.Client.ViewModels.Shared;
 using MyShop.Client.Views.Dialogs;
+using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 
 namespace MyShop.Client.Views.Shared;
@@ -32,7 +33,7 @@ public sealed partial class ProfilePage : Page
             };
             return;
         }
-        
+
         // Wrap ViewModel resolution to catch DI errors
         try
         {
@@ -44,7 +45,7 @@ public sealed partial class ProfilePage : Page
             Services.LoggingService.Instance.Error($"[ProfilePage] Failed to resolve ProfileViewModel", ex);
             throw; // Re-throw to surface the actual DI issue
         }
-        
+
         // Wrap keyboard shortcuts setup
         try
         {
@@ -57,33 +58,33 @@ public sealed partial class ProfilePage : Page
             // Non-critical, continue without shortcuts
         }
     }
-    
+
     private void SetupKeyboardShortcuts()
     {
         // Ctrl+E: Edit profile
-        var editShortcut = new Microsoft.UI.Xaml.Input.KeyboardAccelerator 
-        { 
-            Key = Windows.System.VirtualKey.E, 
-            Modifiers = Windows.System.VirtualKeyModifiers.Control 
+        var editShortcut = new Microsoft.UI.Xaml.Input.KeyboardAccelerator
+        {
+            Key = Windows.System.VirtualKey.E,
+            Modifiers = Windows.System.VirtualKeyModifiers.Control
         };
-        editShortcut.Invoked += (s, e) => 
-        { 
+        editShortcut.Invoked += (s, e) =>
+        {
             if (!ViewModel.IsEditing)
             {
                 ViewModel.EditCommand.Execute(null);
             }
-            e.Handled = true; 
+            e.Handled = true;
         };
         KeyboardAccelerators.Add(editShortcut);
 
         // Ctrl+S: Save changes
-        var saveShortcut = new Microsoft.UI.Xaml.Input.KeyboardAccelerator 
-        { 
-            Key = Windows.System.VirtualKey.S, 
-            Modifiers = Windows.System.VirtualKeyModifiers.Control 
+        var saveShortcut = new Microsoft.UI.Xaml.Input.KeyboardAccelerator
+        {
+            Key = Windows.System.VirtualKey.S,
+            Modifiers = Windows.System.VirtualKeyModifiers.Control
         };
-        saveShortcut.Invoked += async (s, e) => 
-        { 
+        saveShortcut.Invoked += async (s, e) =>
+        {
             // Wrap async event handler with try-catch
             try
             {
@@ -101,12 +102,12 @@ public sealed partial class ProfilePage : Page
         KeyboardAccelerators.Add(saveShortcut);
 
         // Escape: Cancel edit
-        var cancelShortcut = new Microsoft.UI.Xaml.Input.KeyboardAccelerator 
-        { 
+        var cancelShortcut = new Microsoft.UI.Xaml.Input.KeyboardAccelerator
+        {
             Key = Windows.System.VirtualKey.Escape
         };
-        cancelShortcut.Invoked += async (s, e) => 
-        { 
+        cancelShortcut.Invoked += async (s, e) =>
+        {
             // Wrap async event handler with try-catch
             try
             {
@@ -124,13 +125,13 @@ public sealed partial class ProfilePage : Page
         KeyboardAccelerators.Add(cancelShortcut);
 
         // Ctrl+U: Upload avatar (when file is selected)
-        var uploadShortcut = new Microsoft.UI.Xaml.Input.KeyboardAccelerator 
-        { 
-            Key = Windows.System.VirtualKey.U, 
-            Modifiers = Windows.System.VirtualKeyModifiers.Control 
+        var uploadShortcut = new Microsoft.UI.Xaml.Input.KeyboardAccelerator
+        {
+            Key = Windows.System.VirtualKey.U,
+            Modifiers = Windows.System.VirtualKeyModifiers.Control
         };
-        uploadShortcut.Invoked += async (s, e) => 
-        { 
+        uploadShortcut.Invoked += async (s, e) =>
+        {
             // Wrap async event handler with try-catch
             try
             {
@@ -155,7 +156,7 @@ public sealed partial class ProfilePage : Page
         {
             base.OnNavigatedTo(e);
             Services.NavigationLogger.LogNavigatedTo(nameof(ProfilePage), e.Parameter);
-            
+
             // Load profile data
             _ = ViewModel.LoadCommand.ExecuteAsync(null);
         }
@@ -281,32 +282,65 @@ public sealed partial class ProfilePage : Page
     }
 
     /// <summary>
-    /// Resend verification email and show OTP dialog
+    /// Resend verification email via API
     /// </summary>
     private async void ResendVerificationButton_Click(object sender, RoutedEventArgs e)
     {
         try
         {
-            // Show email verification dialog with OTP input
-            var dialog = new EmailVerificationDialog(ViewModel.Email, App.Current.Services.GetRequiredService<IToastService>())
-            {
-                XamlRoot = this.XamlRoot
-            };
+            var toastService = App.Current.Services.GetRequiredService<IToastService>();
+            var authRepository = App.Current.Services.GetRequiredService<IAuthRepository>();
+            var button = sender as HyperlinkButton;
 
-            dialog.VerificationChecked += async (s, isVerified) =>
+            if (button != null)
+                button.IsEnabled = false;
+
+            // Call API to send verification email
+            System.Diagnostics.Debug.WriteLine("[ProfilePage] Sending verification email...");
+            var result = await authRepository.SendVerificationEmailAsync(string.Empty);
+
+            if (result.IsSuccess)
             {
-                if (isVerified)
+                toastService.ShowSuccess("Verification email sent! Check your inbox for the link.");
+                System.Diagnostics.Debug.WriteLine("[ProfilePage] ✅ Verification email sent successfully");
+
+                // Show 60-second cooldown
+                if (button != null)
                 {
-                    // Reload profile to update email verification status
-                    await ViewModel.LoadCommand.ExecuteAsync(null);
-                }
-            };
+                    var countdown = 60;
+                    var timer = new DispatcherTimer();
+                    timer.Interval = TimeSpan.FromSeconds(1);
+                    timer.Tick += (s, args) =>
+                    {
+                        countdown--;
+                        button.Content = countdown > 0 ? $"Resend in {countdown}s" : "Resend verification email";
 
-            await dialog.ShowAsync();
+                        if (countdown <= 0)
+                        {
+                            timer.Stop();
+                            button.IsEnabled = true;
+                        }
+                    };
+                    timer.Start();
+                }
+            }
+            else
+            {
+                toastService.ShowError($"Failed to send verification email: {result.ErrorMessage}");
+                System.Diagnostics.Debug.WriteLine($"[ProfilePage] ❌ Error: {result.ErrorMessage}");
+
+                if (button != null)
+                    button.IsEnabled = true;
+            }
         }
         catch (Exception ex)
         {
             Services.LoggingService.Instance.Error("[ProfilePage] ResendVerificationButton_Click failed", ex);
+            var toastService = App.Current.Services.GetRequiredService<IToastService>();
+            toastService.ShowError("An error occurred while sending verification email");
+
+            if (sender is HyperlinkButton btn)
+                btn.IsEnabled = true;
         }
     }
 

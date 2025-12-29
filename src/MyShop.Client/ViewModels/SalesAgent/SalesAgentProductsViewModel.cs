@@ -178,6 +178,48 @@ public partial class SalesAgentProductsViewModel : PagedViewModelBase<ProductVie
         }
     }
 
+    [RelayCommand]
+    private async Task ImportProductsAsync()
+    {
+        SetLoadingState(true);
+        try
+        {
+            // TODO: Implement import from CSV functionality
+            await ShowErrorToast("Product import feature is not yet implemented.");
+            System.Diagnostics.Debug.WriteLine("[SalesAgentProductsViewModel] ImportProductsAsync: Not implemented");
+        }
+        catch (System.Exception ex)
+        {
+            await ShowErrorToast($"Import failed: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel] Import error: {ex.Message}");
+        }
+        finally
+        {
+            SetLoadingState(false);
+        }
+    }
+
+    [RelayCommand]
+    private async Task DownloadTemplateAsync()
+    {
+        SetLoadingState(true);
+        try
+        {
+            // TODO: Implement download CSV template functionality
+            await ShowErrorToast("Template download feature is not yet implemented.");
+            System.Diagnostics.Debug.WriteLine("[SalesAgentProductsViewModel] DownloadTemplateAsync: Not implemented");
+        }
+        catch (System.Exception ex)
+        {
+            await ShowErrorToast($"Download failed: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel] Download error: {ex.Message}");
+        }
+        finally
+        {
+            SetLoadingState(false);
+        }
+    }
+
     /// <summary>
     /// Override LoadPageAsync - required by PagedViewModelBase
     /// </summary>
@@ -744,6 +786,37 @@ public partial class ProductViewModel : ObservableObject
 
     [ObservableProperty]
     private string _description = string.Empty;
+
+    /// <summary>
+    /// Converts ImageUrl string to safe Uri for XAML binding.
+    /// Returns fallback placeholder if ImageUrl is null/empty/invalid.
+    /// </summary>
+    public Uri ImageUri
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(ImageUrl))
+            {
+                return new Uri("ms-appx:///Assets/placeholder-product.png");
+            }
+
+            // Try to parse as absolute URI
+            if (Uri.TryCreate(ImageUrl, UriKind.Absolute, out var uri))
+            {
+                return uri;
+            }
+
+            // If it's a relative path like "/Assets/...", convert to ms-appx:/// URI
+            if (Uri.TryCreate($"ms-appx:///{ImageUrl.TrimStart('/')}", UriKind.Absolute, out var relativeUri))
+            {
+                return relativeUri;
+            }
+
+            // Fallback to placeholder
+            System.Diagnostics.Debug.WriteLine($"[ProductViewModel] Invalid ImageUrl for product '{Name}' (ID: {Id}): '{ImageUrl}'");
+            return new Uri("ms-appx:///Assets/placeholder-product.png");
+        }
+    }
 
     public decimal CommissionAmount => Price * CommissionRate / 100;
 }

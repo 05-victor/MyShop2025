@@ -16,6 +16,7 @@
         <converters:CurrencyConverter x:Key="CurrencyConverter"/>
         <converters:BoolToStockColorConverter x:Key="BoolToStockColorConverter"/>
         <converters:BoolToCartTooltipConverter x:Key="CartTooltipConverter"/>
+        <converters:StringToImageSourceConverter x:Key="StringToImageSource"/>
     </UserControl.Resources>
 
     <Border x:Name="CardBorder"
@@ -49,13 +50,8 @@
                 HorizontalAlignment="Stretch"
                 Background="{ThemeResource SubtleFillColorSecondaryBrush}"
                 CornerRadius="8">
-                <Image Stretch="UniformToFill">
-                    <Image.Source>
-                        <BitmapImage UriSource="{x:Bind Product.ImageUrl, Mode=OneWay, FallbackValue='ms-appx:///Assets/placeholder-product.png'}"
-                                     DecodePixelWidth="240"
-                                     DecodePixelType="Logical"/>
-                    </Image.Source>
-                </Image>
+                <Image Stretch="UniformToFill"
+                       Source="{x:Bind Product.ImageUrl, Mode=OneWay, Converter={StaticResource StringToImageSource}, FallbackValue='ms-appx:///Assets/placeholder-product.png'}"/>
             </Border>
 
             <!--  Product Info (Task C: Fix spacing)  -->

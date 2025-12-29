@@ -30,14 +30,15 @@
     <Grid>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="ResponsiveStates">
-                
+
                 <!-- Large Desktop: 1920px+ -->
                 <VisualState x:Name="LargeDesktopState">
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="1920"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainScroller.Padding" Value="40"/>
+                        <Setter Target="MainScroller.Padding"
+                                Value="40"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -47,7 +48,8 @@
                         <AdaptiveTrigger MinWindowWidth="1280"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainScroller.Padding" Value="32"/>
+                        <Setter Target="MainScroller.Padding"
+                                Value="32"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -57,7 +59,8 @@
                         <AdaptiveTrigger MinWindowWidth="960"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainScroller.Padding" Value="24"/>
+                        <Setter Target="MainScroller.Padding"
+                                Value="24"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -67,7 +70,8 @@
                         <AdaptiveTrigger MinWindowWidth="640"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainScroller.Padding" Value="20"/>
+                        <Setter Target="MainScroller.Padding"
+                                Value="20"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -77,14 +81,16 @@
                         <AdaptiveTrigger MinWindowWidth="0"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainScroller.Padding" Value="16"/>
+                        <Setter Target="MainScroller.Padding"
+                                Value="16"/>
                     </VisualState.Setters>
                 </VisualState>
-                
+
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
-        <ScrollViewer x:Name="MainScroller" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer x:Name="MainScroller"
+                VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="0">
                 <!-- Page Header -->
                 <layout:PageHeader
@@ -173,13 +179,13 @@
                                                    Foreground="{ThemeResource AccentBlueBrush}"
                                                    FontWeight="SemiBold"/>
                                     </Border>
-                                    
+
                                     <!-- Full Name -->
                                     <TextBlock Text="{x:Bind ViewModel.FullName, Mode=OneWay, FallbackValue='User'}"
                                                FontSize="28"
                                                FontWeight="Bold"
                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                    
+
                                     <TextBlock Text="{x:Bind ViewModel.UsernameDisplay, Mode=OneWay, FallbackValue='@user'}"
                                                FontSize="15"
                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
@@ -233,11 +239,11 @@
                                             VerticalAlignment="Center">
 
                                     <buttons:IconButton
-                                            MinWidth="130"
-                                            Variant="Filled"
-                                            IconGlyph="&#xE70F;"
-                                            Text="Edit Profile"
-                                            Click="EditButton_Click"/>
+                                        MinWidth="130"
+                                        Variant="Filled"
+                                        IconGlyph="&#xE70F;"
+                                        Text="Edit Profile"
+                                        Click="EditButton_Click"/>
                                 </StackPanel>
                             </Grid>
                         </Grid>
@@ -272,11 +278,11 @@
                                             Spacing="8"
                                             HorizontalAlignment="Center">
                                     <buttons:IconButton
-                                            Variant="Filled"
-                                            IconGlyph="&#xE898;"
-                                            Text="Upload"
-                                            Command="{x:Bind ViewModel.UploadAvatarCommand}"
-                                            IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
+                                        Variant="Filled"
+                                        IconGlyph="&#xE898;"
+                                        Text="Upload"
+                                        Command="{x:Bind ViewModel.UploadAvatarCommand}"
+                                        IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
                                     <Button Style="{StaticResource SecondaryButtonStyle}"
                                             Content="Cancel"
                                             Click="CancelAvatarButton_Click"
@@ -354,10 +360,10 @@
                                                 Content="Cancel"
                                                 Click="CancelButton_Click"/>
                                         <buttons:IconButton
-                                                Variant="Filled"
-                                                IconGlyph="&#xE74E;"
-                                                Text="Save Changes"
-                                                Click="SaveButton_Click"/>
+                                            Variant="Filled"
+                                            IconGlyph="&#xE74E;"
+                                            Text="Save Changes"
+                                            Click="SaveButton_Click"/>
                                     </StackPanel>
                                 </Grid>
 

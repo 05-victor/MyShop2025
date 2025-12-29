@@ -9,6 +9,7 @@ using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 using System.Threading.Tasks;
 using System;
+using Windows.UI.Xaml;
 
 namespace MyShop.Client.Views.Customer
 {
@@ -39,7 +40,7 @@ namespace MyShop.Client.Views.Customer
             {
                 _currentUser = user;
                 ViewModel.Initialize(user);
-                
+
                 // Set current user ID for BecomeAdminBanner
                 if (this.FindName("BecomeAdminBannerControl") is Components.BecomeAdminBanner banner)
                 {
@@ -137,28 +138,59 @@ namespace MyShop.Client.Views.Customer
         {
             try
             {
-                // Show email verification dialog with OTP input
-                var dialog = new Dialogs.EmailVerificationDialog(
-                    _currentUser?.Email ?? string.Empty,
-                    App.Current.Services.GetRequiredService<IToastService>())
-                {
-                    XamlRoot = this.XamlRoot
-                };
+                var toastService = App.Current.Services.GetRequiredService<IToastService>();
+                var authRepository = App.Current.Services.GetRequiredService<IAuthRepository>();
+                var button = sender as Button;
 
-                dialog.VerificationChecked += async (s, isVerified) =>
+                if (button != null)
+                    button.IsEnabled = false;
+
+                // Call API to send verification email
+                System.Diagnostics.Debug.WriteLine("[CustomerDashboardPage] Sending verification email...");
+                var result = await authRepository.SendVerificationEmailAsync(string.Empty);
+
+                if (result.IsSuccess)
                 {
-                    if (isVerified && _currentUser != null)
+                    toastService.ShowSuccess("Verification email sent! Check your inbox for the link.");
+                    System.Diagnostics.Debug.WriteLine("[CustomerDashboardPage] ✅ Verification email sent successfully");
+
+                    // Show 60-second cooldown
+                    if (button != null)
                     {
-                        // Reload dashboard to update email verification status
-                        ViewModel.Initialize(_currentUser);
-                    }
-                };
+                        var countdown = 60;
+                        var timer = new DispatcherTimer();
+                        timer.Interval = TimeSpan.FromSeconds(1);
+                        timer.Tick += (s, args) =>
+                        {
+                            countdown--;
+                            button.Content = countdown > 0 ? $"Resend in {countdown}s" : "Resend Email";
 
-                await dialog.ShowAsync();
+                            if (countdown <= 0)
+                            {
+                                timer.Stop();
+                                button.IsEnabled = true;
+                            }
+                        };
+                        timer.Start();
+                    }
+                }
+                else
+                {
+                    toastService.ShowError($"Failed to send verification email: {result.ErrorMessage}");
+                    System.Diagnostics.Debug.WriteLine($"[CustomerDashboardPage] ❌ Error: {result.ErrorMessage}");
+
+                    if (button != null)
+                        button.IsEnabled = true;
+                }
             }
             catch (Exception ex)
             {
                 Services.LoggingService.Instance.Error("[CustomerDashboardPage] ResendVerificationEmail_Click failed", ex);
+                var toastService = App.Current.Services.GetRequiredService<IToastService>();
+                toastService.ShowError("An error occurred while sending verification email");
+
+                if (sender is Button btn)
+                    btn.IsEnabled = true;
             }
         }
 

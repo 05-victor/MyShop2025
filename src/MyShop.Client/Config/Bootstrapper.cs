@@ -283,8 +283,9 @@ namespace MyShop.Client.Config
                     System.Diagnostics.Debug.WriteLine("[Bootstrapper] ChatbotService registered as Singleton");
 
                     // ===== Import/Export Services =====
-                    services.AddSingleton<Services.ProductImportService>();
-                    System.Diagnostics.Debug.WriteLine("[Bootstrapper] ProductImportService registered as Singleton");
+                    // TODO: ProductImportService not yet implemented
+                    // services.AddSingleton<Services.ProductImportService>();
+                    // System.Diagnostics.Debug.WriteLine("[Bootstrapper] ProductImportService registered as Singleton");
 
                     // ===== Performance & Caching Services =====
                     services.AddSingleton<Services.ICacheService, Services.CacheService>();

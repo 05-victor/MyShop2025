@@ -287,13 +287,26 @@ public class AuthRepository : IAuthRepository
     {
         try
         {
-            // await Task.Delay(500);
-            return Result<Unit>.Failure("Email verification API not yet implemented on server. Please use mock mode for testing.");
+            System.Diagnostics.Debug.WriteLine($"[AuthRepository.SendVerificationEmailAsync] Calling API to send verification email");
+
+            var response = await _authApi.SendVerificationEmailAsync();
+
+            if (response.IsSuccessStatusCode && response.Content?.Success == true)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AuthRepository.SendVerificationEmailAsync] ✅ Success: {response.Content?.Message}");
+                return Result<Unit>.Success(Unit.Value);
+            }
+            else
+            {
+                var errorMessage = response.Content?.Message ?? response.Error?.Message ?? "Failed to send verification email";
+                System.Diagnostics.Debug.WriteLine($"[AuthRepository.SendVerificationEmailAsync] ❌ Failed: {errorMessage}");
+                return Result<Unit>.Failure(errorMessage);
+            }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"SendVerificationEmail Error: {ex.Message}");
-            return Result<Unit>.Failure("An unexpected error occurred.", ex);
+            System.Diagnostics.Debug.WriteLine($"[AuthRepository.SendVerificationEmailAsync] ❌ Error: {ex.Message}");
+            return Result<Unit>.Failure($"An error occurred while sending verification email: {ex.Message}", ex);
         }
     }
 

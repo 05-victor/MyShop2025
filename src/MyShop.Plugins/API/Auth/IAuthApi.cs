@@ -41,4 +41,11 @@ public interface IAuthApi
     /// </summary>
     [Post("/api/v1/auth/revoke-token")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<object>>> RevokeTokenAsync([Body] RefreshTokenRequest request);
+
+    /// <summary>
+    /// Send a verification email to the authenticated user's email address.
+    /// User must be authenticated via JWT token.
+    /// </summary>
+    [Post("/api/v1/email-verification/send")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<object>>> SendVerificationEmailAsync();
 }
