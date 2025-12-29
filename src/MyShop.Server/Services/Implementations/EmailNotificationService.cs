@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using MyShop.Server.Configuration;
 using MyShop.Server.Services.Interfaces;
 using System.Text;
@@ -28,10 +28,17 @@ namespace MyShop.Server.Services.Implementations
             _httpClient = httpClient;
             _environment = environment;
 
-            // Configure HttpClient headers with decoded API key
-            _httpClient.DefaultRequestHeaders.Clear();
-            _httpClient.DefaultRequestHeaders.Add("accept", "application/json");
-            _httpClient.DefaultRequestHeaders.Add("api-key", _emailSettings.GetDecodedApiKey());
+            // Log configuration on startup
+            var decodedApiKey = _emailSettings.GetDecodedApiKey();
+            _logger.LogInformation("🔑 Email Service Initialized");
+            _logger.LogInformation("   📝 API Key (Base64): {Base64Key}", _emailSettings.ApiKey?.Substring(0, Math.Min(20, _emailSettings.ApiKey?.Length ?? 0)) + "...");
+            _logger.LogInformation("   🔓 API Key (Decoded): {DecodedKey}", decodedApiKey?.Substring(0, Math.Min(30, decodedApiKey?.Length ?? 0)) + "...");
+            _logger.LogInformation("   📏 API Key Length: {Length}", decodedApiKey?.Length ?? 0);
+
+            if (string.IsNullOrEmpty(decodedApiKey))
+            {
+                _logger.LogError("❌ CRITICAL: API Key is empty after decoding!");
+            }
         }
 
         /// <summary>
@@ -117,26 +124,35 @@ namespace MyShop.Server.Services.Implementations
 
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-                _logger.LogInformation("Sending email to {Email} with subject: {Subject}", recipientEmail, subject);
+                // Decode API endpoint from Base64
+                var apiEndpoint = _emailSettings.GetDecodedApiEndpoint();
 
-                var response = await _httpClient.PostAsync(_emailSettings.GetDecodedApiEndpoint(), content);
+                _logger.LogInformation("📧 Sending email to {Email} with subject: {Subject}", recipientEmail, subject);
+                _logger.LogInformation("🌐 Using API endpoint: {Endpoint}", apiEndpoint);
+
+                var response = await _httpClient.PostAsync(apiEndpoint, content);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    _logger.LogInformation("Email sent successfully to {Email}", recipientEmail);
+                    _logger.LogInformation("✅ Email sent successfully to {Email}", recipientEmail);
                     return true;
                 }
                 else
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    _logger.LogError("Failed to send email to {Email}. Status: {StatusCode}, Error: {Error}",
+                    _logger.LogError("❌ Failed to send email to {Email}. Status: {StatusCode}, Error: {Error}",
                         recipientEmail, response.StatusCode, errorContent);
+
+                    // Log headers for debugging (without sensitive data)
+                    var hasApiKey = _httpClient.DefaultRequestHeaders.Contains("api-key");
+                    _logger.LogWarning("🔍 Debug - API key header present: {HasApiKey}", hasApiKey);
+
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error sending email to {Email}", recipientEmail);
+                _logger.LogError(ex, "💥 Exception sending email to {Email}", recipientEmail);
                 return false;
             }
         }
