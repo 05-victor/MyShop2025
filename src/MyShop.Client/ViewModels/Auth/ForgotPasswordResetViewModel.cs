@@ -23,8 +23,7 @@ public partial class ForgotPasswordResetViewModel : BaseViewModel
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ShowChecklist), nameof(MinLengthIcon), nameof(MinLengthColor),
-                              nameof(HasNumberIcon), nameof(HasNumberColor), nameof(HasSymbolIcon),
-                              nameof(HasSymbolColor), nameof(CanResetPassword))]
+                              nameof(CanResetPassword))]
     private string _newPassword = string.Empty;
 
     [ObservableProperty]
@@ -43,23 +42,13 @@ public partial class ForgotPasswordResetViewModel : BaseViewModel
     public bool ShowChecklist => !string.IsNullOrEmpty(NewPassword);
 
     // Password validation properties
-    public bool MinLengthMet => NewPassword.Length >= 8;
-    public bool HasNumber => !string.IsNullOrEmpty(NewPassword) && Regex.IsMatch(NewPassword, @"\d");
-    public bool HasSymbol => !string.IsNullOrEmpty(NewPassword) && Regex.IsMatch(NewPassword, @"[!@#$%^&*(),.?""':{}|<>]");
+    public bool MinLengthMet => NewPassword.Length >= 6;
     public bool PasswordsMatch => !string.IsNullOrEmpty(ConfirmPassword) && NewPassword == ConfirmPassword;
 
     public string MinLengthIcon => MinLengthMet ? "\uE73E" : "\uE711"; // CheckMark : Circle
-    public string HasNumberIcon => HasNumber ? "\uE73E" : "\uE711";
-    public string HasSymbolIcon => HasSymbol ? "\uE73E" : "\uE711";
     public string PasswordsMatchIcon => PasswordsMatch ? "\uE73E" : "\uE711";
 
     public SolidColorBrush MinLengthColor => MinLengthMet
-        ? new SolidColorBrush(Colors.Green)
-        : new SolidColorBrush(Colors.Gray);
-    public SolidColorBrush HasNumberColor => HasNumber
-        ? new SolidColorBrush(Colors.Green)
-        : new SolidColorBrush(Colors.Gray);
-    public SolidColorBrush HasSymbolColor => HasSymbol
         ? new SolidColorBrush(Colors.Green)
         : new SolidColorBrush(Colors.Gray);
     public SolidColorBrush PasswordsMatchColor => PasswordsMatch
@@ -70,8 +59,6 @@ public partial class ForgotPasswordResetViewModel : BaseViewModel
         !IsLoading &&
         !string.IsNullOrWhiteSpace(ResetCode) &&
         MinLengthMet &&
-        HasNumber &&
-        HasSymbol &&
         PasswordsMatch;
 
     public ForgotPasswordResetViewModel(
@@ -120,13 +107,7 @@ public partial class ForgotPasswordResetViewModel : BaseViewModel
 
             if (!MinLengthMet)
             {
-                ErrorMessage = "Password must be at least 8 characters";
-                return;
-            }
-
-            if (!HasNumber || !HasSymbol)
-            {
-                ErrorMessage = "Password is too weak";
+                ErrorMessage = "Password must be at least 6 characters";
                 return;
             }
 
