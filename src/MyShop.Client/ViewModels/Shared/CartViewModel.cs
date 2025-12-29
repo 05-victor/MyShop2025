@@ -78,7 +78,7 @@ public partial class CartViewModel : ObservableObject
         try
         {
             var result = await _cartFacade.LoadCartAsync();
-            
+
             if (!result.IsSuccess || result.Data == null)
             {
                 Items.Clear();
@@ -90,7 +90,7 @@ public partial class CartViewModel : ObservableObject
 
             Items.Clear();
             AgentGroups.Clear();
-            
+
             // Group items by sales agent
             var groupedByAgent = cartItems
                 .Where(i => i.SalesAgentId.HasValue)
@@ -131,7 +131,7 @@ public partial class CartViewModel : ObservableObject
                 SelectedAgentId = AgentGroups[0].AgentId;
                 AgentGroups[0].IsSelected = true;
             }
-            
+
             OnPropertyChanged(nameof(CanProceedToCheckout));
 
             // Also populate flat Items list for backward compatibility
@@ -156,6 +156,7 @@ public partial class CartViewModel : ObservableObject
             // Totals will be calculated in SelectShop command
             Subtotal = 0;
             Tax = 0;
+            ShippingFee = 0;
             Total = 0;
             ItemCount = Items.Count;
 
@@ -177,16 +178,16 @@ public partial class CartViewModel : ObservableObject
     private async Task IncreaseQuantityAsync(CartItemViewModel item)
     {
         if (item == null) return;
-        
+
         var newQty = Math.Min(item.Quantity + 1, item.Stock);
         if (newQty == item.Quantity)
         {
             await _toastService.ShowWarning("Maximum stock reached");
             return;
         }
-        
+
         var result = await _cartFacade.UpdateCartItemQuantityAsync(item.CartItemId, newQty);
-        
+
         if (result.IsSuccess)
         {
             item.Quantity = newQty;
@@ -199,7 +200,7 @@ public partial class CartViewModel : ObservableObject
     private async Task DecreaseQuantityAsync(CartItemViewModel item)
     {
         if (item == null) return;
-        
+
         if (item.Quantity <= 1)
         {
             await RemoveItemAsync(item);
@@ -208,7 +209,7 @@ public partial class CartViewModel : ObservableObject
 
         var newQty = Math.Max(item.Quantity - 1, 1);
         var result = await _cartFacade.UpdateCartItemQuantityAsync(item.CartItemId, newQty);
-        
+
         if (result.IsSuccess)
         {
             item.Quantity = newQty;
@@ -221,7 +222,7 @@ public partial class CartViewModel : ObservableObject
     private async Task RemoveItemAsync(CartItemViewModel item)
     {
         if (item == null) return;
-        
+
         var confirmed = await _dialogService.ShowConfirmationAsync(
             "Remove Item",
             $"Are you sure you want to remove '{item.Name}' from your cart?");
@@ -229,12 +230,12 @@ public partial class CartViewModel : ObservableObject
         if (!confirmed.IsSuccess || !confirmed.Data) return;
 
         var result = await _cartFacade.RemoveFromCartAsync(item.CartItemId);
-        
+
         if (result.IsSuccess)
         {
             // Remove from flat list
             Items.Remove(item);
-            
+
             // Remove from groups
             foreach (var group in AgentGroups)
             {
@@ -245,14 +246,14 @@ public partial class CartViewModel : ObservableObject
                     break;
                 }
             }
-            
+
             // Remove empty groups
             var emptyGroups = AgentGroups.Where(g => g.Items.Count == 0).ToList();
             foreach (var emptyGroup in emptyGroups)
             {
                 AgentGroups.Remove(emptyGroup);
             }
-            
+
             RecalculateGroupSubtotals();
             await RefreshTotalsAsync();
             IsEmpty = Items.Count == 0;
@@ -269,7 +270,7 @@ public partial class CartViewModel : ObservableObject
         if (!confirmed.IsSuccess || !confirmed.Data) return;
 
         var result = await _cartFacade.ClearCartAsync();
-        
+
         if (result.IsSuccess)
         {
             Items.Clear();
@@ -292,16 +293,16 @@ public partial class CartViewModel : ObservableObject
     private async Task SelectShop(Guid agentId)
     {
         SelectedAgentId = agentId;
-        
+
         // Update IsSelected state for all groups
         foreach (var group in AgentGroups)
         {
             group.IsSelected = group.AgentId == agentId;
         }
-        
+
         // Recalculate totals for selected shop only
         await RefreshTotalsAsync();
-        
+
         OnPropertyChanged(nameof(CanProceedToCheckout));
         System.Diagnostics.Debug.WriteLine($"[CartViewModel] Selected shop: {agentId}, New Total: {Total:N0} VND");
     }
@@ -325,7 +326,7 @@ public partial class CartViewModel : ObservableObject
 
         // Pass selected shop ID to checkout page
         await _navigationService.NavigateInShell(
-            typeof(CheckoutPage).FullName!, 
+            typeof(CheckoutPage).FullName!,
             SelectedAgentId.Value);
     }
 

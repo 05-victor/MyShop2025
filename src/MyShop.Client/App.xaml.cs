@@ -286,6 +286,28 @@ namespace MyShop.Client
                             LoggingService.Instance.LogAuth("Auto-login", user.Username, true);
                             LoggingService.Instance.Information($"User roles: {string.Join(", ", user.Roles)}");
 
+                            // Load application settings after user is authenticated
+                            LoggingService.Instance.Information("Loading application settings...");
+                            try
+                            {
+                                var settingsRepository = Services.GetRequiredService<ISettingsRepository>();
+                                var settingsResult = await settingsRepository.GetSettingsAsync();
+
+                                if (settingsResult.IsSuccess && settingsResult.Data != null)
+                                {
+                                    var settings = settingsResult.Data;
+                                    LoggingService.Instance.Information($"[Startup] Settings loaded: AppName={settings.AppName}, Version={settings.Version}");
+                                }
+                                else
+                                {
+                                    LoggingService.Instance.Warning($"[Startup] Failed to load settings: {settingsResult.ErrorMessage}");
+                                }
+                            }
+                            catch (Exception settingsEx)
+                            {
+                                LoggingService.Instance.Error("[Startup] Error loading settings (non-critical)", settingsEx);
+                            }
+
                             // Use strategy pattern to navigate
                             var roleStrategyFactory = Services.GetRequiredService<IRoleStrategyFactory>();
                             var primaryRole = user.GetPrimaryRole();

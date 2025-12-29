@@ -36,8 +36,8 @@ public partial class SettingsViewModel : ObservableObject
 
     // Trial properties
     [ObservableProperty] private int _trialDaysRemaining = 0;
-    [ObservableProperty] private string _upgradeProUrl = "https://facebook.com";
-    [ObservableProperty] private string _supportUrl = "https://facebook.com/myshop.support";
+    [ObservableProperty] private string _upgradeProUrl = "https://adminportal-psi.vercel.app";
+    [ObservableProperty] private string _supportUrl = "https://adminportal-psi.vercel.app";
     [ObservableProperty] private string _trialCode = string.Empty;
 
     // License/Trial visibility properties
@@ -236,8 +236,8 @@ public partial class SettingsViewModel : ObservableObject
         {
             // TODO: Once SettingsResponse includes UpgradeProUrl and SupportUrl fields,
             // fetch these from the API instead of hardcoding
-            UpgradeProUrl = "https://facebook.com";
-            SupportUrl = "https://facebook.com/myshop.support";
+            UpgradeProUrl = "https://adminportal-psi.vercel.app";
+            SupportUrl = "https://adminportal-psi.vercel.app";
             System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] System settings loaded: UpgradeUrl={UpgradeProUrl}");
 
             // Load license info for Trial tab visibility
