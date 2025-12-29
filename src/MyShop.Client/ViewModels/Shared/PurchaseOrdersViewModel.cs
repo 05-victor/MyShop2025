@@ -45,10 +45,7 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
     private string _selectedStatus = "All";
 
     [ObservableProperty]
-    private string _selectedSort = "Newest First";
-
-    [ObservableProperty]
-    private ObservableCollection<string> _searchSuggestions = new();
+    private string _selectedPaymentStatus = "All";
 
     public bool HasNoItems => Items.Count == 0 && !IsLoading;
 
@@ -92,49 +89,6 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
         await LoadDataAsync();
     }
 
-    public async Task UpdateSearchSuggestionsAsync(string query)
-    {
-        if (string.IsNullOrWhiteSpace(query) || query.Length < 2)
-        {
-            SearchSuggestions.Clear();
-            return;
-        }
-
-        // Generate suggestions based on order IDs and status
-        var suggestions = new List<string>();
-
-        foreach (var order in Items)
-        {
-            if (order.OrderId.Contains(query, StringComparison.OrdinalIgnoreCase))
-            {
-                suggestions.Add(order.OrderId);
-            }
-            if (order.TrackingNumber.Contains(query, StringComparison.OrdinalIgnoreCase))
-            {
-                suggestions.Add(order.TrackingNumber);
-            }
-        }
-
-        SearchSuggestions.Clear();
-        foreach (var s in suggestions.Distinct().Take(5))
-        {
-            SearchSuggestions.Add(s);
-        }
-    }
-
-    partial void OnSelectedStatusChanged(string value)
-    {
-        System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Status changed to: {value}");
-        CurrentPage = 1;
-        _ = LoadPageAsync();
-    }
-
-    partial void OnSelectedSortChanged(string value)
-    {
-        System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Sort changed to: {value}");
-        _ = LoadPageAsync();
-    }
-
     protected override async Task LoadPageAsync()
     {
         try
@@ -142,23 +96,16 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
             SetLoadingState(true);
 
             var statusFilter = SelectedStatus == "All" ? null : SelectedStatus;
-            var (sortBy, sortDesc) = SelectedSort switch
-            {
-                "Newest First" => ("orderDate", true),
-                "Oldest First" => ("orderDate", false),
-                "Highest Amount" => ("finalPrice", true),
-                "Lowest Amount" => ("finalPrice", false),
-                "Status" => ("status", false),
-                _ => ("orderDate", true)
-            };
+            var paymentStatusFilter = SelectedPaymentStatus == "All" ? null : SelectedPaymentStatus;
 
             var result = await _orderFacade.LoadOrdersPagedAsync(
                 page: CurrentPage,
                 pageSize: PageSize,
                 status: statusFilter,
-                searchQuery: SearchQuery,
-                sortBy: sortBy,
-                sortDescending: sortDesc,
+                paymentStatus: paymentStatusFilter,
+                searchQuery: null,
+                sortBy: null,
+                sortDescending: false,
                 customerId: _currentUserId,
                 salesAgentId: _salesAgentId);
 
@@ -225,6 +172,7 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
                     OrderDate = o.OrderDate,
                     TrackingNumber = $"TRK{o.Id.ToString().Substring(0, 9)}",
                     Status = o.Status,
+                    PaymentStatus = o.PaymentStatus,
                     DeliveredDate = o.Status == "Delivered" || o.Status == "DELIVERED" ? o.OrderDate.AddDays(3) : null,
                     Items = itemViewModels,
                     Subtotal = (decimal)o.Subtotal,
@@ -288,18 +236,6 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
     }
 
     [RelayCommand]
-    private void FilterByStatus(string status)
-    {
-        SelectedStatus = status;
-    }
-
-    [RelayCommand]
-    private void SortOrders(string sortOption)
-    {
-        SelectedSort = sortOption;
-    }
-
-    [RelayCommand]
     private async Task ApplyFiltersAsync()
     {
         CurrentPage = 1;
@@ -309,9 +245,8 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
     [RelayCommand]
     private async Task ResetFiltersAsync()
     {
-        SearchQuery = string.Empty;
         SelectedStatus = "All";
-        SelectedSort = "Newest First";
+        SelectedPaymentStatus = "All";
         CurrentPage = 1;
         await LoadPageAsync();
     }
@@ -422,6 +357,9 @@ public partial class OrderViewModel : ObservableObject
 
     [ObservableProperty]
     private string _status = string.Empty;
+
+    [ObservableProperty]
+    private string _paymentStatus = string.Empty;
 
     [ObservableProperty]
     private DateTime? _deliveredDate;

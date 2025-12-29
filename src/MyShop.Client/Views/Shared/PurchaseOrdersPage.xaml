@@ -30,6 +30,7 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:CurrencyFormatConverter x:Key="CurrencyFormatConverter"/>
         <converters:CurrencyConverter x:Key="CurrencyConverter"/>
+        <converters:PaymentStatusToEnableButtonConverter x:Key="PaymentStatusToEnableButtonConverter"/>
     </Page.Resources>
 
     <Grid>
@@ -98,7 +99,7 @@
             <ScrollViewer Grid.Row="1"
                           VerticalScrollBarVisibility="Auto">
                 <StackPanel x:Name="MainContent"
-                        Padding="24"
+                            Padding="24"
                             Spacing="24">
 
                     <!-- Page Header -->
@@ -257,63 +258,67 @@
                         </Border>
                     </Grid>
 
-                    <!-- Search Card (P0 - Component Enforcement) -->
-                    <forms:SearchCard
-                        Title="Search Orders"
-                        Subtitle="Find orders by ID, tracking number, or product name"
-                        PlaceholderText="Search by order ID, tracking, or product name..."
-                        SearchText="{x:Bind ViewModel.SearchQuery, Mode=TwoWay}"/>
+                    <!-- FILTERS CARD with Apply Button -->
+                    <forms:FilterCard Title="Filters"
+                                      ApplyCommand="{x:Bind ViewModel.ApplyFiltersCommand}"
+                                      ResetCommand="{x:Bind ViewModel.ResetFiltersCommand}"
+                                      ShowActions="True"
+                                      ShowResetButton="True">
+                        <forms:FilterCard.FilterContent>
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
 
-                    <!-- Filters -->
-                    <Border Style="{StaticResource CardStyle}">
-                        <StackPanel Spacing="16">
-                            <!-- Filter Buttons and Sort -->
-                            <Grid ColumnDefinitions="*,Auto">
-                                <StackPanel Orientation="Horizontal"
-                                            Spacing="8">
-                                    <ToggleButton x:Name="FilterAll"
-                                                  Content="All"
-                                                  Style="{StaticResource FilterToggleButtonStyle}"
-                                                  IsChecked="True"
-                                                  Click="FilterButton_Click"
-                                                  Tag="All"/>
-                                    <ToggleButton x:Name="FilterPending"
-                                                  Content="Pending"
-                                                  Style="{StaticResource FilterToggleButtonStyle}"
-                                                  Click="FilterButton_Click"
-                                                  Tag="Pending"/>
-                                    <ToggleButton x:Name="FilterPaid"
-                                                  Content="Paid"
-                                                  Style="{StaticResource FilterToggleButtonStyle}"
-                                                  Click="FilterButton_Click"
-                                                  Tag="PAID"/>
-                                    <ToggleButton x:Name="FilterShipped"
-                                                  Content="Shipped"
-                                                  Style="{StaticResource FilterToggleButtonStyle}"
-                                                  Click="FilterButton_Click"
-                                                  Tag="Shipped"/>
-                                    <ToggleButton x:Name="FilterDelivered"
-                                                  Content="Delivered"
-                                                  Style="{StaticResource FilterToggleButtonStyle}"
-                                                  Click="FilterButton_Click"
-                                                  Tag="DELIVERED"/>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Order Status"
+                                               FontSize="{StaticResource FontSize_SM}"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                               Margin="0,0,0,4"/>
+                                    <ComboBox x:Name="StatusComboBox"
+                                              HorizontalAlignment="Stretch"
+                                              CornerRadius="8"
+                                              SelectedIndex="0"
+                                              SelectionChanged="StatusComboBox_SelectionChanged">
+                                        <ComboBoxItem Content="All Status"
+                                                      Tag="All"/>
+                                        <ComboBoxItem Content="Pending"
+                                                      Tag="PENDING"/>
+                                        <ComboBoxItem Content="Confirmed"
+                                                      Tag="CONFIRMED"/>
+                                        <ComboBoxItem Content="Processing"
+                                                      Tag="PROCESSING"/>
+                                        <ComboBoxItem Content="Shipped"
+                                                      Tag="SHIPPED"/>
+                                        <ComboBoxItem Content="Delivered"
+                                                      Tag="DELIVERED"/>
+                                    </ComboBox>
                                 </StackPanel>
 
-                                <ComboBox Grid.Column="1"
-                                          x:Name="SortComboBox"
-                                          Width="200"
-                                          PlaceholderText="Sort by"
-                                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                          SelectionChanged="SortComboBox_SelectionChanged">
-                                    <ComboBoxItem Content="Newest First"
-                                                  IsSelected="True"/>
-                                    <ComboBoxItem Content="Oldest First"/>
-                                    <ComboBoxItem Content="Highest Amount"/>
-                                    <ComboBoxItem Content="Lowest Amount"/>
-                                </ComboBox>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Payment Status"
+                                               FontSize="{StaticResource FontSize_SM}"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                               Margin="0,0,0,4"/>
+                                    <ComboBox x:Name="PaymentStatusComboBox"
+                                              HorizontalAlignment="Stretch"
+                                              CornerRadius="8"
+                                              SelectedIndex="0"
+                                              SelectionChanged="PaymentStatusComboBox_SelectionChanged">
+                                        <ComboBoxItem Content="All Payment Status"
+                                                      Tag="All"/>
+                                        <ComboBoxItem Content="Unpaid"
+                                                      Tag="UNPAID"/>
+                                        <ComboBoxItem Content="Paid"
+                                                      Tag="PAID"/>
+                                        <ComboBoxItem Content="Refunded"
+                                                      Tag="REFUNDED"/>
+                                    </ComboBox>
+                                </StackPanel>
                             </Grid>
-                        </StackPanel>
-                    </Border>
+                        </forms:FilterCard.FilterContent>
+                    </forms:FilterCard>
 
                     <!-- Order Cards List -->
                     <ItemsRepeater x:Name="OrdersRepeater"
@@ -461,6 +466,7 @@
                                                 <Button Style="{StaticResource PrimaryButtonStyle}"
                                                         Content="💳 Pay Now"
                                                         HorizontalAlignment="Stretch"
+                                                        IsEnabled="{x:Bind PaymentStatus, Converter={StaticResource PaymentStatusToEnableButtonConverter}, Mode=OneWay}"
                                                         Command="{Binding ElementName=OrdersRepeater, Path=Tag.PayNowCommand}"
                                                         CommandParameter="{x:Bind}"/>
                                                 <Button Style="{StaticResource SecondaryButtonStyle}"
