@@ -368,20 +368,41 @@
                         </Grid>
                     </Border>
 
-                    <!--  Product Name  -->
-                    <StackPanel Spacing="4">
-                        <TextBlock
-                            FontSize="{StaticResource FontSize_SM}"
-                            FontWeight="SemiBold"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            Text="PRODUCT NAME"/>
-                        <TextBlock
-                            x:Name="ViewProductName"
-                            FontSize="{StaticResource FontSize_XL}"
-                            FontWeight="Bold"
-                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                            TextWrapping="Wrap"/>
-                    </StackPanel>
+                    <!--  Product Name + SalesAgent Row  -->
+                    <Grid ColumnSpacing="24">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0"
+                                    Spacing="4">
+                            <TextBlock
+                                FontSize="{StaticResource FontSize_SM}"
+                                FontWeight="SemiBold"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Text="PRODUCT NAME"/>
+                            <TextBlock
+                                x:Name="ViewProductName"
+                                FontSize="{StaticResource FontSize_XL}"
+                                FontWeight="Bold"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                TextWrapping="Wrap"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1"
+                                    Spacing="4">
+                            <TextBlock
+                                FontSize="{StaticResource FontSize_SM}"
+                                FontWeight="SemiBold"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Text="SALESAGENT"/>
+                            <TextBlock
+                                x:Name="ViewProductSalesAgent"
+                                FontSize="{StaticResource FontSize_Base}"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                        </StackPanel>
+                    </Grid>
 
                     <!--  Category + Manufacturer Row  -->
                     <Grid ColumnSpacing="24">
@@ -423,6 +444,21 @@
                                 Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                         </StackPanel>
                     </Grid>
+
+                    <!--  Description (Span 2 columns)  -->
+                    <StackPanel Spacing="4">
+                        <TextBlock
+                            FontSize="{StaticResource FontSize_SM}"
+                            FontWeight="SemiBold"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Text="DESCRIPTION"/>
+                        <TextBlock
+                            x:Name="ViewProductDescription"
+                            FontSize="{StaticResource FontSize_Base}"
+                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                            TextWrapping="Wrap"
+                            LineHeight="20"/>
+                    </StackPanel>
 
                     <!--  Price Section  -->
                     <Border

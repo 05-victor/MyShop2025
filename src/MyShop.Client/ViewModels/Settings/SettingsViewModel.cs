@@ -726,19 +726,13 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Format release date from ISO string to user-friendly format (e.g., "November 2025")
+    /// Format release date from DateTime to user-friendly format (e.g., "November 2025")
     /// </summary>
-    private string FormatReleaseDate(string? isoDateString)
+    private string FormatReleaseDate(DateTime releaseDate)
     {
-        if (string.IsNullOrEmpty(isoDateString))
-            return "November 2025"; // Fallback
-
         try
         {
-            if (DateTime.TryParse(isoDateString, out var date))
-            {
-                return date.ToString("MMMM yyyy"); // e.g., "November 2025"
-            }
+            return releaseDate.ToString("MMMM yyyy"); // e.g., "November 2025"
         }
         catch
         {

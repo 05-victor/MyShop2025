@@ -242,7 +242,7 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
                 {
                     // Normalize image URL - handle old/incorrect placeholder paths
                     var imageUrl = product.ImageUrl;
-                    if (string.IsNullOrWhiteSpace(imageUrl) || 
+                    if (string.IsNullOrWhiteSpace(imageUrl) ||
                         imageUrl.Contains("product-placeholder.png") ||
                         imageUrl.Contains("placeholder-product.png"))
                     {
@@ -265,6 +265,8 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
                         Category = product.CategoryName ?? product.Category ?? "Uncategorized",
                         Manufacturer = product.Manufacturer ?? string.Empty,
                         AgentName = agentName,
+                        SaleAgentFullName = product.SaleAgentFullName ?? product.SaleAgentUsername ?? string.Empty,
+                        Description = product.Description ?? string.Empty,
 
                         // Email verification UX
                         CanAddToCart = isEmailVerified && product.Quantity > 0,
@@ -442,7 +444,11 @@ public partial class ProductCardViewModel : ObservableObject
     [ObservableProperty]
     private string? _agentName;
 
-    public string FormattedPrice => $"₫{Price:N0}";
+    [ObservableProperty]
+    private string? _saleAgentFullName = string.Empty;
+
+    [ObservableProperty]
+    private string? _description = string.Empty;
     public string StockStatus => Stock > 0 ? $"{Stock} in stock" : "Out of stock";
     public bool IsInStock => Stock > 0;
     public string AgentDisplay => !string.IsNullOrEmpty(AgentName) ? $"by {AgentName}" : string.Empty;

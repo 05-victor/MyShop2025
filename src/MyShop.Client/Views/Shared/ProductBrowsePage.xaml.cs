@@ -9,6 +9,7 @@ using Windows.System;
 using Windows.UI.Xaml; // For DependencyObject
 using MyShop.Client.ViewModels.Shared;
 using MyShop.Client.Views.Components.Controls;
+using MyShop.Client.Common.Converters;
 using System.Linq;
 
 namespace MyShop.Client.Views.Shared
@@ -314,9 +315,15 @@ namespace MyShop.Client.Views.Shared
 
                 // Populate dialog fields with product data
                 ViewProductName.Text = product.Name;
+                ViewProductSalesAgent.Text = string.IsNullOrEmpty(product.SaleAgentFullName) ? "Unknown" : product.SaleAgentFullName;
                 ViewProductCategory.Text = string.IsNullOrEmpty(product.Category) ? "Uncategorized" : product.Category;
                 ViewProductManufacturer.Text = string.IsNullOrEmpty(product.Manufacturer) ? "Unknown" : product.Manufacturer;
-                ViewProductPrice.Text = $"₫{product.Price:N0}";
+                ViewProductDescription.Text = string.IsNullOrEmpty(product.Description) ? "No description available" : product.Description;
+
+                // Format price using CurrencyConverter for consistency with product cards
+                var currencyConverter = new CurrencyConverter();
+                ViewProductPrice.Text = currencyConverter.Convert(product.Price, typeof(string), null, null)?.ToString() ?? "0₫";
+
                 ViewProductStock.Text = product.Stock.ToString();
 
                 // Set stock status badge and button enabled state (check stock AND CanAddToCart for email verification)
