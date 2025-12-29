@@ -362,9 +362,7 @@ namespace MyShop.Client.Config
 
                     // Auth ViewModels
                     services.AddTransient<ViewModels.Auth.ForgotPasswordRequestViewModel>();
-                    services.AddTransient<ViewModels.Auth.ForgotPasswordOtpViewModel>();
                     services.AddTransient<ViewModels.Auth.ForgotPasswordResetViewModel>();
-                    services.AddTransient<ViewModels.Auth.ForgotPasswordSuccessViewModel>();
 
                     // Admin ViewModels
                     services.AddTransient<ViewModels.Admin.AdminDashboardViewModel>();

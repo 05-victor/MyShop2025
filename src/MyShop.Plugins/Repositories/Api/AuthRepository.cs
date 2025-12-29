@@ -291,7 +291,7 @@ public class AuthRepository : IAuthRepository
 
             var response = await _authApi.SendVerificationEmailAsync();
 
-            if (response.IsSuccessStatusCode && response.Content?.Success == true)
+            if (response.IsSuccessStatusCode)
             {
                 System.Diagnostics.Debug.WriteLine($"[AuthRepository.SendVerificationEmailAsync] ✅ Success: {response.Content?.Message}");
                 return Result<Unit>.Success(Unit.Value);

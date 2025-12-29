@@ -49,7 +49,7 @@ public partial class SalesAgentProductsViewModel : PagedViewModelBase<ProductVie
     public ObservableCollection<ProductViewModel> Products => Items;
 
     public SalesAgentProductsViewModel(
-        IProductFacade productFacade, 
+        IProductFacade productFacade,
         ProductImportService importService,
         IToastService? toastService = null)
         : base(toastService, null)
@@ -200,27 +200,6 @@ public partial class SalesAgentProductsViewModel : PagedViewModelBase<ProductVie
         {
             await ShowErrorToast($"Import failed: {ex.Message}");
             System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel] Import error: {ex.Message}");
-        }
-        finally
-        {
-            SetLoadingState(false);
-        }
-    }
-
-    [RelayCommand]
-    private async Task DownloadTemplateAsync()
-    {
-        SetLoadingState(true);
-        try
-        {
-            // TODO: Implement download CSV template functionality
-            await ShowErrorToast("Template download feature is not yet implemented.");
-            System.Diagnostics.Debug.WriteLine("[SalesAgentProductsViewModel] DownloadTemplateAsync: Not implemented");
-        }
-        catch (System.Exception ex)
-        {
-            await ShowErrorToast($"Download failed: {ex.Message}");
-            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel] Download error: {ex.Message}");
         }
         finally
         {
@@ -757,7 +736,7 @@ public partial class SalesAgentProductsViewModel : PagedViewModelBase<ProductVie
     public async Task ProcessImportFileAsync(Windows.Storage.StorageFile file, Microsoft.UI.Xaml.XamlRoot xamlRoot)
     {
         System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel] ProcessImportFileAsync: {file.Name}");
-        
+
         try
         {
             IsLoading = true;
@@ -768,14 +747,14 @@ public partial class SalesAgentProductsViewModel : PagedViewModelBase<ProductVie
 
             if (!parseResult.IsSuccess || parseResult.ValidProducts.Count == 0)
             {
-                var errorMsg = parseResult.Errors.Count > 0 
-                    ? string.Join("\n", parseResult.Errors.Take(5)) 
+                var errorMsg = parseResult.Errors.Count > 0
+                    ? string.Join("\n", parseResult.Errors.Take(5))
                     : "No valid products found in file";
-                
+
                 await _toastHelper?.ShowError(
                     $"Import failed:\n{errorMsg}\n\n" +
                     $"Total: {parseResult.TotalRows}, Failed: {parseResult.FailureCount}");
-                
+
                 return;
             }
 
@@ -840,7 +819,7 @@ public partial class SalesAgentProductsViewModel : PagedViewModelBase<ProductVie
         try
         {
             var file = await _importService.GenerateSampleCsvAsync();
-            
+
             if (file != null)
             {
                 await _toastHelper?.ShowSuccess($"Template saved: {file.Name}");
