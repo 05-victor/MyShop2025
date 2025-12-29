@@ -144,34 +144,34 @@
                         <Border Style="{StaticResource CardWithShadowStyle}">
                             <StackPanel Spacing="16">
                                 <TextBlock
-                                FontSize="{StaticResource FontSize_LG}"
-                                FontWeight="SemiBold"
-                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                Text="Export Report"/>
+                                    FontSize="{StaticResource FontSize_LG}"
+                                    FontWeight="SemiBold"
+                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                    Text="Export Report"/>
 
                                 <TextBlock
-                                FontSize="{StaticResource FontSize_Base}"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="Download the current report data"/>
+                                    FontSize="{StaticResource FontSize_Base}"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    Text="Download the current report data"/>
 
                                 <StackPanel Orientation="Horizontal"
-                                    Spacing="12">
+                                            Spacing="12">
                                     <buttons:IconButton
-                                    IconGlyph="&#xE74E;"
-                                    Text="Export CSV"
-                                    Variant="Filled"
-                                    Command="{x:Bind ViewModel.ExportReportCommand}"
-                                    ToolTipService.ToolTip="Export report as CSV"
-                                    AutomationProperties.Name="Export report as CSV"/>
+                                        IconGlyph="&#xE74E;"
+                                        Text="Export CSV"
+                                        Variant="Filled"
+                                        Command="{x:Bind ViewModel.ExportReportCommand}"
+                                        ToolTipService.ToolTip="Export report as CSV"
+                                        AutomationProperties.Name="Export report as CSV"/>
 
                                     <buttons:IconButton
-                                    IconGlyph="&#xEA90;"
-                                    Text="Export PDF"
-                                    Variant="Filled"
-                                    Click="ExportPdfButton_Click"
-                                    Command="{x:Bind ViewModel.ExportReportCommand}"
-                                    ToolTipService.ToolTip="Export report as PDF"
-                                    AutomationProperties.Name="Export report as PDF"/>
+                                        IconGlyph="&#xEA90;"
+                                        Text="Export PDF"
+                                        Variant="Filled"
+                                        Click="ExportPdfButton_Click"
+                                        Command="{x:Bind ViewModel.ExportReportCommand}"
+                                        ToolTipService.ToolTip="Export report as PDF"
+                                        AutomationProperties.Name="Export report as PDF"/>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
@@ -379,27 +379,6 @@
                                                         Foreground="{ThemeResource SuccessGreenBrush}"
                                                         Text="{Binding Revenue, Converter={StaticResource CurrencyConverter}}"
                                                         TextAlignment="Right"/>
-                                                </DataTemplate>
-                                            </controls:DataGridTemplateColumn.CellTemplate>
-                                        </controls:DataGridTemplateColumn>
-                                        <controls:DataGridTemplateColumn Header="Avg Rating">
-                                            <controls:DataGridTemplateColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <StackPanel
-                                                        HorizontalAlignment="Right"
-                                                        VerticalAlignment="Center"
-                                                        Orientation="Horizontal"
-                                                        Spacing="4">
-                                                        <TextBlock
-                                                            VerticalAlignment="Center"
-                                                            FontWeight="SemiBold"
-                                                            Text="{Binding Rating}"/>
-                                                        <FontIcon
-                                                            VerticalAlignment="Center"
-                                                            FontSize="{StaticResource FontSize_SM}"
-                                                            Foreground="{ThemeResource WarningAmberBrush}"
-                                                            Glyph="&#xE735;"/>
-                                                    </StackPanel>
                                                 </DataTemplate>
                                             </controls:DataGridTemplateColumn.CellTemplate>
                                         </controls:DataGridTemplateColumn>

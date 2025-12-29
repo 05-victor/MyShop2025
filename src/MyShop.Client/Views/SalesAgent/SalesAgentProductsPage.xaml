@@ -134,20 +134,23 @@
                                                 Padding="16,0"
                                                 Style="{StaticResource SecondaryButtonSmallStyle}"
                                                 ToolTipService.ToolTip="Export products data">
-                                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                                    <FontIcon Glyph="&#xE898;" FontSize="{StaticResource FontSize_Base}"/>
+                                                <StackPanel Orientation="Horizontal"
+                                                        Spacing="8">
+                                                    <FontIcon Glyph="&#xE898;"
+                                                            FontSize="{StaticResource FontSize_Base}"/>
                                                     <TextBlock Text="Export"/>
-                                                    <FontIcon Glyph="&#xE70D;" FontSize="{StaticResource FontSize_XS}"/>
+                                                    <FontIcon Glyph="&#xE70D;"
+                                                            FontSize="{StaticResource FontSize_XS}"/>
                                                 </StackPanel>
                                                 <Button.Flyout>
                                                     <MenuFlyout Placement="Bottom">
-                                                        <MenuFlyoutItem Text="Export to CSV" 
+                                                        <MenuFlyoutItem Text="Export to CSV"
                                                                         Click="ExportButton_Click">
                                                             <MenuFlyoutItem.Icon>
                                                                 <FontIcon Glyph="&#xE9F9;"/>
                                                             </MenuFlyoutItem.Icon>
                                                         </MenuFlyoutItem>
-                                                        <MenuFlyoutItem Text="Export to PDF" 
+                                                        <MenuFlyoutItem Text="Export to PDF"
                                                                         Click="ExportPdfButton_Click">
                                                             <MenuFlyoutItem.Icon>
                                                                 <FontIcon Glyph="&#xEA90;"/>
@@ -317,8 +320,6 @@
                                                 <ColumnDefinition Width="1.2*"/>
                                                 <!-- Tax -->
                                                 <ColumnDefinition Width="*"/>
-                                                <!-- Rating -->
-                                                <ColumnDefinition Width="80"/>
                                                 <!-- Actions -->
                                             </Grid.ColumnDefinitions>
 
@@ -353,10 +354,6 @@
                                             <TextBlock Grid.Column="7"
                                                        FontWeight="SemiBold"
                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                       Text="RATING"/>
-                                            <TextBlock Grid.Column="8"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                        Text="ACTIONS"/>
                                         </Grid>
 
@@ -377,7 +374,6 @@
                                                             <ColumnDefinition Width="1.2*"/>
                                                             <ColumnDefinition Width="1*"/>
                                                             <ColumnDefinition Width="1*"/>
-                                                            <ColumnDefinition Width="80"/>
                                                         </Grid.ColumnDefinitions>
 
                                                         <!-- Image -->
@@ -449,22 +445,8 @@
                                                             </TextBlock>
                                                         </StackPanel>
 
-                                                        <!-- Rating -->
-                                                        <StackPanel Grid.Column="7"
-                                                                    Orientation="Horizontal"
-                                                                    Spacing="4"
-                                                                    VerticalAlignment="Center">
-                                                            <TextBlock VerticalAlignment="Center"
-                                                                       FontSize="{StaticResource FontSize_Base}"
-                                                                       Text="{x:Bind Rating, Mode=OneWay}"/>
-                                                            <FontIcon
-                                                                FontSize="{StaticResource FontSize_Base}"
-                                                                Foreground="{ThemeResource WarningAmberBrush}"
-                                                                Glyph="&#xE735;"/>
-                                                        </StackPanel>
-
                                                         <!-- Actions -->
-                                                        <StackPanel Grid.Column="8"
+                                                        <StackPanel Grid.Column="7"
                                                                     Orientation="Horizontal"
                                                                     Spacing="4"
                                                                     VerticalAlignment="Center">
