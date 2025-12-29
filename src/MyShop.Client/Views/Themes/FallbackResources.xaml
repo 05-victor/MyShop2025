@@ -82,6 +82,12 @@
                 Value="1"/>
         <Setter Property="CornerRadius"
                 Value="8"/>
+        <Setter Property="PrimaryButtonStyle"
+                Value="{StaticResource PrimaryButtonStyle}"/>
+        <Setter Property="SecondaryButtonStyle"
+                Value="{StaticResource SecondaryButtonStyle}"/>
+        <Setter Property="CloseButtonStyle"
+                Value="{StaticResource SecondaryButtonStyle}"/>
     </Style>
 
 </ResourceDictionary>

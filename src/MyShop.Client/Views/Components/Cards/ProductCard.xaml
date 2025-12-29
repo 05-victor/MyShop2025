@@ -22,6 +22,7 @@
 
     <Border x:Name="CardBorder"
             Width="240"
+            MinHeight="340"
             Padding="16,12"
             Style="{StaticResource ProductCardStyle}"
             PointerEntered="CardBorder_PointerEntered"
@@ -128,10 +129,10 @@
                     x:Name="EmailVerificationNotice"
                     IsOpen="{x:Bind ShowEmailVerification, Mode=OneWay}"
                     Severity="Warning"
-                    Title="Verify your email"
-                    Message="Verify your email to start shopping"
                     IsIconVisible="True"
                     IsClosable="False"
+                    Title="Verify your email to start shopping"
+                    HorizontalAlignment="Center"
                     Margin="0,2,0,0">
                     <InfoBar.ActionButton>
                         <Button

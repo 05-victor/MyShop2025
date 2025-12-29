@@ -109,11 +109,11 @@
 
                     <!-- Status Badge -->
                     <Border Padding="12,8" CornerRadius="8" HorizontalAlignment="Left"
-                            Background="{ThemeResource YellowLightBrush}">
+                            Background="{ThemeResource WarningAmber50Brush}">
                         <TextBlock Text="{x:Bind ViewModel.RequestStatusDisplay, Mode=OneWay}"
                                    FontWeight="SemiBold"
                                    FontSize="14"
-                                   Foreground="{ThemeResource YellowDarkBrush}"/>
+                                   Foreground="{ThemeResource WarningAmberBrush}"/>
                     </Border>
 
                     <!-- Status Message -->

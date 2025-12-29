@@ -323,7 +323,10 @@ public partial class CartViewModel : ObservableObject
             return;
         }
 
-        await _navigationService.NavigateInShell(typeof(CheckoutPage).FullName!);
+        // Pass selected shop ID to checkout page
+        await _navigationService.NavigateInShell(
+            typeof(CheckoutPage).FullName!, 
+            SelectedAgentId.Value);
     }
 
     private async Task RefreshTotalsAsync()

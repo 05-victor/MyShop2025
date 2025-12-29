@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -325,21 +325,18 @@ namespace MyShop.Client.Views.Shared
                     ViewProductStockBadge.Background = (Brush)Application.Current.Resources["StockOutOfStockBackgroundBrush"];
                     ViewProductStockStatus.Text = "Out of Stock";
                     ViewProductStockStatus.Foreground = (Brush)Application.Current.Resources["StockOutOfStockForegroundBrush"];
-                    DialogAddToCartButton.IsEnabled = false;
                 }
                 else if (product.Stock <= 10)
                 {
                     ViewProductStockBadge.Background = (Brush)Application.Current.Resources["StockLowStockBackgroundBrush"];
                     ViewProductStockStatus.Text = "Low Stock";
                     ViewProductStockStatus.Foreground = (Brush)Application.Current.Resources["StockLowStockForegroundBrush"];
-                    DialogAddToCartButton.IsEnabled = product.CanAddToCart; // Check email verification
                 }
                 else
                 {
                     ViewProductStockBadge.Background = (Brush)Application.Current.Resources["StockInStockBackgroundBrush"];
                     ViewProductStockStatus.Text = "In Stock";
                     ViewProductStockStatus.Foreground = (Brush)Application.Current.Resources["StockInStockForegroundBrush"];
-                    DialogAddToCartButton.IsEnabled = product.CanAddToCart; // Check email verification
                 }
 
                 // Load product image
