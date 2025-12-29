@@ -24,30 +24,35 @@ public partial class RegisterViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsUsernameValid))]
     [NotifyPropertyChangedFor(nameof(IsFormValid))]
+    [NotifyPropertyChangedFor(nameof(UsernameError))]
     [NotifyCanExecuteChangedFor(nameof(AttemptRegisterCommand))]
     private string _username = string.Empty;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsEmailValid))]
     [NotifyPropertyChangedFor(nameof(IsFormValid))]
+    [NotifyPropertyChangedFor(nameof(EmailError))]
     [NotifyCanExecuteChangedFor(nameof(AttemptRegisterCommand))]
     private string _email = string.Empty;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsPhoneValid))]
     [NotifyPropertyChangedFor(nameof(IsFormValid))]
+    [NotifyPropertyChangedFor(nameof(PhoneError))]
     [NotifyCanExecuteChangedFor(nameof(AttemptRegisterCommand))]
     private string _phoneNumber = string.Empty;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsPasswordValid))]
     [NotifyPropertyChangedFor(nameof(IsFormValid))]
+    [NotifyPropertyChangedFor(nameof(PasswordError))]
     [NotifyCanExecuteChangedFor(nameof(AttemptRegisterCommand))]
     private string _password = string.Empty;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsConfirmPasswordValid))]
     [NotifyPropertyChangedFor(nameof(IsFormValid))]
+    [NotifyPropertyChangedFor(nameof(ConfirmPasswordError))]
     [NotifyCanExecuteChangedFor(nameof(AttemptRegisterCommand))]
     private string _confirmPassword = string.Empty;
 
@@ -55,6 +60,35 @@ public partial class RegisterViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsFormValid))]
     private bool _isFirstUserSetup = false;
+
+    // Validation touched/submitted flags for lazy error display
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(UsernameError))]
+    private bool _usernameTouched = false;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(EmailError))]
+    private bool _emailTouched = false;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PhoneError))]
+    private bool _phoneTouched = false;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PasswordError))]
+    private bool _passwordTouched = false;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ConfirmPasswordError))]
+    private bool _confirmPasswordTouched = false;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(UsernameError))]
+    [NotifyPropertyChangedFor(nameof(EmailError))]
+    [NotifyPropertyChangedFor(nameof(PhoneError))]
+    [NotifyPropertyChangedFor(nameof(PasswordError))]
+    [NotifyPropertyChangedFor(nameof(ConfirmPasswordError))]
+    private bool _hasSubmitted = false;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsFormValid))]
@@ -91,11 +125,24 @@ public partial class RegisterViewModel : ObservableObject
     public bool IsConfirmPasswordValid => !string.IsNullOrWhiteSpace(ConfirmPassword) && Password == ConfirmPassword;
 
     // Validation error messages for UI
-    public string UsernameError => string.IsNullOrWhiteSpace(Username) ? "Username is required" : string.Empty;
-    public string EmailError => string.IsNullOrWhiteSpace(Email) ? "Email is required" : string.Empty;
-    public string PhoneError => string.IsNullOrWhiteSpace(PhoneNumber) ? "Phone number is required" : string.Empty;
-    public string PasswordError => string.IsNullOrWhiteSpace(Password) ? "Password is required" : string.Empty;
+    public string UsernameError =>
+        (!UsernameTouched && !HasSubmitted) ? string.Empty :
+        string.IsNullOrWhiteSpace(Username) ? "Username is required" : string.Empty;
+
+    public string EmailError =>
+        (!EmailTouched && !HasSubmitted) ? string.Empty :
+        string.IsNullOrWhiteSpace(Email) ? "Email is required" : string.Empty;
+
+    public string PhoneError =>
+        (!PhoneTouched && !HasSubmitted) ? string.Empty :
+        string.IsNullOrWhiteSpace(PhoneNumber) ? "Phone number is required" : string.Empty;
+
+    public string PasswordError =>
+        (!PasswordTouched && !HasSubmitted) ? string.Empty :
+        string.IsNullOrWhiteSpace(Password) ? "Password is required" : string.Empty;
+
     public string ConfirmPasswordError =>
+        (!ConfirmPasswordTouched && !HasSubmitted) ? string.Empty :
         string.IsNullOrWhiteSpace(ConfirmPassword) ? "Please confirm password" :
         Password != ConfirmPassword ? "Passwords do not match" :
         string.Empty;
@@ -128,6 +175,14 @@ public partial class RegisterViewModel : ObservableObject
         // Cancel any previous registration attempt
         _registerCancellationTokenSource?.Cancel();
         _registerCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+        // Mark form as submitted to show all validation errors
+        HasSubmitted = true;
+        UsernameTouched = true;
+        EmailTouched = true;
+        PhoneTouched = true;
+        PasswordTouched = true;
+        ConfirmPasswordTouched = true;
 
         ErrorMessage = string.Empty;
         IsLoading = true;

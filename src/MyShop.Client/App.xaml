@@ -7,22 +7,24 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-                
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls"/>
+
                 <!-- Theme-independent resources -->
                 <ResourceDictionary Source="Views/Themes/SharedResources.xaml"/>
-                
+
                 <!-- Dialog styles -->
                 <ResourceDictionary Source="Views/Themes/Styles/DialogStyles.xaml"/>
-                
+
                 <!-- Fallback resources to prevent XAML crashes from missing StaticResource keys -->
                 <ResourceDictionary Source="Views/Themes/FallbackResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            
+
             <!-- Native WinUI ThemeDictionaries (automatic theme switching) -->
             <ResourceDictionary.ThemeDictionaries>
-                <ResourceDictionary x:Key="Light" Source="Views/Themes/LightTheme.xaml"/>
-                <ResourceDictionary x:Key="Dark" Source="Views/Themes/DarkTheme.xaml"/>
+                <ResourceDictionary x:Key="Light"
+                        Source="Views/Themes/LightTheme.xaml"/>
+                <ResourceDictionary x:Key="Dark"
+                        Source="Views/Themes/DarkTheme.xaml"/>
             </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
     </Application.Resources>

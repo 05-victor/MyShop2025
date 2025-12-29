@@ -60,6 +60,45 @@ namespace MyShop.Client.Views.Shared
             ViewModel.ConfirmPassword = string.Empty;
         }
 
+        /// <summary>
+        /// Handles LostFocus event for Username field to show validation errors.
+        /// </summary>
+        private void UsernameTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            ViewModel.UsernameTouched = true;
+        }
+
+        /// <summary>
+        /// Handles LostFocus event for Email field to show validation errors.
+        /// </summary>
+        private void EmailTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            ViewModel.EmailTouched = true;
+        }
+
+        /// <summary>
+        /// Handles LostFocus event for Phone Number field to show validation errors.
+        /// </summary>
+        private void PhoneTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            ViewModel.PhoneTouched = true;
+        }
+
+        /// <summary>
+        /// Handles LostFocus event for Password field to show validation errors.
+        /// </summary>
+        private void PasswordInput_LostFocus(object sender, RoutedEventArgs e)
+        {
+            ViewModel.PasswordTouched = true;
+        }
+
+        /// <summary>
+        /// Handles LostFocus event for Confirm Password field to show validation errors.
+        /// </summary>
+        private void ConfirmPasswordInput_LostFocus(object sender, RoutedEventArgs e)
+        {
+            ViewModel.ConfirmPasswordTouched = true;
+        }
 
     }
 }

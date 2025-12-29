@@ -50,8 +50,13 @@ public partial class SettingsViewModel : ObservableObject
 
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
 
-    // About info - read from assembly
-    public string AppVersion => Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0";
+    // About info - now loaded from API, fallback to assembly/hardcoded values
+    [ObservableProperty] private string _appName = "MyShop 2025";
+    [ObservableProperty] private string _appVersion = "1.0.0";
+    [ObservableProperty] private string _releaseDate = "November 2025";
+    [ObservableProperty] private string _licenseInfo = "Commercial";
+    [ObservableProperty] private string _supportEmail = "support@myshop.com";
+
     public string ReleaseYear => $"© {DateTime.Now.Year} MyShop. All rights reserved.";
 
     // Settings properties
@@ -337,7 +342,14 @@ public partial class SettingsViewModel : ObservableObject
                 Address = apiSettings.Address ?? string.Empty;
                 Language = "en-US"; // Language not yet supported by API, use default
 
-                System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Loaded from API: ShopName={ShopName}, Address={Address}, Theme={Theme}");
+                // Load About tab info from API
+                AppName = apiSettings.AppName ?? "MyShop 2025";
+                AppVersion = apiSettings.Version ?? "1.0.0";
+                ReleaseDate = FormatReleaseDate(apiSettings.ReleaseDate);
+                LicenseInfo = apiSettings.License ?? "Commercial";
+                SupportEmail = apiSettings.Support ?? "support@myshop.com";
+
+                System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Loaded from API: ShopName={ShopName}, Address={Address}, Theme={Theme}, Version={AppVersion}");
 
                 // Store as AppSettings for local cache
                 var cacheSettings = new AppSettings
@@ -711,5 +723,28 @@ public partial class SettingsViewModel : ObservableObject
         {
             System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] ApplyThemeAndLanguage error: {ex.Message}");
         }
+    }
+
+    /// <summary>
+    /// Format release date from ISO string to user-friendly format (e.g., "November 2025")
+    /// </summary>
+    private string FormatReleaseDate(string? isoDateString)
+    {
+        if (string.IsNullOrEmpty(isoDateString))
+            return "November 2025"; // Fallback
+
+        try
+        {
+            if (DateTime.TryParse(isoDateString, out var date))
+            {
+                return date.ToString("MMMM yyyy"); // e.g., "November 2025"
+            }
+        }
+        catch
+        {
+            // Silently fallback to default
+        }
+
+        return "November 2025";
     }
 }
