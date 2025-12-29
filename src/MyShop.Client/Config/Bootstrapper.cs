@@ -25,6 +25,7 @@ using MyShop.Plugins.API.Profile;
 using MyShop.Plugins.API.Cart;
 using MyShop.Plugins.API.Reports;
 using MyShop.Plugins.API.Commission;
+using MyShop.Plugins.API.Settings;
 using MyShop.Plugins.Repositories.Api;
 using MyShop.Plugins.Repositories.Mocks;
 using MyShop.Plugins.Infrastructure;
@@ -247,6 +248,10 @@ namespace MyShop.Client.Config
                             .ConfigureHttpClient(ConfigureApiClient)
                             .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
 
+                        services.AddRefitClient<ISettingsApi>()
+                            .ConfigureHttpClient(ConfigureApiClient)
+                            .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
+
                         System.Diagnostics.Debug.WriteLine("[Bootstrapper] All Refit API clients registered");
 
                         // ===== Repositories (Real - from Plugins) =====
@@ -263,6 +268,7 @@ namespace MyShop.Client.Config
                         services.AddTransient<ICommissionRepository, CommissionRepository>();
                         services.AddTransient<MyShop.Core.Interfaces.Repositories.IEarningsRepository, MyShop.Plugins.Repositories.Api.EarningsRepository>();
                         services.AddTransient<IAgentRequestRepository, MyShop.Plugins.Repositories.Api.AgentRequestRepository>();
+                        services.AddTransient<ISettingsRepository, SettingsRepository>();
                         services.AddTransient<ISystemActivationRepository, MockSystemActivationRepository>();
                         services.AddTransient<IChatService, ChatRepository>();
                     }

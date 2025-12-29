@@ -4,13 +4,13 @@ using MyShop.Client.Services.Configuration;
 using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
-using MyShop.Plugins.Repositories.Mocks;
+using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.Models.Enums;
 using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
-// Use alias to avoid ambiguity with MockSettingsRepository.AppSettings
+// Use alias to avoid ambiguity with AppSettings
 using AppSettings = MyShop.Shared.Models.AppSettings;
 
 namespace MyShop.Client.ViewModels.Settings;
@@ -25,7 +25,7 @@ public partial class SettingsViewModel : ObservableObject
     private readonly ISettingsStorage _settingsStorage;
     private readonly IToastService _toastHelper;
     private readonly IPaginationService _paginationService;
-    private readonly MockSettingsRepository _mockSettingsRepository;
+    private readonly ISettingsRepository _settingsRepository;
     private readonly ISystemActivationRepository _activationRepository;
     private readonly IAuthRepository _authRepository;
     private readonly INavigationService _navigationService;
@@ -38,7 +38,7 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private string _upgradeProUrl = "https://facebook.com";
     [ObservableProperty] private string _supportUrl = "https://facebook.com/myshop.support";
     [ObservableProperty] private string _trialCode = string.Empty;
-    
+
     // License/Trial visibility properties
     [ObservableProperty] private bool _isAdmin = false;
     [ObservableProperty] private bool _isTrialAdmin = false;
@@ -96,6 +96,7 @@ public partial class SettingsViewModel : ObservableObject
         ISettingsStorage settingsStorage,
         IToastService toastHelper,
         IPaginationService paginationService,
+        ISettingsRepository settingsRepository,
         ISystemActivationRepository activationRepository,
         IAuthRepository authRepository,
         INavigationService navigationService)
@@ -104,10 +105,10 @@ public partial class SettingsViewModel : ObservableObject
         _settingsStorage = settingsStorage;
         _toastHelper = toastHelper;
         _paginationService = paginationService;
+        _settingsRepository = settingsRepository;
         _activationRepository = activationRepository;
         _authRepository = authRepository;
         _navigationService = navigationService;
-        _mockSettingsRepository = new MockSettingsRepository();
     }
 
     partial void OnErrorMessageChanged(string value)
@@ -175,7 +176,7 @@ public partial class SettingsViewModel : ObservableObject
             {
                 var license = activateResult.Data;
                 TrialCode = string.Empty;
-                
+
                 if (license.IsPermanent)
                 {
                     // Permanent license activated
@@ -187,7 +188,7 @@ public partial class SettingsViewModel : ObservableObject
                     TrialDaysRemaining = 0;
                     await _toastHelper.ShowSuccess("🎉 Permanent license activated! You now have unlimited access.");
                     Debug.WriteLine($"[SettingsViewModel] Permanent license activated for user: {currentUser.Id}");
-                    
+
                     // Navigate to Dashboard within shell
                     await _navigationService.NavigateInShell("MyShop.Client.Views.Admin.AdminDashboardPage", currentUser);
                 }
@@ -202,7 +203,7 @@ public partial class SettingsViewModel : ObservableObject
                     ShowTrialTab = true;
                     await _toastHelper.ShowSuccess($"Trial extended! {license.RemainingDays} days remaining.");
                     Debug.WriteLine($"[SettingsViewModel] Trial activated: {license.RemainingDays} days remaining");
-                    
+
                     // Reload license info to ensure UI is fully updated
                     await LoadLicenseInfoAsync();
                 }
@@ -220,29 +221,28 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Load trial/system settings from mock repository
+    /// Load trial/system settings
+    /// URLs are now hardcoded pending API support
     /// </summary>
     private async Task LoadSystemSettingsAsync()
     {
         try
         {
-            var systemSettings = await _mockSettingsRepository.GetSystemSettingsAsync();
-            if (systemSettings != null)
-            {
-                UpgradeProUrl = systemSettings.UpgradeProUrl;
-                SupportUrl = systemSettings.SupportUrl;
-                Debug.WriteLine($"[SettingsViewModel] System settings loaded: UpgradeUrl={UpgradeProUrl}");
-            }
-            
+            // TODO: Once SettingsResponse includes UpgradeProUrl and SupportUrl fields,
+            // fetch these from the API instead of hardcoding
+            UpgradeProUrl = "https://facebook.com";
+            SupportUrl = "https://facebook.com/myshop.support";
+            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] System settings loaded: UpgradeUrl={UpgradeProUrl}");
+
             // Load license info for Trial tab visibility
             await LoadLicenseInfoAsync();
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[SettingsViewModel] Failed to load system settings: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Failed to load system settings: {ex.Message}");
         }
     }
-    
+
     /// <summary>
     /// Load license info to determine Trial tab visibility
     /// Trial tab shows for: Admin without Permanent license (Trial or No license)
@@ -281,10 +281,10 @@ public partial class SettingsViewModel : ObservableObject
                 LicenseType = license.IsPermanent ? "Permanent" : "Trial";
                 LicenseExpiresAt = license.ExpiresAt;
                 TrialDaysRemaining = license.RemainingDays;
-                
+
                 // Show Trial tab only for Admin without Permanent license
                 ShowTrialTab = !license.IsPermanent;
-                
+
                 Debug.WriteLine($"[SettingsViewModel] License loaded: Type={LicenseType}, IsPermanent={license.IsPermanent}, ShowTrialTab={ShowTrialTab}");
             }
             else
@@ -296,7 +296,7 @@ public partial class SettingsViewModel : ObservableObject
                 LicenseType = "None";
                 LicenseExpiresAt = null;
                 TrialDaysRemaining = 0;
-                
+
                 Debug.WriteLine($"[SettingsViewModel] Admin without license - showing Trial tab for activation");
             }
         }
@@ -308,7 +308,8 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Load settings from storage
+    /// Load settings from API first, then fallback to local storage
+    /// Ensures data is synced with server
     /// </summary>
     [RelayCommand]
     private async Task LoadAsync()
@@ -321,24 +322,69 @@ public partial class SettingsViewModel : ObservableObject
             // Load system settings (trial info, upgrade URL, etc.)
             await LoadSystemSettingsAsync();
 
-            var result = await _settingsStorage.GetAsync();
-            if (!result.IsSuccess || result.Data == null)
+            // Try to load from API first (source of truth)
+            System.Diagnostics.Debug.WriteLine("[SettingsViewModel] Attempting to load settings from API");
+            var apiResult = await _settingsRepository.GetSettingsAsync();
+
+            if (apiResult.IsSuccess && apiResult.Data != null)
             {
-                ErrorMessage = result.ErrorMessage ?? "Failed to load settings.";
-                return;
+                // Load from API response
+                var apiSettings = apiResult.Data;
+                Theme = string.IsNullOrEmpty(apiSettings.Theme) ? "Light" : apiSettings.Theme;
+                ShopName = string.IsNullOrEmpty(apiSettings.ShopName) ? "MyShop 2025" : apiSettings.ShopName;
+                Address = apiSettings.Address ?? string.Empty;
+                Language = "en-US"; // Language not yet supported by API, use default
+
+                System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Loaded from API: ShopName={ShopName}, Address={Address}, Theme={Theme}");
+
+                // Store as AppSettings for local cache
+                var cacheSettings = new AppSettings
+                {
+                    Theme = Theme,
+                    Language = Language,
+                    ShopName = ShopName,
+                    Address = Address
+                };
+                _originalSettings = cacheSettings;
+
+                // Also cache to local storage for offline support
+                await _settingsStorage.SaveAsync(cacheSettings);
             }
+            else
+            {
+                // Fallback to local storage if API fails
+                System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] API load failed: {apiResult.ErrorMessage}, falling back to local storage");
 
-            var settings = result.Data;
-            
-            Theme = settings.Theme;
-            Language = settings.Language;
-            ShopName = settings.ShopName ?? "MyShop 2025";
-            Address = settings.Address ?? string.Empty;
+                var localResult = await _settingsStorage.GetAsync();
+                if (localResult.IsSuccess && localResult.Data != null)
+                {
+                    var settings = localResult.Data;
+                    Theme = settings.Theme;
+                    Language = settings.Language;
+                    ShopName = settings.ShopName ?? "MyShop 2025";
+                    Address = settings.Address ?? string.Empty;
+                    _originalSettings = settings;
 
-            // Store original for change detection
-            _originalSettings = settings;
+                    System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Loaded from local storage: Theme={Theme}");
+                }
+                else
+                {
+                    // Use defaults if both API and local storage fail
+                    Theme = "Light";
+                    Language = "en-US";
+                    ShopName = "MyShop 2025";
+                    Address = string.Empty;
+                    _originalSettings = new AppSettings
+                    {
+                        Theme = Theme,
+                        Language = Language,
+                        ShopName = ShopName,
+                        Address = Address
+                    };
 
-            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Loaded: Theme={Theme}, Language={Language}");
+                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] Using default settings");
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -352,7 +398,10 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Save settings to storage
+    /// Save settings to both local storage AND API
+    /// Determines which API to call based on user role and which settings changed
+    /// Admin: Can save shop info (ShopName, Address) via UpdateSettingsAsync
+    /// SalesAgent/User: Can save theme via UpdateAppearanceAsync
     /// </summary>
     [RelayCommand(CanExecute = nameof(CanSave))]
     private async Task SaveAsync()
@@ -362,7 +411,8 @@ public partial class SettingsViewModel : ObservableObject
             IsLoading = true;
             ErrorMessage = string.Empty;
 
-            var settings = new AppSettings
+            // First, always save to local storage for offline support
+            var localSettings = new AppSettings
             {
                 Theme = Theme,
                 Language = Language,
@@ -370,22 +420,34 @@ public partial class SettingsViewModel : ObservableObject
                 Address = Address
             };
 
-            var result = await _settingsStorage.SaveAsync(settings);
-            if (!result.IsSuccess)
+            var localResult = await _settingsStorage.SaveAsync(localSettings);
+            if (!localResult.IsSuccess)
             {
-                ErrorMessage = result.ErrorMessage ?? "Failed to save settings.";
+                ErrorMessage = localResult.ErrorMessage ?? "Failed to save settings locally.";
                 return;
             }
 
-            // Update original settings
-            _originalSettings = settings;
-            
+            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Local save: Theme={Theme}, Language={Language}, ShopName={ShopName}, Address={Address}");
+
+            // Now sync with API based on role and what changed
+            bool apiSaveSucceeded = await SaveToApiAsync();
+
+            if (!apiSaveSucceeded)
+            {
+                // Warn user that local was saved but API sync failed
+                await _toastHelper.ShowWarning("Settings saved locally, but server sync failed. Changes will sync when connection is restored.");
+                return;
+            }
+
+            // Update original settings to track what was changed
+            _originalSettings = localSettings;
+
             await _toastHelper.ShowSuccess("Settings saved successfully!");
-            
+
             // Apply theme and language immediately
             ApplyThemeAndLanguage();
 
-            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Saved: Theme={Theme}, Language={Language}");
+            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Saved and synced: Theme={Theme}, Language={Language}");
         }
         catch (Exception ex)
         {
@@ -395,6 +457,106 @@ public partial class SettingsViewModel : ObservableObject
         finally
         {
             IsLoading = false;
+        }
+    }
+
+    /// <summary>
+    /// Save settings to API based on user role
+    /// Returns true if API save succeeded (or no API call needed)
+    /// Returns false if API save failed
+    /// </summary>
+    private async Task<bool> SaveToApiAsync()
+    {
+        try
+        {
+            // Check if theme changed (all users can update appearance)
+            bool themeChanged = _originalSettings != null && Theme != _originalSettings.Theme;
+
+            // Check if shop info changed (Admin only)
+            bool shopInfoChanged = _originalSettings != null &&
+                (ShopName != _originalSettings.ShopName || Address != _originalSettings.Address);
+
+            if (IsAdmin)
+            {
+                // Admin: Can update both shop info and appearance
+                if (shopInfoChanged)
+                {
+                    // Validate ShopName is not empty (required by API)
+                    if (string.IsNullOrEmpty(ShopName))
+                    {
+                        System.Diagnostics.Debug.WriteLine("[SettingsViewModel] ❌ Admin shop update failed: ShopName is required");
+                        ErrorMessage = "Shop name is required and cannot be empty.";
+                        return false;
+                    }
+
+                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] Admin updating shop settings via API");
+                    var updateRequest = new UpdateSettingsRequest
+                    {
+                        ShopName = ShopName,
+                        Address = Address,
+                        Theme = Theme,
+                        License = "Commercial", // Default license, can be updated later
+                    };
+
+                    var result = await _settingsRepository.UpdateSettingsAsync(updateRequest);
+                    if (!result.IsSuccess)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] ❌ Admin shop update failed: {result.ErrorMessage}");
+                        ErrorMessage = $"Failed to update shop settings: {result.ErrorMessage}";
+                        return false;
+                    }
+
+                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] ✅ Admin shop settings updated via API");
+                    return true;
+                }
+                else if (themeChanged)
+                {
+                    // Admin changing only appearance (theme)
+                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] Admin updating appearance via API");
+                    var appearanceRequest = new UpdateAppearanceRequest { Theme = Theme };
+
+                    var result = await _settingsRepository.UpdateAppearanceAsync(appearanceRequest);
+                    if (!result.IsSuccess)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] ❌ Appearance update failed: {result.ErrorMessage}");
+                        ErrorMessage = $"Failed to update appearance: {result.ErrorMessage}";
+                        return false;
+                    }
+
+                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] ✅ Appearance updated via API");
+                    return true;
+                }
+            }
+            else
+            {
+                // SalesAgent/User: Can only update appearance (theme)
+                if (themeChanged)
+                {
+                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] User updating appearance via API");
+                    var appearanceRequest = new UpdateAppearanceRequest { Theme = Theme };
+
+                    var result = await _settingsRepository.UpdateAppearanceAsync(appearanceRequest);
+                    if (!result.IsSuccess)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] ❌ Appearance update failed: {result.ErrorMessage}");
+                        ErrorMessage = $"Failed to update appearance: {result.ErrorMessage}";
+                        return false;
+                    }
+
+                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] ✅ Appearance updated via API");
+                    return true;
+                }
+            }
+
+            // No API call needed if nothing changed that requires API sync
+            System.Diagnostics.Debug.WriteLine("[SettingsViewModel] No API changes needed");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] SaveToApiAsync error: {ex.Message}");
+            ErrorMessage = $"API error: {ex.Message}";
+            return false;
         }
     }
 
@@ -417,7 +579,7 @@ public partial class SettingsViewModel : ObservableObject
                 ErrorMessage = result.ErrorMessage ?? "Failed to reset settings.";
                 return;
             }
-            
+
             // Reload defaults
             await LoadAsync();
 
@@ -467,7 +629,7 @@ public partial class SettingsViewModel : ObservableObject
                 }
                 return;
             }
-            
+
             // Apply theme
             if (App.MainWindow == null)
             {

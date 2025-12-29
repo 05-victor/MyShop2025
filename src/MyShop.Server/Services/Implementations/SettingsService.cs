@@ -67,17 +67,17 @@ public class SettingsService : ISettingsService
                 // General Settings
                 ShopName = appSettings.ShopName,
                 Address = appSettings.Address,
-                
+
                 // Appearance
                 Theme = theme,
-                
+
                 // App Info
                 AppName = appSettings.AppName,
                 Version = appSettings.Version,
                 ReleaseDate = appSettings.ReleaseDate,
                 License = appSettings.License,
                 Support = appSettings.Support,
-                
+
                 // Trial info (only for Admin)
                 IsTrialActive = isAdmin ? currentUser.IsTrialActive : false,
                 TrialStartDate = isAdmin ? currentUser.TrialStartDate : null,
@@ -124,13 +124,10 @@ public class SettingsService : ISettingsService
                 throw new InvalidOperationException("App settings not found");
             }
 
+            // Update only the editable fields
             appSettings.ShopName = request.ShopName;
             appSettings.Address = request.Address;
-            appSettings.AppName = request.AppName;
-            appSettings.Version = request.Version;
-            appSettings.ReleaseDate = request.ReleaseDate;
             appSettings.License = request.License;
-            appSettings.Support = request.Support;
             appSettings.UpdatedBy = currentUserId.Value;
 
             await _settingsRepository.UpdateAppSettingsAsync(appSettings);
