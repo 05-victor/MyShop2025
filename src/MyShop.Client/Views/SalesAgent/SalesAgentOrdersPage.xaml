@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="MyShop.Client.Views.SalesAgent.SalesAgentOrdersPage"
     x:Name="RootPage"
@@ -14,7 +14,7 @@
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:tables="using:MyShop.Client.Views.Components.Tables"
     xmlns:forms="using:MyShop.Client.Views.Components.Forms"
-    xmlns:pagination="using:MyShop.Client.Views.Components.Pagination"
+    xmlns:pagination="using:MyShop.Client.Views.Components.Controls"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     xmlns:orderConverters="using:MyShop.Client.Converters"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.SalesAgent"

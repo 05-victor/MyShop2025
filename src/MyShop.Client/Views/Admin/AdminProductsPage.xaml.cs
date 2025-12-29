@@ -253,6 +253,11 @@ public sealed partial class AdminProductsPage : Page
         System.Diagnostics.Debug.WriteLine("[AdminProductsPage] Next page requested");
     }
 
+    private async void OnPageChanged(object sender, int newPage)
+    {
+        await ViewModel.GoToPageAsync(newPage);
+    }
+
     #endregion
 
     #region Add Product Dialog handlers

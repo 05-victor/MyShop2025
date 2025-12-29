@@ -131,7 +131,7 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
                 foreach (var item in orderItems)
                 {
                     var productName = item.ProductName ?? "Unknown Product";
-                    var imageUrl = "ms-appx:///Assets/Images/placeholder.png";
+                    var imageUrl = "ms-appx:///Assets/Images/products/product-placeholder.png";
 
                     // Fetch product from database to get image
                     if (item.ProductId != Guid.Empty)
@@ -167,7 +167,7 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
                     OrderId = o.OrderCode ?? $"ORD-{o.Id.ToString().Substring(0, 8)}",
                     OrderGuid = o.Id,
                     ProductSummary = productSummary,
-                    FirstProductImage = firstProductImage ?? "ms-appx:///Assets/Images/placeholder.png",
+                    FirstProductImage = firstProductImage ?? "ms-appx:///Assets/Images/products/product-placeholder.png",
                     CustomerName = o.CustomerName,
                     OrderDate = o.OrderDate,
                     TrackingNumber = $"TRK{o.Id.ToString().Substring(0, 9)}",

@@ -232,7 +232,7 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
                         Id = product.Id,
                         Name = product.Name,
                         Price = product.SellingPrice,
-                        ImageUrl = product.ImageUrl ?? "/Assets/placeholder-product.png",
+                        ImageUrl = string.IsNullOrWhiteSpace(product.ImageUrl) ? "ms-appx:///Assets/Images/products/product-placeholder.png" : product.ImageUrl,
                         Rating = product.Rating,
                         RatingCount = product.RatingCount,
                         Stock = product.Quantity,

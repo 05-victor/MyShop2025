@@ -279,7 +279,7 @@ public partial class CustomerDashboardViewModel : BaseViewModel
                     Price = product.SellingPrice,
                     Rating = product.Rating,
                     Reviews = product.RatingCount,
-                    Image = product.ImageUrl ?? "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400"
+                    Image = string.IsNullOrWhiteSpace(product.ImageUrl) ? "ms-appx:///Assets/Images/products/product-placeholder.png" : product.ImageUrl
                 });
             }
         }
@@ -314,7 +314,7 @@ public partial class CustomerDashboardViewModel : BaseViewModel
                     Price = product.SellingPrice,
                     Rating = product.Rating,
                     Reviews = product.RatingCount,
-                    Image = product.ImageUrl ?? "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400"
+                    Image = string.IsNullOrWhiteSpace(product.ImageUrl) ? "ms-appx:///Assets/Images/products/product-placeholder.png" : product.ImageUrl
                 });
             }
         }

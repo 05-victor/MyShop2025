@@ -41,7 +41,7 @@
             IsBackButtonVisible="Collapsed"
             IsPaneToggleButtonVisible="True"
             IsSettingsVisible="False"
-            OpenPaneLength="260"
+            OpenPaneLength="245"
             PaneDisplayMode="Auto"
             SelectionChanged="Nav_SelectionChanged"
             CompactModeThresholdWidth="641"
@@ -58,7 +58,7 @@
                 <Image Grid.Column="0" 
                        Width="48" 
                        Height="48" 
-                       Source="/Assets/Images/logo.png"
+                       Source="ms-appx:///Assets/Images/logo.png"
                        Stretch="Uniform"
                        VerticalAlignment="Center"/>
                 

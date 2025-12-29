@@ -34,7 +34,7 @@ namespace MyShop.Client {
                 presenter.IsMaximizable = true;
                 
                 // Set initial window size
-                appWindow.Resize(new Windows.Graphics.SizeInt32(1410, 850));
+                appWindow.Resize(new Windows.Graphics.SizeInt32(1500, 850));
             }
 
             // Subclass window to enforce minimum size

@@ -47,7 +47,7 @@
         <!-- Left Side: Branding with Mountain Background -->
         <Grid x:Name="BrandingPanel" Grid.Column="0" Grid.ColumnSpan="1">
             <Grid.Background>
-                <ImageBrush ImageSource="/Assets/register-background.jpg" 
+                <ImageBrush ImageSource="ms-appx:///Assets/register-background.jpg" 
                            Stretch="UniformToFill"/>
             </Grid.Background>
             
@@ -55,7 +55,7 @@
             <Border Background="{ThemeResource BlackSemiTransparent}"/>
             
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="{StaticResource Gap_LG}">
-                <Image Source="/Assets/Images/logo.png" 
+                <Image Source="ms-appx:///Assets/Images/logo.png" 
                        Width="120" 
                        Height="120" 
                        Stretch="Uniform"
@@ -292,7 +292,7 @@
                             AutomationProperties.Name="Sign up with Google"
                             ToolTipService.ToolTip="Register using your Google account">
                         <StackPanel Orientation="Horizontal" Spacing="{StaticResource Gap_MD}">
-                            <Image Source="/Assets/Google.png" 
+                            <Image Source="ms-appx:///Assets/Google.png" 
                                    Width="20" 
                                    Height="20"
                                    AutomationProperties.Name="Google Logo"/>

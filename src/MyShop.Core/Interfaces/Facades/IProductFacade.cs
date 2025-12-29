@@ -131,4 +131,9 @@ public interface IProductFacade
     /// Upload product image from file path (for new products without ID yet)
     /// </summary>
     Task<Result<string>> UploadProductImageForNewProductAsync(string imageFilePath);
+
+    /// <summary>
+    /// Create multiple products at once
+    /// </summary>
+    Task<Result<BulkImportResult>> BulkCreateProductsAsync(List<Product> products);
 }
