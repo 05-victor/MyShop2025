@@ -22,7 +22,7 @@ public static class AppConstants
     /// <summary>
     /// Default page size for pagination
     /// </summary>
-    public const int DEFAULT_PAGE_SIZE = 20;
+    public const int DEFAULT_PAGE_SIZE = 10;
 
     /// <summary>
     /// Maximum page size for pagination

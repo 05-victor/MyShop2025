@@ -382,8 +382,17 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
     private async Task VerifyEmailAsync()
     {
         System.Diagnostics.Debug.WriteLine("[ProductBrowseViewModel] Verify email command triggered");
-        // Navigate to profile/email verification page
-        await Task.CompletedTask;
+
+        // Navigate to ProfilePage for email verification (within shell to preserve navbar)
+        if (_navigationService != null)
+        {
+            System.Diagnostics.Debug.WriteLine("[ProductBrowseViewModel] Navigating to ProfilePage within shell");
+            await _navigationService.NavigateInShell(typeof(Views.Shared.ProfilePage).FullName!, null);
+        }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine("[ProductBrowseViewModel] ERROR: NavigationService not available");
+        }
     }
 
     // NOTE: RefreshAsync is provided by PagedViewModelBase

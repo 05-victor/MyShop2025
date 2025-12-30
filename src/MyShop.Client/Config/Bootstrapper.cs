@@ -296,7 +296,7 @@ namespace MyShop.Client.Config
                         services.AddTransient<MyShop.Core.Interfaces.Repositories.IEarningsRepository, MyShop.Plugins.Repositories.Api.EarningsRepository>();
                         services.AddTransient<IAgentRequestRepository, MyShop.Plugins.Repositories.Api.AgentRequestRepository>();
                         services.AddTransient<ISettingsRepository, SettingsRepository>();
-                        services.AddTransient<ISystemActivationRepository, MyShop.Plugins.Repositories.Api.SystemActivationRepository>();
+                        services.AddSingleton<ISystemActivationRepository, MyShop.Plugins.Repositories.Api.SystemActivationRepository>();
                         services.AddTransient<IChatService, ChatRepository>();
                     }
 

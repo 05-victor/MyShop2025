@@ -461,7 +461,7 @@
 
                                     <!-- Table Body -->
                                     <ScrollViewer Grid.Row="1"
-                                                  MaxHeight="400">
+                                                  VerticalScrollBarVisibility="Auto">
                                         <ItemsRepeater ItemsSource="{x:Bind ViewModel.EarningTransactions, Mode=OneWay}">
                                             <ItemsRepeater.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:EarningTransactionViewModel">
@@ -524,9 +524,9 @@
                                                                    Foreground="{ThemeResource SuccessGreenBrush}"/>
 
                                                         <badges:StatusBadge Grid.Column="7"
-                                                            Text="{x:Bind PaymentStatus, Mode=OneWay}"
-                                                            Variant="{x:Bind PaymentStatus, Mode=OneWay, Converter={StaticResource StatusToVariantConverter}}"
-                                                            HorizontalAlignment="Left"/>
+                                                                            Text="{x:Bind PaymentStatus, Mode=OneWay}"
+                                                                            Variant="{x:Bind PaymentStatus, Mode=OneWay, Converter={StaticResource StatusToVariantConverter}}"
+                                                                            HorizontalAlignment="Left"/>
                                                     </Grid>
                                                 </DataTemplate>
                                             </ItemsRepeater.ItemTemplate>
@@ -540,6 +540,8 @@
                                         TotalPages="{x:Bind ViewModel.TotalPages, Mode=OneWay}"
                                         TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
                                         PageSize="{x:Bind ViewModel.PageSize, Mode=TwoWay}"
+                                        PageChanged="PaginationControl_PageChanged"
+                                        PageSizeChanged="PaginationControl_PageSizeChanged"
                                         Margin="0,16,0,0"/>
                                 </Grid>
                             </cards:DataTableCard.TableContent>

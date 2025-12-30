@@ -113,21 +113,45 @@
                         ActivationSuccessful="OnActivationSuccessful"/>
 
                     <!-- Email Verification Warning -->
-                    <InfoBar
-                        Severity="Warning"
-                        Title="Email Verification Required"
-                        Message="Please verify your email to access all features"
-                        IsOpen="{x:Bind ViewModel.IsVerified, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
-                        IsClosable="False">
-                        <InfoBar.ActionButton>
+                    <Grid Visibility="{x:Bind ViewModel.IsVerified, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                          Background="#FFF5DE"
+                          BorderBrush="#FFD700"
+                          BorderThickness="1"
+                          CornerRadius="8"
+                          Padding="16">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0"
+                                    Spacing="4">
+                            <TextBlock Text="⚠️ Email Verification Required"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="Please verify your email to access all features"
+                                       FontSize="14"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1"
+                                    Orientation="Horizontal"
+                                    Spacing="8"
+                                    Margin="0,12,0,0">
+                            <Button
+                                Content="I've already verified My Account"
+                                MinWidth="200"
+                                Click="VerifyAccountNow_Click"
+                                Style="{StaticResource AccentButtonStyle}"/>
                             <Button
                                 Content="Resend Email"
                                 MinWidth="140"
-                                MaxWidth="150"
                                 Click="ResendVerificationEmail_Click"
-                                Style="{StaticResource AccentButtonStyle}"/>
-                        </InfoBar.ActionButton>
-                    </InfoBar>
+                                Style="{StaticResource SecondaryButtonStyle}"/>
+                        </StackPanel>
+                    </Grid>
 
                     <!-- Welcome Section -->
                     <Border Style="{StaticResource CardWithShadowStyle}"

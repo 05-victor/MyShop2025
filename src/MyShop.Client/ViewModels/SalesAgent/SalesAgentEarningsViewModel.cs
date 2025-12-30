@@ -193,7 +193,7 @@ public partial class SalesAgentEarningsViewModel : PagedViewModelBase<EarningTra
 
                 UpdatePagingInfo(pagedList.TotalCount);
 
-                Debug.WriteLine($"[SalesAgentEarningsViewModel] Earnings history loaded: {Items.Count} items");
+                Debug.WriteLine($"[SalesAgentEarningsViewModel] Earnings history loaded: {Items.Count} items, TotalItems={TotalItems}, TotalPages={TotalPages}, PageSize={PageSize}");
             }
             else
             {

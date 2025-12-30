@@ -19,6 +19,11 @@ public class SystemActivationRepository : ISystemActivationRepository
     private readonly ILogger<SystemActivationRepository> _logger;
     private readonly ICredentialStorage _credentialStorage;
 
+    // Cache admin existence status to avoid repeated API calls
+    private bool? _cachedHasAdmin;
+    private DateTime _cacheTime = DateTime.MinValue;
+    private readonly TimeSpan _cacheExpiration = TimeSpan.FromMinutes(5); // Cache for 5 minutes
+
     public SystemActivationRepository(IAuthApi authApi, ICredentialStorage credentialStorage, ILogger<SystemActivationRepository> logger)
     {
         _authApi = authApi ?? throw new ArgumentNullException(nameof(authApi));
@@ -183,27 +188,38 @@ public class SystemActivationRepository : ISystemActivationRepository
 
     /// <summary>
     /// Check if any admin exists in the system
+    /// Calls backend API endpoint to check if any user has Admin role
+    /// Uses caching to avoid repeated API calls within 5 minutes
     /// </summary>
     public async Task<Result<bool>> HasAnyAdminAsync()
     {
         try
         {
-            // Call GetMe to check if current user is admin
-            // If we can successfully get user info, check their roles
-            var userResponse = await _authApi.GetMeAsync();
-
-            if (userResponse.IsSuccessStatusCode && userResponse.Content?.Result != null)
+            // Check cache first
+            if (_cachedHasAdmin.HasValue && DateTime.UtcNow - _cacheTime < _cacheExpiration)
             {
-                var userInfo = userResponse.Content.Result;
-                var hasAdminRole = userInfo.RoleNames?.Contains("Admin", StringComparer.OrdinalIgnoreCase) ?? false;
+                _logger.LogInformation("[SystemActivationRepository] HasAnyAdminAsync: Using cached value = {HasAdmin}", _cachedHasAdmin);
+                return Result<bool>.Success(_cachedHasAdmin.Value);
+            }
 
-                _logger.LogInformation("[SystemActivationRepository] HasAnyAdminAsync: User has Admin role = {HasAdmin}", hasAdminRole);
-                return Result<bool>.Success(hasAdminRole);
+            // Call backend API endpoint to check if system has any admin
+            var response = await _authApi.HasAdminAsync();
+
+            if (response.IsSuccessStatusCode && response.Content != null)
+            {
+                var hasAdmin = response.Content.Result;
+
+                // Cache the result
+                _cachedHasAdmin = hasAdmin;
+                _cacheTime = DateTime.UtcNow;
+
+                _logger.LogInformation("[SystemActivationRepository] HasAnyAdminAsync: System has admin = {HasAdmin} (cached for 5 minutes)", hasAdmin);
+                return Result<bool>.Success(hasAdmin);
             }
             else
             {
-                // If we can't get user info, assume no admin (conservative approach)
-                _logger.LogWarning("[SystemActivationRepository] HasAnyAdminAsync: Failed to get user info, assuming no admin");
+                // If we can't get info from API, assume no admin (conservative approach)
+                _logger.LogWarning("[SystemActivationRepository] HasAnyAdminAsync: Failed to check admin status, assuming no admin");
                 return Result<bool>.Success(false);
             }
         }

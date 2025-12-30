@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using MyShop.Client.ViewModels.Shared;
 using MyShop.Client.Views.Dialogs;
+using MyShop.Client.Services;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 
@@ -308,7 +309,7 @@ public sealed partial class ProfilePage : Page
 
             if (result.IsSuccess)
             {
-                toastService.ShowSuccess("Verification email sent! Check your inbox for the link.");
+                await toastService.ShowSuccess("Verification email sent! Check your inbox for the link.");
                 System.Diagnostics.Debug.WriteLine("[ProfilePage] ✅ Verification email sent successfully");
 
                 // Show 60-second cooldown
@@ -333,7 +334,7 @@ public sealed partial class ProfilePage : Page
             }
             else
             {
-                toastService.ShowError($"Failed to send verification email: {result.ErrorMessage}");
+                await toastService.ShowError($"Failed to send verification email: {result.ErrorMessage}");
                 System.Diagnostics.Debug.WriteLine($"[ProfilePage] ❌ Error: {result.ErrorMessage}");
 
                 if (button != null)
@@ -344,9 +345,90 @@ public sealed partial class ProfilePage : Page
         {
             Services.LoggingService.Instance.Error("[ProfilePage] ResendVerificationButton_Click failed", ex);
             var toastService = App.Current.Services.GetRequiredService<IToastService>();
-            toastService.ShowError("An error occurred while sending verification email");
+            await toastService.ShowError("An error occurred while sending verification email");
 
             if (sender is HyperlinkButton btn)
+                btn.IsEnabled = true;
+        }
+    }
+
+    /// <summary>
+    /// Check email verification status and update UI
+    /// </summary>
+    private async void VerifyAccountNow_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var toastService = App.Current.Services.GetRequiredService<IToastService>();
+            var authRepository = App.Current.Services.GetRequiredService<IAuthRepository>();
+            var currentUserService = App.Current.Services.GetRequiredService<ICurrentUserService>();
+            var button = sender as Button;
+
+            if (button != null)
+                button.IsEnabled = false;
+
+            System.Diagnostics.Debug.WriteLine("[ProfilePage] Checking email verification status...");
+
+            // Call GET /users/me to get latest user data
+            var result = await authRepository.GetCurrentUserAsync();
+
+            if (result.IsSuccess && result.Data != null)
+            {
+                var user = result.Data;
+                System.Diagnostics.Debug.WriteLine($"[ProfilePage] User verification status: IsEmailVerified={user.IsEmailVerified}");
+
+                if (user.IsEmailVerified)
+                {
+                    // Update CurrentUserService cache so status persists across navigation
+                    currentUserService.SetCurrentUser(user);
+
+                    // Update ViewModel
+                    ViewModel.IsEmailVerified = true;
+                    await toastService.ShowSuccess("✅ Your email is verified! Welcome to all features.");
+                    System.Diagnostics.Debug.WriteLine("[ProfilePage] ✅ Email verified successfully");
+                }
+                else
+                {
+                    await toastService.ShowWarning("⏳ Your email is not verified yet. Please check your inbox for verification link.");
+                    System.Diagnostics.Debug.WriteLine("[ProfilePage] ⏳ Email not verified");
+
+                    // Enable button again after 30 seconds
+                    if (button != null)
+                    {
+                        var countdown = 30;
+                        var timer = new DispatcherTimer();
+                        timer.Interval = TimeSpan.FromSeconds(1);
+                        timer.Tick += (s, args) =>
+                        {
+                            countdown--;
+                            button.Content = countdown > 0 ? $"Check again in {countdown}s" : "I've already verified My Account";
+
+                            if (countdown <= 0)
+                            {
+                                timer.Stop();
+                                button.IsEnabled = true;
+                            }
+                        };
+                        timer.Start();
+                    }
+                }
+            }
+            else
+            {
+                await toastService.ShowError($"Failed to check verification status: {result.ErrorMessage}");
+                System.Diagnostics.Debug.WriteLine($"[ProfilePage] Error: {result.ErrorMessage}");
+
+                if (button != null)
+                    button.IsEnabled = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            Services.LoggingService.Instance.Error("[ProfilePage] VerifyAccountNow_Click failed", ex);
+            var toastService = App.Current.Services.GetRequiredService<IToastService>();
+            await toastService.ShowError("An error occurred while checking verification status");
+
+            if (sender is Button btn)
                 btn.IsEnabled = true;
         }
     }

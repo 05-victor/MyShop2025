@@ -70,4 +70,11 @@ public interface IAuthApi
     /// </summary>
     [Post("/api/v1/users/activate")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<ActivateUserResponse>>> ActivateAsync([Query] string activateCode);
+
+    /// <summary>
+    /// Check if any admin exists in the system.
+    /// Does not require authentication.
+    /// </summary>
+    [Get("/api/v1/users/has-admin")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<bool>>> HasAdminAsync();
 }

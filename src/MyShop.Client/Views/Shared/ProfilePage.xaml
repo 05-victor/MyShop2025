@@ -90,7 +90,7 @@
         </VisualStateManager.VisualStateGroups>
 
         <ScrollViewer x:Name="MainScroller"
-                VerticalScrollBarVisibility="Auto">
+                      VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="0">
                 <!-- Page Header -->
                 <layout:PageHeader
@@ -297,7 +297,7 @@
 
                     <!-- Email Verification Alerts -->
                     <InfoBar Title="Email Verification Required"
-                             Message="Please verify your email address to ensure account security and receive system notifications."
+                             Message="Please verify your email address to ensure account security and access all features."
                              Severity="Warning"
                              BorderBrush="{ThemeResource SystemFillColorCautionBrush}"
                              Background="{ThemeResource SystemFillColorCautionBackgroundBrush}"
@@ -306,7 +306,11 @@
                              Margin="0,0,0,24">
                         <InfoBar.Content>
                             <StackPanel Orientation="Horizontal"
-                                        Spacing="4">
+                                        Spacing="12">
+                                <Button Content="I've already verified My Account"
+                                        MinWidth="200"
+                                        Click="VerifyAccountNow_Click"
+                                        Style="{StaticResource AccentButtonStyle}"/>
                                 <HyperlinkButton Content="Resend verification email"
                                                  Click="ResendVerificationButton_Click"/>
                             </StackPanel>
