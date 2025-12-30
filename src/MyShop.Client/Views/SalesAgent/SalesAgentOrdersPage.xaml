@@ -144,7 +144,7 @@
                                                 ToolTipService.ToolTip="Reload orders from server"/>
                                             <buttons:IconButton
                                                 Variant="Outline"
-                                                IconGlyph="&#xE896;"
+                                                IconGlyph="&#xE898;"
                                                 Text="Export"
                                                 Command="{x:Bind ViewModel.ExportOrdersCommand}"
                                                 ToolTipService.ToolTip="Export orders to CSV file"/>

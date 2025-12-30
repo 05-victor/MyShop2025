@@ -430,7 +430,7 @@
                                                             CornerRadius="8">
                                                             <Image Stretch="UniformToFill">
                                                                 <Image.Source>
-                                                                    <BitmapImage UriSource="{x:Bind ImageUrl}"
+                                                                    <BitmapImage UriSource="{x:Bind ImageUrl, Converter={StaticResource StringToUriConverter}}"
                                                                                  DecodePixelWidth="96"
                                                                                  DecodePixelType="Logical"/>
                                                                 </Image.Source>
