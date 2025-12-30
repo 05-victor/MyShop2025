@@ -249,8 +249,20 @@ public class UserService : IUserService
         await _userRepository.DeleteAsync(id);
         _logger.LogInformation("User with ID {UserId} deleted successfully", id);
         return true;
-
     }
 
-
+    public async Task<bool> HasAdminAsync()
+    {
+        try
+        {
+            var hasAdmin = await _userRepository.HasAdminAsync();
+            _logger.LogInformation("Admin check result: {HasAdmin}", hasAdmin);
+            return hasAdmin;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error checking for admin existence");
+            throw;
+        }
+    }
 }

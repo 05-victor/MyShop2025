@@ -18,4 +18,10 @@ public interface IUserService
     Task<bool?> ChangePasswordAsync(ChangePasswordRequest request);
     Task<UserInfoResponse> GetByIdAsync(Guid id);
     Task<bool> DeleteUserAsync(Guid id);
+    
+    /// <summary>
+    /// Check if any admin exists in the system
+    /// </summary>
+    /// <returns>True if at least one admin exists, false otherwise</returns>
+    Task<bool> HasAdminAsync();
 }

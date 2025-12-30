@@ -183,4 +183,32 @@ public class UserController : ControllerBase
                 ApiResponse.ServerErrorResponse("An error occurred while deleting the user"));
         }
     }
+
+    /// <summary>
+    /// GET /api/v1/users/has-admin
+    /// Check if any admin exists in the system
+    /// </summary>
+    /// <returns>Boolean indicating if admin exists</returns>
+    [HttpGet("has-admin")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ApiResponse<bool>>> HasAdminAsync()
+    {
+        try
+        {
+            var hasAdmin = await _userService.HasAdminAsync();
+            
+            return Ok(ApiResponse<bool>.SuccessResponse(
+                hasAdmin,
+                hasAdmin ? "Admin exists in the system" : "No admin found in the system",
+                200));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error checking for admin existence");
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                ApiResponse.ServerErrorResponse("An error occurred while checking for admin"));
+        }
+    }
 }
