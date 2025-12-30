@@ -252,6 +252,10 @@ namespace MyShop.Client.Config
                             .ConfigureHttpClient(ConfigureApiClient)
                             .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
 
+                        services.AddRefitClient<MyShop.Plugins.API.Forecasts.IForecastApi>()
+                            .ConfigureHttpClient(ConfigureApiClient)
+                            .AddHttpMessageHandler<MyShop.Plugins.Http.Handlers.AuthHeaderHandler>();
+
                         System.Diagnostics.Debug.WriteLine("[Bootstrapper] All Refit API clients registered");
 
                         // ===== Repositories (Real - from Plugins) =====
@@ -266,6 +270,7 @@ namespace MyShop.Client.Config
                         services.AddTransient<ICartRepository, CartRepository>();
                         services.AddTransient<IReportRepository, ReportRepository>();
                         services.AddTransient<ICommissionRepository, CommissionRepository>();
+                        services.AddTransient<IForecastRepository, MyShop.Plugins.Repositories.Api.ForecastRepository>();
                         services.AddTransient<MyShop.Core.Interfaces.Repositories.IEarningsRepository, MyShop.Plugins.Repositories.Api.EarningsRepository>();
                         services.AddTransient<IAgentRequestRepository, MyShop.Plugins.Repositories.Api.AgentRequestRepository>();
                         services.AddTransient<ISettingsRepository, SettingsRepository>();

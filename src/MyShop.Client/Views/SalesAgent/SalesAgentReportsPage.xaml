@@ -196,7 +196,7 @@
                                 <StackPanel>
                                     <!-- Header with Title and Predict Button -->
                                     <Grid ColumnSpacing="12"
-                                            Margin="0,0,0,16">
+                                          Margin="0,0,0,16">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
@@ -205,12 +205,15 @@
                                             Grid.Column="0"
                                             Style="{StaticResource SubtitleTextBlockStyle}"
                                             Text="Revenue Trend"/>
-                                        <Button
+                                        <buttons:IconButton
                                             x:Name="PredictThisWeekButton"
                                             Grid.Column="1"
-                                            Content="Predict this week"
+                                            IconGlyph="&#xE9D9;"
+                                            Text="Predict this week"
+                                            Variant="Filled"
                                             Click="PredictThisWeekButton_Click"
-                                            Style="{StaticResource SecondaryButtonStyle}"/>
+                                            ToolTipService.ToolTip="Predict this week's revenue"
+                                            AutomationProperties.Name="Predict this week's revenue"/>
                                     </Grid>
                                     <!-- Full crash prevention for chart rendering -->
                                     <lvc:CartesianChart
