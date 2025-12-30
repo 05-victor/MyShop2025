@@ -62,4 +62,12 @@ public interface IAuthApi
     /// </summary>
     [Post("/api/v1/passwordreset/reset-password")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<object>>> ResetPasswordAsync([Body] ResetPasswordRequest request);
+
+    /// <summary>
+    /// Activate trial or premium license code for authenticated user.
+    /// Promotes user to Admin role and sets trial/premium status.
+    /// User must be authenticated via JWT token.
+    /// </summary>
+    [Post("/api/v1/users/activate")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<ActivateUserResponse>>> ActivateAsync([Query] string activateCode);
 }

@@ -132,6 +132,28 @@ namespace MyShop.Client.Config
                     System.Diagnostics.Debug.WriteLine($"[Bootstrapper] UseMockData={useMockData}");
                     System.Diagnostics.Debug.WriteLine($"[Bootstrapper] EnableDeveloperOptions={enableDeveloperOptions}");
 
+                    // DEBUG: Detailed config logging
+                    System.Diagnostics.Debug.WriteLine($"[Bootstrapper] ===== DEBUG CONFIG =====");
+                    System.Diagnostics.Debug.WriteLine($"[Bootstrapper] Environment: {Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Not set"}");
+
+                    var allConfigs = context.Configuration.AsEnumerable();
+                    var mockDataConfigs = allConfigs.Where(kvp => kvp.Key.Contains("UseMockData", StringComparison.OrdinalIgnoreCase));
+                    foreach (var config in mockDataConfigs)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[Bootstrapper] Found config: {config.Key} = {config.Value}");
+                    }
+
+                    // Check environment variables
+                    var envMockData = Environment.GetEnvironmentVariable("MYSHOP_FeatureFlags:UseMockData");
+                    if (!string.IsNullOrEmpty(envMockData))
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[Bootstrapper] ⚠️  Environment Variable Override: MYSHOP_FeatureFlags:UseMockData = {envMockData}");
+                    }
+
+                    System.Diagnostics.Debug.WriteLine($"[Bootstrapper] Mode: {(useMockData ? "MOCK DATA" : "REAL API")}");
+                    System.Diagnostics.Debug.WriteLine($"[Bootstrapper] Will register: {(useMockData ? "MockAuthRepository" : "AuthRepository")}");
+                    System.Diagnostics.Debug.WriteLine($"[Bootstrapper] ====================");
+
                     // ===== FluentValidation for Options =====
                     services.AddSingleton<FluentValidation.IValidator<Options.ApiOptions>, Options.Validators.ApiOptionsValidator>();
                     services.AddSingleton<FluentValidation.IValidator<Options.FeatureFlagOptions>, Options.Validators.FeatureFlagOptionsValidator>();
@@ -274,7 +296,7 @@ namespace MyShop.Client.Config
                         services.AddTransient<MyShop.Core.Interfaces.Repositories.IEarningsRepository, MyShop.Plugins.Repositories.Api.EarningsRepository>();
                         services.AddTransient<IAgentRequestRepository, MyShop.Plugins.Repositories.Api.AgentRequestRepository>();
                         services.AddTransient<ISettingsRepository, SettingsRepository>();
-                        services.AddTransient<ISystemActivationRepository, MockSystemActivationRepository>();
+                        services.AddTransient<ISystemActivationRepository, MyShop.Plugins.Repositories.Api.SystemActivationRepository>();
                         services.AddTransient<IChatService, ChatRepository>();
                     }
 
