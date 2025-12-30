@@ -14,4 +14,5 @@ public interface IUserRepository
     Task<User> UpdateAsync(User user);
     Task<bool> DeleteAsync(Guid id);
     Task<bool> ExistsAsync(string username, string email);
+    Task<bool> HasAdminAsync();
 }

@@ -109,4 +109,11 @@ public class UserRepository : IUserRepository
         return await _context.Users
             .AnyAsync(u => u.Username == username || u.Email == email);
     }
+
+    public async Task<bool> HasAdminAsync()
+    {
+        return await _context.Users
+            .Include(u => u.Roles)
+            .AnyAsync(u => u.Roles.Any(r => r.Name == "Admin"));
+    }
 }
