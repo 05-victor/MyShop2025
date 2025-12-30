@@ -217,14 +217,53 @@ public class SystemActivationRepository : ISystemActivationRepository
 
     /// <summary>
     /// Get current license information
+    /// Fetches user info from API and maps it to LicenseInfo
     /// </summary>
     public async Task<Result<LicenseInfo?>> GetCurrentLicenseAsync()
     {
         try
         {
-            // This could call a dedicated API endpoint if needed
-            // For now, return null (no current license)
-            return Result<LicenseInfo?>.Success(null);
+            _logger.LogInformation("[SystemActivationRepository] GetCurrentLicenseAsync called");
+
+            // Call GetMeAsync to get current user info including trial dates
+            var userResponse = await _authApi.GetMeAsync();
+
+            if (userResponse.IsSuccessStatusCode && userResponse.Content?.Result != null)
+            {
+                var userInfo = userResponse.Content.Result;
+                var userId = userInfo.Id;
+
+                _logger.LogInformation("[SystemActivationRepository] GetCurrentLicenseAsync - User {UserId}: IsTrialActive={IsTrialActive}, TrialEndDate={TrialEndDate}",
+                    userId, userInfo.IsTrialActive, userInfo.TrialEndDate);
+
+                // Create LicenseInfo from user info
+                // If user doesn't have trial active, they might have permanent license or no license
+                var licenseInfo = new LicenseInfo
+                {
+                    UserId = userId,
+                    Type = userInfo.IsTrialActive ? "trial" : "permanent",
+                    ActivatedAt = DateTime.UtcNow,
+                    ExpiresAt = userInfo.TrialEndDate,
+                    DurationDays = userInfo.TrialEndDate.HasValue
+                        ? (int?)(userInfo.TrialEndDate.Value - DateTime.UtcNow).TotalDays
+                        : null,
+                    RemainingDays = userInfo.TrialEndDate.HasValue
+                        ? Math.Max(0, (int)(userInfo.TrialEndDate.Value - DateTime.UtcNow).TotalDays)
+                        : 0,
+                    IsExpired = userInfo.TrialEndDate.HasValue && userInfo.TrialEndDate.Value < DateTime.UtcNow,
+                    IsExpiring = userInfo.TrialEndDate.HasValue && (userInfo.TrialEndDate.Value - DateTime.UtcNow).TotalDays <= 3 // Expiring if 3 days or less
+                };
+
+                _logger.LogInformation("[SystemActivationRepository] GetCurrentLicenseAsync - License Info: Type={Type}, RemainingDays={RemainingDays}, IsExpired={IsExpired}, ExpiresAt={ExpiresAt}",
+                    licenseInfo.Type, licenseInfo.RemainingDays, licenseInfo.IsExpired, licenseInfo.ExpiresAt);
+
+                return Result<LicenseInfo?>.Success(licenseInfo);
+            }
+            else
+            {
+                _logger.LogWarning("[SystemActivationRepository] GetCurrentLicenseAsync - Failed to get user info");
+                return Result<LicenseInfo?>.Success(null);
+            }
         }
         catch (Exception ex)
         {
