@@ -1,3 +1,4 @@
+using MyShop.Client.Common.Helpers;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Repositories;
@@ -60,7 +61,7 @@ public class CategoryFacade : ICategoryFacade
     /// </summary>
     public async Task<Result<PagedList<Category>>> LoadCategoriesAsync(
         int page = 1,
-        int pageSize = 20,
+        int pageSize = AppConstants.DEFAULT_PAGE_SIZE,
         string? searchQuery = null,
         string sortBy = "name",
         bool sortDescending = false)

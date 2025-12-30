@@ -1,3 +1,4 @@
+using MyShop.Client.Common.Helpers;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Facades;
@@ -50,7 +51,7 @@ public class EarningsFacade : IEarningsFacade
 
     public async Task<Result<PagedResult<EarningHistoryResponse>>> GetHistoryAsync(
         int pageNumber = 1,
-        int pageSize = 20,
+        int pageSize = AppConstants.DEFAULT_PAGE_SIZE,
         DateTime? startDate = null,
         DateTime? endDate = null,
         string? status = null,

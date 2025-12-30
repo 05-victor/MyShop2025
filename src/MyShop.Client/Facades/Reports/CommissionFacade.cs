@@ -1,3 +1,4 @@
+using MyShop.Client.Common.Helpers;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Repositories;
@@ -30,7 +31,7 @@ public class CommissionFacade : ICommissionFacade
         _toastService = toastService ?? throw new ArgumentNullException(nameof(toastService));
     }
 
-    public async Task<Result<PagedList<Commission>>> LoadCommissionsAsync(Guid? agentId = null, string? status = null, DateTime? startDate = null, DateTime? endDate = null, int page = 1, int pageSize = 20)
+    public async Task<Result<PagedList<Commission>>> LoadCommissionsAsync(Guid? agentId = null, string? status = null, DateTime? startDate = null, DateTime? endDate = null, int page = 1, int pageSize = AppConstants.DEFAULT_PAGE_SIZE)
     {
         try
         {
@@ -84,7 +85,7 @@ public class CommissionFacade : ICommissionFacade
         try
         {
             var result = await _commissionRepository.GetSummaryAsync(agentId);
-            
+
             if (!result.IsSuccess || result.Data == null)
             {
                 System.Diagnostics.Debug.WriteLine($"[CommissionFacade] Failed to get summary: {result.ErrorMessage}");

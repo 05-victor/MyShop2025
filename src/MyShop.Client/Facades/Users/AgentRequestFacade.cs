@@ -1,3 +1,4 @@
+using MyShop.Client.Common.Helpers;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Repositories;
@@ -41,7 +42,7 @@ public class AgentRequestFacade : IAgentRequestFacade
         }
     }
 
-    public async Task<Result<PagedList<AgentRequest>>> LoadRequestsAsync(string? status = null, string? searchQuery = null, int page = 1, int pageSize = 20)
+    public async Task<Result<PagedList<AgentRequest>>> LoadRequestsAsync(string? status = null, string? searchQuery = null, int page = 1, int pageSize = AppConstants.DEFAULT_PAGE_SIZE)
     {
         try
         {

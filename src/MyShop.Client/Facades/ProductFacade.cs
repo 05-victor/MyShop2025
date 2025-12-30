@@ -2,6 +2,7 @@ using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
+using MyShop.Client.Common.Helpers;
 using MyShop.Plugins.API.Files;
 using MyShop.Plugins.API.Products;
 using MyShop.Shared.Models;
@@ -62,7 +63,7 @@ public class ProductFacade : IProductFacade
         string sortBy = "name",
         bool sortDescending = false,
         int page = 1,
-        int pageSize = 20)
+        int pageSize = AppConstants.DEFAULT_PAGE_SIZE)
     {
         try
         {
@@ -70,8 +71,8 @@ public class ProductFacade : IProductFacade
 
             // Validate page parameters
             if (page < 1) page = 1;
-            if (pageSize < 1) pageSize = 20;
-            if (pageSize > 100) pageSize = 100; // Max 100 items per page
+            if (pageSize < 1) pageSize = AppConstants.DEFAULT_PAGE_SIZE;
+            if (pageSize > AppConstants.MAX_PAGE_SIZE) pageSize = AppConstants.MAX_PAGE_SIZE; // Max 100 items per page
 
             // Call repository's paged method (server-side paging and filtering)
             var result = await _productRepository.GetPagedAsync(
@@ -881,7 +882,7 @@ public class ProductFacade : IProductFacade
             {
                 await _toastService.ShowSuccess($"✅ Imported {bulkResult.SuccessCount}/{bulkResult.TotalSubmitted} products");
             }
-            
+
             if (bulkResult.FailureCount > 0)
             {
                 await _toastService.ShowError($"❌ {bulkResult.FailureCount} products failed");

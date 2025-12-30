@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using MyShop.Client.ViewModels.Base;
 using MyShop.Client.Facades;
 using MyShop.Client.Services;
+using MyShop.Client.Common.Helpers;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Shared.DTOs.Responses;
@@ -85,14 +86,14 @@ public partial class SalesAgentEarningsViewModel : PagedViewModelBase<EarningTra
     private string _selectedStatus = "All";
 
     public SalesAgentEarningsViewModel(
-        ICommissionFacade commissionFacade, 
+        ICommissionFacade commissionFacade,
         IEarningsFacade earningsFacade,
         IToastService? toastService = null)
         : base(toastService, null)
     {
         _commissionFacade = commissionFacade;
         _earningsFacade = earningsFacade;
-        PageSize = 20;
+        PageSize = AppConstants.DEFAULT_PAGE_SIZE;
     }
 
     [RelayCommand]

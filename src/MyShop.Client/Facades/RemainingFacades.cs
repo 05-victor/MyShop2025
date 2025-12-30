@@ -1,3 +1,4 @@
+using MyShop.Client.Common.Helpers;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Repositories;
@@ -234,12 +235,12 @@ public class UserFacade : IUserFacade
         string? role = null,
         bool? isActive = null,
         int page = 1,
-        int pageSize = 20)
+        int pageSize = AppConstants.DEFAULT_PAGE_SIZE)
     {
         try
         {
             // Validate paging
-            if (page < 1 || pageSize < 1 || pageSize > 100)
+            if (page < 1 || pageSize < 1 || pageSize > AppConstants.MAX_PAGE_SIZE)
             {
                 await _toastService.ShowError("Invalid paging parameters");
                 return Result<PagedList<User>>.Failure("Invalid paging");
@@ -629,7 +630,7 @@ public class CommissionFacade : ICommissionFacade
         _toastService = toastService ?? throw new ArgumentNullException(nameof(toastService));
     }
 
-    public async Task<Result<PagedList<Commission>>> LoadCommissionsAsync(Guid? agentId = null, string? status = null, DateTime? startDate = null, DateTime? endDate = null, int page = 1, int pageSize = 20)
+    public async Task<Result<PagedList<Commission>>> LoadCommissionsAsync(Guid? agentId = null, string? status = null, DateTime? startDate = null, DateTime? endDate = null, int page = 1, int pageSize = AppConstants.DEFAULT_PAGE_SIZE)
     {
         await _toastService.ShowInfo("Commission loading - Feature coming soon");
         return Result<PagedList<Commission>>.Failure("Not implemented");
@@ -983,7 +984,7 @@ public class AgentRequestFacade : IAgentRequestFacade
         _toastService = toastService ?? throw new ArgumentNullException(nameof(toastService));
     }
 
-    public async Task<Result<PagedList<AgentRequest>>> LoadRequestsAsync(string? status = null, string? searchQuery = null, int page = 1, int pageSize = 20)
+    public async Task<Result<PagedList<AgentRequest>>> LoadRequestsAsync(string? status = null, string? searchQuery = null, int page = 1, int pageSize = AppConstants.DEFAULT_PAGE_SIZE)
     {
         await _toastService.ShowInfo("Agent requests - Feature coming soon");
         return Result<PagedList<AgentRequest>>.Failure("Not implemented");

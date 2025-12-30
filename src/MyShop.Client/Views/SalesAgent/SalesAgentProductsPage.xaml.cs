@@ -6,7 +6,11 @@ using Microsoft.UI.Xaml.Shapes;
 using MyShop.Client.ViewModels.SalesAgent;
 using MyShop.Client.Services;
 using MyShop.Client.Views.Components.Controls;
+using MyShop.Client.Common.Helpers;
+using MyShop.Client.Common.Converters;
 using MyShop.Core.Interfaces.Repositories;
+using MyShop.Plugins.API.Forecasts;
+using MyShop.Shared.DTOs.Requests;
 using System;
 using System.Linq;
 using System.Threading;
@@ -19,6 +23,7 @@ namespace MyShop.Client.Views.SalesAgent
         public SalesAgentProductsViewModel ViewModel { get; }
         private Timer? _searchDebounceTimer;
         private readonly IAuthRepository _authRepository;
+        private readonly IForecastApi _forecastApi;
 
         public SalesAgentProductsPage()
         {
@@ -28,6 +33,7 @@ namespace MyShop.Client.Views.SalesAgent
 
             // Get auth repository for retrieving current user ID from token
             _authRepository = App.Current.Services.GetRequiredService<IAuthRepository>();
+            _forecastApi = App.Current.Services.GetRequiredService<IForecastApi>();
 
             // Subscribe to edit/delete/predict demand events
             ViewModel.EditProductRequested += ViewModel_EditProductRequested;
@@ -838,9 +844,13 @@ namespace MyShop.Client.Views.SalesAgent
                 };
                 contentPanel.Children.Add(priceLabel);
 
+                // Use CurrencyConverter for consistent formatting
+                var currencyConverter = new CurrencyConverter();
+                var formattedPrice = currencyConverter.Convert(product.Price, typeof(string), null, null)?.ToString() ?? "0₫";
+
                 var priceValue = new TextBlock
                 {
-                    Text = product.Price.ToString("C2"),
+                    Text = formattedPrice,
                     FontSize = 14,
                     FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
                     Foreground = Application.Current.Resources["SuccessGreenBrush"] as Microsoft.UI.Xaml.Media.Brush,
@@ -860,7 +870,7 @@ namespace MyShop.Client.Views.SalesAgent
                 // Placeholder message
                 var messageTextBlock = new TextBlock
                 {
-                    Text = "This feature will analyze historical data and predict future demand patterns using AI forecast API.",
+                    Text = "Forecast will be generated based on sales history.",
                     FontSize = 13,
                     Foreground = Application.Current.Resources["TextFillColorTertiaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
                     IsTextSelectionEnabled = false,
@@ -876,15 +886,154 @@ namespace MyShop.Client.Views.SalesAgent
 
                 if (result == ContentDialogResult.Primary)
                 {
-                    // TODO: Implement actual AI forecast API call here
                     System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage] Predict demand started for product: {product.Name} (ID: {product.Id})");
-                    LoggingService.Instance.Information($"Demand prediction requested for product: {product.Name}");
+                    await PredictProductDemandAsync(product);
                 }
             }
             catch (Exception ex)
             {
                 LoggingService.Instance.Error("[SalesAgentProductsPage] ShowPredictDemandDialogAsync failed", ex);
             }
+        }
+
+        /// <summary>
+        /// Convert SKU string to integer ID using hash function
+        /// Same SKU will always produce the same ID
+        /// </summary>
+        private int GetSkuIdFromString(string sku)
+        {
+            if (string.IsNullOrWhiteSpace(sku))
+                return 0;
+
+            return Math.Abs(sku.GetHashCode());
+        }
+
+        /// <summary>
+        /// Call Predict My Demand API and show result
+        /// </summary>
+        private async Task PredictProductDemandAsync(ProductViewModel product)
+        {
+            try
+            {
+                // Show loading
+                var loadingDialog = new ContentDialog
+                {
+                    Title = "Analyzing...",
+                    Content = new ProgressRing { IsActive = true, Width = 50, Height = 50 },
+                    XamlRoot = this.XamlRoot
+                };
+
+                _ = loadingDialog.ShowAsync();
+
+                // Convert SKU string to ID using hash
+                int skuId = GetSkuIdFromString(product.Sku);
+
+                // Convert price from VND to USD using app constant
+                double basePriceInUSD = (double)product.Price / AppConstants.VND_TO_USD_RATE;
+
+                // Prepare request
+                var request = new DemandForecastRequest
+                {
+                    Week = DateTime.Now.ToString("dd/MM/yy"),
+                    SkuId = skuId,
+                    BasePrice = basePriceInUSD,  // USD price
+                    TotalPrice = null,  // Optional
+                    IsFeaturedSku = 0,  // Default: not featured
+                    IsDisplaySku = 0    // Default: no special display
+                };
+
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage] Calling API - SKU: {product.Sku}, SkuId: {skuId}, Week: {request.Week}, Price: {product.Price}₫ = {basePriceInUSD:F2}$");
+
+                // Call API
+                var apiResponse = await _forecastApi.PredictMyDemandAsync(request);
+
+                // Close loading
+                loadingDialog.Hide();
+
+                if (apiResponse.IsSuccessStatusCode && apiResponse.Content?.Success == true)
+                {
+                    var forecastResult = apiResponse.Content.Result;
+
+                    // Show result dialog
+                    var resultDialog = new ContentDialog
+                    {
+                        Title = "Demand Forecast Result",
+                        CloseButtonText = "OK",
+                        DefaultButton = ContentDialogButton.Close,
+                        XamlRoot = this.XamlRoot
+                    };
+
+                    var resultPanel = new StackPanel { Spacing = 16, Padding = new Thickness(0, 0, 12, 0) };
+
+                    // Product info
+                    resultPanel.Children.Add(new TextBlock
+                    {
+                        Text = $"Product: {product.Name}",
+                        FontSize = 16,
+                        FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
+                    });
+
+                    resultPanel.Children.Add(new TextBlock
+                    {
+                        Text = $"SKU: {product.Sku} (ID: {skuId})",
+                        FontSize = 13,
+                        Foreground = Application.Current.Resources["TextFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush
+                    });
+
+                    // Divider
+                    resultPanel.Children.Add(new Rectangle
+                    {
+                        Height = 1,
+                        Fill = Application.Current.Resources["CardStrokeBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                        Margin = new Thickness(0, 8, 0, 8)
+                    });
+
+                    // Prediction result
+                    resultPanel.Children.Add(new TextBlock
+                    {
+                        Text = "Predicted Units Sold:",
+                        FontSize = 13,
+                        Foreground = Application.Current.Resources["TextFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush
+                    });
+
+                    resultPanel.Children.Add(new TextBlock
+                    {
+                        Text = $"{forecastResult.PredictedUnitsSold:F2} units",
+                        FontSize = 28,
+                        FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                        Foreground = Application.Current.Resources["AccentBlueBrush"] as Microsoft.UI.Xaml.Media.Brush
+                    });
+
+                    resultDialog.Content = resultPanel;
+                    await resultDialog.ShowAsync();
+
+                    LoggingService.Instance.Information($"Demand prediction successful for {product.Name}: {forecastResult.PredictedUnitsSold:F2} units");
+                }
+                else
+                {
+                    // Show error
+                    var errorMessage = apiResponse.Content?.Message ?? "Failed to predict demand";
+                    await ShowErrorDialogAsync("Prediction Failed", errorMessage);
+                    LoggingService.Instance.Error($"Demand prediction failed: {errorMessage}");
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.Error("[SalesAgentProductsPage] PredictProductDemandAsync failed", ex);
+                await ShowErrorDialogAsync("Error", $"An error occurred: {ex.Message}");
+            }
+        }
+
+        private async Task ShowErrorDialogAsync(string title, string message)
+        {
+            var errorDialog = new ContentDialog
+            {
+                Title = title,
+                Content = message,
+                CloseButtonText = "OK",
+                XamlRoot = this.XamlRoot
+            };
+            await errorDialog.ShowAsync();
         }
 
         #endregion

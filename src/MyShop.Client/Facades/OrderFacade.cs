@@ -1,4 +1,5 @@
-﻿using MyShop.Core.Common;
+﻿using MyShop.Client.Common.Helpers;
+using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
@@ -44,7 +45,7 @@ public class OrderFacade : IOrderFacade
         DateTime? startDate = null,
         DateTime? endDate = null,
         int page = 1,
-        int pageSize = 20,
+        int pageSize = AppConstants.DEFAULT_PAGE_SIZE,
         Guid? customerId = null,
         Guid? salesAgentId = null)
     {
@@ -57,9 +58,9 @@ public class OrderFacade : IOrderFacade
                 return Result<PagedList<Order>>.Failure("Invalid page number");
             }
 
-            if (pageSize < 1 || pageSize > 100)
+            if (pageSize < 1 || pageSize > AppConstants.MAX_PAGE_SIZE)
             {
-                _ = _toastService.ShowError("Page size must be between 1 and 100");
+                _ = _toastService.ShowError($"Page size must be between 1 and {AppConstants.MAX_PAGE_SIZE}");
                 return Result<PagedList<Order>>.Failure("Invalid page size");
             }
 

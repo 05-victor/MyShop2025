@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using MyShop.Client.ViewModels.SalesAgent;
+using MyShop.Client.Common.Helpers;
 using MyShop.Core.Interfaces.Repositories;
 using System;
 using System.Globalization;
@@ -181,10 +182,8 @@ public sealed partial class SalesAgentReportsPage : Page
             // Get predicted weekly sales from API (in USD)
             double predictedWeeklySalesUsd = forecastResult.Data.PredictedWeeklySales;
 
-            // Convert USD to VND using fixed exchange rate
-            // Typical rate: 1 USD = 25,000 VND (adjust as needed)
-            const double USD_TO_VND_RATE = 25000;
-            double predictedWeeklySalesVnd = predictedWeeklySalesUsd * USD_TO_VND_RATE;
+            // Convert USD to VND using app constant
+            double predictedWeeklySalesVnd = predictedWeeklySalesUsd * AppConstants.USD_TO_VND_RATE;
 
             // Format as VND using same format as CurrencyConverter (dot as thousand separator, no decimals)
             var amount = (decimal)predictedWeeklySalesVnd;
@@ -222,7 +221,7 @@ public sealed partial class SalesAgentReportsPage : Page
             // Subtext with USD value
             contentPanel.Children.Add(new TextBlock
             {
-                Text = $"Conversion: ${predictedWeeklySalesUsd:F2} USD × {USD_TO_VND_RATE:N0} rate",
+                Text = $"Conversion: ${predictedWeeklySalesUsd:F2} USD × {AppConstants.USD_TO_VND_RATE:N0} rate",
                 FontSize = 11,
                 Foreground = Application.Current.Resources["TextFillColorTertiaryBrush"] as Microsoft.UI.Xaml.Media.Brush
             });
