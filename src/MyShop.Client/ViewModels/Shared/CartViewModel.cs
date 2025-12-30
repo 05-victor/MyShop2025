@@ -102,6 +102,10 @@ public partial class CartViewModel : ObservableObject
                     AgentName = agentGroup.SalesAgentFullName ?? agentGroup.SalesAgentUsername ?? "Unknown Seller",
                     IsExpanded = true,
                     Subtotal = agentGroup.Subtotal,
+                    Tax = agentGroup.Tax,
+                    ShippingFee = agentGroup.ShippingFee,
+                    Total = agentGroup.Total,
+                    ItemCount = agentGroup.ItemCount,
                     Items = new ObservableCollection<CartItemViewModel>(
                         agentGroup.Items.Select(item => new CartItemViewModel
                         {
@@ -353,9 +357,11 @@ public partial class CartViewModel : ObservableObject
             {
                 Subtotal = selectedGroup.Subtotal;
                 // Use tax value from the grouped response (already calculated by backend)
-                Tax = Subtotal * 0.1m; // 10% tax
-                Total = Subtotal + Tax + ShippingFee;
-                ItemCount = selectedGroup.Items.Count;
+                // Use tax value from the grouped response (already calculated by backend)
+                Tax = selectedGroup.Tax;
+                ShippingFee = selectedGroup.ShippingFee;
+                Total = selectedGroup.Total;
+                ItemCount = selectedGroup.ItemCount;
                 return;
             }
         }
@@ -434,6 +440,18 @@ public partial class CartAgentGroup : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SubtotalFormatted))]
     private decimal _subtotal;
+
+    [ObservableProperty]
+    private decimal _tax;
+
+    [ObservableProperty]
+    private decimal _shippingFee;
+
+    [ObservableProperty]
+    private decimal _total;
+
+    [ObservableProperty]
+    private int _itemCount;
 
     [ObservableProperty]
     private bool _isExpanded = true;
