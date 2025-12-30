@@ -288,7 +288,7 @@
                                                 <ColumnDefinition Width="96"/>
                                                 <ColumnDefinition Width="80"/>
                                                 <ColumnDefinition Width="70"/>
-                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="200"/>
                                             </Grid.ColumnDefinitions>
 
                                             <TextBlock Grid.Column="0"
@@ -352,7 +352,7 @@
                                                             <ColumnDefinition Width="96"/>
                                                             <ColumnDefinition Width="80"/>
                                                             <ColumnDefinition Width="70"/>
-                                                            <ColumnDefinition Width="100"/>
+                                                            <ColumnDefinition Width="200"/>
                                                         </Grid.ColumnDefinitions>
 
                                                         <TextBlock Grid.Column="0"
@@ -408,61 +408,78 @@
                                                                    VerticalAlignment="Center"/>
 
                                                         <StackPanel Grid.Column="8"
-                                                                    Orientation="Horizontal"
-                                                                    Spacing="8"
+                                                                    Orientation="Vertical"
+                                                                    Spacing="4"
                                                                     VerticalAlignment="Center">
-                                                            <!-- View Details Button (Always shown) -->
-                                                            <Button Style="{StaticResource IconButtonStyle}"
-                                                                    Command="{Binding ElementName=RootPage, Path=ViewModel.ViewOrderDetailsCommand}"
-                                                                    CommandParameter="{x:Bind}"
-                                                                    ToolTipService.ToolTip="View order details">
-                                                                <FontIcon Glyph="&#xE7A6;"
-                                                                          FontSize="16"
-                                                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                            </Button>
-
                                                             <!-- Confirm Payment Button (Visible when PaymentStatus == "Unpaid" AND PaymentMethod is QR or COD) -->
-                                                            <Button Style="{StaticResource IconButtonStyle}"
-                                                                    Visibility="{x:Bind NeedsPaymentConfirmation, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                            <Button Visibility="{x:Bind NeedsPaymentConfirmation, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
                                                                     Command="{Binding ElementName=RootPage, Path=ViewModel.ConfirmPaymentReceivedCommand}"
                                                                     CommandParameter="{x:Bind}"
-                                                                    ToolTipService.ToolTip="Confirm payment received">
-                                                                <FontIcon Glyph="&#xE8A1;"
-                                                                          FontSize="16"
-                                                                          Foreground="{ThemeResource SuccessGreenBrush}"/>
+                                                                    Background="{ThemeResource SuccessGreenBrush}"
+                                                                    Foreground="White"
+                                                                    FontSize="11"
+                                                                    Padding="6,3"
+                                                                    HorizontalAlignment="Stretch"
+                                                                    CornerRadius="4"
+                                                                    ToolTipService.ToolTip="Xác nhận đã nhận thanh toán từ khách hàng">
+                                                                <TextBlock Text="✓ Nhận tiền" TextAlignment="Center" FontWeight="SemiBold"/>
                                                             </Button>
 
-                                                            <!-- Mark as Processing Button (Visible when Status == "Confirmed") -->
-                                                            <Button Style="{StaticResource IconButtonStyle}"
-                                                                    Visibility="{x:Bind Status, Mode=OneWay, Converter={StaticResource StatusEqualsToVisibilityConverter}, ConverterParameter=Confirmed}"
-                                                                    Command="{Binding ElementName=RootPage, Path=ViewModel.MarkAsProcessingCommand}"
+                                                            <!-- Confirm Order Button (Visible when Status == "Pending") -->
+                                                            <Button Visibility="{x:Bind CanConfirm, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                    Command="{Binding ElementName=RootPage, Path=ViewModel.MarkAsConfirmedCommand}"
                                                                     CommandParameter="{x:Bind}"
-                                                                    ToolTipService.ToolTip="Mark as processing">
-                                                                <FontIcon Glyph="&#xE896;"
-                                                                          FontSize="16"
-                                                                          Foreground="{ThemeResource WarningAmberBrush}"/>
+                                                                    Background="{ThemeResource PrimaryBrush}"
+                                                                    Foreground="White"
+                                                                    FontSize="11"
+                                                                    Padding="6,3"
+                                                                    HorizontalAlignment="Stretch"
+                                                                    CornerRadius="4"
+                                                                    ToolTipService.ToolTip="Xác nhận đơn hàng và chuyển sang trạng thái Confirmed">
+                                                                <TextBlock Text="✓ Xác nhận ĐH" TextAlignment="Center" FontWeight="SemiBold"/>
                                                             </Button>
 
-                                                            <!-- Ship Button (Visible when Status == "Processing") -->
-                                                            <Button Style="{StaticResource IconButtonStyle}"
-                                                                    Visibility="{x:Bind Status, Mode=OneWay, Converter={StaticResource StatusEqualsToVisibilityConverter}, ConverterParameter=Processing}"
+                                                            <!-- Ship Button (Visible when Status == "Processing" or "Confirmed" and payment conditions met) -->
+                                                            <Button Visibility="{x:Bind CanShip, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
                                                                     Command="{Binding ElementName=RootPage, Path=ViewModel.MarkAsShippedCommand}"
                                                                     CommandParameter="{x:Bind}"
-                                                                    ToolTipService.ToolTip="Mark as shipped">
-                                                                <FontIcon Glyph="&#xE897;"
-                                                                          FontSize="16"
-                                                                          Foreground="{ThemeResource WarningAmberBrush}"/>
+                                                                    Background="{ThemeResource WarningAmberBrush}"
+                                                                    Foreground="White"
+                                                                    FontSize="11"
+                                                                    Padding="6,3"
+                                                                    HorizontalAlignment="Stretch"
+                                                                    CornerRadius="4"
+                                                                    ToolTipService.ToolTip="Đánh dấu đơn hàng đã giao cho shipper">
+                                                                <TextBlock Text="📦 Giao hàng" TextAlignment="Center" FontWeight="SemiBold"/>
                                                             </Button>
 
                                                             <!-- Deliver Button (Visible when Status == "Shipped") -->
-                                                            <Button Style="{StaticResource IconButtonStyle}"
-                                                                    Visibility="{x:Bind Status, Mode=OneWay, Converter={StaticResource StatusEqualsToVisibilityConverter}, ConverterParameter=Shipped}"
+                                                            <Button Visibility="{x:Bind CanDeliver, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
                                                                     Command="{Binding ElementName=RootPage, Path=ViewModel.MarkAsDeliveredCommand}"
                                                                     CommandParameter="{x:Bind}"
-                                                                    ToolTipService.ToolTip="Mark as delivered">
-                                                                <FontIcon Glyph="&#xE930;"
-                                                                          FontSize="16"
-                                                                          Foreground="{ThemeResource SuccessGreenBrush}"/>
+                                                                    Background="{ThemeResource SuccessGreenBrush}"
+                                                                    Foreground="White"
+                                                                    FontSize="11"
+                                                                    Padding="6,3"
+                                                                    HorizontalAlignment="Stretch"
+                                                                    CornerRadius="4"
+                                                                    ToolTipService.ToolTip="Xác nhận đơn hàng đã giao đến khách">
+                                                                <TextBlock Text="✓ Đã giao" TextAlignment="Center" FontWeight="SemiBold"/>
+                                                            </Button>
+
+                                                            <!-- View Details Button (Always shown) -->
+                                                            <Button Command="{Binding ElementName=RootPage, Path=ViewModel.ViewOrderDetailsCommand}"
+                                                                    CommandParameter="{x:Bind}"
+                                                                    Background="Transparent"
+                                                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                                    BorderThickness="1"
+                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                    FontSize="11"
+                                                                    Padding="6,3"
+                                                                    HorizontalAlignment="Stretch"
+                                                                    CornerRadius="4"
+                                                                    ToolTipService.ToolTip="Xem chi tiết đơn hàng">
+                                                                <TextBlock Text="👁 Chi tiết" TextAlignment="Center"/>
                                                             </Button>
                                                         </StackPanel>
                                                     </Grid>

@@ -258,6 +258,78 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
     }
 
     [RelayCommand]
+    private async Task MarkAsConfirmedAsync(OrderViewModel order)
+    {
+        if (order == null)
+        {
+            await _toastHelper?.ShowError("Order not found");
+            return;
+        }
+
+        // Show confirmation dialog
+        var xamlRoot = _xamlRootProvider?.Invoke();
+        if (xamlRoot == null)
+        {
+            await _toastHelper?.ShowError("Cannot show dialog");
+            return;
+        }
+
+        var dialog = new ContentDialog
+        {
+            Title = "Confirm Order",
+            Content = new TextBlock
+            {
+                Text = $"Confirm order {order.OrderId}?\n\nOrder will be marked as CONFIRMED and ready for processing.",
+                TextWrapping = TextWrapping.Wrap,
+                Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 255, 255))
+            },
+            PrimaryButtonText = "Confirm",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Primary,
+            XamlRoot = xamlRoot
+        };
+
+        var result = await dialog.ShowAsync();
+        if (result != ContentDialogResult.Primary)
+        {
+            return;
+        }
+
+        // Proceed with update
+        SetLoadingState(true);
+        try
+        {
+            var updateResult = await _orderFacade.UpdateOrderStatusAsync(
+                order.OriginalOrderId,
+                "Confirmed");
+
+            if (updateResult.IsSuccess && updateResult.Data != null)
+            {
+                // Update local order status
+                order.Status = "Confirmed";
+                await _toastHelper?.ShowSuccess("Order confirmed successfully");
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentOrdersViewModel] Order {order.OrderId} confirmed");
+
+                // Refresh the list to update UI
+                await LoadPageAsync();
+            }
+            else
+            {
+                await _toastHelper?.ShowError(updateResult.ErrorMessage ?? "Failed to confirm order");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentOrdersViewModel] Error confirming order: {ex.Message}");
+            await _toastHelper?.ShowError($"Error: {ex.Message}");
+        }
+        finally
+        {
+            SetLoadingState(false);
+        }
+    }
+
+    [RelayCommand]
     private async Task MarkAsProcessingAsync(OrderViewModel order)
     {
         if (order == null)
@@ -580,12 +652,15 @@ public partial class OrderViewModel : ObservableObject
     private DateTime _orderDate;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanConfirm), nameof(CanShip), nameof(NeedsPaymentConfirmation))]
     private string _status = string.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanConfirm), nameof(CanShip), nameof(CanDeliver), nameof(NeedsPaymentConfirmation))]
     private string _paymentStatus = string.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanConfirm), nameof(CanShip), nameof(NeedsPaymentConfirmation))]
     private string _paymentMethod = string.Empty;
 
     [ObservableProperty]
@@ -600,19 +675,43 @@ public partial class OrderViewModel : ObservableObject
     public string FormattedDate => OrderDate.ToString("MMM dd, yyyy");
 
     /// <summary>
-    /// True if order is in CONFIRMED status and can be marked as SHIPPED
+    /// True if order is PENDING and can be confirmed
+    /// For QR: Must be paid first before confirming
+    /// For COD/CARD: Can confirm immediately (COD pays on delivery)
     /// </summary>
-    public bool CanShip => Status == "Confirmed";
+    public bool CanConfirm =>
+        Status.Equals("Pending", StringComparison.OrdinalIgnoreCase) &&
+        (PaymentMethod?.Equals("COD", StringComparison.OrdinalIgnoreCase) == true ||
+         PaymentMethod?.Equals("CARD", StringComparison.OrdinalIgnoreCase) == true ||
+         (PaymentMethod?.Equals("QR", StringComparison.OrdinalIgnoreCase) == true &&
+          PaymentStatus?.Equals("Paid", StringComparison.OrdinalIgnoreCase) == true));
+
+    /// <summary>
+    /// True if order is CONFIRMED/PROCESSING and can be marked as SHIPPED
+    /// For CARD/QR: Must be paid first
+    /// For COD: Can ship even if unpaid (pay on delivery)
+    /// </summary>
+    public bool CanShip => 
+        (Status.Equals("Confirmed", StringComparison.OrdinalIgnoreCase) ||
+         Status.Equals("Processing", StringComparison.OrdinalIgnoreCase)) && 
+        (PaymentStatus.Equals("Paid", StringComparison.OrdinalIgnoreCase) || 
+         PaymentMethod?.Equals("COD", StringComparison.OrdinalIgnoreCase) == true);
 
     /// <summary>
     /// True if order is in SHIPPED status and can be marked as DELIVERED
     /// </summary>
-    public bool CanDeliver => Status == "Shipped";
+    public bool CanDeliver => Status.Equals("Shipped", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     /// True if payment is unpaid and method is QR or COD (needs agent verification)
+    /// QR: Confirm when Pending/Confirmed (before shipping)
+    /// COD: Confirm when Delivered (after delivery)
     /// </summary>
     public bool NeedsPaymentConfirmation =>
-        PaymentStatus == "Unpaid" &&
-        (PaymentMethod == "QR" || PaymentMethod == "COD");
+        PaymentStatus?.Equals("Unpaid", StringComparison.OrdinalIgnoreCase) == true &&
+        ((PaymentMethod?.Equals("QR", StringComparison.OrdinalIgnoreCase) == true && 
+          (Status.Equals("Pending", StringComparison.OrdinalIgnoreCase) || 
+           Status.Equals("Confirmed", StringComparison.OrdinalIgnoreCase))) ||
+         (PaymentMethod?.Equals("COD", StringComparison.OrdinalIgnoreCase) == true && 
+          Status.Equals("Delivered", StringComparison.OrdinalIgnoreCase)));
 }

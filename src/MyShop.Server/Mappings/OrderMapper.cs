@@ -22,6 +22,7 @@ public class OrderMapper
             OrderDate = order.OrderDate,
             Status = order.Status.ToApiString(),
             PaymentStatus = order.PaymentStatus.ToApiString(),
+            PaymentMethod = order.PaymentMethod,
             TotalAmount = order.TotalAmount,
             DiscountAmount = order.DiscountAmount,
             ShippingFee = order.ShippingFee,
