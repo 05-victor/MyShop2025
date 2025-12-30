@@ -194,10 +194,27 @@
                                 Grid.Column="0"
                                 Style="{StaticResource CardWithShadowStyle}">
                                 <StackPanel>
-                                    <TextBlock
-                                        Margin="0,0,0,16"
-                                        Style="{StaticResource SubtitleTextBlockStyle}"
-                                        Text="Revenue Trend"/>
+                                    <!-- Header with Title and Predict Button -->
+                                    <Grid ColumnSpacing="12"
+                                          Margin="0,0,0,16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            Style="{StaticResource SubtitleTextBlockStyle}"
+                                            Text="Revenue Trend"/>
+                                        <buttons:IconButton
+                                            x:Name="PredictThisWeekButton"
+                                            Grid.Column="1"
+                                            IconGlyph="&#xE9D9;"
+                                            Text="Predict this week"
+                                            Variant="Filled"
+                                            Click="PredictThisWeekButton_Click"
+                                            ToolTipService.ToolTip="Predict this week's revenue"
+                                            AutomationProperties.Name="Predict this week's revenue"/>
+                                    </Grid>
                                     <!-- Full crash prevention for chart rendering -->
                                     <lvc:CartesianChart
                                         Height="300"
@@ -355,6 +372,7 @@
                                             <controls:DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <Border
+                                                        MinWidth="100"
                                                         Padding="6,4"
                                                         HorizontalAlignment="Left"
                                                         BorderBrush="{ThemeResource TextFillColorDisabledBrush}"
@@ -387,7 +405,7 @@
                                             <controls:DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <Border
-                                                        MinWidth="80"
+                                                        MinWidth="132"
                                                         Padding="8,4"
                                                         HorizontalAlignment="Center"
                                                         VerticalAlignment="Center"

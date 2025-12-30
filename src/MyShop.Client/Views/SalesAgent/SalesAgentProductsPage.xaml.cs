@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using Microsoft.UI.Xaml.Shapes;
 using MyShop.Client.ViewModels.SalesAgent;
 using MyShop.Client.Services;
 using MyShop.Client.Views.Components.Controls;
@@ -28,9 +29,10 @@ namespace MyShop.Client.Views.SalesAgent
             // Get auth repository for retrieving current user ID from token
             _authRepository = App.Current.Services.GetRequiredService<IAuthRepository>();
 
-            // Subscribe to edit/delete events
+            // Subscribe to edit/delete/predict demand events
             ViewModel.EditProductRequested += ViewModel_EditProductRequested;
             ViewModel.DeleteProductRequested += ViewModel_DeleteProductRequested;
+            ViewModel.PredictDemandRequested += ViewModel_PredictDemandRequested;
 
             Unloaded += SalesAgentProductsPage_Unloaded;
         }
@@ -39,6 +41,7 @@ namespace MyShop.Client.Views.SalesAgent
         {
             ViewModel.EditProductRequested -= ViewModel_EditProductRequested;
             ViewModel.DeleteProductRequested -= ViewModel_DeleteProductRequested;
+            ViewModel.PredictDemandRequested -= ViewModel_PredictDemandRequested;
         }
 
         private async void ViewModel_EditProductRequested(object? sender, ProductViewModel product)
@@ -49,6 +52,11 @@ namespace MyShop.Client.Views.SalesAgent
         private async void ViewModel_DeleteProductRequested(object? sender, ProductViewModel product)
         {
             await ShowDeleteConfirmationAsync(product);
+        }
+
+        private async void ViewModel_PredictDemandRequested(object? sender, ProductViewModel product)
+        {
+            await ShowPredictDemandDialogAsync(product);
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -713,6 +721,174 @@ namespace MyShop.Client.Views.SalesAgent
 
         #endregion
 
+        #region Predict Demand Dialog
+
+        private async Task ShowPredictDemandDialogAsync(ProductViewModel product)
+        {
+            try
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "Predict Demand",
+                    DefaultButton = ContentDialogButton.Primary,
+                    PrimaryButtonText = "Run",
+                    SecondaryButtonText = "Cancel",
+                    XamlRoot = this.XamlRoot
+                };
+
+                // Create a ScrollViewer with StackPanel for better form layout
+                var scrollViewer = new ScrollViewer
+                {
+                    MinWidth = 450,
+                    MaxHeight = 600
+                };
+
+                var contentPanel = new StackPanel
+                {
+                    Spacing = 16,
+                    Padding = new Thickness(0, 0, 12, 0)
+                };
+
+                // Product Name Section
+                var nameLabel = new TextBlock
+                {
+                    Text = "Product Name",
+                    FontSize = 12,
+                    Foreground = Application.Current.Resources["TextFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 4)
+                };
+                contentPanel.Children.Add(nameLabel);
+
+                var nameValue = new TextBlock
+                {
+                    Text = product.Name,
+                    FontSize = 16,
+                    FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                    Foreground = Application.Current.Resources["TextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 12),
+                    TextWrapping = TextWrapping.Wrap
+                };
+                contentPanel.Children.Add(nameValue);
+
+                // SKU Section
+                var skuLabel = new TextBlock
+                {
+                    Text = "SKU",
+                    FontSize = 12,
+                    Foreground = Application.Current.Resources["TextFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 4)
+                };
+                contentPanel.Children.Add(skuLabel);
+
+                var skuValue = new TextBlock
+                {
+                    Text = product.Sku,
+                    FontSize = 14,
+                    Foreground = Application.Current.Resources["TextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 12)
+                };
+                contentPanel.Children.Add(skuValue);
+
+                // Category Section
+                var categoryLabel = new TextBlock
+                {
+                    Text = "Category",
+                    FontSize = 12,
+                    Foreground = Application.Current.Resources["TextFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 4)
+                };
+                contentPanel.Children.Add(categoryLabel);
+
+                var categoryValue = new TextBlock
+                {
+                    Text = product.Category,
+                    FontSize = 14,
+                    Foreground = Application.Current.Resources["TextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 12)
+                };
+                contentPanel.Children.Add(categoryValue);
+
+                // Stock Section
+                var stockLabel = new TextBlock
+                {
+                    Text = "Current Stock",
+                    FontSize = 12,
+                    Foreground = Application.Current.Resources["TextFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 4)
+                };
+                contentPanel.Children.Add(stockLabel);
+
+                var stockValue = new TextBlock
+                {
+                    Text = product.Stock.ToString(),
+                    FontSize = 14,
+                    FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                    Foreground = Application.Current.Resources["TextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 12)
+                };
+                contentPanel.Children.Add(stockValue);
+
+                // Price Section
+                var priceLabel = new TextBlock
+                {
+                    Text = "Sale Price",
+                    FontSize = 12,
+                    Foreground = Application.Current.Resources["TextFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 4)
+                };
+                contentPanel.Children.Add(priceLabel);
+
+                var priceValue = new TextBlock
+                {
+                    Text = product.Price.ToString("C2"),
+                    FontSize = 14,
+                    FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                    Foreground = Application.Current.Resources["SuccessGreenBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 20)
+                };
+                contentPanel.Children.Add(priceValue);
+
+                // Divider
+                var divider = new Rectangle
+                {
+                    Height = 1,
+                    Fill = Application.Current.Resources["CardStrokeBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 16)
+                };
+                contentPanel.Children.Add(divider);
+
+                // Placeholder message
+                var messageTextBlock = new TextBlock
+                {
+                    Text = "This feature will analyze historical data and predict future demand patterns using AI forecast API.",
+                    FontSize = 13,
+                    Foreground = Application.Current.Resources["TextFillColorTertiaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    IsTextSelectionEnabled = false,
+                    TextWrapping = TextWrapping.Wrap,
+                    LineHeight = 18
+                };
+                contentPanel.Children.Add(messageTextBlock);
+
+                scrollViewer.Content = contentPanel;
+                dialog.Content = scrollViewer;
+
+                var result = await dialog.ShowAsync();
+
+                if (result == ContentDialogResult.Primary)
+                {
+                    // TODO: Implement actual AI forecast API call here
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage] Predict demand started for product: {product.Name} (ID: {product.Id})");
+                    LoggingService.Instance.Information($"Demand prediction requested for product: {product.Name}");
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.Error("[SalesAgentProductsPage] ShowPredictDemandDialogAsync failed", ex);
+            }
+        }
+
+        #endregion
+
         private async void RefreshContainer_RefreshRequested(RefreshContainer sender, RefreshRequestedEventArgs args)
         {
             using var deferral = args.GetDeferral();
@@ -734,7 +910,7 @@ namespace MyShop.Client.Views.SalesAgent
             try
             {
                 var openPicker = new Windows.Storage.Pickers.FileOpenPicker();
-                
+
                 // Initialize with window handle using XamlRoot
                 var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
                 WinRT.Interop.InitializeWithWindow.Initialize(openPicker, hwnd);

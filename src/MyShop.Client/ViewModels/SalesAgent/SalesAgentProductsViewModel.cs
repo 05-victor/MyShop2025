@@ -370,6 +370,7 @@ public partial class SalesAgentProductsViewModel : PagedViewModelBase<ProductVie
 
     public event EventHandler<ProductViewModel>? EditProductRequested;
     public event EventHandler<ProductViewModel>? DeleteProductRequested;
+    public event EventHandler<ProductViewModel>? PredictDemandRequested;
 
     [RelayCommand]
     private void EditProduct(ProductViewModel? product)
@@ -385,6 +386,13 @@ public partial class SalesAgentProductsViewModel : PagedViewModelBase<ProductVie
 
         // Raise event for UI to show confirmation dialog
         DeleteProductRequested?.Invoke(this, product);
+    }
+
+    [RelayCommand]
+    private void PredictDemand(ProductViewModel? product)
+    {
+        if (product == null) return;
+        PredictDemandRequested?.Invoke(this, product);
     }
 
     public async Task ConfirmDeleteProductAsync(Guid productId)

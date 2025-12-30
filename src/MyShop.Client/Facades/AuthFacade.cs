@@ -341,11 +341,30 @@ public class AuthFacade : IAuthFacade
     {
         try
         {
+            // Debug: Log which repository is being used
+            var repoType = _authRepository.GetType().Name;
+            System.Diagnostics.Debug.WriteLine($"[AuthFacade.ActivateTrialAsync] ===== DEBUG =====");
+            System.Diagnostics.Debug.WriteLine($"[AuthFacade.ActivateTrialAsync] IAuthRepository resolved as: {repoType}");
+            System.Diagnostics.Debug.WriteLine($"[AuthFacade.ActivateTrialAsync] Full type: {_authRepository.GetType().FullName}");
+
+            if (repoType == "MockAuthRepository")
+            {
+                System.Diagnostics.Debug.WriteLine($"[AuthFacade.ActivateTrialAsync] ⚠️  WARNING: Using MockAuthRepository (should be AuthRepository)");
+                System.Diagnostics.Debug.WriteLine($"[AuthFacade.ActivateTrialAsync] This means UseMockData=true or build cache issue");
+            }
+            else if (repoType == "AuthRepository")
+            {
+                System.Diagnostics.Debug.WriteLine($"[AuthFacade.ActivateTrialAsync] ✅ CORRECT: Using AuthRepository (API mode)");
+            }
+            System.Diagnostics.Debug.WriteLine($"[AuthFacade.ActivateTrialAsync] ====================");
+
             // Step 1: Validate admin code
             if (string.IsNullOrWhiteSpace(adminCode))
             {
                 return Result<User>.Failure("Admin code is required");
             }
+
+            System.Diagnostics.Debug.WriteLine($"[AuthFacade.ActivateTrialAsync] Calling _authRepository.ActivateTrialAsync() with code: {adminCode}");
 
             // Step 2: Call repository
             var activateResult = await _authRepository.ActivateTrialAsync(adminCode);

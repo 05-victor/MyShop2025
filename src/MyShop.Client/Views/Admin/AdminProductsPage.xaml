@@ -364,11 +364,11 @@
                                             <!--  Name  -->
                                             <ColumnDefinition Width="2*"/>
                                             <!--  Category  -->
-                                            <ColumnDefinition Width="1*"/>
+                                            <ColumnDefinition Width="1.8*"/>
                                             <!--  Price  -->
-                                            <ColumnDefinition Width="2*"/>
+                                            <ColumnDefinition Width="1.8*"/>
                                             <!--  Import Price  -->
-                                            <ColumnDefinition Width="2*"/>
+                                            <ColumnDefinition Width="1.6*"/>
                                             <!--  Stock  -->
                                             <ColumnDefinition Width="1*"/>
                                             <!--  Actions  -->
@@ -420,9 +420,9 @@
                                                 <ColumnDefinition Width="1*"/>
                                                 <ColumnDefinition Width="3*"/>
                                                 <ColumnDefinition Width="2*"/>
-                                                <ColumnDefinition Width="1*"/>
-                                                <ColumnDefinition Width="2*"/>
-                                                <ColumnDefinition Width="2*"/>
+                                                <ColumnDefinition Width="1.8*"/>
+                                                <ColumnDefinition Width="1.8*"/>
+                                                <ColumnDefinition Width="1.6*"/>
                                                 <ColumnDefinition Width="1*"/>
                                             </Grid.ColumnDefinitions>
 
