@@ -443,4 +443,44 @@ public sealed partial class AdminUsersPage : Page
             System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] DeleteButton_Click error: {ex.Message}\n{ex.StackTrace}");
         }
     }
+
+    #region Pagination Event Handlers
+
+    /// <summary>
+    /// Handle page change from PaginationControl
+    /// </summary>
+    private async void PaginationControl_PageChanged(object sender, int newPage)
+    {
+        System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] PaginationControl_PageChanged - New page: {newPage}");
+        try
+        {
+            // The CurrentPage property is already updated via TwoWay binding
+            // Just trigger LoadPageAsync to fetch new data
+            await ViewModel.RefreshAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] PaginationControl_PageChanged error: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Handle page size change from PaginationControl
+    /// </summary>
+    private async void PaginationControl_PageSizeChanged(object sender, int newPageSize)
+    {
+        System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] PaginationControl_PageSizeChanged - New page size: {newPageSize}");
+        try
+        {
+            // Reset to page 1 when page size changes
+            ViewModel.CurrentPage = 1;
+            await ViewModel.RefreshAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminUsersPage] PaginationControl_PageSizeChanged error: {ex.Message}");
+        }
+    }
+
+    #endregion
 }
