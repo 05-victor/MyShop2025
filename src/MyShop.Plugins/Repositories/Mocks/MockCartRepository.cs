@@ -3,6 +3,7 @@ using MyShop.Plugins.Mocks.Data;
 using MyShop.Shared.Models;
 using MyShop.Core.Common;
 using MyShop.Shared.DTOs.Requests;
+using MyShop.Shared.DTOs.Responses;
 
 namespace MyShop.Plugins.Repositories.Mocks;
 
@@ -33,6 +34,65 @@ public class MockCartRepository : ICartRepository
         }
     }
 
+    public async Task<Result<GroupedCartResponse>> GetCartItemsGroupedAsync(Guid userId)
+    {
+        try
+        {
+            var items = await MockCartData.GetCartItemsAsync(userId);
+            System.Diagnostics.Debug.WriteLine($"[MockCartRepository] Got {items.Count} grouped items for user {userId}");
+
+            // Group items by sales agent
+            var groupedByAgent = items
+                .Where(i => i.SalesAgentId.HasValue)
+                .GroupBy(i => new { AgentId = i.SalesAgentId!.Value, i.SalesAgentName })
+                .Select(g => new SalesAgentCartGroup
+                {
+                    SalesAgentId = g.Key.AgentId,
+                    SalesAgentFullName = g.Key.SalesAgentName,
+                    Items = g.Select(item => new CartItemResponse
+                    {
+                        Id = item.Id,
+                        ProductId = item.ProductId,
+                        ProductName = item.ProductName,
+                        CategoryName = item.CategoryName ?? "",
+                        Price = item.Price,
+                        Quantity = item.Quantity,
+                        ProductImage = item.ProductImage,
+                        StockAvailable = item.StockAvailable,
+                        SalesAgentId = item.SalesAgentId,
+                        SalesAgentUsername = item.SalesAgentName
+                    }).ToList(),
+                    Subtotal = g.Sum(i => i.Price * i.Quantity),
+                    Tax = Math.Round(g.Sum(i => i.Price * i.Quantity) * 0.1m, 0),
+                    ShippingFee = 50000,
+                    ItemCount = g.Sum(i => i.Quantity)
+                })
+                .ToList();
+
+            // Calculate totals for each group
+            foreach (var group in groupedByAgent)
+            {
+                group.Total = group.Subtotal + group.Tax + group.ShippingFee;
+            }
+
+            var response = new GroupedCartResponse
+            {
+                UserId = userId,
+                SalesAgentGroups = groupedByAgent,
+                GrandTotal = groupedByAgent.Sum(g => g.Total),
+                TotalItemCount = groupedByAgent.Sum(g => g.ItemCount),
+                TotalSalesAgents = groupedByAgent.Count
+            };
+
+            return Result<GroupedCartResponse>.Success(response);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockCartRepository] GetCartItemsGroupedAsync error: {ex.Message}");
+            return Result<GroupedCartResponse>.Failure($"Failed to get grouped cart items: {ex.Message}");
+        }
+    }
+
     public async Task<Result<bool>> AddToCartAsync(Guid userId, Guid productId, int quantity = 1)
     {
         try
@@ -46,7 +106,7 @@ public class MockCartRepository : ICartRepository
             }
 
             var product = productResult.Data;
-            
+
             // Check stock
             if (product.Quantity < quantity)
             {
@@ -138,16 +198,16 @@ public class MockCartRepository : ICartRepository
         try
         {
             var items = await MockCartData.GetCartItemsAsync(userId);
-            
+
             var subtotal = items.Sum(item => item.Subtotal);
             var itemCount = items.Sum(item => item.Quantity);
-            
+
             // Calculate tax (10% VAT)
             var tax = Math.Round(subtotal * 0.10m, 0);
-            
+
             // Calculate shipping fee (free if > 5,000,000 VND)
             var shippingFee = subtotal > 5000000 ? 0 : 50000;
-            
+
             var total = subtotal + tax + shippingFee;
 
             return Result<CartSummary>.Success(new CartSummary

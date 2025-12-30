@@ -1,5 +1,6 @@
 using MyShop.Core.Common;
 using MyShop.Shared.Models;
+using MyShop.Shared.DTOs.Responses;
 
 namespace MyShop.Core.Interfaces.Facades;
 
@@ -14,6 +15,11 @@ public interface ICartFacade
     /// Load current user's cart items.
     /// </summary>
     Task<Result<List<CartItem>>> LoadCartAsync();
+
+    /// <summary>
+    /// Load current user's cart items grouped by sales agents.
+    /// </summary>
+    Task<Result<GroupedCartResponse>> LoadCartGroupedAsync();
 
     /// <summary>
     /// Get cart summary (total items, subtotal, etc.).

@@ -13,6 +13,9 @@ public interface ICartApi
     [Get("/api/v1/cart")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<CartResponse>>> GetMyCartAsync();
 
+    [Get("/api/v1/cart/grouped")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<GroupedCartResponse>>> GetMyCartGroupedAsync();
+
     [Post("/api/v1/cart/items")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<CartResponse>>> AddItemAsync([Body] AddToCartRequest request);
 

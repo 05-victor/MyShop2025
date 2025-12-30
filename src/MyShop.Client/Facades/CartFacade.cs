@@ -65,6 +65,34 @@ public class CartFacade : ICartFacade
         }
     }
 
+    /// <summary>
+    /// Load cart items grouped by sales agents
+    /// </summary>
+    public async Task<Result<MyShop.Shared.DTOs.Responses.GroupedCartResponse>> LoadCartGroupedAsync()
+    {
+        try
+        {
+            var userIdResult = await _authRepository.GetCurrentUserIdAsync();
+            if (!userIdResult.IsSuccess)
+            {
+                return Result<MyShop.Shared.DTOs.Responses.GroupedCartResponse>.Failure(userIdResult.ErrorMessage ?? "User not authenticated");
+            }
+
+            var result = await _cartRepository.GetCartItemsGroupedAsync(userIdResult.Data);
+            if (!result.IsSuccess || result.Data == null)
+            {
+                return Result<MyShop.Shared.DTOs.Responses.GroupedCartResponse>.Failure(result.ErrorMessage ?? "Failed to load grouped cart");
+            }
+
+            return Result<MyShop.Shared.DTOs.Responses.GroupedCartResponse>.Success(result.Data);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[CartFacade] LoadCartGroupedAsync failed: {ex.Message}");
+            return Result<MyShop.Shared.DTOs.Responses.GroupedCartResponse>.Failure("Failed to load grouped cart", ex);
+        }
+    }
+
     /// <inheritdoc/>
     public async Task<Result<Core.Interfaces.Facades.CartSummary>> GetCartSummaryAsync()
     {

@@ -218,14 +218,6 @@ public sealed partial class SalesAgentReportsPage : Page
                 Foreground = Application.Current.Resources["SuccessGreenBrush"] as Microsoft.UI.Xaml.Media.Brush
             });
 
-            // Subtext with USD value
-            contentPanel.Children.Add(new TextBlock
-            {
-                Text = $"Conversion: ${predictedWeeklySalesUsd:F2} USD × {AppConstants.USD_TO_VND_RATE:N0} rate",
-                FontSize = 11,
-                Foreground = Application.Current.Resources["TextFillColorTertiaryBrush"] as Microsoft.UI.Xaml.Media.Brush
-            });
-
             resultDialog.Content = contentPanel;
             await resultDialog.ShowAsync();
         }

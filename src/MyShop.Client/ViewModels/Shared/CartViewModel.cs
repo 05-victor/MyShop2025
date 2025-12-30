@@ -77,31 +77,33 @@ public partial class CartViewModel : ObservableObject
 
         try
         {
-            var result = await _cartFacade.LoadCartAsync();
+            // Use the new grouped API instead of flat API
+            var result = await _cartFacade.LoadCartGroupedAsync();
 
             if (!result.IsSuccess || result.Data == null)
             {
                 Items.Clear();
+                AgentGroups.Clear();
                 IsEmpty = true;
                 return;
             }
 
-            var cartItems = result.Data;
+            var groupedCartResponse = result.Data;
 
             Items.Clear();
             AgentGroups.Clear();
 
-            // Group items by sales agent
-            var groupedByAgent = cartItems
-                .Where(i => i.SalesAgentId.HasValue)
-                .GroupBy(i => new { AgentId = i.SalesAgentId!.Value, i.SalesAgentName })
-                .Select(g => new CartAgentGroup
+            // Map grouped response to AgentGroups
+            foreach (var agentGroup in groupedCartResponse.SalesAgentGroups)
+            {
+                var cartGroup = new CartAgentGroup
                 {
-                    AgentId = g.Key.AgentId,
-                    AgentName = g.Key.SalesAgentName ?? "Unknown Seller",
-                    IsExpanded = true, // Default expanded
+                    AgentId = agentGroup.SalesAgentId,
+                    AgentName = agentGroup.SalesAgentFullName ?? agentGroup.SalesAgentUsername ?? "Unknown Seller",
+                    IsExpanded = true,
+                    Subtotal = agentGroup.Subtotal,
                     Items = new ObservableCollection<CartItemViewModel>(
-                        g.Select(item => new CartItemViewModel
+                        agentGroup.Items.Select(item => new CartItemViewModel
                         {
                             CartItemId = item.Id,
                             ProductId = item.ProductId,
@@ -112,18 +114,32 @@ public partial class CartViewModel : ObservableObject
                             ImageUrl = item.ProductImage ?? "ms-appx:///Assets/Images/products/product-placeholder.png",
                             Stock = item.StockAvailable,
                             SalesAgentId = item.SalesAgentId,
-                            SalesAgentName = item.SalesAgentName
+                            SalesAgentName = item.SalesAgentFullName ?? item.SalesAgentUsername
                         })
                     )
-                })
-                .ToList();
+                };
+                AgentGroups.Add(cartGroup);
 
-            foreach (var group in groupedByAgent)
-            {
-                // Calculate subtotal for each group
-                group.Subtotal = group.Items.Sum(i => i.Total);
-                AgentGroups.Add(group);
+                // Also add to flat Items list for backward compatibility
+                foreach (var item in agentGroup.Items)
+                {
+                    Items.Add(new CartItemViewModel
+                    {
+                        CartItemId = item.Id,
+                        ProductId = item.ProductId,
+                        Name = item.ProductName,
+                        Category = item.CategoryName ?? "",
+                        Price = item.Price,
+                        Quantity = item.Quantity,
+                        ImageUrl = item.ProductImage ?? "ms-appx:///Assets/Images/products/product-placeholder.png",
+                        Stock = item.StockAvailable,
+                        SalesAgentId = item.SalesAgentId,
+                        SalesAgentName = item.SalesAgentFullName ?? item.SalesAgentUsername
+                    });
+                }
             }
+
+            OnPropertyChanged(nameof(CanProceedToCheckout));
 
             // Auto-select shop if only one group
             if (AgentGroups.Count == 1)
@@ -131,26 +147,6 @@ public partial class CartViewModel : ObservableObject
                 SelectedAgentId = AgentGroups[0].AgentId;
                 AgentGroups[0].IsSelected = true;
                 System.Diagnostics.Debug.WriteLine($"[CartViewModel] Auto-selected shop: {AgentGroups[0].AgentName}");
-            }
-
-            OnPropertyChanged(nameof(CanProceedToCheckout));
-
-            // Also populate flat Items list for backward compatibility
-            foreach (var item in cartItems)
-            {
-                Items.Add(new CartItemViewModel
-                {
-                    CartItemId = item.Id,
-                    ProductId = item.ProductId,
-                    Name = item.ProductName,
-                    Category = item.CategoryName ?? "",
-                    Price = item.Price,
-                    Quantity = item.Quantity,
-                    ImageUrl = item.ProductImage ?? "ms-appx:///Assets/Images/products/product-placeholder.png",
-                    Stock = item.StockAvailable,
-                    SalesAgentId = item.SalesAgentId,
-                    SalesAgentName = item.SalesAgentName
-                });
             }
 
             // Calculate totals if shop was auto-selected
@@ -356,6 +352,7 @@ public partial class CartViewModel : ObservableObject
             if (selectedGroup != null)
             {
                 Subtotal = selectedGroup.Subtotal;
+                // Use tax value from the grouped response (already calculated by backend)
                 Tax = Subtotal * 0.1m; // 10% tax
                 Total = Subtotal + Tax + ShippingFee;
                 ItemCount = selectedGroup.Items.Count;

@@ -43,6 +43,29 @@ public class CartRepository : ICartRepository
         }
     }
 
+    public async Task<Result<GroupedCartResponse>> GetCartItemsGroupedAsync(Guid userId)
+    {
+        try
+        {
+            var response = await _api.GetMyCartGroupedAsync();
+
+            if (response.IsSuccessStatusCode && response.Content != null)
+            {
+                var apiResponse = response.Content;
+                if (apiResponse.Success && apiResponse.Result != null)
+                {
+                    return Result<GroupedCartResponse>.Success(apiResponse.Result);
+                }
+            }
+
+            return Result<GroupedCartResponse>.Failure("Failed to retrieve grouped cart items");
+        }
+        catch (Exception ex)
+        {
+            return Result<GroupedCartResponse>.Failure($"Error retrieving grouped cart items: {ex.Message}");
+        }
+    }
+
     public async Task<Result<bool>> AddToCartAsync(Guid userId, Guid productId, int quantity = 1)
     {
         try

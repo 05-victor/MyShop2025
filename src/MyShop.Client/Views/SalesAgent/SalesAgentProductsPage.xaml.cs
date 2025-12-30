@@ -739,7 +739,9 @@ namespace MyShop.Client.Views.SalesAgent
                     DefaultButton = ContentDialogButton.Primary,
                     PrimaryButtonText = "Run",
                     SecondaryButtonText = "Cancel",
-                    XamlRoot = this.XamlRoot
+                    XamlRoot = this.XamlRoot,
+                    Background = Application.Current.Resources["ContentDialogBackground"] as Microsoft.UI.Xaml.Media.Brush,
+                    Foreground = Application.Current.Resources["TextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush
                 };
 
                 // Create a ScrollViewer with StackPanel for better form layout

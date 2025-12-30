@@ -1,5 +1,6 @@
 using MyShop.Shared.Models;
 using MyShop.Core.Common;
+using MyShop.Shared.DTOs.Responses;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -40,6 +41,11 @@ public interface ICartRepository
     /// Get total count of items in cart
     /// </summary>
     Task<Result<int>> GetCartCountAsync(Guid userId);
+
+    /// <summary>
+    /// Get cart items grouped by sales agents for current user
+    /// </summary>
+    Task<Result<GroupedCartResponse>> GetCartItemsGroupedAsync(Guid userId);
 
     /// <summary>
     /// Get cart summary (total amount, count, etc.)
