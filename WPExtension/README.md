@@ -4,8 +4,11 @@
 
 ## Cài đặt & Chạy
 
+
+
 ```bash
 pip install -r api/requirements.txt
+Run all file MyShop2025/WPExtension/Demand Forecasting/Demand forecasting.ipynb
 uvicorn api.main:app --host 0.0.0.0 --port 8000
 ```
 
