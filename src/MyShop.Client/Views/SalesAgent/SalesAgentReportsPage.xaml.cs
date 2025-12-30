@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using MyShop.Client.ViewModels.SalesAgent;
 using System;
+using System.Globalization;
 
 namespace MyShop.Client.Views.SalesAgent;
 
@@ -98,6 +99,53 @@ public sealed partial class SalesAgentReportsPage : Page
         if (ViewModel.ExportReportCommand?.CanExecute(null) == true)
         {
             await ViewModel.ExportReportCommand.ExecuteAsync(null);
+        }
+    }
+
+    private async void PredictThisWeekButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            // Mock forecast value
+            double predictedWeeklySales = 2287.5868338116184;
+
+            // Format as VND using vi-VN culture (no decimals)
+            var vietnameseCulture = new CultureInfo("vi-VN");
+            string formattedVnd = predictedWeeklySales.ToString("N0", vietnameseCulture) + " ₫";
+
+            // Create dialog
+            var dialog = new ContentDialog
+            {
+                Title = "This Week Revenue Forecast",
+                XamlRoot = this.XamlRoot,
+                CloseButtonText = "Close"
+            };
+
+            var contentPanel = new StackPanel { Spacing = 12 };
+
+            // Forecast value
+            contentPanel.Children.Add(new TextBlock
+            {
+                Text = $"Predicted weekly revenue: {formattedVnd}",
+                FontSize = 16,
+                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                Foreground = Application.Current.Resources["TextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush
+            });
+
+            // Subtext
+            contentPanel.Children.Add(new TextBlock
+            {
+                Text = "Mock forecast • Not final",
+                FontSize = 12,
+                Foreground = Application.Current.Resources["TextFillColorTertiaryBrush"] as Microsoft.UI.Xaml.Media.Brush
+            });
+
+            dialog.Content = contentPanel;
+            await dialog.ShowAsync();
+        }
+        catch (Exception ex)
+        {
+            Services.LoggingService.Instance.Error("[SalesAgentReportsPage] PredictThisWeekButton_Click failed", ex);
         }
     }
 }

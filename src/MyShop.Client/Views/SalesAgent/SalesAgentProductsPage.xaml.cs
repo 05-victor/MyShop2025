@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using Microsoft.UI.Xaml.Shapes;
 using MyShop.Client.ViewModels.SalesAgent;
 using MyShop.Client.Services;
 using MyShop.Client.Views.Components.Controls;
@@ -731,74 +732,145 @@ namespace MyShop.Client.Views.SalesAgent
                     Title = "Predict Demand",
                     DefaultButton = ContentDialogButton.Primary,
                     PrimaryButtonText = "Run",
-                    CloseButtonText = "Close",
+                    SecondaryButtonText = "Cancel",
                     XamlRoot = this.XamlRoot
                 };
 
-                // Create content StackPanel with product information
-                var contentPanel = new StackPanel
+                // Create a ScrollViewer with StackPanel for better form layout
+                var scrollViewer = new ScrollViewer
                 {
-                    Spacing = 12,
-                    Padding = new Thickness(0)
+                    MinWidth = 450,
+                    MaxHeight = 600
                 };
 
-                // Product name
-                contentPanel.Children.Add(new TextBlock
+                var contentPanel = new StackPanel
+                {
+                    Spacing = 16,
+                    Padding = new Thickness(0, 0, 12, 0)
+                };
+
+                // Product Name Section
+                var nameLabel = new TextBlock
                 {
                     Text = "Product Name",
                     FontSize = 12,
                     Foreground = Application.Current.Resources["TextFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
                     Margin = new Thickness(0, 0, 0, 4)
-                });
-                contentPanel.Children.Add(new TextBlock
+                };
+                contentPanel.Children.Add(nameLabel);
+
+                var nameValue = new TextBlock
                 {
                     Text = product.Name,
-                    FontSize = 14,
+                    FontSize = 16,
                     FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
-                    Margin = new Thickness(0, 0, 0, 12)
-                });
+                    Foreground = Application.Current.Resources["TextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 12),
+                    TextWrapping = TextWrapping.Wrap
+                };
+                contentPanel.Children.Add(nameValue);
 
-                // Product SKU
-                contentPanel.Children.Add(new TextBlock
+                // SKU Section
+                var skuLabel = new TextBlock
                 {
                     Text = "SKU",
                     FontSize = 12,
                     Foreground = Application.Current.Resources["TextFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
                     Margin = new Thickness(0, 0, 0, 4)
-                });
-                contentPanel.Children.Add(new TextBlock
+                };
+                contentPanel.Children.Add(skuLabel);
+
+                var skuValue = new TextBlock
                 {
                     Text = product.Sku,
                     FontSize = 14,
+                    Foreground = Application.Current.Resources["TextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
                     Margin = new Thickness(0, 0, 0, 12)
-                });
+                };
+                contentPanel.Children.Add(skuValue);
 
-                // Product category
-                contentPanel.Children.Add(new TextBlock
+                // Category Section
+                var categoryLabel = new TextBlock
                 {
                     Text = "Category",
                     FontSize = 12,
                     Foreground = Application.Current.Resources["TextFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
                     Margin = new Thickness(0, 0, 0, 4)
-                });
-                contentPanel.Children.Add(new TextBlock
+                };
+                contentPanel.Children.Add(categoryLabel);
+
+                var categoryValue = new TextBlock
                 {
                     Text = product.Category,
                     FontSize = 14,
+                    Foreground = Application.Current.Resources["TextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
                     Margin = new Thickness(0, 0, 0, 12)
-                });
+                };
+                contentPanel.Children.Add(categoryValue);
+
+                // Stock Section
+                var stockLabel = new TextBlock
+                {
+                    Text = "Current Stock",
+                    FontSize = 12,
+                    Foreground = Application.Current.Resources["TextFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 4)
+                };
+                contentPanel.Children.Add(stockLabel);
+
+                var stockValue = new TextBlock
+                {
+                    Text = product.Stock.ToString(),
+                    FontSize = 14,
+                    FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                    Foreground = Application.Current.Resources["TextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 12)
+                };
+                contentPanel.Children.Add(stockValue);
+
+                // Price Section
+                var priceLabel = new TextBlock
+                {
+                    Text = "Sale Price",
+                    FontSize = 12,
+                    Foreground = Application.Current.Resources["TextFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 4)
+                };
+                contentPanel.Children.Add(priceLabel);
+
+                var priceValue = new TextBlock
+                {
+                    Text = product.Price.ToString("C2"),
+                    FontSize = 14,
+                    FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                    Foreground = Application.Current.Resources["SuccessGreenBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 20)
+                };
+                contentPanel.Children.Add(priceValue);
+
+                // Divider
+                var divider = new Rectangle
+                {
+                    Height = 1,
+                    Fill = Application.Current.Resources["CardStrokeBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 16)
+                };
+                contentPanel.Children.Add(divider);
 
                 // Placeholder message
-                contentPanel.Children.Add(new TextBlock
+                var messageTextBlock = new TextBlock
                 {
-                    Text = "This feature will call AI forecast API later.",
+                    Text = "This feature will analyze historical data and predict future demand patterns using AI forecast API.",
                     FontSize = 13,
                     Foreground = Application.Current.Resources["TextFillColorTertiaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
                     IsTextSelectionEnabled = false,
-                    Margin = new Thickness(0, 12, 0, 0)
-                });
+                    TextWrapping = TextWrapping.Wrap,
+                    LineHeight = 18
+                };
+                contentPanel.Children.Add(messageTextBlock);
 
-                dialog.Content = contentPanel;
+                scrollViewer.Content = contentPanel;
+                dialog.Content = scrollViewer;
 
                 var result = await dialog.ShowAsync();
 

@@ -194,10 +194,24 @@
                                 Grid.Column="0"
                                 Style="{StaticResource CardWithShadowStyle}">
                                 <StackPanel>
-                                    <TextBlock
-                                        Margin="0,0,0,16"
-                                        Style="{StaticResource SubtitleTextBlockStyle}"
-                                        Text="Revenue Trend"/>
+                                    <!-- Header with Title and Predict Button -->
+                                    <Grid ColumnSpacing="12"
+                                            Margin="0,0,0,16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            Style="{StaticResource SubtitleTextBlockStyle}"
+                                            Text="Revenue Trend"/>
+                                        <Button
+                                            x:Name="PredictThisWeekButton"
+                                            Grid.Column="1"
+                                            Content="Predict this week"
+                                            Click="PredictThisWeekButton_Click"
+                                            Style="{StaticResource SecondaryButtonStyle}"/>
+                                    </Grid>
                                     <!-- Full crash prevention for chart rendering -->
                                     <lvc:CartesianChart
                                         Height="300"
