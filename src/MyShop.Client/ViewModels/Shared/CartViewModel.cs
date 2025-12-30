@@ -130,6 +130,7 @@ public partial class CartViewModel : ObservableObject
             {
                 SelectedAgentId = AgentGroups[0].AgentId;
                 AgentGroups[0].IsSelected = true;
+                System.Diagnostics.Debug.WriteLine($"[CartViewModel] Auto-selected shop: {AgentGroups[0].AgentName}");
             }
 
             OnPropertyChanged(nameof(CanProceedToCheckout));
@@ -152,14 +153,22 @@ public partial class CartViewModel : ObservableObject
                 });
             }
 
-            // Don't calculate totals yet - wait for user to select a shop
-            // Totals will be calculated in SelectShop command
-            Subtotal = 0;
-            Tax = 0;
-            ShippingFee = 0;
-            Total = 0;
-            ItemCount = Items.Count;
+            // Calculate totals if shop was auto-selected
+            if (SelectedAgentId.HasValue)
+            {
+                RecalculateGroupSubtotals();
+                await RefreshTotalsAsync();
+            }
+            else
+            {
+                // Don't calculate totals yet - wait for user to select a shop
+                Subtotal = 0;
+                Tax = 0;
+                ShippingFee = 0;
+                Total = 0;
+            }
 
+            ItemCount = Items.Count;
             IsEmpty = Items.Count == 0;
 
             System.Diagnostics.Debug.WriteLine($"[CartViewModel] Loaded {Items.Count} items, {AgentGroups.Count} shops");
@@ -186,6 +195,8 @@ public partial class CartViewModel : ObservableObject
             return;
         }
 
+        System.Diagnostics.Debug.WriteLine($"[CartViewModel] IncreaseQuantity: CartItemId={item.CartItemId}, ProductId={item.ProductId}, OldQty={item.Quantity}, NewQty={newQty}");
+
         var result = await _cartFacade.UpdateCartItemQuantityAsync(item.CartItemId, newQty);
 
         if (result.IsSuccess)
@@ -193,6 +204,12 @@ public partial class CartViewModel : ObservableObject
             item.Quantity = newQty;
             RecalculateGroupSubtotals();
             await RefreshTotalsAsync();
+            System.Diagnostics.Debug.WriteLine($"[CartViewModel] Quantity updated successfully");
+        }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine($"[CartViewModel] Failed to update quantity: {result.ErrorMessage}");
+            await _toastService.ShowError($"Failed to update quantity: {result.ErrorMessage}");
         }
     }
 

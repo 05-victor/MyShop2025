@@ -97,10 +97,18 @@ public partial class CheckoutViewModel : ObservableObject
     private string _currentStep = "details"; // "details", "payment", "success"
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsCardPayment))]
+    [NotifyPropertyChangedFor(nameof(IsQrPayment))]
+    [NotifyPropertyChangedFor(nameof(IsCodPayment))]
     private string _selectedPaymentMethod = "QR Code / Banking App";
 
     [ObservableProperty]
     private string _selectedPaymentIcon = "\uE8A7"; // QR icon
+
+    // Computed properties for UI visibility
+    public bool IsCardPayment => SelectedPaymentMethod == "Credit / Debit Card";
+    public bool IsQrPayment => SelectedPaymentMethod == "QR Code / Banking App";
+    public bool IsCodPayment => SelectedPaymentMethod == "Cash on Delivery (COD)";
 
     [ObservableProperty]
     private int _countdown = 600; // 10 minutes in seconds
@@ -219,6 +227,11 @@ public partial class CheckoutViewModel : ObservableObject
         SelectedPaymentMethod = methodText;
         SelectedPaymentIcon = iconGlyph;
         System.Diagnostics.Debug.WriteLine($"[CheckoutViewModel] Payment method updated: {methodText}");
+        
+        // Trigger UI updates
+        OnPropertyChanged(nameof(IsCardPayment));
+        OnPropertyChanged(nameof(IsQrPayment));
+        OnPropertyChanged(nameof(IsCodPayment));
     }
 
     [RelayCommand]
@@ -272,22 +285,45 @@ public partial class CheckoutViewModel : ObservableObject
         {
             // Build full address
             var fullAddress = $"{Address}, {City}, {ZipCode}, {Country}";
-            var notes = $"Contact: {FullName}, Email: {Email}, Phone: {Phone}";
+            var baseNotes = $"Contact: {FullName}, Email: {Email}, Phone: {Phone}";
 
             var successCount = 0;
             var totalGroups = SalesAgentGroups.Count;
 
+            // Map payment method from UI to API format
+            var apiPaymentMethod = SelectedPaymentMethod switch
+            {
+                "Credit / Debit Card" => "CARD",
+                "QR Code / Banking App" => "QR",
+                "Cash on Delivery (COD)" => "COD",
+                _ => "COD"
+            };
+
+            // Add payment-specific notes
+            var notes = apiPaymentMethod switch
+            {
+                "QR" => $"{baseNotes}\n[{DateTime.Now:yyyy-MM-dd HH:mm}] Customer confirmed QR payment",
+                "COD" => $"{baseNotes}\nPayment Method: Cash on Delivery",
+                _ => baseNotes
+            };
+
             // Checkout each sales agent group separately
+            Guid? lastOrderId = null;
+            string? lastOrderCode = null;
+
             foreach (var group in SalesAgentGroups)
             {
                 var result = await _cartFacade.CheckoutBySalesAgentAsync(
                     group.SalesAgentId,
                     fullAddress,
-                    notes);
+                    notes,
+                    apiPaymentMethod);
 
-                if (result.IsSuccess)
+                if (result.IsSuccess && result.Data != null)
                 {
                     successCount++;
+                    lastOrderId = result.Data.Id;
+                    lastOrderCode = result.Data.OrderCode;
                 }
                 else
                 {
@@ -295,23 +331,62 @@ public partial class CheckoutViewModel : ObservableObject
                 }
             }
 
-            if (successCount == totalGroups)
+            if (successCount == 0)
             {
-                CurrentStep = "success";
-                await _toastService.ShowSuccess($"All {successCount} orders placed successfully!");
-                
-                // Navigate to orders page
-                await Task.Delay(1500);
-                await _navigationService.NavigateInShell(typeof(MyShop.Client.Views.Shared.PurchaseOrdersPage).FullName!);
+                await _toastService.ShowError("Failed to place any orders");
+                return;
             }
-            else if (successCount > 0)
+
+            // Handle success based on payment method
+            if (apiPaymentMethod == "CARD")
             {
-                await _toastService.ShowWarning($"{successCount} of {totalGroups} orders placed successfully");
-                await _navigationService.NavigateInShell(typeof(MyShop.Client.Views.Shared.PurchaseOrdersPage).FullName!);
+                // For Card: Navigate to Card Payment page
+                if (lastOrderId.HasValue)
+                {
+                    await _toastService.ShowSuccess($"{successCount} order(s) created. Complete your payment.");
+                    
+                    var parameter = new Views.Shared.CardPaymentParameter
+                    {
+                        OrderId = lastOrderId.Value,
+                        OrderCode = lastOrderCode ?? "N/A",
+                        TotalAmount = Total
+                    };
+                    
+                    await _navigationService.NavigateInShell(
+                        typeof(Views.Shared.CardPaymentPage).FullName!,
+                        parameter);
+                }
             }
             else
             {
-                await _toastService.ShowError("Failed to place any orders");
+                // For QR/COD: Go directly to orders page
+                string successMessage;
+                
+                if (apiPaymentMethod == "QR")
+                {
+                    successMessage = successCount == totalGroups
+                        ? $"All {successCount} orders placed! Seller will verify your payment soon."
+                        : $"{successCount} of {totalGroups} orders placed. Awaiting payment verification.";
+                }
+                else // COD
+                {
+                    successMessage = successCount == totalGroups
+                        ? $"All {successCount} orders confirmed! You'll pay when receiving your order."
+                        : $"{successCount} of {totalGroups} orders placed successfully.";
+                }
+                
+                if (successCount == totalGroups)
+                {
+                    CurrentStep = "success";
+                    await _toastService.ShowSuccess(successMessage);
+                }
+                else
+                {
+                    await _toastService.ShowWarning(successMessage);
+                }
+                
+                await Task.Delay(1500);
+                await _navigationService.NavigateInShell(typeof(MyShop.Client.Views.Shared.PurchaseOrdersPage).FullName!);
             }
         }
         catch (Exception ex)

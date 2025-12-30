@@ -92,6 +92,7 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
             // Check email verification status
             var userResult = await _authRepository.GetCurrentUserAsync();
             var isEmailVerified = userResult.IsSuccess && userResult.Data?.IsEmailVerified == true;
+            var currentUserId = userResult.IsSuccess && userResult.Data != null ? userResult.Data.Id : Guid.Empty;
 
             await LoadCategoriesAsync();
             await LoadBrandsAsync();
@@ -103,7 +104,9 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
             // Update all product cards with email verification status
             foreach (var product in Products)
             {
-                product.CanAddToCart = isEmailVerified && product.Stock > 0;
+                // Agent cannot buy their own products
+                var isOwnProduct = product.SaleAgentId == currentUserId;
+                product.CanAddToCart = isEmailVerified && product.Stock > 0 && !isOwnProduct;
                 product.ShowEmailVerification = !isEmailVerified;
             }
 
@@ -236,6 +239,7 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
                 // Check email verification once per page load
                 var userResult = await _authRepository.GetCurrentUserAsync();
                 var isEmailVerified = userResult.IsSuccess && userResult.Data?.IsEmailVerified == true;
+                var currentUserId = userResult.IsSuccess && userResult.Data != null ? userResult.Data.Id : Guid.Empty;
 
                 Items.Clear();
                 foreach (var product in pagedData.Items)
@@ -266,10 +270,11 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
                         Manufacturer = product.Manufacturer ?? string.Empty,
                         AgentName = agentName,
                         SaleAgentFullName = product.SaleAgentFullName ?? product.SaleAgentUsername ?? string.Empty,
+                        SaleAgentId = product.SaleAgentId,
                         Description = product.Description ?? string.Empty,
 
-                        // Email verification UX
-                        CanAddToCart = isEmailVerified && product.Quantity > 0,
+                        // Email verification UX + prevent agents from buying own products
+                        CanAddToCart = isEmailVerified && product.Quantity > 0 && product.SaleAgentId != currentUserId,
                         ShowEmailVerification = !isEmailVerified
                     };
                     Items.Add(productCard);
@@ -443,6 +448,9 @@ public partial class ProductCardViewModel : ObservableObject
 
     [ObservableProperty]
     private string? _agentName;
+
+    [ObservableProperty]
+    private Guid? _saleAgentId;
 
     [ObservableProperty]
     private string? _saleAgentFullName = string.Empty;

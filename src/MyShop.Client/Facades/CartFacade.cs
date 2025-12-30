@@ -3,6 +3,7 @@ using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Shared.Models;
+using MyShop.Shared.DTOs.Requests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -267,105 +268,39 @@ public class CartFacade : ICartFacade
     }
 
     /// <inheritdoc/>
-    public async Task<Result<Order>> CheckoutBySalesAgentAsync(Guid salesAgentId, string shippingAddress, string notes)
+    public async Task<Result<Order>> CheckoutBySalesAgentAsync(Guid salesAgentId, string shippingAddress, string notes, string paymentMethod = "COD")
     {
         try
         {
+            System.Diagnostics.Debug.WriteLine($"[CartFacade] CheckoutBySalesAgentAsync - SalesAgent: {salesAgentId}, PaymentMethod: {paymentMethod}");
+
             // Validate address
             if (string.IsNullOrWhiteSpace(shippingAddress))
             {
                 return Result<Order>.Failure("Shipping address is required");
             }
 
-            // Get userId
-            var userIdResult = await _authRepository.GetCurrentUserIdAsync();
-            if (!userIdResult.IsSuccess)
+            // Call backend checkout/sales-agent endpoint
+            var request = new CheckoutBySalesAgentRequest
             {
-                return Result<Order>.Failure(userIdResult.ErrorMessage ?? "User not authenticated");
-            }
-
-            // Load cart
-            var cartResult = await LoadCartAsync();
-            if (!cartResult.IsSuccess || cartResult.Data == null || cartResult.Data.Count == 0)
-            {
-                return Result<Order>.Failure("Cart is empty");
-            }
-
-            var cartItems = cartResult.Data;
-
-            // Filter cart items for the specific sales agent
-            var salesAgentItems = cartItems.Where(i => i.SalesAgentId.HasValue && i.SalesAgentId.Value == salesAgentId).ToList();
-            
-            if (salesAgentItems.Count == 0)
-            {
-                return Result<Order>.Failure($"No items found in cart for the selected seller");
-            }
-
-            // Verify stock for all items
-            foreach (var item in salesAgentItems)
-            {
-                var productResult = await _productRepository.GetByIdAsync(item.ProductId);
-                if (!productResult.IsSuccess || productResult.Data == null)
-                {
-                    return Result<Order>.Failure($"Product {item.ProductName} not found");
-                }
-
-                var product = productResult.Data;
-                if (product.Quantity < item.Quantity)
-                {
-                    return Result<Order>.Failure(
-                        $"Insufficient stock for {item.ProductName}. Only {product.Quantity} units available");
-                }
-            }
-
-            // Calculate summary for this sales agent's items
-            var subtotal = salesAgentItems.Sum(i => i.Price * i.Quantity);
-            var tax = subtotal * 0.1m; // 10% tax
-            var shippingFee = subtotal >= 500000 ? 0 : 30000; // Free shipping over 500k
-            var total = subtotal + tax + shippingFee;
-
-            // Create order
-            var order = new Order
-            {
-                Id = Guid.NewGuid(),
-                OrderCode = $"ORD-{DateTime.Now:yyyyMMddHHmmss}",
-                CustomerId = userIdResult.Data,
                 SalesAgentId = salesAgentId,
-                CustomerAddress = shippingAddress,
-                Notes = notes ?? string.Empty,
-                OrderDate = DateTime.Now,
-                CreatedAt = DateTime.Now,
-                Status = "PENDING",
-                Subtotal = subtotal,
-                FinalPrice = total,
-                OrderItems = salesAgentItems.Select(i => new OrderItem
-                {
-                    Id = Guid.NewGuid(),
-                    ProductId = i.ProductId,
-                    ProductName = i.ProductName,
-                    Quantity = i.Quantity,
-                    UnitPrice = i.Price,
-                    Total = i.Price * i.Quantity,
-                    TotalPrice = i.Price * i.Quantity
-                }).ToList()
+                ShippingAddress = shippingAddress,
+                Note = notes,
+                PaymentMethod = paymentMethod,
+                DiscountAmount = 0
             };
 
-            var orderResult = await _orderRepository.CreateAsync(order);
+            var result = await _cartRepository.CheckoutBySalesAgentAsync(request);
 
-            if (!orderResult.IsSuccess || orderResult.Data == null)
+            if (result.IsSuccess && result.Data != null)
             {
-                return Result<Order>.Failure(orderResult.ErrorMessage ?? "Failed to create order");
+                await _toastService.ShowSuccess($"Order placed successfully!");
+                System.Diagnostics.Debug.WriteLine($"[CartFacade] Order created: {result.Data.OrderCode}, Total: {result.Data.FinalPrice}");
+                return result;
             }
 
-            // Remove only the checked-out items from cart
-            foreach (var item in salesAgentItems)
-            {
-                await _cartRepository.RemoveFromCartAsync(userIdResult.Data, item.ProductId);
-            }
-
-            await _toastService.ShowSuccess($"Order placed successfully! {salesAgentItems.Count} items from seller.");
-            
-            return Result<Order>.Success(orderResult.Data);
+            System.Diagnostics.Debug.WriteLine($"[CartFacade] Checkout failed: {result.ErrorMessage}");
+            return Result<Order>.Failure(result.ErrorMessage ?? "Failed to checkout");
         }
         catch (Exception ex)
         {

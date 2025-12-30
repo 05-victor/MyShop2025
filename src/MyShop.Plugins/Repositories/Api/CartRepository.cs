@@ -4,6 +4,7 @@ using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.API.Cart;
 using MyShop.Shared.DTOs.Requests;
 using MyShop.Shared.Models;
+using MyShop.Shared.DTOs.Responses;
 namespace MyShop.Plugins.Repositories.Api;
 
 /// <summary>
@@ -69,8 +70,6 @@ public class CartRepository : ICartRepository
     {
         try
         {
-            // Note: API expects itemId, not productId. 
-            // This is a simplified implementation - may need adjustment based on actual backend API
             var request = new UpdateCartItemRequest
             {
                 Quantity = quantity
@@ -176,6 +175,30 @@ public class CartRepository : ICartRepository
         catch (Exception ex)
         {
             return Result<CartSummary>.Failure($"Error retrieving cart summary: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<Order>> CheckoutBySalesAgentAsync(CheckoutBySalesAgentRequest request)
+    {
+        try
+        {
+            var response = await _api.CheckoutBySalesAgentAsync(request);
+
+            if (response.IsSuccessStatusCode && response.Content != null)
+            {
+                var apiResponse = response.Content;
+                if (apiResponse.Success && apiResponse.Result != null)
+                {
+                    var order = OrderAdapter.ToModel(apiResponse.Result);
+                    return Result<Order>.Success(order);
+                }
+            }
+
+            return Result<Order>.Failure("Failed to checkout");
+        }
+        catch (Exception ex)
+        {
+            return Result<Order>.Failure($"Error during checkout: {ex.Message}");
         }
     }
 }

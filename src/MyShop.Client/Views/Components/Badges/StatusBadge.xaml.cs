@@ -126,7 +126,6 @@ public sealed partial class StatusBadge : UserControl
     {
         if (d is StatusBadge badge)
         {
-            System.Diagnostics.Debug.WriteLine($"[StatusBadge] Variant changed: {e.OldValue} → {e.NewValue}");
             badge.UpdateBadgeStyle();
         }
     }
@@ -145,11 +144,8 @@ public sealed partial class StatusBadge : UserControl
         // Safety check: ensure all named elements are initialized
         if (BadgeContainer == null || BadgeText == null || BadgeIcon == null)
         {
-            System.Diagnostics.Debug.WriteLine($"[StatusBadge] UpdateBadgeStyle skipped - elements not initialized");
             return;
         }
-
-        System.Diagnostics.Debug.WriteLine($"[StatusBadge] UpdateBadgeStyle called for Variant: {Variant}");
 
         // Map variants to resource keys and icons
         var (bgKey, fgKey, iconGlyph) = Variant switch
@@ -172,8 +168,6 @@ public sealed partial class StatusBadge : UserControl
             _ => ("CardBackgroundFillColorDefaultBrush", "TextFillColorPrimaryBrush", "\uE734")
         };
 
-        System.Diagnostics.Debug.WriteLine($"[StatusBadge] Resource keys: BG={bgKey}, FG={fgKey}");
-
         // CRITICAL FIX: Use FrameworkElement.Resources to get theme-aware brushes
         // Application.Current.Resources doesn't resolve ThemeDictionaries!
         // We need to get resources from the element's actual theme context
@@ -183,34 +177,12 @@ public sealed partial class StatusBadge : UserControl
         if (bgBrush is Brush brush)
         {
             BadgeContainer.Background = brush;
-            
-            // Log actual color value
-            if (brush is SolidColorBrush solidBg)
-            {
-                var color = solidBg.Color;
-                System.Diagnostics.Debug.WriteLine($"[StatusBadge] ✅ Background APPLIED: #{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}");
-            }
-        }
-        else
-        {
-            System.Diagnostics.Debug.WriteLine($"[StatusBadge] ❌ Background brush NOT FOUND for key: {bgKey}");
         }
 
         if (fgBrush is Brush fgBrushCast)
         {
             BadgeText.Foreground = fgBrushCast;
             BadgeIcon.Foreground = fgBrushCast;
-            
-            // Log actual color value
-            if (fgBrushCast is SolidColorBrush solidFg)
-            {
-                var color = solidFg.Color;
-                System.Diagnostics.Debug.WriteLine($"[StatusBadge] ✅ Foreground APPLIED: #{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}");
-            }
-        }
-        else
-        {
-            System.Diagnostics.Debug.WriteLine($"[StatusBadge] ❌ Foreground brush NOT FOUND for key: {fgKey}");
         }
 
         // Set icon
@@ -218,8 +190,6 @@ public sealed partial class StatusBadge : UserControl
         {
             BadgeIcon.Glyph = iconGlyph;
         }
-        
-        System.Diagnostics.Debug.WriteLine($"[StatusBadge] UpdateBadgeStyle complete");
     }
 
     /// <summary>

@@ -60,6 +60,11 @@ public interface IOrderFacade
     Task<Result<Order>> UpdateOrderStatusAsync(Guid orderId, string newStatus, string? reason = null);
 
     /// <summary>
+    /// Update order payment status (mark as paid)
+    /// </summary>
+    Task<Result<Order>> UpdatePaymentStatusAsync(Guid orderId, string newPaymentStatus);
+
+    /// <summary>
     /// Cancel order
     /// </summary>
     Task<Result<Unit>> CancelOrderAsync(Guid orderId, string reason);

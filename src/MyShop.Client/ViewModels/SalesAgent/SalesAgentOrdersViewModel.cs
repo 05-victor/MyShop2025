@@ -144,6 +144,7 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
                     OrderDate = o.OrderDate,
                     Status = o.Status,
                     PaymentStatus = o.PaymentStatus,
+                    PaymentMethod = o.PaymentMethod ?? "N/A",
                     TotalAmount = o.FinalPrice,
                     CommissionAmount = o.FinalPrice * 0.10m,
                     OrderItems = orderItems ?? new()
@@ -472,6 +473,79 @@ public partial class SalesAgentOrdersViewModel : PagedViewModelBase<OrderViewMod
         }
     }
 
+    [RelayCommand]
+    private async Task ConfirmPaymentReceivedAsync(OrderViewModel order)
+    {
+        if (order == null)
+        {
+            await _toastHelper?.ShowError("Order not found");
+            return;
+        }
+
+        // Show confirmation dialog
+        var xamlRoot = _xamlRootProvider?.Invoke();
+        if (xamlRoot == null)
+        {
+            await _toastHelper?.ShowError("Cannot show dialog");
+            return;
+        }
+
+        var paymentMethodLabel = order.PaymentMethod == "QR" ? "QR payment" : "cash payment";
+        var dialog = new ContentDialog
+        {
+            Title = "Confirm Payment Received",
+            Content = new TextBlock
+            {
+                Text = $"Confirm that you have received {paymentMethodLabel} for order {order.OrderId}?\n\nPayment Status will be updated from UNPAID to PAID.",
+                TextWrapping = TextWrapping.Wrap,
+                Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 255, 255))
+            },
+            PrimaryButtonText = "Confirm",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Close,
+            XamlRoot = xamlRoot
+        };
+
+        var result = await dialog.ShowAsync();
+        if (result != ContentDialogResult.Primary)
+        {
+            return;
+        }
+
+        // Proceed with update
+        SetLoadingState(true);
+        try
+        {
+            var updateResult = await _orderFacade.UpdatePaymentStatusAsync(
+                order.OriginalOrderId,
+                "Paid");
+
+            if (updateResult.IsSuccess && updateResult.Data != null)
+            {
+                // Update local order payment status
+                order.PaymentStatus = "Paid";
+                await _toastHelper?.ShowSuccess("Payment confirmed successfully");
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentOrdersViewModel] Order {order.OrderId} payment confirmed");
+
+                // Refresh the list to update UI
+                await LoadPageAsync();
+            }
+            else
+            {
+                await _toastHelper?.ShowError(updateResult.ErrorMessage ?? "Failed to confirm payment");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentOrdersViewModel] Error confirming payment: {ex.Message}");
+            await _toastHelper?.ShowError($"Error: {ex.Message}");
+        }
+        finally
+        {
+            SetLoadingState(false);
+        }
+    }
+
     /// <summary>
     /// Format Order ID to show first character + last 4 characters for uniqueness
     /// Example: 9a68d343-08ca-4665-9161-7df1902c3035 → ORD-93035
@@ -512,6 +586,9 @@ public partial class OrderViewModel : ObservableObject
     private string _paymentStatus = string.Empty;
 
     [ObservableProperty]
+    private string _paymentMethod = string.Empty;
+
+    [ObservableProperty]
     private decimal _totalAmount;
 
     [ObservableProperty]
@@ -531,4 +608,11 @@ public partial class OrderViewModel : ObservableObject
     /// True if order is in SHIPPED status and can be marked as DELIVERED
     /// </summary>
     public bool CanDeliver => Status == "Shipped";
+
+    /// <summary>
+    /// True if payment is unpaid and method is QR or COD (needs agent verification)
+    /// </summary>
+    public bool NeedsPaymentConfirmation =>
+        PaymentStatus == "Unpaid" &&
+        (PaymentMethod == "QR" || PaymentMethod == "COD");
 }
