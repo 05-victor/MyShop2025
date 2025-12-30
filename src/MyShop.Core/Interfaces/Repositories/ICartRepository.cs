@@ -45,4 +45,9 @@ public interface ICartRepository
     /// Get cart summary (total amount, count, etc.)
     /// </summary>
     Task<Result<CartSummary>> GetCartSummaryAsync(Guid userId);
+
+    /// <summary>
+    /// Checkout cart items for a specific sales agent
+    /// </summary>
+    Task<Result<Order>> CheckoutBySalesAgentAsync(MyShop.Shared.DTOs.Requests.CheckoutBySalesAgentRequest request);
 }

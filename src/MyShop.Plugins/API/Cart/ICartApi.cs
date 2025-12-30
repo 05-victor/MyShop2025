@@ -16,12 +16,15 @@ public interface ICartApi
     [Post("/api/v1/cart/items")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<CartResponse>>> AddItemAsync([Body] AddToCartRequest request);
 
-    [Put("/api/v1/cart/items/{itemId}")]
-    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<CartResponse>>> UpdateItemAsync(Guid itemId, [Body] UpdateCartItemRequest request);
+    [Patch("/api/v1/cart/items/{productId}")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<CartResponse>>> UpdateItemAsync(Guid productId, [Body] UpdateCartItemRequest request);
 
     [Delete("/api/v1/cart/items/{itemId}")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<bool>>> RemoveItemAsync(Guid itemId);
 
     [Delete("/api/v1/cart/clear")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<bool>>> ClearCartAsync();
+
+    [Post("/api/v1/cart/checkout/sales-agent")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<OrderResponse>>> CheckoutBySalesAgentAsync([Body] CheckoutBySalesAgentRequest request);
 }

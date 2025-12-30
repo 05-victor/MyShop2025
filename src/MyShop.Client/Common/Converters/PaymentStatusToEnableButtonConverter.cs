@@ -13,7 +13,9 @@ public class PaymentStatusToEnableButtonConverter : IValueConverter
     {
         if (value is string paymentStatus)
         {
-            return paymentStatus.Equals("UNPAID", StringComparison.OrdinalIgnoreCase);
+            // Enable button for "Unpaid" or "UNPAID" status
+            return paymentStatus.Equals("UNPAID", StringComparison.OrdinalIgnoreCase) ||
+                   paymentStatus.Equals("Unpaid", StringComparison.OrdinalIgnoreCase);
         }
 
         return false;

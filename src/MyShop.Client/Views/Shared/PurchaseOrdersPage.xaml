@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="MyShop.Client.Views.Shared.PurchaseOrdersPage"
     x:Name="PageRoot"
@@ -9,7 +9,7 @@
     xmlns:components="using:MyShop.Client.Views.Components"
     xmlns:controls="using:MyShop.Client.Views.Components.Controls"
     xmlns:forms="using:MyShop.Client.Views.Components.Forms"
-    xmlns:pagination="using:MyShop.Client.Views.Components.Pagination"
+    xmlns:pagination="using:MyShop.Client.Views.Components.Controls"
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -114,7 +114,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="1.5*"/>
                         </Grid.ColumnDefinitions>
 
                         <!-- Total Orders -->
@@ -322,7 +322,8 @@
 
                     <!-- Order Cards List -->
                     <ItemsRepeater x:Name="OrdersRepeater"
-                                   ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}">
+                                   ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}"
+                                   Tag="{x:Bind ViewModel}">
                         <ItemsRepeater.Layout>
                             <StackLayout Spacing="16"/>
                         </ItemsRepeater.Layout>
@@ -457,23 +458,35 @@
 
                                             <StackPanel Spacing="8">
                                                 <buttons:IconButton
-                                                    HorizontalAlignment="Stretch"
+                                                    HorizontalAlignment="Center"
                                                     Variant="Filled"
                                                     IconGlyph="&#xE8A0;"
                                                     Text="View Details &amp; Tracking"
                                                     Command="{Binding ElementName=OrdersRepeater, Path=Tag.ViewOrderDetailsCommand}"
                                                     CommandParameter="{x:Bind}"/>
-                                                <Button Style="{StaticResource PrimaryButtonStyle}"
-                                                        Content="💳 Pay Now"
-                                                        HorizontalAlignment="Stretch"
-                                                        IsEnabled="{x:Bind PaymentStatus, Converter={StaticResource PaymentStatusToEnableButtonConverter}, Mode=OneWay}"
-                                                        Command="{Binding ElementName=OrdersRepeater, Path=Tag.PayNowCommand}"
-                                                        CommandParameter="{x:Bind}"/>
-                                                <Button Style="{StaticResource SecondaryButtonStyle}"
-                                                        Content="🛒 Buy Again"
-                                                        HorizontalAlignment="Stretch"
-                                                        Command="{Binding ElementName=OrdersRepeater, Path=Tag.BuyAgainCommand}"
-                                                        CommandParameter="{x:Bind}"/>
+                                                <buttons:IconButton
+                                                    HorizontalAlignment="Center"
+                                                    Variant="Filled"
+                                                    IconGlyph="&#xE8C7;"
+                                                    Text="Pay Now"
+                                                    IsEnabled="{x:Bind CanPayNow, Mode=OneWay}"
+                                                    Command="{Binding ElementName=OrdersRepeater, Path=Tag.PayNowCommand}"
+                                                    CommandParameter="{x:Bind}"/>
+                                                <buttons:IconButton
+                                                    HorizontalAlignment="Center"
+                                                    Variant="Outline"
+                                                    IconGlyph="&#xE711;"
+                                                    Text="Cancel Order"
+                                                    IsEnabled="{x:Bind CanCancel, Mode=OneWay}"
+                                                    Command="{Binding ElementName=OrdersRepeater, Path=Tag.CancelOrderCommand}"
+                                                    CommandParameter="{x:Bind}"/>
+                                                <buttons:IconButton
+                                                    HorizontalAlignment="Center"
+                                                    Variant="Outline"
+                                                    IconGlyph="&#xE7BF;"
+                                                    Text="Buy Again"
+                                                    Command="{Binding ElementName=OrdersRepeater, Path=Tag.BuyAgainCommand}"
+                                                    CommandParameter="{x:Bind}"/>
                                             </StackPanel>
                                         </StackPanel>
                                     </Grid>

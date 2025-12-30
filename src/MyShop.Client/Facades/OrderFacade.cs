@@ -268,6 +268,51 @@ public class OrderFacade : IOrderFacade
         }
     }
 
+    public async Task<Result<Order>> UpdatePaymentStatusAsync(Guid orderId, string newPaymentStatus)
+    {
+        try
+        {
+            // Validate payment status
+            var validStatuses = new[] { "Unpaid", "Paid", "PartiallyPaid", "Refunded", "Failed" };
+            if (!validStatuses.Contains(newPaymentStatus, StringComparer.OrdinalIgnoreCase))
+            {
+                _ = _toastService.ShowError($"Invalid payment status. Valid values: {string.Join(", ", validStatuses)}");
+                return Result<Order>.Failure("Invalid payment status");
+            }
+
+            // Get current order
+            var orderResult = await _orderRepository.GetByIdAsync(orderId);
+            if (!orderResult.IsSuccess || orderResult.Data == null)
+            {
+                _ = _toastService.ShowError("Order not found");
+                return Result<Order>.Failure("Order not found");
+            }
+
+            var order = orderResult.Data;
+
+            // Update payment status
+            order.PaymentStatus = newPaymentStatus;
+            order.UpdatedAt = DateTime.UtcNow;
+
+            var updateResult = await _orderRepository.UpdateAsync(order);
+            if (!updateResult.IsSuccess)
+            {
+                _ = _toastService.ShowError("Failed to update payment status");
+                return Result<Order>.Failure("Failed to update payment status");
+            }
+
+            _ = _toastService.ShowSuccess($"Payment status updated to {newPaymentStatus}");
+            System.Diagnostics.Debug.WriteLine($"[OrderFacade] Order {orderId} payment status updated to {newPaymentStatus}");
+            return Result<Order>.Success(order);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[OrderFacade] Error updating payment status: {ex.Message}");
+            _ = _toastService.ShowError($"Error updating payment status: {ex.Message}");
+            return Result<Order>.Failure($"Error: {ex.Message}");
+        }
+    }
+
     public async Task<Result<Unit>> CancelOrderAsync(Guid orderId, string reason)
     {
         try

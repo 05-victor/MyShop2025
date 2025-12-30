@@ -128,10 +128,14 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
                 var itemViewModels = new ObservableCollection<OrderItemViewModel>();
                 string? firstProductImage = null;
 
+                System.Diagnostics.Debug.WriteLine($"[Order {o.OrderCode}] Has {orderItems.Count} items");
+
                 foreach (var item in orderItems)
                 {
                     var productName = item.ProductName ?? "Unknown Product";
                     var imageUrl = "ms-appx:///Assets/Images/products/product-placeholder.png";
+
+                    System.Diagnostics.Debug.WriteLine($"[OrderItem] ProductId: {item.ProductId}, ProductName from API: '{item.ProductName}', UnitPrice: {item.UnitPrice}, Quantity: {item.Quantity}");
 
                     // Fetch product from database to get image
                     if (item.ProductId != Guid.Empty)
@@ -141,7 +145,16 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
                         {
                             productName = productResult.Data.Name ?? productName;
                             imageUrl = productResult.Data.ImageUrl ?? imageUrl;
+                            System.Diagnostics.Debug.WriteLine($"[OrderItem] Loaded product from DB: '{productName}', Price: {productResult.Data.SellingPrice}");
                         }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[OrderItem] Failed to load product {item.ProductId} from DB: {productResult.ErrorMessage}");
+                        }
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[OrderItem] ProductId is empty, using fallback");
                     }
 
                     // Store first product image for card display
@@ -152,11 +165,14 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
 
                     itemViewModels.Add(new OrderItemViewModel
                     {
+                        ProductId = item.ProductId,
                         ProductName = productName,
                         Quantity = item.Quantity,
                         Price = item.UnitPrice,
                         ImageUrl = imageUrl
                     });
+
+                    System.Diagnostics.Debug.WriteLine($"[OrderItem] Created ViewModel: Name='{productName}', Price={item.UnitPrice}, Qty={item.Quantity}");
                 }
 
                 // Generate product summary (e.g., "MacBook Pro + 2 more items")
@@ -173,12 +189,13 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
                     TrackingNumber = $"TRK{o.Id.ToString().Substring(0, 9)}",
                     Status = o.Status,
                     PaymentStatus = o.PaymentStatus,
+                    PaymentMethod = o.PaymentMethod,
                     DeliveredDate = o.Status == "Delivered" || o.Status == "DELIVERED" ? o.OrderDate.AddDays(3) : null,
                     Items = itemViewModels,
                     Subtotal = (decimal)o.Subtotal,
                     Shipping = (decimal)o.ShippingFee,
                     Tax = (decimal)o.Tax,
-                    Total = (decimal)o.FinalPrice
+                    Total = CalculateOrderTotal(o)
                 });
             }
 
@@ -235,6 +252,39 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
         return $"{firstProduct} + {otherProductCount} more product{(otherProductCount > 1 ? "s" : "")}";
     }
 
+    /// <summary>
+    /// Calculate order total using CheckoutViewModel logic: Total = Subtotal + Shipping + Tax
+    /// Falls back to FinalPrice if calculation yields 0
+    /// </summary>
+    private decimal CalculateOrderTotal(MyShop.Shared.Models.Order order)
+    {
+        System.Diagnostics.Debug.WriteLine($"[CalculateOrderTotal] Order {order.OrderCode}: FinalPrice={order.FinalPrice}, Subtotal={order.Subtotal}, Shipping={order.ShippingFee}, Tax={order.Tax}");
+
+        // Try using FinalPrice first (most accurate from backend)
+        if (order.FinalPrice > 0)
+        {
+            System.Diagnostics.Debug.WriteLine($"[CalculateOrderTotal] Using FinalPrice: {order.FinalPrice}");
+            return (decimal)order.FinalPrice;
+        }
+
+        // Fallback: Calculate like CheckoutViewModel
+        var subtotal = (decimal)order.Subtotal;
+        var shipping = (decimal)order.ShippingFee;
+        var tax = (decimal)order.Tax;
+        var calculatedTotal = subtotal + shipping + tax;
+
+        System.Diagnostics.Debug.WriteLine($"[CalculateOrderTotal] Calculated: {subtotal} + {shipping} + {tax} = {calculatedTotal}");
+
+        // If still 0, try sum of items
+        if (calculatedTotal == 0 && order.Items?.Any() == true)
+        {
+            calculatedTotal = order.Items.Sum(i => (decimal)i.TotalPrice);
+            System.Diagnostics.Debug.WriteLine($"[CalculateOrderTotal] Fallback from items: {calculatedTotal}");
+        }
+
+        return calculatedTotal;
+    }
+
     [RelayCommand]
     private async Task ApplyFiltersAsync()
     {
@@ -274,14 +324,43 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
     {
         try
         {
-            System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Buy again: {order.OrderId}");
+            if (order?.Items == null || !order.Items.Any())
+            {
+                await _toastHelper?.ShowWarning("No items to add");
+                return;
+            }
 
-            // Add order items back to cart (mock implementation)
-            // In real implementation, would call _cartFacade.AddItemsFromOrder(orderId)
-            await _toastHelper?.ShowSuccess($"Items from {order.OrderId} added to cart!");
+            System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Buy again: {order.OrderId}, {order.Items.Count} items");
 
-            // Navigate to cart page
-            _navigationService?.NavigateTo("Cart");
+            var successCount = 0;
+            var failCount = 0;
+
+            foreach (var item in order.Items)
+            {
+                var result = await _cartFacade.AddToCartAsync(item.ProductId, item.Quantity);
+                if (result.IsSuccess)
+                {
+                    successCount++;
+                }
+                else
+                {
+                    failCount++;
+                    System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Failed to add {item.ProductName}: {result.ErrorMessage}");
+                }
+            }
+
+            if (successCount > 0)
+            {
+                await _toastHelper?.ShowSuccess($"Added {successCount} item(s) to cart!");
+                
+                // Navigate to cart page
+                _navigationService?.NavigateTo("Cart");
+            }
+            
+            if (failCount > 0)
+            {
+                await _toastHelper?.ShowWarning($"{failCount} item(s) could not be added");
+            }
         }
         catch (Exception ex)
         {
@@ -301,33 +380,79 @@ public partial class PurchaseOrdersViewModel : PagedViewModelBase<OrderViewModel
                 return;
             }
 
-            System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Processing payment for order: {order.OrderId}");
+            System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] PayNow for order: {order.OrderId}, PaymentMethod: {order.PaymentMethod}");
 
-            // Call payment API with card details
-            var result = await _orderFacade.ProcessCardPaymentAsync(
-                orderId: order.OrderGuid,
-                cardNumber: "4532015112830366", // Mock card for testing
-                cardHolderName: "Test User",
-                expiryDate: "12/25",
-                cvv: "123");
+            // Check payment method
+            var paymentMethod = order.PaymentMethod?.ToUpper();
 
-            if (result.IsSuccess)
+            switch (paymentMethod)
             {
-                await _toastHelper?.ShowSuccess("Payment processed successfully!");
+                case "CARD":
+                    // Navigate to CardPaymentPage
+                    var parameter = new Views.Shared.CardPaymentParameter
+                    {
+                        OrderId = order.OrderGuid,
+                        OrderCode = order.OrderId,
+                        TotalAmount = order.Total
+                    };
 
-                // Reload orders to refresh status
-                CurrentPage = 1;
-                await LoadPageAsync();
-            }
-            else
-            {
-                await _toastHelper?.ShowError(result.ErrorMessage ?? "Payment failed");
+                    await _navigationService.NavigateInShell(
+                        typeof(Views.Shared.CardPaymentPage).FullName!,
+                        parameter);
+                    break;
+
+                case "QR":
+                    await _toastHelper?.ShowInfo("Your QR payment is pending confirmation from the seller. Please wait.");
+                    break;
+
+                case "COD":
+                    await _toastHelper?.ShowInfo("This order uses Cash on Delivery. You will pay when receiving your order.");
+                    break;
+
+                default:
+                    await _toastHelper?.ShowWarning($"Unknown payment method: {order.PaymentMethod}");
+                    break;
             }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Error processing payment: {ex.Message}");
-            await _toastHelper?.ShowError($"Payment error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Error in PayNow: {ex.Message}");
+            await _toastHelper?.ShowError($"Error: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private async Task CancelOrderAsync(OrderViewModel order)
+    {
+        try
+        {
+            if (order?.OrderGuid == Guid.Empty)
+            {
+                await _toastHelper?.ShowError("Invalid order ID");
+                return;
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Cancelling order: {order.OrderId}");
+
+            // Call order facade to cancel order
+            var result = await _orderFacade.CancelOrderAsync(order.OrderGuid, "Cancelled by customer");
+
+            if (result.IsSuccess)
+            {
+                await _toastHelper?.ShowSuccess("Order cancelled successfully");
+
+                // Reload orders to refresh list
+                await LoadPageAsync();
+            }
+            else
+            {
+                await _toastHelper?.ShowError(result.ErrorMessage ?? "Failed to cancel order");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[PurchaseOrdersViewModel] Error cancelling order: {ex.Message}");
+            await _toastHelper?.ShowError($"Error: {ex.Message}");
         }
     }
 }
@@ -362,6 +487,9 @@ public partial class OrderViewModel : ObservableObject
     private string _paymentStatus = string.Empty;
 
     [ObservableProperty]
+    private string _paymentMethod = string.Empty;
+
+    [ObservableProperty]
     private DateTime? _deliveredDate;
 
     [ObservableProperty]
@@ -382,10 +510,36 @@ public partial class OrderViewModel : ObservableObject
     public string FormattedOrderDate => OrderDate.ToString("MMM dd, yyyy");
     public string FormattedDeliveredDate => DeliveredDate?.ToString("MMM dd, yyyy") ?? string.Empty;
     public string DeliveryMessage => DeliveredDate.HasValue ? $"Delivered on {FormattedDeliveredDate}" : "In transit";
+
+    /// <summary>
+    /// Can pay now if order is pending/confirmed, payment is unpaid, AND payment method is CARD
+    /// </summary>
+    public bool CanPayNow =>
+        (Status.Equals("Pending", StringComparison.OrdinalIgnoreCase) ||
+         Status.Equals("Confirmed", StringComparison.OrdinalIgnoreCase) ||
+         Status.Equals("PENDING", StringComparison.OrdinalIgnoreCase)) &&
+        (PaymentStatus.Equals("Unpaid", StringComparison.OrdinalIgnoreCase) ||
+         PaymentStatus.Equals("UNPAID", StringComparison.OrdinalIgnoreCase)) &&
+        (PaymentMethod?.Equals("CARD", StringComparison.OrdinalIgnoreCase) ?? false);
+
+    /// <summary>
+    /// Can cancel if order is pending/confirmed, not yet paid, and payment method is CARD
+    /// QR and COD cannot be cancelled (QR already scanned, COD no prepayment)
+    /// </summary>
+    public bool CanCancel =>
+        (Status.Equals("Pending", StringComparison.OrdinalIgnoreCase) ||
+         Status.Equals("Confirmed", StringComparison.OrdinalIgnoreCase) ||
+         Status.Equals("PENDING", StringComparison.OrdinalIgnoreCase)) &&
+        (PaymentStatus.Equals("Unpaid", StringComparison.OrdinalIgnoreCase) ||
+         PaymentStatus.Equals("UNPAID", StringComparison.OrdinalIgnoreCase)) &&
+        (PaymentMethod?.Equals("CARD", StringComparison.OrdinalIgnoreCase) ?? false);
 }
 
 public partial class OrderItemViewModel : ObservableObject
 {
+    [ObservableProperty]
+    private Guid _productId;
+
     [ObservableProperty]
     private string _productName = string.Empty;
 

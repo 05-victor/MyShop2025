@@ -96,6 +96,12 @@ public class CartService : ICartService
             throw NotFoundException.ForEntity("Product", productId);
         }
 
+        // Prevent agents from buying their own products
+        if (product.SaleAgentId == userId.Value)
+        {
+            throw new BusinessRuleException("You cannot add your own products to cart");
+        }
+
         // Check if adding to cart would exceed available stock
         var existingCartItem = await _cartRepository.GetCartItemAsync(userId.Value, productId);
         var totalQuantity = (existingCartItem?.Quantity ?? 0) + quantity;

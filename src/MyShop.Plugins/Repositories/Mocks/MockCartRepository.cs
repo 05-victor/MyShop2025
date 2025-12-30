@@ -2,6 +2,7 @@ using MyShop.Core.Interfaces.Repositories;
 using MyShop.Plugins.Mocks.Data;
 using MyShop.Shared.Models;
 using MyShop.Core.Common;
+using MyShop.Shared.DTOs.Requests;
 
 namespace MyShop.Plugins.Repositories.Mocks;
 
@@ -163,5 +164,11 @@ public class MockCartRepository : ICartRepository
             System.Diagnostics.Debug.WriteLine($"[MockCartRepository] GetCartSummaryAsync error: {ex.Message}");
             return Result<CartSummary>.Failure($"Failed to get cart summary: {ex.Message}");
         }
+    }
+
+    public Task<Result<Order>> CheckoutBySalesAgentAsync(CheckoutBySalesAgentRequest request)
+    {
+        // Mock implementation - not supported in mock mode
+        return Task.FromResult(Result<Order>.Failure("Checkout not supported in mock mode. Please use API mode."));
     }
 }

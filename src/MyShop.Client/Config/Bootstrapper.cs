@@ -391,6 +391,7 @@ namespace MyShop.Client.Config
                     services.AddTransient<ViewModels.Shared.ProductBrowseViewModel>();
                     services.AddTransient<ViewModels.Shared.CartViewModel>();
                     services.AddTransient<ViewModels.Shared.CheckoutViewModel>();
+                    services.AddTransient<ViewModels.Shared.CardPaymentViewModel>();
                     services.AddTransient<ViewModels.Shared.PurchaseOrdersViewModel>();
                     services.AddTransient<ViewModels.Shared.ProfileViewModel>();
                     services.AddTransient<ViewModels.Shared.ChangePasswordViewModel>();

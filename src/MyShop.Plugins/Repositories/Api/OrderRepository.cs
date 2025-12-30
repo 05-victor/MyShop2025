@@ -200,7 +200,7 @@ public class OrderRepository : IOrderRepository
             var request = new UpdateOrderRequest
             {
                 Status = order.Status,
-                PaymentStatus = null
+                PaymentStatus = order.PaymentStatus
             };
 
             var response = await _api.UpdateAsync(order.Id, request);

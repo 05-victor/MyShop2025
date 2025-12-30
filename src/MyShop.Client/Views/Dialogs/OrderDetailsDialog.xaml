@@ -18,7 +18,7 @@
         <converters:StatusToVariantConverter x:Key="StatusToVariantConverter"/>
     </ContentDialog.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="600">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="700">
         <StackPanel Spacing="24" Padding="8">
             
             <!-- Order Header -->
