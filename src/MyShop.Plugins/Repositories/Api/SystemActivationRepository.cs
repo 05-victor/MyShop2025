@@ -188,14 +188,30 @@ public class SystemActivationRepository : ISystemActivationRepository
     {
         try
         {
-            // This would need to be implemented via an API endpoint if needed
-            // For now, return false (allow activation)
-            return Result<bool>.Success(false);
+            // Call GetMe to check if current user is admin
+            // If we can successfully get user info, check their roles
+            var userResponse = await _authApi.GetMeAsync();
+
+            if (userResponse.IsSuccessStatusCode && userResponse.Content?.Result != null)
+            {
+                var userInfo = userResponse.Content.Result;
+                var hasAdminRole = userInfo.RoleNames?.Contains("Admin", StringComparer.OrdinalIgnoreCase) ?? false;
+
+                _logger.LogInformation("[SystemActivationRepository] HasAnyAdminAsync: User has Admin role = {HasAdmin}", hasAdminRole);
+                return Result<bool>.Success(hasAdminRole);
+            }
+            else
+            {
+                // If we can't get user info, assume no admin (conservative approach)
+                _logger.LogWarning("[SystemActivationRepository] HasAnyAdminAsync: Failed to get user info, assuming no admin");
+                return Result<bool>.Success(false);
+            }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "[SystemActivationRepository] Error during HasAnyAdminAsync");
-            return Result<bool>.Failure("Failed to check admin status", ex);
+            // On error, assume no admin to allow activation attempt
+            return Result<bool>.Success(false);
         }
     }
 

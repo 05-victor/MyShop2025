@@ -159,7 +159,7 @@
 
                                         <buttons:IconButton
                                             Variant="Filled"
-                                            IconGlyph="&#xE896;"
+                                            IconGlyph="&#xE898;"
                                             Text="Export"
                                             Command="{x:Bind ViewModel.ExportCommand}"/>
                                     </StackPanel>
