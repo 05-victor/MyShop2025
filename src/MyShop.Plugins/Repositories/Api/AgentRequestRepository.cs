@@ -158,13 +158,44 @@ public class AgentRequestRepository : IAgentRequestRepository
         }
         catch (ApiException ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[AgentRequestRepository.GetByUserIdAsync] ❌ API Error: {ex.StatusCode} - {ex.Message}");
-            return Result<AgentRequest>.Failure($"API error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[AgentRequestRepository.GetByUserIdAsync] ❌ API Exception: {ex.Message}");
+            return Result<AgentRequest>.Failure($"API Error: {ex.Message}");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[AgentRequestRepository.GetByUserIdAsync] ❌ Unexpected Error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[AgentRequestRepository.GetByUserIdAsync] ❌ Exception: {ex.Message}");
             return Result<AgentRequest>.Failure($"Error: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<MyShop.Shared.DTOs.Responses.AgentRequestResponse?>> GetMyRequestAsync()
+    {
+        try
+        {
+            var response = await _api.GetMyRequestAsync();
+            System.Diagnostics.Debug.WriteLine($"[AgentRequestRepository.GetMyRequestAsync] API Response Status: {response.StatusCode}");
+
+            if (response.IsSuccessStatusCode && response.Content != null)
+            {
+                var apiResponse = response.Content;
+                if (apiResponse?.Result != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AgentRequestRepository.GetMyRequestAsync] Retrieved request");
+                    return Result<MyShop.Shared.DTOs.Responses.AgentRequestResponse?>.Success(apiResponse.Result);
+                }
+            }
+            System.Diagnostics.Debug.WriteLine($"[AgentRequestRepository.GetMyRequestAsync] No request found");
+            return Result<MyShop.Shared.DTOs.Responses.AgentRequestResponse?>.Success(null);
+        }
+        catch (ApiException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AgentRequestRepository.GetMyRequestAsync] ❌ API Error: {ex.StatusCode} - {ex.Message}");
+            return Result<MyShop.Shared.DTOs.Responses.AgentRequestResponse?>.Failure($"API error: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AgentRequestRepository.GetMyRequestAsync] ❌ Unexpected Error: {ex.Message}");
+            return Result<MyShop.Shared.DTOs.Responses.AgentRequestResponse?>.Failure($"Error: {ex.Message}");
         }
     }
 

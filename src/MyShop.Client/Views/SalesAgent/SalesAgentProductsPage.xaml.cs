@@ -2,10 +2,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using Microsoft.UI.Xaml.Shapes;
 using MyShop.Client.ViewModels.SalesAgent;
 using MyShop.Client.Services;
 using MyShop.Client.Views.Components.Controls;
+using MyShop.Client.Common.Helpers;
+using MyShop.Client.Common.Converters;
 using MyShop.Core.Interfaces.Repositories;
+using MyShop.Plugins.API.Forecasts;
+using MyShop.Shared.DTOs.Requests;
 using System;
 using System.Linq;
 using System.Threading;
@@ -18,6 +23,7 @@ namespace MyShop.Client.Views.SalesAgent
         public SalesAgentProductsViewModel ViewModel { get; }
         private Timer? _searchDebounceTimer;
         private readonly IAuthRepository _authRepository;
+        private readonly IForecastApi _forecastApi;
 
         public SalesAgentProductsPage()
         {
@@ -27,10 +33,12 @@ namespace MyShop.Client.Views.SalesAgent
 
             // Get auth repository for retrieving current user ID from token
             _authRepository = App.Current.Services.GetRequiredService<IAuthRepository>();
+            _forecastApi = App.Current.Services.GetRequiredService<IForecastApi>();
 
-            // Subscribe to edit/delete events
+            // Subscribe to edit/delete/predict demand events
             ViewModel.EditProductRequested += ViewModel_EditProductRequested;
             ViewModel.DeleteProductRequested += ViewModel_DeleteProductRequested;
+            ViewModel.PredictDemandRequested += ViewModel_PredictDemandRequested;
 
             Unloaded += SalesAgentProductsPage_Unloaded;
         }
@@ -39,6 +47,7 @@ namespace MyShop.Client.Views.SalesAgent
         {
             ViewModel.EditProductRequested -= ViewModel_EditProductRequested;
             ViewModel.DeleteProductRequested -= ViewModel_DeleteProductRequested;
+            ViewModel.PredictDemandRequested -= ViewModel_PredictDemandRequested;
         }
 
         private async void ViewModel_EditProductRequested(object? sender, ProductViewModel product)
@@ -49,6 +58,11 @@ namespace MyShop.Client.Views.SalesAgent
         private async void ViewModel_DeleteProductRequested(object? sender, ProductViewModel product)
         {
             await ShowDeleteConfirmationAsync(product);
+        }
+
+        private async void ViewModel_PredictDemandRequested(object? sender, ProductViewModel product)
+        {
+            await ShowPredictDemandDialogAsync(product);
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -243,6 +257,14 @@ namespace MyShop.Client.Views.SalesAgent
             }
         }
 
+        private async void ExportPdfButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (ViewModel.ExportCommand?.CanExecute(null) == true)
+            {
+                await ViewModel.ExportCommand.ExecuteAsync(null);
+            }
+        }
+
         private async void AddProductButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -317,11 +339,14 @@ namespace MyShop.Client.Views.SalesAgent
                 int.TryParse(NewStockTextBox.Text, out var stock);
                 decimal.TryParse(NewPriceTextBox.Text, out var price);
                 decimal.TryParse(NewImportPriceTextBox.Text, out var importPrice);
-                double.TryParse(NewCommissionRateTextBox.Text, out var commissionRate);
+                double.TryParse(NewCommissionRateTextBox.Text, out var commissionRatePercent);
+                // Convert commission rate from percentage (e.g., 5) to decimal (e.g., 0.05)
+                var commissionRate = commissionRatePercent / 100.0;
                 var description = NewDescriptionTextBox.Text.Trim();
                 // Device Type is represented by the Category name from the selected category
                 var deviceType = categoryItem?.Name ?? string.Empty;
-                var status = (NewStatusComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "AVAILABLE";
+                var displayStatus = (NewStatusComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Available";
+                var status = ConvertDisplayStatusToApiStatus(displayStatus);
                 var imageUrl = NewImageUrlTextBox.Text.Trim();
 
                 // Get current user ID from auth repository
@@ -470,7 +495,8 @@ namespace MyShop.Client.Views.SalesAgent
                 EditCommissionRateTextBox.Text = product.CommissionRate.ToString("F2");
                 EditPriceTextBox.Text = product.Price.ToString("F0");
                 EditImportPriceTextBox.Text = product.ImportPrice.ToString("F0") ?? "0";
-                EditStatusComboBox.SelectedItem = product.Status ?? "AVAILABLE";
+                var displayStatus = ConvertApiStatusToDisplayStatus(product.Status ?? "AVAILABLE");
+                EditStatusComboBox.SelectedItem = displayStatus;
                 EditImageUrlTextBox.Text = product.ImageUrl ?? string.Empty;
                 EditDescriptionTextBox.Text = product.Description ?? string.Empty;
 
@@ -545,7 +571,8 @@ namespace MyShop.Client.Views.SalesAgent
                 // Convert commission rate from percentage (e.g., 4) to decimal (e.g., 0.04)
                 var commissionRate = commissionRatePercent / 100.0;
 
-                var status = EditStatusComboBox.SelectedItem as string ?? "AVAILABLE";
+                var displayStatus = EditStatusComboBox.SelectedItem as string ?? "Available";
+                var status = ConvertDisplayStatusToApiStatus(displayStatus);
                 var imageUrl = EditImageUrlTextBox.Text.Trim();
                 var description = EditDescriptionTextBox.Text.Trim();
 
@@ -695,12 +722,328 @@ namespace MyShop.Client.Views.SalesAgent
                 if (result == ContentDialogResult.Primary)
                 {
                     await ViewModel.ConfirmDeleteProductAsync(product.Id);
+
+                    // Reload products and reset to page 1
+                    await ViewModel.LoadDataAsync();
                 }
             }
             catch (Exception ex)
             {
                 LoggingService.Instance.Error("[SalesAgentProductsPage] ShowDeleteConfirmationAsync failed", ex);
             }
+        }
+
+        #endregion
+
+        #region Predict Demand Dialog
+
+        private async Task ShowPredictDemandDialogAsync(ProductViewModel product)
+        {
+            try
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "Predict Demand",
+                    DefaultButton = ContentDialogButton.Primary,
+                    PrimaryButtonText = "Run",
+                    SecondaryButtonText = "Cancel",
+                    XamlRoot = this.XamlRoot,
+                    Background = Application.Current.Resources["ContentDialogBackground"] as Microsoft.UI.Xaml.Media.Brush,
+                    Foreground = Application.Current.Resources["TextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush
+                };
+
+                // Create a ScrollViewer with StackPanel for better form layout
+                var scrollViewer = new ScrollViewer
+                {
+                    MinWidth = 450,
+                    MaxHeight = 600
+                };
+
+                var contentPanel = new StackPanel
+                {
+                    Spacing = 16,
+                    Padding = new Thickness(0, 0, 12, 0)
+                };
+
+                // Product Name Section
+                var nameLabel = new TextBlock
+                {
+                    Text = "Product Name",
+                    FontSize = 12,
+                    Foreground = Application.Current.Resources["TextFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 4)
+                };
+                contentPanel.Children.Add(nameLabel);
+
+                var nameValue = new TextBlock
+                {
+                    Text = product.Name,
+                    FontSize = 16,
+                    FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                    Foreground = Application.Current.Resources["TextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 12),
+                    TextWrapping = TextWrapping.Wrap
+                };
+                contentPanel.Children.Add(nameValue);
+
+                // SKU Section
+                var skuLabel = new TextBlock
+                {
+                    Text = "SKU",
+                    FontSize = 12,
+                    Foreground = Application.Current.Resources["TextFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 4)
+                };
+                contentPanel.Children.Add(skuLabel);
+
+                var skuValue = new TextBlock
+                {
+                    Text = product.Sku,
+                    FontSize = 14,
+                    Foreground = Application.Current.Resources["TextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 12)
+                };
+                contentPanel.Children.Add(skuValue);
+
+                // Category Section
+                var categoryLabel = new TextBlock
+                {
+                    Text = "Category",
+                    FontSize = 12,
+                    Foreground = Application.Current.Resources["TextFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 4)
+                };
+                contentPanel.Children.Add(categoryLabel);
+
+                var categoryValue = new TextBlock
+                {
+                    Text = product.Category,
+                    FontSize = 14,
+                    Foreground = Application.Current.Resources["TextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 12)
+                };
+                contentPanel.Children.Add(categoryValue);
+
+                // Stock Section
+                var stockLabel = new TextBlock
+                {
+                    Text = "Current Stock",
+                    FontSize = 12,
+                    Foreground = Application.Current.Resources["TextFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 4)
+                };
+                contentPanel.Children.Add(stockLabel);
+
+                var stockValue = new TextBlock
+                {
+                    Text = product.Stock.ToString(),
+                    FontSize = 14,
+                    FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                    Foreground = Application.Current.Resources["TextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 12)
+                };
+                contentPanel.Children.Add(stockValue);
+
+                // Price Section
+                var priceLabel = new TextBlock
+                {
+                    Text = "Sale Price",
+                    FontSize = 12,
+                    Foreground = Application.Current.Resources["TextFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 4)
+                };
+                contentPanel.Children.Add(priceLabel);
+
+                // Use CurrencyConverter for consistent formatting
+                var currencyConverter = new CurrencyConverter();
+                var formattedPrice = currencyConverter.Convert(product.Price, typeof(string), null, null)?.ToString() ?? "0₫";
+
+                var priceValue = new TextBlock
+                {
+                    Text = formattedPrice,
+                    FontSize = 14,
+                    FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                    Foreground = Application.Current.Resources["SuccessGreenBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 20)
+                };
+                contentPanel.Children.Add(priceValue);
+
+                // Divider
+                var divider = new Rectangle
+                {
+                    Height = 1,
+                    Fill = Application.Current.Resources["CardStrokeBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 16)
+                };
+                contentPanel.Children.Add(divider);
+
+                // Placeholder message
+                var messageTextBlock = new TextBlock
+                {
+                    Text = "Forecast will be generated based on sales history.",
+                    FontSize = 13,
+                    Foreground = Application.Current.Resources["TextFillColorTertiaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    IsTextSelectionEnabled = false,
+                    TextWrapping = TextWrapping.Wrap,
+                    LineHeight = 18
+                };
+                contentPanel.Children.Add(messageTextBlock);
+
+                scrollViewer.Content = contentPanel;
+                dialog.Content = scrollViewer;
+
+                var result = await dialog.ShowAsync();
+
+                if (result == ContentDialogResult.Primary)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage] Predict demand started for product: {product.Name} (ID: {product.Id})");
+                    await PredictProductDemandAsync(product);
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.Error("[SalesAgentProductsPage] ShowPredictDemandDialogAsync failed", ex);
+            }
+        }
+
+        /// <summary>
+        /// Convert SKU string to integer ID using hash function
+        /// Same SKU will always produce the same ID
+        /// </summary>
+        private int GetSkuIdFromString(string sku)
+        {
+            if (string.IsNullOrWhiteSpace(sku))
+                return 0;
+
+            return Math.Abs(sku.GetHashCode());
+        }
+
+        /// <summary>
+        /// Call Predict My Demand API and show result
+        /// </summary>
+        private async Task PredictProductDemandAsync(ProductViewModel product)
+        {
+            try
+            {
+                // Show loading
+                var loadingDialog = new ContentDialog
+                {
+                    Title = "Analyzing...",
+                    Content = new ProgressRing { IsActive = true, Width = 50, Height = 50 },
+                    XamlRoot = this.XamlRoot
+                };
+
+                _ = loadingDialog.ShowAsync();
+
+                // Convert SKU string to ID using hash
+                int skuId = GetSkuIdFromString(product.Sku);
+
+                // Convert price from VND to USD using app constant
+                double basePriceInUSD = (double)product.Price / AppConstants.VND_TO_USD_RATE;
+
+                // Prepare request
+                var request = new DemandForecastRequest
+                {
+                    Week = DateTime.Now.ToString("dd/MM/yy"),
+                    SkuId = skuId,
+                    BasePrice = basePriceInUSD,  // USD price
+                    TotalPrice = null,  // Optional
+                    IsFeaturedSku = 0,  // Default: not featured
+                    IsDisplaySku = 0    // Default: no special display
+                };
+
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage] Calling API - SKU: {product.Sku}, SkuId: {skuId}, Week: {request.Week}, Price: {product.Price}₫ = {basePriceInUSD:F2}$");
+
+                // Call API
+                var apiResponse = await _forecastApi.PredictMyDemandAsync(request);
+
+                // Close loading
+                loadingDialog.Hide();
+
+                if (apiResponse.IsSuccessStatusCode && apiResponse.Content?.Success == true)
+                {
+                    var forecastResult = apiResponse.Content.Result;
+
+                    // Show result dialog
+                    var resultDialog = new ContentDialog
+                    {
+                        Title = "Demand Forecast Result",
+                        CloseButtonText = "OK",
+                        DefaultButton = ContentDialogButton.Close,
+                        XamlRoot = this.XamlRoot
+                    };
+
+                    var resultPanel = new StackPanel { Spacing = 16, Padding = new Thickness(0, 0, 12, 0) };
+
+                    // Product info
+                    resultPanel.Children.Add(new TextBlock
+                    {
+                        Text = $"Product: {product.Name}",
+                        FontSize = 16,
+                        FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
+                    });
+
+                    resultPanel.Children.Add(new TextBlock
+                    {
+                        Text = $"SKU: {product.Sku} (ID: {skuId})",
+                        FontSize = 13,
+                        Foreground = Application.Current.Resources["TextFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush
+                    });
+
+                    // Divider
+                    resultPanel.Children.Add(new Rectangle
+                    {
+                        Height = 1,
+                        Fill = Application.Current.Resources["CardStrokeBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                        Margin = new Thickness(0, 8, 0, 8)
+                    });
+
+                    // Prediction result
+                    resultPanel.Children.Add(new TextBlock
+                    {
+                        Text = "Predicted Units Sold:",
+                        FontSize = 13,
+                        Foreground = Application.Current.Resources["TextFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush
+                    });
+
+                    resultPanel.Children.Add(new TextBlock
+                    {
+                        Text = $"{forecastResult.PredictedUnitsSold:F2} units",
+                        FontSize = 28,
+                        FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                        Foreground = Application.Current.Resources["AccentBlueBrush"] as Microsoft.UI.Xaml.Media.Brush
+                    });
+
+                    resultDialog.Content = resultPanel;
+                    await resultDialog.ShowAsync();
+
+                    LoggingService.Instance.Information($"Demand prediction successful for {product.Name}: {forecastResult.PredictedUnitsSold:F2} units");
+                }
+                else
+                {
+                    // Show error
+                    var errorMessage = apiResponse.Content?.Message ?? "Failed to predict demand";
+                    await ShowErrorDialogAsync("Prediction Failed", errorMessage);
+                    LoggingService.Instance.Error($"Demand prediction failed: {errorMessage}");
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.Error("[SalesAgentProductsPage] PredictProductDemandAsync failed", ex);
+                await ShowErrorDialogAsync("Error", $"An error occurred: {ex.Message}");
+            }
+        }
+
+        private async Task ShowErrorDialogAsync(string title, string message)
+        {
+            var errorDialog = new ContentDialog
+            {
+                Title = title,
+                Content = message,
+                CloseButtonText = "OK",
+                XamlRoot = this.XamlRoot
+            };
+            await errorDialog.ShowAsync();
         }
 
         #endregion
@@ -719,6 +1062,61 @@ namespace MyShop.Client.Views.SalesAgent
             {
                 LoggingService.Instance.Error("Failed to refresh products", ex);
             }
+        }
+
+        private async void ImportCsvMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var openPicker = new Windows.Storage.Pickers.FileOpenPicker();
+
+                // Initialize with window handle using XamlRoot
+                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+                WinRT.Interop.InitializeWithWindow.Initialize(openPicker, hwnd);
+
+                openPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+                openPicker.FileTypeFilter.Add(".csv");
+                openPicker.FileTypeFilter.Add(".txt");
+
+                var file = await openPicker.PickSingleFileAsync();
+                if (file != null)
+                {
+                    // Call ViewModel method to process the file, passing XamlRoot for dialogs
+                    await ViewModel.ProcessImportFileAsync(file, this.XamlRoot);
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.Error("[SalesAgentProductsPage] Import CSV failed", ex);
+            }
+        }
+
+        /// <summary>
+        /// Converts display status (Available, Discontinued, Out of Stock) to API format (AVAILABLE, DISCONTINUED, OUT_OF_STOCK)
+        /// </summary>
+        private string ConvertDisplayStatusToApiStatus(string displayStatus)
+        {
+            return displayStatus switch
+            {
+                "Available" => "AVAILABLE",
+                "Discontinued" => "DISCONTINUED",
+                "Out of Stock" => "OUT_OF_STOCK",
+                _ => "AVAILABLE"
+            };
+        }
+
+        /// <summary>
+        /// Converts API status (AVAILABLE, DISCONTINUED, OUT_OF_STOCK) to display format (Available, Discontinued, Out of Stock)
+        /// </summary>
+        private string ConvertApiStatusToDisplayStatus(string apiStatus)
+        {
+            return apiStatus switch
+            {
+                "AVAILABLE" => "Available",
+                "DISCONTINUED" => "Discontinued",
+                "OUT_OF_STOCK" => "Out of Stock",
+                _ => "Available"
+            };
         }
     }
 }

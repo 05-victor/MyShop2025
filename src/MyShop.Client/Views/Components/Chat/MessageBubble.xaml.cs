@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.UI;
 using System;
 
@@ -123,5 +124,73 @@ public sealed partial class MessageBubble : UserControl
                     textBlock.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 17, 24, 39)); // Gray900
             }
         }
+    }
+
+    /// <summary>
+    /// Handle image tap to show full-size view.
+    /// </summary>
+    private async void MessageImage_Tapped(object sender, TappedRoutedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(ImageUrl))
+            return;
+
+        try
+        {
+            var dialog = new ContentDialog
+            {
+                Title = "Image Preview",
+                CloseButtonText = "Close",
+                DefaultButton = ContentDialogButton.Close,
+                XamlRoot = this.XamlRoot
+            };
+
+            // Create scrollable image viewer
+            var scrollViewer = new ScrollViewer
+            {
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                ZoomMode = ZoomMode.Enabled,
+                MinZoomFactor = 0.5f,
+                MaxZoomFactor = 4.0f,
+                MaxWidth = 800,
+                MaxHeight = 600
+            };
+
+            var image = new Image
+            {
+                Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(new Uri(ImageUrl)),
+                Stretch = Stretch.Uniform
+            };
+
+            scrollViewer.Content = image;
+            dialog.Content = scrollViewer;
+
+            await dialog.ShowAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MessageBubble] Error showing image: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Change cursor to pointer when hovering over image.
+    /// </summary>
+    private void MessageImage_PointerEntered(object sender, PointerRoutedEventArgs e)
+    {
+        if (sender is Image image && !string.IsNullOrEmpty(ImageUrl))
+        {
+            Window.Current.CoreWindow.PointerCursor = 
+                new Windows.UI.Core.CoreCursor(Windows.UI.Core.CoreCursorType.Hand, 1);
+        }
+    }
+
+    /// <summary>
+    /// Reset cursor when leaving image.
+    /// </summary>
+    private void MessageImage_PointerExited(object sender, PointerRoutedEventArgs e)
+    {
+        Window.Current.CoreWindow.PointerCursor = 
+            new Windows.UI.Core.CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 1);
     }
 }

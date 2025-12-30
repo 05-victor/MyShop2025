@@ -11,6 +11,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Core.Interfaces.Facades;
+using MyShop.Core.Interfaces.Repositories;
+using MyShop.Core.Interfaces.Infrastructure;
+using MyShop.Client.Services;
+using MyShop.Plugins.Infrastructure;
 using MyShop.Client.Strategies;
 
 namespace MyShop.Client.ViewModels.Shared;
@@ -27,6 +31,8 @@ public partial class LoginViewModel : BaseViewModel
     private new readonly INavigationService _navigationService;
     private readonly IRoleStrategyFactory _roleStrategyFactory;
     private new readonly IToastService _toastHelper;
+    private readonly ISettingsRepository _settingsRepository;
+    private readonly ISettingsStorage _settingsStorage;
     private CancellationTokenSource? _loginCancellationTokenSource;
 
     [ObservableProperty]
@@ -63,10 +69,10 @@ public partial class LoginViewModel : BaseViewModel
     /// <summary>
     /// Check if form is valid (to enable/disable Login button).
     /// </summary>
-    public bool IsFormValid => 
-        IsUsernameValid && 
-        IsPasswordValid && 
-        !string.IsNullOrWhiteSpace(Username) && 
+    public bool IsFormValid =>
+        IsUsernameValid &&
+        IsPasswordValid &&
+        !string.IsNullOrWhiteSpace(Username) &&
         !string.IsNullOrWhiteSpace(Password);
 
     /// <summary>
@@ -83,12 +89,16 @@ public partial class LoginViewModel : BaseViewModel
         IAuthFacade authFacade,
         INavigationService navigationService,
         IRoleStrategyFactory roleStrategyFactory,
-        IToastService toastHelper)
+        IToastService toastHelper,
+        ISettingsRepository settingsRepository,
+        ISettingsStorage settingsStorage)
     {
         _authFacade = authFacade ?? throw new ArgumentNullException(nameof(authFacade));
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
         _roleStrategyFactory = roleStrategyFactory ?? throw new ArgumentNullException(nameof(roleStrategyFactory));
         _toastHelper = toastHelper ?? throw new ArgumentNullException(nameof(toastHelper));
+        _settingsRepository = settingsRepository ?? throw new ArgumentNullException(nameof(settingsRepository));
+        _settingsStorage = settingsStorage ?? throw new ArgumentNullException(nameof(settingsStorage));
 
         // Notify LoginButtonText when IsLoading changes
         PropertyChanged += (s, e) =>
@@ -161,11 +171,38 @@ public partial class LoginViewModel : BaseViewModel
             {
                 var user = result.Data;
 
+                // Set current user for per-user settings storage (enables users/{UserId}/preferences.json)
+                if (_settingsStorage is FileSettingsStorage fileStorage)
+                {
+                    fileStorage.SetCurrentUser(user.Id.ToString());
+                }
+
+                // Load settings from server (source of truth) and apply theme immediately
+                System.Diagnostics.Debug.WriteLine("[LoginViewModel] Login successful, loading and applying user settings");
+                var settingsResult = await _settingsRepository.GetSettingsAsync();
+                if (settingsResult.IsSuccess && settingsResult.Data != null)
+                {
+                    System.Diagnostics.Debug.WriteLine("[LoginViewModel] Settings loaded successfully");
+
+                    // Apply user's theme preference to override session theme
+                    if (!string.IsNullOrEmpty(settingsResult.Data.Theme))
+                    {
+                        var mappedTheme = ThemeMapping.FromAppSettings(settingsResult.Data.Theme);
+                        ThemeManager.ApplyTheme(mappedTheme);
+                        System.Diagnostics.Debug.WriteLine($"[LoginViewModel] Applied user theme: {settingsResult.Data.Theme}");
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[LoginViewModel] Warning: Failed to load settings: {settingsResult.ErrorMessage}");
+                    // Don't block login even if settings failed to load - theme from session will be retained
+                }
+
                 // Use strategy pattern to navigate to appropriate dashboard
                 var primaryRole = user.GetPrimaryRole();
                 var strategy = _roleStrategyFactory.GetStrategy(primaryRole);
                 var pageType = strategy.GetDashboardPageType();
-                    
+
                 await _navigationService.NavigateTo(pageType.FullName!, user);
             }
             else
@@ -238,7 +275,7 @@ public partial class LoginViewModel : BaseViewModel
         try
         {
             var dialog = new ServerConfigDialog();
-                
+
             // Get XamlRoot from current window
             var window = App.MainWindow;
             if (window?.Content != null)
@@ -267,13 +304,13 @@ public partial class LoginViewModel : BaseViewModel
     [RelayCommand]
     private async Task ForgotPasswordAsync()
     {
-        await _toastHelper.ShowInfo("Password recovery feature is now available! Please contact support or use the API endpoint /api/v1/password-reset/forgot-password");
+        await _navigationService.NavigateTo("MyShop.Client.Views.Auth.ForgotPasswordRequestPage");
     }
 
     [RelayCommand]
-    private async Task GoogleLogin() 
+    private async Task GoogleLogin()
     {
-        try 
+        try
         {
             IsLoading = true;
             ErrorMessage = string.Empty;
@@ -286,7 +323,7 @@ public partial class LoginViewModel : BaseViewModel
             // 3. Exchange code for access token
             // 4. Send token to backend for verification
             // 5. Backend creates/finds user and returns JWT
-            
+
             // For WinUI 3, use WebAuthenticationBroker or System.Net.Http.HttpClient
             // Example flow:
             /*
@@ -316,12 +353,12 @@ public partial class LoginViewModel : BaseViewModel
             // await Task.Delay(1000); // Simulate network delay
             await _toastHelper.ShowWarning("Google OAuth2 login will be implemented in a future update. Please use username/password login.");
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Google Login error: {ex.Message}");
             ErrorMessage = $"Google login error: {ex.Message}";
         }
-        finally 
+        finally
         {
             IsLoading = false;
         }

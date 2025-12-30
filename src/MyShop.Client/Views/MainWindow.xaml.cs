@@ -9,8 +9,8 @@ using System.Runtime.InteropServices;
 
 namespace MyShop.Client {
     public sealed partial class MainWindow : Window {
-        private const int MIN_WIDTH = 1400;
-        private const int MIN_HEIGHT = 850;
+        public const int MIN_WIDTH = 1500;
+        public const int MIN_HEIGHT = 850;
 
         public MainWindow() {
             this.InitializeComponent();
@@ -34,7 +34,7 @@ namespace MyShop.Client {
                 presenter.IsMaximizable = true;
                 
                 // Set initial window size
-                appWindow.Resize(new Windows.Graphics.SizeInt32(1410, 850));
+                appWindow.Resize(new Windows.Graphics.SizeInt32(1500, 850));
             }
 
             // Subclass window to enforce minimum size

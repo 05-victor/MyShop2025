@@ -254,226 +254,20 @@
                         </Border>
 
                         <!-- Charts Section -->
-                        <Grid ColumnSpacing="16">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource CardWithShadowStyle}">
+                            <charts:LineChartCard
+                                              Title="Revenue &amp; Commission Trend"
+                                              Series="{x:Bind ViewModel.RevenueSeries, Mode=OneWay}"
+                                              YAxes="{x:Bind ViewModel.YAxes, Mode=OneWay}"
+                                              ChartHeight="320"
+                                              ShowLegend="Visible"
+                                              ShowLegend2="Visible"
+                                              Legend1Text="Revenue"
+                                              Legend2Text="Commission"
+                                              ShowMenu="Visible"/>
+                        </Border>
 
-                            <!-- Revenue & Commission Trend Chart -->
-                            <Border Grid.Column="0" Style="{StaticResource CardWithShadowStyle}">
-                                <charts:LineChartCard
-                                                  Title="Revenue &amp; Commission Trend"
-                                                  Series="{x:Bind ViewModel.RevenueSeries, Mode=OneWay}"
-                                                  YAxes="{x:Bind ViewModel.YAxes, Mode=OneWay}"
-                                                  ChartHeight="320"
-                                                  ShowLegend="Visible"
-                                                  ShowLegend2="Visible"
-                                                  Legend1Text="Revenue"
-                                                  Legend2Text="Commission"
-                                                  ShowMenu="Visible"/>
-                            </Border>
-
-                            <!-- Sales by Category -->
-                            <Border Grid.Column="1"
-                                    Style="{StaticResource CardWithShadowStyle}">
-                                <StackPanel Spacing="16">
-                                    <!-- Header with Toggle Buttons -->
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-
-                                        <TextBlock Grid.Column="0"
-                                                   Text="Top Sales"
-                                                   FontSize="{StaticResource FontSize_XL}"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="{ThemeResource TextPrimaryBrush}"
-                                                   VerticalAlignment="Center"/>
-
-                                        <!-- Toggle Buttons --><!--
-                                        <StackPanel Grid.Column="1"
-                                                    Orientation="Horizontal"
-                                                    Spacing="8"
-                                                    VerticalAlignment="Center">
-                                            --><!-- Category Button --><!--
-                                            <Button Content="Category"
-                                                    Style="{StaticResource SecondaryButtonSmallStyle}"
-                                                    Command="{x:Bind ViewModel.SwitchSalesViewCommand}"
-                                                    CommandParameter="category"/>
-                                        </StackPanel>-->
-                                    </Grid>
-
-                                    <!-- Sales by Category List -->
-                                    <Grid Margin="0,8,0,0"
-                                          Visibility="{x:Bind ViewModel.IsCategoryView, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <!-- Content when data is available -->
-                                        <ListView ItemsSource="{x:Bind ViewModel.CategoryData, Mode=OneWay}"
-                                                  SelectionMode="None"
-                                                  Visibility="{x:Bind ViewModel.CategoryData.Count, Mode=OneWay, Converter={StaticResource InverseCountToVisibilityConverter}}">
-                                            <ListView.ItemTemplate>
-                                                <DataTemplate x:DataType="viewmodels:CategoryDataPoint">
-                                                    <Grid Padding="{StaticResource Padding_MD}"
-                                                          ColumnSpacing="16">
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="55"/>
-                                                        </Grid.ColumnDefinitions>
-
-                                                        <!-- Category Name & Progress Bar -->
-                                                        <StackPanel Grid.Column="0"
-                                                                    Spacing="6"
-                                                                    VerticalAlignment="Center">
-                                                            <TextBlock Text="{x:Bind Name}"
-                                                                       FontSize="{StaticResource FontSize_Base}"
-                                                                       FontWeight="Medium"
-                                                                       Foreground="{ThemeResource TextPrimaryBrush}"
-                                                                       TextWrapping="NoWrap"
-                                                                       TextTrimming="CharacterEllipsis"/>
-                                                            <ProgressBar Value="{x:Bind Percentage}"
-                                                                         Maximum="100"
-                                                                         Height="8"
-                                                                         CornerRadius="4"
-                                                                         Foreground="{ThemeResource PrimaryBrush}"
-                                                                         Background="{ThemeResource CardStrokeBrush}"/>
-                                                        </StackPanel>
-
-                                                        <!-- Percentage -->
-                                                        <TextBlock Grid.Column="1"
-                                                                   FontSize="{StaticResource FontSize_LG}"
-                                                                   FontWeight="SemiBold"
-                                                                   Foreground="{ThemeResource PrimaryBrush}"
-                                                                   HorizontalAlignment="Right"
-                                                                   VerticalAlignment="Center"
-                                                                   TextAlignment="Right">
-                                                    <Run Text="{x:Bind Percentage}"/><Run Text="%"/>
-                                                        </TextBlock>
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </ListView.ItemTemplate>
-                                            <ListView.ItemContainerStyle>
-                                                <Style TargetType="ListViewItem">
-                                                    <Setter Property="Padding"
-                                                            Value="0"/>
-                                                    <Setter Property="Margin"
-                                                            Value="0"/>
-                                                    <Setter Property="MinHeight"
-                                                            Value="0"/>
-                                                    <Setter Property="HorizontalContentAlignment"
-                                                            Value="Stretch"/>
-                                                </Style>
-                                            </ListView.ItemContainerStyle>
-                                        </ListView>
-
-                                        <!-- Empty State -->
-                                        <StackPanel Visibility="{x:Bind ViewModel.CategoryData.Count, Mode=OneWay, Converter={StaticResource CountToVisibilityConverter}}"
-                                                    HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center"
-                                                    Spacing="12"
-                                                    Padding="24">
-                                            <FontIcon Glyph="&#xE9F9;"
-                                                      FontSize="{StaticResource FontSize_5XL}"
-                                                      Foreground="{ThemeResource Gray500Brush}"/>
-                                            <TextBlock Text="No category data available"
-                                                       FontSize="{StaticResource FontSize_Base}"
-                                                       Foreground="{ThemeResource TextSecondaryBrush}"
-                                                       HorizontalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Grid>
-
-                                    <!-- Sales by Agents View -->
-                                    <Grid Margin="0,8,0,0"
-                                          Visibility="{x:Bind ViewModel.IsAgentsView, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <!-- Content when data is available -->
-                                        <ListView ItemsSource="{x:Bind ViewModel.TopSalesAgents, Mode=OneWay}"
-                                                  SelectionMode="None"
-                                                  Visibility="{x:Bind ViewModel.TopSalesAgents.Count, Mode=OneWay, Converter={StaticResource InverseCountToVisibilityConverter}}">
-                                            <ListView.ItemTemplate>
-                                                <DataTemplate x:DataType="viewmodels:TopSalesAgentItem">
-                                                    <Grid Padding="{StaticResource Padding_MD}"
-                                                          ColumnSpacing="16">
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="75"/>
-                                                        </Grid.ColumnDefinitions>
-
-                                                        <!-- Agent Name & Avatar -->
-                                                        <StackPanel Grid.Column="0"
-                                                                    Orientation="Horizontal"
-                                                                    Spacing="10"
-                                                                    VerticalAlignment="Center">
-                                                            <PersonPicture ProfilePicture="{x:Bind Avatar, Converter={StaticResource StringToImageSourceConverter}}"
-                                                                           DisplayName="{x:Bind Name}"
-                                                                           Width="32"
-                                                                           Height="32"/>
-                                                            <StackPanel VerticalAlignment="Center"
-                                                                        Spacing="2">
-                                                                <TextBlock Text="{x:Bind Name}"
-                                                                           FontSize="{StaticResource FontSize_Base}"
-                                                                           FontWeight="Medium"
-                                                                           Foreground="{ThemeResource TextPrimaryBrush}"
-                                                                           TextWrapping="NoWrap"
-                                                                           TextTrimming="CharacterEllipsis"/>
-                                                                <StackPanel Orientation="Horizontal"
-                                                                            Spacing="4">
-                                                                    <FontIcon Glyph="&#xE735;"
-                                                                              FontSize="{StaticResource FontSize_XS}"
-                                                                              Foreground="{ThemeResource WarningAmberBrush}"/>
-                                                                    <TextBlock Text="{x:Bind Rating}"
-                                                                               FontSize="{StaticResource FontSize_XS}"
-                                                                               Foreground="{ThemeResource TextSecondaryBrush}"/>
-                                                                </StackPanel>
-                                                            </StackPanel>
-                                                        </StackPanel>
-
-                                                        <!-- GMV Value -->
-                                                        <TextBlock Grid.Column="1"
-                                                                   FontSize="{StaticResource FontSize_Base}"
-                                                                   FontWeight="SemiBold"
-                                                                   Foreground="{ThemeResource SuccessGreenBrush}"
-                                                                   HorizontalAlignment="Right"
-                                                                   VerticalAlignment="Center"
-                                                                   TextAlignment="Right">
-                                                    <Run Text="{x:Bind GMV, Converter={StaticResource CurrencyConverter}}"/>
-                                                        </TextBlock>
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </ListView.ItemTemplate>
-                                            <ListView.ItemContainerStyle>
-                                                <Style TargetType="ListViewItem">
-                                                    <Setter Property="Padding"
-                                                            Value="0"/>
-                                                    <Setter Property="Margin"
-                                                            Value="0"/>
-                                                    <Setter Property="MinHeight"
-                                                            Value="0"/>
-                                                    <Setter Property="HorizontalContentAlignment"
-                                                            Value="Stretch"/>
-                                                </Style>
-                                            </ListView.ItemContainerStyle>
-                                        </ListView>
-
-                                        <!-- Empty State -->
-                                        <StackPanel Visibility="{x:Bind ViewModel.TopSalesAgents.Count, Mode=OneWay, Converter={StaticResource CountToVisibilityConverter}}"
-                                                    HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center"
-                                                    Spacing="12"
-                                                    Padding="24">
-                                            <FontIcon Glyph="&#xE716;"
-                                                      FontSize="{StaticResource FontSize_5XL}"
-                                                      Foreground="{ThemeResource Gray500Brush}"/>
-                                            <TextBlock Text="No agent data available"
-                                                       FontSize="{StaticResource FontSize_Base}"
-                                                       Foreground="{ThemeResource TextSecondaryBrush}"
-                                                       HorizontalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Grid>
-                                </StackPanel>
-                            </Border>
-                        </Grid>
-
-                        <!-- Detail Row - Top SalesAgents & Flagged Products Tables -->
+                        <!-- Detail Row - Top SalesAgents & Top Selling Products Tables -->
                         <Grid ColumnSpacing="16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -636,7 +430,7 @@
                                                             CornerRadius="8">
                                                             <Image Stretch="UniformToFill">
                                                                 <Image.Source>
-                                                                    <BitmapImage UriSource="{x:Bind ImageUrl}"
+                                                                    <BitmapImage UriSource="{x:Bind ImageUrl, Converter={StaticResource StringToUriConverter}}"
                                                                                  DecodePixelWidth="96"
                                                                                  DecodePixelType="Logical"/>
                                                                 </Image.Source>

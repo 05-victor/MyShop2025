@@ -22,9 +22,14 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
     private readonly IProductFacade _productFacade;
     private readonly ICartFacade _cartFacade;
     private readonly IAuthRepository _authRepository;
+    private bool _isInitializing = true; // Guard to prevent LoadPageAsync during initial setup
+    private bool _hasInitialized = false; // Track if InitializeAsync has completed
 
     // Alias for backward compatibility with XAML
     public ObservableCollection<ProductCardViewModel> Products => Items;
+
+    /// <summary>Flag to indicate if initialization is still in progress</summary>
+    public bool IsInitializing => _isInitializing;
 
     // Event for requesting product details dialog (handled by view)
     public event EventHandler<ProductCardViewModel>? ProductDetailsRequested;
@@ -53,6 +58,11 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
     // Additional pagination property for UI
     public Visibility ShowPagination => TotalPages > 1 ? Visibility.Visible : Visibility.Collapsed;
 
+    /// <summary>
+    /// Page size options for card grid layout (12, 24, 36, 60 products per page)
+    /// </summary>
+    public IReadOnlyList<int> CardPageSizeOptions { get; } = new[] { 12, 24, 36, 60 };
+
     public ProductBrowseViewModel(
         IProductFacade productFacade,
         ICartFacade cartFacade,
@@ -68,19 +78,45 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
 
     public async Task InitializeAsync()
     {
-        // Check email verification status
-        var userResult = await _authRepository.GetCurrentUserAsync();
-        var isEmailVerified = userResult.IsSuccess && userResult.Data?.IsEmailVerified == true;
-
-        await LoadCategoriesAsync();
-        await LoadBrandsAsync();
-        await LoadDataAsync(); // Use base class method
-
-        // Update all product cards with email verification status
-        foreach (var product in Products)
+        // Prevent double initialization
+        if (_hasInitialized)
         {
-            product.CanAddToCart = isEmailVerified && product.Stock > 0;
-            product.ShowEmailVerification = !isEmailVerified;
+            System.Diagnostics.Debug.WriteLine("[ProductBrowseViewModel] InitializeAsync: Already initialized, skipping");
+            return;
+        }
+
+        System.Diagnostics.Debug.WriteLine("[ProductBrowseViewModel] InitializeAsync: START");
+
+        try
+        {
+            // Check email verification status
+            var userResult = await _authRepository.GetCurrentUserAsync();
+            var isEmailVerified = userResult.IsSuccess && userResult.Data?.IsEmailVerified == true;
+            var currentUserId = userResult.IsSuccess && userResult.Data != null ? userResult.Data.Id : Guid.Empty;
+
+            await LoadCategoriesAsync();
+            await LoadBrandsAsync();
+
+            // Now enable event firing and load page
+            _isInitializing = false;
+            await LoadPageAsync(); // LoadPageAsync will set loading state and handle it
+
+            // Update all product cards with email verification status
+            foreach (var product in Products)
+            {
+                // Agent cannot buy their own products
+                var isOwnProduct = product.SaleAgentId == currentUserId;
+                product.CanAddToCart = isEmailVerified && product.Stock > 0 && !isOwnProduct;
+                product.ShowEmailVerification = !isEmailVerified;
+            }
+
+            _hasInitialized = true;
+            System.Diagnostics.Debug.WriteLine("[ProductBrowseViewModel] InitializeAsync: COMPLETE");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] InitializeAsync: ERROR - {ex.Message}");
+            SetLoadingState(false);
         }
     }
 
@@ -173,7 +209,7 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
         try
         {
             SetLoadingState(true);
-            
+
             // Map sort option to API parameter
             var (sortBy, sortDesc) = MapSortOption(SelectedSort);
 
@@ -203,24 +239,42 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
                 // Check email verification once per page load
                 var userResult = await _authRepository.GetCurrentUserAsync();
                 var isEmailVerified = userResult.IsSuccess && userResult.Data?.IsEmailVerified == true;
+                var currentUserId = userResult.IsSuccess && userResult.Data != null ? userResult.Data.Id : Guid.Empty;
 
                 Items.Clear();
                 foreach (var product in pagedData.Items)
                 {
+                    // Normalize image URL - handle old/incorrect placeholder paths
+                    var imageUrl = product.ImageUrl;
+                    if (string.IsNullOrWhiteSpace(imageUrl) ||
+                        imageUrl.Contains("product-placeholder.png") ||
+                        imageUrl.Contains("placeholder-product.png"))
+                    {
+                        imageUrl = "ms-appx:///Assets/Images/products/product-placeholder.png";
+                    }
+
+                    // Debug agent data
+                    var agentName = product.SaleAgentFullName ?? product.SaleAgentUsername;
+                    System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] Product '{product.Name}': AgentId={product.SaleAgentId}, FullName='{product.SaleAgentFullName}', Username='{product.SaleAgentUsername}', Final='{agentName}'");
+
                     var productCard = new ProductCardViewModel
                     {
                         Id = product.Id,
                         Name = product.Name,
                         Price = product.SellingPrice,
-                        ImageUrl = product.ImageUrl ?? "/Assets/placeholder-product.png",
+                        ImageUrl = imageUrl,
                         Rating = product.Rating,
                         RatingCount = product.RatingCount,
                         Stock = product.Quantity,
                         Category = product.CategoryName ?? product.Category ?? "Uncategorized",
                         Manufacturer = product.Manufacturer ?? string.Empty,
-                        
-                        // Email verification UX
-                        CanAddToCart = isEmailVerified && product.Quantity > 0,
+                        AgentName = agentName,
+                        SaleAgentFullName = product.SaleAgentFullName ?? product.SaleAgentUsername ?? string.Empty,
+                        SaleAgentId = product.SaleAgentId,
+                        Description = product.Description ?? string.Empty,
+
+                        // Email verification UX + prevent agents from buying own products
+                        CanAddToCart = isEmailVerified && product.Quantity > 0 && product.SaleAgentId != currentUserId,
                         ShowEmailVerification = !isEmailVerified
                     };
                     Items.Add(productCard);
@@ -317,10 +371,10 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
     private async Task ViewProductDetailsAsync(ProductCardViewModel product)
     {
         System.Diagnostics.Debug.WriteLine($"[ProductBrowseViewModel] View details for product: {product.Name} (ID: {product.Id})");
-        
+
         // Raise event for view to handle dialog display
         ProductDetailsRequested?.Invoke(this, product);
-        
+
         await Task.CompletedTask;
     }
 
@@ -328,8 +382,17 @@ public partial class ProductBrowseViewModel : PagedViewModelBase<ProductCardView
     private async Task VerifyEmailAsync()
     {
         System.Diagnostics.Debug.WriteLine("[ProductBrowseViewModel] Verify email command triggered");
-        // Navigate to profile/email verification page
-        await Task.CompletedTask;
+
+        // Navigate to ProfilePage for email verification (within shell to preserve navbar)
+        if (_navigationService != null)
+        {
+            System.Diagnostics.Debug.WriteLine("[ProductBrowseViewModel] Navigating to ProfilePage within shell");
+            await _navigationService.NavigateInShell(typeof(Views.Shared.ProfilePage).FullName!, null);
+        }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine("[ProductBrowseViewModel] ERROR: NavigationService not available");
+        }
     }
 
     // NOTE: RefreshAsync is provided by PagedViewModelBase
@@ -392,7 +455,18 @@ public partial class ProductCardViewModel : ObservableObject
     [ObservableProperty]
     private bool _showEmailVerification = false;
 
-    public string FormattedPrice => $"₫{Price:N0}";
+    [ObservableProperty]
+    private string? _agentName;
+
+    [ObservableProperty]
+    private Guid? _saleAgentId;
+
+    [ObservableProperty]
+    private string? _saleAgentFullName = string.Empty;
+
+    [ObservableProperty]
+    private string? _description = string.Empty;
     public string StockStatus => Stock > 0 ? $"{Stock} in stock" : "Out of stock";
     public bool IsInStock => Stock > 0;
+    public string AgentDisplay => !string.IsNullOrEmpty(AgentName) ? $"by {AgentName}" : string.Empty;
 }

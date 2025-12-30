@@ -2,6 +2,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using Microsoft.Extensions.Configuration;
 using MyShop.Core.Interfaces.Services;
+using MyShop.Shared.Models.Enums;
 
 namespace MyShop.Client.Services;
 
@@ -38,9 +39,13 @@ public class ChatbotService : IChatbotService
         {
             var userId = _currentUserService.CurrentUser?.Id.ToString() ?? string.Empty;
             
+            // Format message with role prefix
+            var rolePrefix = GetRolePrefix();
+            var formattedMessage = $"[{rolePrefix}]: {message}";
+            
             var formData = new MultipartFormDataContent
             {
-                { new StringContent(message), "message" }
+                { new StringContent(formattedMessage), "message" }
             };
             
             var request = new HttpRequestMessage(HttpMethod.Post, $"{_baseUrl}/chat-bot/chat")
@@ -71,6 +76,33 @@ public class ChatbotService : IChatbotService
         catch (Exception ex)
         {
             return $"Error: {ex.Message}";
+        }
+    }
+    
+    /// <summary>
+    /// Get role prefix based on current user's role.
+    /// </summary>
+    private string GetRolePrefix()
+    {
+        try
+        {
+            var currentUser = _currentUserService.CurrentUser;
+            if (currentUser == null)
+                return "USER";
+            
+            var primaryRole = currentUser.GetPrimaryRole();
+            return primaryRole switch
+            {
+                UserRole.Admin => "ADMIN",
+                UserRole.SalesAgent => "SALER",
+                UserRole.Customer => "USER",
+                _ => "USER"
+            };
+        }
+        catch
+        {
+            // Fallback to USER if any error occurs
+            return "USER";
         }
     }
 }

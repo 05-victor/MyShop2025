@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="MyShop.Client.Views.Shell.CustomerDashboardShell"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -41,7 +41,7 @@
             IsBackButtonVisible="Collapsed"
             IsPaneToggleButtonVisible="True"
             IsSettingsVisible="False"
-            OpenPaneLength="260"
+            OpenPaneLength="245"
             PaneDisplayMode="Auto"
             SelectionChanged="Nav_SelectionChanged"
             CompactModeThresholdWidth="641"
@@ -58,7 +58,7 @@
                 <Image Grid.Column="0" 
                        Width="48" 
                        Height="48" 
-                       Source="/Assets/Images/logo.png"
+                       Source="ms-appx:///Assets/Images/logo.png"
                        Stretch="Uniform"
                        VerticalAlignment="Center"/>
                 
@@ -93,13 +93,10 @@
             </NavigationViewItem>
 
             <NavigationViewItem Content="Cart" Tag="cart" Foreground="{ThemeResource WhiteBrush}">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE7BF;" Foreground="{ThemeResource WhiteBrush}" />
-                </NavigationViewItem.Icon>
-                <NavigationViewItem.InfoBadge>
-                    <InfoBadge Value="{x:Bind ViewModel.CartCount, Mode=OneWay}" />
-                </NavigationViewItem.InfoBadge>
-            </NavigationViewItem>
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE7BF;" Foreground="{ThemeResource WhiteBrush}" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
 
             <NavigationViewItem Content="Purchase Orders" Tag="purchaseOrders" Foreground="{ThemeResource WhiteBrush}">
                 <NavigationViewItem.Icon>

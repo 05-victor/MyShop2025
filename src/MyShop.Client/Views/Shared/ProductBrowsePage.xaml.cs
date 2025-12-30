@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -9,6 +9,7 @@ using Windows.System;
 using Windows.UI.Xaml; // For DependencyObject
 using MyShop.Client.ViewModels.Shared;
 using MyShop.Client.Views.Components.Controls;
+using MyShop.Client.Common.Converters;
 using System.Linq;
 
 namespace MyShop.Client.Views.Shared
@@ -23,10 +24,13 @@ namespace MyShop.Client.Views.Shared
             this.InitializeComponent();
             ViewModel = App.Current.Services.GetRequiredService<ProductBrowseViewModel>();
             this.DataContext = ViewModel;
-            
+
             // Wire up product details event
             ViewModel.ProductDetailsRequested += OnProductDetailsRequested;
-            
+
+            // Set page size options for card grid layout
+            PaginationControlElement.PageSizeOptions = ViewModel.CardPageSizeOptions.ToList();
+
             SetupKeyboardShortcuts();
         }
 
@@ -74,7 +78,7 @@ namespace MyShop.Client.Views.Shared
                     // First time navigation - initialize with categories/brands
                     await ViewModel.InitializeAsync();
                 }
-                
+
                 AdjustGridColumns(); // Initial responsive setup
             }
             catch (Exception ex)
@@ -100,23 +104,35 @@ namespace MyShop.Client.Views.Shared
 
             // Use ContentHost ActualWidth (accounts for sidebar/nav)
             var contentWidth = ProductGridView.ActualWidth;
-            
-            // Task B: Responsive rule - 1400×850 → 3 columns based on CONTENT width
+
+            // Responsive rule - Use window minimum width from MainWindow
+            const double sidebarWidth = 245; // NavigationView sidebar approximate width
             const double minCardWidth = 240;
             const double cardGap = 16;
 
-            // At 1400px+ content width → force 3 columns minimum
-            // Below 1400px → calculate dynamically
+            // Calculate expected content width at minimum window size
+            var minContentWidth = MainWindow.MIN_WIDTH - sidebarWidth; // ~1220px
+
+            // Responsive breakpoints based on content width
             int columns;
-            if (contentWidth >= 1400)
+            if (contentWidth >= minContentWidth * 0.82) // ~1000px → 4 columns at min window size
             {
-                // At 1400+ enforce minimum 3 columns, can go up to 4-5 if space allows
-                columns = Math.Max(3, (int)Math.Floor((contentWidth + cardGap) / (minCardWidth + cardGap)));
+                columns = 4;
+            }
+            else if (contentWidth >= 750)
+            {
+                // 750-999px → 3 columns
+                columns = 3;
+            }
+            else if (contentWidth >= 500)
+            {
+                // 500-749px → 2 columns
+                columns = 2;
             }
             else
             {
-                // Below 1400: dynamic (2 cols at ~900px, 1 col at ~500px)
-                columns = Math.Max(1, (int)Math.Floor((contentWidth + cardGap) / (minCardWidth + cardGap)));
+                // Below 500px → 1 column
+                columns = 1;
             }
 
             // Set ItemWidth to fill space evenly
@@ -150,10 +166,13 @@ namespace MyShop.Client.Views.Shared
 
         private async void OnPageChanged(object sender, int newPage)
         {
+            // Skip during initialization - prevents extra LoadPageAsync calls during init
+            if (ViewModel.IsInitializing) return;
+
             // PaginationControl already updated CurrentPage in its ChangePage method
             // Just trigger the load - don't check if CurrentPage != newPage
             await ViewModel.GoToPageAsync(newPage);
-            
+
             // Scroll to top after page change for better UX
             if (ProductGridView.ItemsPanelRoot != null)
             {
@@ -164,12 +183,14 @@ namespace MyShop.Client.Views.Shared
 
         private async void OnPageSizeChanged(object sender, int newPageSize)
         {
-            // PaginationControl already updated PageSize before raising event
-            // Just trigger the reload - don't check if PageSize != newPageSize
-            ViewModel.PageSize = newPageSize;
+            // Skip during initialization - prevents extra RefreshAsync calls during init
+            if (ViewModel.IsInitializing) return;
+
+            // PaginationControl already updated PageSize via TwoWay binding before raising event
+            // Don't set it again - just reset to page 1 and reload
             ViewModel.CurrentPage = 1; // Reset to first page
             await ViewModel.RefreshAsync();
-            
+
             // Scroll to top after page size change
             var scrollViewer = FindVisualChild<ScrollViewer>(this);
             scrollViewer?.ChangeView(null, 0, null, false);
@@ -233,7 +254,8 @@ namespace MyShop.Client.Views.Shared
 
         private async void CategoryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (ViewModel == null) return;
+            // Skip during initialization to prevent duplicate LoadPageAsync calls
+            if (ViewModel == null || ViewModel.IsInitializing) return;
 
             if (CategoryComboBox.SelectedItem is string category)
             {
@@ -243,7 +265,8 @@ namespace MyShop.Client.Views.Shared
 
         private async void BrandComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (ViewModel == null) return;
+            // Skip during initialization to prevent duplicate LoadPageAsync calls
+            if (ViewModel == null || ViewModel.IsInitializing) return;
 
             if (BrandComboBox.SelectedItem is string brand)
             {
@@ -253,8 +276,8 @@ namespace MyShop.Client.Views.Shared
 
         private async void SortComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Guard: Prevent NullReferenceException during page initialization
-            if (ViewModel == null) return;
+            // Skip during initialization to prevent duplicate LoadPageAsync calls
+            if (ViewModel == null || ViewModel.IsInitializing) return;
 
             if (sender is ComboBox comboBox && comboBox.SelectedItem is ComboBoxItem selectedItem)
             {
@@ -292,38 +315,39 @@ namespace MyShop.Client.Views.Shared
 
                 // Populate dialog fields with product data
                 ViewProductName.Text = product.Name;
+                ViewProductSalesAgent.Text = string.IsNullOrEmpty(product.SaleAgentFullName) ? "Unknown" : product.SaleAgentFullName;
                 ViewProductCategory.Text = string.IsNullOrEmpty(product.Category) ? "Uncategorized" : product.Category;
                 ViewProductManufacturer.Text = string.IsNullOrEmpty(product.Manufacturer) ? "Unknown" : product.Manufacturer;
-                ViewProductPrice.Text = $"₫{product.Price:N0}";
-                ViewProductStock.Text = product.Stock.ToString();
-                ViewProductRating.Text = product.Rating.ToString("F1");
-                ViewProductRatingCount.Text = $"({product.RatingCount} reviews)";
+                ViewProductDescription.Text = string.IsNullOrEmpty(product.Description) ? "No description available" : product.Description;
 
-                // Set stock status badge
+                // Format price using CurrencyConverter for consistency with product cards
+                var currencyConverter = new CurrencyConverter();
+                ViewProductPrice.Text = currencyConverter.Convert(product.Price, typeof(string), null, null)?.ToString() ?? "0₫";
+
+                ViewProductStock.Text = product.Stock.ToString();
+
+                // Set stock status badge and button enabled state (check stock AND CanAddToCart for email verification)
                 if (product.Stock <= 0)
                 {
                     ViewProductStockBadge.Background = (Brush)Application.Current.Resources["StockOutOfStockBackgroundBrush"];
                     ViewProductStockStatus.Text = "Out of Stock";
                     ViewProductStockStatus.Foreground = (Brush)Application.Current.Resources["StockOutOfStockForegroundBrush"];
-                    DialogAddToCartButton.IsEnabled = false;
                 }
                 else if (product.Stock <= 10)
                 {
                     ViewProductStockBadge.Background = (Brush)Application.Current.Resources["StockLowStockBackgroundBrush"];
                     ViewProductStockStatus.Text = "Low Stock";
                     ViewProductStockStatus.Foreground = (Brush)Application.Current.Resources["StockLowStockForegroundBrush"];
-                    DialogAddToCartButton.IsEnabled = true;
                 }
                 else
                 {
                     ViewProductStockBadge.Background = (Brush)Application.Current.Resources["StockInStockBackgroundBrush"];
                     ViewProductStockStatus.Text = "In Stock";
                     ViewProductStockStatus.Foreground = (Brush)Application.Current.Resources["StockInStockForegroundBrush"];
-                    DialogAddToCartButton.IsEnabled = true;
                 }
 
                 // Load product image
-                if (!string.IsNullOrEmpty(product.ImageUrl) && product.ImageUrl != "/Assets/placeholder-product.png")
+                if (!string.IsNullOrEmpty(product.ImageUrl) && product.ImageUrl != "ms-appx:///Assets/placeholder-product.png")
                 {
                     try
                     {

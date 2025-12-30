@@ -302,6 +302,10 @@ namespace MyShop.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("order_date");
 
+                    b.Property<string>("PaymentMethod")
+                        .HasColumnType("text")
+                        .HasColumnName("payment_method");
+
                     b.Property<int>("PaymentStatus")
                         .HasColumnType("integer")
                         .HasColumnName("payment_status");

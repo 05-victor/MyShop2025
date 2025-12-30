@@ -1,4 +1,5 @@
-﻿using MyShop.Core.Common;
+﻿using MyShop.Client.Common.Helpers;
+using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
@@ -44,7 +45,7 @@ public class OrderFacade : IOrderFacade
         DateTime? startDate = null,
         DateTime? endDate = null,
         int page = 1,
-        int pageSize = 20,
+        int pageSize = AppConstants.DEFAULT_PAGE_SIZE,
         Guid? customerId = null,
         Guid? salesAgentId = null)
     {
@@ -57,9 +58,9 @@ public class OrderFacade : IOrderFacade
                 return Result<PagedList<Order>>.Failure("Invalid page number");
             }
 
-            if (pageSize < 1 || pageSize > 100)
+            if (pageSize < 1 || pageSize > AppConstants.MAX_PAGE_SIZE)
             {
-                _ = _toastService.ShowError("Page size must be between 1 and 100");
+                _ = _toastService.ShowError($"Page size must be between 1 and {AppConstants.MAX_PAGE_SIZE}");
                 return Result<PagedList<Order>>.Failure("Invalid page size");
             }
 
@@ -132,7 +133,7 @@ public class OrderFacade : IOrderFacade
     {
         try
         {
-            // Call repository with explicit sort parameters so sorting works
+            // Call repository (sort/search parameters ignored - backend doesn't support them)
             var result = await _orderRepository.GetPagedAsync(
                 page: page,
                 pageSize: pageSize,
@@ -142,8 +143,8 @@ public class OrderFacade : IOrderFacade
                 salesAgentId: salesAgentId,
                 startDate: null,
                 endDate: null,
-                sortBy: sortBy,
-                sortDescending: sortDescending);
+                sortBy: null,  // Not supported by backend
+                sortDescending: false);
 
             if (!result.IsSuccess || result.Data == null)
             {
@@ -152,24 +153,6 @@ public class OrderFacade : IOrderFacade
             }
 
             var pagedResult = result.Data;
-
-            // Apply search query filter (client-side for text search)
-            if (!string.IsNullOrWhiteSpace(searchQuery))
-            {
-                var query = searchQuery.ToLower();
-                var filteredItems = pagedResult.Items.Where(o =>
-                    (o.OrderCode?.ToLower().Contains(query) ?? false) ||
-                    (o.CustomerName?.ToLower().Contains(query) ?? false) ||
-                    (o.CustomerPhone?.ToLower().Contains(query) ?? false) ||
-                    (o.CustomerAddress?.ToLower().Contains(query) ?? false) ||
-                    // Search in product names within order items
-                    (o.OrderItems?.Any(item => item.ProductName?.ToLower().Contains(query) ?? false) ?? false) ||
-                    (o.Items?.Any(item => item.ProductName?.ToLower().Contains(query) ?? false) ?? false)
-                ).ToList();
-
-                // Update count to match filtered items for current page view
-                pagedResult = new PagedList<Order>(filteredItems, filteredItems.Count, page, pageSize);
-            }
 
             System.Diagnostics.Debug.WriteLine($"[OrderFacade] Loaded {pagedResult.Items.Count} orders (page {page}/{pagedResult.TotalPages}, total: {pagedResult.TotalCount})");
             return Result<PagedList<Order>>.Success(pagedResult);
@@ -282,6 +265,51 @@ public class OrderFacade : IOrderFacade
         {
             System.Diagnostics.Debug.WriteLine($"[OrderFacade] Error updating status: {ex.Message}");
             _ = _toastService.ShowError($"Error updating status: {ex.Message}");
+            return Result<Order>.Failure($"Error: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<Order>> UpdatePaymentStatusAsync(Guid orderId, string newPaymentStatus)
+    {
+        try
+        {
+            // Validate payment status
+            var validStatuses = new[] { "Unpaid", "Paid", "PartiallyPaid", "Refunded", "Failed" };
+            if (!validStatuses.Contains(newPaymentStatus, StringComparer.OrdinalIgnoreCase))
+            {
+                _ = _toastService.ShowError($"Invalid payment status. Valid values: {string.Join(", ", validStatuses)}");
+                return Result<Order>.Failure("Invalid payment status");
+            }
+
+            // Get current order
+            var orderResult = await _orderRepository.GetByIdAsync(orderId);
+            if (!orderResult.IsSuccess || orderResult.Data == null)
+            {
+                _ = _toastService.ShowError("Order not found");
+                return Result<Order>.Failure("Order not found");
+            }
+
+            var order = orderResult.Data;
+
+            // Update payment status
+            order.PaymentStatus = newPaymentStatus;
+            order.UpdatedAt = DateTime.UtcNow;
+
+            var updateResult = await _orderRepository.UpdateAsync(order);
+            if (!updateResult.IsSuccess)
+            {
+                _ = _toastService.ShowError("Failed to update payment status");
+                return Result<Order>.Failure("Failed to update payment status");
+            }
+
+            _ = _toastService.ShowSuccess($"Payment status updated to {newPaymentStatus}");
+            System.Diagnostics.Debug.WriteLine($"[OrderFacade] Order {orderId} payment status updated to {newPaymentStatus}");
+            return Result<Order>.Success(order);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[OrderFacade] Error updating payment status: {ex.Message}");
+            _ = _toastService.ShowError($"Error updating payment status: {ex.Message}");
             return Result<Order>.Failure($"Error: {ex.Message}");
         }
     }

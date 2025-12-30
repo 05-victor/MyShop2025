@@ -12,6 +12,8 @@ namespace MyShop.Data.Entities
 
         public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Unpaid;
 
+        public string? PaymentMethod { get; set; }
+
         public int TotalAmount { get; set; }
 
         public int DiscountAmount { get; set; }

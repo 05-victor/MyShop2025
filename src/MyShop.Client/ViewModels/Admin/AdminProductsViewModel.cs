@@ -1,11 +1,15 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MyShop.Client.Services;
 using MyShop.Client.ViewModels.Base;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Services;
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 
 namespace MyShop.Client.ViewModels.Admin;
 
@@ -17,6 +21,9 @@ public partial class AdminProductsViewModel : PagedViewModelBase<ProductRow>
 {
     private readonly IProductFacade _productFacade;
     private readonly IDialogService _dialogService;
+
+    // Events
+    public event EventHandler<ProductRow>? DeleteProductRequested;
 
     // Category filter
     [ObservableProperty]
@@ -176,39 +183,42 @@ public partial class AdminProductsViewModel : PagedViewModelBase<ProductRow>
 
         System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] DeleteProductAsync: Product ID={row.Id}, Name={row.Name}");
 
-        var confirmResult = await _dialogService.ShowConfirmationAsync(
-            "Delete Product",
-            $"Are you sure you want to delete '{row.Name}'? This action cannot be undone.");
+        // Raise event to trigger confirmation dialog from Page-Behind
+        DeleteProductRequested?.Invoke(this, row);
+    }
 
-        if (!confirmResult.IsSuccess || !confirmResult.Data)
-        {
-            System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] DeleteProductAsync: User cancelled deletion");
-            return;
-        }
-
+    /// <summary>
+    /// Confirm and execute product deletion (called from Page-Behind after user confirms)
+    /// </summary>
+    public async Task ConfirmDeleteProductAsync(Guid productId, string productName)
+    {
         SetLoadingState(true);
         try
         {
-            System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] DeleteProductAsync: Calling facade to delete product");
-            var deleteResult = await _productFacade.DeleteProductAsync(row.Id);
+            System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] ConfirmDeleteProductAsync: Calling facade to delete product {productId}");
+            var deleteResult = await _productFacade.DeleteProductAsync(productId);
 
             if (deleteResult.IsSuccess)
             {
-                System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] ✅ DeleteProductAsync: Product deleted successfully");
-                await _toastHelper?.ShowSuccess($"Product '{row.Name}' deleted successfully");
-                Items.Remove(row);
-                UpdatePagingInfo(TotalItems - 1);
+                System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] ✅ ConfirmDeleteProductAsync: Product deleted successfully");
+
+                // Remove from items list
+                var itemToRemove = Items.FirstOrDefault(x => x.Id == productId);
+                if (itemToRemove != null)
+                {
+                    Items.Remove(itemToRemove);
+                    UpdatePagingInfo(TotalItems - 1);
+                }
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] ❌ DeleteProductAsync: Failed - {deleteResult.ErrorMessage}");
+                System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] ❌ ConfirmDeleteProductAsync: Failed - {deleteResult.ErrorMessage}");
                 await _toastHelper?.ShowError(deleteResult.ErrorMessage ?? "Failed to delete product");
             }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] ❌ DeleteProductAsync: Exception - {ex.Message}");
-            System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] Stack trace: {ex.StackTrace}");
+            System.Diagnostics.Debug.WriteLine($"[AdminProductsViewModel] ❌ ConfirmDeleteProductAsync: Exception - {ex.Message}");
             await _toastHelper?.ShowError($"Failed to delete product: {ex.Message}");
         }
         finally

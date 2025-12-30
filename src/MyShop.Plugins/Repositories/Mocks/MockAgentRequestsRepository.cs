@@ -254,4 +254,19 @@ public class MockAgentRequestsRepository : IAgentRequestRepository
             return Result<bool>.Failure($"Failed to reject request: {ex.Message}");
         }
     }
+
+    public async Task<Result<MyShop.Shared.DTOs.Responses.AgentRequestResponse?>> GetMyRequestAsync()
+    {
+        try
+        {
+            // Mock implementation - return null (no request found)
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] GetMyRequestAsync - Mock returns null");
+            return Result<MyShop.Shared.DTOs.Responses.AgentRequestResponse?>.Success(null);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MockAgentRequestsRepository] GetMyRequestAsync error: {ex.Message}");
+            return Result<MyShop.Shared.DTOs.Responses.AgentRequestResponse?>.Failure($"Failed to get my request: {ex.Message}");
+        }
+    }
 }

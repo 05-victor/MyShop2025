@@ -238,4 +238,102 @@ public class ProductService : IProductService
             throw InfrastructureException.DatabaseError("Failed to search products", ex);
         }
     }
+
+    public async Task<BulkCreateProductsResponse> BulkCreateAsync(BulkCreateProductsRequest request)
+    {
+        var response = new BulkCreateProductsResponse
+        {
+            TotalSubmitted = request.Products.Count
+        };
+
+        try
+        {
+            _logger.LogInformation("Starting bulk product creation for {Count} products", request.Products.Count);
+
+            // Validate before insert if requested
+            if (request.ValidateBeforeInsert)
+            {
+                var validationErrors = new List<BulkCreateError>();
+                
+                for (int i = 0; i < request.Products.Count; i++)
+                {
+                    var productRequest = request.Products[i];
+                    try
+                    {
+                        // Check if category exists
+                        var category = await _categoryRepository.GetByIdAsync(productRequest.CategoryId);
+                        if (category == null)
+                        {
+                            validationErrors.Add(new BulkCreateError
+                            {
+                                Index = i,
+                                ProductIdentifier = productRequest.Name,
+                                ErrorMessage = $"Category with ID {productRequest.CategoryId} not found"
+                            });
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        validationErrors.Add(new BulkCreateError
+                        {
+                            Index = i,
+                            ProductIdentifier = productRequest.Name,
+                            ErrorMessage = ex.Message
+                        });
+                    }
+                }
+
+                if (validationErrors.Any())
+                {
+                    response.FailureCount = validationErrors.Count;
+                    response.Errors = validationErrors;
+                    _logger.LogWarning("Bulk validation failed with {Count} errors", validationErrors.Count);
+                    return response;
+                }
+            }
+
+            // Process each product
+            for (int i = 0; i < request.Products.Count; i++)
+            {
+                var productRequest = request.Products[i];
+                try
+                {
+                    var createdProduct = await CreateAsync(productRequest);
+                    response.CreatedProducts.Add(createdProduct);
+                    response.SuccessCount++;
+                }
+                catch (Exception ex)
+                {
+                    response.FailureCount++;
+                    response.Errors.Add(new BulkCreateError
+                    {
+                        Index = i,
+                        ProductIdentifier = $"{productRequest.Name} ({productRequest.SKU})",
+                        ErrorMessage = ex.Message
+                    });
+
+                    _logger.LogWarning(ex, "Failed to create product at index {Index}: {Name}", i, productRequest.Name);
+
+                    // Stop if not skipping invalid products
+                    if (!request.SkipInvalidProducts)
+                    {
+                        _logger.LogError("Stopping bulk creation due to error at index {Index}", i);
+                        break;
+                    }
+                }
+            }
+
+            _logger.LogInformation(
+                "Bulk product creation completed: {Success} succeeded, {Failed} failed", 
+                response.SuccessCount, 
+                response.FailureCount);
+
+            return response;
+        }
+        catch (Exception ex) when (ex is not BaseApplicationException)
+        {
+            _logger.LogError(ex, "Error during bulk product creation");
+            throw InfrastructureException.DatabaseError("Failed to perform bulk product creation", ex);
+        }
+    }
 }

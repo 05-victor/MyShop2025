@@ -41,4 +41,40 @@ public interface IAuthApi
     /// </summary>
     [Post("/api/v1/auth/revoke-token")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<object>>> RevokeTokenAsync([Body] RefreshTokenRequest request);
+
+    /// <summary>
+    /// Send a verification email to the authenticated user's email address.
+    /// User must be authenticated via JWT token.
+    /// </summary>
+    [Post("/api/v1/email-verification/send")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<object>>> SendVerificationEmailAsync();
+
+    /// <summary>
+    /// Send a password reset code to the specified email.
+    /// User does not need to be authenticated.
+    /// </summary>
+    [Post("/api/v1/passwordreset/forgot-password")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<object>>> SendPasswordResetCodeAsync([Body] ForgotPasswordRequest request);
+
+    /// <summary>
+    /// Reset password using email, reset code, and new password.
+    /// User does not need to be authenticated.
+    /// </summary>
+    [Post("/api/v1/passwordreset/reset-password")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<object>>> ResetPasswordAsync([Body] ResetPasswordRequest request);
+
+    /// <summary>
+    /// Activate trial or premium license code for authenticated user.
+    /// Promotes user to Admin role and sets trial/premium status.
+    /// User must be authenticated via JWT token.
+    /// </summary>
+    [Post("/api/v1/users/activate")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<ActivateUserResponse>>> ActivateAsync([Query] string activateCode);
+
+    /// <summary>
+    /// Check if any admin exists in the system.
+    /// Does not require authentication.
+    /// </summary>
+    [Get("/api/v1/users/has-admin")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<bool>>> HasAdminAsync();
 }

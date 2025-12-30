@@ -1,25 +1,18 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MyShop.Client.Services;
 using MyShop.Client.Services.Configuration;
+using MyShop.Core.Interfaces.Infrastructure;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
-using MyShop.Core.Interfaces.Infrastructure;
-using MyShop.Plugins.Repositories.Mocks;
+using MyShop.Shared.DTOs.Requests;
+using MyShop.Shared.Models.Enums;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
 using System.Reflection;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
-using Windows.Storage;
-using Windows.Storage.Pickers;
-
-// Use alias to avoid ambiguity with MockSettingsRepository.AppSettings
+// Use alias to avoid ambiguity with AppSettings
 using AppSettings = MyShop.Shared.Models.AppSettings;
-using PaginationSettings = MyShop.Shared.Models.PaginationSettings;
 
 namespace MyShop.Client.ViewModels.Settings;
 
@@ -33,7 +26,7 @@ public partial class SettingsViewModel : ObservableObject
     private readonly ISettingsStorage _settingsStorage;
     private readonly IToastService _toastHelper;
     private readonly IPaginationService _paginationService;
-    private readonly MockSettingsRepository _mockSettingsRepository;
+    private readonly ISettingsRepository _settingsRepository;
     private readonly ISystemActivationRepository _activationRepository;
     private readonly IAuthRepository _authRepository;
     private readonly INavigationService _navigationService;
@@ -43,10 +36,10 @@ public partial class SettingsViewModel : ObservableObject
 
     // Trial properties
     [ObservableProperty] private int _trialDaysRemaining = 0;
-    [ObservableProperty] private string _upgradeProUrl = "https://facebook.com";
-    [ObservableProperty] private string _supportUrl = "https://facebook.com/myshop.support";
+    [ObservableProperty] private string _upgradeProUrl = "https://adminportal-psi.vercel.app";
+    [ObservableProperty] private string _supportUrl = "https://adminportal-psi.vercel.app";
     [ObservableProperty] private string _trialCode = string.Empty;
-    
+
     // License/Trial visibility properties
     [ObservableProperty] private bool _isAdmin = false;
     [ObservableProperty] private bool _isTrialAdmin = false;
@@ -57,67 +50,14 @@ public partial class SettingsViewModel : ObservableObject
 
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
 
-    // About info - read from assembly
-    public string AppVersion => Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0";
+    // About info - now loaded from API, fallback to assembly/hardcoded values
+    [ObservableProperty] private string _appName = "MyShop 2025";
+    [ObservableProperty] private string _appVersion = "1.0.0";
+    [ObservableProperty] private string _releaseDate = "November 2025";
+    [ObservableProperty] private string _licenseInfo = "Commercial";
+    [ObservableProperty] private string _supportEmail = "support@myshop.com";
+
     public string ReleaseYear => $"© {DateTime.Now.Year} MyShop. All rights reserved.";
-
-    // Developer tab properties
-    public bool UseMockData
-    {
-        get => _configService.FeatureFlags.UseMockData;
-        set
-        {
-            if (_configService.FeatureFlags.UseMockData != value)
-            {
-                // Note: This only updates the in-memory value
-                // Actual config change requires editing appsettings.Development.json
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(DataModeDisplay));
-            }
-        }
-    }
-
-    public string ServerUrl
-    {
-        get => _configService.Api.BaseUrl;
-        set => OnPropertyChanged();
-    }
-
-    public string DataModeDisplay => UseMockData ? "Mock Data" : "Real API";
-    
-    [ObservableProperty]
-    private string _currentUserEmail = "Not logged in";
-    
-    [ObservableProperty]
-    private string _currentUserRole = "Unknown";
-    
-#if DEBUG
-    public string BuildConfiguration => "Debug";
-#else
-    public string BuildConfiguration => "Release";
-#endif
-
-    /// <summary>
-    /// Gets formatted debug information for clipboard copy
-    /// </summary>
-    public string GetDebugInfo()
-    {
-        var sb = new StringBuilder();
-        sb.AppendLine("=== MyShop 2025 Debug Info ===");
-        sb.AppendLine($"Version: {AppVersion}");
-        sb.AppendLine($"Build: {BuildConfiguration}");
-        sb.AppendLine($"Data Mode: {DataModeDisplay}");
-        sb.AppendLine($"Server URL: {ServerUrl}");
-        sb.AppendLine($"User: {CurrentUserEmail}");
-        sb.AppendLine($"Role: {CurrentUserRole}");
-        sb.AppendLine($"Theme: {Theme}");
-        sb.AppendLine($"Language: {Language}");
-        sb.AppendLine($"OS: {Environment.OSVersion}");
-        sb.AppendLine($".NET: {Environment.Version}");
-        sb.AppendLine($"Timestamp: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
-        sb.AppendLine("==============================");
-        return sb.ToString();
-    }
 
     // Settings properties
     [ObservableProperty]
@@ -145,50 +85,7 @@ public partial class SettingsViewModel : ObservableObject
     //     new LanguageOption { Code = "en-US", Name = "English", Flag = "🇺🇸" }
     // };
 
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private bool _notificationsEnabled = true;
-
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private bool _restoreLastPage = true;
-
-    // Page size preferences
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private int _productsPageSize = Core.Common.PaginationConstants.ProductsPageSize;
-
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private int _ordersPageSize = Core.Common.PaginationConstants.OrdersPageSize;
-
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private int _customersPageSize = 20;
-
-    public ObservableCollection<int> PageSizeOptions { get; } = new() { 10, 15, 20, 25, 50, 100 };
-
-    // Extended notification settings
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private bool _enableSoundNotifications = true;
-
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private bool _notifyOnLowStock = true;
-
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private bool _notifyOnNewOrders = true;
-
-    // Cache management
-    [ObservableProperty] private string _cacheSize = "0 MB";
-
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private bool _enableOfflineMode = false;
-
-    // Shop information settings
+    // Shop information settings (Admin only)
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
     private string _shopName = "MyShop 2025";
@@ -196,21 +93,6 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
     private string _address = string.Empty;
-
-    // Timezone settings
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private int _selectedTimezoneIndex = 0;
-
-    public ObservableCollection<string> TimezoneOptions { get; } = new()
-    {
-        "UTC+7 (Vietnam)",
-        "UTC+8 (Singapore)",
-        "UTC+9 (Japan)",
-        "UTC+0 (GMT)",
-        "UTC-5 (EST)",
-        "UTC-8 (PST)"
-    };
 
     // Track if settings changed
     private AppSettings? _originalSettings;
@@ -220,6 +102,7 @@ public partial class SettingsViewModel : ObservableObject
         ISettingsStorage settingsStorage,
         IToastService toastHelper,
         IPaginationService paginationService,
+        ISettingsRepository settingsRepository,
         ISystemActivationRepository activationRepository,
         IAuthRepository authRepository,
         INavigationService navigationService)
@@ -228,10 +111,10 @@ public partial class SettingsViewModel : ObservableObject
         _settingsStorage = settingsStorage;
         _toastHelper = toastHelper;
         _paginationService = paginationService;
+        _settingsRepository = settingsRepository;
         _activationRepository = activationRepository;
         _authRepository = authRepository;
         _navigationService = navigationService;
-        _mockSettingsRepository = new MockSettingsRepository();
     }
 
     partial void OnErrorMessageChanged(string value)
@@ -299,7 +182,7 @@ public partial class SettingsViewModel : ObservableObject
             {
                 var license = activateResult.Data;
                 TrialCode = string.Empty;
-                
+
                 if (license.IsPermanent)
                 {
                     // Permanent license activated
@@ -311,7 +194,7 @@ public partial class SettingsViewModel : ObservableObject
                     TrialDaysRemaining = 0;
                     await _toastHelper.ShowSuccess("🎉 Permanent license activated! You now have unlimited access.");
                     Debug.WriteLine($"[SettingsViewModel] Permanent license activated for user: {currentUser.Id}");
-                    
+
                     // Navigate to Dashboard within shell
                     await _navigationService.NavigateInShell("MyShop.Client.Views.Admin.AdminDashboardPage", currentUser);
                 }
@@ -326,7 +209,7 @@ public partial class SettingsViewModel : ObservableObject
                     ShowTrialTab = true;
                     await _toastHelper.ShowSuccess($"Trial extended! {license.RemainingDays} days remaining.");
                     Debug.WriteLine($"[SettingsViewModel] Trial activated: {license.RemainingDays} days remaining");
-                    
+
                     // Reload license info to ensure UI is fully updated
                     await LoadLicenseInfoAsync();
                 }
@@ -344,65 +227,83 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Load trial/system settings from mock repository
+    /// Load trial/system settings
+    /// URLs are now hardcoded pending API support
     /// </summary>
     private async Task LoadSystemSettingsAsync()
     {
         try
         {
-            var systemSettings = await _mockSettingsRepository.GetSystemSettingsAsync();
-            if (systemSettings != null)
-            {
-                UpgradeProUrl = systemSettings.UpgradeProUrl;
-                SupportUrl = systemSettings.SupportUrl;
-                Debug.WriteLine($"[SettingsViewModel] System settings loaded: UpgradeUrl={UpgradeProUrl}");
-            }
-            
+            // TODO: Once SettingsResponse includes UpgradeProUrl and SupportUrl fields,
+            // fetch these from the API instead of hardcoding
+            UpgradeProUrl = "https://adminportal-psi.vercel.app";
+            SupportUrl = "https://adminportal-psi.vercel.app";
+            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] System settings loaded: UpgradeUrl={UpgradeProUrl}");
+
             // Load license info for Trial tab visibility
             await LoadLicenseInfoAsync();
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[SettingsViewModel] Failed to load system settings: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Failed to load system settings: {ex.Message}");
         }
     }
-    
+
     /// <summary>
     /// Load license info to determine Trial tab visibility
-    /// Only show Trial tab for Admin users with Trial license
+    /// Trial tab shows for: Admin without Permanent license (Trial or No license)
+    /// Trial tab hidden for: Non-Admin or Admin with Permanent license
     /// </summary>
     private async Task LoadLicenseInfoAsync()
     {
         try
         {
+            // First check if user is Admin
+            var userResult = await _authRepository.GetCurrentUserAsync();
+            if (userResult.IsSuccess && userResult.Data != null)
+            {
+                var currentUser = userResult.Data;
+                IsAdmin = currentUser.Roles != null && currentUser.Roles.Contains(UserRole.Admin);
+            }
+            else
+            {
+                IsAdmin = false;
+            }
+
+            // Only load license info if user is Admin
+            if (!IsAdmin)
+            {
+                ShowTrialTab = false;
+                Debug.WriteLine("[SettingsViewModel] User is not Admin - hiding Trial tab");
+                return;
+            }
+
             var licenseResult = await _activationRepository.GetCurrentLicenseAsync();
             if (licenseResult.IsSuccess && licenseResult.Data != null)
             {
                 var license = licenseResult.Data;
-                IsAdmin = true;
                 IsTrialAdmin = !license.IsPermanent;
                 IsPermanentAdmin = license.IsPermanent;
                 LicenseType = license.IsPermanent ? "Permanent" : "Trial";
                 LicenseExpiresAt = license.ExpiresAt;
                 TrialDaysRemaining = license.RemainingDays;
-                
-                // Only show Trial tab for Trial admin (not Permanent admin)
-                ShowTrialTab = IsTrialAdmin;
-                
-                Debug.WriteLine($"[SettingsViewModel] License loaded: Type={LicenseType}, ExpiresAt={LicenseExpiresAt}, RemainingDays={TrialDaysRemaining}, ShowTrialTab={ShowTrialTab}");
+
+                // Show Trial tab only for Admin without Permanent license
+                ShowTrialTab = !license.IsPermanent;
+
+                Debug.WriteLine($"[SettingsViewModel] License loaded: Type={LicenseType}, IsPermanent={license.IsPermanent}, ShowTrialTab={ShowTrialTab}");
             }
             else
             {
-                // No license = not admin or no license activated
-                IsAdmin = false;
+                // Admin without license - show Trial tab so they can activate
                 IsTrialAdmin = false;
                 IsPermanentAdmin = false;
-                ShowTrialTab = false;
+                ShowTrialTab = true;
                 LicenseType = "None";
                 LicenseExpiresAt = null;
                 TrialDaysRemaining = 0;
-                
-                Debug.WriteLine("[SettingsViewModel] No license found - hiding Trial tab");
+
+                Debug.WriteLine($"[SettingsViewModel] Admin without license - showing Trial tab for activation");
             }
         }
         catch (Exception ex)
@@ -412,172 +313,9 @@ public partial class SettingsViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
-    private async Task CalculateCacheSizeAsync()
-    {
-        try
-        {
-            var cacheFolder = ApplicationData.Current.LocalCacheFolder;
-            var properties = await cacheFolder.GetBasicPropertiesAsync();
-            double sizeInMB = properties.Size / 1024.0 / 1024.0;
-            CacheSize = $"{sizeInMB:F2} MB";
-        }
-        catch
-        {
-            CacheSize = "0 MB";
-        }
-    }
-
-    [RelayCommand]
-    private async Task ClearCacheAsync()
-    {
-        try
-        {
-            var cacheFolder = ApplicationData.Current.LocalCacheFolder;
-            var files = await cacheFolder.GetFilesAsync();
-            foreach (var file in files)
-            {
-                await file.DeleteAsync();
-            }
-            await CalculateCacheSizeAsync();
-        }
-        catch
-        {
-            // Silently fail
-        }
-    }
-
-    [RelayCommand]
-    private async Task ExportSettingsAsync()
-    {
-        try
-        {
-            IsLoading = true;
-
-            var savePicker = new FileSavePicker();
-            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
-            WinRT.Interop.InitializeWithWindow.Initialize(savePicker, hwnd);
-
-            savePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
-            savePicker.FileTypeChoices.Add("JSON Settings", new List<string> { ".json" });
-            savePicker.SuggestedFileName = $"myshop-settings-{DateTime.Now:yyyyMMdd-HHmmss}";
-
-            var file = await savePicker.PickSaveFileAsync();
-            if (file != null)
-            {
-                var result = await _settingsStorage.GetAsync();
-                if (!result.IsSuccess || result.Data == null)
-                {
-                    await _toastHelper.ShowError("Failed to load current settings for export.");
-                    return;
-                }
-                
-                var settings = result.Data;
-                var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
-                await FileIO.WriteTextAsync(file, json);
-
-                await _toastHelper.ShowSuccess($"Settings exported to {file.Name}");
-                System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Settings exported to: {file.Path}");
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Export error: {ex.Message}");
-            await _toastHelper.ShowError("Failed to export settings.");
-        }
-        finally
-        {
-            IsLoading = false;
-        }
-    }
-
-    [RelayCommand]
-    private async Task ImportSettingsAsync()
-    {
-        try
-        {
-            IsLoading = true;
-
-            var openPicker = new FileOpenPicker();
-            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
-            WinRT.Interop.InitializeWithWindow.Initialize(openPicker, hwnd);
-
-            openPicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
-            openPicker.FileTypeFilter.Add(".json");
-
-            var file = await openPicker.PickSingleFileAsync();
-            if (file != null)
-            {
-                var json = await FileIO.ReadTextAsync(file);
-                var settings = JsonSerializer.Deserialize<AppSettings>(json, new JsonSerializerOptions 
-                { 
-                    PropertyNameCaseInsensitive = true 
-                });
-
-                if (settings != null)
-                {
-                    // Validate settings before applying
-                    if (ValidateImportedSettings(settings))
-                    {
-                        var result = await _settingsStorage.SaveAsync(settings);
-                        if (result.IsSuccess)
-                        {
-                            await LoadAsync();
-                            await _toastHelper.ShowSuccess($"Settings imported from {file.Name}");
-                            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Settings imported from: {file.Path}");
-                        }
-                        else
-                        {
-                            await _toastHelper.ShowError("Failed to save imported settings.");
-                        }
-                    }
-                    else
-                    {
-                        await _toastHelper.ShowError("Invalid settings file format.");
-                    }
-                }
-                else
-                {
-                    await _toastHelper.ShowError("Failed to parse settings file.");
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Import error: {ex.Message}");
-            await _toastHelper.ShowError("Failed to import settings.");
-        }
-        finally
-        {
-            IsLoading = false;
-        }
-    }
-
-    private bool ValidateImportedSettings(AppSettings settings)
-    {
-        // Basic validation
-        if (settings == null) return false;
-        
-        // Validate theme
-        if (!string.IsNullOrEmpty(settings.Theme) && 
-            !new[] { "System", "Light", "Dark" }.Contains(settings.Theme))
-        {
-            return false;
-        }
-
-        // Validate page sizes via Pagination object
-        if (settings.Pagination != null)
-        {
-            if (settings.Pagination.ProductsPageSize < 1 || settings.Pagination.ProductsPageSize > 200) return false;
-            if (settings.Pagination.OrdersPageSize < 1 || settings.Pagination.OrdersPageSize > 200) return false;
-            if (settings.Pagination.CustomersPageSize < 1 || settings.Pagination.CustomersPageSize > 200) return false;
-        }
-
-        return true;
-    }
-
     /// <summary>
-    /// Load settings from storage
+    /// Load settings from API first, then fallback to local storage
+    /// Ensures data is synced with server
     /// </summary>
     [RelayCommand]
     private async Task LoadAsync()
@@ -590,34 +328,89 @@ public partial class SettingsViewModel : ObservableObject
             // Load system settings (trial info, upgrade URL, etc.)
             await LoadSystemSettingsAsync();
 
-            var result = await _settingsStorage.GetAsync();
-            if (!result.IsSuccess || result.Data == null)
+            // Try to load from API first (source of truth)
+            System.Diagnostics.Debug.WriteLine("[SettingsViewModel] Attempting to load settings from API");
+            var apiResult = await _settingsRepository.GetSettingsAsync();
+
+            if (apiResult.IsSuccess && apiResult.Data != null)
             {
-                ErrorMessage = result.ErrorMessage ?? "Failed to load settings.";
-                return;
+                // Load from API response
+                var apiSettings = apiResult.Data;
+                // Normalize theme string using ThemeMapping to ensure consistency
+                Theme = ThemeMapping.ToAppSettings(ThemeMapping.FromAppSettings(apiSettings.Theme));
+                ShopName = string.IsNullOrEmpty(apiSettings.ShopName) ? "MyShop 2025" : apiSettings.ShopName;
+                Address = apiSettings.Address ?? string.Empty;
+                Language = "en-US"; // Language not yet supported by API, use default
+
+                // Load About tab info from API
+                AppName = apiSettings.AppName ?? "MyShop 2025";
+                AppVersion = apiSettings.Version ?? "1.0.0";
+                ReleaseDate = FormatReleaseDate(apiSettings.ReleaseDate);
+                LicenseInfo = apiSettings.License ?? "Commercial";
+                SupportEmail = apiSettings.Support ?? "support@myshop.com";
+
+                System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Loaded from API: ShopName={ShopName}, Address={Address}, Theme={Theme}, Version={AppVersion}");
+
+                // Store as AppSettings for local cache
+                var cacheSettings = new AppSettings
+                {
+                    Theme = Theme,
+                    Language = Language,
+                    ShopName = ShopName,
+                    Address = Address
+                };
+                _originalSettings = cacheSettings;
+
+                // Also cache to local storage for offline support
+                await _settingsStorage.SaveAsync(cacheSettings);
+
+                // Apply loaded theme immediately to the app
+                System.Diagnostics.Debug.WriteLine("[SettingsViewModel] Applying loaded theme from API");
+                ApplyThemeAndLanguage();
             }
+            else
+            {
+                // Fallback to local storage if API fails
+                System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] API load failed: {apiResult.ErrorMessage}, falling back to local storage");
 
-            var settings = result.Data;
-            
-            Theme = settings.Theme;
-            Language = settings.Language;
-            NotificationsEnabled = settings.NotificationsEnabled;
-            RestoreLastPage = settings.RestoreLastPage;
-            ProductsPageSize = settings.Pagination.ProductsPageSize;
-            OrdersPageSize = settings.Pagination.OrdersPageSize;
-            CustomersPageSize = settings.Pagination.CustomersPageSize;
-            EnableSoundNotifications = settings.EnableSoundNotifications;
-            NotifyOnLowStock = settings.NotifyOnLowStock;
-            NotifyOnNewOrders = settings.NotifyOnNewOrders;
-            EnableOfflineMode = settings.EnableOfflineMode;
-            ShopName = settings.ShopName ?? "MyShop 2025";
-            Address = settings.Address ?? string.Empty;
-            SelectedTimezoneIndex = settings.SelectedTimezoneIndex;
+                var localResult = await _settingsStorage.GetAsync();
+                if (localResult.IsSuccess && localResult.Data != null)
+                {
+                    var settings = localResult.Data;
+                    Theme = settings.Theme;
+                    Language = settings.Language;
+                    ShopName = settings.ShopName ?? "MyShop 2025";
+                    Address = settings.Address ?? string.Empty;
+                    _originalSettings = settings;
 
-            // Store original for change detection
-            _originalSettings = settings;
+                    System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Loaded from local storage: Theme={Theme}");
 
-            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Loaded: Theme={Theme}, Language={Language}");
+                    // Apply loaded theme immediately to the app
+                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] Applying loaded theme from local storage");
+                    ApplyThemeAndLanguage();
+                }
+                else
+                {
+                    // Use defaults if both API and local storage fail
+                    Theme = "Light";
+                    Language = "en-US";
+                    ShopName = "MyShop 2025";
+                    Address = string.Empty;
+                    _originalSettings = new AppSettings
+                    {
+                        Theme = Theme,
+                        Language = Language,
+                        ShopName = ShopName,
+                        Address = Address
+                    };
+
+                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] Using default settings");
+
+                    // Apply default theme immediately to the app
+                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] Applying default theme");
+                    ApplyThemeAndLanguage();
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -631,7 +424,10 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Save settings to storage
+    /// Save settings to both local storage AND API
+    /// Determines which API to call based on user role and which settings changed
+    /// Admin: Can save shop info (ShopName, Address) via UpdateSettingsAsync
+    /// SalesAgent/User: Can save theme via UpdateAppearanceAsync
     /// </summary>
     [RelayCommand(CanExecute = nameof(CanSave))]
     private async Task SaveAsync()
@@ -641,47 +437,43 @@ public partial class SettingsViewModel : ObservableObject
             IsLoading = true;
             ErrorMessage = string.Empty;
 
-            var settings = new AppSettings
+            // First, always save to local storage for offline support
+            var localSettings = new AppSettings
             {
                 Theme = Theme,
                 Language = Language,
-                NotificationsEnabled = NotificationsEnabled,
-                RestoreLastPage = RestoreLastPage,
-                Pagination = new PaginationSettings
-                {
-                    ProductsPageSize = ProductsPageSize,
-                    OrdersPageSize = OrdersPageSize,
-                    CustomersPageSize = CustomersPageSize
-                },
-                EnableSoundNotifications = EnableSoundNotifications,
-                NotifyOnLowStock = NotifyOnLowStock,
-                NotifyOnNewOrders = NotifyOnNewOrders,
-                EnableOfflineMode = EnableOfflineMode,
                 ShopName = ShopName,
-                Address = Address,
-                SelectedTimezoneIndex = SelectedTimezoneIndex
+                Address = Address
             };
 
-            var result = await _settingsStorage.SaveAsync(settings);
-            if (!result.IsSuccess)
+            var localResult = await _settingsStorage.SaveAsync(localSettings);
+            if (!localResult.IsSuccess)
             {
-                ErrorMessage = result.ErrorMessage ?? "Failed to save settings.";
+                ErrorMessage = localResult.ErrorMessage ?? "Failed to save settings locally.";
                 return;
             }
 
-            // Update original settings
-            _originalSettings = settings;
-            
-            // Sync with global PaginationService so all ViewModels get updated values
-            _paginationService.Initialize(settings.Pagination);
-            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] PaginationService synced: Products={ProductsPageSize}, Orders={OrdersPageSize}");
+            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Local save: Theme={Theme}, Language={Language}, ShopName={ShopName}, Address={Address}");
+
+            // Now sync with API based on role and what changed
+            bool apiSaveSucceeded = await SaveToApiAsync();
+
+            if (!apiSaveSucceeded)
+            {
+                // Warn user that local was saved but API sync failed
+                await _toastHelper.ShowWarning("Settings saved locally, but server sync failed. Changes will sync when connection is restored.");
+                return;
+            }
+
+            // Update original settings to track what was changed
+            _originalSettings = localSettings;
 
             await _toastHelper.ShowSuccess("Settings saved successfully!");
-            
+
             // Apply theme and language immediately
             ApplyThemeAndLanguage();
 
-            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Saved: Theme={Theme}, Language={Language}");
+            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Saved and synced: Theme={Theme}, Language={Language}");
         }
         catch (Exception ex)
         {
@@ -694,7 +486,128 @@ public partial class SettingsViewModel : ObservableObject
         }
     }
 
+    /// <summary>
+    /// Save settings to API based on user role
+    /// Returns true if API save succeeded (or no API call needed)
+    /// Returns false if API save failed
+    /// </summary>
+    private async Task<bool> SaveToApiAsync()
+    {
+        try
+        {
+            // Check if theme changed (all users can update appearance)
+            bool themeChanged = _originalSettings != null && Theme != _originalSettings.Theme;
+
+            // Check if shop info changed (Admin only)
+            bool shopInfoChanged = _originalSettings != null &&
+                (ShopName != _originalSettings.ShopName || Address != _originalSettings.Address);
+
+            if (IsAdmin)
+            {
+                // Admin: Always use UpdateSettingsAsync for ANY changes (shop info or appearance)
+                // Admin can update both shop settings and appearance using the main PUT endpoint
+                if (shopInfoChanged || themeChanged)
+                {
+                    // Validate ShopName is not empty (required by API)
+                    if (string.IsNullOrEmpty(ShopName))
+                    {
+                        System.Diagnostics.Debug.WriteLine("[SettingsViewModel] ❌ Admin update failed: ShopName is required");
+                        ErrorMessage = "Shop name is required and cannot be empty.";
+                        return false;
+                    }
+
+                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] Admin updating settings (shop info and/or appearance) via API");
+                    var updateRequest = new UpdateSettingsRequest
+                    {
+                        ShopName = ShopName,
+                        Address = Address,
+                        Theme = Theme,
+                        License = "Commercial", // Default license, can be updated later
+                    };
+
+                    var result = await _settingsRepository.UpdateSettingsAsync(updateRequest);
+                    if (!result.IsSuccess)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] ❌ Admin settings update failed: {result.ErrorMessage}");
+                        ErrorMessage = $"Failed to update settings: {result.ErrorMessage}";
+                        return false;
+                    }
+
+                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] ✅ Admin settings updated via API");
+
+                    // Save theme to session storage for startup if theme changed
+                    if (themeChanged)
+                    {
+                        await SaveSessionThemeAsync();
+                    }
+
+                    return true;
+                }
+            }
+            else
+            {
+                // SalesAgent/User: Can only update appearance (theme) using the appearance endpoint
+                if (themeChanged)
+                {
+                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] SalesAgent/User updating appearance via API");
+                    var appearanceRequest = new UpdateAppearanceRequest { Theme = Theme };
+
+                    var result = await _settingsRepository.UpdateAppearanceAsync(appearanceRequest);
+                    if (!result.IsSuccess)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] ❌ Appearance update failed: {result.ErrorMessage}");
+                        ErrorMessage = $"Failed to update appearance: {result.ErrorMessage}";
+                        return false;
+                    }
+
+                    System.Diagnostics.Debug.WriteLine("[SettingsViewModel] ✅ Appearance updated via API");
+
+                    // Save theme to session storage for startup
+                    await SaveSessionThemeAsync();
+
+                    return true;
+                }
+            }
+
+            // No API call needed if nothing changed that requires API sync
+            System.Diagnostics.Debug.WriteLine("[SettingsViewModel] No API changes needed");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] SaveToApiAsync error: {ex.Message}");
+            ErrorMessage = $"API error: {ex.Message}";
+            return false;
+        }
+    }
+
     private bool CanSave() => !IsLoading && HasChanges();
+
+    /// <summary>
+    /// Save current theme to session storage (for app startup without user context).
+    /// This allows the app to remember the last used theme before next login.
+    /// </summary>
+    private async Task SaveSessionThemeAsync()
+    {
+        try
+        {
+            var themeString = ThemeMapping.ToAppSettings(ThemeMapping.FromAppSettings(Theme));
+            var sessionResult = await _settingsStorage.SaveSessionThemeAsync(themeString);
+
+            if (sessionResult.IsSuccess)
+            {
+                System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] ✓ Theme saved to session storage: {themeString}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] ⚠️ Failed to save theme to session: {sessionResult.ErrorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] Error saving session theme: {ex.Message}");
+        }
+    }
 
     /// <summary>
     /// Reset settings to defaults
@@ -713,7 +626,7 @@ public partial class SettingsViewModel : ObservableObject
                 ErrorMessage = result.ErrorMessage ?? "Failed to reset settings.";
                 return;
             }
-            
+
             // Reload defaults
             await LoadAsync();
 
@@ -739,18 +652,8 @@ public partial class SettingsViewModel : ObservableObject
 
         return Theme != _originalSettings.Theme ||
                Language != _originalSettings.Language ||
-               NotificationsEnabled != _originalSettings.NotificationsEnabled ||
-               RestoreLastPage != _originalSettings.RestoreLastPage ||
-               ProductsPageSize != _originalSettings.Pagination.ProductsPageSize ||
-               OrdersPageSize != _originalSettings.Pagination.OrdersPageSize ||
-               CustomersPageSize != _originalSettings.Pagination.CustomersPageSize ||
-               EnableSoundNotifications != _originalSettings.EnableSoundNotifications ||
-               NotifyOnLowStock != _originalSettings.NotifyOnLowStock ||
-               NotifyOnNewOrders != _originalSettings.NotifyOnNewOrders ||
-               EnableOfflineMode != _originalSettings.EnableOfflineMode ||
                ShopName != _originalSettings.ShopName ||
-               Address != _originalSettings.Address ||
-               SelectedTimezoneIndex != _originalSettings.SelectedTimezoneIndex;
+               Address != _originalSettings.Address;
     }
 
     /// <summary>
@@ -773,7 +676,7 @@ public partial class SettingsViewModel : ObservableObject
                 }
                 return;
             }
-            
+
             // Apply theme
             if (App.MainWindow == null)
             {
@@ -820,5 +723,22 @@ public partial class SettingsViewModel : ObservableObject
         {
             System.Diagnostics.Debug.WriteLine($"[SettingsViewModel] ApplyThemeAndLanguage error: {ex.Message}");
         }
+    }
+
+    /// <summary>
+    /// Format release date from DateTime to user-friendly format (e.g., "November 2025")
+    /// </summary>
+    private string FormatReleaseDate(DateTime releaseDate)
+    {
+        try
+        {
+            return releaseDate.ToString("MMMM yyyy"); // e.g., "November 2025"
+        }
+        catch
+        {
+            // Silently fallback to default
+        }
+
+        return "November 2025";
     }
 }

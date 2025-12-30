@@ -25,9 +25,12 @@ public static class OrderAdapter
             CustomerAddress = dto.CustomerEmail, // Use email as fallback since ShippingAddress is not in DTO
             Status = dto.Status ?? "PENDING",
             PaymentStatus = dto.PaymentStatus,
+            PaymentMethod = dto.PaymentMethod,
             FinalPrice = dto.GrandTotal,
             Subtotal = dto.TotalAmount,
             Discount = dto.DiscountAmount,
+            ShippingFee = dto.ShippingFee,
+            Tax = dto.TaxAmount,
             Notes = dto.Note,
             OrderDate = dto.OrderDate,
             CreatedAt = dto.CreatedAt,

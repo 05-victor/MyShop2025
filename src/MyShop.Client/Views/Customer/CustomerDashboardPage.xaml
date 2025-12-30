@@ -30,14 +30,15 @@
     <Grid>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="ResponsiveStates">
-                
+
                 <!-- Large Desktop: 1920px+ -->
                 <VisualState x:Name="LargeDesktopState">
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="1920"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="40"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="40"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -47,7 +48,8 @@
                         <AdaptiveTrigger MinWindowWidth="1280"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="32"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="32"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -57,7 +59,8 @@
                         <AdaptiveTrigger MinWindowWidth="960"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="24"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="24"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -67,7 +70,8 @@
                         <AdaptiveTrigger MinWindowWidth="640"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="20"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="20"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -77,93 +81,120 @@
                         <AdaptiveTrigger MinWindowWidth="0"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="16"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="16"/>
                     </VisualState.Setters>
                 </VisualState>
-                
+
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <Grid x:Name="MainContent" Padding="24"
-                RowSpacing="16">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+            <Grid x:Name="MainContent"
+                  Padding="24"
+                  RowSpacing="16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-            <StackPanel Grid.Row="0"
-                    Spacing="16">
+                <StackPanel Grid.Row="0"
+                            Spacing="16">
 
-                <!-- Page Header -->
-                <layout:PageHeader
-                    Title="Customer Dashboard"
-                    Subtitle="Welcome back! Here's your account overview"/>
+                    <!-- Page Header -->
+                    <layout:PageHeader
+                        Title="Customer Dashboard"
+                        Subtitle="Welcome back! Here's your account overview"/>
 
-                <!-- Become Admin Banner (shows when no admin exists) -->
-                <components:BecomeAdminBanner
-                    x:Name="BecomeAdminBannerControl"
-                    Visibility="{x:Bind ViewModel.ShowBecomeAdminBanner, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                    ActivationSuccessful="OnActivationSuccessful"/>
+                    <!-- Become Admin Banner (shows when no admin exists) -->
+                    <components:BecomeAdminBanner
+                        x:Name="BecomeAdminBannerControl"
+                        Visibility="{x:Bind ViewModel.ShowBecomeAdminBanner, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                        ActivationSuccessful="OnActivationSuccessful"/>
 
-                <!-- Email Verification Warning -->
-                <InfoBar
-                    Severity="Warning"
-                    Title="Email Verification Required"
-                    Message="Please verify your email to access all features"
-                    IsOpen="{x:Bind ViewModel.IsVerified, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
-                    IsClosable="False">
-                    <InfoBar.ActionButton>
-                        <Button
-                            Content="Resend Email"
-                            MinWidth="140"
-                            Click="ResendVerificationEmail_Click"
-                            Style="{StaticResource AccentButtonStyle}"/>
-                    </InfoBar.ActionButton>
-                </InfoBar>
+                    <!-- Email Verification Warning -->
+                    <Grid Visibility="{x:Bind ViewModel.IsVerified, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                          Background="#FFF5DE"
+                          BorderBrush="#FFD700"
+                          BorderThickness="1"
+                          CornerRadius="8"
+                          Padding="16">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                <!-- Welcome Section -->
-                <Border Style="{StaticResource CardWithShadowStyle}"
-                        Padding="24">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Grid.Column="0"
-                                Spacing="8">
-                            <TextBlock Text="{x:Bind ViewModel.WelcomeMessage, Mode=OneWay}"
-                                       FontSize="{StaticResource FontSize_4XL}"
-                                       FontWeight="Bold"
-                                       TextWrapping="Wrap"
+                        <StackPanel Grid.Row="0"
+                                    Spacing="4">
+                            <TextBlock Text="⚠️ Email Verification Required"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                            <TextBlock Text="Discover amazing products and great deals"
-                                       FontSize="{StaticResource FontSize_Base}"
-                                       Foreground="{ThemeResource Gray400Brush}"/>
+                            <TextBlock Text="Please verify your email to access all features"
+                                       FontSize="14"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       TextWrapping="Wrap"/>
                         </StackPanel>
 
-                        <StackPanel Grid.Column="1"
+                        <StackPanel Grid.Row="1"
                                     Orientation="Horizontal"
-                                    Spacing="12"
-                                    VerticalAlignment="Center">
-                            <Button Style="{StaticResource SecondaryButtonStyle}"
-                                    Click="OnBecomeAgentClick"
-                                    MinWidth="160"
-                                    AutomationProperties.Name="Become sales agent"
-                                    AutomationProperties.HelpText="Apply to become a sales agent"
-                                    UseSystemFocusVisuals="True">
-                                <StackPanel Orientation="Horizontal"
+                                    Spacing="8"
+                                    Margin="0,12,0,0">
+                            <Button
+                                Content="I've already verified My Account"
+                                MinWidth="200"
+                                Click="VerifyAccountNow_Click"
+                                Style="{StaticResource AccentButtonStyle}"/>
+                            <Button
+                                Content="Resend Email"
+                                MinWidth="140"
+                                Click="ResendVerificationEmail_Click"
+                                Style="{StaticResource SecondaryButtonStyle}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Welcome Section -->
+                    <Border Style="{StaticResource CardWithShadowStyle}"
+                            Padding="24">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0"
                                         Spacing="8">
-                                    <FontIcon Glyph="&#xE735;"
-                                            FontSize="{StaticResource FontSize_LG}"
-                                            Foreground="{ThemeResource AccentBlueBrush}"/>
-                                    <TextBlock Text="Become Agent"
-                                            FontSize="{StaticResource FontSize_Base}"
-                                            FontWeight="SemiBold"/>
-                                </StackPanel>
-                            </Button>
-                            <buttons:IconButton
+                                <TextBlock Text="{x:Bind ViewModel.WelcomeMessage, Mode=OneWay}"
+                                           FontSize="{StaticResource FontSize_4XL}"
+                                           FontWeight="Bold"
+                                           TextWrapping="Wrap"
+                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                <TextBlock Text="Discover amazing products and great deals"
+                                           FontSize="{StaticResource FontSize_Base}"
+                                           Foreground="{ThemeResource Gray400Brush}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1"
+                                        Orientation="Horizontal"
+                                        Spacing="12"
+                                        VerticalAlignment="Center">
+                                <Button Style="{StaticResource SecondaryButtonStyle}"
+                                        Click="OnBecomeAgentClick"
+                                        MinWidth="160"
+                                        AutomationProperties.Name="Become sales agent"
+                                        AutomationProperties.HelpText="Apply to become a sales agent"
+                                        UseSystemFocusVisuals="True">
+                                    <StackPanel Orientation="Horizontal"
+                                                Spacing="8">
+                                        <FontIcon Glyph="&#xE735;"
+                                                  FontSize="{StaticResource FontSize_LG}"
+                                                  Foreground="{ThemeResource AccentBlueBrush}"/>
+                                        <TextBlock Text="Become Agent"
+                                                   FontSize="{StaticResource FontSize_Base}"
+                                                   FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                </Button>
+                                <buttons:IconButton
                                     MinWidth="120"
                                     Variant="Filled"
                                     IconGlyph="&#xE719;"
@@ -171,295 +202,225 @@
                                     Click="OnShopNowClick"
                                     AutomationProperties.Name="Shop now"
                                     AccessKey="N"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
 
-                <!-- KPI Stats Cards (P1 - Component Enforcement) -->
-                <Grid x:Name="KPIGrid"
-                      ColumnSpacing="20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Total Orders KPI -->
-                    <cards:KPICard
-                        Grid.Column="0"
-                        Title="Total Orders"
-                        Value="{x:Bind ViewModel.TotalOrders, Mode=OneWay}"
-                        Subtitle="All time"
-                        Icon="&#xF133;"
-                        IconBackgroundBrush="{ThemeResource PurpleLightBrush}"
-                        IconForegroundBrush="{ThemeResource SecondaryBlueBrush}"/>
-
-                    <!-- Total Spent KPI -->
-                    <cards:KPICard
-                        Grid.Column="1"
-                        Title="Total Spent"
-                        Value="{x:Bind ViewModel.TotalSpent, Mode=OneWay}"
-                        Subtitle="All time"
-                        Icon="&#xE8C7;"
-                        IsCurrency="True"
-                        IconBackgroundBrush="{ThemeResource WarningAmberLightBrush}"
-                        IconForegroundBrush="{ThemeResource WarningAmberBrush}"/>
-
-                    <!-- Loyalty Points KPI -->
-                    <cards:KPICard
-                        Grid.Column="2"
-                        Title="Loyalty Points"
-                        Value="{x:Bind ViewModel.LoyaltyPoints, Mode=OneWay}"
-                        Subtitle="Rewards balance"
-                        Icon="&#xE734;"
-                        IconBackgroundBrush="{ThemeResource SuccessGreenLightBrush}"
-                        IconForegroundBrush="{ThemeResource SuccessGreenBrush}"/>
-
-                    <!-- Account Age KPI -->
-                    <cards:KPICard
-                        Grid.Column="3"
-                        Title="Member Since"
-                        Value="{x:Bind ViewModel.MemberSinceDays, Mode=OneWay}"
-                        Subtitle="days ago"
-                        Icon="&#xE77B;"
-                        IconBackgroundBrush="{ThemeResource SubtleFillColorSecondaryBrush}"
-                        IconForegroundBrush="{ThemeResource AccentBlueBrush}"/>
-                </Grid>
-
-            </StackPanel>
-
-            <!-- Main Content -->
-            <StackPanel Grid.Row="1"
-                    Spacing="20">
-
-                <!-- Featured Products Section -->
-                <StackPanel Spacing="16">
-                    <Grid>
+                    <!-- KPI Stats Cards (P1 - Component Enforcement) -->
+                    <Grid x:Name="KPIGrid"
+                          ColumnSpacing="20">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Grid.Column="0"
-                                   Text="Featured Products"
-                                   FontSize="{StaticResource FontSize_3XL}"
-                                   FontWeight="Bold"
-                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                   AutomationProperties.HeadingLevel="Level2"/>
-
-                        <HyperlinkButton Grid.Column="1"
-                                         Content="View All →"
-                                         Click="ViewAllFeaturedProducts_Click"
-                                         FontSize="{StaticResource FontSize_Base}"
-                                         Foreground="{ThemeResource AccentBlueBrush}"/>
-                    </Grid>
-
-                    <!-- Changed to {Binding} for async loaded API data -->
-                    <ItemsRepeater ItemsSource="{Binding FeaturedProducts, Mode=OneWay}">
-                        <ItemsRepeater.Layout>
-                            <UniformGridLayout MinItemWidth="250"
-                                               MinItemHeight="320"
-                                               ItemsStretch="Fill"
-                                               MinRowSpacing="20"
-                                               MinColumnSpacing="20"/>
-                        </ItemsRepeater.Layout>
-                        <ItemsRepeater.ItemTemplate>
-                            <DataTemplate x:DataType="viewmodels:FeaturedProductItem">
-                                <Border Style="{StaticResource ProductCardStyle}">
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="180"/>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
-
-                                        <!-- Product Image -->
-                                        <Border Grid.Row="0"
-                                                Background="{ThemeResource LayerFillColorDefaultBrush}"
-                                                CornerRadius="8"
-                                                Margin="0,0,0,12">
-                                            <Image Source="{x:Bind Image}"
-                                                   Stretch="UniformToFill"/>
-                                        </Border>
-
-                                        <!-- Product Info -->
-                                        <StackPanel Grid.Row="1"
-                                                Spacing="8">
-                                            <TextBlock Text="{x:Bind Category}"
-                                                       FontSize="{StaticResource FontSize_SM}"
-                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                       TextTrimming="CharacterEllipsis"/>
-
-                                            <TextBlock Text="{x:Bind Name}"
-                                                       FontSize="{StaticResource FontSize_LG}"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                                       TextWrapping="Wrap"
-                                                       MaxLines="2"/>
-
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-
-                                                <!-- Rating -->
-                                                <StackPanel Grid.Column="0"
-                                                            Orientation="Horizontal"
-                                                            Spacing="4">
-                                                    <FontIcon Glyph="&#xE735;"
-                                                              FontSize="{StaticResource FontSize_Base}"
-                                                              Foreground="{ThemeResource WarningAmberBrush}"/>
-                                                    <TextBlock Text="{x:Bind Rating}"
-                                                               FontSize="{StaticResource FontSize_SM}"
-                                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                                    <TextBlock Text="{x:Bind Reviews, Mode=OneTime}"
-                                                               FontSize="{StaticResource FontSize_SM}"
-                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                </StackPanel>
-                                            </Grid>
-
-                                            <!-- Price -->
-                                            <TextBlock Text="{x:Bind Price, Converter={StaticResource CurrencyConverter}}"
-                                                       FontSize="{StaticResource FontSize_2XL}"
-                                                       FontWeight="Bold"
-                                                       Foreground="{ThemeResource PrimaryBrush}"/>
-
-                                            <!-- Add to Cart Button -->
-                                            <Button HorizontalAlignment="Stretch"
-                                                    Style="{StaticResource PrimaryButtonStyle}">
-                                                <StackPanel Orientation="Horizontal"
-                                                            Spacing="8"
-                                                            HorizontalAlignment="Center">
-                                                    <FontIcon Glyph="&#xE7BF;"
-                                                            FontSize="{StaticResource FontSize_LG}"/>
-                                                    <TextBlock Text="Add to Cart"
-                                                            FontSize="{StaticResource FontSize_Base}"
-                                                            FontWeight="SemiBold"/>
-                                                </StackPanel>
-                                            </Button>
-                                        </StackPanel>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsRepeater.ItemTemplate>
-                    </ItemsRepeater>
-                </StackPanel>
-
-                <!-- Recommended Products Section -->
-                <StackPanel Spacing="16">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0"
-                                   Text="Recommended for You"
-                                   FontSize="{StaticResource FontSize_3XL}"
-                                   FontWeight="Bold"
-                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                        <!-- Total Orders KPI -->
+                        <cards:KPICard
+                            Grid.Column="0"
+                            Title="Total Orders"
+                            Value="{x:Bind ViewModel.TotalOrders, Mode=OneWay}"
+                            Subtitle="All time"
+                            Icon="&#xF133;"
+                            IconBackgroundBrush="{ThemeResource PurpleLightBrush}"
+                            IconForegroundBrush="{ThemeResource SecondaryBlueBrush}"/>
 
-                        <HyperlinkButton Grid.Column="1"
-                                         Content="View All →"
-                                         Click="ViewAllRecommendedProducts_Click"
-                                         FontSize="{StaticResource FontSize_Base}"
-                                         Foreground="{ThemeResource AccentBlueBrush}"/>
+                        <!-- Total Spent KPI -->
+                        <cards:KPICard
+                            Grid.Column="1"
+                            Title="Total Spent"
+                            Value="{x:Bind ViewModel.TotalSpent, Mode=OneWay}"
+                            Subtitle="All time"
+                            Icon="&#xE8C7;"
+                            IsCurrency="True"
+                            IconBackgroundBrush="{ThemeResource WarningAmberLightBrush}"
+                            IconForegroundBrush="{ThemeResource WarningAmberBrush}"/>
+
+                        <!-- Pending Orders KPI -->
+                        <cards:KPICard
+                            Grid.Column="2"
+                            Title="Pending Orders"
+                            Value="{x:Bind ViewModel.PendingOrders, Mode=OneWay}"
+                            Subtitle="Awaiting processing"
+                            Icon="&#xE734;"
+                            IconBackgroundBrush="{ThemeResource SuccessGreenLightBrush}"
+                            IconForegroundBrush="{ThemeResource SuccessGreenBrush}"/>
+
+                        <!-- Account Age KPI -->
+                        <cards:KPICard
+                            Grid.Column="3"
+                            Title="Member Since"
+                            Value="{x:Bind ViewModel.MemberSinceDays, Mode=OneWay}"
+                            Subtitle="days ago"
+                            Icon="&#xE77B;"
+                            IconBackgroundBrush="{ThemeResource SubtleFillColorSecondaryBrush}"
+                            IconForegroundBrush="{ThemeResource AccentBlueBrush}"/>
                     </Grid>
 
-                    <!-- Changed to {Binding} for async loaded API data -->
-                    <ItemsRepeater ItemsSource="{Binding RecommendedProducts, Mode=OneWay}">
-                        <ItemsRepeater.Layout>
-                            <UniformGridLayout MinItemWidth="250"
-                                               MinItemHeight="320"
-                                               ItemsStretch="Fill"
-                                               MinRowSpacing="20"
-                                               MinColumnSpacing="20"/>
-                        </ItemsRepeater.Layout>
-                        <ItemsRepeater.ItemTemplate>
-                            <DataTemplate x:DataType="viewmodels:RecommendedProductItem">
-                                <Border Style="{StaticResource ProductCardStyle}">
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="180"/>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
-
-                                        <!-- Product Image -->
-                                        <Border Grid.Row="0"
-                                                Background="{ThemeResource LayerFillColorDefaultBrush}"
-                                                CornerRadius="8"
-                                                Margin="0,0,0,12">
-                                            <Image Source="{x:Bind Image}"
-                                                   Stretch="UniformToFill"/>
-                                        </Border>
-
-                                        <!-- Product Info -->
-                                        <StackPanel Grid.Row="1"
-                                                Spacing="8">
-                                            <TextBlock Text="{x:Bind Category}"
-                                                       FontSize="{StaticResource FontSize_SM}"
-                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                       TextTrimming="CharacterEllipsis"/>
-
-                                            <TextBlock Text="{x:Bind Name}"
-                                                       FontSize="{StaticResource FontSize_LG}"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                                       TextWrapping="Wrap"
-                                                       MaxLines="2"/>
-
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-
-                                                <!-- Rating -->
-                                                <StackPanel Grid.Column="0"
-                                                            Orientation="Horizontal"
-                                                            Spacing="4">
-                                                    <FontIcon Glyph="&#xE735;"
-                                                              FontSize="{StaticResource FontSize_Base}"
-                                                              Foreground="{ThemeResource WarningAmberBrush}"/>
-                                                    <TextBlock Text="{x:Bind Rating}"
-                                                               FontSize="{StaticResource FontSize_SM}"
-                                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                                    <TextBlock Text="{x:Bind Reviews, Mode=OneTime}"
-                                                               FontSize="{StaticResource FontSize_SM}"
-                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                </StackPanel>
-                                            </Grid>
-
-                                            <!-- Price -->
-                                            <TextBlock Text="{x:Bind Price, Converter={StaticResource CurrencyConverter}}"
-                                                       FontSize="{StaticResource FontSize_2XL}"
-                                                       FontWeight="Bold"
-                                                       Foreground="{ThemeResource PrimaryBrush}"/>
-
-                                            <!-- Add to Cart Button -->
-                                            <Button HorizontalAlignment="Stretch"
-                                                    Style="{StaticResource PrimaryButtonStyle}">
-                                                <StackPanel Orientation="Horizontal"
-                                                            Spacing="8"
-                                                            HorizontalAlignment="Center">
-                                                    <FontIcon Glyph="&#xE7BF;"
-                                                            FontSize="{StaticResource FontSize_LG}"/>
-                                                    <TextBlock Text="Add to Cart"
-                                                            FontSize="{StaticResource FontSize_Base}"
-                                                            FontWeight="SemiBold"/>
-                                                </StackPanel>
-                                            </Button>
-                                        </StackPanel>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsRepeater.ItemTemplate>
-                    </ItemsRepeater>
                 </StackPanel>
 
-            </StackPanel>
-        </Grid>
-    </ScrollViewer>
-</Grid>
+                <!-- Main Content -->
+                <StackPanel Grid.Row="1"
+                            Spacing="20">
+
+                    <!-- Featured Products Section -->
+                    <StackPanel Spacing="16">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0"
+                                       Text="Featured Products"
+                                       FontSize="{StaticResource FontSize_3XL}"
+                                       FontWeight="Bold"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                       AutomationProperties.HeadingLevel="Level2"/>
+
+                            <HyperlinkButton Grid.Column="1"
+                                             Content="View All →"
+                                             Click="ViewAllFeaturedProducts_Click"
+                                             FontSize="{StaticResource FontSize_Base}"
+                                             Foreground="{ThemeResource AccentBlueBrush}"/>
+                        </Grid>
+
+                        <!-- Changed to {Binding} for async loaded API data -->
+                        <ItemsRepeater ItemsSource="{Binding FeaturedProducts, Mode=OneWay}">
+                            <ItemsRepeater.Layout>
+                                <UniformGridLayout MinItemWidth="250"
+                                                   MinItemHeight="320"
+                                                   ItemsStretch="Fill"
+                                                   MinRowSpacing="20"
+                                                   MinColumnSpacing="20"/>
+                            </ItemsRepeater.Layout>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="viewmodels:FeaturedProductItem">
+                                    <Border Style="{StaticResource ProductCardStyle}">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="180"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Product Image -->
+                                            <Border Grid.Row="0"
+                                                    Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                                    CornerRadius="8"
+                                                    Margin="0,0,0,12">
+                                                <Image Source="{x:Bind Image}"
+                                                       Stretch="UniformToFill"/>
+                                            </Border>
+
+                                            <!-- Product Info -->
+                                            <StackPanel Grid.Row="1"
+                                                        Spacing="8">
+                                                <TextBlock Text="{x:Bind Category}"
+                                                           FontSize="{StaticResource FontSize_SM}"
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                           TextTrimming="CharacterEllipsis"/>
+
+                                                <TextBlock Text="{x:Bind Name}"
+                                                           FontSize="{StaticResource FontSize_LG}"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                           TextWrapping="Wrap"
+                                                           MaxLines="2"/>
+
+                                                <!-- Price -->
+                                                <TextBlock Text="{x:Bind Price, Converter={StaticResource CurrencyConverter}}"
+                                                           FontSize="{StaticResource FontSize_2XL}"
+                                                           FontWeight="Bold"
+                                                           Foreground="{ThemeResource PrimaryBrush}"/>
+
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </StackPanel>
+
+                    <!-- Recommended Products Section -->
+                    <StackPanel Spacing="16">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0"
+                                       Text="Recommended for You"
+                                       FontSize="{StaticResource FontSize_3XL}"
+                                       FontWeight="Bold"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+
+                            <HyperlinkButton Grid.Column="1"
+                                             Content="View All →"
+                                             Click="ViewAllRecommendedProducts_Click"
+                                             FontSize="{StaticResource FontSize_Base}"
+                                             Foreground="{ThemeResource AccentBlueBrush}"/>
+                        </Grid>
+
+                        <!-- Changed to {Binding} for async loaded API data -->
+                        <ItemsRepeater ItemsSource="{Binding RecommendedProducts, Mode=OneWay}">
+                            <ItemsRepeater.Layout>
+                                <UniformGridLayout MinItemWidth="250"
+                                                   MinItemHeight="320"
+                                                   ItemsStretch="Fill"
+                                                   MinRowSpacing="20"
+                                                   MinColumnSpacing="20"/>
+                            </ItemsRepeater.Layout>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="viewmodels:RecommendedProductItem">
+                                    <Border Style="{StaticResource ProductCardStyle}">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="180"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Product Image -->
+                                            <Border Grid.Row="0"
+                                                    Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                                    CornerRadius="8"
+                                                    Margin="0,0,0,12">
+                                                <Image Source="{x:Bind Image}"
+                                                       Stretch="UniformToFill"/>
+                                            </Border>
+
+                                            <!-- Product Info -->
+                                            <StackPanel Grid.Row="1"
+                                                        Spacing="8">
+                                                <TextBlock Text="{x:Bind Category}"
+                                                           FontSize="{StaticResource FontSize_SM}"
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                           TextTrimming="CharacterEllipsis"/>
+
+                                                <TextBlock Text="{x:Bind Name}"
+                                                           FontSize="{StaticResource FontSize_LG}"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                           TextWrapping="Wrap"
+                                                           MaxLines="2"/>
+
+                                                <!-- Price -->
+                                                <TextBlock Text="{x:Bind Price, Converter={StaticResource CurrencyConverter}}"
+                                                           FontSize="{StaticResource FontSize_2XL}"
+                                                           FontWeight="Bold"
+                                                           Foreground="{ThemeResource PrimaryBrush}"/>
+
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </StackPanel>
+
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
 </Page>

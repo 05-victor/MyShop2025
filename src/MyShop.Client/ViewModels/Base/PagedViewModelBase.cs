@@ -78,7 +78,15 @@ namespace MyShop.Client.ViewModels.Base
         public async Task LoadDataAsync()
         {
             CurrentPage = 1;
-            await LoadPageAsync();
+            SetLoadingState(true);
+            try
+            {
+                await LoadPageAsync();
+            }
+            finally
+            {
+                SetLoadingState(false);
+            }
         }
 
         /// <summary>
@@ -87,7 +95,15 @@ namespace MyShop.Client.ViewModels.Base
         [RelayCommand]
         public async Task RefreshAsync()
         {
-            await LoadPageAsync();
+            SetLoadingState(true);
+            try
+            {
+                await LoadPageAsync();
+            }
+            finally
+            {
+                SetLoadingState(false);
+            }
         }
 
         /// <summary>
@@ -170,18 +186,18 @@ namespace MyShop.Client.ViewModels.Base
         {
             TotalItems = totalItems;
             TotalPages = PageSize > 0 ? Math.Max(1, (int)Math.Ceiling((double)totalItems / PageSize)) : 1;
-            
+
             // Ensure CurrentPage is valid
             if (CurrentPage > TotalPages && TotalPages > 0)
             {
                 CurrentPage = TotalPages;
             }
-            
+
             OnPropertyChanged(nameof(PageInfoText));
             OnPropertyChanged(nameof(ItemsInfoText));
             OnPropertyChanged(nameof(HasPreviousPage));
             OnPropertyChanged(nameof(HasNextPage));
-            
+
             // Notify commands that their CanExecute state may have changed
             NextPageCommand.NotifyCanExecuteChanged();
             PreviousPageCommand.NotifyCanExecuteChanged();

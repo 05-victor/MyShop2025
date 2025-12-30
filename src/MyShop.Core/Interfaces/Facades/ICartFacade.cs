@@ -1,5 +1,6 @@
 using MyShop.Core.Common;
 using MyShop.Shared.Models;
+using MyShop.Shared.DTOs.Responses;
 
 namespace MyShop.Core.Interfaces.Facades;
 
@@ -14,6 +15,11 @@ public interface ICartFacade
     /// Load current user's cart items.
     /// </summary>
     Task<Result<List<CartItem>>> LoadCartAsync();
+
+    /// <summary>
+    /// Load current user's cart items grouped by sales agents.
+    /// </summary>
+    Task<Result<GroupedCartResponse>> LoadCartGroupedAsync();
 
     /// <summary>
     /// Get cart summary (total items, subtotal, etc.).
@@ -46,7 +52,7 @@ public interface ICartFacade
     /// Checkout cart for a specific sales agent - create order from cart items.
     /// Orchestrates: Validation → Check all stock → Create order → Clear cart items → Navigate
     /// </summary>
-    Task<Result<Order>> CheckoutBySalesAgentAsync(Guid salesAgentId, string shippingAddress, string notes);
+    Task<Result<Order>> CheckoutBySalesAgentAsync(Guid salesAgentId, string shippingAddress, string notes, string paymentMethod = "COD");
 }
 
 /// <summary>

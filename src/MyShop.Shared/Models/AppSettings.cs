@@ -17,32 +17,12 @@ public class AppSettings
     public string Language { get; set; } = "en-US";
 
     /// <summary>
-    /// Enable toast notifications
+    /// Shop name (Admin can edit, others read-only)
     /// </summary>
-    public bool NotificationsEnabled { get; set; } = true;
-
-    /// <summary>
-    /// Restore last visited page on app startup
-    /// </summary>
-    public bool RestoreLastPage { get; set; } = true;
-
-    /// <summary>
-    /// Pagination settings for all entity types
-    /// </summary>
-    public PaginationSettings Pagination { get; set; } = new();
-
-    // Extended notification settings
-    public bool EnableSoundNotifications { get; set; } = true;
-    public bool NotifyOnLowStock { get; set; } = true;
-    public bool NotifyOnNewOrders { get; set; } = true;
-
-    // Offline mode
-    public bool EnableOfflineMode { get; set; } = false;
-
-    // Shop information
     public string? ShopName { get; set; } = "MyShop 2025";
-    public string? Address { get; set; } = string.Empty;
-    
-    // Timezone
-    public int SelectedTimezoneIndex { get; set; } = 0;
+
+    /// <summary>
+    /// Address of the shop
+    /// </summary>
+    public string? Address { get; set; } = null;
 }

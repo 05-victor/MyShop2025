@@ -11,7 +11,8 @@
     SecondaryButtonText="Close"
     DefaultButton="Primary"
     PrimaryButtonClick="PrimaryButton_Click"
-    SecondaryButtonClick="SecondaryButton_Click">
+    SecondaryButtonClick="SecondaryButton_Click"
+    Style="{StaticResource DefaultContentDialogStyle}">
 
     <StackPanel Spacing="16" MaxWidth="440">
         <!-- Header with Icon -->

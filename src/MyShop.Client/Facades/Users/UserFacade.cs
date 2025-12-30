@@ -1,3 +1,4 @@
+using MyShop.Client.Common.Helpers;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Repositories;
@@ -34,12 +35,12 @@ public class UserFacade : IUserFacade
         string? role = null,
         bool? isActive = null,
         int page = 1,
-        int pageSize = 20)
+        int pageSize = AppConstants.DEFAULT_PAGE_SIZE)
     {
         try
         {
             // Validate paging
-            if (page < 1 || pageSize < 1 || pageSize > 100)
+            if (page < 1 || pageSize < 1 || pageSize > AppConstants.MAX_PAGE_SIZE)
             {
                 await _toastService.ShowError("Invalid paging parameters");
                 return Result<PagedList<User>>.Failure("Invalid paging");
@@ -333,14 +334,14 @@ public class UserFacade : IUserFacade
                 await _toastService.ShowError("Failed to load users for export");
                 return Result<string>.Failure("Failed to load users");
             }
-            
+
             var totalUsers = countResult.Data?.TotalCount ?? 0;
             if (totalUsers == 0)
             {
                 await _toastService.ShowWarning("No users to export");
                 return Result<string>.Failure("No users to export");
             }
-            
+
             // Now load all users using actual total count
             var usersResult = await LoadUsersAsync(searchQuery, roleFilter, null, 1, totalUsers);
             if (!usersResult.IsSuccess || usersResult.Data?.Items == null)
@@ -366,18 +367,18 @@ public class UserFacade : IUserFacade
             var window = App.MainWindow;
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
             WinRT.Interop.InitializeWithWindow.Initialize(savePicker, hwnd);
-            
+
             savePicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
             savePicker.FileTypeChoices.Add("CSV File", new List<string>() { ".csv" });
             savePicker.SuggestedFileName = $"Users_{DateTime.Now:yyyyMMdd_HHmmss}";
-            
+
             var file = await savePicker.PickSaveFileAsync();
             if (file == null)
             {
                 // User cancelled
                 return Result<string>.Failure("Export cancelled");
             }
-            
+
             await Windows.Storage.FileIO.WriteTextAsync(file, csv.ToString());
 
             await _toastService.ShowSuccess($"Exported {users.Count} users to CSV");
@@ -404,14 +405,14 @@ public class UserFacade : IUserFacade
                 await _toastService.ShowError("Failed to load users for PDF export");
                 return Result<string>.Failure("Failed to load users");
             }
-            
+
             var totalUsers = countResult.Data?.TotalCount ?? 0;
             if (totalUsers == 0)
             {
                 await _toastService.ShowWarning("No users to export");
                 return Result<string>.Failure("No users to export");
             }
-            
+
             // Now load all users using actual total count
             var usersResult = await LoadUsersAsync(searchQuery, roleFilter, null, 1, totalUsers);
             if (!usersResult.IsSuccess || usersResult.Data?.Items == null)
@@ -421,7 +422,7 @@ public class UserFacade : IUserFacade
             }
 
             var users = usersResult.Data.Items;
-            
+
             // Convert to UserInfoResponse for PDF export
             var userResponses = users.Select(u => new MyShop.Shared.DTOs.Responses.UserInfoResponse
             {
@@ -434,11 +435,11 @@ public class UserFacade : IUserFacade
                 RoleNames = u.Roles?.Select(r => r.ToString()).ToList() ?? new List<string>(),
                 CreatedAt = u.CreatedAt
             }).ToList();
-            
+
             // Use PdfExportService for PDF generation with FileSavePicker
             var pdfService = new Services.PdfExportService();
             var filePath = await pdfService.ExportUsersReportAsync(userResponses, "Users Report");
-            
+
             if (string.IsNullOrEmpty(filePath))
             {
                 // User cancelled the save dialog

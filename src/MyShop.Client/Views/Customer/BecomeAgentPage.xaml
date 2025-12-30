@@ -85,8 +85,93 @@
                 Subtitle="Apply to join our sales team"
                 Margin="0,0,0,24"/>
 
-            <!-- Header -->
-            <StackPanel HorizontalAlignment="Center" Margin="0,0,0,40">
+            <!-- Existing Request Status Card (shows when user has a request) -->
+            <Border Style="{StaticResource CardWithShadowStyle}" 
+                    Margin="0,0,0,24"
+                    Visibility="{x:Bind ViewModel.ShowRequestStatus, Mode=OneWay}">
+                <StackPanel Spacing="16">
+                    <!-- Status Header -->
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Border Width="48" Height="48" CornerRadius="24"
+                                Background="{ThemeResource AccentBlueBrush}">
+                            <FontIcon Glyph="&#xE735;" Foreground="{ThemeResource WhiteBrush}" FontSize="20"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Your Application Status" 
+                                       FontWeight="SemiBold" 
+                                       FontSize="18" 
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="{x:Bind ViewModel.RequestDateDisplay, Mode=OneWay}"
+                                       FontSize="14" 
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Status Badge -->
+                    <Border Padding="12,8" CornerRadius="8" HorizontalAlignment="Left"
+                            Background="{ThemeResource WarningAmber50Brush}">
+                        <TextBlock Text="{x:Bind ViewModel.RequestStatusDisplay, Mode=OneWay}"
+                                   FontWeight="SemiBold"
+                                   FontSize="14"
+                                   Foreground="{ThemeResource WarningAmberBrush}"/>
+                    </Border>
+
+                    <!-- Status Message -->
+                    <TextBlock Text="{x:Bind ViewModel.RequestStatusMessage, Mode=OneWay}"
+                               TextWrapping="Wrap"
+                               FontSize="15"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+
+                    <!-- Rejection Reason (if rejected) -->
+                    <InfoBar IsOpen="{x:Bind ViewModel.HasRejectedRequest, Mode=OneWay}"
+                             Severity="Error"
+                             Title="Reason for Rejection"
+                             Message="{x:Bind ViewModel.RejectionReason, Mode=OneWay}"
+                             IsClosable="False"/>
+
+                    <!-- Application Details -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Application Details" 
+                                   FontWeight="SemiBold"
+                                   FontSize="14"
+                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                        <Grid ColumnSpacing="16" RowSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Full Name:" 
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" 
+                                       Text="{x:Bind ViewModel.MyRequest.FullName, Mode=OneWay}"
+                                       FontWeight="SemiBold"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Email:" 
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" 
+                                       Text="{x:Bind ViewModel.MyRequest.Email, Mode=OneWay}"
+                                       FontWeight="SemiBold"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Phone:" 
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" 
+                                       Text="{x:Bind ViewModel.MyRequest.PhoneNumber, Mode=OneWay}"
+                                       FontWeight="SemiBold"/>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Header (only show when no request or rejected) -->
+            <StackPanel HorizontalAlignment="Center" 
+                        Margin="0,0,0,40"
+                        Visibility="{x:Bind ViewModel.ShowSubmitForm, Mode=OneWay}">
                 <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
                         BorderThickness="1" 
@@ -114,7 +199,9 @@
             </StackPanel>
 
             <!-- Personal Information Card -->
-            <Border Style="{StaticResource CardWithShadowStyle}" Margin="0,0,0,24">
+            <Border Style="{StaticResource CardWithShadowStyle}" 
+                    Margin="0,0,0,24"
+                    Visibility="{x:Bind ViewModel.ShowSubmitForm, Mode=OneWay}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
                         <Border Width="40" Height="40" CornerRadius="8" Margin="0,0,12,0"
@@ -164,7 +251,9 @@
             </Border>
 
             <!-- Address Information Card -->
-            <Border Style="{StaticResource CardWithShadowStyle}" Margin="0,0,0,24">
+            <Border Style="{StaticResource CardWithShadowStyle}" 
+                    Margin="0,0,0,24"
+                    Visibility="{x:Bind ViewModel.ShowSubmitForm, Mode=OneWay}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
                         <Border Width="40" Height="40" CornerRadius="8" Margin="0,0,12,0"
@@ -207,7 +296,9 @@
             </Border>
 
             <!-- Business Information Card -->
-            <Border Style="{StaticResource CardWithShadowStyle}" Margin="0,0,0,24">
+            <Border Style="{StaticResource CardWithShadowStyle}" 
+                    Margin="0,0,0,24"
+                    Visibility="{x:Bind ViewModel.ShowSubmitForm, Mode=OneWay}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
                         <Border Width="40" Height="40" CornerRadius="8" Margin="0,0,12,0"
@@ -245,7 +336,9 @@
             </Border>
 
             <!-- Experience and Motivation Card -->
-            <Border Style="{StaticResource CardWithShadowStyle}" Margin="0,0,0,24">
+            <Border Style="{StaticResource CardWithShadowStyle}" 
+                    Margin="0,0,0,24"
+                    Visibility="{x:Bind ViewModel.ShowSubmitForm, Mode=OneWay}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
                         <Border Width="40" Height="40" CornerRadius="8" Margin="0,0,12,0"
@@ -281,7 +374,8 @@
             </Border>
 
             <!-- Terms and Submit -->
-            <StackPanel Spacing="16">
+            <StackPanel Spacing="16"
+                        Visibility="{x:Bind ViewModel.ShowSubmitForm, Mode=OneWay}">
                 <Border Style="{StaticResource CardWithShadowStyle}">
                     <CheckBox IsChecked="{x:Bind ViewModel.AgreeToTerms, Mode=TwoWay}" FontSize="14">
                         <CheckBox.Content>

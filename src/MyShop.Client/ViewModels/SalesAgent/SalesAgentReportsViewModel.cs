@@ -7,6 +7,8 @@ using LiveChartsCore.SkiaSharpView.Painting;
 using MyShop.Client.ViewModels.Base;
 using MyShop.Client.Facades;
 using MyShop.Core.Interfaces.Facades;
+using MyShop.Shared.DTOs.Responses;
+using MyShop.Shared.Models;
 using SkiaSharp;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -16,6 +18,10 @@ namespace MyShop.Client.ViewModels.SalesAgent;
 public partial class SalesAgentReportsViewModel : BaseViewModel
 {
     private readonly IReportFacade _reportFacade;
+    private readonly IProductFacade _productFacade;
+
+    // Backing list for mapping category name -> category Id when calling API
+    private List<Category> _categoryItems = new();
 
     [ObservableProperty]
     private decimal _totalRevenue;
@@ -33,10 +39,10 @@ public partial class SalesAgentReportsViewModel : BaseViewModel
     private ObservableCollection<SalesReportViewModel> _salesData = new();
 
     [ObservableProperty]
-    private string _selectedPeriod = "This Month";
+    private string _selectedPeriod = "week";
 
     [ObservableProperty]
-    private string _selectedDateRange = "This Month";
+    private string _selectedDateRange = "week";
 
     [ObservableProperty]
     private string _selectedCategory = "All Categories";
@@ -65,26 +71,22 @@ public partial class SalesAgentReportsViewModel : BaseViewModel
     [ObservableProperty]
     private ObservableCollection<FilterOption> _dateRanges = new()
     {
-        new FilterOption { Display = "This Week", Value = "This Week" },
-        new FilterOption { Display = "This Month", Value = "This Month" },
-        new FilterOption { Display = "Last 3 Months", Value = "Last 3 Months" },
-        new FilterOption { Display = "This Year", Value = "This Year" }
+        new FilterOption { Display = "This day", Value = "day" },
+        new FilterOption { Display = "This week", Value = "week" },
+        new FilterOption { Display = "This month", Value = "month" },
+        new FilterOption { Display = "This year", Value = "year" }
     };
 
     [ObservableProperty]
     private ObservableCollection<string> _categories = new()
     {
-        "All Categories",
-        "Electronics",
-        "Clothing",
-        "Home & Garden",
-        "Sports",
-        "Books"
+        "All Categories"
     };
 
-    public SalesAgentReportsViewModel(IReportFacade reportFacade)
+    public SalesAgentReportsViewModel(IReportFacade reportFacade, IProductFacade productFacade)
     {
         _reportFacade = reportFacade;
+        _productFacade = productFacade;
         InitializeCharts();
     }
 
@@ -96,47 +98,138 @@ public partial class SalesAgentReportsViewModel : BaseViewModel
         RatingDistributionSeries = Array.Empty<ISeries>();
     }
 
+    /// <summary>
+    /// Handle SelectedDateRange changes - only update state; API is called when Apply Filters is clicked.
+    /// </summary>
+    partial void OnSelectedDateRangeChanged(string value)
+    {
+        System.Diagnostics.Debug.WriteLine($"[SalesAgentReportsViewModel] OnSelectedDateRangeChanged: {value} (no auto-apply)");
+        // Keep SelectedPeriod in sync with the selected date range
+        SelectedPeriod = value;
+    }
+
+    /// <summary>
+    /// Handle SelectedCategory changes - only update state; API is called when Apply Filters is clicked.
+    /// </summary>
+    partial void OnSelectedCategoryChanged(string value)
+    {
+        System.Diagnostics.Debug.WriteLine($"[SalesAgentReportsViewModel] OnSelectedCategoryChanged: {value} (no auto-apply)");
+    }
+
     [RelayCommand]
     public async Task InitializeAsync()
     {
-        await LoadReportsAsync();
+        await LoadCategoriesFromApiAsync();
+        await LoadReportsFromApiAsync();
     }
 
     [RelayCommand]
     public async Task RefreshAsync()
     {
-        await LoadReportsAsync();
+        await LoadReportsFromApiAsync();
     }
 
-    private async Task LoadReportsAsync()
+    /// <summary>
+    /// Load categories from API for the filter dropdown
+    /// </summary>
+    private async Task LoadCategoriesFromApiAsync()
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine("[SalesAgentReportsViewModel] LoadCategoriesFromApiAsync: Starting category load from API");
+
+            var result = await _productFacade.LoadCategoriesAsync();
+
+            if (!result.IsSuccess || result.Data == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentReportsViewModel] LoadCategoriesFromApiAsync: Failed to load - {result.ErrorMessage}");
+                return;
+            }
+
+            // Refresh local cache for category mapping (name -> Id)
+            _categoryItems = result.Data.ToList();
+
+            // Clear existing items but keep "All Categories" at index 0
+            while (Categories.Count > 1)
+            {
+                Categories.RemoveAt(Categories.Count - 1);
+            }
+
+            // Add API categories (display names)
+            foreach (var category in _categoryItems)
+            {
+                Categories.Add(category.Name);
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentReportsViewModel] ✅ LoadCategoriesFromApiAsync: Loaded {_categoryItems.Count} categories from API");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentReportsViewModel] ❌ LoadCategoriesFromApiAsync: ERROR - {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentReportsViewModel] Stack trace: {ex.StackTrace}");
+        }
+    }
+
+    /// <summary>
+    /// Load sales agent reports from API
+    /// </summary>
+    private async Task LoadReportsFromApiAsync()
     {
         IsLoading = true;
 
         try
         {
-            var result = await _reportFacade.GetSalesReportAsync(SelectedPeriod);
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentReportsViewModel] LoadReportsFromApiAsync: period={SelectedPeriod}, selectedCategory={SelectedCategory}");
+
+            // Convert selected category name to categoryId using cached category list
+            Guid? categoryId = null;
+            if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != "All Categories")
+            {
+                var matchedCategory = _categoryItems.FirstOrDefault(c =>
+                    string.Equals(c.Name, SelectedCategory, StringComparison.OrdinalIgnoreCase));
+
+                if (matchedCategory != null)
+                {
+                    categoryId = matchedCategory.Id;
+                }
+
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentReportsViewModel] Resolved category '{SelectedCategory}' to Id={categoryId}");
+            }
+
+            var result = await _reportFacade.GetSalesAgentReportsAsync(SelectedPeriod, categoryId);
+
             if (!result.IsSuccess || result.Data == null)
             {
-                // Load mock data for demo
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentReportsViewModel] LoadReportsFromApiAsync FAILED: {result.ErrorMessage}");
+                // Load mock data as fallback
                 LoadMockData();
                 return;
             }
 
-            var data = result.Data;
-            TotalRevenue = data.TotalRevenue;
-            TotalCommission = data.TotalCommission;
-            TotalOrders = data.TotalOrders;
-            AverageOrderValue = data.AverageOrderValue;
+            var reportData = result.Data;
 
-            // Load chart data
-            LoadChartData();
+            // Update statistics
+            TotalOrders = reportData.OrdersByCategory?.Sum(o => o.OrderCount) ?? 0;
+            TotalRevenue = reportData.OrdersByCategory?.Sum(o => o.Revenue) ?? 0;
+            TotalCommission = reportData.OrdersByCategory?.Sum(o => o.Commission) ?? 0;
+            AverageOrderValue = TotalOrders > 0 ? (int)(TotalRevenue / TotalOrders) : 0;
 
-            // Load product summary
-            LoadProductSummary();
+            System.Diagnostics.Debug.WriteLine(
+                $"[SalesAgentReportsViewModel] Loaded: TotalOrders={TotalOrders}, TotalRevenue={TotalRevenue}, TotalCommission={TotalCommission}");
+
+            // Create charts from API data
+            CreateChartsFromApiData(reportData);
+
+            // Update product summary from top products
+            UpdateProductSummary(reportData);
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[SalesAgentReportsViewModel] Report data loaded successfully: " +
+                $"Revenue={RevenueSeries?.Length ?? 0}, Orders={OrdersByCategorySeries?.Length ?? 0}");
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[SalesAgentReportsViewModel] Error loading reports: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentReportsViewModel] LoadReportsFromApiAsync Exception: {ex.Message}");
             // Load mock data on error
             LoadMockData();
         }
@@ -144,6 +237,133 @@ public partial class SalesAgentReportsViewModel : BaseViewModel
         {
             IsLoading = false;
         }
+    }
+
+    /// <summary>
+    /// Create charts from API report data
+    /// </summary>
+    private void CreateChartsFromApiData(SalesAgentReportsResponse reportData)
+    {
+        try
+        {
+            var currencyConv = new MyShop.Client.Common.Converters.CurrencyConverter();
+
+            // Debug: Log report data structure
+            System.Diagnostics.Debug.WriteLine("[SalesAgentReportsViewModel] CreateChartsFromApiData: Report data inspection:");
+            System.Diagnostics.Debug.WriteLine($"  - RevenueTrend count: {reportData.RevenueTrend?.Count ?? 0}");
+            System.Diagnostics.Debug.WriteLine($"  - OrdersByCategory count: {reportData.OrdersByCategory?.Count ?? 0}");
+            System.Diagnostics.Debug.WriteLine($"  - TopProducts count: {reportData.TopProducts?.Count ?? 0}");
+
+            // Revenue Trend Chart - Line chart from daily revenue
+            if (reportData.RevenueTrend?.Count > 0)
+            {
+                var revenueValues = reportData.RevenueTrend
+                    .OrderBy(x => x.Date)
+                    .Select(x => (double)x.Revenue)
+                    .ToList();
+
+                var revenueSeries = new ISeries[]
+                {
+                    new LineSeries<double>
+                    {
+                        Values = revenueValues.Cast<double>().ToList(),
+                        Name = "Revenue",
+                        Fill = new SolidColorPaint(SKColors.CornflowerBlue),
+                        Stroke = new SolidColorPaint(SKColors.CornflowerBlue) { StrokeThickness = 2 },
+                        GeometrySize = 0,
+                        LineSmoothness = 0.5
+                    }
+                };
+                RevenueSeries = revenueSeries;
+            }
+            else
+            {
+                RevenueSeries = Array.Empty<ISeries>();
+            }
+
+            // Orders by Category - Column chart
+            if (reportData.OrdersByCategory?.Count > 0)
+            {
+                var categoryNames = reportData.OrdersByCategory.Select(c => c.CategoryName).ToArray();
+                var orderCounts = reportData.OrdersByCategory.Select(c => c.OrderCount).ToList();
+
+                var columnSeries = new ColumnSeries<int>
+                {
+                    Values = orderCounts,
+                    Name = "Orders",
+                    Fill = new SolidColorPaint(SKColors.CornflowerBlue),
+                    DataLabelsSize = 11,
+                    DataLabelsFormatter = point => orderCounts[(int)point.Index].ToString()
+                };
+
+                OrdersByCategorySeries = new ISeries[] { columnSeries };
+
+                // Set X-axis labels
+                var xAxes = new Axis[]
+                {
+                    new Axis
+                    {
+                        Labels = categoryNames,
+                        LabelsRotation = 45
+                    }
+                };
+                // Note: Need to set this on the page/chart control, not ViewModel
+            }
+            else
+            {
+                OrdersByCategorySeries = Array.Empty<ISeries>();
+            }
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[SalesAgentReportsViewModel] Charts created: Revenue={RevenueSeries.Length}, Orders={OrdersByCategorySeries.Length}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentReportsViewModel] CreateChartsFromApiData ERROR: {ex.Message}\n{ex.StackTrace}");
+        }
+    }
+
+    /// <summary>
+    /// Update product summary from top products API data
+    /// </summary>
+    private void UpdateProductSummary(SalesAgentReportsResponse reportData)
+    {
+        if (reportData?.TopProducts == null || reportData.TopProducts.Count == 0)
+        {
+            FilteredProducts.Clear();
+            return;
+        }
+
+        Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
+        {
+            FilteredProducts.Clear();
+            foreach (var product in reportData.TopProducts)
+            {
+                // Find commission for this product's category
+                var categoryData = reportData.OrdersByCategory?
+                    .FirstOrDefault(c => c.CategoryName == product.CategoryName);
+                var commission = categoryData?.Commission ?? 0;
+
+                FilteredProducts.Add(new ProductSummaryViewModel
+                {
+                    Name = product.ProductName,
+                    Category = product.CategoryName,
+                    Sold = product.UnitsSold,
+                    Revenue = product.Revenue,
+                    Rating = product.AverageRating,
+                    Commission = commission,
+                    Stock = 0 // Not provided by API
+                });
+            }
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[SalesAgentReportsViewModel] ✅ UpdateProductSummary: Loaded {FilteredProducts.Count} products");
+        });
+    }
+
+    private async Task LoadReportsAsync()
+    {
+        await LoadReportsFromApiAsync();
     }
 
     private void LoadMockData()
@@ -252,10 +472,10 @@ public partial class SalesAgentReportsViewModel : BaseViewModel
         var endDate = DateTime.Now;
         var startDate = period switch
         {
-            "This Week" => endDate.AddDays(-7),
-            "This Month" => endDate.AddMonths(-1),
-            "Last 3 Months" => endDate.AddMonths(-3),
-            "This Year" => endDate.AddYears(-1),
+            "day" => endDate.AddDays(-1),
+            "week" => endDate.AddDays(-7),
+            "month" => endDate.AddMonths(-1),
+            "year" => endDate.AddYears(-1),
             _ => endDate.AddMonths(-1)
         };
         return (startDate, endDate);
@@ -265,29 +485,53 @@ public partial class SalesAgentReportsViewModel : BaseViewModel
     private async Task FilterByPeriodAsync(string period)
     {
         SelectedPeriod = period;
-        await LoadReportsAsync();
+        SelectedDateRange = period;
+        await LoadReportsFromApiAsync();
     }
 
     [RelayCommand]
     private async Task ApplyFiltersAsync()
     {
-        await LoadReportsAsync();
+        await LoadReportsFromApiAsync();
     }
 
     [RelayCommand]
     private async Task ResetFiltersAsync()
     {
-        SelectedPeriod = "This Month";
-        SelectedDateRange = "This Month";
+        SelectedPeriod = "week";
+        SelectedDateRange = "week";
         SelectedCategory = "All Categories";
-        await LoadReportsAsync();
+        await LoadReportsFromApiAsync();
     }
 
     [RelayCommand]
-    private void ExportReport()
+    private async Task ExportReportAsync()
     {
-        // TODO: Implement CSV/PDF export when FileSavePicker is integrated
-        System.Diagnostics.Debug.WriteLine("[SalesAgentReportsViewModel] Export report requested");
+        try
+        {
+            System.Diagnostics.Debug.WriteLine("[SalesAgentReportsViewModel] ExportReportAsync: Starting export");
+
+            // Use the selected period for export
+            var period = SelectedPeriod ?? "week";
+
+            // Call the ReportFacade to export the sales report
+            var result = await _reportFacade.ExportSalesReportAsync(period);
+
+            if (result.IsSuccess && !string.IsNullOrEmpty(result.Data))
+            {
+                System.Diagnostics.Debug.WriteLine("[SalesAgentReportsViewModel] ExportReportAsync: Export completed successfully");
+                // Toast is shown by the facade
+            }
+            else if (!result.IsSuccess)
+            {
+                System.Diagnostics.Debug.WriteLine($"[SalesAgentReportsViewModel] ExportReportAsync: Export failed - {result.ErrorMessage}");
+            }
+            // Empty result means user cancelled the file picker
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentReportsViewModel] ExportReportAsync error: {ex.Message}");
+        }
     }
 }
 

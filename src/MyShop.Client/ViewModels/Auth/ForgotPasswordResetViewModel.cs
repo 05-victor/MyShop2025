@@ -1,0 +1,155 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI;
+using Microsoft.UI.Xaml.Media;
+using MyShop.Client.ViewModels.Base;
+using MyShop.Core.Interfaces.Services;
+using System;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
+namespace MyShop.Client.ViewModels.Auth;
+
+public partial class ForgotPasswordResetViewModel : BaseViewModel
+{
+    private readonly IAuthService _authService;
+
+    [ObservableProperty]
+    private string _email = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanResetPassword))]
+    private string _resetCode = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowChecklist), nameof(MinLengthIcon), nameof(MinLengthColor),
+                              nameof(CanResetPassword))]
+    private string _newPassword = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PasswordsMatchIcon), nameof(PasswordsMatchColor), nameof(CanResetPassword))]
+    private string _confirmPassword = string.Empty;
+
+    [ObservableProperty]
+    private string _errorMessage = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanResetPassword))]
+    private bool _isLoading;
+
+    public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
+
+    public bool ShowChecklist => !string.IsNullOrEmpty(NewPassword);
+
+    // Password validation properties
+    public bool MinLengthMet => NewPassword.Length >= 6;
+    public bool PasswordsMatch => !string.IsNullOrEmpty(ConfirmPassword) && NewPassword == ConfirmPassword;
+
+    public string MinLengthIcon => MinLengthMet ? "\uE73E" : "\uE711"; // CheckMark : Circle
+    public string PasswordsMatchIcon => PasswordsMatch ? "\uE73E" : "\uE711";
+
+    public SolidColorBrush MinLengthColor => MinLengthMet
+        ? new SolidColorBrush(Colors.Green)
+        : new SolidColorBrush(Colors.Gray);
+    public SolidColorBrush PasswordsMatchColor => PasswordsMatch
+        ? new SolidColorBrush(Colors.Green)
+        : new SolidColorBrush(Colors.Gray);
+
+    public bool CanResetPassword =>
+        !IsLoading &&
+        !string.IsNullOrWhiteSpace(ResetCode) &&
+        MinLengthMet &&
+        PasswordsMatch;
+
+    public ForgotPasswordResetViewModel(
+        IAuthService authService,
+        INavigationService navigationService,
+        IToastService toastService)
+        : base(toastService, navigationService)
+    {
+        _authService = authService;
+    }
+
+    public void InitializeWithEmail(string email)
+    {
+        Email = email;
+    }
+
+    partial void OnNewPasswordChanged(string value)
+    {
+        ErrorMessage = string.Empty;
+    }
+
+    partial void OnConfirmPasswordChanged(string value)
+    {
+        ErrorMessage = string.Empty;
+    }
+
+    [RelayCommand]
+    private async Task ResetPasswordAsync()
+    {
+        try
+        {
+            ErrorMessage = string.Empty;
+
+            // Validation
+            if (string.IsNullOrWhiteSpace(ResetCode))
+            {
+                ErrorMessage = "Please enter the verification code";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(NewPassword))
+            {
+                ErrorMessage = "Password is required";
+                return;
+            }
+
+            if (!MinLengthMet)
+            {
+                ErrorMessage = "Password must be at least 6 characters";
+                return;
+            }
+
+            if (!PasswordsMatch)
+            {
+                ErrorMessage = "Passwords do not match";
+                return;
+            }
+
+            IsLoading = true;
+
+            // Call API to reset password with code and new password
+            // The backend will validate the code and reset the password in one call
+            var result = await _authService.ResetPasswordAsync(Email, ResetCode, NewPassword, ConfirmPassword);
+
+            if (result.IsSuccess)
+            {
+                // Show success message
+                await ShowSuccessToast("Password updated successfully. You can now sign in.");
+
+                // Navigate to login page
+                _navigationService?.NavigateTo("MyShop.Client.Views.Shared.LoginPage");
+            }
+            else
+            {
+                ErrorMessage = result.ErrorMessage ?? "Reset failed. Please try again.";
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ForgotPasswordResetViewModel] Error: {ex.Message}");
+            ErrorMessage = "An unexpected error occurred. Please try again.";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private void Cancel()
+    {
+        _navigationService?.NavigateTo("MyShop.Client.Views.Shared.LoginPage");
+    }
+}

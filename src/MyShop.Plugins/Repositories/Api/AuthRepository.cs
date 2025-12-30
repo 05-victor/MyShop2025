@@ -248,16 +248,11 @@ public class AuthRepository : IAuthRepository
     {
         try
         {
-            // TODO: Implement real API call when backend endpoint is ready
-            // For now, return not implemented
-            // await Task.Delay(500); // Simulate network delay
+            System.Diagnostics.Debug.WriteLine($"[AuthRepository.ActivateTrialAsync] Calling ActivateAsync with code: {adminCode}");
 
-            return Result<User>.Failure("Trial activation API not yet implemented on server. Please use mock mode for testing.");
+            var refitResponse = await _authApi.ActivateAsync(adminCode);
 
-            /*
-            // Future implementation when backend is ready:
-            var request = new ActivateTrialRequest { AdminCode = adminCode };
-            var refitResponse = await _authApi.ActivateTrialAsync(request);
+            System.Diagnostics.Debug.WriteLine($"[AuthRepository.ActivateTrialAsync] Response status: {refitResponse.StatusCode}");
 
             if (refitResponse.IsSuccessStatusCode && refitResponse.Content != null)
             {
@@ -265,20 +260,33 @@ public class AuthRepository : IAuthRepository
 
                 if (apiResponse.Success == true && apiResponse.Result != null)
                 {
-                    var token = _credentialStorage.GetToken() ?? string.Empty;
-                    var user = AuthAdapter.ToModel(apiResponse.Result, token);
-                    return Result<User>.Success(user);
+                    // Activate was successful, now refresh user data
+                    System.Diagnostics.Debug.WriteLine($"[AuthRepository.ActivateTrialAsync] Activation successful, refreshing user data");
+
+                    // Get updated user info
+                    var userRefitResponse = await _authApi.GetMeAsync();
+                    if (userRefitResponse.IsSuccessStatusCode && userRefitResponse.Content?.Result != null)
+                    {
+                        var token = _credentialStorage.GetToken() ?? string.Empty;
+                        var user = AuthAdapter.ToModel(userRefitResponse.Content.Result, token);
+                        System.Diagnostics.Debug.WriteLine($"[AuthRepository.ActivateTrialAsync] User data refreshed successfully");
+                        return Result<User>.Success(user);
+                    }
+
+                    System.Diagnostics.Debug.WriteLine($"[AuthRepository.ActivateTrialAsync] Failed to get updated user data");
+                    return Result<User>.Failure("Activation successful but failed to retrieve updated user data");
                 }
 
+                System.Diagnostics.Debug.WriteLine($"[AuthRepository.ActivateTrialAsync] API returned error: {apiResponse.Message}");
                 return Result<User>.Failure(apiResponse.Message ?? "Trial activation failed");
             }
 
+            System.Diagnostics.Debug.WriteLine($"[AuthRepository.ActivateTrialAsync] HTTP Error: {refitResponse.StatusCode}");
             return Result<User>.Failure($"HTTP Error: {refitResponse.StatusCode}");
-            */
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"ActivateTrial Error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[AuthRepository.ActivateTrialAsync] Error: {ex.Message}");
             return Result<User>.Failure("An unexpected error occurred. Please try again.", ex);
         }
     }
@@ -287,13 +295,26 @@ public class AuthRepository : IAuthRepository
     {
         try
         {
-            // await Task.Delay(500);
-            return Result<Unit>.Failure("Email verification API not yet implemented on server. Please use mock mode for testing.");
+            System.Diagnostics.Debug.WriteLine($"[AuthRepository.SendVerificationEmailAsync] Calling API to send verification email");
+
+            var response = await _authApi.SendVerificationEmailAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AuthRepository.SendVerificationEmailAsync] ✅ Success: {response.Content?.Message}");
+                return Result<Unit>.Success(Unit.Value);
+            }
+            else
+            {
+                var errorMessage = response.Content?.Message ?? response.Error?.Message ?? "Failed to send verification email";
+                System.Diagnostics.Debug.WriteLine($"[AuthRepository.SendVerificationEmailAsync] ❌ Failed: {errorMessage}");
+                return Result<Unit>.Failure(errorMessage);
+            }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"SendVerificationEmail Error: {ex.Message}");
-            return Result<Unit>.Failure("An unexpected error occurred.", ex);
+            System.Diagnostics.Debug.WriteLine($"[AuthRepository.SendVerificationEmailAsync] ❌ Error: {ex.Message}");
+            return Result<Unit>.Failure($"An error occurred while sending verification email: {ex.Message}", ex);
         }
     }
 

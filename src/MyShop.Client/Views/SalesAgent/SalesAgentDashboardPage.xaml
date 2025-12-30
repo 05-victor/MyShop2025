@@ -159,7 +159,7 @@
 
                                         <buttons:IconButton
                                             Variant="Filled"
-                                            IconGlyph="&#xE896;"
+                                            IconGlyph="&#xE898;"
                                             Text="Export"
                                             Command="{x:Bind ViewModel.ExportCommand}"/>
                                     </StackPanel>
@@ -507,12 +507,12 @@
                                                       BorderBrush="{ThemeResource Gray300Brush}"
                                                       BorderThickness="0,0,0,1">
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="120"/>
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="100"/>
-                                                        <ColumnDefinition Width="100"/>
-                                                        <ColumnDefinition Width="100"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>
                                                     </Grid.ColumnDefinitions>
 
                                                     <TextBlock Grid.Column="0"
@@ -554,12 +554,12 @@
                                                           BorderBrush="{ThemeResource Gray300Brush}"
                                                           BorderThickness="0,0,0,1">
                                                         <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="120"/>
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="100"/>
-                                                            <ColumnDefinition Width="100"/>
-                                                            <ColumnDefinition Width="100"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="*"/>
                                                         </Grid.ColumnDefinitions>
 
                                                         <TextBlock Grid.Column="0"

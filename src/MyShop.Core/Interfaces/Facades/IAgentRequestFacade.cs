@@ -64,6 +64,11 @@ public interface IAgentRequestFacade
     Task<Result<int>> GetPendingRequestsCountAsync();
 
     /// <summary>
+    /// Get current user's agent request (if exists)
+    /// </summary>
+    Task<Result<MyShop.Shared.DTOs.Responses.AgentRequestResponse?>> GetMyRequestAsync();
+
+    /// <summary>
     /// View user profile for request
     /// </summary>
     Task<Result<User>> GetRequestUserProfileAsync(Guid requestId);

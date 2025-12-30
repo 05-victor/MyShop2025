@@ -24,7 +24,9 @@ public sealed partial class CheckoutPage : Page
         base.OnNavigatedTo(e);
         try
         {
-            await ViewModel.InitializeAsync();
+            // Get selected agent ID from navigation parameter
+            Guid? selectedAgentId = e.Parameter as Guid?;
+            await ViewModel.InitializeAsync(selectedAgentId);
         }
         catch (Exception ex)
         {

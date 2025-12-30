@@ -35,6 +35,11 @@ public interface IAgentRequestRepository
     Task<Result<AgentRequest>> GetByUserIdAsync(Guid userId);
 
     /// <summary>
+    /// Get current user's agent request (returns DTO from API)
+    /// </summary>
+    Task<Result<MyShop.Shared.DTOs.Responses.AgentRequestResponse?>> GetMyRequestAsync();
+
+    /// <summary>
     /// Create new agent request
     /// </summary>
     Task<Result<AgentRequest>> CreateAsync(AgentRequest agentRequest);

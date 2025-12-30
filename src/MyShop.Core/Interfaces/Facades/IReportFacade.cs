@@ -1,5 +1,6 @@
 using MyShop.Core.Common;
 using MyShop.Shared.Models;
+using MyShop.Shared.DTOs.Responses;
 
 namespace MyShop.Core.Interfaces.Facades;
 
@@ -48,6 +49,25 @@ public interface IReportFacade
     /// Export product performance to CSV
     /// </summary>
     Task<Result<string>> ExportProductPerformanceAsync(DateTime? startDate = null, DateTime? endDate = null);
+
+    /// <summary>
+    /// Get admin reports with revenue trend, orders by category, ratings, salespersons, and products
+    /// Supports filtering by date range and optional category
+    /// </summary>
+    Task<Result<AdminReportsResponse>> GetAdminReportsAsync(
+        DateTime from,
+        DateTime to,
+        Guid? categoryId = null,
+        int pageNumber = 1,
+        int pageSize = 10);
+
+    /// <summary>
+    /// Get sales agent personal reports with revenue trend, orders by category, and top products
+    /// Supports filtering by period and optional category
+    /// </summary>
+    Task<Result<SalesAgentReportsResponse>> GetSalesAgentReportsAsync(
+        string period = "week",
+        Guid? categoryId = null);
 }
 
 /// <summary>

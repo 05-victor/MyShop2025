@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyShop.Client.Facades;
+using MyShop.Client.Services;
 using MyShop.Client.ViewModels.Base;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Services;
@@ -9,12 +10,15 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 
 namespace MyShop.Client.ViewModels.SalesAgent;
 
 public partial class SalesAgentProductsViewModel : PagedViewModelBase<ProductViewModel>
 {
     private readonly IProductFacade _productFacade;
+    private readonly ProductImportService _importService;
     private List<MyShop.Shared.Models.Product> _allProducts = new();
 
     [ObservableProperty]
@@ -44,10 +48,14 @@ public partial class SalesAgentProductsViewModel : PagedViewModelBase<ProductVie
     // Alias for backward compatibility with XAML bindings
     public ObservableCollection<ProductViewModel> Products => Items;
 
-    public SalesAgentProductsViewModel(IProductFacade productFacade, IToastService? toastService = null)
+    public SalesAgentProductsViewModel(
+        IProductFacade productFacade,
+        ProductImportService importService,
+        IToastService? toastService = null)
         : base(toastService, null)
     {
         _productFacade = productFacade;
+        _importService = importService;
     }
 
     public async Task InitializeAsync()
@@ -178,6 +186,27 @@ public partial class SalesAgentProductsViewModel : PagedViewModelBase<ProductVie
         }
     }
 
+    [RelayCommand]
+    private async Task ImportProductsAsync()
+    {
+        SetLoadingState(true);
+        try
+        {
+            // TODO: Implement import from CSV functionality
+            await ShowErrorToast("Product import feature is not yet implemented.");
+            System.Diagnostics.Debug.WriteLine("[SalesAgentProductsViewModel] ImportProductsAsync: Not implemented");
+        }
+        catch (System.Exception ex)
+        {
+            await ShowErrorToast($"Import failed: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel] Import error: {ex.Message}");
+        }
+        finally
+        {
+            SetLoadingState(false);
+        }
+    }
+
     /// <summary>
     /// Override LoadPageAsync - required by PagedViewModelBase
     /// </summary>
@@ -262,7 +291,7 @@ public partial class SalesAgentProductsViewModel : PagedViewModelBase<ProductVie
                 Stock = p.Quantity,
                 Rating = p.Rating,
                 Status = p.Status ?? "AVAILABLE",
-                ImageUrl = p.ImageUrl ?? "/Assets/placeholder-product.png",
+                ImageUrl = string.IsNullOrWhiteSpace(p.ImageUrl) ? "ms-appx:///Assets/Images/products/product-placeholder.png" : p.ImageUrl,
                 Description = p.Description ?? string.Empty
             })
             .ToList();
@@ -341,6 +370,7 @@ public partial class SalesAgentProductsViewModel : PagedViewModelBase<ProductVie
 
     public event EventHandler<ProductViewModel>? EditProductRequested;
     public event EventHandler<ProductViewModel>? DeleteProductRequested;
+    public event EventHandler<ProductViewModel>? PredictDemandRequested;
 
     [RelayCommand]
     private void EditProduct(ProductViewModel? product)
@@ -358,6 +388,13 @@ public partial class SalesAgentProductsViewModel : PagedViewModelBase<ProductVie
         DeleteProductRequested?.Invoke(this, product);
     }
 
+    [RelayCommand]
+    private void PredictDemand(ProductViewModel? product)
+    {
+        if (product == null) return;
+        PredictDemandRequested?.Invoke(this, product);
+    }
+
     public async Task ConfirmDeleteProductAsync(Guid productId)
     {
         SetLoadingState(true);
@@ -366,9 +403,14 @@ public partial class SalesAgentProductsViewModel : PagedViewModelBase<ProductVie
             var result = await _productFacade.DeleteProductAsync(productId);
             if (result.IsSuccess)
             {
-                // Remove from local list and refresh
-                _allProducts.RemoveAll(p => p.Id == productId);
-                ApplyFiltersAndSort();
+                // Remove from Items collection (displayed items)
+                var displayedItem = Items.FirstOrDefault(p => p.Id == productId);
+                if (displayedItem != null)
+                {
+                    Items.Remove(displayedItem);
+                    UpdatePagingInfo(TotalItems - 1);
+                }
+
                 System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel] Product deleted: {productId}");
             }
             else
@@ -701,6 +743,107 @@ public partial class SalesAgentProductsViewModel : PagedViewModelBase<ProductVie
         }
     }
 
+    /// <summary>
+    /// Process imported CSV file (called from Page code-behind after file picker)
+    /// </summary>
+    public async Task ProcessImportFileAsync(Windows.Storage.StorageFile file, Microsoft.UI.Xaml.XamlRoot xamlRoot)
+    {
+        System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel] ProcessImportFileAsync: {file.Name}");
+
+        try
+        {
+            IsLoading = true;
+            await _toastHelper?.ShowInfo($"Parsing file: {file.Name}...");
+
+            // Parse CSV file
+            var parseResult = await _importService.ParseCsvAsync(file);
+
+            if (!parseResult.IsSuccess || parseResult.ValidProducts.Count == 0)
+            {
+                var errorMsg = parseResult.Errors.Count > 0
+                    ? string.Join("\n", parseResult.Errors.Take(5))
+                    : "No valid products found in file";
+
+                await _toastHelper?.ShowError(
+                    $"Import failed:\n{errorMsg}\n\n" +
+                    $"Total: {parseResult.TotalRows}, Failed: {parseResult.FailureCount}");
+
+                return;
+            }
+
+            // Show confirmation using ContentDialog (WinUI 3)
+            var confirmMsg = $"Found {parseResult.ValidProducts.Count} valid products.\n\n" +
+                           $"Total: {parseResult.TotalRows}\n" +
+                           $"Success: {parseResult.SuccessCount}\n" +
+                           $"Failed: {parseResult.FailureCount}\n\n" +
+                           "Import these products?";
+
+            var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+            {
+                Title = "Confirm Import",
+                Content = confirmMsg,
+                PrimaryButtonText = "Yes",
+                CloseButtonText = "No",
+                DefaultButton = Microsoft.UI.Xaml.Controls.ContentDialogButton.Primary,
+                XamlRoot = xamlRoot
+            };
+
+            var result = await dialog.ShowAsync();
+            if (result != Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
+            {
+                await _toastHelper?.ShowInfo("Import cancelled");
+                return;
+            }
+
+            // Import products via bulk API
+            var bulkResult = await _productFacade.BulkCreateProductsAsync(parseResult.ValidProducts);
+
+            if (!bulkResult.IsSuccess || bulkResult.Data == null)
+            {
+                await _toastHelper?.ShowError($"Bulk import failed: {bulkResult.ErrorMessage}");
+                return;
+            }
+
+            var bulkData = bulkResult.Data;
+
+            // Show result
+            await _toastHelper?.ShowSuccess(
+                $"Import completed!\n✓ Success: {bulkData.SuccessCount}" +
+                (bulkData.FailureCount > 0 ? $"\n✗ Failed: {bulkData.FailureCount}" : ""));
+
+            // Reload
+            await LoadPageAsync();
+            ApplyFiltersAndSort();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel] ❌ ProcessImportFileAsync: {ex.Message}");
+            await _toastHelper?.ShowError($"Import failed: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task DownloadTemplateAsync()
+    {
+        try
+        {
+            var file = await _importService.GenerateSampleCsvAsync();
+
+            if (file != null)
+            {
+                await _toastHelper?.ShowSuccess($"Template saved: {file.Name}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await _toastHelper?.ShowError($"Failed to generate template: {ex.Message}");
+        }
+    }
+
     #endregion
 }
 
@@ -744,6 +887,37 @@ public partial class ProductViewModel : ObservableObject
 
     [ObservableProperty]
     private string _description = string.Empty;
+
+    /// <summary>
+    /// Converts ImageUrl string to safe Uri for XAML binding.
+    /// Returns fallback placeholder if ImageUrl is null/empty/invalid.
+    /// </summary>
+    public Uri ImageUri
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(ImageUrl))
+            {
+                return new Uri("ms-appx:///Assets/placeholder-product.png");
+            }
+
+            // Try to parse as absolute URI
+            if (Uri.TryCreate(ImageUrl, UriKind.Absolute, out var uri))
+            {
+                return uri;
+            }
+
+            // If it's a relative path like "/Assets/...", convert to ms-appx:/// URI
+            if (Uri.TryCreate($"ms-appx:///{ImageUrl.TrimStart('/')}", UriKind.Absolute, out var relativeUri))
+            {
+                return relativeUri;
+            }
+
+            // Fallback to placeholder
+            System.Diagnostics.Debug.WriteLine($"[ProductViewModel] Invalid ImageUrl for product '{Name}' (ID: {Id}): '{ImageUrl}'");
+            return new Uri("ms-appx:///Assets/placeholder-product.png");
+        }
+    }
 
     public decimal CommissionAmount => Price * CommissionRate / 100;
 }

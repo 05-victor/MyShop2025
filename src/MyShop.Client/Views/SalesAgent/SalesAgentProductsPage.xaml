@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="MyShop.Client.Views.SalesAgent.SalesAgentProductsPage"
     x:Name="RootPage"
@@ -13,7 +13,7 @@
     xmlns:controls="using:MyShop.Client.Views.Components.Controls"
     xmlns:layout="using:MyShop.Client.Views.Components.Layout"
     xmlns:tables="using:MyShop.Client.Views.Components.Tables"
-    xmlns:pagination="using:MyShop.Client.Views.Components.Pagination"
+    xmlns:pagination="using:MyShop.Client.Views.Components.Controls"
     xmlns:skeletons="using:MyShop.Client.Views.Components.Skeletons"
     xmlns:converters="using:MyShop.Client.Common.Converters"
     xmlns:viewmodels="using:MyShop.Client.ViewModels.SalesAgent"
@@ -129,11 +129,70 @@
                                                 IconGlyph="&#xE72C;"
                                                 Text="Refresh"
                                                 Click="RefreshButton_Click"/>
-                                            <buttons:IconButton
-                                                Variant="Outline"
-                                                IconGlyph="&#xE896;"
-                                                Text="Export"
-                                                Click="ExportButton_Click"/>
+
+                                            <!--  Import with Dropdown  -->
+                                            <Button
+                                                MinWidth="130"
+                                                Padding="16,0"
+                                                Style="{StaticResource PrimaryButtonSmallStyle}"
+                                                ToolTipService.ToolTip="Import products from file">
+                                                <StackPanel Orientation="Horizontal"
+                                                            Spacing="8">
+                                                    <FontIcon Glyph="&#xE8B5;"
+                                                              FontSize="{StaticResource FontSize_Base}"/>
+                                                    <TextBlock Text="Import"/>
+                                                    <FontIcon Glyph="&#xE70D;"
+                                                              FontSize="{StaticResource FontSize_XS}"/>
+                                                </StackPanel>
+                                                <Button.Flyout>
+                                                    <MenuFlyout Placement="Bottom">
+                                                        <MenuFlyoutItem Text="Import from CSV"
+                                                                        Click="ImportCsvMenuItem_Click">
+                                                            <MenuFlyoutItem.Icon>
+                                                                <FontIcon Glyph="&#xE8B5;"/>
+                                                            </MenuFlyoutItem.Icon>
+                                                        </MenuFlyoutItem>
+                                                        <MenuFlyoutSeparator/>
+                                                        <MenuFlyoutItem Text="Download CSV Template"
+                                                                        Command="{x:Bind ViewModel.DownloadTemplateCommand}">
+                                                            <MenuFlyoutItem.Icon>
+                                                                <FontIcon Glyph="&#xE896;"/>
+                                                            </MenuFlyoutItem.Icon>
+                                                        </MenuFlyoutItem>
+                                                    </MenuFlyout>
+                                                </Button.Flyout>
+                                            </Button>
+
+                                            <Button
+                                                MinWidth="130"
+                                                Padding="16,0"
+                                                Style="{StaticResource SecondaryButtonSmallStyle}"
+                                                ToolTipService.ToolTip="Export products data">
+                                                <StackPanel Orientation="Horizontal"
+                                                            Spacing="8">
+                                                    <FontIcon Glyph="&#xE898;"
+                                                              FontSize="{StaticResource FontSize_Base}"/>
+                                                    <TextBlock Text="Export"/>
+                                                    <FontIcon Glyph="&#xE70D;"
+                                                              FontSize="{StaticResource FontSize_XS}"/>
+                                                </StackPanel>
+                                                <Button.Flyout>
+                                                    <MenuFlyout Placement="Bottom">
+                                                        <MenuFlyoutItem Text="Export to CSV"
+                                                                        Click="ExportButton_Click">
+                                                            <MenuFlyoutItem.Icon>
+                                                                <FontIcon Glyph="&#xE9F9;"/>
+                                                            </MenuFlyoutItem.Icon>
+                                                        </MenuFlyoutItem>
+                                                        <MenuFlyoutItem Text="Export to PDF"
+                                                                        Click="ExportPdfButton_Click">
+                                                            <MenuFlyoutItem.Icon>
+                                                                <FontIcon Glyph="&#xEA90;"/>
+                                                            </MenuFlyoutItem.Icon>
+                                                        </MenuFlyoutItem>
+                                                    </MenuFlyout>
+                                                </Button.Flyout>
+                                            </Button>
                                             <buttons:IconButton
                                                 Variant="Filled"
                                                 IconGlyph="&#xE710;"
@@ -281,23 +340,13 @@
                                               BorderThickness="0,0,0,1">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
-                                                <!-- Image -->
-                                                <ColumnDefinition Width="2.5*"/>
-                                                <!-- Product Name -->
-                                                <ColumnDefinition Width="1.2*"/>
-                                                <!-- Category -->
-                                                <ColumnDefinition Width="1.2*"/>
-                                                <!-- Price -->
-                                                <ColumnDefinition Width="1.2*"/>
-                                                <!-- Import Price -->
-                                                <ColumnDefinition Width="1.2*"/>
-                                                <!-- Stock -->
-                                                <ColumnDefinition Width="1.2*"/>
-                                                <!-- Tax -->
-                                                <ColumnDefinition Width="*"/>
-                                                <!-- Rating -->
-                                                <ColumnDefinition Width="80"/>
-                                                <!-- Actions -->
+                                                <ColumnDefinition Width="1.9*"/>
+                                                <ColumnDefinition Width="1.5*"/>
+                                                <ColumnDefinition Width="1.5*"/>
+                                                <ColumnDefinition Width="1.5*"/>
+                                                <ColumnDefinition Width="1.4*"/>
+                                                <ColumnDefinition Width="0.5*"/>
+                                                <ColumnDefinition Width="1.5*"/>
                                             </Grid.ColumnDefinitions>
 
                                             <TextBlock Grid.Column="0"
@@ -331,10 +380,6 @@
                                             <TextBlock Grid.Column="7"
                                                        FontWeight="SemiBold"
                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                       Text="RATING"/>
-                                            <TextBlock Grid.Column="8"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                        Text="ACTIONS"/>
                                         </Grid>
 
@@ -348,14 +393,13 @@
                                                           BorderThickness="0,0,0,1">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="2.5*"/>
-                                                            <ColumnDefinition Width="1.2*"/>
-                                                            <ColumnDefinition Width="1.2*"/>
-                                                            <ColumnDefinition Width="1.2*"/>
-                                                            <ColumnDefinition Width="1.2*"/>
-                                                            <ColumnDefinition Width="1*"/>
-                                                            <ColumnDefinition Width="1*"/>
-                                                            <ColumnDefinition Width="80"/>
+                                                            <ColumnDefinition Width="1.9*"/>
+                                                            <ColumnDefinition Width="1.5*"/>
+                                                            <ColumnDefinition Width="1.5*"/>
+                                                            <ColumnDefinition Width="1.5*"/>
+                                                            <ColumnDefinition Width="1.4*"/>
+                                                            <ColumnDefinition Width="0.5*"/>
+                                                            <ColumnDefinition Width="1.5*"/>
                                                         </Grid.ColumnDefinitions>
 
                                                         <!-- Image -->
@@ -367,7 +411,7 @@
                                                                 CornerRadius="8">
                                                             <Image Stretch="UniformToFill">
                                                                 <Image.Source>
-                                                                    <BitmapImage UriSource="{x:Bind ImageUrl, Mode=OneWay}"
+                                                                    <BitmapImage UriSource="{x:Bind ImageUri, Mode=OneWay}"
                                                                                  DecodePixelWidth="96"
                                                                                  DecodePixelType="Logical"/>
                                                                 </Image.Source>
@@ -427,25 +471,19 @@
                                                             </TextBlock>
                                                         </StackPanel>
 
-                                                        <!-- Rating -->
+                                                        <!-- Actions -->
                                                         <StackPanel Grid.Column="7"
                                                                     Orientation="Horizontal"
                                                                     Spacing="4"
                                                                     VerticalAlignment="Center">
-                                                            <TextBlock VerticalAlignment="Center"
-                                                                       FontSize="{StaticResource FontSize_Base}"
-                                                                       Text="{x:Bind Rating, Mode=OneWay}"/>
-                                                            <FontIcon
-                                                                FontSize="{StaticResource FontSize_Base}"
-                                                                Foreground="{ThemeResource WarningAmberBrush}"
-                                                                Glyph="&#xE735;"/>
-                                                        </StackPanel>
-
-                                                        <!-- Actions -->
-                                                        <StackPanel Grid.Column="8"
-                                                                    Orientation="Horizontal"
-                                                                    Spacing="4"
-                                                                    VerticalAlignment="Center">
+                                                            <!-- Predict Demand -->
+                                                            <buttons:IconButton
+                                                                Variant="Ghost"
+                                                                IconGlyph="&#xE9D9;"
+                                                                IconColor="{ThemeResource InfoBlueBrush}"
+                                                                Command="{Binding ElementName=RootPage, Path=ViewModel.PredictDemandCommand}"
+                                                                CommandParameter="{x:Bind}"
+                                                                ToolTipService.ToolTip="Predict demand"/>
                                                             <!-- Edit -->
                                                             <buttons:IconButton
                                                                 Variant="Ghost"
@@ -483,6 +521,7 @@
                 TotalPages="{x:Bind ViewModel.TotalPages, Mode=OneWay}"
                 TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
                 PageSize="{x:Bind ViewModel.PageSize, Mode=TwoWay}"
+                PageChanged="OnPageChanged"
                 Margin="0,16,0,0"/>
 
             <!-- Layer 2: Loading Overlay (Shown during loading) -->
@@ -677,9 +716,9 @@
                                 BorderThickness="1"
                                 CornerRadius="8"
                                 SelectedIndex="0">
-                                <ComboBoxItem>AVAILABLE</ComboBoxItem>
-                                <ComboBoxItem>DISCONTINUED</ComboBoxItem>
-                                <ComboBoxItem>OUT_OF_STOCK</ComboBoxItem>
+                                <ComboBoxItem>Available</ComboBoxItem>
+                                <ComboBoxItem>Discontinued</ComboBoxItem>
+                                <ComboBoxItem>Out of Stock</ComboBoxItem>
                             </ComboBox>
                         </StackPanel>
 
@@ -907,9 +946,9 @@
                                 BorderThickness="1"
                                 CornerRadius="8"
                                 SelectedIndex="0">
-                                <ComboBoxItem>AVAILABLE</ComboBoxItem>
-                                <ComboBoxItem>DISCONTINUED</ComboBoxItem>
-                                <ComboBoxItem>OUT_OF_STOCK</ComboBoxItem>
+                                <ComboBoxItem>Available</ComboBoxItem>
+                                <ComboBoxItem>Discontinued</ComboBoxItem>
+                                <ComboBoxItem>Out of Stock</ComboBoxItem>
                             </ComboBox>
                         </StackPanel>
 

@@ -1,8 +1,10 @@
+using MyShop.Client.Common.Helpers;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Repositories;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Shared.Models;
+using MyShop.Shared.DTOs.Responses;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -233,12 +235,12 @@ public class UserFacade : IUserFacade
         string? role = null,
         bool? isActive = null,
         int page = 1,
-        int pageSize = 20)
+        int pageSize = AppConstants.DEFAULT_PAGE_SIZE)
     {
         try
         {
             // Validate paging
-            if (page < 1 || pageSize < 1 || pageSize > 100)
+            if (page < 1 || pageSize < 1 || pageSize > AppConstants.MAX_PAGE_SIZE)
             {
                 await _toastService.ShowError("Invalid paging parameters");
                 return Result<PagedList<User>>.Failure("Invalid paging");
@@ -454,14 +456,14 @@ public class UserFacade : IUserFacade
                 await _toastService.ShowError("Failed to load users for export");
                 return Result<string>.Failure("Failed to load users");
             }
-            
+
             var totalUsers = countResult.Data?.TotalCount ?? 0;
             if (totalUsers == 0)
             {
                 await _toastService.ShowWarning("No users to export");
                 return Result<string>.Failure("No users to export");
             }
-            
+
             // Now load all users using actual total count
             var usersResult = await LoadUsersAsync(searchQuery, roleFilter, null, 1, totalUsers);
             if (!usersResult.IsSuccess || usersResult.Data?.Items == null)
@@ -487,18 +489,18 @@ public class UserFacade : IUserFacade
             var window = App.MainWindow;
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
             WinRT.Interop.InitializeWithWindow.Initialize(savePicker, hwnd);
-            
+
             savePicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
             savePicker.FileTypeChoices.Add("CSV File", new List<string>() { ".csv" });
             savePicker.SuggestedFileName = $"Users_{DateTime.Now:yyyyMMdd_HHmmss}";
-            
+
             var file = await savePicker.PickSaveFileAsync();
             if (file == null)
             {
                 // User cancelled
                 return Result<string>.Failure("Export cancelled");
             }
-            
+
             await Windows.Storage.FileIO.WriteTextAsync(file, csv.ToString());
 
             await _toastService.ShowSuccess($"Exported {users.Count} users to CSV");
@@ -524,14 +526,14 @@ public class UserFacade : IUserFacade
                 await _toastService.ShowError("Failed to load users for PDF export");
                 return Result<string>.Failure("Failed to load users");
             }
-            
+
             var totalUsers = countResult.Data?.TotalCount ?? 0;
             if (totalUsers == 0)
             {
                 await _toastService.ShowWarning("No users to export");
                 return Result<string>.Failure("No users to export");
             }
-            
+
             // Now load all users using actual total count
             var usersResult = await LoadUsersAsync(searchQuery, roleFilter, null, 1, totalUsers);
             if (!usersResult.IsSuccess || usersResult.Data?.Items == null)
@@ -558,7 +560,7 @@ public class UserFacade : IUserFacade
             // Use PdfExportService for PDF generation with FileSavePicker
             var pdfService = new Services.PdfExportService();
             var filePath = await pdfService.ExportUsersReportAsync(userResponses, "Users Report");
-            
+
             if (string.IsNullOrEmpty(filePath))
             {
                 // User cancelled the save dialog
@@ -628,7 +630,7 @@ public class CommissionFacade : ICommissionFacade
         _toastService = toastService ?? throw new ArgumentNullException(nameof(toastService));
     }
 
-    public async Task<Result<PagedList<Commission>>> LoadCommissionsAsync(Guid? agentId = null, string? status = null, DateTime? startDate = null, DateTime? endDate = null, int page = 1, int pageSize = 20)
+    public async Task<Result<PagedList<Commission>>> LoadCommissionsAsync(Guid? agentId = null, string? status = null, DateTime? startDate = null, DateTime? endDate = null, int page = 1, int pageSize = AppConstants.DEFAULT_PAGE_SIZE)
     {
         await _toastService.ShowInfo("Commission loading - Feature coming soon");
         return Result<PagedList<Commission>>.Failure("Not implemented");
@@ -950,6 +952,21 @@ public class ReportFacade : IReportFacade
             return Result<string>.Failure($"Error: {ex.Message}");
         }
     }
+
+    public async Task<Result<AdminReportsResponse>> GetAdminReportsAsync(
+        DateTime from,
+        DateTime to,
+        Guid? categoryId = null,
+        int pageNumber = 1,
+        int pageSize = 10)
+    {
+        return Result<AdminReportsResponse>.Failure("Not implemented - use ReportFacade from Reports folder");
+    }
+
+    public async Task<Result<SalesAgentReportsResponse>> GetSalesAgentReportsAsync(string period = "week", Guid? categoryId = null)
+    {
+        return Result<SalesAgentReportsResponse>.Failure("Not implemented - use ReportFacade from Reports folder");
+    }
 }
 
 #endregion
@@ -967,7 +984,7 @@ public class AgentRequestFacade : IAgentRequestFacade
         _toastService = toastService ?? throw new ArgumentNullException(nameof(toastService));
     }
 
-    public async Task<Result<PagedList<AgentRequest>>> LoadRequestsAsync(string? status = null, string? searchQuery = null, int page = 1, int pageSize = 20)
+    public async Task<Result<PagedList<AgentRequest>>> LoadRequestsAsync(string? status = null, string? searchQuery = null, int page = 1, int pageSize = AppConstants.DEFAULT_PAGE_SIZE)
     {
         await _toastService.ShowInfo("Agent requests - Feature coming soon");
         return Result<PagedList<AgentRequest>>.Failure("Not implemented");
@@ -1058,6 +1075,25 @@ public class AgentRequestFacade : IAgentRequestFacade
     {
         await _toastService.ShowInfo("User profile - Feature coming soon");
         return Result<User>.Failure("Not implemented");
+    }
+
+    public async Task<Result<MyShop.Shared.DTOs.Responses.AgentRequestResponse?>> GetMyRequestAsync()
+    {
+        try
+        {
+            var result = await _agentRequestRepository.GetMyRequestAsync();
+            if (!result.IsSuccess)
+            {
+                // No request found is not an error - return null
+                return Result<MyShop.Shared.DTOs.Responses.AgentRequestResponse?>.Success(null);
+            }
+            return Result<MyShop.Shared.DTOs.Responses.AgentRequestResponse?>.Success(result.Data);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AgentRequestFacade] Error getting my request: {ex.Message}");
+            return Result<MyShop.Shared.DTOs.Responses.AgentRequestResponse?>.Failure($"Error: {ex.Message}");
+        }
     }
 
     public async Task<Result<PagedList<AgentRequest>>> GetPagedAsync(

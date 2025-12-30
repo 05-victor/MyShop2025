@@ -35,37 +35,48 @@
                        AutomationProperties.HeadingLevel="Level2"
                        Visibility="{Binding Title, ElementName=RootControl, Mode=OneWay, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
 
-            <!-- Filter Content Slot -->
-            <ContentPresenter Content="{Binding FilterContent, ElementName=RootControl, Mode=OneWay}"
-                             HorizontalAlignment="Stretch"/>
+            <!-- Filter Content and Actions in Same Row -->
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-            <!-- Action Buttons Row -->
-            <StackPanel Orientation="Horizontal"
-                       Spacing="8"
-                       HorizontalAlignment="Right"
-                       Visibility="{Binding ShowActions, ElementName=RootControl, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                
-                <!-- Reset Button -->
-                <buttons:IconButton
-                    Variant="Outline"
-                    IconGlyph="&#xE72C;"
-                    Text="Reset"
-                    Command="{Binding ResetCommand, ElementName=RootControl, Mode=OneWay}"
-                    ToolTipService.ToolTip="Reset Filter"/>
+                <!-- Filter Content Slot -->
+                <ContentPresenter Grid.Column="0"
+                                 Content="{Binding FilterContent, ElementName=RootControl, Mode=OneWay}"
+                                 HorizontalAlignment="Stretch"
+                                 VerticalAlignment="Center"/>
 
-                <!-- Apply Button -->
-                <Button Style="{StaticResource PrimaryButtonStyle}"
-                       Command="{Binding ApplyCommand, ElementName=RootControl, Mode=OneWay}"
-                       AutomationProperties.Name="Apply filters"
-                       AutomationProperties.HelpText="Apply selected filters to results"
-                       AccessKey="A"
-                       UseSystemFocusVisuals="True">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE71C;" FontSize="14"/>
-                        <TextBlock Text="{Binding ApplyButtonText, ElementName=RootControl, Mode=OneWay}" FontWeight="SemiBold"/>
-                    </StackPanel>
-                </Button>
-            </StackPanel>
+                <!-- Action Buttons -->
+                <StackPanel Grid.Column="1"
+                           Orientation="Horizontal"
+                           Spacing="8"
+                           Margin="0,20,0,0"
+                           Visibility="{Binding ShowActions, ElementName=RootControl, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    
+                    <!-- Reset Button -->
+                    <buttons:IconButton
+                        Variant="Outline"
+                        IconGlyph="&#xE72C;"
+                        Text="Reset"
+                        Command="{Binding ResetCommand, ElementName=RootControl, Mode=OneWay}"
+                        ToolTipService.ToolTip="Reset Filter"/>
+
+                    <!-- Apply Button -->
+                    <Button Style="{StaticResource PrimaryButtonStyle}"
+                           Command="{Binding ApplyCommand, ElementName=RootControl, Mode=OneWay}"
+                           AutomationProperties.Name="Apply filters"
+                           AutomationProperties.HelpText="Apply selected filters to results"
+                           AccessKey="A"
+                           UseSystemFocusVisuals="True">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE71C;" FontSize="14"/>
+                            <TextBlock Text="{Binding ApplyButtonText, ElementName=RootControl, Mode=OneWay}" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
         </StackPanel>
     </Border>
 </UserControl>

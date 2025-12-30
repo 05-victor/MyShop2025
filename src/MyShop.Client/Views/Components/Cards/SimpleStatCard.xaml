@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <UserControl
     x:Class="MyShop.Client.Views.Components.Cards.SimpleStatCard"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -31,7 +31,7 @@
             <TextBlock Text="{Binding Value, ElementName=RootControl, Mode=OneWay}"
                        FontSize="32"
                        FontWeight="Bold"
-                       Foreground="{Binding ValueColor, ElementName=RootControl, Mode=OneWay}"/>
+                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
 
             <!-- Subtitle (optional) -->
             <TextBlock Text="{Binding Subtitle, ElementName=RootControl, Mode=OneWay}"

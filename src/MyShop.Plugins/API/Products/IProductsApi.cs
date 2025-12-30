@@ -24,6 +24,9 @@ public interface IProductsApi
     [Post("/api/v1/products")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<ProductResponse>>> CreateAsync([Body] object request);
 
+    [Post("/api/v1/products/bulk")]
+    Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<BulkCreateProductsResponse>>> BulkCreateAsync([Body] object request);
+
     [Patch("/api/v1/products/{id}")]
     Task<Refit.ApiResponse<MyShop.Shared.DTOs.Common.ApiResponse<ProductResponse>>> UpdateAsync(Guid id, [Body] object request);
 

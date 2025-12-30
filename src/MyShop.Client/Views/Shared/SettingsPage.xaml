@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="MyShop.Client.Views.Shared.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -16,20 +16,22 @@
         <!-- Converters for visibility -->
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
         <converters:StringToImageSourceConverter x:Key="StringToImageSource"/>
     </Page.Resources>
 
     <Grid>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="ResponsiveStates">
-                
+
                 <!-- Large Desktop: 1920px+ -->
                 <VisualState x:Name="LargeDesktopState">
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="1920"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="40,24,40,24"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="40,24,40,24"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -39,7 +41,8 @@
                         <AdaptiveTrigger MinWindowWidth="1280"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="40,24,40,24"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="40,24,40,24"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -49,7 +52,8 @@
                         <AdaptiveTrigger MinWindowWidth="960"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="32,24,32,24"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="32,24,32,24"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -59,7 +63,8 @@
                         <AdaptiveTrigger MinWindowWidth="640"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="24,24,24,24"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="24,24,24,24"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -69,10 +74,11 @@
                         <AdaptiveTrigger MinWindowWidth="0"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="16,24,16,24"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="16,24,16,24"/>
                     </VisualState.Setters>
                 </VisualState>
-                
+
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
@@ -90,9 +96,9 @@
 
         <!--  Main Content  -->
         <ScrollViewer>
-            <StackPanel x:Name="MainContent" MaxWidth="900"
-                    Padding="40,24,40,24"
-                    Spacing="24">
+            <StackPanel x:Name="MainContent"
+                        Padding="40,24,40,24"
+                        Spacing="24">
                 <!--  Header  -->
                 <layout:PageHeader
                     Title="Settings"
@@ -108,233 +114,397 @@
 
                 <!--  Tabs  -->
                 <TabView IsAddTabButtonVisible="False"
-                        SelectedIndex="0">
+                         SelectedIndex="0">
                     <!--  General Tab  -->
                     <TabViewItem Header="General"
-                            IsClosable="False">
+                                 IsClosable="False">
                         <TabViewItem.IconSource>
                             <FontIconSource Glyph="&#xE713;"/>
                         </TabViewItem.IconSource>
-                        <ScrollViewer>
-                            <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
+                        <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
                                     Spacing="24">
-                                <Border
-                                    Padding="{StaticResource Padding_XL}"
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="8">
-                                    <StackPanel Spacing="16">
-                                        <TextBlock FontSize="{StaticResource FontSize_LG}"
-                                                FontWeight="SemiBold"
-                                                Text="Shop Information"/>
+                            <Border
+                                Padding="{StaticResource Padding_XL}"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8">
+                                <StackPanel Spacing="16">
+                                    <TextBlock FontSize="{StaticResource FontSize_LG}"
+                                               FontWeight="SemiBold"
+                                               Text="Shop Information"/>
 
-                                        <StackPanel Spacing="8">
-                                            <TextBlock Style="{StaticResource InputLabelStyle}"
-                                                    Text="Shop Name"/>
-                                            <TextBox Style="{StaticResource BaseInputStyle}"
-                                                    PlaceholderText="MyShop 2025"
-                                                    Text="{x:Bind ViewModel.ShopName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                        </StackPanel>
-
-                                        <StackPanel Spacing="8">
-                                            <TextBlock Style="{StaticResource InputLabelStyle}"
-                                                    Text="Address"/>
-                                            <TextBox
-                                                Style="{StaticResource BaseInputStyle}"
-                                                AcceptsReturn="True"
-                                                Height="80"
-                                                PlaceholderText="Enter shop address"
-                                                Text="{x:Bind ViewModel.Address, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                TextWrapping="Wrap"/>
-                                        </StackPanel>
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Style="{StaticResource InputLabelStyle}"
+                                                   Text="Shop Name"/>
+                                        <TextBox Style="{StaticResource BaseInputStyle}"
+                                                 IsReadOnly="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                                                 PlaceholderText="MyShop 2025"
+                                                 Text="{x:Bind ViewModel.ShopName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                     </StackPanel>
-                                </Border>
 
-                                <buttons:IconButton
-                                        HorizontalAlignment="Left"
-                                        Variant="Filled"
-                                        IconGlyph="&#xE74E;"
-                                        Text="Save Changes"
-                                        Command="{x:Bind ViewModel.SaveCommand}"/>
-                            </StackPanel>
-                        </ScrollViewer>
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Style="{StaticResource InputLabelStyle}"
+                                                   Text="Address"/>
+                                        <TextBox Style="{StaticResource BaseInputStyle}"
+                                                 IsReadOnly="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                                                 AcceptsReturn="True"
+                                                 Height="80"
+                                                 PlaceholderText="Enter shop address"
+                                                 Text="{x:Bind ViewModel.Address, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 TextWrapping="Wrap"/>
+                                        <TextBlock
+                                            FontSize="{StaticResource FontSize_SM}"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                                            Text="Only Admin can edit shop information"
+                                            TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <buttons:IconButton
+                                HorizontalAlignment="Left"
+                                Variant="Filled"
+                                IconGlyph="&#xE74E;"
+                                Text="Save Changes"
+                                Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                Command="{x:Bind ViewModel.SaveCommand}"/>
+                        </StackPanel>
                     </TabViewItem>
 
                     <!--  Appearance Tab  -->
                     <TabViewItem Header="Appearance"
-                            IsClosable="False">
+                                 IsClosable="False">
                         <TabViewItem.IconSource>
                             <FontIconSource Glyph="&#xE771;"/>
                         </TabViewItem.IconSource>
-                        <ScrollViewer>
-                            <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
+                        <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
                                     Spacing="24">
-                                <Border
-                                    Padding="{StaticResource Padding_XL}"
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="8">
-                                    <StackPanel Spacing="16">
-                                        <TextBlock FontSize="{StaticResource FontSize_LG}"
-                                                FontWeight="SemiBold"
-                                                Text="Appearance Settings"/>
+                            <Border
+                                Padding="{StaticResource Padding_XL}"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8">
+                                <StackPanel Spacing="16">
+                                    <TextBlock FontSize="{StaticResource FontSize_LG}"
+                                               FontWeight="SemiBold"
+                                               Text="Appearance Settings"/>
 
-                                        <!-- Theme Selector -->
-                                        <Border Padding="{StaticResource Spacing_3_Thickness}"
-                                                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
-                                                BorderThickness="0,0,0,1"
-                                                Margin="0,0,0,8">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <StackPanel>
-                                                    <TextBlock Text="Theme"
-                                                            FontWeight="SemiBold"/>
-                                                    <TextBlock FontSize="{StaticResource FontSize_SM}"
-                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                            Text="Choose between Light and Dark mode"
-                                                            TextWrapping="Wrap"/>
-                                                </StackPanel>
-                                                <ToggleSwitch Grid.Column="1"
-                                                        x:Name="ThemeToggle"
-                                                        Toggled="ThemeToggle_Toggled">
-                                                    <ToggleSwitch.OnContent>
-                                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                                            <FontIcon FontSize="{StaticResource FontSize_LG}" 
-                                                                    Glyph="&#xE708;"
-                                                                    Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
-                                                            <TextBlock Text="Dark"/>
-                                                        </StackPanel>
-                                                    </ToggleSwitch.OnContent>
-                                                    <ToggleSwitch.OffContent>
-                                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                                            <FontIcon FontSize="{StaticResource FontSize_LG}" 
-                                                                    Glyph="&#xE706;"
-                                                                    Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
-                                                            <TextBlock Text="Light"/>
-                                                        </StackPanel>
-                                                    </ToggleSwitch.OffContent>
-                                                </ToggleSwitch>
-                                            </Grid>
-                                        </Border>
-                                        
-                                        <TextBlock
-                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                            Text="Language settings will be available in a future update."
-                                            TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
-                        </ScrollViewer>
+                                    <!-- Theme Selector -->
+                                    <Border Padding="{StaticResource Spacing_3_Thickness}"
+                                            BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                            BorderThickness="0,0,0,1"
+                                            Margin="0,0,0,8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="Theme"
+                                                           FontWeight="SemiBold"/>
+                                                <TextBlock FontSize="{StaticResource FontSize_SM}"
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                           Text="Choose between Light and Dark mode"
+                                                           TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <ToggleSwitch Grid.Column="1"
+                                                          x:Name="ThemeToggle"
+                                                          Toggled="ThemeToggle_Toggled">
+                                                <ToggleSwitch.OnContent>
+                                                    <StackPanel Orientation="Horizontal"
+                                                            Spacing="8">
+                                                        <FontIcon FontSize="{StaticResource FontSize_LG}"
+                                                                  Glyph="&#xE708;"
+                                                                  Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                                                        <TextBlock Text="Dark"/>
+                                                    </StackPanel>
+                                                </ToggleSwitch.OnContent>
+                                                <ToggleSwitch.OffContent>
+                                                    <StackPanel Orientation="Horizontal"
+                                                            Spacing="8">
+                                                        <FontIcon FontSize="{StaticResource FontSize_LG}"
+                                                                  Glyph="&#xE706;"
+                                                                  Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                                                        <TextBlock Text="Light"/>
+                                                    </StackPanel>
+                                                </ToggleSwitch.OffContent>
+                                            </ToggleSwitch>
+                                        </Grid>
+                                    </Border>
+
+                                    <TextBlock
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        Text="Language settings will be available in a future update."
+                                        TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+
+                            <buttons:IconButton
+                                HorizontalAlignment="Left"
+                                Variant="Filled"
+                                IconGlyph="&#xE74E;"
+                                Text="Save Changes"
+                                Command="{x:Bind ViewModel.SaveCommand}"/>
+                        </StackPanel>
                     </TabViewItem>
 
                     <!--  About Tab  -->
                     <TabViewItem Header="About"
-                            IsClosable="False">
+                                 IsClosable="False">
                         <TabViewItem.IconSource>
                             <FontIconSource Glyph="&#xE946;"/>
                         </TabViewItem.IconSource>
-                        <ScrollViewer>
-                            <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
+                        <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
                                     Spacing="24">
-                                <Border
-                                    Padding="{StaticResource Padding_XL}"
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="8">
-                                    <StackPanel Spacing="24">
-                                        <StackPanel Orientation="Horizontal"
+                            <Border
+                                Padding="{StaticResource Padding_XL}"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8">
+                                <StackPanel Spacing="24">
+                                    <StackPanel Orientation="Horizontal"
                                                 Spacing="16">
-                                            <Border Width="64"
-                                                    Height="64"
-                                                    Background="{ThemeResource AccentFillColorDefaultBrush}"
-                                                    CornerRadius="8">
-                                                <TextBlock HorizontalAlignment="Center"
-                                                        VerticalAlignment="Center"
-                                                        FontSize="{StaticResource FontSize_3XL}"
-                                                        FontWeight="Bold"
-                                                        Foreground="{ThemeResource WhiteBrush}"
-                                                        Text="MS"/>
-                                            </Border>
-                                            <StackPanel VerticalAlignment="Center">
-                                                <TextBlock FontSize="{StaticResource FontSize_XL}"
-                                                        FontWeight="SemiBold"
-                                                        Text="MyShop 2025"/>
-                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                        Text="Admin Management Dashboard"/>
-                                            </StackPanel>
+                                        <Border Width="64"
+                                                Height="64"
+                                                Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                                CornerRadius="8">
+                                            <TextBlock HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       FontSize="{StaticResource FontSize_3XL}"
+                                                       FontWeight="Bold"
+                                                       Foreground="{ThemeResource WhiteBrush}"
+                                                       Text="MS"/>
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock FontSize="{StaticResource FontSize_XL}"
+                                                       FontWeight="SemiBold"
+                                                       Text="MyShop 2025"/>
+                                            <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="Admin Management Dashboard"/>
                                         </StackPanel>
-
-                                        <StackPanel Spacing="8">
-                                            <Grid Padding="{StaticResource Spacing_2_Thickness}"
-                                                    BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
-                                                    BorderThickness="0,0,0,1">
-                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                        Text="Version"/>
-                                                <TextBlock HorizontalAlignment="Right"
-                                                        FontWeight="SemiBold"
-                                                        Text="{x:Bind ViewModel.AppVersion}"/>
-                                            </Grid>
-                                            <Grid Padding="{StaticResource Spacing_2_Thickness}"
-                                                    BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
-                                                    BorderThickness="0,0,0,1">
-                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                        Text="Release Date"/>
-                                                <TextBlock HorizontalAlignment="Right"
-                                                        FontWeight="SemiBold"
-                                                        Text="November 2025"/>
-                                            </Grid>
-                                            <Grid Padding="{StaticResource Spacing_2_Thickness}"
-                                                    BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
-                                                    BorderThickness="0,0,0,1">
-                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                        Text="License"/>
-                                                <TextBlock HorizontalAlignment="Right"
-                                                        FontWeight="SemiBold"
-                                                        Text="Commercial"/>
-                                            </Grid>
-                                            <Grid Padding="{StaticResource Spacing_2_Thickness}">
-                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                        Text="Support"/>
-                                                <TextBlock HorizontalAlignment="Right"
-                                                        FontWeight="SemiBold"
-                                                        Text="support@myshop.com"/>
-                                            </Grid>
-                                        </StackPanel>
-
-                                        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                Text="{x:Bind ViewModel.ReleaseYear}"
-                                                TextAlignment="Center"/>
                                     </StackPanel>
-                                </Border>
-                            </StackPanel>
-                        </ScrollViewer>
+
+                                    <StackPanel Spacing="8">
+                                        <Grid Padding="{StaticResource Spacing_2_Thickness}"
+                                              BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                              BorderThickness="0,0,0,1">
+                                            <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="Version"/>
+                                            <TextBlock HorizontalAlignment="Right"
+                                                       FontWeight="SemiBold"
+                                                       Text="{x:Bind ViewModel.AppVersion, Mode=OneWay}"/>
+                                        </Grid>
+                                        <Grid Padding="{StaticResource Spacing_2_Thickness}"
+                                              BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                              BorderThickness="0,0,0,1">
+                                            <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="Release Date"/>
+                                            <TextBlock HorizontalAlignment="Right"
+                                                       FontWeight="SemiBold"
+                                                       Text="{x:Bind ViewModel.ReleaseDate, Mode=OneWay}"/>
+                                        </Grid>
+                                        <Grid Padding="{StaticResource Spacing_2_Thickness}"
+                                              BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                              BorderThickness="0,0,0,1">
+                                            <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="License"/>
+                                            <TextBlock HorizontalAlignment="Right"
+                                                       FontWeight="SemiBold"
+                                                       Text="{x:Bind ViewModel.LicenseInfo, Mode=OneWay}"/>
+                                        </Grid>
+                                        <Grid Padding="{StaticResource Spacing_2_Thickness}">
+                                            <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="Support"/>
+                                            <TextBlock HorizontalAlignment="Right"
+                                                       FontWeight="SemiBold"
+                                                       Text="{x:Bind ViewModel.SupportEmail, Mode=OneWay}"/>
+                                        </Grid>
+                                    </StackPanel>
+
+                                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                               Text="{x:Bind ViewModel.ReleaseYear}"
+                                               TextAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
                     </TabViewItem>
 
                     <!--  Trial Tab (Admin with Trial License Only) - Placed last to avoid being selected by default  -->
                     <TabViewItem Header="Trial"
-                            IsClosable="False"
+                                 IsClosable="False"
                                  Visibility="{x:Bind ViewModel.ShowTrialTab, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                         <TabViewItem.IconSource>
                             <FontIconSource Glyph="&#xE8D7;"/>
                         </TabViewItem.IconSource>
-                        <ScrollViewer>
-                            <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
+                        <StackPanel Padding="{StaticResource Spacing_6_Thickness}"
                                     Spacing="24">
-                                <!--  Trial Status Card  -->
-                                <Border
-                                    Padding="{StaticResource Padding_XL}"
-                                    Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
-                                    BorderBrush="{ThemeResource SystemFillColorAttentionBrush}"
-                                    BorderThickness="2"
-                                    CornerRadius="8">
-                                    <StackPanel Spacing="16">
-                                        <!--  Status Header  -->
+                            <!--  Trial Status Card  -->
+                            <Border
+                                Padding="{StaticResource Padding_XL}"
+                                Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                                BorderBrush="{ThemeResource SystemFillColorAttentionBrush}"
+                                BorderThickness="2"
+                                CornerRadius="8">
+                                <StackPanel Spacing="16">
+                                    <!--  Status Header  -->
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <FontIcon
+                                            Grid.Column="0"
+                                            FontSize="{StaticResource FontSize_5XL}"
+                                            Foreground="{ThemeResource WarningAmberBrush}"
+                                            Glyph="&#xE7BA;"/>
+                                        <StackPanel Grid.Column="1"
+                                                    Margin="16,0,0,0"
+                                                    VerticalAlignment="Center">
+                                            <TextBlock FontSize="{StaticResource FontSize_XL}"
+                                                       FontWeight="Bold"
+                                                       Text="Trial Mode Active"/>
+                                            <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       Text="Experience full features during your trial period"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!--  Trial Info  -->
+                                    <Border
+                                        Padding="{StaticResource Padding_LG}"
+                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                        CornerRadius="8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Spacing="4">
+                                                <TextBlock FontWeight="SemiBold"
+                                                           Text="Trial Period Remaining"/>
+                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                           Text="Your trial will expire soon"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1"
+                                                        HorizontalAlignment="Right"
+                                                        VerticalAlignment="Center">
+                                                <TextBlock
+                                                    FontSize="{StaticResource FontSize_5XL}"
+                                                    FontWeight="Bold"
+                                                    Foreground="{ThemeResource WarningAmberBrush}"
+                                                    Text="{x:Bind ViewModel.TrialDaysRemaining, Mode=OneWay}"/>
+                                                <TextBlock
+                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                    Text="days left"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+
+                                    <!--  Actions  -->
+                                    <StackPanel Spacing="12">
+                                        <Button
+                                            Style="{StaticResource PrimaryButtonStyle}"
+                                            HorizontalAlignment="Stretch"
+                                            Command="{x:Bind ViewModel.OpenUpgradeProCommand}"
+                                            ToolTipService.ToolTip="Open upgrade page in browser">
+                                            <StackPanel Orientation="Horizontal"
+                                                        Spacing="8">
+                                                <FontIcon FontSize="{StaticResource FontSize_Base}"
+                                                          Glyph="&#xE734;"/>
+                                                <TextBlock Text="Upgrade to Pro - $49/month"/>
+                                            </StackPanel>
+                                        </Button>
+
+                                        <StackPanel Spacing="8">
+                                            <TextBlock FontSize="{StaticResource FontSize_SM}"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                    <Run Text="✓"/>
+                                                    <Run Text="Unlimited products and orders"/>
+                                            </TextBlock>
+                                            <TextBlock FontSize="{StaticResource FontSize_SM}"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                    <Run Text="✓"/>
+                                                    <Run Text="Advanced analytics and reporting"/>
+                                            </TextBlock>
+                                            <TextBlock FontSize="{StaticResource FontSize_SM}"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                    <Run Text="✓"/>
+                                                    <Run Text="Priority customer support"/>
+                                            </TextBlock>
+                                            <TextBlock FontSize="{StaticResource FontSize_SM}"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                    <Run Text="✓"/>
+                                                    <Run Text="Custom branding options"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!--  Trial Extension Card  -->
+                            <Border
+                                Padding="{StaticResource Padding_XL}"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8">
+                                <StackPanel Spacing="16">
+                                    <TextBlock FontSize="{StaticResource FontSize_LG}"
+                                               FontWeight="SemiBold"
+                                               Text="Activate License"/>
+                                    <TextBlock
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        Text="Have a license code? Enter it below to extend trial or activate permanent license."
+                                        TextWrapping="Wrap"/>
+
+                                    <StackPanel Spacing="12">
+                                        <TextBox
+                                            x:Name="TrialCodeTextBox"
+                                            MaxLength="24"
+                                            PlaceholderText="MYSHOP-XXXX-XXXX-XXXX"
+                                            Text="{x:Bind ViewModel.TrialCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            Style="{StaticResource BaseInputStyle}"/>
+
+                                        <Button
+                                            Style="{StaticResource PrimaryButtonStyle}"
+                                            HorizontalAlignment="Left"
+                                            Command="{x:Bind ViewModel.ActivateTrialCodeCommand}"
+                                            ToolTipService.ToolTip="Enter a valid code to activate your license">
+                                            <StackPanel Orientation="Horizontal"
+                                                        Spacing="8">
+                                                <FontIcon FontSize="{StaticResource FontSize_Base}"
+                                                          Glyph="&#xE73E;"/>
+                                                <TextBlock Text="Activate Code"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+
+                                    <InfoBar
+                                        IsClosable="False"
+                                        IsOpen="True"
+                                        Message="License codes are provided by your administrator. Trial codes extend your trial period, permanent codes grant unlimited access."
+                                        Severity="Informational"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!--  Additional Features  -->
+                            <Border
+                                Padding="{StaticResource Padding_XL}"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8">
+                                <StackPanel Spacing="12">
+                                    <TextBlock FontSize="{StaticResource FontSize_LG}"
+                                               FontWeight="SemiBold"
+                                               Text="What You Get with Pro"/>
+
+                                    <Border Padding="{StaticResource Spacing_3_Thickness}"
+                                            BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                            BorderThickness="0,0,0,1">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
@@ -342,260 +512,105 @@
                                             </Grid.ColumnDefinitions>
                                             <FontIcon
                                                 Grid.Column="0"
-                                                FontSize="{StaticResource FontSize_5XL}"
-                                                Foreground="{ThemeResource WarningAmberBrush}"
-                                                Glyph="&#xE7BA;"/>
-                                            <StackPanel Grid.Column="1"
-                                                    Margin="16,0,0,0"
-                                                    VerticalAlignment="Center">
-                                                <TextBlock FontSize="{StaticResource FontSize_XL}"
-                                                        FontWeight="Bold"
-                                                        Text="Trial Mode Active"/>
-                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                        Text="Experience full features during your trial period"/>
+                                                Margin="0,0,12,0"
+                                                FontSize="{StaticResource FontSize_2XL}"
+                                                Foreground="{ThemeResource SuccessGreenBrush}"
+                                                Glyph="&#xE73E;"/>
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock FontWeight="SemiBold"
+                                                           Text="Unlimited Everything"/>
+                                                <TextBlock FontSize="{StaticResource FontSize_SM}"
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                           Text="No limits on products, orders, or customers"
+                                                           TextWrapping="Wrap"/>
                                             </StackPanel>
                                         </Grid>
+                                    </Border>
 
-                                        <!--  Trial Info  -->
-                                        <Border
-                                            Padding="{StaticResource Padding_LG}"
-                                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                            CornerRadius="8">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <StackPanel Spacing="4">
-                                                    <TextBlock FontWeight="SemiBold"
-                                                            Text="Trial Period Remaining"/>
-                                                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                            Text="Your trial will expire soon"/>
-                                                </StackPanel>
-                                                <StackPanel Grid.Column="1"
-                                                        HorizontalAlignment="Right"
-                                                        VerticalAlignment="Center">
-                                                    <TextBlock
-                                                        FontSize="{StaticResource FontSize_5XL}"
-                                                        FontWeight="Bold"
-                                                        Foreground="{ThemeResource WarningAmberBrush}"
-                                                        Text="{x:Bind ViewModel.TrialDaysRemaining, Mode=OneWay}"/>
-                                                    <TextBlock
-                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                        Text="days left"/>
-                                                </StackPanel>
-                                            </Grid>
-                                        </Border>
-
-                                        <!--  Actions  -->
-                                        <StackPanel Spacing="12">
-                                            <Button
-                                                Style="{StaticResource PrimaryButtonStyle}"
-                                                HorizontalAlignment="Stretch"
-                                                Command="{x:Bind ViewModel.OpenUpgradeProCommand}"
-                                                ToolTipService.ToolTip="Open upgrade page in browser">
-                                                <StackPanel Orientation="Horizontal"
-                                                        Spacing="8">
-                                                    <FontIcon FontSize="{StaticResource FontSize_Base}"
-                                                            Glyph="&#xE734;"/>
-                                                    <TextBlock Text="Upgrade to Pro - $49/month"/>
-                                                </StackPanel>
-                                            </Button>
-
-                                            <StackPanel Spacing="8">
+                                    <Border Padding="{StaticResource Spacing_3_Thickness}"
+                                            BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                            BorderThickness="0,0,0,1">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <FontIcon
+                                                Grid.Column="0"
+                                                Margin="0,0,12,0"
+                                                FontSize="{StaticResource FontSize_2XL}"
+                                                Foreground="{ThemeResource SuccessGreenBrush}"
+                                                Glyph="&#xE73E;"/>
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock FontWeight="SemiBold"
+                                                           Text="Advanced Analytics"/>
                                                 <TextBlock FontSize="{StaticResource FontSize_SM}"
-                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                                    <Run Text="✓"/>
-                                                    <Run Text="Unlimited products and orders"/>
-                                                </TextBlock>
-                                                <TextBlock FontSize="{StaticResource FontSize_SM}"
-                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                                    <Run Text="✓"/>
-                                                    <Run Text="Advanced analytics and reporting"/>
-                                                </TextBlock>
-                                                <TextBlock FontSize="{StaticResource FontSize_SM}"
-                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                                    <Run Text="✓"/>
-                                                    <Run Text="Priority customer support"/>
-                                                </TextBlock>
-                                                <TextBlock FontSize="{StaticResource FontSize_SM}"
-                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                                    <Run Text="✓"/>
-                                                    <Run Text="Custom branding options"/>
-                                                </TextBlock>
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                           Text="Detailed reports and insights"
+                                                           TextWrapping="Wrap"/>
                                             </StackPanel>
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Border>
+                                        </Grid>
+                                    </Border>
 
-                                <!--  Trial Extension Card  -->
-                                <Border
-                                    Padding="{StaticResource Padding_XL}"
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="8">
-                                    <StackPanel Spacing="16">
-                                        <TextBlock FontSize="{StaticResource FontSize_LG}"
-                                                FontWeight="SemiBold"
-                                                Text="Activate License"/>
-                                        <TextBlock
-                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                            Text="Have a license code? Enter it below to extend trial or activate permanent license."
-                                            TextWrapping="Wrap"/>
+                                    <Border Padding="{StaticResource Spacing_3_Thickness}"
+                                            BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                            BorderThickness="0,0,0,1">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <FontIcon
+                                                Grid.Column="0"
+                                                Margin="0,0,12,0"
+                                                FontSize="{StaticResource FontSize_2XL}"
+                                                Foreground="{ThemeResource SuccessGreenBrush}"
+                                                Glyph="&#xE73E;"/>
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock FontWeight="SemiBold"
+                                                           Text="Priority Support"/>
+                                                <TextBlock FontSize="{StaticResource FontSize_SM}"
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                           Text="24/7 dedicated support team"
+                                                           TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
 
-                                        <StackPanel Spacing="12">
-                                            <TextBox
-                                                x:Name="TrialCodeTextBox"
-                                                MaxLength="24"
-                                                PlaceholderText="MYSHOP-XXXX-XXXX-XXXX"
-                                                Text="{x:Bind ViewModel.TrialCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                Style="{StaticResource BaseInputStyle}"/>
-
-                                            <Button
-                                                    Style="{StaticResource PrimaryButtonStyle}"
-                                                    HorizontalAlignment="Left"
-                                                    Command="{x:Bind ViewModel.ActivateTrialCodeCommand}"
-                                                    ToolTipService.ToolTip="Enter a valid code to activate your license">
-                                                <StackPanel Orientation="Horizontal"
-                                                        Spacing="8">
-                                                    <FontIcon FontSize="{StaticResource FontSize_Base}"
-                                                            Glyph="&#xE73E;"/>
-                                                    <TextBlock Text="Activate Code"/>
-                                                </StackPanel>
-                                            </Button>
-                                        </StackPanel>
-
-                                        <InfoBar
-                                            IsClosable="False"
-                                            IsOpen="True"
-                                            Message="License codes are provided by your administrator. Trial codes extend your trial period, permanent codes grant unlimited access."
-                                            Severity="Informational"/>
-                                    </StackPanel>
-                                </Border>
-
-                                <!--  Additional Features  -->
-                                <Border
-                                    Padding="{StaticResource Padding_XL}"
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="8">
-                                    <StackPanel Spacing="12">
-                                        <TextBlock FontSize="{StaticResource FontSize_LG}"
-                                                FontWeight="SemiBold"
-                                                Text="What You Get with Pro"/>
-
-                                        <Border Padding="{StaticResource Spacing_3_Thickness}"
-                                                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
-                                                BorderThickness="0,0,0,1">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-                                                <FontIcon
-                                                    Grid.Column="0"
-                                                    Margin="0,0,12,0"
-                                                    FontSize="{StaticResource FontSize_2XL}"
-                                                    Foreground="{ThemeResource SuccessGreenBrush}"
-                                                    Glyph="&#xE73E;"/>
-                                                <StackPanel Grid.Column="1">
-                                                    <TextBlock FontWeight="SemiBold"
-                                                            Text="Unlimited Everything"/>
-                                                    <TextBlock FontSize="{StaticResource FontSize_SM}"
-                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                            Text="No limits on products, orders, or customers"
-                                                            TextWrapping="Wrap"/>
-                                                </StackPanel>
-                                            </Grid>
-                                        </Border>
-
-                                        <Border Padding="{StaticResource Spacing_3_Thickness}"
-                                                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
-                                                BorderThickness="0,0,0,1">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-                                                <FontIcon
-                                                    Grid.Column="0"
-                                                    Margin="0,0,12,0"
-                                                    FontSize="{StaticResource FontSize_2XL}"
-                                                    Foreground="{ThemeResource SuccessGreenBrush}"
-                                                    Glyph="&#xE73E;"/>
-                                                <StackPanel Grid.Column="1">
-                                                    <TextBlock FontWeight="SemiBold"
-                                                            Text="Advanced Analytics"/>
-                                                    <TextBlock FontSize="{StaticResource FontSize_SM}"
-                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                            Text="Detailed reports and insights"
-                                                            TextWrapping="Wrap"/>
-                                                </StackPanel>
-                                            </Grid>
-                                        </Border>
-
-                                        <Border Padding="{StaticResource Spacing_3_Thickness}"
-                                                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
-                                                BorderThickness="0,0,0,1">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-                                                <FontIcon
-                                                    Grid.Column="0"
-                                                    Margin="0,0,12,0"
-                                                    FontSize="{StaticResource FontSize_2XL}"
-                                                    Foreground="{ThemeResource SuccessGreenBrush}"
-                                                    Glyph="&#xE73E;"/>
-                                                <StackPanel Grid.Column="1">
-                                                    <TextBlock FontWeight="SemiBold"
-                                                            Text="Priority Support"/>
-                                                    <TextBlock FontSize="{StaticResource FontSize_SM}"
-                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                            Text="24/7 dedicated support team"
-                                                            TextWrapping="Wrap"/>
-                                                </StackPanel>
-                                            </Grid>
-                                        </Border>
-
-                                        <Border Padding="{StaticResource Spacing_3_Thickness}">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-                                                <FontIcon
-                                                    Grid.Column="0"
-                                                    Margin="0,0,12,0"
-                                                    FontSize="{StaticResource FontSize_2XL}"
-                                                    Foreground="{ThemeResource SuccessGreenBrush}"
-                                                    Glyph="&#xE73E;"/>
-                                                <StackPanel Grid.Column="1">
-                                                    <TextBlock FontWeight="SemiBold"
-                                                            Text="Custom Branding"/>
-                                                    <TextBlock FontSize="{StaticResource FontSize_SM}"
-                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                            Text="Add your logo and brand colors"
-                                                            TextWrapping="Wrap"/>
-                                                </StackPanel>
-                                            </Grid>
-                                        </Border>
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
-                        </ScrollViewer>
+                                    <Border Padding="{StaticResource Spacing_3_Thickness}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <FontIcon
+                                                Grid.Column="0"
+                                                Margin="0,0,12,0"
+                                                FontSize="{StaticResource FontSize_2XL}"
+                                                Foreground="{ThemeResource SuccessGreenBrush}"
+                                                Glyph="&#xE73E;"/>
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock FontWeight="SemiBold"
+                                                           Text="Custom Branding"/>
+                                                <TextBlock FontSize="{StaticResource FontSize_SM}"
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                           Text="Add your logo and brand colors"
+                                                           TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
                     </TabViewItem>
                 </TabView>
 
                 <!--  Info Box  -->
                 <InfoBar IsOpen="True"
-                        Severity="Informational"
-                        Title="Note"
-                        Message="Settings are saved locally on this device and will persist between sessions."
-                        IsClosable="False"/>
+                         Severity="Informational"
+                         Title="Note"
+                         Message="Settings are saved locally on this device and will persist between sessions."
+                         IsClosable="False"/>
             </StackPanel>
         </ScrollViewer>
     </Grid>

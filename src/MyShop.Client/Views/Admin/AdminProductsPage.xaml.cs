@@ -32,6 +32,8 @@ public sealed partial class AdminProductsPage : Page
         ViewModel.EditProductRequested += ViewModel_EditProductRequested;
         // Subscribe to view product event
         ViewModel.ViewProductRequested += ViewModel_ViewProductRequested;
+        // Subscribe to delete product event
+        ViewModel.DeleteProductRequested += ViewModel_DeleteProductRequested;
 
         Loaded += AdminProductPage_Loaded;
         Unloaded += AdminProductPage_Unloaded;
@@ -41,6 +43,12 @@ public sealed partial class AdminProductsPage : Page
     {
         ViewModel.EditProductRequested -= ViewModel_EditProductRequested;
         ViewModel.ViewProductRequested -= ViewModel_ViewProductRequested;
+        ViewModel.DeleteProductRequested -= ViewModel_DeleteProductRequested;
+    }
+
+    private async void ViewModel_DeleteProductRequested(object? sender, ProductRow product)
+    {
+        await ShowDeleteConfirmationAsync(product);
     }
 
     private async void ViewModel_EditProductRequested(object? sender, ProductRow product)
@@ -226,10 +234,13 @@ public sealed partial class AdminProductsPage : Page
         }
     }
 
-    private void ImportButton_Click(object sender, RoutedEventArgs e)
+    private async void ExportPdfButton_Click(object sender, RoutedEventArgs e)
     {
-        // TODO: Implement import from CSV/Excel when FileOpenPicker is integrated
-        System.Diagnostics.Debug.WriteLine("[AdminProductsPage] Import products requested");
+        // Execute export command for PDF format
+        if (ViewModel.ExportCommand.CanExecute(null))
+        {
+            await ViewModel.ExportCommand.ExecuteAsync(null);
+        }
     }
 
     private void PrevPageButton_Click(object sender, RoutedEventArgs e)
@@ -242,6 +253,11 @@ public sealed partial class AdminProductsPage : Page
     {
         // TODO: Implement pagination when ViewModel has NextPage method
         System.Diagnostics.Debug.WriteLine("[AdminProductsPage] Next page requested");
+    }
+
+    private async void OnPageChanged(object sender, int newPage)
+    {
+        await ViewModel.GoToPageAsync(newPage);
     }
 
     #endregion
@@ -377,8 +393,6 @@ public sealed partial class AdminProductsPage : Page
             ViewProductCategory.Text = string.IsNullOrEmpty(product.Category) ? "Uncategorized" : product.Category;
             ViewProductPrice.Text = product.Price.ToString("C0");
             ViewProductImportPrice.Text = product.ImportPrice.ToString("C0");
-            ViewProductStock.Text = product.Stock.ToString();
-            ViewProductRating.Text = product.Rating.ToString("F1");
 
             // Calculate and display profit margin
             if (product.ImportPrice > 0)
@@ -389,26 +403,6 @@ public sealed partial class AdminProductsPage : Page
             else
             {
                 ViewProductMargin.Text = "N/A";
-            }
-
-            // Set stock status badge
-            if (product.Stock <= 0)
-            {
-                ViewProductStockBadge.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 254, 226, 226)); // Red background
-                ViewProductStockStatus.Text = "Out of Stock";
-                ViewProductStockStatus.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 220, 38, 38)); // Red text
-            }
-            else if (product.Stock <= 10)
-            {
-                ViewProductStockBadge.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 254, 243, 199)); // Yellow background
-                ViewProductStockStatus.Text = "Low Stock";
-                ViewProductStockStatus.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 217, 119, 6)); // Yellow text
-            }
-            else
-            {
-                ViewProductStockBadge.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 209, 250, 229)); // Green background
-                ViewProductStockStatus.Text = "In Stock";
-                ViewProductStockStatus.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 5, 150, 105)); // Green text
             }
 
             // Load product image
@@ -437,6 +431,34 @@ public sealed partial class AdminProductsPage : Page
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[AdminProductsPage] ShowViewProductDialogAsync failed: {ex.Message}");
+        }
+    }
+
+    private async Task ShowDeleteConfirmationAsync(ProductRow product)
+    {
+        try
+        {
+            var dialog = new ContentDialog
+            {
+                Title = "Delete Product",
+                Content = $"Are you sure you want to delete '{product.Name}'?\n\nThis action cannot be undone.",
+                PrimaryButtonText = "Yes",
+                SecondaryButtonText = "No",
+                DefaultButton = ContentDialogButton.Secondary,
+                XamlRoot = this.XamlRoot
+            };
+
+            var result = await dialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+                // Confirmed - call ViewModel to execute deletion
+                await ViewModel.ConfirmDeleteProductAsync(product.Id, product.Name);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminProductsPage] ShowDeleteConfirmationAsync failed: {ex.Message}");
         }
     }
 

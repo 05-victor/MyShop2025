@@ -7,8 +7,8 @@
     PrimaryButtonText="Save"
     CloseButtonText="Cancel"
     DefaultButton="Primary"
-    PrimaryButtonStyle="{ThemeResource AccentButtonStyle}"
-    PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    Style="{StaticResource DefaultContentDialogStyle}">
 
     <StackPanel Spacing="16"
             MinWidth="450">

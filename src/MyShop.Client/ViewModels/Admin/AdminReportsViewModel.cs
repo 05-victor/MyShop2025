@@ -11,6 +11,7 @@ using MyShop.Client.Facades;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Services;
 using MyShop.Shared.Models.Enums;
+using MyShop.Shared.DTOs.Responses;
 using SkiaSharp;
 using System.Collections.ObjectModel;
 
@@ -23,6 +24,7 @@ namespace MyShop.Client.ViewModels.Admin;
 public partial class AdminReportsViewModel : BaseViewModel
 {
     private readonly IReportFacade _reportFacade;
+    private readonly IProductFacade _productFacade;
 
     // --- Filters (no auto-reload, user must click Apply Filters) ---
     [ObservableProperty]
@@ -47,6 +49,9 @@ public partial class AdminReportsViewModel : BaseViewModel
     [ObservableProperty]
     private ObservableCollection<Salesperson> _salespersonData;
 
+    [ObservableProperty]
+    private AdminReportsResponse? _reportData;
+
     // --- Chart Series ---
     [ObservableProperty]
     private ISeries[] _revenueSeries;
@@ -65,11 +70,13 @@ public partial class AdminReportsViewModel : BaseViewModel
 
     public AdminReportsViewModel(
         IReportFacade reportFacade,
+        IProductFacade productFacade,
         IToastService toastService,
         INavigationService navigationService)
         : base(toastService, navigationService)
     {
         _reportFacade = reportFacade;
+        _productFacade = productFacade;
 
         DateRanges = new ObservableCollection<DateRangeOption>
         {
@@ -86,7 +93,7 @@ public partial class AdminReportsViewModel : BaseViewModel
         _startDate = DateTimeOffset.Now.AddDays(-7);
 
         // Initialize collections to prevent DataGrid crash
-        Categories = new ObservableCollection<string> { "All", "Electronics", "Clothing", "Home & Garden", "Food" };
+        Categories = new ObservableCollection<string> { "All" };
         _selectedCategory = "All"; // Set backing field directly to avoid triggering OnChanged
         _filteredProducts = new ObservableCollection<ProductPerformance>();
         _salespersonData = new ObservableCollection<Salesperson>();
@@ -105,47 +112,29 @@ public partial class AdminReportsViewModel : BaseViewModel
 
         try
         {
-            // Load data FIRST, then create charts
+            // Setup axes first (currency labeler for revenue)
+            var currencyConv = new CurrencyConverter();
+            YAxes = new Axis[]
+            {
+                new Axis
+                {
+                    Labeler = value => currencyConv.Convert(value, typeof(string), null, string.Empty)?.ToString() ?? value.ToString()
+                }
+            };
+
+            // Load data - this calls CreateChartsFromApiData() which sets chart series
+            // and also populates categories from OrdersByCategory
             await LoadReportDataAsync();
 
-            System.Diagnostics.Debug.WriteLine("[AdminReportsViewModel] Data loaded, creating chart series...");
-
-            // Delay chart creation to avoid SkiaSharp rendering crash
-            // await Task.Delay(100);
-
-            try
-            {
-                // create currency-aware axes and series
-                var currencyConv = new CurrencyConverter();
-
-                // Y axis uses currency labeler
-                YAxes = new Axis[]
-                {
-                        new Axis
-                        {
-                            Labeler = value => currencyConv.Convert(value, typeof(string), null, string.Empty)?.ToString() ?? value.ToString()
-                        }
-                };
-
-                RevenueSeries = CreateMockRevenueSeries(currencyConv) ?? Array.Empty<ISeries>();
-                OrdersByCategorySeries = CreateMockCategorySeries() ?? Array.Empty<ISeries>();
-                RatingDistributionSeries = CreateMockRatingDistributionSeries() ?? Array.Empty<ISeries>();
-                System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Charts created: Revenue={RevenueSeries.Length}, Orders={OrdersByCategorySeries.Length}, Rating={RatingDistributionSeries.Length}");
-            }
-            catch (Exception chartEx)
-            {
-                System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Chart creation failed: {chartEx.Message}");
-                RevenueSeries = Array.Empty<ISeries>();
-                OrdersByCategorySeries = Array.Empty<ISeries>();
-                RatingDistributionSeries = Array.Empty<ISeries>();
-            }
+            System.Diagnostics.Debug.WriteLine(
+                $"[AdminReportsViewModel] InitializeAsync completed. Charts: Revenue={RevenueSeries?.Length ?? 0}, Orders={OrdersByCategorySeries?.Length ?? 0}");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] InitializeAsync FAILED: {ex.Message}");
             await _toastHelper?.ShowError($"Failed to load reports: {ex.Message}");
 
-            // Ensure non-null series
+            // Ensure non-null series on error
             RevenueSeries ??= Array.Empty<ISeries>();
             OrdersByCategorySeries ??= Array.Empty<ISeries>();
             RatingDistributionSeries ??= Array.Empty<ISeries>();
@@ -178,6 +167,81 @@ public partial class AdminReportsViewModel : BaseViewModel
         finally
         {
             SetLoadingState(false);
+        }
+    }
+
+    /// <summary>
+    /// Load categories from API using LoadCategoriesAsync endpoint
+    /// Called when report data is loaded to populate category filter dropdown
+    /// </summary>
+    private async Task LoadCategoriesFromApiAsync()
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine("[AdminReportsViewModel] LoadCategoriesFromApiAsync: Starting category load from API");
+
+            var result = await _productFacade.LoadCategoriesAsync();
+
+            if (!result.IsSuccess || result.Data == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] LoadCategoriesFromApiAsync: Failed to load - {result.ErrorMessage}");
+                return;
+            }
+
+            // Clear existing items but keep "All" at index 0
+            while (Categories.Count > 1)
+            {
+                Categories.RemoveAt(Categories.Count - 1);
+            }
+
+            // Add API categories
+            foreach (var category in result.Data)
+            {
+                Categories.Add(category.Name);
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] ✅ LoadCategoriesFromApiAsync: Loaded {result.Data.Count} categories from API");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] ❌ LoadCategoriesFromApiAsync: ERROR - {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Stack trace: {ex.StackTrace}");
+        }
+    }
+
+    /// <summary>
+    /// Auto-update StartDate and EndDate when Quick Date Range selection changes
+    /// </summary>
+    partial void OnSelectedDateRangeChanged(DateRangeOption? value)
+    {
+        if (value == null) return;
+
+        var today = DateTimeOffset.Now;
+
+        switch (value.Value)
+        {
+            case "week":
+                // This Week: from 7 days ago to today
+                StartDate = today.AddDays(-7);
+                EndDate = today;
+                System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Updated dates for This Week: {StartDate:yyyy-MM-dd} to {EndDate:yyyy-MM-dd}");
+                break;
+
+            case "month":
+                // This Month: from first day of month to today
+                var firstDayOfMonth = new DateTimeOffset(today.Year, today.Month, 1, 0, 0, 0, today.Offset);
+                StartDate = firstDayOfMonth;
+                EndDate = today;
+                System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Updated dates for This Month: {StartDate:yyyy-MM-dd} to {EndDate:yyyy-MM-dd}");
+                break;
+
+            case "year":
+                // This Year: from first day of year to today
+                var firstDayOfYear = new DateTimeOffset(today.Year, 1, 1, 0, 0, 0, today.Offset);
+                StartDate = firstDayOfYear;
+                EndDate = today;
+                System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Updated dates for This Year: {StartDate:yyyy-MM-dd} to {EndDate:yyyy-MM-dd}");
+                break;
         }
     }
 
@@ -235,109 +299,258 @@ public partial class AdminReportsViewModel : BaseViewModel
     {
         try
         {
-            // Load sales report data
-            var period = SelectedDateRange?.Value ?? "week";
-            var salesResult = await _reportFacade.GetSalesReportAsync(period);
+            // Calculate date range based on selected option or custom dates
+            DateTime from, to;
 
-            if (salesResult.IsSuccess && salesResult.Data != null)
+            if (StartDate.HasValue && EndDate.HasValue)
             {
-                System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Loaded sales report: {salesResult.Data.TotalRevenue:C}");
-            }
-
-            // Load product performance data
-            var performanceResult = await _reportFacade.GetProductPerformanceAsync(
-                StartDate?.DateTime,
-                EndDate?.DateTime,
-                top: 50);
-
-            List<ProductPerformance> products;
-            if (performanceResult.IsSuccess && performanceResult.Data != null && performanceResult.Data.Count > 0)
-            {
-                System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Loaded {performanceResult.Data.Count} products from API");
-
-                products = performanceResult.Data.Take(20).Select(product => new ProductPerformance
-                {
-                    Name = product.ProductName,
-                    Category = product.CategoryName,
-                    Sold = product.TotalSold,
-                    Revenue = product.TotalRevenue,
-                    Rating = 4.5,
-                    Stock = 100,
-                    Commission = product.TotalCommission
-                }).ToList();
+                // Convert DateTimeOffset to UTC DateTime (properly converts the time instant)
+                from = StartDate.Value.UtcDateTime;
+                to = EndDate.Value.UtcDateTime;
             }
             else
             {
-                // Use mock data when API not available
-                System.Diagnostics.Debug.WriteLine("[AdminReportsViewModel] Using mock product performance data");
-                products = GetMockProductPerformance();
+                // Use preset date ranges
+                (from, to) = GetDateRangeFromSelection();
             }
 
-            Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
+            // Validate date range
+            if (from > to)
             {
-                FilteredProducts.Clear();
-                foreach (var p in products)
+                await _toastHelper?.ShowError("Start date must be before end date");
+                return;
+            }
+
+            // Parse category ID if user selected a specific category
+            Guid? categoryId = null;
+            if (!string.IsNullOrEmpty(SelectedCategory) && SelectedCategory != "All" &&
+                ReportData?.OrdersByCategory != null)
+            {
+                // Find the CategoryId by matching CategoryName
+                var selectedCat = ReportData.OrdersByCategory.FirstOrDefault(c => c.CategoryName == SelectedCategory);
+                if (selectedCat != null)
                 {
-                    FilteredProducts.Add(p);
+                    categoryId = selectedCat.CategoryId;
                 }
-            });
+            }
 
-            // Load agent performance for Salesperson Data
-            var agentResult = await _reportFacade.GetAgentPerformanceAsync(
-                StartDate?.DateTime,
-                EndDate?.DateTime);
+            System.Diagnostics.Debug.WriteLine(
+                $"[AdminReportsViewModel] LoadReportDataAsync: from={from:O}, to={to:O}, categoryId={categoryId}, selectedCategory={SelectedCategory}");
 
-            List<Salesperson> agents;
-            if (agentResult.IsSuccess && agentResult.Data != null && agentResult.Data.Count > 0)
+            // Call API through facade
+            var result = await _reportFacade.GetAdminReportsAsync(from, to, categoryId);
+
+            if (result.IsSuccess && result.Data != null)
             {
-                System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Loaded {agentResult.Data.Count} agents from API");
+                ReportData = result.Data;
 
-                agents = agentResult.Data.Select(agent => new Salesperson
-                {
-                    Name = agent.AgentName,
-                    Sales = agent.TotalOrders,
-                    Revenue = agent.TotalRevenue,
-                    Initials = GetInitials(agent.AgentName)
-                }).ToList();
+                // Load/update categories from API
+                await LoadCategoriesFromApiAsync();
+
+                // Update product table from API data
+                UpdateProductTable();
+
+                // Update salesperson table from API data
+                UpdateSalespersonTable();
+
+                // Create charts from real API data
+                CreateChartsFromApiData();
+
+                System.Diagnostics.Debug.WriteLine(
+                    $"[AdminReportsViewModel] Report data loaded successfully: {result.Data.ProductSummary?.Data?.Count ?? 0} products");
+                System.Diagnostics.Debug.WriteLine(
+                    $"[AdminReportsViewModel] Final chart series lengths - Revenue: {RevenueSeries?.Length ?? 0}, Orders: {OrdersByCategorySeries?.Length ?? 0}");
             }
             else
             {
-                // Use mock data when API not available
-                System.Diagnostics.Debug.WriteLine("[AdminReportsViewModel] Using mock salesperson data");
-                agents = GetMockSalespersonData();
+                await _toastHelper?.ShowError(result.ErrorMessage ?? "Failed to load admin reports");
+                System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] LoadReportDataAsync FAILED: {result.ErrorMessage}");
             }
-
-            Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
-            {
-                SalespersonData.Clear();
-                foreach (var a in agents)
-                {
-                    SalespersonData.Add(a);
-                }
-            });
-
-            System.Diagnostics.Debug.WriteLine("[AdminReportsViewModel] All data loaded successfully");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] Error loading report data: {ex.Message}");
-            System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] StackTrace: {ex.StackTrace}");
+            System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] LoadReportDataAsync Exception: {ex.Message}");
+            await _toastHelper?.ShowError($"Error loading reports: {ex.Message}");
+        }
+    }
 
-            // Load mock data on error
-            Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
+    private (DateTime from, DateTime to) GetDateRangeFromSelection()
+    {
+        // Use UtcNow which already has Kind=Utc
+        var todayUtc = DateTime.UtcNow.Date;
+        var period = SelectedDateRange?.Value ?? "week";
+
+        return period switch
+        {
+            "week" => (
+                DateTime.SpecifyKind(todayUtc.AddDays(-7), DateTimeKind.Utc),
+                DateTime.SpecifyKind(todayUtc.AddDays(1), DateTimeKind.Utc)
+            ),
+            "month" => (
+                new DateTime(todayUtc.Year, todayUtc.Month, 1, 0, 0, 0, DateTimeKind.Utc),
+                DateTime.SpecifyKind(todayUtc.AddDays(1), DateTimeKind.Utc)
+            ),
+            "year" => (
+                new DateTime(todayUtc.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                DateTime.SpecifyKind(todayUtc.AddDays(1), DateTimeKind.Utc)
+            ),
+            _ => (
+                DateTime.SpecifyKind(todayUtc.AddDays(-7), DateTimeKind.Utc),
+                DateTime.SpecifyKind(todayUtc.AddDays(1), DateTimeKind.Utc)
+            )
+        };
+    }
+
+    private void UpdateProductTable()
+    {
+        if (ReportData?.ProductSummary?.Data == null || ReportData.ProductSummary.Data.Count == 0)
+        {
+            FilteredProducts.Clear();
+            return;
+        }
+
+        Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
+        {
+            FilteredProducts.Clear();
+            foreach (var product in ReportData.ProductSummary.Data)
             {
-                FilteredProducts.Clear();
-                foreach (var p in GetMockProductPerformance())
+                FilteredProducts.Add(new ProductPerformance
                 {
-                    FilteredProducts.Add(p);
-                }
+                    Name = product.ProductName,
+                    Category = product.CategoryName,
+                    Sold = product.TotalOrders,
+                    Revenue = product.TotalRevenue,
+                    Rating = (float)product.AverageRating,
+                    Stock = product.StockLevel,
+                    Commission = 0 // Not in API response
+                });
+            }
+        });
+    }
 
-                SalespersonData.Clear();
-                foreach (var a in GetMockSalespersonData())
+    private void UpdateSalespersonTable()
+    {
+        if (ReportData?.SalespersonContributions == null || ReportData.SalespersonContributions.Count == 0)
+        {
+            SalespersonData.Clear();
+            return;
+        }
+
+        Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
+        {
+            SalespersonData.Clear();
+            foreach (var salesperson in ReportData.SalespersonContributions)
+            {
+                SalespersonData.Add(new Salesperson
                 {
-                    SalespersonData.Add(a);
+                    Name = $"{salesperson.FirstName} {salesperson.LastName}",
+                    Sales = salesperson.TotalSales,
+                    Revenue = salesperson.TotalRevenue,
+                    Initials = GetInitials($"{salesperson.FirstName} {salesperson.LastName}")
+                });
+            }
+        });
+    }
+
+    private void CreateChartsFromApiData()
+    {
+        if (ReportData == null)
+        {
+            System.Diagnostics.Debug.WriteLine("[AdminReportsViewModel] CreateChartsFromApiData: ReportData is null");
+            return;
+        }
+
+        try
+        {
+            var currencyConv = new CurrencyConverter();
+
+            // Debug: Check all report data
+            System.Diagnostics.Debug.WriteLine("[AdminReportsViewModel] CreateChartsFromApiData: Report data inspection:");
+            System.Diagnostics.Debug.WriteLine($"  - RevenueTrend count: {ReportData.RevenueTrend?.Count ?? 0}");
+            System.Diagnostics.Debug.WriteLine($"  - OrdersByCategory count: {ReportData.OrdersByCategory?.Count ?? 0}");
+            System.Diagnostics.Debug.WriteLine($"  - ProductSummary.Data count: {ReportData.ProductSummary?.Data?.Count ?? 0}");
+            System.Diagnostics.Debug.WriteLine($"  - SalespersonContributions count: {ReportData.SalespersonContributions?.Count ?? 0}");
+
+            // Revenue Trend Chart - Line chart from daily revenue
+            if (ReportData.RevenueTrend?.Count > 0)
+            {
+                var revenueValues = ReportData.RevenueTrend
+                    .OrderBy(x => x.Date)
+                    .Select(x => (double)x.Revenue)
+                    .ToList();
+
+                var revenueSeries = new ISeries[]
+                {
+                    new LineSeries<double>
+                    {
+                        Values = revenueValues.Cast<double>().ToList(),
+                        Name = "Revenue",
+                        Fill = new SolidColorPaint(SKColors.CornflowerBlue),
+                        Stroke = new SolidColorPaint(SKColors.CornflowerBlue) { StrokeThickness = 2 },
+                        GeometrySize = 0,
+                        LineSmoothness = 0.5
+                    }
+                };
+                RevenueSeries = revenueSeries;
+            }
+            else
+            {
+                // No revenue data - clear chart
+                RevenueSeries = Array.Empty<ISeries>();
+            }
+
+            // Orders by Category - Single Column chart with category labels on X-axis
+            if (ReportData.OrdersByCategory?.Count > 0)
+            {
+                // Get category names and order counts
+                var categoryNames = ReportData.OrdersByCategory.Select(c => c.CategoryName).ToArray();
+                var orderCounts = ReportData.OrdersByCategory.Select(c => c.OrderCount).ToList();
+
+                // Create single ColumnSeries with data labels showing order counts
+                var columnSeries = new ColumnSeries<int>
+                {
+                    Values = orderCounts,
+                    Name = "Orders",
+                    Fill = new SolidColorPaint(SKColors.RoyalBlue),
+                    // Show order counts on top of bars
+                    DataLabelsSize = 11,
+                    DataLabelsFormatter = point => orderCounts[(int)point.Index].ToString()
+                };
+
+                OrdersByCategorySeries = new ISeries[] { columnSeries };
+
+                // Set X-axis labels to category names  
+                XAxes = new Axis[]
+                {
+                    new Axis
+                    {
+                        Labels = categoryNames,
+                        LabelsRotation = 45
+                    }
+                };
+
+                // Debug: Log the data we're creating
+                System.Diagnostics.Debug.WriteLine(
+                    $"[AdminReportsViewModel] Orders by Category chart created with {ReportData.OrdersByCategory.Count} categories:");
+                foreach (var cat in ReportData.OrdersByCategory)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        $"  - {cat.CategoryName}: {cat.OrderCount} orders, Revenue: {cat.Revenue:N0}, {cat.Percentage:F1}%");
                 }
-            });
+            }
+            else
+            {
+                // No category data - clear chart and axes
+                OrdersByCategorySeries = Array.Empty<ISeries>();
+                XAxes = new Axis[] { new Axis() };
+            }
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[AdminReportsViewModel] Charts created: Revenue={RevenueSeries.Length}, Orders={OrdersByCategorySeries.Length}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminReportsViewModel] CreateChartsFromApiData ERROR: {ex.Message}\n{ex.StackTrace}");
         }
     }
 

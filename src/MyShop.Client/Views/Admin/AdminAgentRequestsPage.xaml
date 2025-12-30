@@ -89,7 +89,7 @@
         </VisualStateManager.VisualStateGroups>
 
         <Grid x:Name="MainContent"
-                Padding="24">
+              Padding="24">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -156,8 +156,10 @@
             <!--  Requests Cards  -->
             <ScrollViewer x:Name="PageScrollViewer"
                           Grid.Row="2"
-                          VerticalScrollBarVisibility="Auto">
-                <StackPanel Spacing="16">
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Spacing="16"
+                            Padding="0,0,0,16">
                     <!--  Empty State  -->
                     <Border
                         Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
@@ -250,7 +252,7 @@
                                                                 Spacing="8">
                                                         <StackPanel Orientation="Horizontal"
                                                                     Spacing="12">
-                                                            <badges:StatusBadge 
+                                                            <badges:StatusBadge
                                                                 Text="{x:Bind Status}"
                                                                 Variant="{x:Bind StatusVariant}"/>
                                                             <StackPanel Orientation="Horizontal"
@@ -372,7 +374,9 @@
                         CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
                         TotalPages="{x:Bind ViewModel.TotalPages, Mode=OneWay}"
                         TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
-                        PageSize="{x:Bind ViewModel.PageSize, Mode=TwoWay}"/>
+                        PageSize="{x:Bind ViewModel.PageSize, Mode=TwoWay}"
+                        PageChanged="PaginationControl_PageChanged"
+                        PageSizeChanged="PaginationControl_PageSizeChanged"/>
                 </StackPanel>
             </ScrollViewer>
         </Grid>

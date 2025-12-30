@@ -461,7 +461,7 @@
 
                                     <!-- Table Body -->
                                     <ScrollViewer Grid.Row="1"
-                                                  MaxHeight="400">
+                                                  VerticalScrollBarVisibility="Auto">
                                         <ItemsRepeater ItemsSource="{x:Bind ViewModel.EarningTransactions, Mode=OneWay}">
                                             <ItemsRepeater.ItemTemplate>
                                                 <DataTemplate x:DataType="viewmodels:EarningTransactionViewModel">
@@ -523,17 +523,10 @@
                                                                    FontWeight="Bold"
                                                                    Foreground="{ThemeResource SuccessGreenBrush}"/>
 
-                                                        <Border Grid.Column="7"
-                                                                Background="{x:Bind PaymentStatus, Mode=OneWay, Converter={StaticResource StringToBrushConverter}}"
-                                                                CornerRadius="999"
-                                                                Padding="8,4"
-                                                                HorizontalAlignment="Left">
-                                                            <TextBlock Text="{x:Bind PaymentStatus, Mode=OneWay}"
-                                                                       FontSize="{StaticResource FontSize_SM}"
-                                                                       FontWeight="SemiBold"
-                                                                       Foreground="{x:Bind PaymentStatus, Mode=OneWay, Converter={StaticResource StringToBrushConverter}}"/>
-                                                        
-                                                        </Border>
+                                                        <badges:StatusBadge Grid.Column="7"
+                                                                            Text="{x:Bind PaymentStatus, Mode=OneWay}"
+                                                                            Variant="{x:Bind PaymentStatus, Mode=OneWay, Converter={StaticResource StatusToVariantConverter}}"
+                                                                            HorizontalAlignment="Left"/>
                                                     </Grid>
                                                 </DataTemplate>
                                             </ItemsRepeater.ItemTemplate>
@@ -547,6 +540,8 @@
                                         TotalPages="{x:Bind ViewModel.TotalPages, Mode=OneWay}"
                                         TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
                                         PageSize="{x:Bind ViewModel.PageSize, Mode=TwoWay}"
+                                        PageChanged="PaginationControl_PageChanged"
+                                        PageSizeChanged="PaginationControl_PageSizeChanged"
                                         Margin="0,16,0,0"/>
                                 </Grid>
                             </cards:DataTableCard.TableContent>

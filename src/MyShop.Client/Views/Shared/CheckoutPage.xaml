@@ -373,12 +373,47 @@
                                 Margin="0,16,0,0"
                                 IsClosable="False"/>
 
-                            <!-- QR Code Payment Section -->
+                            <!-- Separator -->
                             <Border Height="1"
                                     Background="{ThemeResource CardStrokeColorDefaultBrush}"
-                                    Margin="0,8"/>
+                                    Margin="0,16"/>
 
-                            <StackPanel Spacing="{StaticResource Spacing_3}">
+                            <!-- CARD PAYMENT SECTION -->
+                            <StackPanel Spacing="12"
+                                        Visibility="{x:Bind ViewModel.IsCardPayment, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="Card Payment"
+                                           FontSize="{StaticResource FontSize_LG}"
+                                           FontWeight="SemiBold"
+                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                           HorizontalAlignment="Center"/>
+
+                                <TextBlock TextWrapping="Wrap"
+                                           TextAlignment="Center"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                    <Run Text="Click the button below to proceed to card payment."/>
+                                    <LineBreak/>
+                                    <Run Text="You'll be redirected to a secure payment page."/>
+                                </TextBlock>
+
+                                <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                        CornerRadius="8"
+                                        Padding="16"
+                                        HorizontalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE8C7;"
+                                                  FontSize="24"
+                                                  Foreground="{ThemeResource AccentBlueBrush}"/>
+                                        <TextBlock Text="Secure Card Payment"
+                                                   FontWeight="SemiBold"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- QR CODE PAYMENT SECTION -->
+                            <StackPanel Spacing="12"
+                                        Visibility="{x:Bind ViewModel.IsQrPayment, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                                 <TextBlock Text="Payment via QR Code"
                                            FontSize="{StaticResource FontSize_LG}"
                                            FontWeight="SemiBold"
@@ -393,14 +428,14 @@
                                 <!-- QR Code Image -->
                                 <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                         CornerRadius="8"
-                                        Padding="{StaticResource Padding_MD}"
+                                        Padding="16"
                                         HorizontalAlignment="Center"
                                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                         BorderThickness="1">
                                     <Image x:Name="QrCodeImage"
-                                           Source="ms-appx:///Assets/payment-qr.png"
-                                           Width="200"
-                                           Height="200"
+                                           Source="ms-appx:///Assets/Images/payment-qr.jpg"
+                                           Width="290"
+                                           Height="290"
                                            Stretch="Uniform"
                                            ImageFailed="QrCodeImage_ImageFailed"/>
                                 </Border>
@@ -410,40 +445,108 @@
                                         Visibility="Collapsed"
                                         Background="{ThemeResource SubtleFillColorSecondaryBrush}"
                                         CornerRadius="8"
-                                        Padding="{StaticResource Padding_XL}"
+                                        Padding="24"
                                         HorizontalAlignment="Center">
-                                    <StackPanel HorizontalAlignment="Center"
-                                            Spacing="{StaticResource Spacing_2}">
+                                    <StackPanel HorizontalAlignment="Center" Spacing="8">
                                         <FontIcon Glyph="&#xED14;"
-                                                FontSize="{StaticResource FontSize_5XL}"
-                                                Foreground="{ThemeResource Gray500Brush}"/>
+                                                  FontSize="48"
+                                                  Foreground="{ThemeResource Gray500Brush}"/>
                                         <TextBlock Text="QR Code"
-                                                FontSize="{StaticResource FontSize_Base}"
-                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                   FontSize="14"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                    HorizontalAlignment="Center"/>
-                                        <TextBlock Text="Add payment-qr.png to Assets"
-                                                FontSize="{StaticResource FontSize_XS}"
-                                                Foreground="{ThemeResource Gray500Brush}"
+                                        <TextBlock Text="Add payment-qr.png to Assets/Images"
+                                                   FontSize="12"
+                                                   Foreground="{ThemeResource Gray500Brush}"
                                                    HorizontalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
+
+                                <TextBlock TextWrapping="Wrap"
+                                           TextAlignment="Center"
+                                           FontSize="12"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                    <Run Text="After transferring, click"/>
+                                    <Run Text="'I've Made the Payment'" FontWeight="SemiBold"/>
+                                    <Run Text="below"/>
+                                </TextBlock>
                             </StackPanel>
 
-                            <!-- Confirm Payment Button -->
+                            <!-- COD PAYMENT SECTION -->
+                            <StackPanel Spacing="12"
+                                        Visibility="{x:Bind ViewModel.IsCodPayment, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="Cash on Delivery (COD)"
+                                           FontSize="{StaticResource FontSize_LG}"
+                                           FontWeight="SemiBold"
+                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                           HorizontalAlignment="Center"/>
+
+                                <Border Background="{ThemeResource SuccessGreenBrush}"
+                                        CornerRadius="8"
+                                        Padding="16"
+                                        HorizontalAlignment="Center"
+                                        Opacity="0.1"/>
+                                
+                                <StackPanel Spacing="8" HorizontalAlignment="Center">
+                                    <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                            CornerRadius="50"
+                                            Width="80"
+                                            Height="80"
+                                            HorizontalAlignment="Center">
+                                        <FontIcon Glyph="&#xE8A1;"
+                                                  FontSize="40"
+                                                  Foreground="{ThemeResource SuccessGreenBrush}"/>
+                                    </Border>
+
+                                    <TextBlock Text="Pay when you receive your order"
+                                               FontWeight="SemiBold"
+                                               HorizontalAlignment="Center"
+                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+
+                                    <TextBlock TextWrapping="Wrap"
+                                               TextAlignment="Center"
+                                               MaxWidth="300"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                        <Run Text="You'll pay in cash to the delivery person when your order arrives."/>
+                                        <LineBreak/>
+                                        <Run Text="Please prepare the exact amount."/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <InfoBar Severity="Informational"
+                                         IsOpen="True"
+                                         IsClosable="False"
+                                         Title="Payment on Delivery"
+                                         Message="Your order will be confirmed and processed. Payment will be collected when the order is delivered to you." />
+                            </StackPanel>
+
+                            <!-- Confirm Button (Same for all methods) -->
                             <buttons:IconButton
-                                    HorizontalAlignment="Stretch"
+                                    HorizontalAlignment="Center"
                                     Margin="0,16,0,0"
                                     Variant="Filled"
                                     IconGlyph="&#xE8FB;"
-                                    Text="I've Made the Payment"
                                     Command="{x:Bind ViewModel.ConfirmPaymentCommand}"
-                                    IsEnabled="{x:Bind ViewModel.IsProcessing, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
+                                    IsEnabled="{x:Bind ViewModel.IsProcessing, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}">
+                                <buttons:IconButton.Text>
+                                    <Binding Path="SelectedPaymentMethod" Mode="OneWay">
+                                        <Binding.Converter>
+                                            <converters:PaymentMethodToButtonTextConverter/>
+                                        </Binding.Converter>
+                                    </Binding>
+                                </buttons:IconButton.Text>
+                            </buttons:IconButton>
 
-                            <TextBlock Text="Your order will be processed once payment is confirmed"
-                                       FontSize="{StaticResource FontSize_XS}"
+                            <TextBlock FontSize="12"
                                        Foreground="{ThemeResource Gray500Brush}"
                                        TextAlignment="Center"
-                                       TextWrapping="Wrap"/>
+                                       TextWrapping="Wrap">
+                                <Binding Path="SelectedPaymentMethod" Mode="OneWay">
+                                    <Binding.Converter>
+                                        <converters:PaymentMethodToDescriptionConverter/>
+                                    </Binding.Converter>
+                                </Binding>
+                            </TextBlock>
                         </StackPanel>
                     </Border>
 

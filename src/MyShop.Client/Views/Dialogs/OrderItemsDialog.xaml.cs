@@ -178,7 +178,7 @@ public sealed partial class OrderItemsDialog : ContentDialog
         // Price
         var priceBlock = new TextBlock
         {
-            Text = item.Price.ToString("C0"),
+            Text = FormatCurrency(item.Price),
             FontSize = 13,
             Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 255, 255)),
             TextAlignment = TextAlignment.Right,
@@ -190,7 +190,7 @@ public sealed partial class OrderItemsDialog : ContentDialog
         // Total Price
         var totalBlock = new TextBlock
         {
-            Text = item.TotalPrice.ToString("C0"),
+            Text = FormatCurrency(item.TotalPrice),
             FontSize = 13,
             FontWeight = FontWeights.SemiBold,
             Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 255, 255)),
@@ -202,6 +202,26 @@ public sealed partial class OrderItemsDialog : ContentDialog
 
         border.Child = grid;
         return border;
+    }
+
+    /// <summary>
+    /// Format decimal value as currency with VND symbol
+    /// Format: 1,234,567₫ with dot as thousand separator
+    /// </summary>
+    private string FormatCurrency(decimal amount)
+    {
+        try
+        {
+            amount = System.Math.Round(amount, 0, System.MidpointRounding.AwayFromZero);
+            var nfi = (System.Globalization.NumberFormatInfo)System.Globalization.CultureInfo.InvariantCulture.NumberFormat.Clone();
+            nfi.NumberGroupSeparator = ".";
+            nfi.NumberDecimalSeparator = ",";
+            return amount.ToString("#,##0", nfi) + "₫";
+        }
+        catch
+        {
+            return "0₫";
+        }
     }
 
     private void OnCloseClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)

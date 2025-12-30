@@ -32,14 +32,15 @@
     <Grid>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="ResponsiveStates">
-                
+
                 <!-- Large Desktop: 1920px+ -->
                 <VisualState x:Name="LargeDesktopState">
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="1920"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="40"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="40"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -49,7 +50,8 @@
                         <AdaptiveTrigger MinWindowWidth="1280"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="32"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="32"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -59,7 +61,8 @@
                         <AdaptiveTrigger MinWindowWidth="960"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="24"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="24"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -69,7 +72,8 @@
                         <AdaptiveTrigger MinWindowWidth="640"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="20"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="20"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -79,15 +83,17 @@
                         <AdaptiveTrigger MinWindowWidth="0"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="16"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="16"/>
                     </VisualState.Setters>
                 </VisualState>
-                
+
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <Grid x:Name="MainContent" Padding="24"
+            <Grid x:Name="MainContent"
+                  Padding="24"
                   RowSpacing="16">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -161,13 +167,14 @@
                                     TextWrapping="Wrap"/>
 
                                 <buttons:IconButton
-                                        Margin="0,12,0,0"
-                                        MinWidth="160"
-                                        Variant="Filled"
-                                        IconGlyph="&#xE719;"
-                                        Text="Start Shopping"
-                                        Command="{x:Bind ViewModel.ContinueShoppingCommand}"
-                                        Tooltip="Browse available products"/>
+                                    Margin="0,12,0,0"
+                                    HorizontalAlignment="Center"
+                                    MinWidth="160"
+                                    Variant="Filled"
+                                    IconGlyph="&#xE719;"
+                                    Text="Start Shopping"
+                                    Command="{x:Bind ViewModel.ContinueShoppingCommand}"
+                                    Tooltip="Browse available products"/>
                             </StackPanel>
                         </Border>
 
@@ -188,14 +195,20 @@
                                             <!-- Group Header -->
                                             <Grid Padding="20,16"
                                                   Background="{x:Bind IsSelected, Mode=OneWay, Converter={StaticResource BoolToColorConverter}, ConverterParameter='Theme:LayerFillColorDefaultBrush|Theme:SubtleFillColorSecondaryBrush'}">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
 
                                                 <!-- Shop Icon -->
-                                                <Border Grid.Column="0"
+                                                <Border Grid.Row="0"
+                                                        Grid.Column="0"
                                                         Width="40"
                                                         Height="40"
                                                         Margin="0,0,12,0"
@@ -206,41 +219,41 @@
                                                               Foreground="{ThemeResource WhiteBrush}"/>
                                                 </Border>
 
-                                                <!-- Shop Info -->
-                                                <StackPanel Grid.Column="1" Spacing="4">
+                                                <!-- Shop Info (Name only, no subtotal) -->
+                                                <StackPanel Grid.Row="0"
+                                                            Grid.Column="1"
+                                                            Spacing="4">
                                                     <TextBlock Text="{x:Bind AgentName}"
                                                                FontSize="{ThemeResource FontSize_LG}"
                                                                FontWeight="SemiBold"
                                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                                    <TextBlock FontSize="{ThemeResource FontSize_SM}"
-                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                                        <Run Text="Subtotal:"/>
-                                                        <Run Text="{x:Bind SubtotalFormatted, Mode=OneWay}"
-                                                             FontWeight="SemiBold"
-                                                             Foreground="{ThemeResource SuccessGreenBrush}"/>
-                                                    </TextBlock>
                                                 </StackPanel>
 
                                                 <!-- Select Shop Button -->
-                                                <Button Grid.Column="2"
+                                                <Button Grid.Row="0"
+                                                        Grid.Column="3"
                                                         Style="{StaticResource PrimaryButtonStyle}"
                                                         Padding="16,8"
                                                         Command="{Binding ElementName=RootPage, Path=ViewModel.SelectShopCommand}"
                                                         CommandParameter="{x:Bind AgentId}"
                                                         Visibility="{x:Bind IsSelected, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                                        <FontIcon Glyph="&#xE73E;" FontSize="{ThemeResource FontSize_Base}"/>
+                                                    <StackPanel Orientation="Horizontal"
+                                                                Spacing="8">
+                                                        <FontIcon Glyph="&#xE73E;"
+                                                                  FontSize="{ThemeResource FontSize_Base}"/>
                                                         <TextBlock Text="Select Shop"/>
                                                     </StackPanel>
                                                 </Button>
-                                                
+
                                                 <!-- Selected Badge -->
-                                                <Border Grid.Column="2"
+                                                <Border Grid.Row="0"
+                                                        Grid.Column="3"
                                                         Padding="12,6"
                                                         Background="{ThemeResource SuccessGreenBrush}"
                                                         CornerRadius="8"
                                                         Visibility="{x:Bind IsSelected, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                                    <StackPanel Orientation="Horizontal"
+                                                                Spacing="6">
                                                         <FontIcon Glyph="&#xE73E;"
                                                                   FontSize="{ThemeResource FontSize_Base}"
                                                                   Foreground="{ThemeResource WhiteBrush}"/>
@@ -249,11 +262,45 @@
                                                                    Foreground="{ThemeResource WhiteBrush}"/>
                                                     </StackPanel>
                                                 </Border>
+
+                                                <!-- Subtotal / Tax / Total Summary (Bottom Right) -->
+                                                <StackPanel Grid.Row="1"
+                                                            Grid.Column="1"
+                                                            Grid.ColumnSpan="3"
+                                                            Spacing="4"
+                                                            Margin="0,8,0,0"
+                                                            HorizontalAlignment="Right"
+                                                            VerticalAlignment="Bottom">
+                                                    <TextBlock FontSize="{ThemeResource FontSize_SM}"
+                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                               TextAlignment="Right">
+                                                        <Run Text="Subtotal:"/>
+                                                        <Run Text="{x:Bind SubtotalFormatted, Mode=OneWay}"
+                                                             FontWeight="SemiBold"
+                                                             Foreground="{ThemeResource SuccessGreenBrush}"/>
+                                                    </TextBlock>
+                                                    <TextBlock FontSize="{ThemeResource FontSize_SM}"
+                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                               TextAlignment="Right">
+                                                        <Run Text="Tax:"/>
+                                                        <Run Text="{x:Bind Tax, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                                             FontWeight="SemiBold"
+                                                             Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                                    </TextBlock>
+                                                    <TextBlock FontSize="{ThemeResource FontSize_SM}"
+                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                               TextAlignment="Right">
+                                                        <Run Text="Total:"/>
+                                                        <Run Text="{x:Bind Total, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"
+                                                             FontWeight="Bold"
+                                                             Foreground="{ThemeResource AccentBlueBrush}"/>
+                                                    </TextBlock>
+                                                </StackPanel>
                                             </Grid>
 
                                             <!-- Items List -->
                                             <ItemsRepeater ItemsSource="{x:Bind Items, Mode=OneWay}"
-                                                          Margin="16">
+                                                           Margin="16">
                                                 <ItemsRepeater.ItemTemplate>
                                                     <DataTemplate x:DataType="vm:CartItemViewModel">
                                                         <Border Margin="0,0,0,12"
@@ -297,14 +344,17 @@
                                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                                                                     <!--  Quantity Controls  -->
-                                                                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+                                                                    <StackPanel Orientation="Horizontal"
+                                                                                Spacing="8"
+                                                                                Margin="0,4,0,0">
                                                                         <Button Width="28"
                                                                                 Height="28"
                                                                                 Padding="0"
                                                                                 Style="{StaticResource SecondaryButtonStyle}"
                                                                                 Command="{Binding ElementName=RootPage, Path=ViewModel.DecreaseQuantityCommand}"
                                                                                 CommandParameter="{x:Bind}">
-                                                                            <FontIcon Glyph="&#xE738;" FontSize="{ThemeResource FontSize_XS}"/>
+                                                                            <FontIcon Glyph="&#xE738;"
+                                                                                      FontSize="{ThemeResource FontSize_XS}"/>
                                                                         </Button>
                                                                         <Border Width="50"
                                                                                 Padding="8,4"
@@ -322,7 +372,8 @@
                                                                                 Style="{StaticResource PrimaryButtonStyle}"
                                                                                 Command="{Binding ElementName=RootPage, Path=ViewModel.IncreaseQuantityCommand}"
                                                                                 CommandParameter="{x:Bind}">
-                                                                            <FontIcon Glyph="&#xE710;" FontSize="{ThemeResource FontSize_XS}"/>
+                                                                            <FontIcon Glyph="&#xE710;"
+                                                                                      FontSize="{ThemeResource FontSize_XS}"/>
                                                                         </Button>
                                                                         <Button Margin="8,0,0,0"
                                                                                 Width="28"
@@ -436,14 +487,14 @@
                             </StackPanel>
 
                             <buttons:IconButton
-                                    Margin="0,16,0,0"
-                                    HorizontalAlignment="Stretch"
-                                    Variant="Filled"
-                                    IconGlyph="&#xE8A1;"
-                                    Text="Proceed to Checkout"
-                                    Command="{x:Bind ViewModel.ProceedToCheckoutCommand}"
-                                    IsEnabled="{x:Bind ViewModel.CanProceedToCheckout, Mode=OneWay}"
-                                    ToolTipService.ToolTip="Select a shop to continue"/>
+                                Margin="0,16,0,0"
+                                HorizontalAlignment="Center"
+                                Variant="Filled"
+                                IconGlyph="&#xE8A1;"
+                                Text="Proceed to Checkout"
+                                Command="{x:Bind ViewModel.ProceedToCheckoutCommand}"
+                                IsEnabled="{x:Bind ViewModel.CanProceedToCheckout, Mode=OneWay}"
+                                ToolTipService.ToolTip="Select a shop to continue"/>
 
                             <HyperlinkButton
                                 HorizontalAlignment="Center"

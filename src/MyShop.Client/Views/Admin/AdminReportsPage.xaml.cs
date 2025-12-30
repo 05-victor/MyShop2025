@@ -19,11 +19,11 @@ public sealed partial class AdminReportsPage : Page
         try
         {
             Services.LoggingService.Instance.Debug("[AdminReportsPage] Constructor start");
-            
+
             // Resolve ViewModel
             ViewModel = App.Current.Services.GetRequiredService<AdminReportsViewModel>();
             Services.LoggingService.Instance.Debug("[AdminReportsPage] ViewModel resolved");
-            
+
             // Subscribe to ViewModel events for dialogs
             ViewModel.ViewProductDetailsRequested += OnViewProductDetailsRequested;
             ViewModel.ViewSalespersonDetailsRequested += OnViewSalespersonDetailsRequested;
@@ -40,7 +40,7 @@ public sealed partial class AdminReportsPage : Page
             Services.LoggingService.Instance.Debug("[AdminReportsPage] Calling InitializeComponent");
             this.InitializeComponent();
             Services.LoggingService.Instance.Debug("[AdminReportsPage] InitializeComponent SUCCESS");
-            
+
             // CRITICAL FIX: Set DataContext so {Binding} resolves to ViewModel
             this.DataContext = ViewModel;
         }
@@ -50,7 +50,7 @@ public sealed partial class AdminReportsPage : Page
             Services.LoggingService.Instance.Error($"Exception Type: {ex.GetType().FullName}");
             Services.LoggingService.Instance.Error($"Message: {ex.Message}");
             Services.LoggingService.Instance.Error($"StackTrace: {ex.StackTrace}");
-            
+
             // Create minimal fallback UI
             this.Content = new Microsoft.UI.Xaml.Controls.TextBlock
             {
@@ -71,13 +71,13 @@ public sealed partial class AdminReportsPage : Page
         {
             base.OnNavigatedTo(e);
             Services.NavigationLogger.LogNavigatedTo(nameof(AdminReportsPage), e.Parameter);
-            
+
             // Set default date range selection
             if (DateRangeComboBox.SelectedIndex < 0 && DateRangeComboBox.Items.Count > 0)
             {
                 DateRangeComboBox.SelectedIndex = 0; // Default to "This Week"
             }
-            
+
             // Initialize ViewModel after page is loaded and UI thread is ready
             _ = ViewModel.InitializeCommand.ExecuteAsync(null);
         }
@@ -169,7 +169,6 @@ public sealed partial class AdminReportsPage : Page
             ProductDetailCategory.Text = product.Category;
             ProductDetailOrders.Text = product.Sold.ToString("N0");
             ProductDetailRevenue.Text = $"${product.Revenue:N2}";
-            ProductDetailRating.Text = product.Rating.ToString("F1");
             ProductDetailStock.Text = product.Stock.ToString("N0");
 
             ProductDetailsDialog.XamlRoot = this.XamlRoot;
@@ -228,7 +227,7 @@ public sealed partial class AdminReportsPage : Page
             chartTitle = chartTitle.Replace(" ", "_").Replace("/", "_");
 
             var savePicker = new Windows.Storage.Pickers.FileSavePicker();
-            
+
             // Get the window handle
             var windowHandle = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
             WinRT.Interop.InitializeWithWindow.Initialize(savePicker, windowHandle);

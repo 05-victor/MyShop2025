@@ -1,3 +1,4 @@
+using MyShop.Client.Common.Helpers;
 using MyShop.Core.Common;
 using MyShop.Core.Interfaces.Facades;
 using MyShop.Core.Interfaces.Repositories;
@@ -41,7 +42,7 @@ public class AgentRequestFacade : IAgentRequestFacade
         }
     }
 
-    public async Task<Result<PagedList<AgentRequest>>> LoadRequestsAsync(string? status = null, string? searchQuery = null, int page = 1, int pageSize = 20)
+    public async Task<Result<PagedList<AgentRequest>>> LoadRequestsAsync(string? status = null, string? searchQuery = null, int page = 1, int pageSize = AppConstants.DEFAULT_PAGE_SIZE)
     {
         try
         {
@@ -198,19 +199,18 @@ public class AgentRequestFacade : IAgentRequestFacade
             var result = await _agentRequestRepository.RejectAsync(requestId, reason);
             if (result.IsSuccess && result.Data)
             {
-                await _toastService.ShowSuccess($"Agent request rejected");
+                // Toast removed - let ViewModel handle user notifications
                 return Result<Unit>.Success(Unit.Value);
             }
             else
             {
-                await _toastService.ShowError("Failed to reject request");
+                // Only show error toast for unexpected failures
                 return Result<Unit>.Failure(result.ErrorMessage ?? "Failed to reject request");
             }
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[AgentRequestFacade] Error rejecting request: {ex.Message}");
-            await _toastService.ShowError($"Error: {ex.Message}");
             return Result<Unit>.Failure($"Error: {ex.Message}");
         }
     }
@@ -248,6 +248,25 @@ public class AgentRequestFacade : IAgentRequestFacade
             System.Diagnostics.Debug.WriteLine($"[AgentRequestFacade] Error getting user profile: {ex.Message}");
             await _toastService.ShowError($"Error: {ex.Message}");
             return Result<User>.Failure($"Error: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<MyShop.Shared.DTOs.Responses.AgentRequestResponse?>> GetMyRequestAsync()
+    {
+        try
+        {
+            var result = await _agentRequestRepository.GetMyRequestAsync();
+            if (!result.IsSuccess)
+            {
+                // No request found is not an error - return null
+                return Result<MyShop.Shared.DTOs.Responses.AgentRequestResponse?>.Success(null);
+            }
+            return Result<MyShop.Shared.DTOs.Responses.AgentRequestResponse?>.Success(result.Data);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AgentRequestFacade] Error getting my request: {ex.Message}");
+            return Result<MyShop.Shared.DTOs.Responses.AgentRequestResponse?>.Failure($"Error: {ex.Message}");
         }
     }
 }

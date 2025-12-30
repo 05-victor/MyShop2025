@@ -97,7 +97,7 @@
                 <EntranceThemeTransition FromVerticalOffset="50"/>
             </TransitionCollection>
         </Grid.Transitions>
-        
+
         <RefreshContainer RefreshRequested="RefreshContainer_RefreshRequested">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <Grid x:Name="MainContent"
@@ -146,17 +146,12 @@
                                           ShowActions="True"
                                           ShowResetButton="True">
                             <forms:FilterCard.FilterContent>
-                                <Grid ColumnSpacing="16"
-                                      RowSpacing="16">
+                                <Grid ColumnSpacing="16">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
 
                                     <!--  Category  -->
                                     <StackPanel Grid.Column="0">
@@ -216,8 +211,6 @@
                                                           Tag="Price: Low to High"/>
                                             <ComboBoxItem Content="Price: High to Low"
                                                           Tag="Price: High to Low"/>
-                                            <ComboBoxItem Content="Rating"
-                                                          Tag="Rating"/>
                                         </ComboBox>
                                     </StackPanel>
                                 </Grid>
@@ -295,8 +288,7 @@
                                 <ItemsPanelTemplate>
                                     <ItemsWrapGrid
                                         x:Name="ProductWrapGrid"
-                                        ItemHeight="400"
-                                        ItemWidth="280"
+                                        ItemWidth="260"
                                         Orientation="Horizontal"/>
                                 </ItemsPanelTemplate>
                             </GridView.ItemsPanel>
@@ -304,7 +296,7 @@
                             <!--  Product Card Component Template  -->
                             <GridView.ItemTemplate>
                                 <DataTemplate x:DataType="vm:ProductCardViewModel">
-                                    <cards:ProductCard 
+                                    <cards:ProductCard
                                         Product="{x:Bind Mode=OneWay}"
                                         AddToCartCommand="{Binding ElementName=ProductGridView, Path=DataContext.AddToCartCommand}"
                                         ViewDetailsCommand="{Binding ElementName=ProductGridView, Path=DataContext.ViewProductDetailsCommand}"
@@ -315,15 +307,19 @@
                             </GridView.ItemTemplate>
                             <GridView.ItemContainerStyle>
                                 <Style TargetType="GridViewItem">
-                                    <Setter Property="Margin" Value="8"/>
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                    <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                                    <Setter Property="Margin"
+                                            Value="8"/>
+                                    <Setter Property="HorizontalContentAlignment"
+                                            Value="Stretch"/>
+                                    <Setter Property="VerticalContentAlignment"
+                                            Value="Stretch"/>
                                 </Style>
                             </GridView.ItemContainerStyle>
                         </GridView>
 
                         <!--  Pagination Control (Standardized - Same as AdminUsersPage)  -->
                         <controls:PaginationControl
+                            x:Name="PaginationControlElement"
                             Visibility="{x:Bind ViewModel.ShowPagination, Mode=OneWay}"
                             CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
                             TotalPages="{x:Bind ViewModel.TotalPages, Mode=OneWay}"
@@ -371,20 +367,41 @@
                         </Grid>
                     </Border>
 
-                    <!--  Product Name  -->
-                    <StackPanel Spacing="4">
-                        <TextBlock
-                            FontSize="{StaticResource FontSize_SM}"
-                            FontWeight="SemiBold"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            Text="PRODUCT NAME"/>
-                        <TextBlock
-                            x:Name="ViewProductName"
-                            FontSize="{StaticResource FontSize_XL}"
-                            FontWeight="Bold"
-                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                            TextWrapping="Wrap"/>
-                    </StackPanel>
+                    <!--  Product Name + SalesAgent Row  -->
+                    <Grid ColumnSpacing="24">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0"
+                                    Spacing="4">
+                            <TextBlock
+                                FontSize="{StaticResource FontSize_SM}"
+                                FontWeight="SemiBold"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Text="PRODUCT NAME"/>
+                            <TextBlock
+                                x:Name="ViewProductName"
+                                FontSize="{StaticResource FontSize_XL}"
+                                FontWeight="Bold"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                TextWrapping="Wrap"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1"
+                                    Spacing="4">
+                            <TextBlock
+                                FontSize="{StaticResource FontSize_SM}"
+                                FontWeight="SemiBold"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Text="SALESAGENT"/>
+                            <TextBlock
+                                x:Name="ViewProductSalesAgent"
+                                FontSize="{StaticResource FontSize_Base}"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                        </StackPanel>
+                    </Grid>
 
                     <!--  Category + Manufacturer Row  -->
                     <Grid ColumnSpacing="24">
@@ -427,6 +444,21 @@
                         </StackPanel>
                     </Grid>
 
+                    <!--  Description (Span 2 columns)  -->
+                    <StackPanel Spacing="4">
+                        <TextBlock
+                            FontSize="{StaticResource FontSize_SM}"
+                            FontWeight="SemiBold"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Text="DESCRIPTION"/>
+                        <TextBlock
+                            x:Name="ViewProductDescription"
+                            FontSize="{StaticResource FontSize_Base}"
+                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                            TextWrapping="Wrap"
+                            LineHeight="20"/>
+                    </StackPanel>
+
                     <!--  Price Section  -->
                     <Border
                         Background="{ThemeResource SuccessGreen50Brush}"
@@ -449,93 +481,38 @@
                         </StackPanel>
                     </Border>
 
-                    <!--  Stock + Rating Row  -->
-                    <Grid ColumnSpacing="24">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Grid.Column="0"
-                                    Spacing="4">
-                            <TextBlock
-                                FontSize="{StaticResource FontSize_SM}"
-                                FontWeight="SemiBold"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="STOCK"/>
-                            <StackPanel Orientation="Horizontal"
-                                        Spacing="8">
-                                <TextBlock
-                                    x:Name="ViewProductStock"
-                                    FontSize="{StaticResource FontSize_3XL}"
-                                    FontWeight="Bold"
-                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                <Border
-                                    x:Name="ViewProductStockBadge"
-                                    Padding="8,4"
-                                    CornerRadius="4"
-                                    VerticalAlignment="Center">
-                                    <TextBlock
-                                        x:Name="ViewProductStockStatus"
-                                        FontSize="{StaticResource FontSize_SM}"
-                                        FontWeight="SemiBold"/>
-                                </Border>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="1"
-                                    Spacing="4">
-                            <TextBlock
-                                FontSize="{StaticResource FontSize_SM}"
-                                FontWeight="SemiBold"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="RATING"/>
-                            <StackPanel Orientation="Horizontal"
-                                        Spacing="8">
-                                <TextBlock
-                                    x:Name="ViewProductRating"
-                                    FontSize="{StaticResource FontSize_3XL}"
-                                    FontWeight="Bold"
-                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                <StackPanel Orientation="Horizontal"
-                                            VerticalAlignment="Center"
-                                            Spacing="2">
-                                    <FontIcon FontSize="{StaticResource FontSize_LG}"
-                                            Foreground="{ThemeResource WarningAmberBrush}"
-                                            Glyph="&#xE735;"/>
-                                    <TextBlock
-                                        x:Name="ViewProductRatingCount"
-                                        FontSize="{StaticResource FontSize_SM}"
-                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                        VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </StackPanel>
-                        </StackPanel>
-                    </Grid>
-
-                    <!--  Add to Cart Button  -->
-                    <Button
-                        x:Name="DialogAddToCartButton"
-                        HorizontalAlignment="Stretch"
-                        Height="48"
-                        Background="{ThemeResource AccentBlueBrush}"
-                        Foreground="{ThemeResource WhiteBrush}"
-                        CornerRadius="8"
-                        Click="DialogAddToCartButton_Click">
+                    <!--  Stock Row  -->
+                    <StackPanel Spacing="4">
+                        <TextBlock
+                            FontSize="{StaticResource FontSize_SM}"
+                            FontWeight="SemiBold"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Text="STOCK"/>
                         <StackPanel Orientation="Horizontal"
                                     Spacing="8">
-                            <FontIcon FontSize="{StaticResource FontSize_LG}"
-                                      Glyph="&#xE7BF;"/>
-                            <TextBlock Text="Add to Cart"
-                                       FontWeight="SemiBold"/>
+                            <TextBlock
+                                x:Name="ViewProductStock"
+                                FontSize="{StaticResource FontSize_3XL}"
+                                FontWeight="Bold"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                            <Border
+                                x:Name="ViewProductStockBadge"
+                                Padding="8,4"
+                                CornerRadius="4"
+                                VerticalAlignment="Center">
+                                <TextBlock
+                                    x:Name="ViewProductStockStatus"
+                                    FontSize="{StaticResource FontSize_SM}"
+                                    FontWeight="SemiBold"/>
+                            </Border>
                         </StackPanel>
-                    </Button>
+                    </StackPanel>
                 </StackPanel>
             </ScrollViewer>
         </ContentDialog>
-        
+
         <!-- Loading Overlay -->
-        <components:LoadingOverlay 
+        <components:LoadingOverlay
             IsLoading="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
             Message="Loading products..."/>
     </Grid>

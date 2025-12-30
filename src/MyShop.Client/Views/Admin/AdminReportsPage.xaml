@@ -34,14 +34,15 @@
     <Grid>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="ResponsiveStates">
-                
+
                 <!-- Large Desktop: 1920px+ -->
                 <VisualState x:Name="LargeDesktopState">
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="1920"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="40"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="40"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -51,7 +52,8 @@
                         <AdaptiveTrigger MinWindowWidth="1280"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="32"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="32"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -61,7 +63,8 @@
                         <AdaptiveTrigger MinWindowWidth="960"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="24"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="24"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -71,7 +74,8 @@
                         <AdaptiveTrigger MinWindowWidth="640"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="20"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="20"/>
                     </VisualState.Setters>
                 </VisualState>
 
@@ -81,17 +85,19 @@
                         <AdaptiveTrigger MinWindowWidth="0"/>
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="MainContent.Padding" Value="16"/>
+                        <Setter Target="MainContent.Padding"
+                                Value="16"/>
                     </VisualState.Setters>
                 </VisualState>
-                
+
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
         <!--  Main Content  -->
         <ScrollViewer Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"
                       Background="{ThemeResource PageBackgroundBrush}">
-            <StackPanel x:Name="MainContent" Padding="24"
+            <StackPanel x:Name="MainContent"
+                        Padding="24"
                         Spacing="20">
 
                 <layout:PageHeader Title="My Reports"
@@ -127,9 +133,9 @@
                             <forms:LabeledComboBox
                                 x:Name="CategoryComboBox"
                                 Grid.Column="1"
-                                ItemsSource="{Binding Categories, Mode=OneWay}"
+                                ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
                                 Label="Category"
-                                SelectedIndex="0"
+                                SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"
                                 SelectionChanged="CategoryComboBox_SelectionChanged"/>
                         </Grid>
 
@@ -165,7 +171,8 @@
                             FontSize="{StaticResource FontSize_Base}"
                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                             Text="Download the current report data"/>
-                        <StackPanel Orientation="Horizontal" Spacing="12">
+                        <StackPanel Orientation="Horizontal"
+                                    Spacing="12">
                             <buttons:IconButton
                                 IconGlyph="&#xE74E;"
                                 Text="Export CSV"
@@ -195,12 +202,13 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <!--  Revenue Trend  -->
+                    <!--  Revenue Trend - Spans 2 columns  -->
                     <charts:LineChartCard
                         x:Name="RevenueChart"
                         Title="Revenue Trend"
                         Grid.Row="0"
                         Grid.Column="0"
+                        Grid.ColumnSpan="2"
                         ChartHeight="300"
                         ExportRequested="Chart_ExportRequested"
                         Legend1Text="Revenue"
@@ -210,28 +218,16 @@
                         ShowMenu="Visible"
                         YAxes="{Binding YAxes, Mode=OneWay}"/>
 
-                    <!--  Orders per Category  -->
+                    <!--  Orders per Category - Moved to Row 1  -->
                     <charts:BarChartCard
                         x:Name="OrdersChart"
                         Title="Orders per Category"
-                        Grid.Row="0"
-                        Grid.Column="1"
-                        ChartHeight="300"
-                        ExportRequested="Chart_ExportRequested"
-                        RefreshRequested="Chart_RefreshRequested"
-                        Series="{Binding OrdersByCategorySeries, Mode=OneWay}"
-                        ShowMenu="Visible"/>
-
-                    <!--  Admin Only - Product Rating Breakdown  -->
-                    <charts:PieChartCard
-                        x:Name="RatingsChart"
-                        Title="Product Rating Breakdown"
                         Grid.Row="1"
                         Grid.Column="0"
                         ChartHeight="300"
                         ExportRequested="Chart_ExportRequested"
                         RefreshRequested="Chart_RefreshRequested"
-                        Series="{Binding RatingDistributionSeries, Mode=OneWay}"
+                        Series="{Binding OrdersByCategorySeries, Mode=OneWay}"
                         ShowMenu="Visible"/>
 
                     <!--  Admin Only - Salesperson Contributions  -->
@@ -247,23 +243,26 @@
                                 Text="Salesperson Contributions"/>
                             <!--  ListView with virtualization for performance  -->
                             <ListView ItemsSource="{Binding SalespersonData, Mode=OneWay}"
-                                  SelectionMode="None"
-                                  IsItemClickEnabled="False"
-                                  MaxHeight="400">
+                                      SelectionMode="None"
+                                      IsItemClickEnabled="False"
+                                      MaxHeight="400">
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="ListViewItem">
-                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                        <Setter Property="Padding" Value="0"/>
-                                        <Setter Property="Margin" Value="0"/>
+                                        <Setter Property="HorizontalContentAlignment"
+                                                Value="Stretch"/>
+                                        <Setter Property="Padding"
+                                                Value="0"/>
+                                        <Setter Property="Margin"
+                                                Value="0"/>
                                     </Style>
                                 </ListView.ItemContainerStyle>
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
                                         <Grid
-                                        Margin="0,0,0,8"
-                                        Padding="12"
-                                        Background="{ThemeResource LayerFillColorDefaultBrush}"
-                                        CornerRadius="6">
+                                            Margin="0,0,0,8"
+                                            Padding="12"
+                                            Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                            CornerRadius="6">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="*"/>
@@ -271,52 +270,52 @@
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <Border
-                                            Width="40"
-                                            Height="40"
-                                            Margin="0,0,12,0"
-                                            Background="{ThemeResource SecondaryBlueBrush}"
-                                            CornerRadius="8">
+                                                Width="40"
+                                                Height="40"
+                                                Margin="0,0,12,0"
+                                                Background="{ThemeResource SecondaryBlueBrush}"
+                                                CornerRadius="8">
                                                 <TextBlock
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"
-                                                FontWeight="SemiBold"
-                                                Foreground="{ThemeResource WhiteBrush}"
-                                                Text="{Binding Initials}"/>
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="{ThemeResource WhiteBrush}"
+                                                    Text="{Binding Initials}"/>
                                             </Border>
                                             <StackPanel Grid.Column="1"
-                                                    VerticalAlignment="Center">
+                                                        VerticalAlignment="Center">
                                                 <TextBlock FontWeight="SemiBold"
-                                                       Text="{Binding Name}"/>
+                                                           Text="{Binding Name}"/>
                                                 <TextBlock FontSize="{StaticResource FontSize_SM}"
-                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                                 <Run Text="{Binding Sales}"/>
                                                 <Run Text=" sales"/>
                                                 </TextBlock>
                                             </StackPanel>
                                             <StackPanel
-                                            Grid.Column="2"
-                                            Margin="0,0,12,0"
-                                            HorizontalAlignment="Right"
-                                            VerticalAlignment="Center">
+                                                Grid.Column="2"
+                                                Margin="0,0,12,0"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Center">
                                                 <TextBlock FontWeight="SemiBold"
-                                                       Foreground="{ThemeResource SuccessGreenBrush}">
+                                                           Foreground="{ThemeResource SuccessGreenBrush}">
                                                 <Run Text="{Binding Revenue, Converter={StaticResource CurrencyConverter}}"/>
                                                 </TextBlock>
                                                 <TextBlock
-                                                HorizontalAlignment="Right"
-                                                FontSize="{StaticResource FontSize_SM}"
-                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                Text="revenue"/>
+                                                    HorizontalAlignment="Right"
+                                                    FontSize="{StaticResource FontSize_SM}"
+                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                    Text="revenue"/>
                                             </StackPanel>
                                             <!--  View Details Button  -->
                                             <buttons:IconButton
-                                            Grid.Column="3"
-                                            Click="ViewSalespersonDetails_Click"
-                                            IconColor="{ThemeResource TextFillColorSecondaryBrush}"
-                                            IconGlyph="&#xE8A7;"
-                                            Tag="{Binding}"
-                                            ToolTipService.ToolTip="View details"
-                                            Variant="Ghost"/>
+                                                Grid.Column="3"
+                                                Click="ViewSalespersonDetails_Click"
+                                                IconColor="{ThemeResource TextFillColorSecondaryBrush}"
+                                                IconGlyph="&#xE8A7;"
+                                                Tag="{Binding}"
+                                                ToolTipService.ToolTip="View details"
+                                                Variant="Ghost"/>
                                         </Grid>
                                     </DataTemplate>
                                 </ListView.ItemTemplate>
@@ -325,50 +324,54 @@
                     </Border>
 
                     <!-- Product Summary Table -->
-                    <Border Grid.Row="2" Grid.ColumnSpan="2" Style="{StaticResource CardWithShadowStyle}">
+                    <Border Grid.Row="2"
+                            Grid.ColumnSpan="2"
+                            Style="{StaticResource CardWithShadowStyle}">
                         <StackPanel Spacing="16">
                             <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
-                            Text="Product Summary"/>
+                                       Text="Product Summary"/>
                             <!--  Changed {x:Bind} to {Binding Mode=OneWay} to prevent DataGrid crash  -->
                             <controls:DataGrid
-                            x:Name="ProductSummaryDataGrid"
-                            AutoGenerateColumns="False"
-                            CanUserReorderColumns="False"
-                            GridLinesVisibility="Horizontal"
-                            HeadersVisibility="Column"
-                            IsReadOnly="True"
-                            ItemsSource="{Binding FilteredProducts, Mode=OneWay}"
-                            RowHeight="48"
-                            SelectionMode="Single">
+                                x:Name="ProductSummaryDataGrid"
+                                AutoGenerateColumns="False"
+                                CanUserReorderColumns="False"
+                                GridLinesVisibility="Horizontal"
+                                HeadersVisibility="Column"
+                                IsReadOnly="True"
+                                ItemsSource="{Binding FilteredProducts, Mode=OneWay}"
+                                RowHeight="48"
+                                SelectionMode="Single">
                                 <controls:DataGrid.Columns>
                                     <!--  Product Column (Flexible Width)  -->
                                     <controls:DataGridTextColumn
-                                    Width="2*"
-                                    Binding="{Binding Name}"
-                                    Header="Product">
+                                        Width="2*"
+                                        Binding="{Binding Name}"
+                                        Header="Product">
                                         <controls:DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="FontWeight" Value="SemiBold"/>
-                                                <Setter Property="TextAlignment" Value="Center"/>
+                                                <Setter Property="FontWeight"
+                                                        Value="SemiBold"/>
+                                                <Setter Property="TextAlignment"
+                                                        Value="Center"/>
                                             </Style>
                                         </controls:DataGridTextColumn.ElementStyle>
                                     </controls:DataGridTextColumn>
 
                                     <!--  Category Column (Fixed Width)  -->
                                     <controls:DataGridTemplateColumn Width="140"
-                                                                 Header="Category">
+                                                                     Header="Category">
                                         <controls:DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Border
-                                                Padding="8,4"
-                                                HorizontalAlignment="Left"
-                                                VerticalAlignment="Center"
-                                                BorderBrush="{ThemeResource TextFillColorDisabledBrush}"
-                                                BorderThickness="1"
-                                                CornerRadius="4">
+                                                    Padding="8,4"
+                                                    HorizontalAlignment="Left"
+                                                    VerticalAlignment="Center"
+                                                    BorderBrush="{ThemeResource TextFillColorDisabledBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="4">
                                                     <TextBlock
-                                                    FontSize="{StaticResource FontSize_SM}"
-                                                    Text="{Binding Category}"/>
+                                                        FontSize="{StaticResource FontSize_SM}"
+                                                        Text="{Binding Category}"/>
                                                 </Border>
                                             </DataTemplate>
                                         </controls:DataGridTemplateColumn.CellTemplate>
@@ -376,76 +379,53 @@
 
                                     <!--  Total Orders Column (Fixed Width, Right-Aligned)  -->
                                     <controls:DataGridTextColumn
-                                    Width="120"
-                                    Binding="{Binding Sold}"
-                                    Header="Total Orders">
+                                        Width="120"
+                                        Binding="{Binding Sold}"
+                                        Header="Total Orders">
                                         <controls:DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="TextAlignment" Value="Right"/>
+                                                <Setter Property="TextAlignment"
+                                                        Value="Right"/>
                                             </Style>
                                         </controls:DataGridTextColumn.ElementStyle>
                                     </controls:DataGridTextColumn>
 
                                     <!--  Total Revenue Column (Fixed Width, Right-Aligned)  -->
                                     <controls:DataGridTemplateColumn Width="140"
-                                                                 Header="Total Revenue">
+                                                                     Header="Total Revenue">
                                         <controls:DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock
-                                                HorizontalAlignment="Right"
-                                                VerticalAlignment="Center"
-                                                FontWeight="SemiBold"
-                                                Foreground="{ThemeResource SuccessGreenBrush}"
-                                                Text="{Binding Revenue, Converter={StaticResource CurrencyConverter}}"
-                                                TextAlignment="Right"/>
-                                            </DataTemplate>
-                                        </controls:DataGridTemplateColumn.CellTemplate>
-                                    </controls:DataGridTemplateColumn>
-
-                                    <!--  Avg Rating Column (Fixed Width, Right-Aligned)  -->
-                                    <controls:DataGridTemplateColumn Width="110"
-                                                                 Header="Avg Rating">
-                                        <controls:DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <StackPanel
-                                                HorizontalAlignment="Right"
-                                                VerticalAlignment="Center"
-                                                Orientation="Horizontal"
-                                                Spacing="4">
-                                                    <TextBlock
+                                                    HorizontalAlignment="Right"
                                                     VerticalAlignment="Center"
                                                     FontWeight="SemiBold"
-                                                    Text="{Binding Rating}"/>
-                                                    <FontIcon
-                                                    VerticalAlignment="Center"
-                                                    FontSize="{StaticResource FontSize_SM}"
-                                                    Foreground="{ThemeResource WarningAmberBrush}"
-                                                    Glyph="&#xE735;"/>
-                                                </StackPanel>
+                                                    Foreground="{ThemeResource SuccessGreenBrush}"
+                                                    Text="{Binding Revenue, Converter={StaticResource CurrencyConverter}}"
+                                                    TextAlignment="Right"/>
                                             </DataTemplate>
                                         </controls:DataGridTemplateColumn.CellTemplate>
                                     </controls:DataGridTemplateColumn>
 
                                     <!--  Status Column (Fixed Width)  -->
                                     <controls:DataGridTemplateColumn Width="120"
-                                                                 Header="Status">
+                                                                     Header="Status">
                                         <controls:DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Border
-                                                MinWidth="80"
-                                                Padding="8,4"
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"
-                                                Background="{Binding Stock, Converter={StaticResource StockToBrushConverter}, ConverterParameter=Background}"
-                                                CornerRadius="4">
-                                                    <TextBlock
+                                                    MinWidth="80"
+                                                    Padding="8,4"
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
-                                                    FontSize="{StaticResource FontSize_SM}"
-                                                    FontWeight="SemiBold"
-                                                    Foreground="{Binding Stock, Converter={StaticResource StockToBrushConverter}, ConverterParameter=Foreground}"
-                                                    Text="{Binding Stock, Converter={StaticResource StockToStatusConverter}, FallbackValue='In Stock'}"
-                                                    TextAlignment="Center"/>
+                                                    Background="{Binding Stock, Converter={StaticResource StockToBrushConverter}, ConverterParameter=Background}"
+                                                    CornerRadius="4">
+                                                    <TextBlock
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center"
+                                                        FontSize="{StaticResource FontSize_SM}"
+                                                        FontWeight="SemiBold"
+                                                        Foreground="{Binding Stock, Converter={StaticResource StockToBrushConverter}, ConverterParameter=Foreground}"
+                                                        Text="{Binding Stock, Converter={StaticResource StockToStatusConverter}, FallbackValue='In Stock'}"
+                                                        TextAlignment="Center"/>
                                                 </Border>
                                             </DataTemplate>
                                         </controls:DataGridTemplateColumn.CellTemplate>
@@ -548,23 +528,6 @@
                         Grid.Row="3"
                         Grid.Column="1"
                         Foreground="{ThemeResource SuccessGreenBrush}"/>
-
-                    <TextBlock
-                        Grid.Row="4"
-                        Grid.Column="0"
-                        FontWeight="SemiBold"
-                        Text="Rating:"/>
-                    <StackPanel
-                        Grid.Row="4"
-                        Grid.Column="1"
-                        Orientation="Horizontal"
-                        Spacing="4">
-                        <TextBlock x:Name="ProductDetailRating"/>
-                        <FontIcon
-                            FontSize="{StaticResource FontSize_SM}"
-                            Foreground="{ThemeResource WarningAmberBrush}"
-                            Glyph="&#xE735;"/>
-                    </StackPanel>
 
                     <TextBlock
                         Grid.Row="5"

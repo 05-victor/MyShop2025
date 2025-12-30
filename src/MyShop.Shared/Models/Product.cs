@@ -26,6 +26,8 @@ public class Product
     public int RatingCount { get; set; }
     public string Status { get; set; } = "AVAILABLE";
     public Guid? SaleAgentId { get; set; }
+    public string? SaleAgentUsername { get; set; }
+    public string? SaleAgentFullName { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 }

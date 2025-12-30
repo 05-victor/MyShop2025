@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace MyShop.Client.Views.Components.Controls;
@@ -45,6 +46,13 @@ public sealed partial class PaginationControl : UserControl
             typeof(PaginationControl),
             new PropertyMetadata(10, OnPageSizeChanged));
 
+    public static readonly DependencyProperty PageSizeOptionsProperty =
+        DependencyProperty.Register(
+            nameof(PageSizeOptions),
+            typeof(IList<int>),
+            typeof(PaginationControl),
+            new PropertyMetadata(new[] { 10, 15, 25, 50 }, OnPageSizeOptionsChanged));
+
     public int CurrentPage
     {
         get => (int)GetValue(CurrentPageProperty);
@@ -69,12 +77,27 @@ public sealed partial class PaginationControl : UserControl
         set => SetValue(PageSizeProperty, value);
     }
 
+    /// <summary>
+    /// Gets or sets the available page size options for the ComboBox.
+    /// Default: [10, 15, 25, 50]
+    /// Can be overridden per page (e.g., [12, 24, 36, 60] for card grid layouts)
+    /// </summary>
+    public IList<int> PageSizeOptions
+    {
+        get => (IList<int>)GetValue(PageSizeOptionsProperty);
+        set => SetValue(PageSizeOptionsProperty, value);
+    }
+
     private bool _isUpdatingInternally = false;
+    private bool _isInitialized = false;
+    private bool _suppressEvents = true; // Suppress events during binding initialization
 
     public PaginationControl()
     {
         this.InitializeComponent();
         UpdateUI();
+        _isInitialized = true;
+        _suppressEvents = false; // Allow events after init complete
     }
 
     private static void OnCurrentPageChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -110,6 +133,42 @@ public sealed partial class PaginationControl : UserControl
         }
     }
 
+    private static void OnPageSizeOptionsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is PaginationControl control && control._isInitialized)
+        {
+            control.OnPageSizeOptionsChanged();
+        }
+    }
+
+    private void OnPageSizeOptionsChanged()
+    {
+        // Regenerate ComboBox items based on PageSizeOptions
+        if (PageSizeOptions != null && PageSizeOptions.Count > 0)
+        {
+            PageSizeComboBox.Items.Clear();
+            foreach (var option in PageSizeOptions)
+            {
+                var item = new ComboBoxItem
+                {
+                    Content = option.ToString(),
+                    Tag = option
+                };
+                PageSizeComboBox.Items.Add(item);
+            }
+
+            // Verify that current PageSize is in the new options
+            // If not, fallback to the first option
+            if (!PageSizeOptions.Contains(PageSize))
+            {
+                _isUpdatingInternally = true;
+                PageSize = PageSizeOptions[0];
+                _isUpdatingInternally = false;
+            }
+            UpdatePageSizeComboBox();
+        }
+    }
+
     private void UpdateUI()
     {
         UpdateNavigationButtons();
@@ -121,12 +180,12 @@ public sealed partial class PaginationControl : UserControl
     {
         bool canGoBack = CurrentPage > 1;
         bool canGoForward = CurrentPage < TotalPages;
-        
+
         FirstButton.IsEnabled = canGoBack;
         PreviousButton.IsEnabled = canGoBack;
         NextButton.IsEnabled = canGoForward;
         LastButton.IsEnabled = canGoForward;
-        
+
         // FontIcon will inherit Foreground from ContentPresenter in the template
         // No need to manually set Foreground - the Disabled VisualState handles it
     }
@@ -135,11 +194,11 @@ public sealed partial class PaginationControl : UserControl
     {
         var pageNumbers = GetVisiblePageNumbers();
         PageNumbersRepeater.ItemsSource = pageNumbers;
-        
+
         // Force re-apply styles for current page highlight
         // The ElementPrepared event will handle this
     }
-    
+
     private void PageNumbersRepeater_ElementPrepared(ItemsRepeater sender, ItemsRepeaterElementPreparedEventArgs args)
     {
         if (args.Element is Button button && button.Tag is int pageNumber)
@@ -147,11 +206,11 @@ public sealed partial class PaginationControl : UserControl
             ApplyPageButtonStyle(button, pageNumber);
         }
     }
-    
+
     private void ApplyPageButtonStyle(Button button, int pageNumber)
     {
         bool isCurrent = pageNumber == CurrentPage;
-        
+
         if (isCurrent)
         {
             // Current page: Primary/Active style
@@ -169,13 +228,13 @@ public sealed partial class PaginationControl : UserControl
             }
         }
     }
-    
+
     private void RefreshPageNumberStyles()
     {
         // Iterate through visible page buttons and re-apply styles
         for (int i = 0; i < PageNumbersRepeater.ItemsSourceView?.Count; i++)
         {
-            if (PageNumbersRepeater.TryGetElement(i) is Button button && 
+            if (PageNumbersRepeater.TryGetElement(i) is Button button &&
                 button.Tag is int pageNumber)
             {
                 ApplyPageButtonStyle(button, pageNumber);
@@ -245,10 +304,17 @@ public sealed partial class PaginationControl : UserControl
     private void UpdatePageSizeComboBox()
     {
         _isUpdatingInternally = true;
-        var index = PageSizeComboBox.Items.Cast<ComboBoxItem>()
-            .Select((item, idx) => new { item, idx })
-            .FirstOrDefault(x => int.Parse(x.item.Content.ToString()!) == PageSize)?.idx ?? 0;
-        PageSizeComboBox.SelectedIndex = index;
+        if (PageSizeOptions != null && PageSizeOptions.Count > 0)
+        {
+            int index = PageSizeOptions.IndexOf(PageSize);
+            if (index < 0)
+            {
+                // PageSize not in options, fallback to first option
+                index = 0;
+                PageSize = PageSizeOptions[0];
+            }
+            PageSizeComboBox.SelectedIndex = index;
+        }
         _isUpdatingInternally = false;
     }
 
@@ -283,10 +349,10 @@ public sealed partial class PaginationControl : UserControl
 
     private void PageSizeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (_isUpdatingInternally) return;
+        if (_isUpdatingInternally || _suppressEvents) return;
 
         if (PageSizeComboBox.SelectedItem is ComboBoxItem item &&
-            int.TryParse(item.Content.ToString(), out int newSize))
+            int.TryParse(item.Tag?.ToString(), out int newSize))
         {
             _isUpdatingInternally = true;
             PageSize = newSize;
@@ -347,6 +413,11 @@ public sealed partial class PaginationControl : UserControl
 
         UpdateUI();
         RefreshPageNumberStyles();
-        PageChanged?.Invoke(this, newPage);
+
+        // Only raise events after control initialization is complete
+        if (!_suppressEvents)
+        {
+            PageChanged?.Invoke(this, newPage);
+        }
     }
 }

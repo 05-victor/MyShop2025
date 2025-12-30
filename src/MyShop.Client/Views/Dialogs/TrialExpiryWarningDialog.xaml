@@ -10,6 +10,7 @@
     SecondaryButtonText="Remind Me Later"
     CloseButtonText="Dismiss"
     DefaultButton="Primary"
+    Style="{StaticResource DefaultContentDialogStyle}"
     mc:Ignorable="d">
 
     <Grid Width="450">

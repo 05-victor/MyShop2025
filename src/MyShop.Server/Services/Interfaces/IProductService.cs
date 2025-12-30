@@ -17,4 +17,9 @@ public interface IProductService
     /// Search products with advanced filtering and sorting
     /// </summary>
     Task<PagedResult<ProductResponse>> SearchAsync(SearchProductsRequest request);
+
+    /// <summary>
+    /// Create multiple products at once
+    /// </summary>
+    Task<BulkCreateProductsResponse> BulkCreateAsync(BulkCreateProductsRequest request);
 }

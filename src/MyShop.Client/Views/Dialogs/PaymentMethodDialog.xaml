@@ -11,7 +11,8 @@
     SecondaryButtonText="Cancel"
     DefaultButton="Primary"
     PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
-    SecondaryButtonClick="ContentDialog_SecondaryButtonClick">
+    SecondaryButtonClick="ContentDialog_SecondaryButtonClick"
+    Style="{StaticResource DefaultContentDialogStyle}">
 
     <ScrollViewer MaxHeight="500" VerticalScrollBarVisibility="Auto">
         <StackPanel Spacing="16" Padding="4">

@@ -30,7 +30,10 @@ public static class ProductAdapter
             CommissionRate = dto.CommissionRate ?? 0,
             Status = dto.Status ?? "AVAILABLE",
             CreatedAt = dto.CreatedAt ?? DateTime.Now,
-            UpdatedAt = dto.UpdatedAt
+            UpdatedAt = dto.UpdatedAt,
+            SaleAgentId = dto.SaleAgentId,
+            SaleAgentUsername = dto.SaleAgentUsername,
+            SaleAgentFullName = dto.SaleAgentFullName
         };
     }
 
@@ -64,6 +67,38 @@ public static class ProductAdapter
             Status = model.Status,
             CreatedAt = model.CreatedAt,
             UpdatedAt = model.UpdatedAt
+        };
+    }
+
+    /// <summary>
+    /// Product (Model) → CreateProductRequest (for bulk create)
+    /// </summary>
+    public static object ToCreateRequest(Product model)
+    {
+        // CategoryId is required by server - if null or empty, must provide a default or throw error
+        Guid categoryId = model.CategoryId ?? Guid.Empty;
+        
+        // Validate that we have a valid category ID
+        if (categoryId == Guid.Empty)
+        {
+            throw new InvalidOperationException($"Product '{model.Name}' must have a valid CategoryId. Please assign a category before creating.");
+        }
+        
+        return new
+        {
+            sku = model.SKU,
+            name = model.Name,
+            manufacturer = model.Manufacturer,
+            deviceType = model.DeviceType,
+            importPrice = (int)model.ImportPrice,
+            sellingPrice = (int)model.SellingPrice,
+            quantity = model.Quantity,
+            commissionRate = model.CommissionRate,
+            status = model.Status ?? "AVAILABLE",
+            description = model.Description,
+            imageUrl = model.ImageUrl,
+            categoryId = categoryId,
+            saleAgentId = model.SaleAgentId == Guid.Empty ? (Guid?)null : model.SaleAgentId
         };
     }
 }
