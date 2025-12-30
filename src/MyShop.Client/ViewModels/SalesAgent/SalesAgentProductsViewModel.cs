@@ -403,9 +403,14 @@ public partial class SalesAgentProductsViewModel : PagedViewModelBase<ProductVie
             var result = await _productFacade.DeleteProductAsync(productId);
             if (result.IsSuccess)
             {
-                // Remove from local list and refresh
-                _allProducts.RemoveAll(p => p.Id == productId);
-                ApplyFiltersAndSort();
+                // Remove from Items collection (displayed items)
+                var displayedItem = Items.FirstOrDefault(p => p.Id == productId);
+                if (displayedItem != null)
+                {
+                    Items.Remove(displayedItem);
+                    UpdatePagingInfo(TotalItems - 1);
+                }
+
                 System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsViewModel] Product deleted: {productId}");
             }
             else

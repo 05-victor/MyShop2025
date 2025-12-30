@@ -32,6 +32,8 @@ public sealed partial class AdminProductsPage : Page
         ViewModel.EditProductRequested += ViewModel_EditProductRequested;
         // Subscribe to view product event
         ViewModel.ViewProductRequested += ViewModel_ViewProductRequested;
+        // Subscribe to delete product event
+        ViewModel.DeleteProductRequested += ViewModel_DeleteProductRequested;
 
         Loaded += AdminProductPage_Loaded;
         Unloaded += AdminProductPage_Unloaded;
@@ -41,6 +43,12 @@ public sealed partial class AdminProductsPage : Page
     {
         ViewModel.EditProductRequested -= ViewModel_EditProductRequested;
         ViewModel.ViewProductRequested -= ViewModel_ViewProductRequested;
+        ViewModel.DeleteProductRequested -= ViewModel_DeleteProductRequested;
+    }
+
+    private async void ViewModel_DeleteProductRequested(object? sender, ProductRow product)
+    {
+        await ShowDeleteConfirmationAsync(product);
     }
 
     private async void ViewModel_EditProductRequested(object? sender, ProductRow product)
@@ -235,12 +243,6 @@ public sealed partial class AdminProductsPage : Page
         }
     }
 
-    private void ImportButton_Click(object sender, RoutedEventArgs e)
-    {
-        // TODO: Implement import from CSV/Excel when FileOpenPicker is integrated
-        System.Diagnostics.Debug.WriteLine("[AdminProductsPage] Import products requested");
-    }
-
     private void PrevPageButton_Click(object sender, RoutedEventArgs e)
     {
         // TODO: Implement pagination when ViewModel has PreviousPage method
@@ -429,6 +431,34 @@ public sealed partial class AdminProductsPage : Page
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[AdminProductsPage] ShowViewProductDialogAsync failed: {ex.Message}");
+        }
+    }
+
+    private async Task ShowDeleteConfirmationAsync(ProductRow product)
+    {
+        try
+        {
+            var dialog = new ContentDialog
+            {
+                Title = "Delete Product",
+                Content = $"Are you sure you want to delete '{product.Name}'?\n\nThis action cannot be undone.",
+                PrimaryButtonText = "Yes",
+                SecondaryButtonText = "No",
+                DefaultButton = ContentDialogButton.Secondary,
+                XamlRoot = this.XamlRoot
+            };
+
+            var result = await dialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+                // Confirmed - call ViewModel to execute deletion
+                await ViewModel.ConfirmDeleteProductAsync(product.Id, product.Name);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AdminProductsPage] ShowDeleteConfirmationAsync failed: {ex.Message}");
         }
     }
 
