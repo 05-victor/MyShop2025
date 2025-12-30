@@ -355,6 +355,7 @@
                                             <controls:DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <Border
+                                                        MinWidth="100"
                                                         Padding="6,4"
                                                         HorizontalAlignment="Left"
                                                         BorderBrush="{ThemeResource TextFillColorDisabledBrush}"
@@ -387,7 +388,7 @@
                                             <controls:DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <Border
-                                                        MinWidth="80"
+                                                        MinWidth="132"
                                                         Padding="8,4"
                                                         HorizontalAlignment="Center"
                                                         VerticalAlignment="Center"

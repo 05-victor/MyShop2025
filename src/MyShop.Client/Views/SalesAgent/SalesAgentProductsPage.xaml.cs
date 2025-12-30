@@ -28,9 +28,10 @@ namespace MyShop.Client.Views.SalesAgent
             // Get auth repository for retrieving current user ID from token
             _authRepository = App.Current.Services.GetRequiredService<IAuthRepository>();
 
-            // Subscribe to edit/delete events
+            // Subscribe to edit/delete/predict demand events
             ViewModel.EditProductRequested += ViewModel_EditProductRequested;
             ViewModel.DeleteProductRequested += ViewModel_DeleteProductRequested;
+            ViewModel.PredictDemandRequested += ViewModel_PredictDemandRequested;
 
             Unloaded += SalesAgentProductsPage_Unloaded;
         }
@@ -39,6 +40,7 @@ namespace MyShop.Client.Views.SalesAgent
         {
             ViewModel.EditProductRequested -= ViewModel_EditProductRequested;
             ViewModel.DeleteProductRequested -= ViewModel_DeleteProductRequested;
+            ViewModel.PredictDemandRequested -= ViewModel_PredictDemandRequested;
         }
 
         private async void ViewModel_EditProductRequested(object? sender, ProductViewModel product)
@@ -49,6 +51,11 @@ namespace MyShop.Client.Views.SalesAgent
         private async void ViewModel_DeleteProductRequested(object? sender, ProductViewModel product)
         {
             await ShowDeleteConfirmationAsync(product);
+        }
+
+        private async void ViewModel_PredictDemandRequested(object? sender, ProductViewModel product)
+        {
+            await ShowPredictDemandDialogAsync(product);
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -713,6 +720,103 @@ namespace MyShop.Client.Views.SalesAgent
 
         #endregion
 
+        #region Predict Demand Dialog
+
+        private async Task ShowPredictDemandDialogAsync(ProductViewModel product)
+        {
+            try
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "Predict Demand",
+                    DefaultButton = ContentDialogButton.Primary,
+                    PrimaryButtonText = "Run",
+                    CloseButtonText = "Close",
+                    XamlRoot = this.XamlRoot
+                };
+
+                // Create content StackPanel with product information
+                var contentPanel = new StackPanel
+                {
+                    Spacing = 12,
+                    Padding = new Thickness(0)
+                };
+
+                // Product name
+                contentPanel.Children.Add(new TextBlock
+                {
+                    Text = "Product Name",
+                    FontSize = 12,
+                    Foreground = Application.Current.Resources["TextFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 4)
+                });
+                contentPanel.Children.Add(new TextBlock
+                {
+                    Text = product.Name,
+                    FontSize = 14,
+                    FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                    Margin = new Thickness(0, 0, 0, 12)
+                });
+
+                // Product SKU
+                contentPanel.Children.Add(new TextBlock
+                {
+                    Text = "SKU",
+                    FontSize = 12,
+                    Foreground = Application.Current.Resources["TextFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 4)
+                });
+                contentPanel.Children.Add(new TextBlock
+                {
+                    Text = product.Sku,
+                    FontSize = 14,
+                    Margin = new Thickness(0, 0, 0, 12)
+                });
+
+                // Product category
+                contentPanel.Children.Add(new TextBlock
+                {
+                    Text = "Category",
+                    FontSize = 12,
+                    Foreground = Application.Current.Resources["TextFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    Margin = new Thickness(0, 0, 0, 4)
+                });
+                contentPanel.Children.Add(new TextBlock
+                {
+                    Text = product.Category,
+                    FontSize = 14,
+                    Margin = new Thickness(0, 0, 0, 12)
+                });
+
+                // Placeholder message
+                contentPanel.Children.Add(new TextBlock
+                {
+                    Text = "This feature will call AI forecast API later.",
+                    FontSize = 13,
+                    Foreground = Application.Current.Resources["TextFillColorTertiaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                    IsTextSelectionEnabled = false,
+                    Margin = new Thickness(0, 12, 0, 0)
+                });
+
+                dialog.Content = contentPanel;
+
+                var result = await dialog.ShowAsync();
+
+                if (result == ContentDialogResult.Primary)
+                {
+                    // TODO: Implement actual AI forecast API call here
+                    System.Diagnostics.Debug.WriteLine($"[SalesAgentProductsPage] Predict demand started for product: {product.Name} (ID: {product.Id})");
+                    LoggingService.Instance.Information($"Demand prediction requested for product: {product.Name}");
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.Error("[SalesAgentProductsPage] ShowPredictDemandDialogAsync failed", ex);
+            }
+        }
+
+        #endregion
+
         private async void RefreshContainer_RefreshRequested(RefreshContainer sender, RefreshRequestedEventArgs args)
         {
             using var deferral = args.GetDeferral();
@@ -734,7 +838,7 @@ namespace MyShop.Client.Views.SalesAgent
             try
             {
                 var openPicker = new Windows.Storage.Pickers.FileOpenPicker();
-                
+
                 // Initialize with window handle using XamlRoot
                 var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
                 WinRT.Interop.InitializeWithWindow.Initialize(openPicker, hwnd);
