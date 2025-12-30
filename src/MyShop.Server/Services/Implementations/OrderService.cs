@@ -299,6 +299,7 @@ public class OrderService : IOrderService
                 OrderDate = DateTime.UtcNow,
                 Status = OrderStatus.Pending,
                 PaymentStatus = PaymentStatus.Unpaid,
+                PaymentMethod = request.PaymentMethod,
                 TotalAmount = totalAmount,
                 DiscountAmount = request.DiscountAmount,
                 ShippingFee = shippingFeeAmount,
