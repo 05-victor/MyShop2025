@@ -716,9 +716,9 @@
                                 BorderThickness="1"
                                 CornerRadius="8"
                                 SelectedIndex="0">
-                                <ComboBoxItem>AVAILABLE</ComboBoxItem>
-                                <ComboBoxItem>DISCONTINUED</ComboBoxItem>
-                                <ComboBoxItem>OUT_OF_STOCK</ComboBoxItem>
+                                <ComboBoxItem>Available</ComboBoxItem>
+                                <ComboBoxItem>Discontinued</ComboBoxItem>
+                                <ComboBoxItem>Out of Stock</ComboBoxItem>
                             </ComboBox>
                         </StackPanel>
 
@@ -946,9 +946,9 @@
                                 BorderThickness="1"
                                 CornerRadius="8"
                                 SelectedIndex="0">
-                                <ComboBoxItem>AVAILABLE</ComboBoxItem>
-                                <ComboBoxItem>DISCONTINUED</ComboBoxItem>
-                                <ComboBoxItem>OUT_OF_STOCK</ComboBoxItem>
+                                <ComboBoxItem>Available</ComboBoxItem>
+                                <ComboBoxItem>Discontinued</ComboBoxItem>
+                                <ComboBoxItem>Out of Stock</ComboBoxItem>
                             </ComboBox>
                         </StackPanel>
 

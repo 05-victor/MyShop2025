@@ -179,7 +179,8 @@ public class ProductRepository : IProductRepository
         try
         {
             var response = await _api.DeleteAsync(id);
-            if (response.IsSuccessStatusCode && response.Content?.Result == true)
+            // 204 No Content is a success response - no need to check Content?.Result
+            if (response.IsSuccessStatusCode)
             {
                 return Result<bool>.Success(true);
             }
@@ -408,7 +409,7 @@ public class ProductRepository : IProductRepository
                 if (apiResponse.Success && apiResponse.Result != null)
                 {
                     var bulkResponse = apiResponse.Result;
-                    
+
                     var result = new BulkImportResult
                     {
                         TotalSubmitted = bulkResponse.TotalSubmitted,

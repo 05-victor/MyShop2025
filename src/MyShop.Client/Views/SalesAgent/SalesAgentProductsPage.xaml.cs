@@ -339,11 +339,14 @@ namespace MyShop.Client.Views.SalesAgent
                 int.TryParse(NewStockTextBox.Text, out var stock);
                 decimal.TryParse(NewPriceTextBox.Text, out var price);
                 decimal.TryParse(NewImportPriceTextBox.Text, out var importPrice);
-                double.TryParse(NewCommissionRateTextBox.Text, out var commissionRate);
+                double.TryParse(NewCommissionRateTextBox.Text, out var commissionRatePercent);
+                // Convert commission rate from percentage (e.g., 5) to decimal (e.g., 0.05)
+                var commissionRate = commissionRatePercent / 100.0;
                 var description = NewDescriptionTextBox.Text.Trim();
                 // Device Type is represented by the Category name from the selected category
                 var deviceType = categoryItem?.Name ?? string.Empty;
-                var status = (NewStatusComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "AVAILABLE";
+                var displayStatus = (NewStatusComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Available";
+                var status = ConvertDisplayStatusToApiStatus(displayStatus);
                 var imageUrl = NewImageUrlTextBox.Text.Trim();
 
                 // Get current user ID from auth repository
@@ -492,7 +495,8 @@ namespace MyShop.Client.Views.SalesAgent
                 EditCommissionRateTextBox.Text = product.CommissionRate.ToString("F2");
                 EditPriceTextBox.Text = product.Price.ToString("F0");
                 EditImportPriceTextBox.Text = product.ImportPrice.ToString("F0") ?? "0";
-                EditStatusComboBox.SelectedItem = product.Status ?? "AVAILABLE";
+                var displayStatus = ConvertApiStatusToDisplayStatus(product.Status ?? "AVAILABLE");
+                EditStatusComboBox.SelectedItem = displayStatus;
                 EditImageUrlTextBox.Text = product.ImageUrl ?? string.Empty;
                 EditDescriptionTextBox.Text = product.Description ?? string.Empty;
 
@@ -567,7 +571,8 @@ namespace MyShop.Client.Views.SalesAgent
                 // Convert commission rate from percentage (e.g., 4) to decimal (e.g., 0.04)
                 var commissionRate = commissionRatePercent / 100.0;
 
-                var status = EditStatusComboBox.SelectedItem as string ?? "AVAILABLE";
+                var displayStatus = EditStatusComboBox.SelectedItem as string ?? "Available";
+                var status = ConvertDisplayStatusToApiStatus(displayStatus);
                 var imageUrl = EditImageUrlTextBox.Text.Trim();
                 var description = EditDescriptionTextBox.Text.Trim();
 
@@ -717,6 +722,9 @@ namespace MyShop.Client.Views.SalesAgent
                 if (result == ContentDialogResult.Primary)
                 {
                     await ViewModel.ConfirmDeleteProductAsync(product.Id);
+
+                    // Reload products and reset to page 1
+                    await ViewModel.LoadDataAsync();
                 }
             }
             catch (Exception ex)
@@ -1081,6 +1089,34 @@ namespace MyShop.Client.Views.SalesAgent
             {
                 LoggingService.Instance.Error("[SalesAgentProductsPage] Import CSV failed", ex);
             }
+        }
+
+        /// <summary>
+        /// Converts display status (Available, Discontinued, Out of Stock) to API format (AVAILABLE, DISCONTINUED, OUT_OF_STOCK)
+        /// </summary>
+        private string ConvertDisplayStatusToApiStatus(string displayStatus)
+        {
+            return displayStatus switch
+            {
+                "Available" => "AVAILABLE",
+                "Discontinued" => "DISCONTINUED",
+                "Out of Stock" => "OUT_OF_STOCK",
+                _ => "AVAILABLE"
+            };
+        }
+
+        /// <summary>
+        /// Converts API status (AVAILABLE, DISCONTINUED, OUT_OF_STOCK) to display format (Available, Discontinued, Out of Stock)
+        /// </summary>
+        private string ConvertApiStatusToDisplayStatus(string apiStatus)
+        {
+            return apiStatus switch
+            {
+                "AVAILABLE" => "Available",
+                "DISCONTINUED" => "Discontinued",
+                "OUT_OF_STOCK" => "Out of Stock",
+                _ => "Available"
+            };
         }
     }
 }
