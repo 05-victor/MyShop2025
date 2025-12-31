@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <UserControl
     x:Class="MyShop.Client.Views.Components.Chat.MessageBubble"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -27,7 +27,7 @@
                         Visibility="{Binding ImageUrl, ElementName=RootControl, Converter={StaticResource NullToVisibilityConverter}, Mode=OneWay}">
                     <Image x:Name="MessageImage"
                            Source="{Binding ImageUrl, ElementName=RootControl, Mode=OneWay}"
-                           MaxWidth="300"
+                           MaxWidth="200"
                            Stretch="Uniform"
                            Tapped="MessageImage_Tapped"
                            PointerEntered="MessageImage_PointerEntered"
@@ -35,7 +35,7 @@
                 </Border>
                 
                 <!-- Message Text -->
-                <TextBlock Text="{Binding Message, ElementName=RootControl, Mode=OneWay}"
+                <TextBlock x:Name="MessageTextBlock"
                           TextWrapping="Wrap"
                           FontSize="14"
                           IsTextSelectionEnabled="True"/>

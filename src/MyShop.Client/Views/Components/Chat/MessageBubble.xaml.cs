@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI;
 using System;
 
@@ -26,12 +27,20 @@ public sealed partial class MessageBubble : UserControl
             nameof(Message),
             typeof(string),
             typeof(MessageBubble),
-            new PropertyMetadata(string.Empty));
+            new PropertyMetadata(string.Empty, OnMessageChanged));
 
     public string Message
     {
         get => (string)GetValue(MessageProperty);
         set => SetValue(MessageProperty, value);
+    }
+
+    private static void OnMessageChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is MessageBubble bubble && e.NewValue is string message)
+        {
+            bubble.FormatMessage(message);
+        }
     }
 
     /// <summary>
@@ -105,11 +114,9 @@ public sealed partial class MessageBubble : UserControl
             BubbleBorder.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 26, 77, 143)); // Primary
             BubbleBorder.CornerRadius = new CornerRadius(12, 12, 4, 12);
             
-            foreach (var child in ((StackPanel)BubbleBorder.Child).Children)
-            {
-                if (child is TextBlock textBlock)
-                    textBlock.Foreground = new SolidColorBrush(Colors.White);
-            }
+            // Set text color for message
+            MessageTextBlock.Foreground = new SolidColorBrush(Colors.White);
+            TimestampText.Foreground = new SolidColorBrush(Colors.White);
         }
         else
         {
@@ -118,10 +125,43 @@ public sealed partial class MessageBubble : UserControl
             BubbleBorder.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 243, 244, 246)); // Gray100
             BubbleBorder.CornerRadius = new CornerRadius(12, 12, 12, 4);
             
-            foreach (var child in ((StackPanel)BubbleBorder.Child).Children)
+            // Set text color for message
+            var darkColor = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 17, 24, 39)); // Gray900
+            MessageTextBlock.Foreground = darkColor;
+            TimestampText.Foreground = darkColor;
+        }
+    }
+
+    /// <summary>
+    /// Format message text to handle line breaks (\n, \r\n) properly.
+    /// Converts line break characters to actual line breaks in TextBlock.
+    /// Also handles bullet points and formatting.
+    /// </summary>
+    private void FormatMessage(string message)
+    {
+        if (string.IsNullOrEmpty(message))
+        {
+            MessageTextBlock.Text = string.Empty;
+            return;
+        }
+
+        MessageTextBlock.Inlines.Clear();
+
+        // Normalize line breaks (handle both \r\n and \n)
+        var normalizedMessage = message.Replace("\r\n", "\n").Replace("\r", "\n");
+        
+        // Split by \n and create Run elements with LineBreak between them
+        var lines = normalizedMessage.Split('\n');
+        
+        for (int i = 0; i < lines.Length; i++)
+        {
+            // Add the text
+            MessageTextBlock.Inlines.Add(new Run { Text = lines[i] });
+            
+            // Add line break if not last line
+            if (i < lines.Length - 1)
             {
-                if (child is TextBlock textBlock)
-                    textBlock.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 17, 24, 39)); // Gray900
+                MessageTextBlock.Inlines.Add(new LineBreak());
             }
         }
     }
@@ -175,22 +215,21 @@ public sealed partial class MessageBubble : UserControl
 
     /// <summary>
     /// Change cursor to pointer when hovering over image.
+    /// Note: In WinUI 3, cursor changes are handled automatically for clickable elements.
     /// </summary>
     private void MessageImage_PointerEntered(object sender, PointerRoutedEventArgs e)
     {
-        if (sender is Image image && !string.IsNullOrEmpty(ImageUrl))
-        {
-            Window.Current.CoreWindow.PointerCursor = 
-                new Windows.UI.Core.CoreCursor(Windows.UI.Core.CoreCursorType.Hand, 1);
-        }
+        // WinUI 3: Cursor is handled automatically for tappable images
+        // No manual cursor change needed
     }
 
     /// <summary>
     /// Reset cursor when leaving image.
+    /// Note: In WinUI 3, cursor changes are handled automatically.
     /// </summary>
     private void MessageImage_PointerExited(object sender, PointerRoutedEventArgs e)
     {
-        Window.Current.CoreWindow.PointerCursor = 
-            new Windows.UI.Core.CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 1);
+        // WinUI 3: Cursor is handled automatically
+        // No manual cursor change needed
     }
 }

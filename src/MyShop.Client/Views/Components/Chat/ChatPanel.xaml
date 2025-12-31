@@ -18,6 +18,30 @@
     -->
 
     <UserControl.Resources>
+        <!-- Typing Animation for dots -->
+        <Storyboard x:Key="TypingAnimation" RepeatBehavior="Forever">
+            <!-- First dot -->
+            <DoubleAnimation Storyboard.TargetName="Dot1"
+                           Storyboard.TargetProperty="Opacity"
+                           From="0.3" To="1.0" Duration="0:0:0.6"
+                           AutoReverse="True"
+                           BeginTime="0:0:0"/>
+            
+            <!-- Second dot (delayed) -->
+            <DoubleAnimation Storyboard.TargetName="Dot2"
+                           Storyboard.TargetProperty="Opacity"
+                           From="0.3" To="1.0" Duration="0:0:0.6"
+                           AutoReverse="True"
+                           BeginTime="0:0:0.2"/>
+            
+            <!-- Third dot (more delayed) -->
+            <DoubleAnimation Storyboard.TargetName="Dot3"
+                           Storyboard.TargetProperty="Opacity"
+                           From="0.3" To="1.0" Duration="0:0:0.6"
+                           AutoReverse="True"
+                           BeginTime="0:0:0.4"/>
+        </Storyboard>
+
         <!-- Suggestion Button Style with proper theme support -->
         <Style x:Key="SuggestionButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{ThemeResource SubtleFillColorSecondaryBrush}"/>
@@ -149,9 +173,9 @@
                    CornerRadius="8"
                    Visibility="Collapsed">
                 <StackPanel Orientation="Horizontal" Spacing="4">
-                    <Ellipse Width="8" Height="8" Fill="{ThemeResource Gray400Brush}"/>
-                    <Ellipse Width="8" Height="8" Fill="{ThemeResource Gray500Brush}"/>
-                    <Ellipse Width="8" Height="8" Fill="{ThemeResource Gray600Brush}"/>
+                    <Ellipse x:Name="Dot1" Width="8" Height="8" Fill="{ThemeResource Gray400Brush}"/>
+                    <Ellipse x:Name="Dot2" Width="8" Height="8" Fill="{ThemeResource Gray500Brush}"/>
+                    <Ellipse x:Name="Dot3" Width="8" Height="8" Fill="{ThemeResource Gray600Brush}"/>
                 </StackPanel>
             </Border>
 
