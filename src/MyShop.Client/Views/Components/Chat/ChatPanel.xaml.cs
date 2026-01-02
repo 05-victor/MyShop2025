@@ -1,8 +1,11 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media.Animation;
 using MyShop.Core.Interfaces.Services;
 using Microsoft.Extensions.DependencyInjection;
+using MyShop.Shared.Models.Enums;
+using MyShop.Client.Services;
 
 namespace MyShop.Client.Views.Components.Chat;
 
@@ -12,11 +15,13 @@ namespace MyShop.Client.Views.Components.Chat;
 public sealed partial class ChatPanel : UserControl
 {
     private readonly IChatService? _chatService;
+    private readonly ICurrentUserService? _currentUserService;
 
     public ChatPanel()
     {
         this.InitializeComponent();
         _chatService = App.Current.Services?.GetService<IChatService>();
+        _currentUserService = App.Current.Services?.GetService<ICurrentUserService>();
         LoadSuggestions();
     }
 
@@ -72,16 +77,24 @@ public sealed partial class ChatPanel : UserControl
         MessagesPanel.Children.Add(userBubble);
         ScrollToBottom();
 
-        // Show typing indicator
+        // Show typing indicator with animation
         TypingIndicator.Visibility = Visibility.Visible;
+        StartTypingAnimation();
         SendButton.IsEnabled = false;
 
         try
         {
-            // Get AI response
-            var response = await _chatService!.SendMessageAsync(message);
+            // Add role prefix to message before sending to API
+            var rolePrefix = GetRolePrefix();
+            var formattedMessage = $"[{rolePrefix}]: {message}";
+            
+            System.Diagnostics.Debug.WriteLine($"[ChatPanel] Sending message with prefix [{rolePrefix}]");
 
-            // Hide typing indicator
+            // Get AI response
+            var response = await _chatService!.SendMessageAsync(formattedMessage);
+
+            // Hide typing indicator and stop animation
+            StopTypingAnimation();
             TypingIndicator.Visibility = Visibility.Collapsed;
 
             if (response.IsSuccess && response.Message != null)
@@ -104,6 +117,7 @@ public sealed partial class ChatPanel : UserControl
         }
         catch
         {
+            StopTypingAnimation();
             TypingIndicator.Visibility = Visibility.Collapsed;
             
             // Show error message
@@ -154,5 +168,74 @@ public sealed partial class ChatPanel : UserControl
         // Show suggestions again
         SuggestionsArea.Visibility = Visibility.Visible;
         LoadSuggestions();
+    }
+
+    /// <summary>
+    /// Start the typing animation for the indicator dots.
+    /// </summary>
+    private void StartTypingAnimation()
+    {
+        if (Resources["TypingAnimation"] is Storyboard animation)
+        {
+            animation.Begin();
+        }
+    }
+
+    /// <summary>
+    /// Stop the typing animation.
+    /// </summary>
+    private void StopTypingAnimation()
+    {
+        if (Resources["TypingAnimation"] is Storyboard animation)
+        {
+            animation.Stop();
+        }
+    }
+
+    /// <summary>
+    /// Get role prefix based on current user's role.
+    /// Follows format from 00-SYSTEM-PROMPT.md:
+    /// [USER]: message → Customer
+    /// [SALER]: message → Sales Agent
+    /// [ADMIN]: message → Admin
+    /// </summary>
+    private string GetRolePrefix()
+    {
+        try
+        {
+            var currentUser = _currentUserService?.CurrentUser;
+            System.Diagnostics.Debug.WriteLine($"[ChatPanel.GetRolePrefix] CurrentUserService null? {_currentUserService == null}");
+            System.Diagnostics.Debug.WriteLine($"[ChatPanel.GetRolePrefix] CurrentUser null? {currentUser == null}");
+            
+            if (currentUser == null)
+            {
+                System.Diagnostics.Debug.WriteLine("[ChatPanel.GetRolePrefix] CurrentUser is null, returning USER");
+                return "USER";
+            }
+            
+            System.Diagnostics.Debug.WriteLine($"[ChatPanel.GetRolePrefix] CurrentUser.Username: {currentUser.Username}");
+            System.Diagnostics.Debug.WriteLine($"[ChatPanel.GetRolePrefix] CurrentUser.Roles count: {currentUser.Roles?.Count ?? 0}");
+            System.Diagnostics.Debug.WriteLine($"[ChatPanel.GetRolePrefix] CurrentUser.Roles: {string.Join(", ", currentUser.Roles ?? new List<UserRole>())}");
+            
+            var primaryRole = currentUser.GetPrimaryRole();
+            System.Diagnostics.Debug.WriteLine($"[ChatPanel.GetRolePrefix] PrimaryRole: {primaryRole}");
+            
+            var prefix = primaryRole switch
+            {
+                UserRole.Admin => "ADMIN",
+                UserRole.SalesAgent => "SALER",
+                UserRole.Customer => "USER",
+                _ => "USER"
+            };
+            
+            System.Diagnostics.Debug.WriteLine($"[ChatPanel.GetRolePrefix] Returning prefix: {prefix}");
+            return prefix;
+        }
+        catch (Exception ex)
+        {
+            // Fallback to USER if any error occurs
+            System.Diagnostics.Debug.WriteLine($"[ChatPanel] Error getting role prefix: {ex.Message}, defaulting to USER");
+            return "USER";
+        }
     }
 }

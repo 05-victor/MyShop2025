@@ -8,6 +8,7 @@ namespace MyShop.Plugins.Repositories.Api;
 /// <summary>
 /// Real API implementation of IChatService.
 /// Integrates with https://agent.lethanhcong.site/chat-bot/chat
+/// Note: Role prefix should be added by caller before passing message to this service.
 /// </summary>
 public class ChatRepository : IChatService
 {
@@ -17,9 +18,12 @@ public class ChatRepository : IChatService
     private readonly string _apiKey;
     private readonly string _userId;
     private readonly string _bearerToken;
+    private readonly int _timeoutSeconds;
     private readonly string _baseUrl = "https://agent.lethanhcong.site";
 
-    public ChatRepository(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+    public ChatRepository(
+        IHttpClientFactory httpClientFactory, 
+        IConfiguration configuration)
     {
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
@@ -33,6 +37,10 @@ public class ChatRepository : IChatService
         
         _bearerToken = _configuration["Chatbot:Bearer"] ?? throw new InvalidOperationException(
             "Chatbot Bearer token not found in appsettings.json. Add 'Chatbot:Bearer' configuration.");
+        
+        // Get timeout (default to 180 seconds = 3 minutes if not specified)
+        _timeoutSeconds = _configuration.GetValue<int>("Chatbot:TimeoutSeconds", 180);
+        System.Diagnostics.Debug.WriteLine($"[Chatbot] Configured timeout: {_timeoutSeconds} seconds");
     }
 
     /// <inheritdoc/>
@@ -57,9 +65,10 @@ public class ChatRepository : IChatService
 
             // Create HTTP client
             var httpClient = _httpClientFactory.CreateClient();
-            httpClient.Timeout = TimeSpan.FromSeconds(30);
+            httpClient.Timeout = TimeSpan.FromSeconds(_timeoutSeconds);
+            System.Diagnostics.Debug.WriteLine($"[Chatbot] HTTP Timeout set to: {_timeoutSeconds} seconds");
 
-            // Build FormData
+            // Build FormData (message should already have role prefix from caller)
             var formData = new MultipartFormDataContent();
             formData.Add(new StringContent(message), "message");
 
@@ -178,8 +187,8 @@ public class ChatRepository : IChatService
     public string[] GetSuggestedPrompts() => new[]
     {
         "How do I track my order?",
-        "Show me today's deals",
+        "Show me available products",
         "I need help with my account",
-        "What's your return policy?"
+        "What are the payment options?"
     };
 }

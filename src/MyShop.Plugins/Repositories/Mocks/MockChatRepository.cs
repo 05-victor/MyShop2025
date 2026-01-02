@@ -5,6 +5,7 @@ namespace MyShop.Plugins.Repositories.Mocks;
 /// <summary>
 /// Mock implementation of IChatService for development/testing.
 /// Returns predefined responses with simulated typing delay.
+/// Note: Role prefix should be added by caller before passing message to this service.
 /// </summary>
 public class MockChatRepository : IChatService
 {
@@ -14,12 +15,18 @@ public class MockChatRepository : IChatService
     private static readonly Dictionary<string, string[]> Responses = new()
     {
         { "hello", new[] { "Hello! How can I help you today?", "Hi there! What can I assist you with?", "Hey! Ready to help. What do you need?" } },
-        { "help", new[] { "I can help you with:\n• Product questions\n• Order tracking\n• Account settings\n• General inquiries\n\nJust ask away!", "Sure! I'm here to assist with products, orders, and more. What would you like to know?" } },
-        { "order", new[] { "To check your order status, go to Orders in the sidebar. Would you like me to guide you there?", "I can help with order inquiries. What's your order number?" } },
-        { "product", new[] { "Looking for a specific product? Try the search bar or browse by category. Can I help you find something specific?", "We have a great selection! What kind of product are you looking for?" } },
-        { "price", new[] { "Our prices are competitive! Is there a specific product you'd like to know the price for?", "I can help with pricing info. Which product are you interested in?" } },
-        { "thanks", new[] { "You're welcome! Is there anything else I can help with?", "Happy to help! Let me know if you need anything else.", "Anytime! Feel free to ask if you have more questions." } },
-        { "bye", new[] { "Goodbye! Have a great day!", "See you later! Don't hesitate to come back if you need help.", "Bye! Thanks for chatting!" } },
+        { "help", new[] { 
+            "I can help you with:\n• Product questions\n• Order tracking\n• Account settings\n• General inquiries\n\nJust ask away!", 
+            "Sure! I'm here to assist with:\n• Products\n• Orders\n• Settings\n\nWhat would you like to know?" 
+        } },
+        { "order", new[] { "To check your order status:\n1. Go to Orders in the sidebar\n2. Find your order\n3. Click for details\n\nWould you like me to guide you there?", "I can help with order inquiries.\nWhat's your order number?" } },
+        { "product", new[] { 
+            "Looking for a specific product?\n\nTry these options:\n• Use the search bar\n• Browse by category\n• Check featured items\n\nCan I help you find something specific?", 
+            "We have a great selection!\nWhat kind of product are you looking for?" 
+        } },
+        { "price", new[] { "Our prices are competitive!\n\nIs there a specific product you'd like to know the price for?", "I can help with pricing info.\nWhich product are you interested in?" } },
+        { "thanks", new[] { "You're welcome!\nIs there anything else I can help with?", "Happy to help!\nLet me know if you need anything else.", "Anytime!\nFeel free to ask if you have more questions." } },
+        { "bye", new[] { "Goodbye! Have a great day!", "See you later!\nDon't hesitate to come back if you need help.", "Bye! Thanks for chatting!" } },
     };
 
     private static readonly string[] DefaultResponses = new[]
@@ -75,9 +82,9 @@ public class MockChatRepository : IChatService
     public string[] GetSuggestedPrompts() => new[]
     {
         "How do I track my order?",
-        "Show me today's deals",
+        "Show me available products",
         "I need help with my account",
-        "What's your return policy?"
+        "What are the payment options?"
     };
 
     private string GenerateResponse(string message)
