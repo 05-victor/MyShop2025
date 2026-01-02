@@ -204,22 +204,37 @@ public sealed partial class ChatPanel : UserControl
         try
         {
             var currentUser = _currentUserService?.CurrentUser;
+            System.Diagnostics.Debug.WriteLine($"[ChatPanel.GetRolePrefix] CurrentUserService null? {_currentUserService == null}");
+            System.Diagnostics.Debug.WriteLine($"[ChatPanel.GetRolePrefix] CurrentUser null? {currentUser == null}");
+            
             if (currentUser == null)
+            {
+                System.Diagnostics.Debug.WriteLine("[ChatPanel.GetRolePrefix] CurrentUser is null, returning USER");
                 return "USER";
+            }
+            
+            System.Diagnostics.Debug.WriteLine($"[ChatPanel.GetRolePrefix] CurrentUser.Username: {currentUser.Username}");
+            System.Diagnostics.Debug.WriteLine($"[ChatPanel.GetRolePrefix] CurrentUser.Roles count: {currentUser.Roles?.Count ?? 0}");
+            System.Diagnostics.Debug.WriteLine($"[ChatPanel.GetRolePrefix] CurrentUser.Roles: {string.Join(", ", currentUser.Roles ?? new List<UserRole>())}");
             
             var primaryRole = currentUser.GetPrimaryRole();
-            return primaryRole switch
+            System.Diagnostics.Debug.WriteLine($"[ChatPanel.GetRolePrefix] PrimaryRole: {primaryRole}");
+            
+            var prefix = primaryRole switch
             {
                 UserRole.Admin => "ADMIN",
                 UserRole.SalesAgent => "SALER",
                 UserRole.Customer => "USER",
                 _ => "USER"
             };
+            
+            System.Diagnostics.Debug.WriteLine($"[ChatPanel.GetRolePrefix] Returning prefix: {prefix}");
+            return prefix;
         }
-        catch
+        catch (Exception ex)
         {
             // Fallback to USER if any error occurs
-            System.Diagnostics.Debug.WriteLine("[ChatPanel] Error getting role prefix, defaulting to USER");
+            System.Diagnostics.Debug.WriteLine($"[ChatPanel] Error getting role prefix: {ex.Message}, defaulting to USER");
             return "USER";
         }
     }

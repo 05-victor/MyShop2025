@@ -286,6 +286,11 @@ namespace MyShop.Client
                             LoggingService.Instance.LogAuth("Auto-login", user.Username, true);
                             LoggingService.Instance.Information($"User roles: {string.Join(", ", user.Roles)}");
 
+                            // Cache user in CurrentUserService for global access
+                            var currentUserService = Services.GetRequiredService<ICurrentUserService>();
+                            currentUserService.SetCurrentUser(user);
+                            LoggingService.Instance.Information($"[Startup] CurrentUser cached: {user.Username} (Roles: {string.Join(", ", user.Roles)})");
+
                             // Load application settings after user is authenticated
                             LoggingService.Instance.Information("Loading application settings...");
                             try
