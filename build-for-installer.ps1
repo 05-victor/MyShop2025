@@ -41,21 +41,33 @@ if (-not (Test-Path $frontendProject)) {
     exit 1
 }
 
+# CRITICAL: WinUI 3 requires specific publish settings for unpackaged deployment
 dotnet publish $frontendProject `
     -c Release `
     -r win-x64 `
     --self-contained true `
     -p:Platform=x64 `
     -p:PublishSingleFile=false `
-    -p:IncludeNativeLibrariesForSelfExtract=true `
+    -p:IncludeNativeLibrariesForSelfExtract=false `
     -p:WindowsPackageType=None `
     -p:WindowsAppSDKSelfContained=true `
+    -p:PublishReadyToRun=false `
+    -p:EnableMsixTooling=false `
     -o $frontendDir
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "ERROR: Frontend build failed!" -ForegroundColor Red
     exit 1
 }
+
+# Copy appsettings.json to frontend output (since it's embedded, we need external copy for production)
+$appSettingsSource = Join-Path $rootDir "src\MyShop.Client\appsettings.json"
+$appSettingsDest = Join-Path $frontendDir "appsettings.json"
+if (Test-Path $appSettingsSource) {
+    Copy-Item $appSettingsSource $appSettingsDest -Force
+    Write-Host "  ? Copied appsettings.json to frontend" -ForegroundColor Green
+}
+
 Write-Host "  ? Frontend published to: $frontendDir" -ForegroundColor Green
 
 # Build ASP.NET Core Backend
@@ -88,8 +100,29 @@ if (-not (Test-Path $wpExtensionDir)) {
     exit 1
 }
 
-# Copy Python source files
-Copy-Item -Path "$wpExtensionDir\api" -Destination "$pythonDir\api" -Recurse -Force
+# Copy Python source files - create proper package structure
+$pythonApiDir = Join-Path $pythonDir "api"
+New-Item -ItemType Directory -Path $pythonApiDir -Force | Out-Null
+Copy-Item -Path "$wpExtensionDir\api\*" -Destination $pythonApiDir -Recurse -Force
+
+# Create __init__.py files if missing (required for Python packages)
+$initFiles = @(
+    (Join-Path $pythonDir "__init__.py"),
+    (Join-Path $pythonApiDir "__init__.py"),
+    (Join-Path (Join-Path $pythonApiDir "handlers") "__init__.py"),
+    (Join-Path (Join-Path $pythonApiDir "models") "__init__.py"),
+    (Join-Path (Join-Path $pythonApiDir "strategies") "__init__.py")
+)
+
+foreach ($initFile in $initFiles) {
+    $initDir = Split-Path $initFile -Parent
+    if (Test-Path $initDir) {
+        if (-not (Test-Path $initFile)) {
+            "" | Out-File $initFile -Encoding UTF8
+            Write-Host "  Created: $initFile" -ForegroundColor Gray
+        }
+    }
+}
 
 # Copy datasets (required for ML models)
 if (Test-Path "$wpExtensionDir\PF dataset") {
@@ -130,23 +163,15 @@ if (-not (Test-Path "$pythonEmbedDir\python.exe")) {
         # Enable site-packages and imports
         $pthFile = Get-ChildItem $pythonEmbedDir -Filter "python311._pth" | Select-Object -First 1
         if ($pthFile) {
-            $pthContent = Get-Content $pthFile.FullName
-            $newContent = @()
-            
-            foreach ($line in $pthContent) {
-                # Uncomment import site
-                if ($line -match "^#\s*import site") {
-                    $newContent += "import site"
-                } else {
-                    $newContent += $line
-                }
-            }
-            
-            # Add Lib/site-packages path
-            $newContent += "Lib\site-packages"
-            $newContent += "..\python-ml"
-            
-            Set-Content -Path $pthFile.FullName -Value $newContent -Encoding ASCII
+            # Create new _pth content that enables imports properly
+            $newPthContent = @"
+python311.zip
+.
+Lib\site-packages
+..\python-ml
+import site
+"@
+            Set-Content -Path $pthFile.FullName -Value $newPthContent -Encoding ASCII
             Write-Host "  ? Python paths configured" -ForegroundColor Green
         }
         
@@ -194,6 +219,7 @@ $backendConfigPath = Join-Path $backendDir "appsettings.Production.json"
 Set-Content -Path $backendConfigPath -Value $backendConfig -Encoding UTF8
 Write-Host "  ? Backend config created" -ForegroundColor Green
 
+# Create improved launcher script
 $launcherScript = @'
 @echo off
 setlocal enabledelayedexpansion
@@ -212,23 +238,58 @@ if not exist "python-embed\Lib\site-packages\fastapi" (
     echo [1/4] Installing Python dependencies...
     echo This may take a few minutes on first run...
     
-    cd python-embed
-    python.exe get-pip.py --no-warn-script-location 2>nul
-    python.exe -m pip install --upgrade pip --no-warn-script-location 2>nul
-    python.exe -m pip install -r ..\python-ml\requirements.txt --no-warn-script-location
-    cd ..
+    REM Create Lib\site-packages directory
+    if not exist "python-embed\Lib\site-packages" mkdir "python-embed\Lib\site-packages"
     
+    cd python-embed
+    
+    REM Install pip first
+    python.exe get-pip.py --no-warn-script-location 2>nul
+    if errorlevel 1 (
+        echo ERROR: Failed to install pip
+        pause
+        exit /b 1
+    )
+    
+    REM Upgrade pip
+    python.exe -m pip install --upgrade pip --no-warn-script-location 2>nul
+    
+    REM Install requirements (without TensorFlow to speed up - it's optional)
+    echo Installing core dependencies...
+    python.exe -m pip install fastapi uvicorn[standard] pydantic pandas numpy scikit-learn lightgbm joblib requests --no-warn-script-location
+    
+    if errorlevel 1 (
+        echo ERROR: Failed to install Python dependencies
+        pause
+        exit /b 1
+    )
+    
+    cd ..
     echo   ^> Python dependencies installed
 ) else (
     echo [1/4] Python dependencies OK
 )
 
 echo [2/4] Starting Python ML API (port 8000)...
-start /B "" python-embed\python.exe -m uvicorn python-ml.api.main:app --host 0.0.0.0 --port 8000 2>nul
+cd python-ml
 
-REM Wait for Python API to start
-timeout /t 5 /nobreak >nul
-echo   ^> Python ML API started
+REM Start Python API with proper module path
+start /B "" "%APP_DIR%python-embed\python.exe" -m uvicorn api.main:app --host 0.0.0.0 --port 8000 2>nul
+
+cd ..
+
+REM Wait for Python API to start and verify
+echo   Waiting for Python API to start...
+timeout /t 3 /nobreak >nul
+
+REM Check if Python API is responding
+curl -s http://localhost:8000/health >nul 2>&1
+if errorlevel 1 (
+    echo   WARNING: Python ML API may not be running correctly
+    echo   Continuing anyway...
+) else (
+    echo   ^> Python ML API started successfully
+)
 
 echo [3/4] Starting Backend API (port 5228)...
 cd backend
@@ -239,7 +300,14 @@ cd ..
 
 REM Wait for Backend to start
 timeout /t 3 /nobreak >nul
-echo   ^> Backend API started
+
+REM Check if Backend API is responding
+curl -s http://localhost:5228/health >nul 2>&1
+if errorlevel 1 (
+    echo   WARNING: Backend API may not be running correctly
+) else (
+    echo   ^> Backend API started successfully
+)
 
 echo [4/4] Starting MyShop Application...
 timeout /t 2 /nobreak >nul
@@ -254,23 +322,38 @@ if not exist "MyShop.Client.exe" (
     exit /b 1
 )
 
-REM Try to start the app
+REM Check for required WinUI dependencies
+if not exist "Microsoft.Windows.SDK.NET.dll" (
+    echo WARNING: Windows SDK .NET assemblies may be missing
+)
+
+REM Try to start the app with visible console for debugging
 echo   ^> Launching MyShop.Client.exe...
-start "" MyShop.Client.exe
+start "" "MyShop.Client.exe"
 
 REM Wait a bit to check if app started
-timeout /t 3 /nobreak >nul
+timeout /t 5 /nobreak >nul
 
 REM Check if app is running
 tasklist /FI "IMAGENAME eq MyShop.Client.exe" 2>nul | find /I "MyShop.Client.exe" >nul
 if errorlevel 1 (
     echo.
-    echo WARNING: MyShop application may not have started correctly.
+    echo ========================================
+    echo   WARNING: Application may not have started
+    echo ========================================
     echo.
-    echo Troubleshooting:
-    echo   1. Check if WinAppSDK Runtime is installed
-    echo   2. Run MyShop.Client.exe directly to see error messages
-    echo   3. Check Windows Event Viewer for crash logs
+    echo Troubleshooting steps:
+    echo   1. Try running MyShop.Client.exe directly from:
+    echo      %APP_DIR%frontend\MyShop.Client.exe
+    echo.
+    echo   2. Check if Windows App SDK Runtime is installed:
+    echo      Download from: https://aka.ms/windowsappsdk/1.5/latest/windowsappsdk-runtime-1.5-x64.exe
+    echo.
+    echo   3. Check Windows Event Viewer for crash logs:
+    echo      Windows Logs ^> Application
+    echo.
+    echo   4. Run diagnostics:
+    echo      %APP_DIR%MyShop-Diagnostics.bat
     echo.
 ) else (
     echo   ^> MyShop application is running
@@ -280,19 +363,22 @@ cd ..
 
 echo.
 echo ========================================
-echo   All services started successfully!
+echo   Services Status:
 echo ========================================
 echo.
-echo Python ML API:  http://localhost:8000
-echo Backend API:    http://localhost:5228
+echo Python ML API:  http://localhost:8000/docs
+echo Backend API:    http://localhost:5228/swagger
 echo.
-echo Press any key to exit (this will close background services)...
+echo Press any key to stop all services and exit...
 pause >nul
 
 REM Cleanup background processes
+echo Stopping services...
 taskkill /F /IM python.exe 2>nul
 taskkill /F /IM MyShop.Server.exe 2>nul
+taskkill /F /IM MyShop.Client.exe 2>nul
 
+echo Done.
 exit
 '@
 
@@ -300,6 +386,119 @@ $launcherPath = Join-Path $publishDir "MyShop-Launcher.bat"
 Set-Content -Path $launcherPath -Value $launcherScript -Encoding ASCII
 
 Write-Host "  ? Launcher created: MyShop-Launcher.bat" -ForegroundColor Green
+
+# Create diagnostics script
+$diagScript = @'
+@echo off
+echo ========================================
+echo   MyShop 2025 - Diagnostics
+echo ========================================
+echo.
+
+set "APP_DIR=%~dp0"
+cd /d "%APP_DIR%"
+
+echo [Checking Python]
+echo -----------------
+if exist "python-embed\python.exe" (
+    echo Python executable: FOUND
+    python-embed\python.exe --version 2>nul
+    if errorlevel 1 (
+        echo ERROR: Python cannot execute
+    )
+) else (
+    echo Python executable: NOT FOUND
+)
+echo.
+
+echo [Checking Python Packages]
+echo -------------------------
+if exist "python-embed\Lib\site-packages\fastapi" (
+    echo FastAPI: INSTALLED
+) else (
+    echo FastAPI: NOT INSTALLED
+)
+if exist "python-embed\Lib\site-packages\uvicorn" (
+    echo Uvicorn: INSTALLED
+) else (
+    echo Uvicorn: NOT INSTALLED
+)
+echo.
+
+echo [Checking Backend]
+echo ------------------
+if exist "backend\MyShop.Server.exe" (
+    echo Backend executable: FOUND
+) else (
+    echo Backend executable: NOT FOUND
+)
+echo.
+
+echo [Checking Frontend]
+echo -------------------
+if exist "frontend\MyShop.Client.exe" (
+    echo Frontend executable: FOUND
+) else (
+    echo Frontend executable: NOT FOUND
+)
+
+if exist "frontend\Microsoft.WindowsAppRuntime.Bootstrap.dll" (
+    echo WinAppSDK Bootstrap: FOUND
+) else (
+    echo WinAppSDK Bootstrap: MISSING - This is required!
+)
+
+if exist "frontend\Microsoft.Windows.SDK.NET.dll" (
+    echo Windows SDK .NET: FOUND
+) else (
+    echo Windows SDK .NET: MISSING
+)
+echo.
+
+echo [Checking Ports]
+echo ----------------
+netstat -an | findstr ":8000" >nul 2>&1
+if errorlevel 1 (
+    echo Port 8000 ^(Python API^): AVAILABLE
+) else (
+    echo Port 8000 ^(Python API^): IN USE
+)
+
+netstat -an | findstr ":5228" >nul 2>&1
+if errorlevel 1 (
+    echo Port 5228 ^(Backend^): AVAILABLE
+) else (
+    echo Port 5228 ^(Backend^): IN USE
+)
+echo.
+
+echo [Testing APIs]
+echo --------------
+curl -s http://localhost:8000/health >nul 2>&1
+if errorlevel 1 (
+    echo Python ML API: NOT RESPONDING
+) else (
+    echo Python ML API: RESPONDING
+)
+
+curl -s http://localhost:5228/health >nul 2>&1
+if errorlevel 1 (
+    echo Backend API: NOT RESPONDING
+) else (
+    echo Backend API: RESPONDING
+)
+echo.
+
+echo ========================================
+echo   Diagnostics Complete
+echo ========================================
+pause
+'@
+
+$diagPath = Join-Path $publishDir "MyShop-Diagnostics.bat"
+Set-Content -Path $diagPath -Value $diagScript -Encoding ASCII
+
+Write-Host "  ? Diagnostics script created" -ForegroundColor Green
 
 # Summary
 Write-Host "`n========================================" -ForegroundColor Green
@@ -309,8 +508,29 @@ Write-Host "========================================`n" -ForegroundColor Green
 Write-Host "Published to: " -NoNewline
 Write-Host "$publishDir" -ForegroundColor Cyan
 
+# List key files
+Write-Host "`nKey files created:" -ForegroundColor Yellow
+$keyFiles = @(
+    "frontend\MyShop.Client.exe",
+    "backend\MyShop.Server.exe",
+    "python-embed\python.exe",
+    "python-ml\api\main.py",
+    "MyShop-Launcher.bat"
+)
+
+foreach ($file in $keyFiles) {
+    $fullPath = Join-Path $publishDir $file
+    if (Test-Path $fullPath) {
+        Write-Host "  ? $file" -ForegroundColor Green
+    } else {
+        Write-Host "  ? $file (MISSING)" -ForegroundColor Red
+    }
+}
+
 Write-Host "`nNext steps:" -ForegroundColor Yellow
-Write-Host "  1. Install Inno Setup: https://jrsoftware.org/isdl.php" -ForegroundColor White
-Write-Host "  2. Open MyShop-Installer.iss with Inno Setup" -ForegroundColor White
-Write-Host "  3. Click 'Build' -> 'Compile' to create installer" -ForegroundColor White
-Write-Host "  4. Find installer at: Output\MyShop2025-Setup.exe`n" -ForegroundColor White
+Write-Host "  1. Test locally: Run 'publish-package\MyShop-Launcher.bat'" -ForegroundColor White
+Write-Host "  2. If frontend fails, install Windows App SDK Runtime:" -ForegroundColor White
+Write-Host "     https://aka.ms/windowsappsdk/1.5/latest/windowsappsdk-runtime-1.5-x64.exe" -ForegroundColor Cyan
+Write-Host "  3. Install Inno Setup: https://jrsoftware.org/isdl.php" -ForegroundColor White
+Write-Host "  4. Run: .\create-installer.ps1" -ForegroundColor White
+Write-Host "  5. Find installer at: Output\MyShop2025-Setup.exe`n" -ForegroundColor White
