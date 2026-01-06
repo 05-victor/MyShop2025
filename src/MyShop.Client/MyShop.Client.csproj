@@ -13,7 +13,13 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<!-- Suppress warnings that are handled at runtime or are stylistic -->
-		<NoWarn>$(NoWarn);WMC1506;MVVMTK0045;CS8602;CS8604;CS8618;CS8601;CS8625;CS8629</NoWarn>
+		<NoWarn>$(NoWarn);WMC1506;MVVMTK0045;CS8602;CS8604;CS8618;CS8601;CS8629</NoWarn>
+		
+		<!-- Self-contained WinUI 3 deployment settings -->
+		<!-- This ensures Windows App SDK is included in the app folder -->
+		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+		<!-- Disable MSIX packaging for standalone exe deployment -->
+		<WindowsPackageType>None</WindowsPackageType>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -124,5 +130,28 @@
 	<ItemGroup>
 	  <Folder Include="Logs\" />
 	</ItemGroup>
+
+	<!-- Copy WinRT activation manifests for self-contained deployment -->
+	<!-- This is required for WinUI 3 apps to work outside of MSIX packaging -->
+	<Target Name="CopyWinRTManifests" AfterTargets="Publish" Condition="'$(WindowsAppSDKSelfContained)' == 'true' Or '$(WindowsPackageType)' == 'None'">
+		<PropertyGroup>
+			<!-- Build manifest path based on configuration, platform, and runtime -->
+			<ManifestSourceDir>$(MSBuildProjectDirectory)\obj\$(Platform)\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\Manifests\</ManifestSourceDir>
+		</PropertyGroup>
+		
+		<Message Text="Looking for WinRT manifest at: $(ManifestSourceDir)app.manifest" Importance="high" />
+		
+		<!-- Copy app.manifest as MyShop.Client.exe.manifest (side-by-side manifest) -->
+		<Copy SourceFiles="$(ManifestSourceDir)app.manifest"
+			  DestinationFiles="$(PublishDir)MyShop.Client.exe.manifest"
+			  SkipUnchangedFiles="true"
+			  Condition="Exists('$(ManifestSourceDir)app.manifest')" />
+		
+		<Message Text="✓ Copied WinRT activation manifest to publish directory" Importance="high" 
+				 Condition="Exists('$(ManifestSourceDir)app.manifest')" />
+		
+		<Warning Text="⚠ WinRT activation manifest not found at $(ManifestSourceDir)app.manifest - The app may not start correctly!" 
+				 Condition="!Exists('$(ManifestSourceDir)app.manifest')" />
+	</Target>
 
 </Project>

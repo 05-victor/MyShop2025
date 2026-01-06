@@ -60,15 +60,27 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
+# CRITICAL: Copy WinRT activation manifests for self-contained WinUI 3 deployment
+# Without this manifest, the app cannot activate WinRT components and will crash with REGDB_E_CLASSNOTREG
+$manifestSourceDir = Join-Path $rootDir "src\MyShop.Client\obj\x64\Release\net10.0-windows10.0.19041.0\win-x64\Manifests"
+$manifestDestFile = Join-Path $frontendDir "MyShop.Client.exe.manifest"
+
+if (Test-Path "$manifestSourceDir\app.manifest") {
+    Copy-Item "$manifestSourceDir\app.manifest" $manifestDestFile -Force
+    Write-Host "  [OK] Copied WinRT activation manifest" -ForegroundColor Green
+} else {
+    Write-Host "  WARNING: WinRT manifest not found - app may not start!" -ForegroundColor Yellow
+}
+
 # Copy appsettings.json to frontend output (since it's embedded, we need external copy for production)
 $appSettingsSource = Join-Path $rootDir "src\MyShop.Client\appsettings.json"
 $appSettingsDest = Join-Path $frontendDir "appsettings.json"
 if (Test-Path $appSettingsSource) {
     Copy-Item $appSettingsSource $appSettingsDest -Force
-    Write-Host "  ? Copied appsettings.json to frontend" -ForegroundColor Green
+    Write-Host "  [OK] Copied appsettings.json to frontend" -ForegroundColor Green
 }
 
-Write-Host "  ? Frontend published to: $frontendDir" -ForegroundColor Green
+Write-Host "  [OK] Frontend published to: $frontendDir" -ForegroundColor Green
 
 # Build ASP.NET Core Backend
 Write-Host "[3/6] Publishing ASP.NET Core Backend..." -ForegroundColor Yellow
