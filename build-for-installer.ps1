@@ -72,6 +72,19 @@ if (Test-Path "$manifestSourceDir\app.manifest") {
     Write-Host "  WARNING: WinRT manifest not found - app may not start!" -ForegroundColor Yellow
 }
 
+# CRITICAL: Copy MyShop.Client.pri (Package Resource Index) - contains compiled XAML resources
+# Without this file, XAML parsing will fail with XamlParseException
+$buildOutputDir = Join-Path $rootDir "src\MyShop.Client\bin\x64\Release\net10.0-windows10.0.19041.0\win-x64"
+$priSourceFile = Join-Path $buildOutputDir "MyShop.Client.pri"
+$priDestFile = Join-Path $frontendDir "MyShop.Client.pri"
+
+if (Test-Path $priSourceFile) {
+    Copy-Item $priSourceFile $priDestFile -Force
+    Write-Host "  [OK] Copied MyShop.Client.pri (XAML resources)" -ForegroundColor Green
+} else {
+    Write-Host "  WARNING: MyShop.Client.pri not found - XAML will fail to load!" -ForegroundColor Yellow
+}
+
 # Copy appsettings.json to frontend output (since it's embedded, we need external copy for production)
 $appSettingsSource = Join-Path $rootDir "src\MyShop.Client\appsettings.json"
 $appSettingsDest = Join-Path $frontendDir "appsettings.json"

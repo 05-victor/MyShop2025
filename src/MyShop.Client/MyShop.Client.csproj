@@ -131,12 +131,13 @@
 	  <Folder Include="Logs\" />
 	</ItemGroup>
 
-	<!-- Copy WinRT activation manifests for self-contained deployment -->
+	<!-- Copy WinRT activation manifests and PRI resources for self-contained deployment -->
 	<!-- This is required for WinUI 3 apps to work outside of MSIX packaging -->
 	<Target Name="CopyWinRTManifests" AfterTargets="Publish" Condition="'$(WindowsAppSDKSelfContained)' == 'true' Or '$(WindowsPackageType)' == 'None'">
 		<PropertyGroup>
 			<!-- Build manifest path based on configuration, platform, and runtime -->
 			<ManifestSourceDir>$(MSBuildProjectDirectory)\obj\$(Platform)\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\Manifests\</ManifestSourceDir>
+			<BuildOutputDir>$(MSBuildProjectDirectory)\bin\$(Platform)\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\</BuildOutputDir>
 		</PropertyGroup>
 		
 		<Message Text="Looking for WinRT manifest at: $(ManifestSourceDir)app.manifest" Importance="high" />
@@ -147,11 +148,23 @@
 			  SkipUnchangedFiles="true"
 			  Condition="Exists('$(ManifestSourceDir)app.manifest')" />
 		
-		<Message Text="✓ Copied WinRT activation manifest to publish directory" Importance="high" 
+		<Message Text="[OK] Copied WinRT activation manifest to publish directory" Importance="high" 
 				 Condition="Exists('$(ManifestSourceDir)app.manifest')" />
 		
-		<Warning Text="⚠ WinRT activation manifest not found at $(ManifestSourceDir)app.manifest - The app may not start correctly!" 
+		<Warning Text="WinRT activation manifest not found - The app may not start correctly!" 
 				 Condition="!Exists('$(ManifestSourceDir)app.manifest')" />
+		
+		<!-- CRITICAL: Copy MyShop.Client.pri (Package Resource Index) containing compiled XAML resources -->
+		<Copy SourceFiles="$(BuildOutputDir)MyShop.Client.pri"
+			  DestinationFiles="$(PublishDir)MyShop.Client.pri"
+			  SkipUnchangedFiles="true"
+			  Condition="Exists('$(BuildOutputDir)MyShop.Client.pri')" />
+		
+		<Message Text="[OK] Copied MyShop.Client.pri (XAML resources) to publish directory" Importance="high" 
+				 Condition="Exists('$(BuildOutputDir)MyShop.Client.pri')" />
+		
+		<Warning Text="MyShop.Client.pri not found - XAML will fail to load!" 
+				 Condition="!Exists('$(BuildOutputDir)MyShop.Client.pri')" />
 	</Target>
 
 </Project>
