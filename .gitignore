@@ -586,3 +586,23 @@ staticwebassets.upToDateCheck.txt
 # Not ignore README.md files in any subdirectory
 !**/README.md
 src/MyShop.Client/appsettings.json
+
+# =========================
+# Installer Build Artifacts
+# =========================
+
+# Published packages for installer
+publish-package/
+
+# Inno Setup outputs
+Output/
+*.exe.sha256
+RELEASE-INFO.txt
+
+# Python embeddable package
+python-embed/
+*.zip
+
+# Installer temporary files
+MyShop-Installer-Output.txt
+setup-icon.ico
