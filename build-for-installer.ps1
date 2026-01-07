@@ -160,6 +160,18 @@ if (Test-Path "$wpExtensionDir\DF dataset") {
     Write-Host "  ? Demand Forecast dataset copied" -ForegroundColor Green
 }
 
+# CRITICAL: Copy trained models for Price Forecasting
+if (Test-Path "$wpExtensionDir\Price Forecasting") {
+    Copy-Item -Path "$wpExtensionDir\Price Forecasting" -Destination "$pythonDir\Price Forecasting" -Recurse -Force
+    Write-Host "  ? Price Forecasting models copied (linear_regressor.pkl)" -ForegroundColor Green
+}
+
+# CRITICAL: Copy trained models and encoders for Demand Forecasting
+if (Test-Path "$wpExtensionDir\Demand Forecasting") {
+    Copy-Item -Path "$wpExtensionDir\Demand Forecasting" -Destination "$pythonDir\Demand Forecasting" -Recurse -Force
+    Write-Host "  ? Demand Forecasting models copied (LightGBM weights + encoders)" -ForegroundColor Green
+}
+
 # Copy model files (pickle files)
 Copy-Item -Path "$wpExtensionDir\*.pkl" -Destination "$pythonDir\" -Force -ErrorAction SilentlyContinue
 Copy-Item -Path "$wpExtensionDir\*.csv" -Destination "$pythonDir\" -Force -ErrorAction SilentlyContinue
