@@ -170,6 +170,23 @@ if (Test-Path "$wpExtensionDir\Price Forecasting") {
 if (Test-Path "$wpExtensionDir\Demand Forecasting") {
     Copy-Item -Path "$wpExtensionDir\Demand Forecasting" -Destination "$pythonDir\Demand Forecasting" -Recurse -Force
     Write-Host "  ? Demand Forecasting models copied (LightGBM weights + encoders)" -ForegroundColor Green
+    
+    # IMPORTANT: Fix line endings for LightGBM model files (must be LF, not CRLF)
+    # LightGBM is very sensitive to line endings in model files
+    $weightDir = "$pythonDir\Demand Forecasting\weight"
+    if (Test-Path $weightDir) {
+        $modelFiles = Get-ChildItem -Path $weightDir -Filter "*.txt"
+        foreach ($file in $modelFiles) {
+            $content = [System.IO.File]::ReadAllText($file.FullName)
+            # Convert CRLF to LF
+            $content = $content -replace "`r`n", "`n"
+            # Also convert any remaining CR
+            $content = $content -replace "`r", "`n"
+            # Write back with LF line endings (no BOM)
+            [System.IO.File]::WriteAllText($file.FullName, $content, [System.Text.UTF8Encoding]::new($false))
+        }
+        Write-Host "  ? Fixed LightGBM model line endings (LF)" -ForegroundColor Green
+    }
 }
 
 # Copy model files (pickle files)
