@@ -31,7 +31,7 @@
             Grid.Column="0"
             Grid.ColumnSpan="1">
             <Grid.Background>
-                <ImageBrush ImageSource="ms-appx:///Assets/login-background.jpg"
+                <ImageBrush ImageSource="https://res.cloudinary.com/derwtva4p/image/upload/v1767784021/file-service/test-background-3.jpg"
                         Stretch="UniformToFill"/>
             </Grid.Background>
 
